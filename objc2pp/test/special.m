@@ -8,6 +8,9 @@
 {
 	/* does not raise an error */
 	int MyClass;
+	/* these are not treated as keywords here */
+	int in, byref;
+	/* but int do, for; fails */
 }
 
 /* static vars, functions, types etc. can be declared at almost any position */
@@ -29,10 +32,11 @@ typedef signed char BOOL;
 @implementation MyClass
 
 /* keywords can be used in selector components */
+/* but can't be used for variable names! e.g. for:(int) byref fails */
 
-- (oneway byref id) for:(int) x do:(int) y
+- (oneway byref id) for:(int) x do:(int) y byref:(int) z
 
-/* methods can have an ; before the body */
+/* methods can have an ; before the body starts (while functions can't) */
 
 ;
 {
@@ -41,6 +45,7 @@ typedef signed char BOOL;
 	id here="string";
 	/* BOOL as well */
 	struct {
+		/* we can use id as a struct component name */
 		int id;
 	} BOOL;
 	BOOL.id=5;

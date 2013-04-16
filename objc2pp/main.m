@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 #if 1
 	NSLog(@"translated:\n%@", n);
 #endif
-	printf("%s", [[n pretty] UTF8String]);	// pretty print
+	printf("%s", [[n prettyObjC] UTF8String]);	// pretty print
 	return 0;
 }
 

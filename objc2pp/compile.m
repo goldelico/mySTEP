@@ -8,6 +8,9 @@
 
 #import "Compile.h"
 
+// here we can simplify the tree before any processing
+// a -> b   ===> (*a).b
+// a[b]		===> *(a+b)
 
 @implementation Node (Compile)
 

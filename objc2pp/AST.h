@@ -23,6 +23,8 @@
 }
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
+
+// type should be ordinary alphanum or we can't define the methods for doSelectorByType:
 + (Node *) node:(NSString *) type, ...;
 + (Node *) node:(NSString *) type children:(NSArray *) children;
 + (Node *) leaf:(NSString *) type;	// nil value

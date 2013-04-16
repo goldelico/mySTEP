@@ -25,11 +25,6 @@
 // expression objects ignore the level and line width and just return a string
 // statement objects indent by level and return (wrapped) lines
 
-- (NSString *) pretty;
-{ // tree node(s) as NSString
-	return [self prettyAtLevel:0];
-}
-
 - (int) level
 {
 	NSString *t=[self type];
@@ -42,49 +37,48 @@
 	return 0;
 }
 
-- (NSString *) prettyAtLevel:(int) level;
-{ // handle indentation level
-#if 0
+- (NSString *) indentedPrettyObjC;
+{ // indent by one (more) tab
+	NSEnumerator *cd=[[[self prettyObjC] componentsSeparatedByString:@"\n"] objectEnumerator];
+	NSString *cdc;
+	NSString *s=@"";
+	while((cdc=[cd nextObject]))
+		if([cdc length] > 0)
+			s=[s stringByAppendingFormat:@"\t%@\n", cdc];	// indent each line of the (sub) component
+	return s;
+}
+
+- (NSString *) prettyObjC;
+{
 	NSString *t=[self type];
-	NSString *s;
+	NSString *s=@"";
 	if([t isEqualToString:@"identifier"])
-		{
-		if([self left] || [self right])
-			{ // type & storage class
-			return [NSString stringWithFormat:@"/* %@ %@ */", [self left], [self right], [self value]];
-			}
 		return [self value];
-		}
 	else if([t isEqualToString:@"constant"])
 		return [self value];
-	if([t isEqualToString:@"{"])
-		s=@"\n", level++;
-	else
-		s=@"";
-	if([self left])
+	if([t isEqualToString:@"block"])
 		{
-		if([[self left] level] < [self level])
-			s=[s stringByAppendingFormat:@"(%@)", [[self left] prettyAtLevel:level]];
-		else
-			s=[s stringByAppendingString:[[self left] prettyAtLevel:level]];
-		}
-	s=[s stringByAppendingString:t];
-	if([self right])
-		{
-		if([[self right] level] <= [self level])
-			s=[s stringByAppendingFormat:@"(%@)", [[self right] prettyAtLevel:level]];	// includes same level for e.g. a+(b+c)
-		else
-			s=[s stringByAppendingString:[[self right] prettyAtLevel:level]];
-		}
-	if([t isEqualToString:@"("])
-		s=[s stringByAppendingString:@")"];
-	else if([t isEqualToString:@"["])
-		s=[s stringByAppendingString:@"]"];
-	else if([t isEqualToString:@"{"])
+		NSEnumerator *e=[self childrenEnumerator];
+		Node *n;
+		// we can have different variants, i.e. if { itself is indented or not
+		s=@"{\n";
+		while((n=[e nextObject]))
+			s=[s stringByAppendingString:[n indentedPrettyObjC]];
 		s=[s stringByAppendingString:@"}\n"];
-	return s;
-#endif
-	return @"";
+		return s;
+		}
+//	if([t isEqualToString:@"forwardclass"])
+//	if([t isEqualToString:@"@interface"])
+	if([t isEqualToString:@"unit"])
+		{
+		NSEnumerator *e=[self childrenEnumerator];
+		Node *n;
+		s=@"";
+		while((n=[e nextObject]))
+			s=[s stringByAppendingString:[n prettyObjC]];
+		return s;
+		}
+	return t;
 }
 
 @end

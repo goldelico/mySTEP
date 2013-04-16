@@ -111,13 +111,6 @@ struct RESERVED
 	@"@private", AT_PRIVATE, 
 	@"@public", AT_PUBLIC,
 		
-	@"inout", INOUT, 
-	@"in", IN, 
-	@"out", OUT, 
-	@"byref", BYREF, 
-	@"bycopy", BYCOPY, 
-	@"oneway", ONEWAY, 
-	
 	/* Obj-C 1.5 extensions */
 	
 	@"@property", AT_PROPERTY, 
@@ -142,13 +135,20 @@ struct RESERVED
 	@"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
 	@"__autoreleasing", AT_AUTORELEASING,
 	@"@[", AT_ARRAY_LITERAL,
-	};
+	},
 	
-	// FIXME: should the scanner really handle the scope stack or is this part of the grammar which can handle separate symbol tables, e.g. for stuct components
-	// depends a little on context depencence: is it allowed to (re)define a struct component with the same name as a typedef? Or global function?
+	specialreserved[]={
+		@"inout", INOUT, 
+		@"in", IN, 
+		@"out", OUT, 
+		@"byref", BYREF, 
+		@"bycopy", BYCOPY, 
+		@"oneway", ONEWAY, 
+	};	
 	
 Node *scopestack;	/* global and local scope stack */
 Node *keywordtab;	/* keyword table */
+Node *specialkeywordtab;	/* special keyword table */
 
 void pushscope(void)
 { // start a new local variable scope
@@ -190,6 +190,11 @@ void scaninit(void)
 #if 1
 	NSLog(@"%@", [keywordtab description]);
 #endif
+	specialkeywordtab=[[Node leaf:@"$keywords$"] retain];
+	for(i=0; i<sizeof(specialreserved)/sizeof(specialreserved[0]); i++)
+		{ // use attributes as keyword symbol table
+			[specialkeywordtab setAttribute:[NSNumber numberWithInt:specialreserved[i].token] forKey:specialreserved[i].word];
+		}
 	scopestack=[[Node leaf:@"stack"] retain];	// use child entries as a stack
 	pushscope();	// create initially empty global symbol table
 #if 0
@@ -244,7 +249,12 @@ void scaninit(void)
 				return [s intValue];	// keyword found - convert into token code
 		}
 	nokeyword=0;
-	// handle special keywords like byref, inout etc.
+	if(objctype)
+		{ // check for special keyword
+			s=[specialkeywordtab attributeForKey:sym];
+			if(s)
+				return [s intValue];	// keyword found - convert into token code
+		}
 	n=[scopestack childrenCount];
 	while(n-- > 0)
 		{ // loop through scope stack from end (most locally) to global - but add to deepest level only
@@ -255,7 +265,7 @@ void scaninit(void)
 		}
 	if(!s)
 		{ // add new identifier (without type) to most local level
-			s=[Node leaf:sym value:sym];
+			s=[Node leaf:@"identifier" value:sym];
 			// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
 			[ [scopestack lastChild] setAttribute:s forKey:sym];
 		}

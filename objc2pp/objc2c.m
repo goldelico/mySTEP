@@ -14,12 +14,11 @@
 - (void) objc2c;	// translate objc 1.0 to standard C, i.e. expand class definitions, method names, method headers etc.
 {
 	// check for objc code
-	// id -> struct objc *
-	// BOOL -> char
 	// @selector -> get_sel("string")
 	// @interface -> struct class { };
 	// @implementation -> struct class *
 	// [... ] -> objc_send(obj, "selector", args)
+	// handle special [super method]
 	// for(var in array) -> block type var; NSEnumerator *_e=[array objectEnumerator]; while((var=[_e nextObject]) body /block
 	// etc.
 }

@@ -12,7 +12,6 @@
 
 /* pretty print the tree */
 
-- (NSString *) pretty;	// tree node(s) as NSString
-- (NSString *) prettyAtLevel:(int) level;	// handle indentation level
+- (NSString *) prettyObjC;	// tree node(s) as (Obj-)C NSString
 
 @end

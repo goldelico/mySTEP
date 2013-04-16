@@ -115,15 +115,17 @@ primary_expression
 	| AT_STRING_LITERAL
 	| AT_SELECTOR '(' selector ')'  { $$=$3; }
 /*	| AT_SELECTOR '(' selector { $$=$3; error("missing )"); } */
-	| AT_ENCODE '(' type_name ')'  { $$=[Node node:@"@encode", $3, nil]; }
-	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=[Node node:@"@protocol", $3, nil]; }
+	| AT_ENCODE '(' type_name ')'  { $$=[Node node:@"encode", $3, nil]; }
+	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=[Node node:@"protocol", $3, nil]; }
 	| '[' expression selector_with_arguments ']'  { $$=[Node node:@"methodcall", $2, $3, nil]; }
 	| AT_ARRAY_LITERAL { $$=[Node node:@"arraylit", nil]; }
+	| error
 	;
 
 postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'  { $$=[Node node:@"index", $1, $3, nil]; }
+// FIXME: check if the postfix_expression is a IDENTIFIER: then make it an implicitly declared extern function()
 	| postfix_expression '(' ')'  { $$=[Node node:@"functioncall", $1, nil]; }
 	| postfix_expression '(' argument_expression_list ')'  { $$=[Node node:@"functioncall", $1, $3, nil]; }
 	| postfix_expression '.' IDENTIFIER  { $$=[Node node:@"structref", $1, $3, nil]; }
@@ -250,7 +252,7 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression{ $$=[Node node:@"expr", $1, nil]; }
+	: assignment_expression{ $$=[Node node:@"list", $1, nil]; }
 	| expression ',' assignment_expression  { $$=$1; [$$ addChild:$2]; }
 	;
 
@@ -259,7 +261,7 @@ constant_expression
 	;
 
 class_with_superclass
-	: IDENTIFIER { $$=[Node node:@"classhierarchy", $1, nil]; declaredName=$1; }
+	: IDENTIFIER { $$=[Node node:@"hierarchy", $1, nil]; declaredName=$1; }
 	| IDENTIFIER ':' IDENTIFIER  { $$=$1; [$$ addChild:$3]; declaredName=$1; }
 	;
 
@@ -353,52 +355,30 @@ class_name_list
 
 objc_declaration
 	: AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
-	| AT_PROTOCOL class_name_declaration AT_END  { $$=[Node node:@"@protocol", $2, nil]; [$2 setAttribute:@"" forKey:@"protocol"]; }
-	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=[Node node:@"@protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
-	| AT_INTERFACE class_name_declaration AT_END  { $$=[Node node:@"@interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_END  { $$=[Node node:@"@interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_END  { $$=[Node node:@"@interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation AT_END  { $$=[Node node:@"@implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_END  { $$=[Node node:@"@implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
-	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_END  { $$=[Node node:@"@implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_END  { $$=[Node node:@"@implementation", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_PROTOCOL class_name_declaration AT_END  { $$=[Node node:@"protocol", $2, nil]; [$2 setAttribute:@"" forKey:@"protocol"]; }
+	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
+	| AT_INTERFACE class_name_declaration AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation AT_END  { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
+	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_END  { $$=[Node node:@"implementation", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	;
 
 declaration
-	: asm_statement
-	| declaration_specifiers ';'  { $$=[Node node:@";", $1, nil]; }
-	| declaration_specifiers { currentDeclarationSpecifier=$1; } init_declarator_list ';'  { $$=$3; }
+	: declaration_specifiers ';'  { $$=[Node node:@"decl", $1, nil]; }	// e.g. struct name {};
+	| declaration_specifiers { currentDeclarationSpecifier=$1; } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
 	| objc_declaration
 	;
 
-/* a type can be a mix of storage class, types and qualifiers (e.g. const) */
-
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
-	| type_specifier_list declaration_specifiers  { $$=[Node node:@" ", $1, $2, nil]; }
-	| storage_class_specifier type_specifier_list declaration_specifiers  { $$=[Node node:@" ", $1, nil]; }
-	| type_specifier_list storage_class_specifier declaration_specifiers  { $$=[Node node:@" ", $1, nil]; }
-	| type_qualifier
-	| type_qualifier declaration_specifiers  { $$=[Node node:@" ", $1, nil]; }
-	;
-
-init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator  { $$=[Node node:@",", $1, $3]; }
-	;
-
-/* for each declarator we should set the attribute
- * @"storage" for the storage_class_specifier (if defined)
- * @"type" for the type (if defined)
- *
- * and we must set it right after decoding the declarator and before the initializer
- * so that we can correctly reference int a=sizeof(a);
- */
-
-init_declarator
-	: declarator { /* process declarator, expecially typedef */ }
-	| declarator '=' initializer  { /* check if it can be initialized */ $$=[Node node:@"=", $1, $3]; }
+	: storage_class_specifier  { $$=[Node node:@"type", $1, nil]; }	// auto, register, typedef...
+	| type_qualifier  { $$=[Node node:@"type", $1, nil]; }	// const, volatile, ...
+	| type_specifier  { $$=[Node node:@"type", $1, nil]; }	// int, long, ...
+	| declaration_specifiers storage_class_specifier  { $$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_qualifier  { $$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_specifier  { $$=$1; [$$ addChild:$2]; }
 	;
 
 storage_class_specifier
@@ -409,13 +389,36 @@ storage_class_specifier
 	| REGISTER { $$=[Node leaf:@"register"]; }
 	;
 
+init_declarator_list
+	: init_declarator
+	| init_declarator_list ',' init_declarator  { $$=[Node node:@"list", $1, $3]; }
+	;
+
+/* for each declarator we should set the attribute
+ * @"type" for the class/type (if defined)
+ *
+ * and we must set it right after parsing the declarator and before the initializer
+ * so that we can correctly reference int a=sizeof(a);
+ */
+
+init_declarator
+	: declarator 
+		{ /* add to symbol table */
+			[declaredName attributeForKey:@"type"];
+			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
+			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
+		}
+	| declarator '='
+		{ /* add to symbol table */
+			[declaredName attributeForKey:@"type"];
+			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
+			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
+		} initializer  { $$=[Node node:@"=", $1, $3]; }
+	;
+
 protocol_list
 	: IDENTIFIER  { declaredName=$1; }
-	| protocol_list ',' IDENTIFIER  { $$=[Node node:@",", $1, $3]; }
-
-type_specifier_list
-	: type_specifier { $$=$1; }
-	| type_specifier type_specifier_list { $$=$1; }
+	| protocol_list ',' IDENTIFIER  { $$=[Node node:@"list", $1, $3]; }
 
 type_specifier
 	: VOID	{ $$=[Node leaf:@"void"]; }
@@ -459,12 +462,12 @@ property_attributes_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"component", $1, $2, nil]; }
-	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"component", $1, $2, $3, nil]; }
-	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"component", $1, $2, $3, nil]; }
+	: specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"struct", $1, $2, nil]; }
+	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"struct", $1, $2, $3, nil]; }
+	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"struct", $1, $2, $3, nil]; }
 /* formally this is only allowed in iVar declaration but not for structs */
-	| AT_SYNTHESIZE ivar_list ';'  { $$=[Node node:@"@synthesize", $2, nil]; }
-	| AT_DEFS '(' IDENTIFIER ')' { $$=[Node node:@"@defs", $2, nil]; }
+	| AT_SYNTHESIZE ivar_list ';'  { $$=[Node node:@"synthesize", $2, nil]; }
+	| AT_DEFS '(' IDENTIFIER ')' { $$=[Node node:@"defs", $2, nil]; }
 	;
 
 protection_qualifier
@@ -474,31 +477,31 @@ protection_qualifier
 	;
 
 property_qualifier
-	: AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"(", $1, $3]; }
+	: AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"property", $1, $3]; }
 	| AT_PROPERTY
 	;
 
 ivar_list
-	: ivar_list IDENTIFIER  { $$=[Node node:@" ", $1, $2]; }
-	| IDENTIFIER
+	: IDENTIFIER { $$=[Node node:@"ivars", $1, nil]; }
+	| ivar_list IDENTIFIER  { $$=$1; [$$ addChild:$2]; }
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list  { $$=[Node node:@" ", $1, $2]; }
-	| type_specifier
-	| type_qualifier specifier_qualifier_list  { $$=[Node node:@" ", $1, $2]; }
-	| type_qualifier
+	: type_qualifier  { $$=[Node node:@"type", $1, nil]; }	// const, volatile, ...
+	| type_specifier  { $$=[Node node:@"type", $1, nil]; }	// int, long, ...
+	| declaration_specifiers type_qualifier  { $$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_specifier  { $$=$1; [$$ addChild:$2]; }
 	;
 
 struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator  { $$=[Node node:@",", $1, $3]; }
+	: struct_declarator  { $$=[Node node:@"components", $1, nil]; }
+	| struct_declarator_list ',' struct_declarator  { $$=$1; [$$ addChild:$2]; }
 	;
 
 struct_declarator
 	: declarator
-	| ':' constant_expression  { $$=[Node node:@":", nil, $2]; }
-	| declarator ':' constant_expression  { $$=[Node node:@":", $1, $3]; }
+	| ':' constant_expression  { $$=[Node node:@"bitfield", $2, nil]; }
+	| declarator ':' constant_expression  { $$=[Node node:@"bitfield", $1, $3, nil]; }
 	;
 
 enum_specifier
@@ -568,8 +571,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER  { $$=[Node node:@",", $1, $3, nil]; }
+	: IDENTIFIER	{ $$=[Node node:@"list", $1, nil]; }
+	| identifier_list ',' IDENTIFIER  { $$=$1; [$$ addChild:$3]; }
 	;
 
 type_name
@@ -597,6 +600,7 @@ direct_abstract_declarator
 
 initializer
 	: assignment_expression
+	| '.' IDENTIFIER '=' assignment_expression  { $$=[Node node:@"componentinit", $2, $4, nil]; }	// struct = { .component=something }
 	| '{' initializer_list '}'  { $$=[Node node:@"init", $2, nil]; }
 	| '{' initializer_list ',' '}'  { $$=[Node node:@"init", $2, nil]; }	/* removes extra , */
 	;
@@ -614,28 +618,29 @@ statement
 	| iteration_statement
 	| jump_statement
 	| asm_statement
-	| AT_TRY compound_statement catch_sequence finally
-	| AT_THROW ';'	// rethrow within @catch block
-	| AT_THROW expression ';'
-	| AT_SYNCHRONIZED '(' expression ')' compound_statement
-	| AT_AUTORELEASEPOOL compound_statement
-	| error ';' 
-	| error '}'
+	| AT_TRY compound_statement catch_sequence finally	{ $$=[Node node:@"try", $2, $3, $4, nil]; }
+	| AT_THROW ';'	{ $$=[Node node:@"throw", nil]; }
+	| AT_THROW expression ';'	{ $$=[Node node:@"throw", $2, nil]; }
+	| AT_SYNCHRONIZED '(' expression ')' compound_statement	{ $$=[Node node:@"synchronized", $2, $4, nil]; }
+	| AT_AUTORELEASEPOOL compound_statement	{ $$=[Node node:@"arp", $2, nil]; }
+	| error ';' 	{ $$=[Node leaf:@"error"]; }
+	| error '}'		{ $$=[Node leaf:@"error"]; }
 	;
 
 catch_sequence
-	: AT_CATCH compound_statement{ $$=[Node node:@"@catch", nil, nil]; }
-	| catch_sequence AT_CATCH compound_statement{ $$=[Node node:@"@catch", nil, nil]; }
+	: AT_CATCH compound_statement	{ $$=[Node node:@"catch", $2, nil]; }
+	| catch_sequence AT_CATCH compound_statement	{ $$=$1, [$$ addChild:$3]; }
 	;
 
 finally
-	: AT_FINALLY compound_statement
+	: AT_FINALLY compound_statement	{ $$=[Node node:@"finally", $2, nil]; }
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement  { $$=[Node node:@":", $1, $3]; }
-	| CASE constant_expression ':' statement  { $$=[Node node:@"case", $2, $4]; }
-	| DEFAULT ':' statement  { $$=[Node node:@"default", nil, $3]; }
+// FIXME: is the label blocked for variable/function names? i.e. treated as some special storage class? If yes, check&tag the identifier
+	: IDENTIFIER ':' statement  { $$=[Node node:@"label", $1, $3, nil]; }
+	| CASE constant_expression ':' statement  { $$=[Node node:@"case", $2, $4, nil]; }
+	| DEFAULT ':' statement  { $$=[Node node:@"default", $3, nil]; }
 	;
 
 compound_statement
@@ -678,7 +683,7 @@ jump_statement
 	| RETURN expression ';' { $$=[Node node:@"return", $2, nil]; }
 	;
 
-function_definition
+function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
 	: declaration_specifiers declarator compound_statement { $$=[Node node:@"function", $1, $2, $3, nil]; }
 	| declarator compound_statement { $$=[Node node:@"function", [Node leaf:@"public"], $1, $2, nil]; }
 	;
@@ -686,13 +691,14 @@ function_definition
 external_declaration
 	: function_definition
 	| declaration
+	| asm_statement
 	;
 
 // allow to notify the delegate for each translation unit and clean up memory from nodes we don't need any more
 
 translation_unit
-	: external_declaration { rootnode=$1; /* notify delegate */ }
-	| translation_unit external_declaration { rootnode=[Node node:@"unit", rootnode, $2, nil]; /* notify delegate */ }
+	: external_declaration { $$=rootnode=$1; /* notify delegate */ }
+	| translation_unit external_declaration { $$=rootnode=[Node node:@"unit", $1, $2, nil]; /* notify delegate */ }
 	;
 
 %%
