@@ -178,12 +178,12 @@ static CLHeading *newHeading;
 
 - (CLHeading *) heading;
 {
-	
+	return nil;
 }
 
 - (CLLocation *) location;
 {
-	
+	return nil;
 }
 
 - (id) init;

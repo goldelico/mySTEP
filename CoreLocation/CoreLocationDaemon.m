@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     NSLog(@"Creating connection for %@...", SERVER_ID);
 #endif
     [theConnection setRootObject:d];
-#if 1	// FIXME: this is a hack because the message port isn't always deleted automatically yet, especially if the daemon is aborted
+	// CHKECME: do we still need this?
+#if 0	// FIXME: this is a hack because the message port isn't always deleted automatically yet, especially if the daemon is aborted
 	unlink("/tmp/.QuantumSTEP/com%.Quantum-STEP%.CoreLocation%.CoreLocationDaemon");
 #endif
     if([theConnection registerName:SERVER_ID] == NO)
@@ -357,7 +358,7 @@ static int startW2SG;
 			didUpdateLocation=YES;
 		}
 	else if([cmd isEqualToString:@"$PSRFTXT"])
-		{ // SIRF
+		{ // SIRF message
 			// ignore
 		}
 	else

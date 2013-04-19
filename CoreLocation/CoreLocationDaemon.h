@@ -14,7 +14,6 @@
 @protocol CoreLocationDaemonProtocol
 - (void) registerManager:(byref CLLocationManager *) m;
 - (void) unregisterManager:(byref CLLocationManager *) m;
-- (oneway void) setDelegate:(in id <CLLocationManagerDelegate>) delegate forClient:(bycopy NSString *) uniqueId;
 @end
 
 @interface CoreLocationDaemon : NSObject <CoreLocationDaemonProtocol>

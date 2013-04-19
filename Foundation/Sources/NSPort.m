@@ -534,8 +534,8 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 					NSLog(@"### closed by peer: %@", self);
 #endif
 					[self invalidate];
-					if(len == 0)
-						return;	// simply closed by peer (EOF notification)
+					if(len == 0 || errno == ECONNRESET)
+						return;	// closed by peer (EOF notification)
 					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: header read error %s - len=%d", strerror(errno), len];
 				}
 #if 0
@@ -855,9 +855,11 @@ static unsigned _portDirectoryLength;
 		}
 	NSMapRemove(__sockets, &_address);	// remove old name from in cache (if known)
 	n=[name mutableCopy];	// make autoreleased mutable copy
+	/* make a file name that can not do much harm */
 	[n replaceOccurrencesOfString:@"%" withString:@"%%" options:0 range:NSMakeRange(0, [name length])];
-	// FIXME: it could be sufficient to check for names beginning with .
-	[n replaceOccurrencesOfString:@"." withString:@"%." options:0 range:NSMakeRange(0, [name length])];	// prevent using .. to try harmful things
+	[n replaceOccurrencesOfString:@"\b" withString:@"%b" options:0 range:NSMakeRange(0, [name length])];
+	[n replaceOccurrencesOfString:@"\n" withString:@"%n" options:0 range:NSMakeRange(0, [name length])];
+	[n replaceOccurrencesOfString:@"." withString:@"%." options:NSAnchoredSearch range:NSMakeRange(0, [name length])];	// prevent using .. to try harmful things
 	[n replaceOccurrencesOfString:@"/" withString:@"%-" options:0 range:NSMakeRange(0, [name length])];	// prevent using / to create or overwrite other files
 #if 1
 	NSLog(@"### setname %@ for %@", n, self);
