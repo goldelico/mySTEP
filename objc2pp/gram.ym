@@ -78,6 +78,8 @@
 %token AT_STRING_LITERAL
 %token AT_ARRAY_LITERAL
 
+%token COMMENT
+
 %start translation_unit
 
 %%

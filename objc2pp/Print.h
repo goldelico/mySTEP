@@ -10,6 +10,10 @@
 
 @interface Node (Print)
 
++ (void) setSpaciness:(float) factor;	// 0...1 - controls if(a+b>c) ... if (a+b > c) ... if (a + b > c)
++ (void) setBracketiness:(float) factor;	// 0..1 - controls if() { ... }\n ... if\n{\n...\n}
++ (void) setMaxLineLength:(unsigned) width;
+
 /* pretty print the tree */
 
 - (NSString *) prettyObjC;	// tree node(s) as (Obj-)C NSString

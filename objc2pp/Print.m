@@ -20,6 +20,27 @@
 
 @implementation Node (Print)
 
+static float spaciness=0.5;
+
++ (void) setSpaciness:(float) factor;	// 0...1 - controls if(a+b>c) ... if (a+b > c) ... if (a + b > c)
+{
+	spaciness=factor;
+}
+
+static float bracketiness=0.5;
+
++ (void) setBracketiness:(float) factor;	// 0..1 - controls if() { ... }\n ... if\n{\n...\n}
+{
+	bracketiness=factor;
+}
+
+static unsigned maxLineLength=80;
+
++ (void) setMaxLineLength:(unsigned) width;
+{
+	maxLineLength=width;
+}
+
 // allow to pass style options and max. line with
 
 // expression objects ignore the level and line width and just return a string
