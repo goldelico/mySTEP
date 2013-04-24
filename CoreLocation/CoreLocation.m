@@ -152,7 +152,7 @@ static CLHeading *newHeading;
 + (BOOL) headingAvailable;
 {
 	// how can we find out?
-	// if we have a compass
+	// if we have a compass...
 	return NO;
 }
 

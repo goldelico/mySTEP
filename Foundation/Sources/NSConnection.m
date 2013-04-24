@@ -575,7 +575,7 @@ static unsigned int _sequence;	// global sequence number
 		server=[NSPortNameServer systemDefaultPortNameServer];
 	if(![server registerPort:_receivePort name:name])
 		{
-		NSLog(@"can't register name %@ with portnameserver", name);
+		NSLog(@"can't register name %@ with portnameserver (may be registered by other process)", name);
 		return NO;
 		}
 	return YES;
@@ -827,8 +827,10 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 	NSLog(@"*** (conn=%p) send request to %@", self, [portCoder _sendPort]);
 #endif
+#if 0
 	NSLog(@"timeIntervalSinceReferenceDate=%f", [NSDate timeIntervalSinceReferenceDate]);
 	NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_requestTimeout);
+#endif
 	[_sendPort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule the send port so that we can receive from it
 	// is the previous delegate restored?
 	[_sendPort setDelegate:_receivePort];	// make us handlePortMessage: (implemented in NSPortCoder)

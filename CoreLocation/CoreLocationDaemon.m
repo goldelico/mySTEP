@@ -18,10 +18,6 @@ int main(int argc, char *argv[])
     NSLog(@"Creating connection for %@...", SERVER_ID);
 #endif
     [theConnection setRootObject:d];
-	// CHKECME: do we still need this?
-#if 0	// FIXME: this is a hack because the message port isn't always deleted automatically yet, especially if the daemon is aborted
-	unlink("/tmp/.QuantumSTEP/com%.Quantum-STEP%.CoreLocation%.CoreLocationDaemon");
-#endif
     if([theConnection registerName:SERVER_ID] == NO)
 		{
 		NSLog(@"Failed to register name %@\n", SERVER_ID);
@@ -69,6 +65,7 @@ static int startW2SG;
 		{ // permanent problem
 			NSError *error=[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDenied userInfo:nil];
 			NSEnumerator *e=[managers objectEnumerator];
+			// FIXME: define a formal prototol (e.g. -delegate) so that we don't need to ask the client for method signatures!
 			CLLocationManager *m;
 			NSLog(@"GPS receiver not working");
 			while((m=[e nextObject]))
@@ -145,7 +142,7 @@ static int startW2SG;
 	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
 	[managers removeObjectIdenticalTo:m];
 	if(managers && [managers count] == 0)
-		{ // was last consumer; stop GPS receiveer
+		{ // was last consumer; stop GPS receiver and daemon
 			[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification
@@ -173,6 +170,7 @@ static int startW2SG;
 			// power off antenna
 			NSLog(@"power off GPS");
 			system("echo 0 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 0 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
+			exit(0);	// last client has unregistered
 		}
 }
 

@@ -468,6 +468,9 @@ DEBIAN_HOMEPAGE := www.quantum-step.com
 endif
 endif
 
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION := built by mySTEP
+endif
 ifeq ($(DEBIAN_MAINTAINER),)
 DEBIAN_MAINTAINER := info <info@goldelico.com>
 endif

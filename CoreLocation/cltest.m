@@ -9,12 +9,12 @@
 
 - (void) locationManager:(CLLocationManager *) mngr didEnterRegion:(CLRegion *) region;
 {
-	
+	NSLog(@"didEnterRegion: %@", region);
 }
 
 - (void) locationManager:(CLLocationManager *) mngr didExitRegion:(CLRegion *) region;
 {
-	
+	NSLog(@"didExitRegion: %@", region);
 }
 
 - (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 		NSLog(@"needs allocation of manager");
 		exit(1);
 		}
+#if 0
 	{
 	NSPort *p;
 	NSLog(@"first NSMessagePort: %@", [NSMessagePort port]);
@@ -91,17 +92,17 @@ int main(int argc, char *argv[])
 																 protocol:[p protocol]
 																  address:[p address]]);
 	}
- 
-	NSLog(@"cltest started - mgr=%@", mgr);
+#endif 
+	NSLog(@"cltest: started - mgr=%@", mgr);
 	if([mgr respondsToSelector:@selector(setPurpose:)])
-		[mgr setPurpose:@"cltest"];
+		[mgr setPurpose:@"cltest - CoreLocation Test"];
 	[mgr setDelegate:[[Delegate new] autorelease]];
 	[mgr startUpdatingLocation];
-	NSLog(@"add unused port!");
+	NSLog(@"cltest: add unused port to keep runloop active!");
 	[[NSRunLoop mainRunLoop] addPort:[NSPort port] forMode:NSDefaultRunLoopMode];	// we must at least have one entry in the loop or -run will fail immediately
-	NSLog(@"run loop");
+	NSLog(@"cltest: run loop");
 	[[NSRunLoop mainRunLoop] run];
-	NSLog(@"runloop did end!");
+	NSLog(@"cltest: runloop did end!");
 	[arp release];
 	return 0;
 }

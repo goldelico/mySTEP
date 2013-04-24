@@ -473,6 +473,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 					return;
 					}
 #endif
+					return;	// should have been bound now and wait for incoming packets
 				}
 #if 1
 			NSLog(@"### accept salen=%d %@", saddrlen, self);
@@ -748,13 +749,16 @@ static unsigned _portDirectoryLength;
 	mkdir(_portDirectoryPath, 0770);	// create socket temp directory - ignore errors (e.g. if it already exists)
 }
 
+// FIXME: this is not consistent/transparent with initWith... address:
+// there is a discrepancy of 2 bytes in the address
+
 - (NSData *) address;
 { // not officilly defined by the @interface but we need it to encode the socket; returns the basename only
 	NSData *d;
 	// FIXME: the first two bytes should be the address family (but ignored when matching ports in the cache)
 	if(SUN_PATH[0] == 0)
 		{ // abstract
-			d=[NSData dataWithBytesNoCopy:SUN_PATH length:_address.addrlen freeWhenDone:NO];	// should include leading 0-byte
+			d=[NSData dataWithBytesNoCopy:SUN_PATH length:MAX(_address.addrlen, 2)-2 freeWhenDone:NO];	// should include leading but not trailing 0-byte
 		}
 	else
 		{
@@ -768,8 +772,8 @@ static unsigned _portDirectoryLength;
 - (NSString *) description;
 {
 	if(SUN_PATH[0] == 0)
-		return [NSString stringWithFormat:@"%@ uuid=%.*s %@", [super description], _address.addrlen-1, SUN_PATH+1, [self address]];
-	return [NSString stringWithFormat:@"%@ path=%.*s %@", [super description], _address.addrlen-2, SUN_PATH, [self address]];
+		return [NSString stringWithFormat:@"%@ uuid=%.*s %@", [super description], MAX(_address.addrlen, 1)-1, SUN_PATH+1, [self address]];
+	return [NSString stringWithFormat:@"%@ path=%.*s %@", [super description], MAX(_address.addrlen, 2)-2, SUN_PATH, [self address]];
 }
 
 - (id) init
@@ -814,7 +818,7 @@ static unsigned _portDirectoryLength;
 			_address.addrlen=((size_t) (((struct sockaddr_un *) 0)->sun_path)) + MIN([address length], sizeof(SUN_PATH));
 				// FIXME: just fill bytes after address?
 			memset(SUN_PATH, 0, sizeof(SUN_PATH));			// clear completely before using
-			memcpy(SUN_PATH, ((char *)[address bytes]), _address.addrlen);	// copy incl. leading 0x00 but not more than sizeof(SUN_PATH)
+			memcpy(SUN_PATH, ((char *)[address bytes]), _address.addrlen-2);	// copy incl. leading 0x00 but not more than sizeof(SUN_PATH)
 			}
 		else if([address length] >= 2)
 			{ // file system name space - prefix with directory path
