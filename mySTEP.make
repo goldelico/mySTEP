@@ -662,7 +662,7 @@ ifneq ($(strip $(HEADERSRC)),)
 	# included header files $(HEADERSRC)
 	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
 endif
-	- (mkdir -p "$(EXEC)/Headers" && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
+	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
 endif
 
 "$(EXEC)":: headers
