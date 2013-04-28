@@ -14,8 +14,9 @@ typedef enum _UIDeviceBatteryState
 {
 	UIDeviceBatteryStateUnknown,
 	UIDeviceBatteryStateUnplugged,
-	UIDeviceBatteryStateCharging,
+	UIDeviceBatteryStateCharging,	// on USB charger
 	UIDeviceBatteryStateFull,
+	UIDeviceBatteryStateACCharging,	// on AC charger
 } UIDeviceBatteryState;
 
 typedef enum _UIDeviceOrientation
@@ -29,7 +30,7 @@ typedef enum _UIDeviceOrientation
 	UIDeviceOrientationFaceDown
 } UIDeviceOrientation;
 
-/* not implemented - QuantumSTEP is uniform
+/* not implemented - QuantumSTEP is uniform over all devices
 typedef enum _UIUserInterfaceIdiom
  {
 	UIUserInterfaceIdiomPhone,

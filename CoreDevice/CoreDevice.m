@@ -186,7 +186,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 					NSLog(@"bq27000 status %@", status);
 #endif
 					if([status hasPrefix:@"Charging"])
-						return UIDeviceBatteryStateCharging;
+						{
+						status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_usb/status"];
+						if([status hasPrefix:@"Charging"])
+							return UIDeviceBatteryStateCharging;
+						status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_ac/status"];
+						if([status hasPrefix:@"Charging"])
+							return UIDeviceBatteryStateACCharging;
+						return UIDeviceBatteryStateUnknown;
+						}
 					if([status hasPrefix:@"Full"])
 						return UIDeviceBatteryStateFull;
 					if([status hasPrefix:@"Discharging"])
@@ -208,6 +216,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		return UIDeviceBatteryStateFull;
 	if([status hasPrefix:@"Charging"])
 		return UIDeviceBatteryStateCharging;
+	status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_ac/status"];
+	if([status hasPrefix:@"Charging"])
+		return UIDeviceBatteryStateACCharging;
 	return UIDeviceBatteryStateUnplugged;	// assume discharging
 }
 
