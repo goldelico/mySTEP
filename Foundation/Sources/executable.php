@@ -13,6 +13,18 @@ class NSObject
 		{
 		// default error handling
 		}
+	
+	public function __call($name, $arguments)
+    		{
+		// convert into forwardInvocation
+        	// Note: value of $name is case sensitive.
+        	echo "Calling object method '$name' "
+             		. implode(', ', $arguments). "\n";
+    		}
+
+	public function __construct()
+		{ // empty constructor
+		}
 	}
 
 class NSInvocation extends NSObject
@@ -20,14 +32,22 @@ class NSInvocation extends NSObject
 	public $target;
 	public $selector;
 	public $args=array();
+
 	public function invoke()
 		{
-		return $target->$selector($args);
+		return $this->$target->$selector($args);
 		}
+
 	public function invokeWithTarget($target)
 		{
 		$this->target=$target;
 		return $this->invoke();
+		}
+
+	public function __constructor($selector)
+		{
+		parent::__constructor();
+		$this->$selector=$selector;
 		}
 	}
 
@@ -77,7 +97,7 @@ class NSPropertyListSerialization extends NSObject
 					$line=trim($thisline);
 					if(substr($line, 0, -6) == "</key>" || substr($line, 0, -9) == "</string>")
 						{
-						$ret=.html_entity_decode(substr(substr($line, 5), 0, -6));	// append last fragment
+						$ret.=html_entity_decode(substr(substr($line, 5), 0, -6));	// append last fragment
 						break;
 						}
 					$ret.=$thisline;
@@ -143,8 +163,9 @@ class NSBundle extends NSObject
 	public static $mainBundle;
 	public $infoDictionary;
 	public $loaded=false;
-	public function NSBundle($path)
+	public function __contructor($path)
 		{
+		parent::__constructor();
 		$this->path=$path;
 		}
 	public static function bundleWithPath($path) { return new NSBundle($path); }
@@ -261,8 +282,9 @@ class NSUserDefaults extends NSObject
 	{ // force re-read
 		self::$standardUserDefaults->user="";
 	}
-	public function NSUserDefaults()
+	public function __constructor()
 	{
+		parent::__constructor();
 		if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
 			{
 			$this->user=$_COOKIE['login'];
