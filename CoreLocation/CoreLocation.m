@@ -350,12 +350,13 @@ static CLHeading *newHeading;
 
 - (void) startUpdatingLocation;
 {
+	// FIXME: first call after being stopped should scan for a first location update
 	NSLog(@"_server=%@", _server);
 	NSLog(@"manager=%@", self);
 	NS_DURING
 		[_server registerManager:self];
 	NS_HANDLER
-		[localException raise];
+		NSLog(@"could not startUpdatingLocation");
 	NS_ENDHANDLER
 }
 
@@ -379,71 +380,77 @@ static CLHeading *newHeading;
 	NS_DURING
 		[_server unregisterManager:self];
 	NS_HANDLER
-		[localException raise];
+		NSLog(@"could not stopUpdatingLocation");
 	NS_ENDHANDLER
 }
 
 @end
 
-#if OLD
-
-static int numReliableSatellites;
-static int numVisibleSatellites;
-static NSDate *satelliteTime;
-static NSMutableArray *satelliteInfo;
-
 @implementation CLLocationManager (Extensions)
 
 - (int) numberOfReceivedSatellites;
 { // count all satellites with SNR > 0
-	NSEnumerator *e=[satelliteInfo objectEnumerator];
-	NSDictionary *s;
-	int numReceivedSatellites=0;
-	while((s=[e nextObject]))
-		if([[s objectForKey:@"SNR"] intValue] > 0)
-			numReceivedSatellites++;
-	return numReceivedSatellites;
+	NS_DURING	// protect against communication problems
+	 NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReceivedSatellites], int);
+	NS_HANDLER
+		NSLog(@"Exception during numberOfReceivedSatellites: %@", localException);
+	NS_ENDHANDLER
+	return 0;
 }
 
 - (int) numberOfReliableSatellites;
 {
-	return numReliableSatellites;	
+	NS_DURING	// protect against communication problems
+	NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReliableSatellites], int);
+	NS_HANDLER
+	NSLog(@"Exception during numberOfReliableSatellites: %@", localException);
+	NS_ENDHANDLER
+	return 0;
 }
 
 - (int) numberOfVisibleSatellites;
 {
-	return numVisibleSatellites;
+	NS_DURING	// protect against communication problems
+	NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfVisibleSatellites], int);
+	NS_HANDLER
+	NSLog(@"Exception during numberOfVisibleSatellites: %@", localException);
+	NS_ENDHANDLER
+	return 0;
 }
 
 - (CLLocationSource) source;
 {
-	// this implementation is very GTA04 specific
-	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
-		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
-	return CLLocationSourceGPS;
+	NS_DURING	// protect against communication problems
+	NS_VALUERETURN([(CoreLocationDaemon *) _server source], CLLocationSource);
+	NS_HANDLER
+	NSLog(@"Exception during source: %@", localException);
+	NS_ENDHANDLER
+	return CLLocationSourceUnknown;
 }
 
 - (NSDate *) satelliteTime
 {
-	return satelliteTime;
+	NS_DURING	// protect against communication problems
+	NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteTime], NSDate *);
+	NS_HANDLER
+	NSLog(@"Exception during satelliteTime: %@", localException);
+	NS_ENDHANDLER
+	return nil;
 }
 
 - (NSArray *) satelliteInfo
 {
-	return satelliteInfo;
-}
-
-- (void) WLANseen:(NSString *) bssid;
-{
-	// use if no GPS is available
-}
-
-- (void) WWANseen:(NSString *) cellid;
-{
-	// use if no GPS is available
+	NS_DURING	// protect against communication problems
+	NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteInfo], NSArray *);
+	NS_HANDLER
+	NSLog(@"Exception during satelliteInfo: %@", localException);
+	NS_ENDHANDLER
+	return nil;
 }
 
 @end
+
+#if OLD
 
 // we should  integrate sensor data from GPS, barometric Altimeter, Gyroscope, Accelerometer, and Compass 
 // though a Kalman-Bucy filter

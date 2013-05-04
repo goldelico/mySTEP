@@ -366,7 +366,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
 			NSString *apn=@"web.vodafone.de";	// lookup in some database? Or let the user choose by a prefPane?
 			NSString *protocol=@"IP";	// either "IP" or "PPP"
-			[mm runATCommand:@"AT_OPSYS=5,3"];	// register to any network in any mode
+			// FXIME: make configurable if user wants to use 3G
+			[mm runATCommand:@"AT_OPSYS=3,2"];	// register to any network in any mode
 			[mm runATCommand:@"AT_OWANCALLUNSOL=1"];	// receive unsolicited _OWANCALL messages
 			[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
 			// secure: 0=no, 1=pap, 2=chap

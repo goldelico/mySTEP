@@ -8,6 +8,20 @@
 
 #import "CoreLocationDaemon.h"
 
+// defined as formal protocol on server side to avoid additional communication with client
+
+@protocol CoreLocationClientProtocol
+- (id <CLLocationManagerDelegate>) delegate;
+- (CLLocationAccuracy) desiredAccuracy;
+- (CLLocationDistance) distanceFilter;
+- (CLHeading *) heading;
+- (CLLocationDegrees) headingFilter;
+- (CLDeviceOrientation) headingOrientation;
+- (CLLocation *) location;
+- (CLLocationDistance) maximumRegionMonitoringDistance;
+- (NSSet *) monitoredRegions;
+- (NSString *) purpose;
+@end
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +80,7 @@ static int startW2SG;
 			NSError *error=[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDenied userInfo:nil];
 			NSEnumerator *e=[managers objectEnumerator];
 			// FIXME: define a formal prototol (e.g. -delegate) so that we don't need to ask the client for method signatures!
-			CLLocationManager *m;
+			CLLocationManager <CoreLocationClientProtocol> *m;
 			NSLog(@"GPS receiver not working");
 			while((m=[e nextObject]))
 				{ // notify all CLLocationManager instances
@@ -105,7 +119,7 @@ static int startW2SG;
 				{
 				NSLog(@"was not able to open device file %@", dev);
 				// create an error object!
-				[[m delegate] locationManager:m didFailWithError:nil];
+				[[(CLLocationManager <CoreLocationClientProtocol> *) m delegate] locationManager:m didFailWithError:nil];
 				return;
 				}
 			managers=[[NSMutableArray arrayWithObject:m] retain];
@@ -182,7 +196,7 @@ static int startW2SG;
 	BOOL didUpdateLocation=NO;
 	BOOL didUpdateHeading=NO;
 	NSEnumerator *e;
-	CLLocationManager *m;
+	CLLocationManager <CoreLocationClientProtocol> *m;
 #if 1
 	NSLog(@"_processNMEA183: %@", line);
 #endif
@@ -438,6 +452,45 @@ static int startW2SG;
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 	[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
+}
+
+- (int) numberOfReceivedSatellites;
+{ // count all satellites with SNR > 0
+	NSEnumerator *e=[satelliteInfo objectEnumerator];
+	NSDictionary *s;
+	int numReceivedSatellites=0;
+	while((s=[e nextObject]))
+		if([[s objectForKey:@"SNR"] intValue] > 0)
+			numReceivedSatellites++;
+	return numReceivedSatellites;
+}
+
+- (int) numberOfReliableSatellites;
+{
+	return numReliableSatellites;	
+}
+
+- (int) numberOfVisibleSatellites;
+{
+	return numVisibleSatellites;
+}
+
+- (CLLocationSource) source;
+{
+	// this implementation is very GTA04 specific
+	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
+		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
+	return CLLocationSourceGPS;
+}
+
+- (NSDate *) satelliteTime
+{
+	return satelliteTime;
+}
+
+- (NSArray *) satelliteInfo
+{
+	return satelliteInfo;
 }
 
 @end

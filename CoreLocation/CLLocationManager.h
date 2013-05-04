@@ -120,7 +120,5 @@ typedef enum _CLLocationSource
 - (int) numberOfVisibleSatellites;
 - (bycopy NSDate *) satelliteTime;
 - (bycopy NSArray *) satelliteInfo;	// NSDictionaries with strings
-- (void) WLANseen:(NSString *) bssid;
-- (void) WWANseen:(NSString *) cellid;
 
 @end
