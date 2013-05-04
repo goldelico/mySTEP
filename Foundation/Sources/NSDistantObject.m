@@ -230,6 +230,7 @@ static Class _doClass;
 		return nil;
 		}
 	_connection=aConnection;
+	[_connection retain];
 	_local=localObject;
 	proxy=NSHashGet(distantObjects, self);	// returns nil or any object that -isEqual:
 	if(proxy)
@@ -382,15 +383,17 @@ static Class _doClass;
 		{
 		NSMapRemove(distantObjectsByRef, (void *) _remote);
 		[_local release];
+		// CHECKME: _connection is not retained, i.e. may be already invalidated!
 		[_connection _decrementLocalProxyCount];
+		[_connection release];
 		}
 	NSHashRemove(distantObjects, self);
 	[_selectorCache release];
-	return;
-	[super dealloc];
 #if 1
 	NSLog(@"NSDistantObject %p dealloc done", self);
 #endif
+	return;
+	[super dealloc];	// make compiler happy but don't call -[NSProxy dealloc]
 }
 
 - (void) setProtocolForProxy:(Protocol*)aProtocol;
@@ -429,6 +432,7 @@ static Class _doClass;
 			NSStringFromClass([self class]), self,
 			_local,	_remote,
 			_protocol?[_protocol name]:"<NULL>",
+			// FIXME: connection is not retained!
 			_connection];
 }
 

@@ -82,10 +82,12 @@
 {
 	id target=[self target];
 	SEL sel=[self selector];
+#if 0	// recursive NSLog!
 	NSLog(@"target=%p", target);
 	NSLog(@"target=%@", target);
 	NSLog(@"sel=%p", sel);
 	NSLog(@"sel=%@", NSStringFromSelector(sel));
+#endif
 	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@ sig=%@ numargs=%u",
 			NSStringFromClass(isa),
 			self,

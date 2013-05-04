@@ -547,7 +547,8 @@ void NSLogv(NSString *format, va_list args)
 		const char *msg;
 		if(__doingNSLog)
 			{ // any of the NSString, NSCalendarDate, NSProcessInfo methods may have a debugging call to NSLog()
-				fprintf(stderr, "recursive NSLog\n");
+				// may also occur if -description calls NSLog
+				fprintf(stderr, "recursive NSLog(\"%s\", ...)\n", [format UTF8String]);
 				return;
 			}
 		pool = [NSAutoreleasePool new];

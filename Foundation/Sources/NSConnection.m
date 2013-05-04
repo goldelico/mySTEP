@@ -233,6 +233,14 @@ static unsigned int _sequence;	// global sequence number
 	return [self serviceConnectionWithName:name rootObject:root usingNameServer:[NSPortNameServer systemDefaultPortNameServer]];
 }
 
+/*
+ * CHECKME:
+ * basically we receive responses that we did send on our send-port (!)
+ * and if the peer sends us a request, we will also receive it on our send-port
+ * the receive-port is only for new connections
+ * so it could be sufficient to schedule the send-port (!) only - which is the same as the receive-port if we are vended as a connection endpoint
+ */
+
 - (void) addRequestMode:(NSString *) mode;
 { // schedule additional mode in all known runloops
 #if 0
@@ -242,7 +250,11 @@ static unsigned int _sequence;	// global sequence number
 	NSRunLoop *runLoop;
 	[_modes addObject:mode];
 	while((runLoop=[e nextObject]))
+		{
 		[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
+		if(_receivePort != _sendPort)
+			[_sendPort addConnection:self toRunLoop:runLoop forMode:mode];
+		}
 }
 
 - (void) addPortsToRunLoop:(NSRunLoop *) runLoop
@@ -252,6 +264,12 @@ static unsigned int _sequence;	// global sequence number
 	[_receivePort addConnection:self toRunLoop:runLoop forMode:NSConnectionReplyMode];	
 	while((mode=[e nextObject]))
 		[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];	
+	if(_receivePort != _sendPort)
+		{
+		[_sendPort addConnection:self toRunLoop:runLoop forMode:NSConnectionReplyMode];	
+		while((mode=[e nextObject]))
+			[_sendPort addConnection:self toRunLoop:runLoop forMode:mode];	
+		}
 }
 
 - (void) addRunLoop:(NSRunLoop *) runLoop;
@@ -265,7 +283,11 @@ static unsigned int _sequence;	// global sequence number
 			NSString *mode;
 			[_runLoops addObject:runLoop];
 			while((mode=[e nextObject]))
+				{
 				[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
+				if(_receivePort != _sendPort)
+					[_sendPort addConnection:self toRunLoop:runLoop forMode:mode];
+				}
 		}
 }
 
@@ -289,7 +311,8 @@ static unsigned int _sequence;	// global sequence number
  *   receivePort of the same class
  *
  * in summary: send/receive does not refer to the transmission direction of
- *   the underlaying NSPortMessages but for distributed object messages
+ *   the underlaying NSPortMessages but for distributed object messages and
+ *   NSConnection setup
  */
 
 - (id) initWithReceivePort:(NSPort *)receivePort
@@ -586,7 +609,11 @@ static unsigned int _sequence;	// global sequence number
 	NSEnumerator *e=[_runLoops objectEnumerator];
 	NSRunLoop *runLoop;
 	while((runLoop=[e nextObject]))
+		{
 		[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
+		if(_receivePort != _sendPort)
+			[_sendPort removeConnection:self fromRunLoop:runLoop forMode:mode];
+		}
 	[_modes removeObject:mode];
 }
 
@@ -597,6 +624,12 @@ static unsigned int _sequence;	// global sequence number
 	[_receivePort removeConnection:self fromRunLoop:runLoop forMode:NSConnectionReplyMode];	
 	while((mode=[e nextObject]))
 		[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];	
+	if(_receivePort != _sendPort)
+		{
+		[_sendPort removeConnection:self fromRunLoop:runLoop forMode:NSConnectionReplyMode];	
+		while((mode=[e nextObject]))
+			[_sendPort removeConnection:self fromRunLoop:runLoop forMode:mode];	
+		}
 }
 
 - (void) removeRunLoop:(NSRunLoop *)runLoop;
@@ -606,7 +639,11 @@ static unsigned int _sequence;	// global sequence number
 			NSEnumerator *e=[_modes objectEnumerator];
 			NSString *mode;
 			while((mode=[e nextObject]))
+				{
 				[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
+				if(_receivePort != _sendPort)
+					[_sendPort removeConnection:self fromRunLoop:runLoop forMode:mode];
+				}
 			[_runLoops removeObject:runLoop];
 		}
 }
