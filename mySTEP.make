@@ -198,7 +198,7 @@ endif
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=armel i386 mipsel
+DEBIAN_ARCHITECTURES=armel armhf i386 mipsel
 endif
 
 build:
@@ -276,7 +276,7 @@ ifeq ($(ARCHITECTURE),arm-linux-gnueabihf)
 OPTIMIZE := 3
 # we could try -mfloat-abi=hardfp
 # see https://wiki.linaro.org/Linaro-arm-hardfloat
-CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=hardfp
+CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
 CFLAGS += -fsigned-char
