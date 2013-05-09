@@ -3,7 +3,7 @@
 export DEPENDS="libtiff4,"
 export DEPENDS+=" libgif4,"
 export DEPENDS+=" libpng3,"
-export DEPENDS+=" libjpeg7,"
+export DEPENDS+=" libjpeg8,"
 export DEPENDS+=" zlib1g,"
 export DEPENDS+=" libfreetype6,"
 export DEPENDS+=" libxrender1,"

@@ -1558,7 +1558,6 @@
 		EEDB37840ABD584F00C31F1E /* Lion.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Lion.jpg; sourceTree = "<group>"; };
 		EEDB37850ABD584F00C31F1E /* myTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = myTest.icns; sourceTree = "<group>"; };
 		EEDB378F0ABD592900C31F1E /* rss.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = rss.gif; sourceTree = "<group>"; };
-		EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEE6DD900DBA8D8300C71123 /* renderproto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderproto.h; path = /usr/X11/include/X11/extensions/renderproto.h; sourceTree = "<absolute>"; };
 		EEE6DD910DBA8E2600C71123 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render.h; path = /usr/X11/include/X11/extensions/render.h; sourceTree = "<absolute>"; };
 		EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "1bK Copy.png"; sourceTree = "<group>"; };
@@ -1675,7 +1674,6 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
-				EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */,
 				EEFC896816D4DA5E005171C9 /* AppKitNibTest.qcodeproj */,
