@@ -396,7 +396,8 @@ LIBRARIES := \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
-		$(LIBS)
+		$(LIBS) \
+		-lobjc
 
 .SUFFIXES : .o .c .m
 
@@ -656,6 +657,7 @@ clean:
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
+	$(NM) -u "$(BINARY)"
 	# compiled.
 
 # link headers of framework

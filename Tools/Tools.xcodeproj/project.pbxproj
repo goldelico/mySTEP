@@ -173,7 +173,6 @@
 		EEC12B120E3E6024007E6996 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
 		EECF94870F529F6E003AF020 /* ibtool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ibtool.m; sourceTree = "<group>"; };
 		EECF94940F529F75003AF020 /* ibtool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ibtool; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -289,7 +288,6 @@
 			children = (
 				EEC12A310E3E5E5F007E6996 /* mySTEP.make */,
 				EE62394117398385005CEDC1 /* Tools.qcodeproj */,
-				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE144F550A14E77E00C93F94 /* Sources */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
