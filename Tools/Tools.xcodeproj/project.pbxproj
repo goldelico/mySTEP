@@ -150,6 +150,17 @@
 		EE2BCBBC114790C1006D06ED /* PlistBuddy */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlistBuddy; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE3254080A531D5D0057B3B1 /* scselect.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scselect.m; sourceTree = "<group>"; };
 		EE3254190A53225D0057B3B1 /* scselect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scselect; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE62394117398385005CEDC1 /* Tools.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = Tools.qcodeproj; sourceTree = "<group>"; };
+		EE629B5F173A33AF005CEDC1 /* abook.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = abook.qcodeproj; sourceTree = "<group>"; };
+		EE629B60173A33AF005CEDC1 /* defaults.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = defaults.qcodeproj; sourceTree = "<group>"; };
+		EE629B61173A33AF005CEDC1 /* ibtool.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ibtool.qcodeproj; sourceTree = "<group>"; };
+		EE629B62173A33AF005CEDC1 /* mdo.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mdo.qcodeproj; sourceTree = "<group>"; };
+		EE629B63173A33AF005CEDC1 /* PlistBuddy.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PlistBuddy.qcodeproj; sourceTree = "<group>"; };
+		EE629B64173A33AF005CEDC1 /* plutil.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plutil.qcodeproj; sourceTree = "<group>"; };
+		EE629B65173A33AF005CEDC1 /* say.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = say.qcodeproj; sourceTree = "<group>"; };
+		EE629B66173A33AF005CEDC1 /* scselect.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = scselect.qcodeproj; sourceTree = "<group>"; };
+		EE629B67173A33AF005CEDC1 /* scutil.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = scutil.qcodeproj; sourceTree = "<group>"; };
+		EE629B76173A33D2005CEDC1 /* open.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = open.qcodeproj; sourceTree = "<group>"; };
 		EE93E77D0A239FE9008A5E48 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93E7820A239FFC008A5E48 /* plutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = plutil.m; sourceTree = "<group>"; };
 		EE97888C0AA70E4D007ECDE1 /* say.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = say.m; sourceTree = "<group>"; };
@@ -277,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				EEC12A310E3E5E5F007E6996 /* mySTEP.make */,
+				EE62394117398385005CEDC1 /* Tools.qcodeproj */,
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE144F550A14E77E00C93F94 /* Sources */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
@@ -289,15 +301,25 @@
 			isa = PBXGroup;
 			children = (
 				EE196B7F0D44E8990074ED1A /* abook.m */,
+				EE629B5F173A33AF005CEDC1 /* abook.qcodeproj */,
 				EEA32EC409537D0C001244CF /* defaults.m */,
+				EE629B60173A33AF005CEDC1 /* defaults.qcodeproj */,
 				EECF94870F529F6E003AF020 /* ibtool.m */,
+				EE629B61173A33AF005CEDC1 /* ibtool.qcodeproj */,
 				EEACC94E0FFFE03C007DA855 /* mdo.m */,
+				EE629B62173A33AF005CEDC1 /* mdo.qcodeproj */,
 				EE144F5E0A14E79300C93F94 /* open.m */,
+				EE629B76173A33D2005CEDC1 /* open.qcodeproj */,
 				EE2BCBAE114790B7006D06ED /* PlistBuddy.m */,
+				EE629B63173A33AF005CEDC1 /* PlistBuddy.qcodeproj */,
 				EE93E7820A239FFC008A5E48 /* plutil.m */,
+				EE629B64173A33AF005CEDC1 /* plutil.qcodeproj */,
 				EE97888C0AA70E4D007ECDE1 /* say.m */,
+				EE629B65173A33AF005CEDC1 /* say.qcodeproj */,
 				EE3254080A531D5D0057B3B1 /* scselect.m */,
+				EE629B66173A33AF005CEDC1 /* scselect.qcodeproj */,
 				EE291C6C0AD7BD6F004A1CA6 /* scutil.m */,
+				EE629B67173A33AF005CEDC1 /* scutil.qcodeproj */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -550,7 +572,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# project settings\nexport SOURCES=   \t\t\t  \t # no sources\nexport LIBS=  \t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport FILES=\"\"\t\t\t\t\t# additional files to include in package (relative to project working directory)\nexport DATA=\"\"\t\t\t\t\t# additional files to include in package (relativ to root)\nexport INSTALL_PATH=/\t\t\t   # override INSTALL_PATH for MacOS X\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\n\nexport DEBIAN_PACKAGE_NAME=\"quantumstep-tools\"\t# binary tools\nexport DEPENDS=\"quantumstep-abook, quantumstep-defaults, quantumstep-ibtool, quantumstep-open, quantumstep-plistbuddy, quantumstep-plutil, quantumstep-say, quantumstep-scselect, quantumstep-scutil\"   # debian package dependencies\n\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n\necho \"### done ###\"";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./Tools.qcodeproj\n";
 		};
 		EE144F2F0A14E6C300C93F94 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -563,7 +585,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"open.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./open.qcodeproj\n";
 		};
 		EE196B880D44E89E0074ED1A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -576,7 +598,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"abook.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=AddressBook\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport DEPENDS=\"quantumstep-addressbook-framework\"\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./abook.qcodeproj\n";
 		};
 		EE1D41C10995026500DDE5E0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -589,7 +611,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"defaults.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./defaults.qcodeproj\n";
 		};
 		EE291C610AD7BD50004A1CA6 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -602,7 +624,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"scutil.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=SystemStatus\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport DEPENDS=\"quantumstep-systemstatus-framework\"\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./scutil.qcodeproj\n";
 		};
 		EE2BCBB7114790C1006D06ED /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -615,7 +637,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"PlistBuddy.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./PlistBuddy.qcodeproj\n";
 		};
 		EE3254140A53225D0057B3B1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -628,7 +650,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"scselect.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=SystemStatus\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport DEPENDS=\"quantumstep-systemstatus-framework\"\n\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./scselect.qcodeproj\n";
 		};
 		EE93E7780A239FE8008A5E48 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -641,7 +663,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"plutil.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./plutil.qcodeproj\n";
 		};
 		EE9788950AA70E53007ECDE1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -654,7 +676,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"say.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./say.qcodeproj\n";
 		};
 		EEACC95D0FFFE045007DA855 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -667,7 +689,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"mdo.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./mdo.qcodeproj\n";
 		};
 		EECF948F0F529F75003AF020 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -680,7 +702,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"ibtool.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./ibtool.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -18,5 +18,5 @@ void __dummy(void)
 {
 	[NSString class];	// reference Foundation
 	[NSWindow class];	// reference AppKit
-	[NSManagedObject class];	// reference CoreData
+//	[NSManagedObject class];	// reference CoreData
 }
