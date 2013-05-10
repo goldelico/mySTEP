@@ -447,16 +447,21 @@ make_php:
 DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
-build_doxy:
+build_doxy:	build/$(PRODUCT_NAME).docset
+
+# rebuild if any header was changed
+
+build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(NO_DOXY),true)
 	$(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	pwd
 	echo "PROJECT_NAME      = \"$(PRODUCT_NAME).$(WRAPPER_EXTENSION)\"" >>build/$(PRODUCT_NAME).doxygen
 	echo "PROJECT_BRIEF      = \"a QuantumSTEP framework\"" >>build/$(PRODUCT_NAME).doxygen
-	echo "INPUT = $(SOURCES)" >>build/$(PRODUCT_NAME).doxygen
+#	echo "INPUT = $(SOURCES)" >>build/$(PRODUCT_NAME).doxygen
+	echo "INPUT = $^" >>build/$(PRODUCT_NAME).doxygen
 #	echo "INPUT = $$PWD" >>build/$(PRODUCT_NAME).doxygen
-	echo "OUTPUT_DIRECTORY = build/$(PRODUCT_NAME).docset" >>build/$(PRODUCT_NAME).doxygen
+	echo "OUTPUT_DIRECTORY = $@" >>build/$(PRODUCT_NAME).doxygen
 	echo "GENERATE_LATEX   = NO" >>build/$(PRODUCT_NAME).doxygen
 	echo "UML_LOOK         = YES" >>build/$(PRODUCT_NAME).doxygen
 	echo "RECURSIVE        = YES" >>build/$(PRODUCT_NAME).doxygen
@@ -466,6 +471,7 @@ ifneq ($(NO_DOXY),true)
 	echo "GENERATE_DOCSET  = YES" >>build/$(PRODUCT_NAME).doxygen
 	echo "DOCSET_BUNDLE_ID = com.quantumstep.$(PRODUCT_NAME)" >>build/$(PRODUCT_NAME).doxygen
 	$(DOXYGEN) build/$(PRODUCT_NAME).doxygen
+	touch $@
 #	make -C build/DoxygenDocs.docset/html # install
 	mkdir -p $(DOXYDIST)
 	rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset
