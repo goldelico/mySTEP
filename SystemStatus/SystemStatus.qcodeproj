@@ -11,7 +11,20 @@ export SOURCES+=" SYSInternet.m"
 export SOURCES+=" SYSLocation.m"
 export SOURCES+=" SYSNetwork.m"
 export SOURCES+=" SYSWireless.m"
+export SOURCES+=" NSCameraMovie.h"
+export SOURCES+=" NSSystemStatus.h"
+export SOURCES+=" SYSBattery.h"
+export SOURCES+=" SYSDevice.h"
+export SOURCES+=" Models.plist"
+export SOURCES+=" camera.h"
+export SOURCES+=" SYSEnvironment.h"
+export SOURCES+=" SYSInternet.h"
+export SOURCES+=" SYSLocation.h"
+export SOURCES+=" SYSNetwork.h"
+export SOURCES+=" SystemStatus-Info.plist"
+export SOURCES+=" SYSWireless.h"
 export WRAPPER_EXTENSION="framework"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP

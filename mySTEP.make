@@ -98,7 +98,7 @@ ARCHITECTURES:=$(shell defaults read de.dsitri.ZMacSync SelectedArchitecture 2>/
 endif
 
 ifeq ($(ARCHITECTURES),)	# still not defined
-ARCHITECTURES=i486-debianetch-linux-gnu
+ARCHITECTURES=i486-linux-gnu
 endif
 
 # configure Embedded System if undefined
@@ -201,7 +201,9 @@ ifeq ($(DEBIAN_ARCHITECTURES),)
 DEBIAN_ARCHITECTURES=armel armhf i386 mipsel
 endif
 
-build:
+# this is the default/main target
+
+build:	build_doxy
 ### check if meta package
 ### copy/install $DATA and $FILES
 ### use ARCHITECTURE=all
@@ -212,14 +214,14 @@ build:
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
 ifneq ($(DEBIAN_ARCHITECTURES),)
-	# make for architectures $(DEBIAN_ARCHITECTURES)
+	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
 			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
+			? ) export ARCHITECTURE=unknown-linux-gnu;; \
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
@@ -442,6 +444,34 @@ make_php:
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
+DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
+DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
+
+build_doxy:
+ifeq ($(WRAPPER_EXTENSION),framework)
+ifneq ($(NO_DOXY),true)
+	$(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
+	pwd
+	echo "PROJECT_NAME      = \"$(PRODUCT_NAME).$(WRAPPER_EXTENSION)\"" >>build/$(PRODUCT_NAME).doxygen
+	echo "PROJECT_BRIEF      = \"a QuantumSTEP framework\"" >>build/$(PRODUCT_NAME).doxygen
+	echo "INPUT = $(SOURCES)" >>build/$(PRODUCT_NAME).doxygen
+#	echo "INPUT = $$PWD" >>build/$(PRODUCT_NAME).doxygen
+	echo "OUTPUT_DIRECTORY = build/$(PRODUCT_NAME).docset" >>build/$(PRODUCT_NAME).doxygen
+	echo "GENERATE_LATEX   = NO" >>build/$(PRODUCT_NAME).doxygen
+	echo "UML_LOOK         = YES" >>build/$(PRODUCT_NAME).doxygen
+	echo "RECURSIVE        = YES" >>build/$(PRODUCT_NAME).doxygen
+	echo "SOURCE_BROWSER   = NO" >>build/$(PRODUCT_NAME).doxygen
+	echo "VERBATIM_HEADERS = YES" >>build/$(PRODUCT_NAME).doxygen
+	echo "EXCLUDE_PATTERNS = */build */.svn *.php" >>build/$(PRODUCT_NAME).doxygen
+	echo "GENERATE_DOCSET  = YES" >>build/$(PRODUCT_NAME).doxygen
+	echo "DOCSET_BUNDLE_ID = com.quantumstep.$(PRODUCT_NAME)" >>build/$(PRODUCT_NAME).doxygen
+	$(DOXYGEN) build/$(PRODUCT_NAME).doxygen
+#	make -C build/DoxygenDocs.docset/html # install
+	mkdir -p $(DOXYDIST)
+	rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset
+	(cd build && tar cf - $(PRODUCT_NAME).docset) | (cd $(DOXYDIST) && tar xf -)
+endif
+endif
 
 #
 # Debian package builder
@@ -494,7 +524,8 @@ DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 build_deb: make_bundle make_exec make_binary install_tool \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
 
 # FIXME: use different /tmp/data subdirectories for each running make
 # NOTE: don't include /tmp here to protect against issues after typos
@@ -524,10 +555,10 @@ ifneq ($(DATA),)
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && tar xvzf -)
 endif
 	# strip all executables down to the minimum
-	find "/tmp/$(TMP_DATA)" "(" -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# strip MacOS X binary for frameworks
+	# strip off MacOS X binary for frameworks
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -566,10 +597,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	# don't exclude Headers
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 	# strip all executables down so that they can be linked
-	find /tmp/$(TMP_DATA) -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) -exec rm -rf {} ";" -prune
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
-	find /tmp/$(TMP_DATA) -type f -perm +a+x -exec $(STRIP) {} \;
+	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	ls -l /tmp/$(TMP_DATA).tar.gz
@@ -595,6 +627,48 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	ls -l $@
 else
 	# no development version
+endif
+
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# make debian development package
+	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
+	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+	# don't exclude Headers
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
+	# strip all executables down so that they can be linked
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
+	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	# keep symbols find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
+	$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
+	ls -l /tmp/$(TMP_DATA).tar.gz
+	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
+	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dbg"; \
+	  echo "Section: $(DEBIAN_SECTION)"; \
+	  echo "Priority: extra"; \
+	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
+	  echo "Architecture: $(DEBIAN_ARCH)"; \
+	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
+	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
+	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
+	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
+	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
+	) >"/tmp/$(TMP_CONTROL)/control"
+	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
+	- rm -rf $@
+	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
+	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
+	ls -l $@
+else
+	# no debug version
 endif
 
 install_local:

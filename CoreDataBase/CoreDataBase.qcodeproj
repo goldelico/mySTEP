@@ -6,7 +6,14 @@ export SOURCES="CoreDevice.m"
 export SOURCES+=" BatteryView.m"
 export SOURCES+=" Info.plist"
 export SOURCES+=" executable.php"
+export SOURCES+=" ManagedObject.h"
+export SOURCES+=" ManagedObject.m"
+export SOURCES+=" ManagedObjectContext.h"
+export SOURCES+=" ManagedObjectContext.m"
+export SOURCES+=" ManagedObjectEntity.h"
+export SOURCES+=" ManagedObjectEntity.m"
 export WRAPPER_EXTENSION="framework"
+
 
 
 

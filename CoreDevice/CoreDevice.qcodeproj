@@ -5,7 +5,10 @@ export PRODUCT_NAME="CoreDevice"
 export SOURCES="CoreDevice.m"
 export SOURCES+=" BatteryView.m"
 export SOURCES+=" Info.plist"
+export SOURCES+=" BatteryView.h"
+export SOURCES+=" CoreDevice.h"
 export WRAPPER_EXTENSION="framework"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
