@@ -398,8 +398,11 @@ LIBRARIES := \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
-		$(LIBS) \
-		-lobjc
+		$(LIBS)
+
+ifneq ($(OBJCSRCS)$(FMWKS),)
+LIBRARIES += -lobjc -lgcc_s
+endif
 
 .SUFFIXES : .o .c .m
 
