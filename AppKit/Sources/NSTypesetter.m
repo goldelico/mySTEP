@@ -1167,7 +1167,7 @@ NSLayoutOutOfGlyphs
 				break;
 				}
 		}
-	curMaxBaselineDistance=ceil(curMaxBaselineDistance);
+	curMaxBaselineDistance=ceilf(curMaxBaselineDistance);
 	if(setBaseline)
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
 	if(lineFragmentRect->size.width != FLT_MAX)
@@ -1403,7 +1403,7 @@ NSLayoutOutOfGlyphs
 	if(tab)
 		glyphInfo->extent=[tab location]-glyphInfo->curLocation.x;
 	else if(curParaStyle && (interval=[curParaStyle defaultTabInterval]) > 0.0)
-		glyphInfo->extent=interval*ceil(glyphInfo->curLocation.x/interval)-glyphInfo->curLocation.x;	// equally spaced
+		glyphInfo->extent=interval*ceilf(glyphInfo->curLocation.x/interval)-glyphInfo->curLocation.x;	// equally spaced
 	glyphInfo->_giflags.dontShow=YES;
 }
 

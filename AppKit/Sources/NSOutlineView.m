@@ -1294,9 +1294,9 @@ name: NSOutlineView##notif_name##Notification object: self]
 	/* _bounds.origin is (0, 0) when the outline view is not clipped.
 	 * When the view is scrolled, _bounds.origin.y returns the scrolled height. */
 	verticalQuarterPosition =
-    ceil(((p.y + _bounds.origin.y) / _rowHeight) * 4.);
+		ceil(((p.y + _bounds.origin.y) / _rowHeight) * 4.);
 	horizontalHalfPosition =
-    ceil(((p.x + _bounds.origin.y) / _indentationPerLevel) * 2.);
+		ceil(((p.x + _bounds.origin.y) / _indentationPerLevel) * 2.);
 	
 	/* We add an extra quarter to shift the insertion row below the hovered row. */
 	row = (verticalQuarterPosition + 1) / 4;

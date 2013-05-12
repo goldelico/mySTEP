@@ -82,7 +82,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 {
 	static float size= -1.0;	// cache for default font size
 	if(size < 0.0)
-		size=floor([NSMenuView menuBarHeight]*0.58+0.75);	// 16 -> 10; 20 -> 12; 24 -> 14;
+		size=floorf([NSMenuView menuBarHeight]*0.58+0.75);	// 16 -> 10; 20 -> 12; 24 -> 14;
 	return _getNSFont(@"NSMenuFont", @"Helvetica", fontSize, size);
 }
 
@@ -90,7 +90,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 {
 	static float size= -1.0;	// cache for default font size
 	if(size <= 0.0)
-		size=floor([NSMenuView menuBarHeight]*0.625+0.25);	// 16 -> 10; 24 -> 15;
+		size=floorf([NSMenuView menuBarHeight]*0.625+0.25);	// 16 -> 10; 24 -> 15;
 	return _getNSFont(@"NSMenuBarFont", @"Helvetica", fontSize, size);
 }
 

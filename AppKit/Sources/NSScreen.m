@@ -88,7 +88,7 @@
 	r.size.height=h;
 	if(r.size.width > VERY_SMALL)
 		{ // not a very small screen
-		r.origin.x=ceil(SYSTEM_MENU_WIDTH*r.size.height);	// leave room for systemMenu
+		r.origin.x=ceilf(SYSTEM_MENU_WIDTH*r.size.height);	// leave room for systemMenu
 		r.size.width-=r.origin.x;
 		}
 #if 0
@@ -127,7 +127,7 @@
 		if(r.size.width <= VERY_SMALL)
 			{ // pure PDA mode - application menu on right half
 			r.size.width/=2.0;								// width is half of the screen
-			r.origin.x=ceil(r.size.width);					// right half of the screen
+			r.origin.x=ceilf(r.size.width);					// right half of the screen
 			}
 		}
 	else

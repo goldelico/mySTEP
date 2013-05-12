@@ -902,7 +902,7 @@ id c;
 								- 1) * COLUMN_SEP)) / _numberOfVisibleColumns);
 	else
 		_columnSize.width = NSWidth(_frame) / (float)_numberOfVisibleColumns;
-	_columnSize.width = ceil(_columnSize.width);
+	_columnSize.width = ceilf(_columnSize.width);
 	_columnSize.height = _frame.size.height;
 	
 	if (_br.hasHorizontalScroller)						// Horizontal scroller

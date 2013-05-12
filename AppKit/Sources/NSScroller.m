@@ -605,14 +605,14 @@ static NSButtonCell *__knobCell = nil;
 				if (usableParts == NSNoScrollerParts || usableParts == NSOnlyScrollerArrows)
 					return NSZeroRect;		// If the scroller does not have parts or a knob return a zero rect. 
 				slotHeight = height - (_arrowsPosition == NSScrollerArrowsNone ? 0 : 2 * width);	// calc the slot Height
-				knobHeight = floor(_knobProportion * slotHeight);
+				knobHeight = floorf(_knobProportion * slotHeight);
 				if (knobHeight < width)			// adjust knob height and proportion if necessary
 					{ // make it at least square
 					knobHeight = width; 
 					_knobProportion = (float)(knobHeight / slotHeight);
 					}
 				knobPosition = _floatValue * (slotHeight - knobHeight);	// calc knob's position (left/top end)
-//			knobPosition = (float)floor(knobPosition);	// avoid (why?) rounding error
+//			knobPosition = (float)floorf(knobPosition);	// avoid (why?) rounding error
 				
 				y += knobPosition;	// move knob
 				if(_arrowsPosition == NSScrollerArrowsMinEnd)

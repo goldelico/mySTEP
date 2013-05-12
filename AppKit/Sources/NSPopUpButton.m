@@ -46,7 +46,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 - (NSRect) drawingRectForBounds:(NSRect) cellFrame
 {
 	if(_bezelStyle == NSRoundedBezelStyle)
-		return NSInsetRect(cellFrame, _d.controlSize == NSMiniControlSize?2:4, floor(cellFrame.size.height*0.12));	// make smaller than enclosing frame
+		return NSInsetRect(cellFrame, _d.controlSize == NSMiniControlSize?2:4, floorf(cellFrame.size.height*0.12));	// make smaller than enclosing frame
 	return [super drawingRectForBounds:cellFrame];
 }
 

@@ -435,7 +435,7 @@ id __buttonCellClass = nil;
 		case _NSTraditionalBezelStyle:
 			break;
 		case NSRoundedBezelStyle:
-			cellFrame=NSInsetRect(cellFrame, 4, floor(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
+			cellFrame=NSInsetRect(cellFrame, 4, floorf(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
 			break;
 		case NSRegularSquareBezelStyle:		// Square 2 pixels border
 		case NSThickSquareBezelStyle:		// 3 px
@@ -460,10 +460,10 @@ id __buttonCellClass = nil;
 		case NSTexturedRoundBezelStyle:
 			break;
 		case NSRoundRectBezelStyle:
-			cellFrame=NSInsetRect(cellFrame, 4, floor(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
+			cellFrame=NSInsetRect(cellFrame, 4, floorf(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
 			break;
 		case NSRecessedBezelStyle:
-			cellFrame=NSInsetRect(cellFrame, 4, floor(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
+			cellFrame=NSInsetRect(cellFrame, 4, floorf(cellFrame.size.height*0.1875));	// make smaller than enclosing frame
 			break;
 		case NSRoundedDisclosureBezelStyle:
 			break;

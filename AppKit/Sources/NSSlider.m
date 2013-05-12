@@ -329,7 +329,7 @@ static Class _sliderCellClass;
 		{ // round to nearest tick mark value
 		double dist=(_maxValue-_minValue)/(_numberOfTickMarks-1);	// distance between tick marks
 		double n=(value-_minValue)/dist;
-		n=floor(n+0.5);	// round to nearest integer
+		n=rint(n);	// round to nearest integer
 		value=n*dist+_minValue;
 		}
 	return value;

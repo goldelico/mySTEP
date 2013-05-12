@@ -293,8 +293,8 @@ because this reverses the writing direction within the text container
 { // point should lie within the bounds rect of self
 	NSRect start=_bounds;				// original origin before translating
 	point=[self constrainScrollPoint:point];
-	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
-	point.y = floor(point.y);
+	point.x = floorf(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
+	point.y = floorf(point.y);
 	[self setBoundsOrigin:point];		// translate to new origin
 	[self resetCursorRects];
 #if 0

@@ -1217,7 +1217,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		[self lineToPoint: point1];
 		return;
 		}
-	l = 1.0/sqrt(l);
+	l = 1.0/sqrtf(l);
 	dx1 *= l;
 	dy1 *= l;
 	
@@ -1230,7 +1230,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		return;
 		}
 	
-	l = 1.0/sqrt(l);
+	l = 1.0/sqrtf(l);
 	dx2 *= l; 
 	dy2 *= l;
 	

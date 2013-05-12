@@ -233,9 +233,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 { // may differ from [font defaultLineHeightForFont]
 	float leading=[font leading];
 	float height;
-	height=floor([font ascender]+0.5)+floor(0.5-[font descender]);
+	height=floorf([font ascender]+0.5)+floorf(0.5-[font descender]);
 	if(leading > 0)
-		height += leading + floor(0.2*height + 0.5);
+		height += leading + floorf(0.2*height + 0.5);
 	return height;
 }
 

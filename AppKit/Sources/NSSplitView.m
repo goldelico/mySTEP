@@ -259,7 +259,7 @@ NSSplitView.h
 			// FIXME: should be scaled proportionally!
 		int i, count = [_subviews count];
 		int div = (int)(_dividerThickness * (count - 1));
-		int w = (int)ceil((NSWidth(_bounds) - div) / count);
+		int w = (int)ceilf((NSWidth(_bounds) - div) / count);
 		float total = 0, maxSize, divRemainder;
 		
 		for(i = 0; i < count; i++)
@@ -298,7 +298,7 @@ NSSplitView.h
 				
 				total += NSWidth(rect);
 				
-				rect.origin = NSMakePoint((float)ceil(i ? (i * (_dividerThickness + w)) : 0), 0);
+				rect.origin = NSMakePoint(ceilf(i ? (i * (_dividerThickness + w)) : 0), 0);
 				if(NSWidth(rect) < 1) 
 					rect.size.width = 1;
 				if(NSMinX(rect) < 0) 

@@ -924,8 +924,8 @@ printing
 {
 	NSRect n=[self convertRect:aRect toView:nil];		// to NSWindow coordinates
 	n.origin=[_window convertBaseToScreen:n.origin];
-	n.origin.x=0.5+floor(n.origin.x);					// to center of screen pixels - don't round!
-	n.origin.y=0.5+floor(n.origin.y);
+	n.origin.x=0.5+floorf(n.origin.x);					// to center of screen pixels - don't round!
+	n.origin.y=0.5+floorf(n.origin.y);
 	n.size.width=rint(n.size.width);					// round to nearest integer size
 	n.size.height=rint(n.size.height);
 	n.origin=[_window convertScreenToBase:n.origin];	// convert back to NSWindow
@@ -1732,7 +1732,7 @@ printing
 				if(_v.isRotatedFromBase)
 					{
 					_bounds.size.width *= _frame.size.width / oldFrameWidth;	// keep proportion
-																				//				_bounds.size.width = floor(_bounds.size.width);
+																				//				_bounds.size.width = floorf(_bounds.size.width);
 					}
 				else
 					_bounds.size.width += changePerOption;
@@ -1774,7 +1774,7 @@ printing
 				if(_v.isRotatedFromBase)			
 					{ // rotated
 					_bounds.size.height *= _frame.size.height/oldFrameHeight;
-					//				_bounds.size.height = floor(_bounds.size.height);
+					//				_bounds.size.height = floorf(_bounds.size.height);
 					}
 				else
 					{ // normal
