@@ -15,7 +15,18 @@ export SOURCES+=" objc10.m"
 export SOURCES+=" objc2c.m"
 export SOURCES+=" gram.ym"
 export SOURCES+=" scan.lm"
+export SOURCES+=" AST.h"
+export SOURCES+=" Expression.h"
+export SOURCES+=" compile.h"
+export SOURCES+=" ObjC-Info.plist"
+export SOURCES+=" objc10.h"
+export SOURCES+=" objc2c.h"
+export SOURCES+=" ObjCKit.h"
+export SOURCES+=" Print.h"
+export SOURCES+=" Refactor.h"
+export SOURCES+=" Simplify.h"
 export WRAPPER_EXTENSION="framework"
+
 
 
 
