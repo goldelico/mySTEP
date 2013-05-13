@@ -404,7 +404,7 @@ ifneq ($(OBJCSRCS)$(FMWKS),)
 LIBRARIES += -lobjc -lgcc_s
 endif
 
-.SUFFIXES : .o .c .m
+.SUFFIXES : .o .c .cpp .m
 
 # adding /+ to the file path looks strange but is to avoid problems with ../neighbour/source.m
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
@@ -418,6 +418,11 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
 	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
+	# compile $< -> $*.o
+	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+
+$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
@@ -502,7 +507,7 @@ endif
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := This is part of mySTEP/QuantumSTEP
+DEBIAN_DESCRIPTION := mySTEP Application Framework and QuantumSTEP Desktop/Palmtop Environment
 endif
 ifeq ($(DEBIAN_DEPENDS),)
 DEPENDS := quantumstep-cocoa-framework
