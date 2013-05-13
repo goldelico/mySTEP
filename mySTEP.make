@@ -198,7 +198,7 @@ endif
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=armel armhf i386 mipsel
+DEBIAN_ARCHITECTURES=armel armhf i386 # mipsel -ltiff is broken
 endif
 
 # this is the default/main target
