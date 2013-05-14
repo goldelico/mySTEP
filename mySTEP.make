@@ -401,7 +401,7 @@ LIBRARIES := \
 		$(LIBS)
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
-LIBRARIES += -lobjc -lgcc_s
+LIBRARIES += -lobjc -lm -lgcc_s
 endif
 
 .SUFFIXES : .o .c .cpp .m
