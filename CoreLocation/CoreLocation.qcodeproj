@@ -9,7 +9,18 @@ export SOURCES+=" CLGeocoder.m"
 export SOURCES+=" CLHeading.m"
 export SOURCES+=" CLPlacemark.m"
 export SOURCES+=" CLRegion.m"
+export SOURCES+=" CLError.h"
+export SOURCES+=" CLErrorDomain.h"
+export SOURCES+=" CLGeocoder.h"
+export SOURCES+=" CLHeading.h"
+export SOURCES+=" CLLocation.h"
+export SOURCES+=" CLLocationManager.h"
+export SOURCES+=" CLLocationManagerDelegate.h"
+export SOURCES+=" CLPlacemark.h"
+export SOURCES+=" CLRegion.h"
+export SOURCES+=" CoreLocation.h"
 export WRAPPER_EXTENSION="framework"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP

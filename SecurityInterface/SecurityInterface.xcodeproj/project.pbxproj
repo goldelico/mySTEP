@@ -25,6 +25,7 @@
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorizationView.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* SecurityInterface.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SecurityInterface.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE824525174786A2003B8B89 /* SecurityInterface.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = SecurityInterface.qcodeproj; sourceTree = "<group>"; };
 		EE9F32360CF99C9C0087380F /* lock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = lock_32.png; path = ../../Icons/Harmony/PNG/lock_32.png; sourceTree = SOURCE_ROOT; };
 		EE9F32380CF99CAA0087380F /* ulock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ulock_32.png; path = ../../Icons/Harmony/PNG/ulock_32.png; sourceTree = SOURCE_ROOT; };
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
@@ -52,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
+				EE824525174786A2003B8B89 /* SecurityInterface.qcodeproj */,
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,
@@ -191,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Security SecurityFoundation\"\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./SecurityInterface.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

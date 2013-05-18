@@ -28,6 +28,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* RFIDProbe-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RFIDProbe-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* RFIDProbe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RFIDProbe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE7AAF3A17475F64003133D9 /* RFIDProbe.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = RFIDProbe.qcodeproj; sourceTree = "<group>"; };
 		EEAA84CD13688E81000E2336 /* CoreRFID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreRFID.framework; path = /Library/Frameworks/CoreRFID.framework; sourceTree = "<absolute>"; };
 		EEE59CF11260D29C001E3A11 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../mySTEP.make; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -85,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				EEE59CF11260D29C001E3A11 /* mySTEP.make */,
+				EE7AAF3A17475F64003133D9 /* RFIDProbe.qcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -192,7 +194,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreRFID\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/Applications/Utilities   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=true                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corerfid-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./RFIDProbe.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

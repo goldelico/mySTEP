@@ -5,7 +5,11 @@ export INSTALL_PATH="/System/Library/Frameworks"
 export PRODUCT_NAME="CoreFoundation"
 export SOURCES="Sources/CFBase.m"
 export SOURCES+=" Sources/CFString.m"
+export SOURCES+=" Sources/CFBase.h"
+export SOURCES+=" Sources/CFString.h"
+export SOURCES+=" Sources/CoreFoundation.h"
 export WRAPPER_EXTENSION="framework"
+
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
 /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION

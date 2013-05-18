@@ -34,8 +34,8 @@
 #include <errno.h>
 #include <assert.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
-#include <sys/signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 

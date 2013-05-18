@@ -110,6 +110,8 @@
 		EE71B53E159302E800C4E869 /* CLHeading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLHeading.m; path = ../CoreLocation/CLHeading.m; sourceTree = SOURCE_ROOT; };
 		EE71B53F159302E800C4E869 /* CLPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLPlacemark.m; path = ../CoreLocation/CLPlacemark.m; sourceTree = SOURCE_ROOT; };
 		EE71B540159302E800C4E869 /* CLRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLRegion.m; path = ../CoreLocation/CLRegion.m; sourceTree = SOURCE_ROOT; };
+		EE7AB2AD174762EC003133D9 /* MapKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MapKit.qcodeproj; sourceTree = "<group>"; };
+		EE7AB2BA174762FC003133D9 /* MapKitTest.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MapKitTest.qcodeproj; sourceTree = "<group>"; };
 		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		EE922507136179DD0010C76C /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -173,6 +175,8 @@
 			isa = PBXGroup;
 			children = (
 				EE69CFD9108DD5A100486DB1 /* mySTEP.make */,
+				EE7AB2AD174762EC003133D9 /* MapKit.qcodeproj */,
+				EE7AB2BA174762FC003133D9 /* MapKitTest.qcodeproj */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
@@ -446,7 +450,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=MK*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./MapKit.qcodeproj";
 		};
 		EE92258013617BB00010C76C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -459,7 +463,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=MapKitTest/*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"CoreLocation MapKit\"\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/Applications/Test   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=true                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-mapkit-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./MapKitTest.qcodeproj\n";
 		};
 		EEAA841913688AF9000E2336 /* Copy to Library */ = {
 			isa = PBXShellScriptBuildPhase;
