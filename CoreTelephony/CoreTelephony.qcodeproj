@@ -4,7 +4,16 @@ export INSTALL_PATH="/System/Library/Frameworks"
 export PRODUCT_NAME="CoreTelephony"
 export SOURCES="CTModemManager.m"
 export SOURCES+=" CoreTelephony.m"
+export SOURCES+=" CoreTelephony.h"
+export SOURCES+=" CTCall.h"
+export SOURCES+=" CTCallCenter.h"
+export SOURCES+=" CTCarrier.h"
+export SOURCES+=" CTModemManager.h"
+export SOURCES+=" Info.plist"
+export SOURCES+=" CTTelephonyNetworkInfo.h"
+export SOURCES+=" English.lproj/AskPin.nib"
 export WRAPPER_EXTENSION="framework"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP

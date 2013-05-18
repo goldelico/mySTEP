@@ -361,7 +361,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./objc2pp.qcodeproj";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
 		};
 		EEEB4C031508D63A000EE2E5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -388,7 +388,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# make us include build/objc2pp.build/Development/ObjC.build/DerivedSources\n# export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./ObjCKit.qcodeproj";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./ObjCKit.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

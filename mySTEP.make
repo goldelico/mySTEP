@@ -456,7 +456,17 @@ DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
-	[ -r build/$(PRODUCT_NAME).docset ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | (cd $(DOXYDIST) && tar xf - && (echo "<h1>Quantumstep Framework Documentation</h1>"; echo "<ul>"; for f in *.docset; do BN=$$(basename $$f .docset); echo "<li><a href=$$BN.docset/html/index.html>$$BN.framework</a></li>"; done; echo "<ul>") >index.html )
+	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | \
+		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
+		tar xf - && \
+		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
+		  echo "<ul>"; \
+		  for f in *.docset; \
+		  do BN=$$(basename $$f .docset); \
+			echo "<li><a href=\"$$BN.docset/html/classes.html\">$$BN.framework</a></li>"; \
+		  done; \
+		  echo "<ul>" \
+		) >index.html )
 
 # rebuild if any header was changed
 
@@ -479,11 +489,8 @@ ifneq ($(NO_DOXY),true)
 	echo "EXCLUDE_PATTERNS = */build */.svn *.php" >>build/$(PRODUCT_NAME).doxygen
 	echo "GENERATE_DOCSET  = YES" >>build/$(PRODUCT_NAME).doxygen
 	echo "DOCSET_BUNDLE_ID = com.quantumstep.$(PRODUCT_NAME)" >>build/$(PRODUCT_NAME).doxygen
-	$(DOXYGEN) build/$(PRODUCT_NAME).doxygen
-	touch $@
+	- $(DOXYGEN) build/$(PRODUCT_NAME).doxygen && touch $@
 #	make -C build/DoxygenDocs.docset/html # install
-	mkdir -p $(DOXYDIST)
-	rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset
 endif
 endif
 
