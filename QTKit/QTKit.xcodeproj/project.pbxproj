@@ -8,17 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		EED9627612520DA600107045 /* QTKit-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EED9627512520DA600107045 /* QTKit-Info.plist */; };
-		EED9628E12520E4D00107045 /* NSStreamSplitter.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628312520E4B00107045 /* NSStreamSplitter.h */; };
+		EED9628E12520E4D00107045 /* NSStreamSplitter.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628312520E4B00107045 /* NSStreamSplitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EED9628F12520E4D00107045 /* NSStreamSplitter.m in Sources */ = {isa = PBXBuildFile; fileRef = EED9628412520E4B00107045 /* NSStreamSplitter.m */; };
-		EED9629012520E4D00107045 /* QTDataReference.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628512520E4B00107045 /* QTDataReference.h */; };
-		EED9629112520E4D00107045 /* QTKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628612520E4B00107045 /* QTKit.h */; };
-		EED9629212520E4D00107045 /* QTMedia.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628712520E4B00107045 /* QTMedia.h */; };
-		EED9629312520E4D00107045 /* QTMovie.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628812520E4B00107045 /* QTMovie.h */; };
+		EED9629012520E4D00107045 /* QTDataReference.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628512520E4B00107045 /* QTDataReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629112520E4D00107045 /* QTKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628612520E4B00107045 /* QTKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629212520E4D00107045 /* QTMedia.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628712520E4B00107045 /* QTMedia.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629312520E4D00107045 /* QTMovie.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628812520E4B00107045 /* QTMovie.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EED9629412520E4D00107045 /* QTMovie.m in Sources */ = {isa = PBXBuildFile; fileRef = EED9628912520E4B00107045 /* QTMovie.m */; };
-		EED9629512520E4D00107045 /* QTMovieView.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628A12520E4B00107045 /* QTMovieView.h */; };
-		EED9629612520E4D00107045 /* QTTime.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628B12520E4D00107045 /* QTTime.h */; };
-		EED9629712520E4D00107045 /* QTTimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628C12520E4D00107045 /* QTTimeRange.h */; };
-		EED9629812520E4D00107045 /* QTTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628D12520E4D00107045 /* QTTrack.h */; };
+		EED9629512520E4D00107045 /* QTMovieView.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628A12520E4B00107045 /* QTMovieView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629612520E4D00107045 /* QTTime.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628B12520E4D00107045 /* QTTime.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629712520E4D00107045 /* QTTimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628C12520E4D00107045 /* QTTimeRange.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EED9629812520E4D00107045 /* QTTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628D12520E4D00107045 /* QTTrack.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,7 +117,7 @@
 				EED9628C12520E4D00107045 /* QTTimeRange.h */,
 				EED9628D12520E4D00107045 /* QTTrack.h */,
 			);
-			name = Sources;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -4,18 +4,7 @@ export INSTALL_PATH="/System/Library/PrivateFrameworks"
 export PRODUCT_NAME="QTKit"
 export SOURCES="Sources/NSStreamSplitter.m"
 export SOURCES+=" Sources/QTMovie.m"
-export SOURCES+=" NSStreamSplitter.h"
-export SOURCES+=" NSStreamSplitter.m"
-export SOURCES+=" QTDataReference.h"
 export SOURCES+=" QTKit-Info.plist"
-export SOURCES+=" QTKit.h"
-export SOURCES+=" QTMedia.h"
-export SOURCES+=" QTMovie.h"
-export SOURCES+=" QTMovie.m"
-export SOURCES+=" QTMovieView.h"
-export SOURCES+=" QTTime.h"
-export SOURCES+=" QTTimeRange.h"
-export SOURCES+=" QTTrack.h"
 export SOURCES+=" Sources/QTMedia.h"
 export SOURCES+=" Sources/QTMovie.h"
 export SOURCES+=" Sources/QTMovieView.h"
@@ -26,6 +15,9 @@ export SOURCES+=" Sources/QTKit.h"
 export SOURCES+=" Sources/QTDataReference.h"
 export SOURCES+=" Sources/NSStreamSplitter.h"
 export WRAPPER_EXTENSION="framework"
+
+
+
 
 
 
