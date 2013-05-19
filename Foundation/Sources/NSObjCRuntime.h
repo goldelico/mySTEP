@@ -18,6 +18,7 @@
 #define _mySTEP_H_NSObjCRuntime
 
 // include all important standard C libraries
+#define __EXPORTED_HEADERS__	// disable some warnings in gcc/Linux
 
 #include <stddef.h>
 #include <stdlib.h>
