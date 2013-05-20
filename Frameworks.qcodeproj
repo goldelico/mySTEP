@@ -23,7 +23,7 @@ export PRODUCT_NAME="Frameworks"
 
 # shell script goes here
 
-if true
+if false
 then
  
 echo ## Frameworks ##
