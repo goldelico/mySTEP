@@ -6,6 +6,21 @@
 	objectVersion = 45;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		EED248E9174AB8AB008BEE55 /* CoreLocation */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EED248F8174AB8CE008BEE55 /* Build configuration list for PBXAggregateTarget "CoreLocation" */;
+			buildPhases = (
+			);
+			dependencies = (
+				EED248ED174AB8B3008BEE55 /* PBXTargetDependency */,
+				EED248EF174AB8B5008BEE55 /* PBXTargetDependency */,
+			);
+			name = CoreLocation;
+			productName = CoreLocation;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -65,6 +80,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = CoreLocation;
+		};
+		EED248EC174AB8B3008BEE55 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216 /* CoreLocationFramework */;
+			remoteInfo = CoreLocationFramework;
+		};
+		EED248EE174AB8B5008BEE55 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE07C856160913B8001F5841 /* CoreLocationDaemon */;
+			remoteInfo = CoreLocationDaemon;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -169,8 +198,8 @@
 			children = (
 				EE69CFD9108DD5A100486DB1 /* mySTEP.make */,
 				EE9669FE172029EC00D29865 /* CoreLocation.qcodeproj */,
-				EE9669FF17202A1600D29865 /* cltest.qcodeproj */,
 				EE966A0017202A1600D29865 /* CoreLocationDaemon.qcodeproj */,
+				EE9669FF17202A1600D29865 /* cltest.qcodeproj */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				EE07C84A16091358001F5841 /* CoreLocationDaemon */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
@@ -300,9 +329,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		8DC2EF4F0486A6940098B216 /* CoreLocation */ = {
+		8DC2EF4F0486A6940098B216 /* CoreLocationFramework */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocation" */;
+			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocationFramework" */;
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
@@ -314,7 +343,7 @@
 			);
 			dependencies = (
 			);
-			name = CoreLocation;
+			name = CoreLocationFramework;
 			productInstallPath = "$(HOME)/Library/Frameworks";
 			productName = ScreenSaver;
 			productReference = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */;
@@ -413,7 +442,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DC2EF4F0486A6940098B216 /* CoreLocation */,
+				EED248E9174AB8AB008BEE55 /* CoreLocation */,
+				8DC2EF4F0486A6940098B216 /* CoreLocationFramework */,
 				EE31E2BB125CDC2500DF3C91 /* CLTestFramework */,
 				EE07C856160913B8001F5841 /* CoreLocationDaemon */,
 				EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */,
@@ -564,8 +594,18 @@
 		};
 		EE6FF4F71476C71D000BC485 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 8DC2EF4F0486A6940098B216 /* CoreLocation */;
+			target = 8DC2EF4F0486A6940098B216 /* CoreLocationFramework */;
 			targetProxy = EE6FF4F61476C71D000BC485 /* PBXContainerItemProxy */;
+		};
+		EED248ED174AB8B3008BEE55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DC2EF4F0486A6940098B216 /* CoreLocationFramework */;
+			targetProxy = EED248EC174AB8B3008BEE55 /* PBXContainerItemProxy */;
+		};
+		EED248EF174AB8B5008BEE55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE07C856160913B8001F5841 /* CoreLocationDaemon */;
+			targetProxy = EED248EE174AB8B5008BEE55 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -846,10 +886,31 @@
 			};
 			name = Release;
 		};
+		EED248EA174AB8AC008BEE55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = CoreLocation;
+			};
+			name = Debug;
+		};
+		EED248EB174AB8AC008BEE55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = CoreLocation;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocation" */ = {
+		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocationFramework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91AE08733DA50010E9CD /* Debug */,
@@ -899,6 +960,15 @@
 			buildConfigurations = (
 				EE31E2D1125CDC2500DF3C91 /* Debug */,
 				EE31E2D2125CDC2500DF3C91 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EED248F8174AB8CE008BEE55 /* Build configuration list for PBXAggregateTarget "CoreLocation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EED248EA174AB8AC008BEE55 /* Debug */,
+				EED248EB174AB8AC008BEE55 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
