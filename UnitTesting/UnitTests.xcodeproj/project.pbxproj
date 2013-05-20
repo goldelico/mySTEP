@@ -344,12 +344,12 @@
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE0C72030F7E7328008B94EE /* Foundation.octest */,
-				EED9803A0F875953002E4AD5 /* AppKit.octest */,
 				EE5DAEF010A61BD200910F0B /* Special.app */,
+				EEC07F991699EC2500CA1448 /* AddressBook.octest */,
+				EE0C72030F7E7328008B94EE /* Foundation.octest */,
+				EEDB5A09169878070011D22A /* AppKit.octest */,
 				EEDB59F2169878070011D22A /* Foundation.octest */,
 				EEDB5A09169878070011D22A /* AppKit.octest */,
-				EEC07F991699EC2500CA1448 /* AddressBook.octest */,
 				EEC07FAF1699EC3100CA1448 /* AddressBook.octest */,
 			);
 			name = Products;
