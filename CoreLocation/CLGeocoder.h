@@ -11,6 +11,7 @@
 
 @class CLRegion, CLLocation;
 
+#ifndef NSBlockHandler
 #ifdef __APPLE__
 #define NSBlockHandler mySTEP_NSBlockHandler
 
@@ -18,8 +19,9 @@
 - (void) performWithObject:(id) obj withObject:(id) obj;
 @end
 #endif
+#endif
 
-// typedef void (^CLGeocodeCompletionHandler)(NSArray *placemark, NSError *error);
+// should be typedef void (^CLGeocodeCompletionHandler)(NSArray *placemark, NSError *error);
 typedef NSBlockHandler *CLGeocodeCompletionHandler;
 
 @interface CLGeocoder : NSObject
