@@ -336,9 +336,6 @@
 		EE1D48720997962600DDE5E0 /* NSFont.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48710997962600DDE5E0 /* NSFont.m */; };
 		EE1D90260A921A71003988F3 /* NSSound.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D90250A921A71003988F3 /* NSSound.m */; };
 		EE1D90270A921A71003988F3 /* NSSound.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D90250A921A71003988F3 /* NSSound.m */; };
-		EE1FA35F14A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
-		EE1FA36014A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
-		EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
 		EE20F93F0F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE20F9400F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE22B2B5151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
@@ -684,9 +681,6 @@
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
-		EE869ABB1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
-		EE869ABC1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
-		EE869ABD1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
 		EE8D1C350A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
 		EE8D1C360A2B4C71000632BC /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
 		EE8D1C370A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
@@ -929,6 +923,14 @@
 		EEA3F8950BEDD66A00E39682 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
 		EEA3F8960BEDD66A00E39682 /* FindPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8900BEDD66A00E39682 /* FindPanel.nib */; };
 		EEA3F8970BEDD66A00E39682 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
+		EEA69FA6174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
+		EEA69FA7174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
+		EEA69FA8174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
+		EEA69FA9174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
+		EEA69FAC174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
+		EEA69FAD174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
+		EEA69FAE174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
+		EEA69FAF174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
 		EEAA6C4F0F96315C00B5BA72 /* NSTextInputClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA6C500F96315C00B5BA72 /* NSTextInputClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEACF8A509ED3A9F0085F56E /* NSDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACF8A409ED3A9F0085F56E /* NSDrawer.m */; };
@@ -1211,8 +1213,6 @@
 		EE1D48310996A68B00DDE5E0 /* NSX11GraphicsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSX11GraphicsContext.m; sourceTree = "<group>"; };
 		EE1D48710997962600DDE5E0 /* NSFont.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSFont.m; sourceTree = "<group>"; };
 		EE1D90250A921A71003988F3 /* NSSound.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSound.m; sourceTree = "<group>"; };
-		EE1FA35D14A88641002A1AA1 /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CircleView.h; path = ../../Applications/Samples/CircleView/CircleView.h; sourceTree = SOURCE_ROOT; };
-		EE1FA35E14A88641002A1AA1 /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CircleView.m; path = ../../Applications/Samples/CircleView/CircleView.m; sourceTree = SOURCE_ROOT; };
 		EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = StandardKeyBinding.dict; sourceTree = "<group>"; };
 		EE22B2B4151B166900E3BAF9 /* paper_clip.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = paper_clip.png; path = ../../Applications/myMail/Icons/paper_clip.png; sourceTree = SOURCE_ROOT; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
@@ -1292,8 +1292,6 @@
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE869AB91662211000964140 /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestView.h; path = ../TestApplications/NSTextAlignmentTest/TestView.h; sourceTree = SOURCE_ROOT; };
-		EE869ABA1662211000964140 /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestView.m; path = ../TestApplications/NSTextAlignmentTest/TestView.m; sourceTree = SOURCE_ROOT; };
 		EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AppKitMixed-Prefix.h"; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
@@ -1518,6 +1516,10 @@
 		EEA3F88D0BEDD65400E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ColorPanel.nib; sourceTree = "<group>"; };
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
+		EEA69FA4174BAA3300F4FBFA /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleView.h; sourceTree = "<group>"; };
+		EEA69FA5174BAA3300F4FBFA /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CircleView.m; sourceTree = "<group>"; };
+		EEA69FAA174BAA6D00F4FBFA /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
+		EEA69FAB174BAA6D00F4FBFA /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestView.m; sourceTree = "<group>"; };
 		EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextInputClient.h; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
@@ -1684,7 +1686,7 @@
 				EEA372FB09540275001244CF /* Backend */,
 				EEA3309609537E48001244CF /* Resources */,
 				EE0E65B20DBC828600564003 /* macports-dylibs */,
-				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
+				EE3196E109AB7E8A0089A9A2 /* NibTest */,
 				EE4CA9E30D3D080100B1513B /* GNUstep GUI */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
@@ -1868,7 +1870,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		EE3196E109AB7E8A0089A9A2 /* mySTEP Test */ = {
+		EE3196E109AB7E8A0089A9A2 /* NibTest */ = {
 			isa = PBXGroup;
 			children = (
 				EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */,
@@ -1878,15 +1880,14 @@
 				EECD83FD0A089F8000EF3E30 /* myModel.m */,
 				EE31971109AB7E8B0089A9A2 /* myView.h */,
 				EE31971209AB7E8B0089A9A2 /* myView.m */,
-				EE1FA35D14A88641002A1AA1 /* CircleView.h */,
-				EE1FA35E14A88641002A1AA1 /* CircleView.m */,
-				EE869AB91662211000964140 /* TestView.h */,
-				EE869ABA1662211000964140 /* TestView.m */,
+				EEA69FA4174BAA3300F4FBFA /* CircleView.h */,
+				EEA69FA5174BAA3300F4FBFA /* CircleView.m */,
+				EEA69FAA174BAA6D00F4FBFA /* TestView.h */,
+				EEA69FAB174BAA6D00F4FBFA /* TestView.m */,
 				EE31970C09AB7E8B0089A9A2 /* main.m */,
 				EECD84030A089FA300EF3E30 /* Resources */,
 			);
-			name = "mySTEP Test";
-			path = ../TestApplications/NIB;
+			path = NibTest;
 			sourceTree = "<group>";
 		};
 		EE4CA9E30D3D080100B1513B /* GNUstep GUI */ = {
@@ -3571,8 +3572,8 @@
 				EE31972309AB7F290089A9A2 /* main.m in Sources */,
 				EE31972409AB7F290089A9A2 /* myView.m in Sources */,
 				EECD83FE0A089F8000EF3E30 /* myModel.m in Sources */,
-				EE1FA35F14A88641002A1AA1 /* CircleView.m in Sources */,
-				EE869ABB1662211000964140 /* TestView.m in Sources */,
+				EEA69FA6174BAA3300F4FBFA /* CircleView.m in Sources */,
+				EEA69FAC174BAA6D00F4FBFA /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3696,6 +3697,8 @@
 			files = (
 				EE93C7C70B901FE200FBD885 /* AppController.m in Sources */,
 				EE93C7900B901DF500FBD885 /* main.m in Sources */,
+				EEA69FA9174BAA3300F4FBFA /* CircleView.m in Sources */,
+				EEA69FAF174BAA6D00F4FBFA /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3707,8 +3710,8 @@
 				EEC8034009AE4EB6006EEB03 /* main.m in Sources */,
 				EEC8034109AE4EB6006EEB03 /* myView.m in Sources */,
 				EECD83FF0A089F8000EF3E30 /* myModel.m in Sources */,
-				EE1FA36014A88641002A1AA1 /* CircleView.m in Sources */,
-				EE869ABC1662211000964140 /* TestView.m in Sources */,
+				EEA69FA7174BAA3300F4FBFA /* CircleView.m in Sources */,
+				EEA69FAD174BAA6D00F4FBFA /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3720,8 +3723,8 @@
 				EEC8035909AE4EBF006EEB03 /* main.m in Sources */,
 				EEC8035A09AE4EBF006EEB03 /* myView.m in Sources */,
 				EECD84000A089F8100EF3E30 /* myModel.m in Sources */,
-				EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */,
-				EE869ABD1662211000964140 /* TestView.m in Sources */,
+				EEA69FA8174BAA3300F4FBFA /* CircleView.m in Sources */,
+				EEA69FAE174BAA6D00F4FBFA /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4678,7 +4681,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
+				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
@@ -4706,7 +4709,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/myTest/Info copy 2.plist";
+				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
@@ -4731,7 +4734,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/myTest/Info copy 2.plist";
+				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";

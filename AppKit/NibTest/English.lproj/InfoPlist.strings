@@ -1,0 +1,6 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "myTest";
+CFBundleShortVersionString = "1.0a1";
+CFBundleGetInfoString = "myTest, Copyright 2003 DSITRI.";
+NSHumanReadableCopyright = "Copyright 2003 DSITRI.";

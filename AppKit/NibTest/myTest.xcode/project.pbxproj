@@ -1,0 +1,497 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 39;
+	objects = {
+		014F96C9005DB72811CA0E35 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014F96CA005DB72811CA0E35 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//030
+//031
+//032
+//033
+//034
+		033B2046FF65C1FE11CA0E35 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = AppController.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		033B2047FF65C1FE11CA0E35 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = AppController.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//030
+//031
+//032
+//033
+//034
+//080
+//081
+//082
+//083
+//084
+		080E96DDFE201D6D7F000001 = {
+			children = (
+				033B2046FF65C1FE11CA0E35,
+				033B2047FF65C1FE11CA0E35,
+				EE12A7C505A9D1690062F31B,
+				EE12A7C605A9D1690062F31B,
+			);
+			isa = PBXGroup;
+			name = Classes;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C165CFE840E0CC02AAC07 = {
+			children = (
+				089C165DFE840E0CC02AAC07,
+			);
+			isa = PBXVariantGroup;
+			name = InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C165DFE840E0CC02AAC07 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = English;
+			path = English.lproj/InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//080
+//081
+//082
+//083
+//084
+//100
+//101
+//102
+//103
+//104
+		1058C7A0FEA54F0111CA2CBB = {
+			children = (
+				1058C7A1FEA54F0111CA2CBB,
+			);
+			isa = PBXGroup;
+			name = "Linked Frameworks";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		1058C7A1FEA54F0111CA2CBB = {
+			fallbackIsa = PBXFileReference;
+			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
+			name = Cocoa.framework;
+			path = /System/Library/Frameworks/Cocoa.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		1058C7A2FEA54F0111CA2CBB = {
+			children = (
+				29B97325FDCFA39411CA2CEA,
+				29B97324FDCFA39411CA2CEA,
+			);
+			isa = PBXGroup;
+			name = "Other Frameworks";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//100
+//101
+//102
+//103
+//104
+//290
+//291
+//292
+//293
+//294
+		29B97313FDCFA39411CA2CEA = {
+			buildSettings = {
+			};
+			buildStyles = (
+				014F96C9005DB72811CA0E35,
+				014F96CA005DB72811CA0E35,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 29B97314FDCFA39411CA2CEA;
+			productRefGroup = EEE41517058CDB65004BBB40;
+			projectDirPath = "";
+			targets = (
+				EE9A3D010581E60A0084D0C7,
+			);
+		};
+		29B97314FDCFA39411CA2CEA = {
+			children = (
+				EE27270005426A7F0000013C,
+				080E96DDFE201D6D7F000001,
+				29B97315FDCFA39411CA2CEA,
+				29B97317FDCFA39411CA2CEA,
+				29B97323FDCFA39411CA2CEA,
+				EE9A3D100581E60A0084D0C7,
+				EEE41517058CDB65004BBB40,
+			);
+			isa = PBXGroup;
+			name = BrowserTester;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA = {
+			children = (
+				29B97316FDCFA39411CA2CEA,
+			);
+			isa = PBXGroup;
+			name = "Other Sources";
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97316FDCFA39411CA2CEA = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = main.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA = {
+			children = (
+				29B97318FDCFA39411CA2CEA,
+				089C165CFE840E0CC02AAC07,
+				EEBFB2E705E89C97002B59FD,
+				EE29CD6E0586566F0035639B,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97318FDCFA39411CA2CEA = {
+			children = (
+				29B97319FDCFA39411CA2CEA,
+			);
+			isa = PBXVariantGroup;
+			name = MainMenu.nib;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97319FDCFA39411CA2CEA = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = English;
+			path = English.lproj/MainMenu.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA = {
+			children = (
+				1058C7A0FEA54F0111CA2CBB,
+				1058C7A2FEA54F0111CA2CBB,
+			);
+			isa = PBXGroup;
+			name = Frameworks;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		29B97324FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
+			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
+			name = AppKit.framework;
+			path = /System/Library/Frameworks/AppKit.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		29B97325FDCFA39411CA2CEA = {
+			fallbackIsa = PBXFileReference;
+			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
+			name = Foundation.framework;
+			path = /System/Library/Frameworks/Foundation.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+//290
+//291
+//292
+//293
+//294
+//EE0
+//EE1
+//EE2
+//EE3
+//EE4
+		EE12A7C505A9D1690062F31B = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = myView.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EE12A7C605A9D1690062F31B = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = myView.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EE12A7C705A9D1690062F31B = {
+			fileRef = EE12A7C505A9D1690062F31B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE12A7C805A9D1690062F31B = {
+			fileRef = EE12A7C605A9D1690062F31B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE27270005426A7F0000013C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			name = "cross-makefile";
+			path = "/Developer/Zaurus-X-gcc/SDKs/mySTEP.sdk/usr/mySTEP/etc/cross-makefile";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		EE29CD6E0586566F0035639B = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.icns;
+			path = myTest.icns;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EE29CD6F0586566F0035639B = {
+			fileRef = EE29CD6E0586566F0035639B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D010581E60A0084D0C7 = {
+			buildPhases = (
+				EE9A3D020581E60A0084D0C7,
+				EE9A3D040581E60A0084D0C7,
+				EE9A3D070581E60A0084D0C7,
+				EE9A3D0A0581E60A0084D0C7,
+				EE9A3D0E0581E60A0084D0C7,
+				EE9A3D1B0581E6480084D0C7,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = Info.plist;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = myTest;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = myTest;
+			productInstallPath = "$(USER_APPS_DIR)";
+			productName = myFinder;
+			productReference = EEE41516058CDB65004BBB40;
+			productType = "com.apple.product-type.application";
+		};
+		EE9A3D020581E60A0084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D030581E60A0084D0C7,
+				EE12A7C705A9D1690062F31B,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D030581E60A0084D0C7 = {
+			fileRef = 033B2046FF65C1FE11CA0E35;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D040581E60A0084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D050581E60A0084D0C7,
+				EE9A3D060581E60A0084D0C7,
+				EE29CD6F0586566F0035639B,
+				EEBFB2E805E89C97002B59FD,
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D050581E60A0084D0C7 = {
+			fileRef = 29B97318FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D060581E60A0084D0C7 = {
+			fileRef = 089C165CFE840E0CC02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D070581E60A0084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D080581E60A0084D0C7,
+				EE9A3D090581E60A0084D0C7,
+				EE12A7C805A9D1690062F31B,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D080581E60A0084D0C7 = {
+			fileRef = 033B2047FF65C1FE11CA0E35;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D090581E60A0084D0C7 = {
+			fileRef = 29B97316FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D0A0581E60A0084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D0B0581E60A0084D0C7,
+				EE9A3D0C0581E60A0084D0C7,
+				EE9A3D0D0581E60A0084D0C7,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D0B0581E60A0084D0C7 = {
+			fileRef = 1058C7A1FEA54F0111CA2CBB;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D0C0581E60A0084D0C7 = {
+			fileRef = 29B97325FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D0D0581E60A0084D0C7 = {
+			fileRef = 29B97324FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EE9A3D0E0581E60A0084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D100581E60A0084D0C7 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = Info.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EE9A3D1B0581E6480084D0C7 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=*.m                  # all source codes\nexport LIBS=                        # add any additional -lAddressBook etc.\nexport STRIP_MacOS=false            # set to true if you want a Linux-ARM only bundle\nexport INSTALL=true                 # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/Users/theuser/Applications   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=true                     # will try to run with X11 and mySTEP\n/usr/bin/make -f $SYSTEM_DEVELOPER_DIR/Zaurus-X-gcc/SDKs/mySTEP.sdk/usr/mySTEP/etc/cross-makefile $ACTION\n";
+		};
+		EEBFB2E705E89C97002B59FD = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.tiff;
+			path = Default.tiff;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EEBFB2E805E89C97002B59FD = {
+			fileRef = EEBFB2E705E89C97002B59FD;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		EEE41516058CDB65004BBB40 = {
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = myTest.app;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		EEE41517058CDB65004BBB40 = {
+			children = (
+				EEE41516058CDB65004BBB40,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA;
+}

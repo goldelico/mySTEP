@@ -90,6 +90,7 @@ ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # and that other libraries and include directories are available...
 # should exclude i386-apple-darwin
 ARCHITECTURES=$(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
+# ARCHITECTURES+=MacOS
 endif
 endif
 
@@ -120,7 +121,11 @@ DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/D
 ROOT:=$(QuantumSTEP)
 
 # tools
-# use platform specific cross-compiler
+# use platform specific (cross-)compiler
+ifeq ($(ARCHITECTURE),MacOS)
+TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
+CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
+else
 ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
@@ -129,8 +134,9 @@ TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/
 CC := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
-
 endif
+endif
+
 LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm

@@ -1,0 +1,1 @@
+#import "../../TestApplications/NSTextAlignmentTest/TestView.h"

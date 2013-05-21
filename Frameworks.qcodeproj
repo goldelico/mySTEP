@@ -31,6 +31,8 @@ for i in Foundation AppKit CoreData CoreDevice CoreFoundation Cocoa AddressBook 
 	do
 	(cd $i && xcodebuild -configuration 'Development' -target $(basename "$i") )
 	done
+( cd AppKit && xcodebuild -configuration 'Development' -target 'NIB Test mySTEP' )
+
 echo ## done. ##
 
 echo ## Extended Frameworks and binary tools ##
