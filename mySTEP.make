@@ -520,7 +520,7 @@ endif
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := mySTEP Application Framework and QuantumSTEP Desktop/Palmtop Environment
+DEBIAN_DESCRIPTION := part of QuantumSTEP Desktop/Palmtop Environment
 endif
 ifeq ($(DEBIAN_DEPENDS),)
 DEPENDS := quantumstep-cocoa-framework
