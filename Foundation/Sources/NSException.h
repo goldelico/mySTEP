@@ -31,9 +31,9 @@
 + (NSException *) exceptionWithName:(NSString *) name
 							 reason:(NSString *) reason
 						   userInfo:(NSDictionary *) userInfo;
-+ (volatile void) raise:(NSString *) name
++ (/*volatile*/ void) raise:(NSString *) name
 				 format:(NSString *) format, ...;
-+ (volatile void) raise:(NSString *) name
++ (/*volatile*/ void) raise:(NSString *) name
 				 format:(NSString *) format
 			  arguments:(va_list) argList;
 

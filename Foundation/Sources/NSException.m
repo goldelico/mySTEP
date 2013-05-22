@@ -97,7 +97,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 						  userInfo:userInfo] autorelease];
 }
 
-+ (volatile void) raise:(NSString *)name format:(NSString *)format,...
++ (/*volatile*/ void) raise:(NSString *)name format:(NSString *)format,...
 {
 	va_list args;
     va_start(args, format);
@@ -107,7 +107,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	// but va_end won't get called
 }
 
-+ (volatile void) raise:(NSString *)name
++ (/*volatile*/ void) raise:(NSString *)name
 				  format:(NSString *)format
 				  arguments:(va_list)argList
 {
