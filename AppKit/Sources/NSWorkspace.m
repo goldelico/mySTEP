@@ -872,7 +872,7 @@ additionalEventParamDescriptor:nil
 			   at:(NSPoint) point
 		   inView:(NSView *) aView
 {
-	// somehow pass anImage, point and view to myFinder - and make it not process the file
+	// animate the open process and then call
 	return [self openFile:fullPath withApplication:@"myFinder"];
 }
 
@@ -880,7 +880,7 @@ additionalEventParamDescriptor:nil
 inFileViewerRootedAtPath:(NSString *) rootFullpath
 {
 	// somehow pass rootFullpath to myFinder and make it 'show' instead of 'open'
-	return [self openFile:fullPath withApplication:@"myFinder"];
+	return [self openFile:rootFullpath withApplication:@"myFinder"];
 }
 
 - (BOOL) launchApplication:(NSString *) appName
