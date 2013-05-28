@@ -27,7 +27,7 @@
 #import <AppKit/NSTextContainer.h>
 #import <AppKit/NSTextStorage.h>
 #import <AppKit/NSCursor.h>
-#import <Foundation/NSBundle.h>
+#import <AppKit/NSNibLoading.h>
 
 #import "NSAppKitPrivate.h"
 
