@@ -28,12 +28,10 @@
 {
 	if((self=[super init]))
 		{
-		if((_response=response))
-			*_response=nil;
-		if((_error=error))
-			*_error=error;
-		if((_data=data))
-			*_data=data;
+		_response=response;
+		*_response=nil;
+		_error=error;
+		_data=data;
 		_done=NO;
 		}
 	return self;

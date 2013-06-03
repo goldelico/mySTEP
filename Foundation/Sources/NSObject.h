@@ -124,7 +124,7 @@ extern NSMapTable *__NSAllocationCountTable;
 static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)							// object allocation
 {
 	id newobject=nil;
-#ifdef __mySTEP__
+#ifdef __linux__
 	if (CLS_ISCLASS (aClass))
 		{
 		unsigned size = aClass->instance_size + sizeof(struct _object_layout);
@@ -137,7 +137,9 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 #endif
 				memset (newobject, 0, size);
 			newobject = (id)&((_object_layout)newobject)[1];
+#ifdef __mySTEP__
 			newobject->class_pointer = aClass;
+#endif
 			}
 //				fprintf(stderr, "%08x [%s alloc:%d]\n", newobject, aClass->name, size);
 			__NSAllocatedObjects++;	// one more
@@ -148,7 +150,7 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 
 static inline void NSDeallocateObject(NSObject *anObject)					// object deallocation
 {
-#ifdef __mySTEP__
+#ifdef __linux__
 	extern Class __zombieClass;
 	if (anObject != nil)
 		{
@@ -162,7 +164,9 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 			__NSCountDeallocate([anObject class]);
 			}
 #endif
+#ifdef __linux__
 		((id)anObject)->class_pointer = (void *)__zombieClass;	// destroy class pointer
+#endif
 		objc_free(o);
 		__NSAllocatedObjects--;	// one less
 		}

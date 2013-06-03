@@ -16,66 +16,21 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # To use this makefile in Xcode with Xtoolchain:
 #
-#  1. open the xcode project
-#  2. select the intended target in the Targets group
-#  3. select from the menu Build/New Build Phase/New Shell Script Build Phase
-#  4. select the "Shell Script Files" phase in the target
-#  5. open the information (i) or (Apple-I)
-#  6. copy the following code into the "Script" area
-
-########################### start cut here ############################
-
-# variables inherited from Xcode environment (or version.def)
-# PROJECT_NAME
-# PRODUCT_NAME						# e.g. Foundation
-# WRAPPER_EXTENSION					# e.g. framework
-# EXECUTABLE_NAME
-# BUNDLE_IDENTIFIER
-# BUILT_PRODUCTS_DIR
-# TARGET_BUILD_DIR
-
-# project settings for cross-compiler (that can't be derived from the Xcode project)
-export SOURCES=*.m                  # all source codes (no cross-compilation if empty)
-export LIBS=						# add any additional libraries like -ltiff etc. (space separated list)
-export FRAMEWORKS=					# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
-export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the embedded device
-#export ADD_MAC_LIBRARY=			# true to store a copy in /Library/Frameworks on the build host (needed for demo apps)
-
-# global/compile settings
-#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
-#export SEND2ZAURUS=true			# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
-#export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
-#export RUN_OPTIONS=-NoNSBackingStoreBuffered
-#export BUILD_FOR_DEPLOYMENT=		# true to generate optimized code and strip binaries
-#export	PREINST=./preinst			# preinst file
-#export	POSTRM=./postrm				# postrm file
-
-# Debian packages
-export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, separated list)
-# export DEBIAN_PACKAGE_NAME="quantumstep"	# manually define package name
-# export FILES=""					# list of other files to be added to the package (relative to $ROOT)
-# export DATA=""					# directory of other files to be added to the package (relative to /)
-# export DEBIAN_PREINST=./preinst	# preinst file if needed
-# export DEBIAN_POSTRM=./postrm		# postrm file if needed
-
-# start make script
-QuantumSTEP=/usr/share/QuantumSTEP /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
-
-########################### end to cut here ###########################
-
-#  7. change the SOURCES= line to include all required source files (e.g. main.m other/*.m)
-#  8. change the LIBS= line to add any non-standard libraries (e.g. -lsqlite3)
+#  1. create a project.qcodeproj file
+#  2. open through QuantumCode and edit the project definitions
+#  3. open the xcode project
+#  4. select the intended target in the Targets group
+#  5. select from the menu Build/New Build Phase/New Shell Script Build Phase
+#  6. select the "Shell Script Files" phase in the target
+#  7. open the information (i) or (Apple-I)
+#  8. add the following code into the "Script" area
+#     ./project.qcodeproj
 #  9. Build the project (either in deployment or development mode)
 #
 endif
 
-# translate old style definition
-
 ifeq ($(QuantumSTEP),)
 QuantumSTEP:=$(QuantumSTEP)
-endif
-ifeq ($(DEBIAN_DEPENDS),)
-DEBIAN_DEPENDS := $(DEPENDS)
 endif
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
@@ -84,8 +39,8 @@ include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 ARCHITECTURES=arm-linux-gnueabi
 
-ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+ifeq ($(ARCHITECTURES),)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 # and that other libraries and include directories are available...
 # should exclude i386-apple-darwin
@@ -102,11 +57,17 @@ ifeq ($(ARCHITECTURES),)	# still not defined
 ARCHITECTURES=i486-linux-gnu
 endif
 
+ARCHITECTURES+=i386-apple-darwin
+
 # configure Embedded System if undefined
+
+ROOT:=$(QuantumSTEP)
 
 ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
+
+# FIXME: zaurusconnect (rename to zrsh) should simply know how to access the currently selected device
 
 IP_ADDR:=$(shell defaults read de.dsitri.ZMacSync SelectedHost 2>/dev/null)
 
@@ -114,17 +75,27 @@ ifeq ($(IP_ADDR),)	# set a default
 IP_ADDR:=192.168.129.201
 endif
 
-# FIXME: zaurusconnect (rename to zrsh) should simply know how to access the currently selected device
-
 DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
 
-ROOT:=$(QuantumSTEP)
-
 # tools
-# use platform specific (cross-)compiler
-ifeq ($(ARCHITECTURE),MacOS)
-TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
-CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
+ifeq ($(shell uname),Darwin)
+# use platform specific (cross-)compiler on Darwin host
+DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
+# disable special MacOS X stuff for tar
+TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnutar
+
+ifeq ($(PRODUCT_NAME),All)
+# Xcode aggregate target
+PRODUCT_NAME=$(PROJECT_NAME)
+endif
+
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+TOOLCHAIN=/Developer/usr/bin
+CC := $(TOOLCHAIN)/gcc-4.0
+LD := $(CC)
+AS := $(TOOLCHAIN)/as
+NM := $(TOOLCHAIN)/nm
+STRIP := $(TOOLCHAIN)/strip
 else
 ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
@@ -133,25 +104,27 @@ else
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
-LD := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
-endif
-endif
-
-LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
+LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
-# TAR := tar
-
-# disable special MacOS X stuff for tar
-TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnutar
-# TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
-# TAR := $(QuantumSTEP)/this/bin/gnutar
-
-# Xcode aggregate target
-ifeq ($(PRODUCT_NAME),All)
-PRODUCT_NAME=$(PROJECT_NAME)
 endif
+endif
+
+else
+# native compile on target machine
+DOXYGEN := doxygen
+TAR := tar
+## FIXME: allow to cross-compile
+TOOLCHAIN := native
+CC := gcc
+LD := ld
+AS := as
+NM := nm
+STRIP := strip
+
+endif
+
 # if we call the makefile not within Xcode
 ifeq ($(BUILT_PRODUCTS_DIR),)
 BUILT_PRODUCTS_DIR=/tmp/$(PRODUCT_NAME)/
@@ -159,9 +132,6 @@ endif
 ifeq ($(TARGET_BUILD_DIR),)
 TARGET_BUILD_DIR=/tmp/$(PRODUCT_NAME)/
 endif
-
-## FIXME: handle meta packages without WRAPPER_EXTENSION; PRODUCT_NAME = "All" ?
-## i.e. target type Aggregate
 
 # define CONTENTS subdirectory as expected by the Foundation library
 
@@ -188,7 +158,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).so
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+	LDFLAGS := -dylib $(LDFLAGS)
+else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
+endif
 else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
@@ -198,7 +172,11 @@ else
 ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+	LDFLAGS := -dylib $(LDFLAGS)
+else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
+endif
 endif
 endif
 endif
@@ -237,7 +215,6 @@ endif
 ifneq ($(ARCHITECTURES),)
 	# make for architectures $(ARCHITECTURES)
 	for ARCH in $(ARCHITECTURES); do \
-		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
 		export ARCHITECTURES="$$ARCHITECTURES"; \
@@ -394,20 +371,28 @@ endif
 
 LIBRARIES := \
 		-L$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
 		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
 		$(LIBS)
 
+ifneq ($(ARCHITECTURE),i386-apple-darwin)
+LIBRARIES := \
+		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
+		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		$(LIBRARIES)
+endif
+
 ifneq ($(OBJCSRCS)$(FMWKS),)
-LIBRARIES += -lobjc -lm -lgcc_s
+LIBRARIES += -lobjc -lm
+ifneq ($(ARCHITECTURE),i386-apple-darwin)
+LIBRARIES += -lgcc_s
+endif
 endif
 
 .SUFFIXES : .o .c .cpp .m
@@ -458,7 +443,6 @@ make_php:
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
-DOXYGEN = /Applications/Doxygen.app/Contents/Resources/doxygen
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
@@ -479,7 +463,7 @@ build_doxy:	build/$(PRODUCT_NAME).docset
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(NO_DOXY),true)
-	$(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
+	- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	pwd
 	echo "PROJECT_NAME      = \"$(PRODUCT_NAME).$(WRAPPER_EXTENSION)\"" >>build/$(PRODUCT_NAME).doxygen
 	echo "PROJECT_BRIEF      = \"a QuantumSTEP framework\"" >>build/$(PRODUCT_NAME).doxygen
