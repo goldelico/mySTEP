@@ -127,10 +127,10 @@ endif
 
 # if we call the makefile not within Xcode
 ifeq ($(BUILT_PRODUCTS_DIR),)
-BUILT_PRODUCTS_DIR=/tmp/$(PRODUCT_NAME)/
+BUILT_PRODUCTS_DIR=build/Deployment
 endif
 ifeq ($(TARGET_BUILD_DIR),)
-TARGET_BUILD_DIR=/tmp/$(PRODUCT_NAME)/
+TARGET_BUILD_DIR=build/Deployment
 endif
 
 # define CONTENTS subdirectory as expected by the Foundation library
@@ -463,6 +463,7 @@ build_doxy:	build/$(PRODUCT_NAME).docset
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(NO_DOXY),true)
+	mkdir -p build
 	- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	pwd
 	echo "PROJECT_NAME      = \"$(PRODUCT_NAME).$(WRAPPER_EXTENSION)\"" >>build/$(PRODUCT_NAME).doxygen
