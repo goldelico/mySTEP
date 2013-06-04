@@ -212,15 +212,15 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 	NSLog(@"portNameServer=%@", server);
 #endif
-#if __APPLE__
+#if 0
 	if([server isKindOfClass:NSClassFromString(@"NSMachBootstrapServer")])
 		port=[NSMachPort port];		// assign free port
 	else
 #endif
-		if([server isKindOfClass:[NSSocketPortNameServer class]])
-			port=[NSSocketPort port];		// assign free IP port number
-		else
-			port=[NSMessagePort port];	// assign free port
+	if([server isKindOfClass:[NSSocketPortNameServer class]])
+		port=[NSSocketPort port];		// assign free IP port number
+	else
+		port=[NSMessagePort port];	// assign free port
 	if(!port || ![server registerPort:port name:name])	// register
 		return nil;	// did not register
 	connection=[NSConnection connectionWithReceivePort:port sendPort:nil];	// create connection

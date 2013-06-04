@@ -151,11 +151,12 @@ static id __processInfo = nil;
 		_processName = [aName copy];
 		}
 }
-															// disable release
-- (id) autorelease							{ return self; }
-- (id) retain								{ return self; }
-- (void) release							{ return; }
-- (NSUInteger) processorCount;	{ return 1; }
+
+// disable release
+- (id) autorelease						{ return self; }
+- (id) retain							{ return self; }
+- (void) release						{ return; }
+- (NSUInteger) processorCount;			{ return 1; }
 - (unsigned long long) physicalMemory;	{ return 0; }
 - (NSUInteger) activeProcessorCount;	{ return 1; }
 
@@ -164,18 +165,8 @@ static id __processInfo = nil;
 
 #ifdef main													// redefine main()
 #undef main
-// #warning "main() is redefined to objc_main()."
 
 extern int objc_main(int argc, char** argv, char** env);
-
-#if 0
-#ifdef __APPLE__	///// FIXME:  objc_main should be exported as a still undefined reference by the library!!!
-int objc_main(int argc, char** argv, char** env)
-{
-	return 0;
-}
-#endif
-#endif
 
 #define MEMORY_LIMIT 0
 

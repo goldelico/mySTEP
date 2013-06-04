@@ -3927,7 +3927,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 //
 //*****************************************************************************
 
-#ifndef __APPLE__
+#ifdef __APPLE__
+
+/* this allows us to compile on MacOS X - but it does not work */
+/* described by http://jens.ayton.se/blag/objc-constant-objects/#objc-constant-objects-footnote-1 */
+int __CFConstantStringClassReference [];
+
+#else
 
 @implementation _NSConstantStringClassName
 

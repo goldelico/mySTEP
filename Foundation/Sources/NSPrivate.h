@@ -358,6 +358,8 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 - (unsigned char) _deserializeTypeTagAtCursor:(unsigned*)cursor;
 - (unsigned) _deserializeCrossRefAtCursor:(unsigned*)cursor;
 
+- (NSData *) _inflate;
+
 @end
 
 

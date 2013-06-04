@@ -159,7 +159,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	LDFLAGS := -dylib $(LDFLAGS)
+	LDFLAGS := -dylib -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
@@ -173,7 +173,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	LDFLAGS := -dylib $(LDFLAGS)
+	LDFLAGS := -dylib -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
 endif
@@ -295,6 +295,10 @@ INCLUDES := $(INCLUDES) \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+INCLUDES += $(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2
+endif
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
 

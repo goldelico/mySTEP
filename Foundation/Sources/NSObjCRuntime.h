@@ -114,6 +114,7 @@ typedef struct __CGEvent *CGEventRef;
 
 #ifdef __APPLE__			
 // MacOS X - translate libobjc to MacOS X calling conventions (if possible?)
+// this makes it compile but not run on MacOS X
 
 #include <objc/objc-class.h>
 #include <objc/objc-load.h>
@@ -187,17 +188,20 @@ const char *objc_skip_typespec (const char *type);
 typedef void *objc_mutex_t;
 typedef void *objc_condition_t;
 
-// differs from GNU definition!
-#define _C_CONST	'c'
-#define _C_IN		'i'
-#define _C_INOUT	'j'
-#define _C_OUT		'o'
-#define _C_BYCOPY	'b'
-#define _C_ONEWAY	'-'
-#define _C_BYREF	'r'
+// this differs from GNU definition!
 
-#define _C_LNG_LNG	'1'
-#define _C_ULNG_LNG	'2'
+#define _C_CONST	'r'
+#define _C_IN		'n'
+#define _C_INOUT	'N'
+#define _C_OUT		'o'
+#define _C_BYCOPY	'O'
+#define _C_BYREF	'R'
+#define _C_ONEWAY	'V'
+
+#ifndef _C_LNG_LNG
+#define _C_LNG_LNG	'q'
+#define _C_ULNG_LNG	'Q'
+#endif
 #define _C_ATOM		'%'
 
 #define _F_CONST	0x01

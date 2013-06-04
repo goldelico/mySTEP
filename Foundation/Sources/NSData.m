@@ -970,7 +970,7 @@ static IMP appendImp;
 
 @implementation NSData (Zip)
 
-- (NSData *) inflate;
+- (NSData *) _inflate;
 {
 	z_stream strm;
 	int err;
