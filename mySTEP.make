@@ -96,6 +96,7 @@ LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
+SO := dylib
 else
 ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
@@ -109,6 +110,7 @@ AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
 endif
+SO := so
 endif
 
 else
@@ -122,7 +124,7 @@ LD := ld
 AS := as
 NM := nm
 STRIP := strip
-
+SO := so
 endif
 
 # if we call the makefile not within Xcode
@@ -155,11 +157,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
-	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).so
+	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	LDFLAGS := -dylib -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dynamiclib -dylib -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
@@ -297,7 +299,7 @@ INCLUDES := $(INCLUDES) \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-INCLUDES += $(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2
+INCLUDES += -I$(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/include -I/usr/include/X11/.. -I/usr/include/X11/../freetype2
 endif
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
@@ -390,6 +392,8 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(LIBRARIES)
+else
+LIBRARIES := -L$(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/lib -L/usr/X11R6/lib $(LIBRARIES)
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
@@ -774,7 +778,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
-	- ln -sf lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
+	- ln -sf lib$(EXECUTABLE_NAME).$(SO) $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
 endif
 
 # EOF

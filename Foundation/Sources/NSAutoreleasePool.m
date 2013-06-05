@@ -107,9 +107,10 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	return (*__initImp)(arp, @selector(init));
 }
 
+// this are private methods!
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
 + (void) setPoolCountThreshhold:(unsigned)c	{ __poolCountThreshold = c; }
-+ (void) enableDoubleReleaseCheck:(BOOL)en	{}
++ (void) enableDoubleReleaseCheck:(BOOL)en	{ }
 - (oneway void) release						{ [self dealloc]; }
 
 - (NSString *) description; { return [NSString stringWithFormat:@"%p %@ released:%u", self, NSStringFromClass(isa), _released_count]; }
@@ -179,7 +180,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 #endif
 	if (_released_count >= __poolCountThreshold)
 		[NSException raise: NSGenericException
-					 format: @"AutoreleasePool count threshhold exceeded."];
+					 format: @"AutoreleasePool count threshold exceeded."];
 												// Get new array for the list,  
 	if (_released->count == _released->size)	// if the current one is full.
 		{
