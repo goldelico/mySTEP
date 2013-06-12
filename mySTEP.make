@@ -45,7 +45,7 @@ ifeq ($(ARCHITECTURES),)
 # and that other libraries and include directories are available...
 # should exclude i386-apple-darwin
 ARCHITECTURES=$(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-# ARCHITECTURES+=MacOS
+# ARCHITECTURES+=i386-apple-darwin
 endif
 endif
 
@@ -57,7 +57,8 @@ ifeq ($(ARCHITECTURES),)	# still not defined
 ARCHITECTURES=i486-linux-gnu
 endif
 
-ARCHITECTURES+=i386-apple-darwin
+# experimental
+# ARCHITECTURES+=i386-apple-darwin
 
 # configure Embedded System if undefined
 

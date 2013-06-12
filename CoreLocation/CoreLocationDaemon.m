@@ -109,7 +109,7 @@ static int startW2SG;
 #endif
 //	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
 	if(!managers)
-		{ // set up GPS receiver and wait for first fix
+		{ // set up GPS receiver
 			NSString *dev=[self _device];
 #if 1
 			NSLog(@"Start reading NMEA on device file %@", dev);
@@ -136,6 +136,7 @@ static int startW2SG;
 			// power on GPS receiver and antenna
 			NSLog(@"power on GPS");
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
+			system("rfkill unblock gps");
 			[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
 		}
@@ -184,6 +185,7 @@ static int startW2SG;
 			// power off antenna
 			NSLog(@"power off GPS");
 			system("echo 0 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 0 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
+			system("rfkill block gps");
 			exit(0);	// last client has unregistered
 		}
 }

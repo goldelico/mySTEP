@@ -246,6 +246,7 @@ static CLHeading *newHeading;
 #if 1
 			NSLog(@"initialized");
 #endif
+			// FIXME: maybe we should block until we get the first fix
 		}
 	return self;
 }
