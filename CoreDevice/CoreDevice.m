@@ -132,28 +132,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
-#define VMIN	3300.0
-#define VMAX	4250.0
+- (NSString *) batteryPath:(NSString *) value
+{
+	if([[NSString stringWithContentsOfFile:@"/sys/class/power_supply/bq27000-battery/present"] intValue] == 1)
+		return [NSString stringWithFormat:@"/sys/class/power_supply/bq27000-battery/%@", value];
+	return [NSString stringWithFormat:@"/sys/class/power_supply/twl4030_battery/%@", value];
+}
 
 - (float) batteryLevel;
 {
-	float level;
-	// bq27000 on 3.7 kernel
-	NSString *val=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/capacity"];
-	if([val length] > 0)
-		return [val intValue]/100.0;
-	// battery voltage in mV on 3.7 kernel
-	val=[NSString stringWithContentsOfFile:@"/sys/devices/platform/twl4030_madc_hwmon/in12_input"];
-	// battery voltage in mV on 2.6 kernel
-	if(!val)
-		val=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/voltage_now"];
-	if(!val)
-		return -1.0;	// unknown
-	/* should add some calibration curve */
-	level=([val intValue]-VMIN)/(VMAX-VMIN);	// estimate charging level from voltage
-	if(level < 0.0) level=0.0;
-	if(level > 1.0) level=1.0;
-	return level;
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"capacity"]];
+	return [val intValue]/100.0;
 }
 
 - (BOOL) isBatteryMonitoringEnabled;
@@ -171,66 +160,32 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 }
 
 - (UIDeviceBatteryState) batteryState;
-{ // bq always reports "presence" = "1"
-	// these bq calls are blocking for timeout if we have no battery!
-	id status=[NSData dataWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/capacity"];
-#if 0
-	NSLog(@"bq27000 capacity %@", status);
-#endif
-	if([status length] > 0)
-		{ // reports valid capacity value
-			status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/status"];
-			if(status)
-				{ // bq27000 on 3.7 kernel
-#if 0
-					NSLog(@"bq27000 status %@", status);
-#endif
-					if([status hasPrefix:@"Charging"])
-						{
-						status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_usb/status"];
-						if([status hasPrefix:@"Charging"])
-							return UIDeviceBatteryStateCharging;
-						status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_ac/status"];
-						if([status hasPrefix:@"Charging"])
-							return UIDeviceBatteryStateACCharging;
-						return UIDeviceBatteryStateUnknown;
-						}
-					if([status hasPrefix:@"Full"])
-						return UIDeviceBatteryStateFull;
-					if([status hasPrefix:@"Discharging"])
-						return UIDeviceBatteryStateUnplugged;	// i.e.not connected to charger
-				}
+{
+	NSString *status=[NSString stringWithContentsOfFile:[self batteryPath:@"status"]];
+	if(status)
+		{
+		if([status hasPrefix:@"Charging"])
+			{
+			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
+			if([status hasPrefix:@"Charging"])
+				return UIDeviceBatteryStateCharging;
+			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_ac/status"];
+			if([status hasPrefix:@"Charging"])
+				return UIDeviceBatteryStateACCharging;
+			return UIDeviceBatteryStateUnplugged;	// we don't know why the battery is charging...
+			}
+		if([status hasPrefix:@"Full"])
+			return UIDeviceBatteryStateFull;
+		if([status hasPrefix:@"Discharging"])
+			return UIDeviceBatteryStateUnplugged;	// i.e. not connected to charger
 		}
-	status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_usb/status"];
-#if 0
-	NSLog(@"3.7 USB charger status %@", status);
-#endif
-	if(!status)
-		status=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/status"];
-#if 0
-	NSLog(@"status %@", status);
-#endif
-	if(status == nil)
-		return UIDeviceBatteryStateUnknown;
-	if([self batteryLevel] >= 0.97)
-		return UIDeviceBatteryStateFull;
-	if([status hasPrefix:@"Charging"])
-		return UIDeviceBatteryStateCharging;
-	status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_ac/status"];
-	if([status hasPrefix:@"Charging"])
-		return UIDeviceBatteryStateACCharging;
-	return UIDeviceBatteryStateUnplugged;	// assume discharging
+	return UIDeviceBatteryStateUnknown;
 }
 
 - (NSTimeInterval) remainingTime;
-{ // estimate remaining time
-	NSString *status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/time_to_empty_now"];
-#if 0
-	NSLog(@"bq27000 remainingTime %@", status);
-#endif
-	if([status length] > 0)
-		return [status doubleValue];
-	return [self batteryLevel]*((1200*3600/450));	// 1200 mAh / 450 mA
+{ // estimate remaining time (in seconds)
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"time_to_empty_now"]];
+	return [val doubleValue];
 }
 
 - (NSString *) localizedModel;
@@ -240,7 +195,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) model;
 {
-	return @"GTA04";	// read from sysinfo database
+	return @"GTA04";	// should be read from sysinfo database
 }
 
 - (BOOL) isMultitaskingSupported;	/* always YES */
