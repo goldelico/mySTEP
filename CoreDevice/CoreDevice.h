@@ -89,5 +89,7 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 @interface UIDevice (Extensions)
 
 - (NSTimeInterval) remainingTime;
+- (float) batteryVoltage;	// in volt
+- (float) batteryDischargingCurrent;	// in Ampere (negative = charging)
 
 @end

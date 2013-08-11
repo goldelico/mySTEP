@@ -8,6 +8,7 @@
 
 #import "CoreDevice.h"
 #import <AppKit/NSApplication.h>
+#import <AppKit/NSSound.h>
 
 NSString *UIDeviceBatteryLevelDidChangeNotification=@"UIDeviceBatteryLevelDidChangeNotification";
 NSString *UIDeviceBatteryStateDidChangeNotification=@"UIDeviceBatteryStateDidChangeNotification";
@@ -73,6 +74,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		_previousOrientation=UIDeviceOrientationUnknown;
 		_previousProximityState=NO;
 		}
+	NSLog(@"init: %@", self);
     }
     return self;
 }
@@ -89,6 +91,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _update;
 {
+#if 1
+	NSLog(@"CoreDevice _update");
+#endif
 	if(batteryMonitoringEnabled)
 		{
 		UIDeviceBatteryState s=[self batteryState];
@@ -142,6 +147,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (float) batteryLevel;
 {
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"capacity"]];
+#if 0
+	NSLog(@"batteryLevel = %@", val);
+#endif
 	return [val intValue]/100.0;
 }
 
@@ -152,6 +160,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) setBatteryMonitoringEnabled:(BOOL) state;
 {
+#if 0
+	NSLog(@"setBatteryMonitoringEnabled = %d", state);
+#endif
 	if(batteryMonitoringEnabled != state)
 		{
 		batteryMonitoringEnabled=state;
@@ -160,8 +171,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 }
 
 - (UIDeviceBatteryState) batteryState;
-{
+{ // should not be called too often in sequence!
+	// we may check and cache the value...
 	NSString *status=[NSString stringWithContentsOfFile:[self batteryPath:@"status"]];
+#if 0
+	NSLog(@"batteryState=%@", status);
+#endif
 	if(status)
 		{
 		if([status hasPrefix:@"Charging"])
@@ -186,6 +201,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 { // estimate remaining time (in seconds)
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"time_to_empty_now"]];
 	return [val doubleValue];
+}
+
+- (float) batteryVoltage;
+{
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"voltage_now"]];
+	return [val floatValue] * 1e-6;
+}
+
+- (float) batteryDischargingCurrent;
+{
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"current_now"]];
+	return [val floatValue] * 1e-6;
 }
 
 - (NSString *) localizedModel;
@@ -255,10 +282,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) setProximityMonitoringEnabled:(BOOL) state;
 {
+	if(state != proximityMonitoringEnabled)
+		{
 #if 0	// we can't set it to YES unless we have a proximity sensor
-	proximityMonitoringEnabled=state;
+		proximityMonitoringEnabled=state;
 #endif
-	[self _updater];
+		[self _updater];		
+		}
 }
 
 - (BOOL) proximityState;
@@ -270,7 +300,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) playInputClick;
 {
-	
+	[[NSSound soundNamed:@"Click"] play];
 }
 
 @end
