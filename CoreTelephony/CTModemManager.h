@@ -53,7 +53,7 @@ typedef enum _CTPinStatus
 - (NSString *) runATCommandReturnResponse:(NSString *) cmd;
 
 - (NSString *) error;
-- (BOOL) isAvaliable;
+- (BOOL) isAvailable;
 
 - (CTPinStatus) pinStatus;
 - (BOOL) sendPIN:(NSString *) pin;	// try to unlock; if ok, returns YES but use pinStatus to wait for real unlock

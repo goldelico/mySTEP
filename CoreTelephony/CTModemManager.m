@@ -150,7 +150,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			error=@"Failed to intialize modem.";
 			return;			
 		}
-//	[self runATCommandReturnResponse:@"AT+FIRMWARE VERSION"];	// get firmware version
+//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version and handle differently
 	// FIXME:
 //	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
@@ -168,7 +168,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) error; { return error; }
 
-- (BOOL) isAvaliable; {	return modem != nil; }
+- (BOOL) isAvailable; {	return modem != nil; }
 
 - (void) setUnsolicitedTarget:(id) t action:(SEL) a;
 {
