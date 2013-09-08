@@ -155,8 +155,13 @@ static Class __formCellClass = Nil;
 		// alternativ NSName und NSTitle?
 		_titleWidth=[aDecoder decodeFloatForKey:@"NSTitleWidth"];
 		_titleCell=[[aDecoder decodeObjectForKey:@"NSTitleCell"] retain];
-			[self _setTextColor:[NSColor controlTextColor]];
-			[_titleCell _setTextColor:[NSColor controlTextColor]];
+		if([aDecoder containsValueForKey:@"NSContents"])
+			[self setStringValue:[aDecoder decodeObjectForKey:@"NSContents"]];	// we have a setTitle: method and therefore did not initialize the string value
+		[self _setTextColor:[NSColor controlTextColor]];
+		[_titleCell _setTextColor:[NSColor controlTextColor]];
+#if 0
+		NSLog(@"initWithCoder %@ - %@", self, [self stringValue]);
+#endif
 		return self;
 		}
 	_titleCell = [aDecoder decodeObject];
@@ -188,7 +193,7 @@ static Class __formCellClass = Nil;
 						  mode:NSRadioModeMatrix
 					 cellClass:[isa cellClass]
 				  numberOfRows:0
-			   numberOfColumns:0];
+			   numberOfColumns:1];	// NSForm is a single column matrix...
 	if(self)
 		{
 		_m.drawsBackground=NO;
