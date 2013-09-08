@@ -1447,12 +1447,22 @@ static NSArray *prevList;
 		if([path hasPrefix:@"."])
 			continue;	// skip
 		if([path isEqualToString:@"active"])
-			continue;	// skip
+			continue;	// skip active application
 		path=[lsdatabase stringByAppendingPathComponent:path];	// get full path
-		app=[NSDictionary dictionaryWithContentsOfFile:path];
-		if(app)
-			[list addObject:app];
+		NS_DURING
+			app=[NSDictionary dictionaryWithContentsOfFile:path];
+#if 0
+		NSLog(@"+ %@ -> %@", path, app);
+#endif
+			if([app count] == 6)	// appears to be complete (ignored otherwise)
+				[list addObject:app];
+		NS_HANDLER
+			; // ignore exceptions
+		NS_ENDHANDLER
 		}
+#if 0
+	NSLog(@"launchedApplications=%@", list);
+#endif
 	return list;
 }
 
