@@ -44,6 +44,7 @@ typedef enum _CTPinStatus
 }
 
 + (CTModemManager *) modemManager;
++ (void) enableLog:(BOOL) flag;
 
 - (void) setUnsolicitedTarget:(id) target action:(SEL) action;
 

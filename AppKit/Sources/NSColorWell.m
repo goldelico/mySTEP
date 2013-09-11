@@ -78,7 +78,7 @@
 
 - (void) mouseDown:(NSEvent*)event
 {
-	if([super isEnabled])
+	if(![super isEnabled])
 		return;	// ignore
 	_cw.isActive = !(_cw.isActive);
 	[self setNeedsDisplay:YES];

@@ -21,7 +21,29 @@
 
 @end
 
+// FIXME: split into low-end (modem serial - Private) and high-end methods (AT command level)
+
 @implementation CTModemManager
+
+BOOL modemLog=NO;
+
++ (void) enableLog:(BOOL) flag;
+{
+	modemLog=flag;
+}
+
+- (void) log:(NSString *) msg
+{
+	if(modemLog)
+		{
+		FILE *f=fopen("/tmp/CTModemManager.log", "a");
+		if(f)
+			{
+			fprintf(f, "%s\n", [[NSString stringWithFormat:@"%@: %@", [NSDate date], msg] UTF8String]);
+			fclose(f);
+			}
+		}
+}
 
 /* NIB-safe Singleton pattern */
 
@@ -82,12 +104,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) dealloc
 { // should not happen for a singleton!
+#if 1
 	NSLog(@"CTModemManager dealloc");
 	abort();
+#endif
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:NSFileHandleReadCompletionNotification
 												  object:modem];	// don't observe any more
-	[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
 	[self _closeHSO];
 	[error release];
 	[lastChunk release];
@@ -102,11 +125,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification
 														  object:modem];	// don't observe any more
-			[modem release];
-			modem=nil;
+			[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
 			[modes release];
 			modes=nil;
 			error=@"Modem closed";
+			[modem release];
+			modem=nil;
+			// should we power off the modem?
 		}	
 }
 
@@ -117,17 +142,23 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];	// if open
+	error=@"Opening modem";
 	for(i=1; i<5; i++)
-		{		
+		{
+			NSString *gpio=@"/sys/devices/virtual/gpio/gpio186/value";
 			modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
+			if(modemLog) [self log:[NSString stringWithFormat:@"WWAN port %@ %@", dev, modem?@"exists":@"not found"]];
 			if(modem)
 				break;	// found open
-			system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
-			system("echo 0 >/sys/devices/virtual/gpio/gpio186/value");
-			sleep(5);
+			if(modemLog) [self log:[NSString stringWithFormat:@"WWAN pulse %d on: %@", i, gpio]];
+			[@"1" writeToFile:gpio atomically:NO];	// wake up modem on GTA04A4
+			sleep(1);
+			[@"0" writeToFile:gpio atomically:NO];
+			sleep(4);
 		}
 	if(!modem)
 		{
+		if(modemLog) [self log:@"failed to open modem"];
 		error=@"Can't open modem.";
 		NSLog(@"could not open %@", dev);
 		return;		
@@ -136,6 +167,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// FIXME: or should we work only on the /dev/ttyHS_Modem port???
 	atstarted=NO;
 	done=YES;	// no command is running
+	error=nil;
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_dataReceived:)
 												 name:NSFileHandleReadCompletionNotification 
@@ -201,6 +233,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
 	if(!done)
 		{
+		if(modemLog) [self log:@"timeout"];
 		NSLog(@"timeout for %@", cmd);
 		// we could try to reopen the modem file handle here	
 		}
@@ -245,6 +278,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _processLine:(NSString *) line;
 {
+	if(modemLog) [self log:[NSString stringWithFormat:@"r (done=%d at=%d): %@", done, atstarted, line]];
 #if 1
 	fprintf(stderr, "WWAN r (done=%d at=%d): %s\n", done, atstarted, [[line description] UTF8String]);
 	//	NSLog(@"WWAN r (s=%d): %@", state, line);
@@ -326,6 +360,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) _writeCommand:(NSString *) str;
 {
 	NSAssert(modem, @"needs NSFileHandle");
+	if(modemLog) [self log:[NSString stringWithFormat:@"w (done=%d at=%d): %@", done, atstarted, str]];
 #if 1
 	fprintf(stderr, "WWAN w (done=%d at=%d): %s\n", done, atstarted, [[str description] UTF8String]);
 	//	NSLog(@"WWAN w: %@", str);
@@ -342,6 +377,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	[self runATCommand:@"AT_ORESET"];	// with default timeout to give modem a chance to respond with "OK"
 	error=@"Resetting Modem.";
+	// FIXME: wait until the modem is really reset - it may still accept commands for a short time...
 	[self _openHSO];	// will close current connection and reopen
 }
 
@@ -349,8 +385,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	CTModemManager *m=[CTModemManager modemManager];
 	pinStatus=CTPinStatusUnlocked;	// now unlocked
+#if OLD	// or should we simply issue these AT commands and handle their responses by the unsolicitedMessage handler?
 	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT_OSIMOP"]];
 	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT+CSQ"]];
+#else
+	[m runATCommand:@"AT_OSIMOP"];
+	[m runATCommand:@"AT+CSQ"];
+#endif
 }
 
 - (BOOL) sendPIN:(NSString *) p;
@@ -506,7 +547,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[pin setStringValue:[[pin stringValue] stringByAppendingString:[sender title]]];	// type digit
 }
 
-// we may add a checkbox to reveal/hide the PIN...
+// we should add a checkbox to reveal/hide the PIN...
 // [pin setEchosBullets:YES/NO]
 
 
@@ -526,6 +567,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			case CTPinStatusUnlocked:
 				return YES;
 			case CTPinStatusPINRequired:
+				// FIXME: p is nil here!!!
 				if(p && [self sendPIN:p])
 					return YES;	// successful - otherwise open panel
 				// loop while panel is open (so that the user can cancel it)

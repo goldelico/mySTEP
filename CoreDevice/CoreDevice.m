@@ -130,7 +130,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
-- (void) _updater;
+- (void) _startUpdater;
 {
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel previous updates
 	if(generatingDeviceOrientationNotifications || proximityMonitoringEnabled || batteryMonitoringEnabled)
@@ -166,21 +166,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if(batteryMonitoringEnabled != state)
 		{
 		batteryMonitoringEnabled=state;
-		[self _updater];	// trigger updates
+		[self _startUpdater];	// trigger updates
 		}
 }
 
 - (UIDeviceBatteryState) batteryState;
 { // should not be called too often in sequence!
-	// we may check and cache the value...
+	// we may check when it was lastly asked for and cache the value...
 	NSString *status=[NSString stringWithContentsOfFile:[self batteryPath:@"status"]];
 #if 0
 	NSLog(@"batteryState=%@", status);
 #endif
 	if(status)
 		{
+		if([status hasPrefix:@"Full"])
+			return UIDeviceBatteryStateFull;
 		if([status hasPrefix:@"Charging"])
 			{
+			if([self batteryLevel] > 0.99)
+				return UIDeviceBatteryStateFull;
+			// check if VBUS/VAC is >= 4.8V for proper and reliable charging
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateCharging;
@@ -189,9 +194,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				return UIDeviceBatteryStateACCharging;
 			return UIDeviceBatteryStateUnplugged;	// we don't know why the battery is charging...
 			}
-		if([status hasPrefix:@"Full"])
-			return UIDeviceBatteryStateFull;
 		if([status hasPrefix:@"Discharging"])
+			// FIXME: check VBUS/VAC for > 1V and report bad/insufficient charger
 			return UIDeviceBatteryStateUnplugged;	// i.e. not connected to charger
 		}
 	return UIDeviceBatteryStateUnknown;
@@ -203,8 +207,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [val doubleValue];
 }
 
+- (unsigned int) chargingCycles;
+{ // number of charging cycles
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"cycle_count"]];
+	return [val intValue];
+}
+
 - (float) batteryVoltage;
 {
+	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"voltage_now"]];
+	return [val floatValue] * 1e-6;
+}
+
+- (float) chargerVoltage;
+{
+	// FIXME: use VAC or VBUS
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"voltage_now"]];
 	return [val floatValue] * 1e-6;
 }
@@ -253,13 +270,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) beginGeneratingDeviceOrientationNotifications;
 {
 	generatingDeviceOrientationNotifications=YES;
-	[self _updater];
+	[self _startUpdater];
 }
 
 - (void) endGeneratingDeviceOrientationNotifications;
 {
 	generatingDeviceOrientationNotifications=NO;
-	[self _updater];
+	[self _startUpdater];
 }
 
 - (UIDeviceOrientation) orientation;
@@ -287,7 +304,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 0	// we can't set it to YES unless we have a proximity sensor
 		proximityMonitoringEnabled=state;
 #endif
-		[self _updater];		
+		[self _startUpdater];		
 		}
 }
 

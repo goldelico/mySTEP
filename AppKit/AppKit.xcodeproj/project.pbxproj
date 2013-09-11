@@ -1899,6 +1899,8 @@
 				EE1227800D059CAF000E4BA5 /* NSCollectionView.m */,
 				EE1227810D059CAF000E4BA5 /* NSCollectionViewItem.h */,
 				EE1227820D059CAF000E4BA5 /* NSCollectionViewItem.m */,
+				EEA3720A09540273001244CF /* NSColorWell.h */,
+				EEA3720B09540273001244CF /* NSColorWell.m */,
 				EEA3720C09540273001244CF /* NSComboBox.h */,
 				EEA3720D09540273001244CF /* NSComboBox.m */,
 				EE349C3F097027D500CBF42C /* NSComboBoxCell.h */,
@@ -2080,8 +2082,6 @@
 				EEA3720609540273001244CF /* NSColorList.h */,
 				EE349C3E097027D500CBF42C /* NSColorSpace.h */,
 				EE61B6A509B21985005A250B /* NSColorSpace.m */,
-				EEA3720A09540273001244CF /* NSColorWell.h */,
-				EEA3720B09540273001244CF /* NSColorWell.m */,
 			);
 			name = Color;
 			sourceTree = "<group>";
