@@ -63,7 +63,7 @@ typedef enum _CTPinStatus
 - (IBAction) pinOk:(id) sender;
 - (IBAction) pinKey:(id) sender;
 
-- (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
+- (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet - must be called to enable the modem!
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
 
 - (void) reset;	// reset modem to CTPinStatusPINRequired

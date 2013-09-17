@@ -147,6 +147,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (float) batteryLevel;
 {
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"capacity"]];
+	if(!val)
+		{
+		// battery may be decalibrated!
+		return 0.5;
+		}
 #if 0
 	NSLog(@"batteryLevel = %@", val);
 #endif
@@ -317,7 +322,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) playInputClick;
 {
+	// check system preferences if it is enabled/disabled
+	// FIXME: use vibramotor!
 	[[NSSound soundNamed:@"Click"] play];
+}
+
+// HM, this should be better in AudioToolbox/AudioServices.h
+// see http://stackoverflow.com/questions/2080442/programmatically-make-the-iphone-vibrate
+// but it is not an Obj-C framework
+
+- (void) playVibraCall;
+{
+	// check system preferences if it is enabled/disabled
 }
 
 @end

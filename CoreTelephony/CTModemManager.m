@@ -6,6 +6,18 @@
 //  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+/*
+ * TODO:
+ * this is not yet running 100% stable
+ * problems:
+ ** AT_ORESET may get the modem into a partial list of /dev/ttyHS* or none at all
+ ** in that case we can't send another AT_ORESET
+ ** rmmod hso && modprobe hso may help - but also end in a kernel panic
+ ** GUI may hang if we allow buttons to be pressed recursively while we wait for timeouts
+ ** modem remains enabled if application terminates (or system is shut down)
+ ** 
+ */
+
 #import "CTPrivate.h"
 
 #include <signal.h>
@@ -14,6 +26,7 @@
 
 - (void) _openHSO;	// (re)open FileHandle for AT command stream
 - (void) _closeHSO;
+- (void) _setError:(NSString *) msg;
 - (void) _processLine:(NSString *) line;
 - (void) _processData:(NSData *) line;
 - (void) _dataReceived:(NSNotification *) n;
@@ -32,16 +45,20 @@ BOOL modemLog=NO;
 	modemLog=flag;
 }
 
-- (void) log:(NSString *) msg
+- (void) log:(NSString *) format, ...
 {
-	if(modemLog)
+	// this is certainly not fast...
+	NSString *name=[NSString stringWithFormat:@"/var/log/%@.log", [[NSBundle bundleForClass:[self class]] bundleIdentifier]];
+	FILE *f=fopen([name fileSystemRepresentation], "a");
+	if(f)
 		{
-		FILE *f=fopen("/tmp/CTModemManager.log", "a");
-		if(f)
-			{
-			fprintf(f, "%s\n", [[NSString stringWithFormat:@"%@: %@", [NSDate date], msg] UTF8String]);
-			fclose(f);
-			}
+		va_list ap;
+		va_start (ap, format);
+		NSString *msg = [[NSString alloc] initWithFormat:format arguments:ap];
+		fprintf(f, "%s: %s%s", [[[NSDate date] description] UTF8String], [msg UTF8String], [msg hasSuffix:@"\n"]?"":"\n");
+		[msg release];
+		fclose(f);
+		va_end (ap);		
 		}
 }
 
@@ -96,7 +113,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		SINGLETON_VARIABLE = self;
 		/* custom initialization here */
-		[self _openHSO];	// try to connect
 		}
     }
     return self;
@@ -122,52 +138,69 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	if(modem)
 		{ // close previous modem
+			if(modemLog) [self log:@"_closeHSO"];
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification
 														  object:modem];	// don't observe any more
 			[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
 			[modes release];
 			modes=nil;
-			error=@"Modem closed";
 			[modem release];
 			modem=nil;
 			// should we power off the modem?
 		}	
+	pinStatus=CTPinStatusUnknown;	// needs to check again
+	[self _setError:@"Modem closed."];
 }
 
 - (void) _openHSO;
 { // try to open during init or reopen after AT_ORESET
+	NSString *gpio=@"/sys/devices/virtual/gpio/gpio186/value";
 	NSString *dev=@"/dev/ttyHS_Application";
 	int i;
-	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
-	pinStatus=CTPinStatusUnknown;	// needs to check
-	[self _closeHSO];	// if open
-	error=@"Opening modem";
+	if(modemLog) [self log:@"_openHSO"];
+	if(modem)
+		{ // already open
+		[self _setError:nil];
+		return;			
+		}
+	[self _setError:@"Opening modem."];
 	for(i=1; i<5; i++)
 		{
-			NSString *gpio=@"/sys/devices/virtual/gpio/gpio186/value";
+			NSDate *timeout;
 			modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
-			if(modemLog) [self log:[NSString stringWithFormat:@"WWAN port %@ %@", dev, modem?@"exists":@"not found"]];
+			if(modemLog) [self log:@"WWAN port %@ %@", dev, modem?@"exists":@"not found"];
 			if(modem)
 				break;	// found open
-			if(modemLog) [self log:[NSString stringWithFormat:@"WWAN pulse %d on: %@", i, gpio]];
+			if(modemLog) [self log:@"WWAN pulse %d on: %@", i, gpio];
 			[@"1" writeToFile:gpio atomically:NO];	// wake up modem on GTA04A4
-			sleep(1);
+			timeout=[NSDate dateWithTimeIntervalSinceNow:1.0];
+			while([timeout timeIntervalSinceNow] >= 0)
+				[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
 			[@"0" writeToFile:gpio atomically:NO];
-			sleep(4);
+			timeout=[NSDate dateWithTimeIntervalSinceNow:4.0];
+			while(!(modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain]) && [timeout timeIntervalSinceNow] >= 0)
+				[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+			if(modem)
+				break;	// found earlier
 		}
 	if(!modem)
 		{
 		if(modemLog) [self log:@"failed to open modem"];
-		error=@"Can't open modem.";
+		[self _setError:@"Can't open modem."];
+#if 1
 		NSLog(@"could not open %@", dev);
+#endif
 		return;		
 		}
+	pinStatus=CTPinStatusUnknown;	// needs to check first
 	// FIXME: also listen on /dev/ttyHS_Modem to receive "NO CARRIER" messages
 	// FIXME: or should we work only on the /dev/ttyHS_Modem port???
 	atstarted=NO;
 	done=YES;	// no command is running
-	error=nil;
+	if(!modes)
+		modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
+	[self _setError:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_dataReceived:)
 												 name:NSFileHandleReadCompletionNotification 
@@ -179,10 +212,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
 		{
-			error=@"Failed to intialize modem.";
+			[self _setError:@"Failed to intialize modem."];
 			return;			
 		}
-//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version and handle differently
+//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
 	// FIXME:
 //	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
@@ -196,9 +229,16 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self runATCommand:@"AT+COPS"];		// report RING etc.		
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
 	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
+	[self runATCommand:@"AT_OPCMENABLE=1"];	// renable voice PCM
 }
 
 - (NSString *) error; { return error; }
+
+- (void) _setError:(NSString *) msg;
+{
+	[error autorelease];
+	error=[msg retain];
+}
 
 - (BOOL) isAvailable; {	return modem != nil; }
 
@@ -211,10 +251,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	unsolicitedAction=a;
 }
 
+// FIXME: queue up or protect against recursions
+
 - (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSDate *timeout=[NSDate dateWithTimeIntervalSinceNow:seconds];
+	if(modemLog) [self log:@"run %@", cmd];
 #if 1
 	NSLog(@"run: %@", cmd);
 #endif
@@ -228,13 +271,16 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	atstarted=NO;	// make us wait until we receive the echo
 	target=t;
 	action=a;
-	status=CTModemTimeout;
+	status=CTModemTimeout;	// default status
+	// CHECKME: does this really work with setting the done flag on receiving OK?
 	while(!done && [timeout timeIntervalSinceNow] >= 0)
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
 	if(!done)
 		{
-		if(modemLog) [self log:@"timeout"];
+		if(modemLog) [self log:@"timeout %@", cmd];
+#if 1
 		NSLog(@"timeout for %@", cmd);
+#endif
 		// we could try to reopen the modem file handle here	
 		}
 	done=YES;	// even if we did timeout
@@ -278,7 +324,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _processLine:(NSString *) line;
 {
-	if(modemLog) [self log:[NSString stringWithFormat:@"r (done=%d at=%d): %@", done, atstarted, line]];
+	if(modemLog) [self log:@"r (done=%d at=%d): %@", done, atstarted, line];
 #if 1
 	fprintf(stderr, "WWAN r (done=%d at=%d): %s\n", done, atstarted, [[line description] UTF8String]);
 	//	NSLog(@"WWAN r (s=%d): %@", state, line);
@@ -300,7 +346,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		   [line hasPrefix:@"NO ANSWER"])
 			{ // reponse to AT command
 				[error release];
-				error=[line retain];
+				[self _setError:line];
 #if 1
 				NSLog(@"error: %@", error);
 #endif
@@ -360,7 +406,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) _writeCommand:(NSString *) str;
 {
 	NSAssert(modem, @"needs NSFileHandle");
-	if(modemLog) [self log:[NSString stringWithFormat:@"w (done=%d at=%d): %@", done, atstarted, str]];
+	if(modemLog) [self log:@"w (done=%d at=%d): %@", done, atstarted, str];
 #if 1
 	fprintf(stderr, "WWAN w (done=%d at=%d): %s\n", done, atstarted, [[str description] UTF8String]);
 	//	NSLog(@"WWAN w: %@", str);
@@ -375,27 +421,45 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) reset;
 {
-	[self runATCommand:@"AT_ORESET"];	// with default timeout to give modem a chance to respond with "OK"
-	error=@"Resetting Modem.";
-	// FIXME: wait until the modem is really reset - it may still accept commands for a short time...
-	[self _openHSO];	// will close current connection and reopen
+	if(modemLog) [self log:@"--- reset ---"];
+	[self _openHSO];	// we must have a connection first
+	if([[self error] length] > 0)
+		return;
+	// FIXME: we may still receive some unsolicited messages! So we should temporarily disable their delivery
+	if([self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
+		{
+		int i;
+		[self _closeHSO];
+		[self _setError:@"Resetting Modem."];
+		for(i=1; i<10; i++)
+			{
+			NSDate *timeout;
+			BOOL usb=[[NSFileManager defaultManager] fileExistsAtPath:@"/sys/devices/platform/usbhs_omap/ehci-omap.0/usb1/1-2"];	// check if OPTION modem is connected on EHCI
+			if(!usb)
+				break;	// wait until modem has disappeared on USB
+			timeout=[NSDate dateWithTimeIntervalSinceNow:1.0];
+			while([timeout timeIntervalSinceNow] >= 0)
+				[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+			}
+		}
+	else
+		{
+		[self _closeHSO];
+		[self _setError:@"Can't reset Modem."];
+		}
 }
 
 - (void) _unlocked;
 {
 	CTModemManager *m=[CTModemManager modemManager];
 	pinStatus=CTPinStatusUnlocked;	// now unlocked
-#if OLD	// or should we simply issue these AT commands and handle their responses by the unsolicitedMessage handler?
-	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT_OSIMOP"]];
-	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT+CSQ"]];
-#else
-	[m runATCommand:@"AT_OSIMOP"];
-	[m runATCommand:@"AT+CSQ"];
-#endif
+	[unsolicitedTarget performSelector:unsolicitedAction withObject:[m runATCommandReturnResponse:@"AT_OSIMOP"] afterDelay:0.0];
+	[unsolicitedTarget performSelector:unsolicitedAction withObject:[m runATCommandReturnResponse:@"AT+CSQ"] afterDelay:0.0];
 }
 
 - (BOOL) sendPIN:(NSString *) p;
 { // send pin and run additional initialization commands after unlocking
+	if(modemLog) [self log:@"send PIN"];
 	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
 		{ // is accepted
 			// save PIN so that we can reuse it
@@ -407,7 +471,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (CTPinStatus) pinStatus;
 { // get current PIN status
-	if(pinStatus == CTPinStatusUnknown)
+	if(modem && pinStatus == CTPinStatusUnknown)
 		{ // ask modem
 			// check if we are in airplane mode!
 			NSString *pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
@@ -425,6 +489,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				{ // user needs to provide pin
 					return pinStatus=CTPinStatusPINRequired;
 				}
+			[self _setError:@"Can't determine PIN status"];
 		}
 	return pinStatus;
 }
@@ -434,18 +499,22 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"setAirplaneMode flag=%d pinStatus=%d", flag, pinStatus);
 #endif
+	if(modemLog) [self log:@"set Airplane Mode %d", flag];
 	if(flag)
 		{
 		if(pinStatus == CTPinStatusAirplaneMode)
 			return YES;	// already set
 		[self runATCommand:@"AT_OAIR=1"];
 		pinStatus=CTPinStatusAirplaneMode;
+		// power off modem
 		return YES;
 		}
 	else
 		{
 		if(pinStatus != CTPinStatusAirplaneMode)
 			return YES;	// already disabled
+		if(!modem)
+			[self _openHSO];
 		[self runATCommand:@"AT_OAIR=0"];
 		pinStatus=CTPinStatusUnknown;	// check on next call for pinStatus
 		return YES;
@@ -458,7 +527,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{ // try to load from NIB
 			if(![NSBundle loadNibNamed:@"AskPin" owner:self])	// being the owner allows to connect to views in the panel
 				{
+#if 1
 				NSLog(@"can't open AskPin panel");
+#endif
 				return;	// ignore
 				}
 		}
@@ -553,10 +624,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) checkPin:(NSString *) p;	// get PIN status and ask if nil and none specified yet
 {
+	if(modemLog) [self log:@"checkpin"];
+	[self _openHSO];	// try to connect first
+	if([[self error] length] > 0)
+		return NO;
 	if(!p)
 		{
 		// loop until pin is valid?
 		switch([self pinStatus]) {
+			case CTPinStatusUnknown:
+				// should we power on the modem first?
+				return NO;
 			case CTPinStatusNoSIM:
 				[[NSAlert alertWithMessageText:@"NO SIM"
 								 defaultButton:@"Ok"
@@ -567,12 +645,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			case CTPinStatusUnlocked:
 				return YES;
 			case CTPinStatusPINRequired:
-				// FIXME: p is nil here!!!
 				if(p && [self sendPIN:p])
-					return YES;	// successful - otherwise open panel
+					return YES;	// sending PIN provided by code was successful - otherwise open panel
 				// loop while panel is open (so that the user can cancel it)
 				[self orderFrontPinPanel:nil];
-				// loop modal while panel is open
+				// loop modal while panel is open and block the application
 				// return YES only if PIN was successfully provided, NO if cancelled
 				return YES;
 		}

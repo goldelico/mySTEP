@@ -83,6 +83,7 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 // -(UIUserInterfaceIdiom) userInterfaceIdiom;
 
 - (void) playInputClick;
+- (void) playVibraCall;
 
 @end
 
