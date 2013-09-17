@@ -48,7 +48,7 @@ BOOL modemLog=NO;
 - (void) log:(NSString *) format, ...
 {
 	// this is certainly not fast...
-	NSString *name=[NSString stringWithFormat:@"/var/log/%@.log", [[NSBundle bundleForClass:[self class]] bundleIdentifier]];
+	NSString *name=[NSString stringWithFormat:@"/tmp/%@.log", [[NSBundle bundleForClass:[self class]] bundleIdentifier]];
 	FILE *f=fopen([name fileSystemRepresentation], "a");
 	if(f)
 		{
@@ -57,8 +57,8 @@ BOOL modemLog=NO;
 		NSString *msg = [[NSString alloc] initWithFormat:format arguments:ap];
 		fprintf(f, "%s: %s%s", [[[NSDate date] description] UTF8String], [msg UTF8String], [msg hasSuffix:@"\n"]?"":"\n");
 		[msg release];
-		fclose(f);
 		va_end (ap);		
+		fclose(f);
 		}
 }
 
