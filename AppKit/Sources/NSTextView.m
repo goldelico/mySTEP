@@ -200,14 +200,14 @@ static NSCursor *__textCursor = nil;
 - (void) setConstrainedFrameSize:(NSSize) desiredSize
 { // size to desired size if within limits and resizable - otherwise leave untouched
 	NSSize newSize=_frame.size;
-#if 1
+#if 0
 	NSLog(@"setConstrainedFrameSize %@: %@", NSStringFromSize(desiredSize), self);
 #endif
 	if(_tx.horzResizable)
 		newSize.width=MAX(_minSize.width, MIN(_maxSize.width, desiredSize.width));	// resize but constrained
 	if(_tx.vertResizable)
 		newSize.height=MAX(_minSize.height, MIN(_maxSize.height, desiredSize.height));	// resize but constrained
-#if 1
+#if 0
 	NSLog(@"newSize=%@", NSStringFromSize(newSize));
 #endif
 	[self setFrameSize:newSize];	// this should also adjust the container depending on its tracking flags and trigger layout invalidation
@@ -221,7 +221,7 @@ static NSCursor *__textCursor = nil;
 - (void) sizeToFit;
 {
 	NSSize size=NSZeroSize;
-#if 1
+#if 0
 	NSLog(@"sizeToFit: %@", self);
 #endif
 	NSRange rng;

@@ -469,7 +469,7 @@ object:self]
 - (void) setFrameSize:(NSSize)newSize	// is called from setFrame:
 { // enlarge min/maxSize window to cover this size
 	NSSize ofsz=[self frame].size, nfsz=newSize;
-#if 1
+#if 0
 	NSLog(@"setFrameSize: %@", NSStringFromSize(newSize));
 	NSLog(@"  omin: %@", NSStringFromSize(_minSize));
 	NSLog(@"  ofsz:  %@", NSStringFromSize(ofsz));
@@ -497,7 +497,7 @@ object:self]
 		P(@"vb"), nfsz.height=fabs(_minSize.height);
 	else if(newSize.height > _maxSize.height)
 		P(@"vc"), _maxSize.height=newSize.height;
-#if 1
+#if 0
 	NSLog(@"  nmin: %@", NSStringFromSize(_minSize));
 	NSLog(@"  nfsz: %@", NSStringFromSize(nfsz));
 	NSLog(@"  nmax: %@", NSStringFromSize(_maxSize));
