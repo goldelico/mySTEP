@@ -19,7 +19,7 @@ typedef enum _CTPinStatus
 
 @interface CTModemManager : NSObject
 {
-	NSFileHandle *modem;
+	NSFileHandle *ttyPort;
 	NSArray *modes;
 	NSString *lastChunk;	// for handling strings that arrive in chunks
 	NSMutableString /*nonretained*/ *response;
@@ -29,9 +29,9 @@ typedef enum _CTPinStatus
 	IBOutlet NSSecureTextField *pin;
 	IBOutlet NSButton *okButton;
 /* temporary */	IBOutlet NSPanel *pinKeypadPanel;	// until we have a system-wide keyboard or HWR
-	id /*nonretained*/ target;
+	id /*nonretained*/ target;	// for current AT command
 	id /*nonretained*/ unsolicitedTarget;
-	SEL action;
+	SEL action;	// for current AT command
 	SEL unsolicitedAction;
 	CTPinStatus pinStatus;
 	enum {
