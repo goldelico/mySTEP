@@ -478,6 +478,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #else
 		[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
 #endif
+		if(_app.windowsNeedUpdate)
+			[self updateWindows];
 		if(windowitemsbefore > 0 && _windowItems == 0)
 			{ // no window items (left over) after processing last event
 #if 1
@@ -650,15 +652,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			}
 		}
 	
-	if (_app.windowsNeedUpdate && (as->runState == NSRunContinuesResponse))
+	if (_app.windowsNeedUpdate)
 			{
 #if 1
 			NSLog(@"_app.windowsNeedUpdate");
 #endif
-			[as->window displayIfNeeded];		// update first
-			[as->window flushWindowIfNeeded];
 			[self updateWindows];				// update other visible windows
-			[as->window makeKeyAndOrderFront: self];	// make the window stay in front
 			}
 
 	NSAssert(_session == as, @"Session was changed while running");
@@ -862,9 +861,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
-	[_mainWindow flushWindow];	// this will enqueue any pending events
-#if 0
-	NSLog(@"_eventMatchingMask");
+#if OLD
+	[_mainWindow flushWindow];	// this will enqueue any pending events from the X server
 #endif
 	if(mask)
 		{
@@ -885,12 +883,121 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					}
 			}
 		}
+#if OLD
 	if(_app.windowsNeedUpdate)	// needs to send an update message to all visible windows
 		[self updateWindows];	// FIXME: according to doc this should not be called during NSEventTrackingRunLoopMode! But then, we don't get window updates???
+#endif
 #if 0
 	NSLog(@"_eventMatchingMask no event found");
 #endif
 	return nil;		// no event in the queue matches mask
+}
+
+- (void) discardEventsMatchingMask:(unsigned int)mask
+					   beforeEvent:(NSEvent *)lastEvent
+{
+	int i = 0, loop;
+	int count = [_eventQueue count];
+	NSEvent *event;
+#if 0
+	NSLog(@"discardEventsMatchingMask %x", mask);
+	NSLog(@"before %u", [_eventQueue count]);
+#endif
+	for (loop = 0; loop < count; loop++) 
+		{											
+			event = [_eventQueue objectAtIndex:i];
+			if(event == lastEvent)
+				break;	// all before lastEvent (which may be nil)
+#if 0
+			NSLog(@"event %x", NSEventMaskFromType([event type]));
+#endif
+			if ((mask & NSEventMaskFromType([event type]))) // remove event from the queue if it matches the mask
+				[_eventQueue removeObjectAtIndex:i];
+			else
+				i++;	// inc queue cntr only if not a match else we will run off the end of the queue
+		}	
+#if 0
+	NSLog(@"after %u", [_eventQueue count]);
+#endif
+}
+
+// CHECKME: do we still need this if runMode:beforeDate: is working correctly?
+// we also must install the update-notification in the NSNotificationQueue to run when idle
+
+- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
+						  untilDate:(NSDate *)expiration
+							 inMode:(NSString *)mode
+							dequeue:(BOOL)fl
+{
+	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
+	NSAutoreleasePool *pool=[NSAutoreleasePool new];
+	NSDate *limit;
+#if 0
+	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
+#endif
+	if(!expiration)
+		expiration=[NSDate distantPast];	// fall through immediately
+#if OLD
+	for(;;)
+		{ // If there are no matching events in the queue, wait for next events to arrive
+			limit=[currentLoop limitDateForMode:mode];	// limit by any pending timers - this will already poll the input sources (at least on MacOS!)
+			if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
+				break;	// found one
+#if 0
+			NSLog(@"limitDateForMode:%@ = %@ - exp = %@", mode, [currentLoop limitDateForMode:mode], expiration);
+#endif
+			limit=[limit earlierDate:expiration];	// limit to given expiration
+#if 0
+			NSLog(@"earlier: %@", limit);
+#endif
+			if(![currentLoop runMode:mode beforeDate:limit])		// blocks until (more) input arrives or the next scheduled timeout occurs
+				{
+				NSLog(@"no input sources for mode: %@", mode);
+				break;
+				}
+#if 0
+			NSLog(@"after runloop: %@", limit);
+#endif
+			if([expiration timeIntervalSinceNow] < 0)
+				break;	// untilDate has expired
+#if 0
+			NSLog(@"ARP release");
+#endif
+			[pool release];					// release current
+#if 0
+			NSLog(@"ARP released");
+#endif
+			pool=[NSAutoreleasePool new];	// and create a new pool
+ 		}
+#else
+	do
+		{
+		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
+			break;	// found one
+		if(![currentLoop runMode:mode beforeDate:expiration])
+			break;	// did not run once - will either return on input event or reaching expiration date
+		} while([expiration timeIntervalSinceNow] > 0.0);	// still not expired
+#endif
+#if 0
+	NSLog(@"ARP release with event: %@", _currentEvent);
+#endif
+	[_currentEvent retain];
+	[pool release];
+	return [_currentEvent autorelease];
+}
+
+- (void) postEvent:(NSEvent *)event atStart:(BOOL)flag
+{
+#if 0
+	if(flag)
+		NSLog(@"postEvent:atStart:YES %@", event);
+	else
+		NSLog(@"postEvent:atStart:NO %@", event);
+#endif
+	if(!flag)
+		[_eventQueue addObject: event];
+	else
+		[_eventQueue insertObject:event atIndex:0];
 }
 
 - (void) doCommandBySelector:(SEL) sel;
@@ -1024,103 +1131,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				//						return;
 			}
 	[super keyDown:event];	// we may have our own next responder (i.e. the App delegate)
-}
-
-- (void) discardEventsMatchingMask:(unsigned int)mask
-					   beforeEvent:(NSEvent *)lastEvent
-{
-	int i = 0, loop;
-	int count = [_eventQueue count];
-	NSEvent *event;
-#if 0
-	NSLog(@"discardEventsMatchingMask %x", mask);
-	NSLog(@"before %u", [_eventQueue count]);
-#endif
-	for (loop = 0; loop < count; loop++) 
-		{											
-		event = [_eventQueue objectAtIndex:i];
-			if(event == lastEvent)
-				break;	// all before lastEvent (which may be nil)
-#if 0
-			NSLog(@"event %x", NSEventMaskFromType([event type]));
-#endif
-		if ((mask & NSEventMaskFromType([event type]))) // remove event from the queue if it matches the mask
-			[_eventQueue removeObjectAtIndex:i];
-		else
-			i++;	// inc queue cntr only if not a match else we will run off the end of the queue
-		}	
-#if 0
-	NSLog(@"after %u", [_eventQueue count]);
-#endif
-}
-
-// CHECKME: do we still need this if runMode:beforeDate: is working correctly?
-// we also must install the update-notification in the NSNotificationQueue to run when idle
-
-- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
-						  untilDate:(NSDate *)expiration
-							 inMode:(NSString *)mode
-							dequeue:(BOOL)fl
-{
-	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
-	NSAutoreleasePool *pool=[NSAutoreleasePool new];
-	NSDate *limit;
-#if 0
-	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
-#endif
-	if(!expiration)
-		expiration=[NSDate distantPast];	// fall through immediately
-	for(;;)
-		{ // If there are no matching events in the queue, wait for next events to arrive
-		limit=[currentLoop limitDateForMode:mode];	// limit by any pending timers - this will already poll the input sources (at least on MacOS!)
-		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
-			break;	// found one
-#if 0
-		NSLog(@"limitDateForMode:%@ = %@ - exp = %@", mode, [currentLoop limitDateForMode:mode], expiration);
-#endif
-		limit=[limit earlierDate:expiration];	// limit to given expiration
-#if 0
-		NSLog(@"earlier: %@", limit);
-#endif
-		if(![currentLoop runMode:mode beforeDate:limit])		// blocks until (more) input arrives or the next scheduled timeout occurs
-			{
-			NSLog(@"no input sources for mode: %@", mode);
-			break;
-			}
-#if 0
-		NSLog(@"after runloop: %@", limit);
-#endif
-		if([expiration timeIntervalSinceNow] < 0)
-			break;	// untilDate has expired
-#if 0
-		NSLog(@"ARP release");
-#endif
-		[pool release];					// release current
-#if 0
-		NSLog(@"ARP released");
-#endif
-		pool=[NSAutoreleasePool new];	// and create a new pool
- 		}
-#if 0
-	NSLog(@"ARP release with event: %@", _currentEvent);
-#endif
-	[_currentEvent retain];
-	[pool release];
-	return [_currentEvent autorelease];
-}
-
-- (void) postEvent:(NSEvent *)event atStart:(BOOL)flag
-{
-#if 0
-	if(flag)
-		NSLog(@"postEvent:atStart:YES %@", event);
-	else
-		NSLog(@"postEvent:atStart:NO %@", event);
-#endif
-	if(!flag)
-		[_eventQueue addObject: event];
-	else
-		[_eventQueue insertObject:event atIndex:0];
 }
 
 // Send action messages
@@ -1456,6 +1466,7 @@ NSWindow *w;
 
 - (void) updateWindows
 { // send an update message to all visible windows
+#if OLD
 	static long lastupdate=0;	// remember when the last update did take place
 #if 0
 	NSLog(@"updateWindows");
@@ -1492,6 +1503,27 @@ NSWindow *w;
 	lastupdate=time(NULL);	// remember when we did the last update				
 #if 0
 	NSLog(@"updateWindows done");
+#endif
+#else
+	NSArray *_windowList = [self windows];
+	int i, count = [_windowList count];
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
+	if(_pendingWindow)
+		{
+		[_pendingWindow makeKeyAndOrderFront:self];
+		_pendingWindow=nil;
+		}
+	_app.windowsNeedUpdate=NO;	// reset - so that an update call can set it for the next loop
+	for(i = 0; i < count; i++)
+		{
+		NSWindow *w = [_windowList objectAtIndex:i];
+		if([w isVisible])
+			{ // send to visible windows only
+				[w update];	// update this window
+			}
+		[w flushWindow];	// might have pending mapping and other events
+		}
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidUpdate) object:self];	// notify that update did occur
 #endif
 	}
 

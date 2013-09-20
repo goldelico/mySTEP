@@ -48,6 +48,7 @@
 #import "NSBackendPrivate.h"
 
 #define NOTE(notif_name) NSWindow##notif_name##Notification
+static NSString *NSDisplayWindowIfNeeded=@"__NSDisplayWindowIfNeeded";
 
 // Class variables
 static id __responderClass = nil;
@@ -1287,7 +1288,7 @@ static NSButtonCell *sharedCell;
 #endif
 	[_parentWindow removeChildWindow:self];	// if we have a parent...
 	[self setDelegate:nil];	// release delegate
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:nil];	// remove all our observers
 	[self resignKeyWindow];
 #if 0
 	NSLog(@"a");
@@ -1332,7 +1333,7 @@ static NSButtonCell *sharedCell;
 
 - (NSWindow *) initWithWindowRef:(void *) ref;
 {
-	if((self=[super init]))
+	if((self=[super init]))	// don't call [self init]!
 		{
 		_context=[[NSGraphicsContext graphicsContextWithGraphicsPort:ref flipped:YES] retain];
 		[self _setFrame:[_context _frame]];	// get frame from existing window
@@ -1392,7 +1393,7 @@ static NSButtonCell *sharedCell;
 			_userSpaceScaleFactor=[_screen userSpaceScaleFactor];	// ask the screen
 		_w.backingType = bufferingType;
 		_w.styleMask = aStyle;
-		_w.needsDisplay = NO;	// will be set by first expose
+		_w.viewsNeedDisplay = NO;	// will be set by first expose
 		_w.autodisplay = YES;
 		_w.optimizeDrawing = YES;
 		_w.dynamicDepthLimit = YES;
@@ -1416,6 +1417,10 @@ static NSButtonCell *sharedCell;
 												 selector:@selector(_screenParametersNotification:)
 													 name:NSApplicationDidChangeScreenParametersNotification
 												   object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(displayIfNeeded)
+													 name:NSDisplayWindowIfNeeded
+												   object:self];
 		}
 	return self;
 }
@@ -1674,7 +1679,7 @@ static NSButtonCell *sharedCell;
 		[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
 		if(!_w.visible)
 			{ // wasn't visible yet
-				_w.needsDisplay = NO;							// reset first -display may result in callbacks that will set this flag again
+				_w.viewsNeedDisplay = NO;							// reset first -display may result in callbacks that will set this flag again
 				[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed) before mapping
 			}
 		
@@ -2009,7 +2014,7 @@ static NSButtonCell *sharedCell;
 	else
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
-		_w.needsDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
+		_w.viewsNeedDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
 		[self disableFlushWindow];						// tmp disable of display
 		[_themeFrame display];							// Draw the window view hierarchy (if changed)
 		[self enableFlushWindow];						// Reenable displaying
@@ -2025,7 +2030,7 @@ static NSButtonCell *sharedCell;
 	else
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
-		_w.needsDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
+		_w.viewsNeedDisplay = NO;	// reset because -display may result in callbacks that will set this flag again
 		[self disableFlushWindow];						// tmp disable of display
 		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
 		[self enableFlushWindow];						// Reenable displaying
@@ -2034,8 +2039,31 @@ static NSButtonCell *sharedCell;
 		}
 }
 
+- (void) setViewsNeedDisplay:(BOOL) flag
+{
+	static NSArray *gsmodes;	// modes that redisplay the window
+	if(_w.viewsNeedDisplay != flag)
+		{
+		_w.viewsNeedDisplay = flag;
+		if(flag)
+			{
+//			[[NSNotificationCenter defaultCenter] postNotificationName:NSDisplayWindowIfNeeded object:self];
+			if(!gsmodes)
+				gsmodes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode,
+							NSEventTrackingRunLoopMode,
+							nil];
+			[[NSNotificationQueue defaultQueue] enqueueNotification:
+								[NSNotification notificationWithName:NSDisplayWindowIfNeeded object:self]
+								postingStyle:NSPostASAP
+								coalesceMask:NSNotificationCoalescingOnName|NSNotificationCoalescingOnSender
+								forModes:gsmodes];
+			}
+		}
+}
+
 - (void) update
 {
+#if OLD
 #if 0
 	NSLog(@"%@ update %d %d", self, _w.autodisplay, _w.needsDisplay);
 #endif
@@ -2046,23 +2074,23 @@ static NSButtonCell *sharedCell;
 #endif
 			[self displayIfNeeded];	// display subviews if needed
     	}
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidUpdateNotification object:self];
 }
 
 - (void) flushWindowIfNeeded
 {
-	if (!_w.disableFlushWindow && _w.needsFlush) 
+	if (_disableFlushWindow == 0) 
 		[self flushWindow];
 }
 
-- (void) disableFlushWindow					{ _w.disableFlushWindow = YES; }
+- (void) disableFlushWindow					{ _disableFlushWindow++; }
 - (void) flushWindow						{ [_context flushGraphics]; }						
-- (void) enableFlushWindow					{ _w.disableFlushWindow = NO; }
+- (void) enableFlushWindow					{ if(_disableFlushWindow > 0) _disableFlushWindow--; }
 - (BOOL) isAutodisplay						{ return _w.autodisplay; }
-- (BOOL) isFlushWindowDisabled				{ return _w.disableFlushWindow; }
+- (BOOL) isFlushWindowDisabled				{ return _disableFlushWindow > 0; }
 - (void) setAutodisplay:(BOOL)flag			{ _w.autodisplay = flag; }
-- (void) setViewsNeedDisplay:(BOOL)flag		{ _w.needsDisplay = flag; }
-- (BOOL) viewsNeedDisplay					{ return _w.needsDisplay; }
+- (BOOL) viewsNeedDisplay					{ return _w.viewsNeedDisplay; }
 - (void) useOptimizedDrawing:(BOOL)flag		{ _w.optimizeDrawing = flag; }
 - (BOOL) canStoreColor						{ return (_w.depthLimit > 1); }
 - (NSWindowDepth) depthLimit				{ return _w.depthLimit; }
@@ -2453,7 +2481,7 @@ object:self]
 																	  userInfo:uinfo];
 					rect=[_themeFrame convertRect:rect fromView:nil];	// from window to theme frame (which uses flipped coordinates!)
 					[_themeFrame setNeedsDisplayInRect:rect];	// we know that we own the top-level view...
-					if(!_w.needsDisplay)
+					if(!_w.viewsNeedDisplay)
 						NSLog(@"window did expose but does not need to display? %@", self);
 					break;
 				}

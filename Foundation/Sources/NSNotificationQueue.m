@@ -289,7 +289,7 @@ id object = [notification object];
 }
 
 + (void) _runLoopIdle
-{
+{ // trigger the Idle items
 	InstanceList *item;
 #if 0
 	NSLog(@"_runLoopIdle");
@@ -299,6 +299,7 @@ id object = [notification object];
 			[item->queue _notifyIdle];
 }
 
+#if OLD
 + (BOOL) _runLoopMore
 {
 	InstanceList *item;
@@ -307,9 +308,10 @@ id object = [notification object];
 			return YES;
 	return NO;
 }
+#endif
 
 + (void) _runLoopASAP
-{
+{ // trigger the ASAP items
 	InstanceList *item;   
 #if 0
 	NSLog(@"_runLoopASAP");

@@ -169,13 +169,13 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSWindow *_attachedSheet;
 	float _userSpaceScaleFactor;
 
+	int _disableFlushWindow;
 	int _level;
 	int _gState;
 	
     struct __WindowFlags {
 		UIBITFIELD(unsigned int, isOneShot, 1);
-		UIBITFIELD(unsigned int, needsDisplay, 1);
-		UIBITFIELD(unsigned int, needsFlush, 1);
+		UIBITFIELD(unsigned int, viewsNeedDisplay, 1);
 		UIBITFIELD(unsigned int, autodisplay, 1);
 		UIBITFIELD(unsigned int, optimizeDrawing, 1);
 		UIBITFIELD(unsigned int, dynamicDepthLimit, 1);
@@ -187,7 +187,6 @@ typedef NSUInteger NSWindowCollectionBehavior;
 		UIBITFIELD(unsigned int, isEdited, 1);
 		UIBITFIELD(unsigned int, releasedWhenClosed, 1);
 		UIBITFIELD(unsigned int, miniaturized, 1);
-		UIBITFIELD(unsigned int, disableFlushWindow, 1);
 		UIBITFIELD(unsigned int, menuExclude, 1);
 		UIBITFIELD(unsigned int, hidesOnDeactivate, 1);
 		UIBITFIELD(unsigned int, acceptsMouseMoved, 1);

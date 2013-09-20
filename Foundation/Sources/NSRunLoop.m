@@ -462,6 +462,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 									NSLog(@"fire %p done.", timer);
 									NSLog(@"retainCount=%d", [timer retainCount]);
 #endif
+									[NSNotificationQueue _runLoopASAP];
 								}
 						}
 					if(!timer->_is_valid)
@@ -585,12 +586,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	
 	exception_fds = read_fds;			// the file descriptors in _FDS.
 	
+#if OLD
 	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop is idle, and if needed
 		{
 		timeout.tv_sec = 0;							// dispatch notifications
 		timeout.tv_usec = 0;						// from NSNotificationQue's
 		select_timeout = &timeout;					// idle queue?
 		}
+#endif
 	
 	// FIXME: we must only select until the next timer fires and loop until we have reached the before-date - or any input watcher has data to process
 	
