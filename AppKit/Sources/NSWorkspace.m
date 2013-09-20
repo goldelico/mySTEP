@@ -677,7 +677,7 @@ additionalEventParamDescriptor:(id) params
 #if 1
 				NSLog(@"Wait until launched.");
 #endif
-				date=[NSDate dateWithTimeIntervalSinceNow:0.5];
+				date=[NSDate dateWithTimeIntervalSinceNow:0.5];	// delay a little
 				[[NSRunLoop currentRunLoop] runUntilDate:date];
 				}
 			// should be a distributed notification sent by launched application!

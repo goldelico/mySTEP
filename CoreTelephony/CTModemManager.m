@@ -546,8 +546,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	if(modemLog) [self log:@"--- reset ---"];
 	[self setUnsolicitedTarget:nil action:NULL];
-	[self runATCommand:@"AT+CHUP"];
-	if([self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
+	if([self runATCommand:@"AT+CHUP"] == CTModemOk &&
+	   [self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
 		{
 		int i;
 		NSDate *timeout;

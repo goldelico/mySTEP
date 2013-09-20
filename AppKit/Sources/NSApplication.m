@@ -1054,6 +1054,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 }
 
+// CHECKME: do we still need this if runMode:beforeDate: is working correctly?
+// we also must install the update-notification in the NSNotificationQueue to run when idle
+
 - (NSEvent *) nextEventMatchingMask:(unsigned int)mask
 						  untilDate:(NSDate *)expiration
 							 inMode:(NSString *)mode
@@ -1068,7 +1071,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if(!expiration)
 		expiration=[NSDate distantPast];	// fall through immediately
 	for(;;)
-		{ // If there are matching events in the queue, wait for next events to arrive
+		{ // If there are no matching events in the queue, wait for next events to arrive
 		limit=[currentLoop limitDateForMode:mode];	// limit by any pending timers - this will already poll the input sources (at least on MacOS!)
 		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
 			break;	// found one
