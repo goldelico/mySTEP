@@ -190,14 +190,14 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			{
 			if([self batteryLevel] > 0.99)
 				return UIDeviceBatteryStateFull;
-			// check if VBUS/VAC is >= 4.8V for proper and reliable charging
+			// check if VBUS/VAC is >= 4.4V for proper and reliable charging or report UIDeviceBatteryStateUnknown
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateCharging;
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_ac/status"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
-			return UIDeviceBatteryStateUnplugged;	// we don't know why the battery is charging...
+			return UIDeviceBatteryStateUnknown;	// we don't know why the battery is charging...
 			}
 		if([status hasPrefix:@"Discharging"])
 			// FIXME: check VBUS/VAC for > 1V and report bad/insufficient charger
