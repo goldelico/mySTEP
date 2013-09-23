@@ -368,6 +368,8 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
  * - selectForInputs
  */
 
+// FIXME: rebuild according to the pseudo-code at http://www.mikeash.com/pyblog/friday-qa-2010-01-01-nsrunloop-internals.html
+
 - (BOOL) _runLoopForMode:(NSString *) mode beforeDate:(NSDate *) before limitDate:(NSDate **) limit;
 { // this is the core runloop that runs the loop exactly once - blocking until before or the limit date (whichever comes first)
 	NSTimeInterval ti;					// Listen to input sources.

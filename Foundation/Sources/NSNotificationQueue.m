@@ -29,7 +29,7 @@ typedef struct _NSNotificationQueue_t {
 } NSNotificationQueue_t;
 
 // Class variables
-static InstanceList *__notificationQueues = NULL;
+static InstanceList *__notificationQueues = NULL;	// this is a list/queue of all NSNotificationQueues
 static NSNotificationQueue *__defaultQueue = nil;
 
 /*
@@ -100,17 +100,27 @@ typedef struct _NSNotificationQueueList {
 
 @end
 
+@interface NSNotificationQueue (Private)
+
+- (void) _postNotification:(NSNotification*) notification
+				  forModes:(NSArray*) modes
+					 queue:(NSNotificationQueueList *) queue
+					  item:(GSQueueRegistration *) item;
+
+@end
+
+
 
 static void
 GSRemoveFromQueue(NSNotificationQueueList *queue, GSQueueRegistration *item)
 {
     if (item->prev)
-			item->prev->next = item->next;
+		item->prev->next = item->next;
     else if ((queue->tail = item->next))
 	    item->next->prev = NULL;
 
     if (item->next)
-			item->next->prev = item->prev;
+		item->next->prev = item->prev;
     else if ((queue->head = item->prev))
 	    item->prev->next = NULL;
 
@@ -206,7 +216,8 @@ id object = [notification object];
 			{
 			GSRemoveFromQueue(_asapQueue, item);
 			continue;
-		}	}
+			}
+		}
 										// find in idle notification in queue
     for (item = _idleQueue->tail; item; item = next)
 		{
@@ -222,22 +233,8 @@ id object = [notification object];
 			{
 			GSRemoveFromQueue(_asapQueue, item);
 			continue;
-		}	}
-}
-
-- (BOOL) postNotification:(NSNotification*)notification
-		 		 forModes:(NSArray*)modes
-{
-	NSString *mode;	// check to see if run loop is in a valid mode
-#if 0
-	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
-#endif
-    if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
-		{
-		[_center postNotification:notification];
-		return YES;
+			}
 		}
-	return NO;
 }
 
 - (void) enqueueNotification:(NSNotification*)notification
@@ -246,7 +243,7 @@ id object = [notification object];
 	[self enqueueNotification:notification
 		  postingStyle:postingStyle
 		  coalesceMask:NSNotificationCoalescingOnName 
-						+ NSNotificationCoalescingOnSender 
+						| NSNotificationCoalescingOnSender 
 		  forModes:nil];
 }
 
@@ -262,7 +259,7 @@ id object = [notification object];
     switch (postingStyle) 
 		{
 		case NSPostNow:
-			[self postNotification:notification forModes:modes];
+			[self _postNotification:notification forModes:modes queue:NULL item:NULL];
 			break;
 		case NSPostASAP:
 			[notification _addToQueue:_asapQueue forModes:modes];
@@ -273,19 +270,45 @@ id object = [notification object];
 		}
 }
 
+- (void) _postNotification:(NSNotification*) notification
+				  forModes:(NSArray*) modes
+					 queue:(NSNotificationQueueList *) queue
+					  item:(GSQueueRegistration *) item
+{
+	NSString *mode;	// check to see if run loop is in a valid mode
+#if 1
+	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
+#endif
+    if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
+		{
+		[notification retain];
+		if(queue && item)
+			GSRemoveFromQueue(queue, item);	// remove *before* posting the notification so that the handler can dequeue/enqueue with coalescing etc.
+		[_center postNotification:notification];
+		[notification release];
+		}
+}
+
 - (void) _notifyIdle
-{ // post next IDLE notification in queue
-	if ([self postNotification:_idleQueue->head->notification 
-			  forModes:_idleQueue->head->modes])
-		GSRemoveFromQueue(_idleQueue, _idleQueue->head);
+{ // post all IDLE notifications in queue that match the current mode
+	GSQueueRegistration *item = _idleQueue->head;
+	while(item)
+		{
+		GSQueueRegistration *n = item->next;	// get next before removing item
+		[self _postNotification:item->notification forModes:item->modes queue:_idleQueue item:item];
+		item=n;
+		}
 }
 
 - (void) _notifyASAP
-{ // post all ASAP notifications in queue
-    while (_asapQueue->head) 
-		if ([self postNotification:_asapQueue->head->notification
-		      	  forModes:_asapQueue->head->modes])
-			GSRemoveFromQueue(_asapQueue, _asapQueue->head);
+{ // post all ASAP notifications in queue that match the current mode
+	GSQueueRegistration *item = _asapQueue->head;
+	while(item)
+		{
+		GSQueueRegistration *n = item->next;	// get next before removing item
+		[self _postNotification:item->notification forModes:item->modes queue:_asapQueue item:item];
+		item=n;
+		}
 }
 
 + (void) _runLoopIdle
@@ -298,17 +321,6 @@ id object = [notification object];
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			[item->queue _notifyIdle];
 }
-
-#if OLD
-+ (BOOL) _runLoopMore
-{
-	InstanceList *item;
-    for (item = __notificationQueues; item; item = item->next)
-		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
-			return YES;
-	return NO;
-}
-#endif
 
 + (void) _runLoopASAP
 { // trigger the ASAP items
