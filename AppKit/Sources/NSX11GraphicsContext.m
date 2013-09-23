@@ -1586,12 +1586,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 		{
-			img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
-							 ZPixmap, 0, NULL,
-							 width, height,
-							 8, 0);
-			if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
-				return;	// error
+		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
+						 ZPixmap, 0, NULL,
+						 width, height,
+						 8, 0);
+		if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
+			return;	// error
 		}
 	if(!img)
 		return;	// can't allocate or fetch
@@ -2143,7 +2143,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 onscreen.x=MIN(0, -_windowRect.x)
 		 onscreen.width=MAX(widthofscreen, windowRect.x+windowRect.width)
 		 if(windowRect.x < 0)
-			box.x-=windowRect.x, box.width+=windowRect.x;
+		 box.x-=windowRect.x, box.width+=windowRect.x;
 		 
 		 */
 		
@@ -2517,7 +2517,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) and wait for a MapNotify!
 	while([self flushGraphics], (place == NSWindowOut)?[win isVisible]:![win isVisible])
-		{ // process incoming events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
+		{ // process incoming X11 events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
 			[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 		}
 #if 1
@@ -3604,528 +3604,520 @@ static NSFileHandle *fh;
 + (void) _handleNewEvents;
 {
 	int count;
-	BOOL needsFlush=NO;
-	while((count = XPending(_display)) > 0)		// while X events are pending
+	while((count = XPending(_display)) > 0)		// while X events are pending - we don't use the count except for debugging
 		{
+		// FIXME: the lastXWin/lastMotionEvent mechanism isn't used any more
+		static Window lastXWin=None;		// last window (cache key)
+		static int windowNumber;			// number of lastXWin
+		static int windowHeight;			// attributes of lastXWin (signed so that we can calculate windowHeight-y and return negative coordinates)
+		static float windowScale;			// scaling factor
+		static NSEvent *lastMotionEvent=nil;
+		static Time timeOfLastClick = 0;
+		static int clickCount = 1;
+		NSEventType type;
+		Window thisXWin;				// window of this event
+		XEvent xe;
+		NSEvent *e = nil;	// resulting event
 #if 0
 		fprintf(stderr,"_NSX11Screen ((XPending count = %d): \n", count);
 #endif
-		while(count-- > 0)
-			{	// loop and grab all events
-				static Window lastXWin=None;		// last window (cache key)
-				static int windowNumber;			// number of lastXWin
-				static int windowHeight;			// attributes of lastXWin (signed so that we can calculate windowHeight-y and return negative coordinates)
-				static float windowScale;			// scaling factor
-				static NSEvent *lastMotionEvent=nil;
-				static Time timeOfLastClick = 0;
-				static int clickCount = 1;
-				NSEventType type;
-				Window thisXWin;				// window of this event
-				XEvent xe;
-				NSEvent *e = nil;	// resulting event
-				XNextEvent(_display, &xe);
-				switch(xe.type) { // extract window from event
-					case ButtonPress:
-					case ButtonRelease:
-						thisXWin=xe.xbutton.window;
-						break;
-					case EnterNotify:						// when the pointer enters or leaves a window, pass upwards as a motion event
-					case LeaveNotify: 
-						thisXWin=xe.xcrossing.window;
-						break;
-					case MotionNotify:
-						thisXWin=xe.xmotion.window;
-						if(thisXWin != lastXWin)						
-							lastMotionEvent=nil;	// window has changed - we need a new event
-						break;
-					case ReparentNotify:
-						thisXWin=xe.xreparent.window;
-						break;
-					case Expose:
-						thisXWin=xe.xexpose.window;
-						break;
-					case ClientMessage:
-						thisXWin=xe.xclient.window;
-						break;
-					case ConfigureNotify:					// window has been resized
-						thisXWin=xe.xconfigure.window;
-						break;
-					case FocusIn:
-					case FocusOut:							// keyboard focus left
-						thisXWin=xe.xfocus.window;
-						break;
-					case KeyPress:							// a key has been pressed
-					case KeyRelease:						// a key has been released
-						thisXWin=xe.xkey.window;
-						break;
-					case MapNotify:							// when a window changes
-					case UnmapNotify:
-						thisXWin=xe.xmap.window;
-						break;
-					case PropertyNotify:
-						thisXWin=xe.xproperty.window;
-						break;
-					default:
-						thisXWin=lastXWin;	// assume unchanged
-				}
-				// FIXME: here we should flush any coalesced motion events
-				if(xe.type != MotionNotify)
-					lastMotionEvent=nil;	// any other event - start a new motion notification
+		XNextEvent(_display, &xe);
+		switch(xe.type) { // extract window from event
+			case ButtonPress:
+			case ButtonRelease:
+				thisXWin=xe.xbutton.window;
+				break;
+			case EnterNotify:						// when the pointer enters or leaves a window, pass upwards as a motion event
+			case LeaveNotify: 
+				thisXWin=xe.xcrossing.window;
+				break;
+			case MotionNotify:
+				thisXWin=xe.xmotion.window;
 				if(thisXWin != lastXWin)						
-					{ // update cached references to window and prepare for translation
-						NSWindow *lastWindow=NSMapGet(__WindowNumToNSWindow, (void *) thisXWin);
-						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[lastWindow graphicsContext];
-						windowNumber=[lastWindow windowNumber];
-						if(ctxt)
-							{ // may be nil if we receive e.g. a cursor update event
-								windowHeight=ctxt->_xRect.height;
-								windowScale=ctxt->_scale;
-							}
-						else
-							{
-							windowHeight=0;
-							windowScale=1.0;
-							}
-						lastXWin=thisXWin;
+					lastMotionEvent=nil;	// window has changed - we need a new event
+				break;
+			case ReparentNotify:
+				thisXWin=xe.xreparent.window;
+				break;
+			case Expose:
+				thisXWin=xe.xexpose.window;
+				break;
+			case ClientMessage:
+				thisXWin=xe.xclient.window;
+				break;
+			case ConfigureNotify:					// window has been resized
+				thisXWin=xe.xconfigure.window;
+				break;
+			case FocusIn:
+			case FocusOut:							// keyboard focus left
+				thisXWin=xe.xfocus.window;
+				break;
+			case KeyPress:							// a key has been pressed
+			case KeyRelease:						// a key has been released
+				thisXWin=xe.xkey.window;
+				break;
+			case MapNotify:							// when a window changes
+			case UnmapNotify:
+				thisXWin=xe.xmap.window;
+				break;
+			case PropertyNotify:
+				thisXWin=xe.xproperty.window;
+				break;
+			default:
+				thisXWin=lastXWin;	// assume unchanged
+		}
+		if(xe.type != MotionNotify)
+			lastMotionEvent=nil;	// any other event - start a new motion notification
+		if(thisXWin != lastXWin)						
+			{ // update cached references to window and prepare for translation
+				NSWindow *lastWindow=NSMapGet(__WindowNumToNSWindow, (void *) thisXWin);
+				_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[lastWindow graphicsContext];
+				windowNumber=[lastWindow windowNumber];
+				if(ctxt)
+					{ // may be nil if we receive e.g. a cursor update event
+						windowHeight=ctxt->_xRect.height;
+						windowScale=ctxt->_scale;
 					}
-				// we could post the raw X-event as a NSNotification so that we could build a window managerin Obj-C...
-				switch(xe.type) {
-					case ButtonPress: { // mouse button events
-						float pressure=0.0;
-						NSDebugLog(@"ButtonPress: X11 time %u timeOfLastClick %u \n", 
-								   xe.xbutton.time, timeOfLastClick);
-						// hardwired test for a double click
-						// default of 300 should be user set;
-						// under NS the windowserver does this
-						if(xe.xbutton.time < (unsigned long)(timeOfLastClick+300))
-							clickCount++;
-						else
-							clickCount = 1;							// reset click cnt
-						timeOfLastClick = xe.xbutton.time;
-						switch (xe.xbutton.button) {
-							case Button4:
-								type = NSScrollWheel;
-								pressure = -(float)clickCount;
-								break;								
-							case Button5:
-								type = NSScrollWheel;
-								pressure = (float)clickCount;
-								break;
-							case Button1:	type = NSLeftMouseDown;		break;
-							case Button3:	type = NSRightMouseDown;	break;
-							default:		type = NSOtherMouseDown;	break;
-						}
-						e = [NSEvent mouseEventWithType:type		// create NSEvent	
-											   location:X11toScreen(xe.xbutton)
-										  modifierFlags:__modFlags
-											  timestamp:X11toTimestamp(xe.xbutton)
-										   windowNumber:windowNumber
-												context:self
-											eventNumber:xe.xbutton.serial
-											 clickCount:clickCount
-											   pressure:pressure];
-						break;
-					}					
-					case ButtonRelease:
+				else
 					{
-					NSDebugLog(@"ButtonRelease");
-					if(xe.xbutton.button == Button1)
-						type=NSLeftMouseUp;
-					else if(xe.xbutton.button == Button3)
-						type=NSRightMouseUp;
-					else
-						type=NSOtherMouseUp;
-					e = [NSEvent mouseEventWithType:type		// create NSEvent	
-										   location:X11toScreen(xe.xbutton)	// relative to the current window
+					windowHeight=0;
+					windowScale=1.0;
+					}
+				lastXWin=thisXWin;
+			}
+		// we could post the raw X-event as a NSNotification so that we could build a window managerin Obj-C...
+		switch(xe.type) {
+			case ButtonPress: { // mouse button events
+				float pressure=0.0;
+				NSDebugLog(@"ButtonPress: X11 time %u timeOfLastClick %u \n", 
+						   xe.xbutton.time, timeOfLastClick);
+				// hardwired test for a double click
+				// default of 300 should be user set;
+				// under NS the windowserver does this
+				if(xe.xbutton.time < (unsigned long)(timeOfLastClick+300))
+					clickCount++;
+				else
+					clickCount = 1;							// reset click cnt
+				timeOfLastClick = xe.xbutton.time;
+				switch (xe.xbutton.button) {
+					case Button4:
+						type = NSScrollWheel;
+						pressure = -(float)clickCount;
+						break;								
+					case Button5:
+						type = NSScrollWheel;
+						pressure = (float)clickCount;
+						break;
+					case Button1:	type = NSLeftMouseDown;		break;
+					case Button3:	type = NSRightMouseDown;	break;
+					default:		type = NSOtherMouseDown;	break;
+				}
+				e = [NSEvent mouseEventWithType:type		// create NSEvent	
+									   location:X11toScreen(xe.xbutton)
+								  modifierFlags:__modFlags
+									  timestamp:X11toTimestamp(xe.xbutton)
+								   windowNumber:windowNumber
+										context:self
+									eventNumber:xe.xbutton.serial
+									 clickCount:clickCount
+									   pressure:pressure];
+				break;
+			}					
+			case ButtonRelease:
+			{
+			NSDebugLog(@"ButtonRelease");
+			if(xe.xbutton.button == Button1)
+				type=NSLeftMouseUp;
+			else if(xe.xbutton.button == Button3)
+				type=NSRightMouseUp;
+			else
+				type=NSOtherMouseUp;
+			e = [NSEvent mouseEventWithType:type		// create NSEvent	
+								   location:X11toScreen(xe.xbutton)	// relative to the current window
+							  modifierFlags:__modFlags
+								  timestamp:X11toTimestamp(xe.xbutton)
+							   windowNumber:windowNumber
+									context:self
+								eventNumber:xe.xbutton.serial
+								 clickCount:clickCount
+								   pressure:1.0];
+			break;
+			}
+			case CirculateNotify:	// a change to the stacking order
+				NSDebugLog(@"CirculateNotify\n");
+				break;					
+			case CirculateRequest:
+				NSDebugLog(@"CirculateRequest");
+				break;
+			case ClientMessage:								// client events
+				NSDebugLog(@"ClientMessage\n");
+				if(xe.xclient.message_type == _protocolsAtom &&
+				   xe.xclient.data.l[0] == _deleteWindowAtom) 
+					{ // WM is asking us to close
+						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) performClose:self];
+					}									// to close window
+				// send NSAppKit / NSSystemDefined event
+#if DND
+				else
+					XRProcessXDND(_display, &xe);		// handle X DND
+#endif
+				break;
+			case ColormapNotify:					// colormap attribute chg
+				NSDebugLog(@"ColormapNotify\n");
+				break;
+			case ConfigureNotify:					// window has been moved or resized by window manager
+				NSDebugLog(@"ConfigureNotify\n");
+				[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
+#if 1					
+				e = [NSEvent otherEventWithType:NSAppKitDefined
+									   location:X11toScreen(xe.xconfigure)	// or do we notify relative movement?
+								  modifierFlags:__modFlags 
+									  timestamp:0 //X11toTimestamp(xe.xconfigure)
+								   windowNumber:windowNumber
+										context:self
+										subtype:NSWindowMovedEventType
+										  data1:xe.xconfigure.width
+										  data2:xe.xconfigure.height];	// new position and dimensions
+				// this should allow to precisely track mouse position if the window is moved
+				// for that it could be sufficient to track window movements and report top-left corner only
+#endif
+#if FIXME
+				// we should at least redisplay the window
+				if(!xe.xconfigure.override_redirect || 
+				   xe.xconfigure.window == _wAppTileWindow)
+					{
+					NSRect f = (NSRect){{(float)xe.xconfigure.x,
+						(float)xe.xconfigure.y},
+						{(float)xe.xconfigure.width,
+							(float)xe.xconfigure.height}};	// get frame rect
+					if(!(w = XRWindowWithXWindow(xe.xconfigure.window)) && xe.xconfigure.window == _wAppTileWindow)
+						w = XRWindowWithXWindow(__xAppTileWindow);
+					if(xe.xconfigure.above == 0)
+						f.origin = [w xFrame].origin;
+					//					if(!xe.xconfigure.override_redirect && xe.xconfigure.send_event == 0)
+					f.origin.y += WINDOW_MANAGER_TITLE_HEIGHT;		// adjust for title bar offset
+					NSDebugLog(@"New frame %f %f %f %f\n", 
+							   f.origin.x, f.origin.y,
+							   f.size.width, f.size.height);
+					// FIXME: shouldn't this be an NSNotification that a window can catch?
+					[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setFrame:f];
+					}
+				if(xe.xconfigure.window == lastXWin)
+					{
+					// xFrame = [w xFrame];
+					xFrame = (NSRect){{(float)xe.xconfigure.x,
+						(float)xe.xconfigure.y},
+						{(float)xe.xconfigure.width,
+							(float)xe.xconfigure.height}};
+					}
+#endif
+				break;								
+			case ConfigureRequest:					// same as ConfigureNotify but we get this event
+				NSDebugLog(@"ConfigureRequest\n");	// before the change has 
+				break;								// actually occurred 					
+			case CreateNotify:						// a window has been
+				NSDebugLog(@"CreateNotify\n");		// created
+				break;
+			case DestroyNotify:						// a window has been
+				NSLog(@"DestroyNotify\n");			// Destroyed
+				break;
+			case LeaveNotify: 
+			case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
+				// FIXME: this may collide with lastMotionEvent
+				if([(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
+					e = [NSEvent mouseEventWithType:NSMouseMoved
+										   location:X11toScreen(xe.xcrossing)
 									  modifierFlags:__modFlags
-										  timestamp:X11toTimestamp(xe.xbutton)
+										  timestamp:X11toTimestamp(xe.xcrossing)
 									   windowNumber:windowNumber
 											context:self
-										eventNumber:xe.xbutton.serial
-										 clickCount:clickCount
+										eventNumber:xe.xcrossing.serial
+										 clickCount:1
 										   pressure:1.0];
-					break;
-					}
-					case CirculateNotify:	// a change to the stacking order
-						NSDebugLog(@"CirculateNotify\n");
-						break;					
-					case CirculateRequest:
-						NSDebugLog(@"CirculateRequest");
-						break;
-					case ClientMessage:								// client events
-						NSDebugLog(@"ClientMessage\n");
-						if(xe.xclient.message_type == _protocolsAtom &&
-						   xe.xclient.data.l[0] == _deleteWindowAtom) 
-							{ // WM is asking us to close
-								[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) performClose:self];
-							}									// to close window
-						// send NSAppKit / NSSystemDefined event
-#if DND
-						else
-							XRProcessXDND(_display, &xe);		// handle X DND
-#endif
-						break;
-					case ColormapNotify:					// colormap attribute chg
-						NSDebugLog(@"ColormapNotify\n");
-						break;
-					case ConfigureNotify:					// window has been moved or resized by window manager
-						NSDebugLog(@"ConfigureNotify\n");
-						[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
-#if 1					
-						e = [NSEvent otherEventWithType:NSAppKitDefined
-											   location:X11toScreen(xe.xconfigure)	// or do we notify relative movement?
-										  modifierFlags:__modFlags 
-											  timestamp:0 //X11toTimestamp(xe.xconfigure)
-										   windowNumber:windowNumber
-												context:self
-												subtype:NSWindowMovedEventType
-												  data1:xe.xconfigure.width
-												  data2:xe.xconfigure.height];	// new position and dimensions
-						// this should allow to precisely track mouse position if the window is moved
-						// for that it could be sufficient to track window movements and report top-left corner only
-#endif
-#if FIXME
-						// we should at least redisplay the window
-						if(!xe.xconfigure.override_redirect || 
-						   xe.xconfigure.window == _wAppTileWindow)
-							{
-							NSRect f = (NSRect){{(float)xe.xconfigure.x,
-								(float)xe.xconfigure.y},
-								{(float)xe.xconfigure.width,
-									(float)xe.xconfigure.height}};	// get frame rect
-							if(!(w = XRWindowWithXWindow(xe.xconfigure.window)) && xe.xconfigure.window == _wAppTileWindow)
-								w = XRWindowWithXWindow(__xAppTileWindow);
-							if(xe.xconfigure.above == 0)
-								f.origin = [w xFrame].origin;
-							//					if(!xe.xconfigure.override_redirect && xe.xconfigure.send_event == 0)
-							f.origin.y += WINDOW_MANAGER_TITLE_HEIGHT;		// adjust for title bar offset
-							NSDebugLog(@"New frame %f %f %f %f\n", 
-									   f.origin.x, f.origin.y,
-									   f.size.width, f.size.height);
-							// FIXME: shouldn't this be an NSNotification that a window can catch?
-							[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setFrame:f];
-							}
-						if(xe.xconfigure.window == lastXWin)
-							{
-							// xFrame = [w xFrame];
-							xFrame = (NSRect){{(float)xe.xconfigure.x,
-								(float)xe.xconfigure.y},
-								{(float)xe.xconfigure.width,
-									(float)xe.xconfigure.height}};
-							}
-#endif
-						break;								
-					case ConfigureRequest:					// same as ConfigureNotify but we get this event
-						NSDebugLog(@"ConfigureRequest\n");	// before the change has 
-						break;								// actually occurred 					
-					case CreateNotify:						// a window has been
-						NSDebugLog(@"CreateNotify\n");		// created
-						break;
-					case DestroyNotify:						// a window has been
-						NSLog(@"DestroyNotify\n");			// Destroyed
-						break;
-					case LeaveNotify: 
-					case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
-						// FIXME: this may collide with lastMotionEvent
-						if([(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
-							e = [NSEvent mouseEventWithType:NSMouseMoved
-												   location:X11toScreen(xe.xcrossing)
-											  modifierFlags:__modFlags
-												  timestamp:X11toTimestamp(xe.xcrossing)
-											   windowNumber:windowNumber
-													context:self
-												eventNumber:xe.xcrossing.serial
-												 clickCount:1
-												   pressure:1.0];
-						break;
-					case Expose:
-					{
-					_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) graphicsContext];
-					if(_isDoubleBuffered(ctxt))
-						{ // copy from backing store
-							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
-							needsFlush=YES;
-							// FIXME - we should collect and merge all expose events into a single one
-							// we should also be able to postpone expose events after resizing the window
-							// or setDirtyRect should setup a timer to flush after a while...
-							//			[ctxt flushGraphics];	// plus anything else we need to flush anyway
-						}
+				break;
+			case Expose:
+			{
+			_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) graphicsContext];
+			if(_isDoubleBuffered(ctxt))
+				{ // copy from backing store
+					_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
+					// FIXME - we should collect and merge all expose events into a single one
+					// we should also be able to postpone expose events after resizing the window
+					// or setDirtyRect should setup a timer to flush after a while...
+					//			[ctxt flushGraphics];	// plus anything else we need to flush anyway
+				}
+			else
+				{ // queue up an expose event
+					NSSize sz;
+					if(windowScale != 1.0)
+						sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
 					else
-						{ // queue up an expose event
-							NSSize sz;
-							if(windowScale != 1.0)
-								sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
-							else
-								sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
+						sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
 #if 1
-							NSLog(@"not double buffered expose %@ -> %@", NSMapGet(__WindowNumToNSWindow, (void *) thisXWin),
-								  //  NSStringFromXRect(xe.xexpose),
-								  NSStringFromSize(sz));
+					NSLog(@"not double buffered expose %@ -> %@", NSMapGet(__WindowNumToNSWindow, (void *) thisXWin),
+						  //  NSStringFromXRect(xe.xexpose),
+						  NSStringFromSize(sz));
 #endif
-							xe.xexpose.y+=xe.xexpose.height;	// X11 specifies top left while we expect bottom left
-							e = [NSEvent otherEventWithType:NSAppKitDefined
-												   location:X11toScreen(xe.xexpose)
-											  modifierFlags:0
-												  timestamp:0
-											   windowNumber:windowNumber
-													context:self
-													subtype:NSWindowExposedEventType
-													  data1:sz.width
-													  data2:sz.height];	// truncated to (int)
-						}
-					break;
-					}
-					case FocusIn:							
-					{ // keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
-#if 0
-						NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
-#endif
-						break;
-					}
-					case FocusOut:
-					{ // keyboard focus has left one of our windows
-#if 0
-						NSDebugLog(@"FocusOut");
-#endif
-						break;
-					}
-					case GraphicsExpose:
-						NSDebugLog(@"GraphicsExpose\n");
-						break;
-					case NoExpose:
-						NSDebugLog(@"NoExpose\n");
-						break;
-					case GravityNotify:						// window is moved because
-						NSDebugLog(@"GravityNotify\n");		// of a change in the size
-						break;								// of its parent
-					case KeyPress:							// a key has been pressed
-					case KeyRelease:						// a key has been released
-					{
-					NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
-					char buf[256];
-					KeySym ksym;
-					NSString *keys = @"";
-					unsigned short keyCode = 0;
-					unsigned mflags;
-					// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
-					unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
-#if 1
-						{
-						int idx;
-						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
-						for(idx=0; idx < 8; idx++)
-							NSLog(@"%d: %08x", idx, XLookupKeysym(&xe.xkey, idx));
-						/* it looks as if Apple X11 delivers
-						 idx=0: lower case - or base keycode (0xff7e)
-						 idx=1: upper case
-						 idx=2: Unicode lower case
-						 idx=3: Unicode upper case
-						 */
-						}
-#endif
-					buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
-#if 1
-					NSLog(@"Process key event");
-#endif
-					mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
-					if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
-						{
-						if(count == 0)
-							keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
-						else
-							keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
-						__modFlags=mflags;							// may also be modified
-						}
-					else
-						{ // if we have neither a keyCode nor characters we have just changed a modifier Key
-							if(eventType == NSKeyUp)
-								__modFlags &= ~mflags;	// just reset flags defined by this key
-							else
-								__modFlags=mflags;		// if modified
-							eventType=NSFlagsChanged;
-						}
-					e= [NSEvent keyEventWithType:eventType
-										location:NSZeroPoint
-								   modifierFlags:__modFlags
-									   timestamp:X11toTimestamp(xe.xkey)
-									windowNumber:windowNumber
-										 context:self
-									  characters:keys
-					 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
-									   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
-										 keyCode:keyCode];
-#if 1
-					NSLog(@"xKeyEvent -> %@", e);
-#endif
-					break;
-					}
-						
-					case KeymapNotify:						// reports the state of the
-						NSDebugLog(@"KeymapNotify");		// keyboard when pointer or
-						break;								// focus enters a window
-						
-					case MapNotify:							// when a window changes
-#if 1
-						NSLog(@"MapNotify");			// state from ummapped to mapped
-						//	fprintf(stderr, "MapNotify\n");
-#endif
-						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:YES];
-						break;								 
-						
-					case UnmapNotify:						// find the NSWindow and
-#if 1
-						NSLog(@"UnmapNotify\n");		// inform it that it is no longer visible
-#endif
-						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:NO];
-						break;
-						
-					case VisibilityNotify:						// window's visibility 
-						NSDebugLog(@"VisibilityNotify");		// has changed
-						break;
-						
-					case MapRequest:						// like MapNotify but
-						NSDebugLog(@"MapRequest\n");		// occurs before the
-						break;								// request is carried out
-						
-					case MappingNotify:						// keyboard or mouse   
-						NSDebugLog(@"MappingNotify\n");		// mapping has been changed
-						//	XRefreshKeyboardMapping(<#XMappingEvent * #>);
-						break;								// by another client
-						
-					case MotionNotify:
-					{ // the mouse has moved
-						NSDebugLog(@"MotionNotify");
-						if(xe.xmotion.state & Button1Mask)		
-							type = NSLeftMouseDragged;	
-						else if(xe.xmotion.state & Button3Mask)		
-							type = NSRightMouseDragged;	
-						else if(xe.xmotion.state & Button2Mask)		
-							type = NSOtherMouseDragged;	
-						else if([(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
-							type = NSMouseMoved;	// no button pressed
-						else
-							break;	// ignore mouse moved events unless the window really wants to see them
-#if 0
-						if(lastMotionEvent &&
-						   [NSApp _eventIsQueued:lastMotionEvent])
-							{
-							NSLog(@"motion event still in queue: %@", lastMotionEvent);
-							}
-#endif
-						// FIXME:
-						if(NO && lastMotionEvent &&
-						   // FIXME - must also be the first event in queue!!!
-						   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
-						   [lastMotionEvent type] == type)
-							{ // replace/update if last motion event which is still unprocessed in queue
-								typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
-								_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
-#if 0
-								NSLog(@"update last motion event");
-#endif
-								a->location_point=X11toScreen(xe.xmotion);
-								a->modifier_flags=__modFlags;
-								a->event_time=X11toTimestamp(xe.xmotion);
-								a->event_data.mouse.event_num=xe.xmotion.serial;
-								break;
-							}
-						e = [NSEvent mouseEventWithType:type		// create NSEvent
-											   location:X11toScreen(xe.xmotion)
-										  modifierFlags:__modFlags
-											  timestamp:X11toTimestamp(xe.xmotion)
-										   windowNumber:windowNumber
-												context:self
-											eventNumber:xe.xmotion.serial
-											 clickCount:1
-											   pressure:1.0];
-						lastMotionEvent = e;
-#if 0
-						NSLog(@"MotionNotify e=%@", e);
-#endif
-						break;
-					}
-					case PropertyNotify:
-					{ // a window property has changed or been deleted
-						NSDebugLog(@"PropertyNotify");
-						if(_stateAtom == xe.xproperty.atom)
-							{
-							Atom target;
-							unsigned long number_items, bytes_remaining;
-							unsigned char *data;
-							int status, format;						
-							status = XGetWindowProperty(_display,
-														xe.xproperty.window, 
-														xe.xproperty.atom, 
-														0, 1, False, _stateAtom,
-														&target, &format, 
-														&number_items,&bytes_remaining,
-														(unsigned char **)&data);
-							if(status != Success || !data) 
-								break;
-							if(*data == IconicState)
-								[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) miniaturize:self];
-							else if(*data == NormalState)
-								[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) deminiaturize:self];
-							if(number_items > 0)
-								XFree(data);
-							}
-#if 1	// debug
-						if(_stateAtom == xe.xproperty.atom)
-							{
-							char *data = XGetAtomName(_display, xe.xproperty.atom);
-							NSLog(@"PropertyNotify: Atom name is '%s' \n", data);
-							XFree(data);
-							}
-#endif
-						// FIXME: if window was moved or changed screen externally, queue an NSAppKitDefinedEvent / NSWindowMovedEventType
-						break;
-					}
-					case ReparentNotify:					// a client successfully
-						NSDebugLog(@"ReparentNotify\n");	// reparents a window
-						break;
-					case ResizeRequest:						// another client (or WM) attempts to change window size
-						NSDebugLog(@"ResizeRequest"); 
-						break;
-					case SelectionNotify:
-						NSLog(@"SelectionNotify");
-					{
-					//						NSPasteboard *pb = [NSPasteboard generalPasteboard];
-					
-					// FIXME: should this be an NSNotification? Or where should we send this event to?
-					//						[pb _handleSelectionNotify:(XSelectionEvent *)&xe];
-					
-					e = [NSEvent otherEventWithType:NSFlagsChanged	
-										   location:NSZeroPoint
+					xe.xexpose.y+=xe.xexpose.height;	// X11 specifies top left while we expect bottom left
+					e = [NSEvent otherEventWithType:NSAppKitDefined
+										   location:X11toScreen(xe.xexpose)
 									  modifierFlags:0
-										  timestamp:X11toTimestamp(xe.xbutton)
-									   windowNumber:windowNumber	// 0 ??
+										  timestamp:0
+									   windowNumber:windowNumber
 											context:self
-											subtype:0
-											  data1:0
-											  data2:0];
-					break;
-					}					
-					case SelectionClear:						// X selection events 
-					case SelectionRequest:
-						NSLog(@"SelectionRequest");
-#if FIXME
-						xHandleSelectionRequest((XSelectionRequestEvent *)&xe);
+											subtype:NSWindowExposedEventType
+											  data1:sz.width
+											  data2:sz.height];	// truncated to (int)
+				}
+			break;
+			}
+			case FocusIn:							
+			{ // keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
+#if 0
+				NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
 #endif
-						break;
-					default:									// should not get here
-						NSLog(@"Received an untrapped event");
-						break;
-				} // end of event type switch
-				if(e != nil)
+				break;
+			}
+			case FocusOut:
+			{ // keyboard focus has left one of our windows
+#if 0
+				NSDebugLog(@"FocusOut");
+#endif
+				break;
+			}
+			case GraphicsExpose:
+				NSDebugLog(@"GraphicsExpose\n");
+				break;
+			case NoExpose:
+				NSDebugLog(@"NoExpose\n");
+				break;
+			case GravityNotify:						// window is moved because
+				NSDebugLog(@"GravityNotify\n");		// of a change in the size
+				break;								// of its parent
+			case KeyPress:							// a key has been pressed
+			case KeyRelease:						// a key has been released
+			{
+			NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
+			char buf[256];
+			KeySym ksym;
+			NSString *keys = @"";
+			unsigned short keyCode = 0;
+			unsigned mflags;
+			// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
+			unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
+#if 1
+				{
+				int idx;
+				NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
+				for(idx=0; idx < 8; idx++)
+					NSLog(@"%d: %08x", idx, XLookupKeysym(&xe.xkey, idx));
+				/* it looks as if Apple X11 delivers
+				 idx=0: lower case - or base keycode (0xff7e)
+				 idx=1: upper case
+				 idx=2: Unicode lower case
+				 idx=3: Unicode upper case
+				 */
+				}
+#endif
+			buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+#if 1
+			NSLog(@"Process key event");
+#endif
+			mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
+			if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
+				{
+				if(count == 0)
+					keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
+				else
+					keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
+				__modFlags=mflags;							// may also be modified
+				}
+			else
+				{ // if we have neither a keyCode nor characters we have just changed a modifier Key
+					if(eventType == NSKeyUp)
+						__modFlags &= ~mflags;	// just reset flags defined by this key
+					else
+						__modFlags=mflags;		// if modified
+					eventType=NSFlagsChanged;
+				}
+			e= [NSEvent keyEventWithType:eventType
+								location:NSZeroPoint
+						   modifierFlags:__modFlags
+							   timestamp:X11toTimestamp(xe.xkey)
+							windowNumber:windowNumber
+								 context:self
+							  characters:keys
+			 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
+							   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
+								 keyCode:keyCode];
+#if 1
+			NSLog(@"xKeyEvent -> %@", e);
+#endif
+			break;
+			}
+				
+			case KeymapNotify:						// reports the state of the
+				NSDebugLog(@"KeymapNotify");		// keyboard when pointer or
+				break;								// focus enters a window
+				
+			case MapNotify:							// when a window changes
+#if 1
+				NSLog(@"MapNotify");			// state from ummapped to mapped
+				//	fprintf(stderr, "MapNotify\n");
+#endif
+				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:YES];
+				break;								 
+				
+			case UnmapNotify:						// find the NSWindow and
+#if 1
+				NSLog(@"UnmapNotify\n");		// inform it that it is no longer visible
+#endif
+				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:NO];
+				break;
+				
+			case VisibilityNotify:						// window's visibility 
+				NSDebugLog(@"VisibilityNotify");		// has changed
+				break;
+				
+			case MapRequest:						// like MapNotify but
+				NSDebugLog(@"MapRequest\n");		// occurs before the
+				break;								// request is carried out
+				
+			case MappingNotify:						// keyboard or mouse   
+				NSDebugLog(@"MappingNotify\n");		// mapping has been changed
+				//	XRefreshKeyboardMapping(<#XMappingEvent * #>);
+				break;								// by another client
+				
+			case MotionNotify:
+			{ // the mouse has moved
+				NSDebugLog(@"MotionNotify");
+				if(xe.xmotion.state & Button1Mask)		
+					type = NSLeftMouseDragged;	
+				else if(xe.xmotion.state & Button3Mask)		
+					type = NSRightMouseDragged;	
+				else if(xe.xmotion.state & Button2Mask)		
+					type = NSOtherMouseDragged;	
+				else if([(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
+					type = NSMouseMoved;	// no button pressed
+				else
+					break;	// ignore mouse moved events unless the window really wants to see them
+#if 0
+				if(lastMotionEvent &&
+				   [NSApp _eventIsQueued:lastMotionEvent])
 					{
-					[NSApp postEvent:e atStart:NO];			// add event to app queue
-					[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
+					NSLog(@"motion event still in queue: %@", lastMotionEvent);
 					}
+#endif
+				// FIXME: coalesce motion events
+				if(NO && lastMotionEvent &&
+				   // FIXME - must also be the first event in queue!!!
+				   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
+				   [lastMotionEvent type] == type)
+					{ // replace/update if last motion event which is still unprocessed in queue
+						typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
+						_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
+#if 0
+						NSLog(@"update last motion event");
+#endif
+						a->location_point=X11toScreen(xe.xmotion);
+						a->modifier_flags=__modFlags;
+						a->event_time=X11toTimestamp(xe.xmotion);
+						a->event_data.mouse.event_num=xe.xmotion.serial;
+						break;
+					}
+				e = [NSEvent mouseEventWithType:type		// create NSEvent
+									   location:X11toScreen(xe.xmotion)
+								  modifierFlags:__modFlags
+									  timestamp:X11toTimestamp(xe.xmotion)
+								   windowNumber:windowNumber
+										context:self
+									eventNumber:xe.xmotion.serial
+									 clickCount:1
+									   pressure:1.0];
+				lastMotionEvent = e;
+#if 0
+				NSLog(@"MotionNotify e=%@", e);
+#endif
+				break;
+			}
+			case PropertyNotify:
+			{ // a window property has changed or been deleted
+				NSDebugLog(@"PropertyNotify");
+				if(_stateAtom == xe.xproperty.atom)
+					{
+					Atom target;
+					unsigned long number_items, bytes_remaining;
+					unsigned char *data;
+					int status, format;						
+					status = XGetWindowProperty(_display,
+												xe.xproperty.window, 
+												xe.xproperty.atom, 
+												0, 1, False, _stateAtom,
+												&target, &format, 
+												&number_items,&bytes_remaining,
+												(unsigned char **)&data);
+					if(status != Success || !data) 
+						break;
+					if(*data == IconicState)
+						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) miniaturize:self];
+					else if(*data == NormalState)
+						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) deminiaturize:self];
+					if(number_items > 0)
+						XFree(data);
+					}
+#if 1	// debug
+				if(_stateAtom == xe.xproperty.atom)
+					{
+					char *data = XGetAtomName(_display, xe.xproperty.atom);
+					NSLog(@"PropertyNotify: Atom name is '%s' \n", data);
+					XFree(data);
+					}
+#endif
+				// FIXME: if window was moved or changed screen externally, queue an NSAppKitDefinedEvent / NSWindowMovedEventType
+				break;
+			}
+			case ReparentNotify:					// a client successfully
+				NSDebugLog(@"ReparentNotify\n");	// reparents a window
+				break;
+			case ResizeRequest:						// another client (or WM) attempts to change window size
+				NSDebugLog(@"ResizeRequest"); 
+				break;
+			case SelectionNotify:
+				NSLog(@"SelectionNotify");
+			{
+			//						NSPasteboard *pb = [NSPasteboard generalPasteboard];
+			
+			// FIXME: should this be an NSNotification? Or where should we send this event to?
+			//						[pb _handleSelectionNotify:(XSelectionEvent *)&xe];
+			
+			e = [NSEvent otherEventWithType:NSFlagsChanged	
+								   location:NSZeroPoint
+							  modifierFlags:0
+								  timestamp:X11toTimestamp(xe.xbutton)
+							   windowNumber:windowNumber	// 0 ??
+									context:self
+									subtype:999
+									  data1:0
+									  data2:0];
+			break;
+			}					
+			case SelectionClear:						// X selection events 
+			case SelectionRequest:
+				NSLog(@"SelectionRequest");
+#if FIXME
+				xHandleSelectionRequest((XSelectionRequestEvent *)&xe);
+#endif
+				break;
+			default:									// should not get here
+				NSLog(@"Received an untrapped event");
+				break;
+		} // end of event type switch
+		if(e != nil)
+			{
+			[NSApp postEvent:e atStart:NO];			// add event to app queue
+			[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
 			}
 		}
-	// FIXME: we have no specific window/context here!
-	//	if(needsFlush)
-	//		[ctxt flushGraphics];	// plus anything else we need to flush anyway
 }
 
 - (void) _sendEvent:(NSEvent *) e;

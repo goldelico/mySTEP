@@ -167,7 +167,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSMutableArray *_childWindows;
 	NSWindow *_parentWindow;
 	NSWindow *_attachedSheet;
-	NSNotification *notification;
+	NSNotification *autoDisplayNotification;
 
 	float _userSpaceScaleFactor;
 
