@@ -178,6 +178,7 @@ static BOOL __cursorHidden = NO;
 		[self release];
 		self=[NSGrayFrame alloc];
 		}
+	// FIXME: does this pass the new self value?
 	if((self=[super initWithFrame:f]))	// NOTE: this calls -setMenu with class.defaultMenu
 		{
 #if 0
@@ -286,7 +287,8 @@ static BOOL __cursorHidden = NO;
 			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
 			   paragraph, NSParagraphStyleAttributeName,
 			   nil];
-			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, ((_style&NSUtilityWindowMask)?5.0:4.0)+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+			if(_title)
+				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, ((_style&NSUtilityWindowMask)?5.0:4.0)+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
 		}
 }
 
@@ -1119,7 +1121,7 @@ static NSButtonCell *sharedCell;
 	if(_clickedCell >= 0)
 		{ // send to highlighted item
 			NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-			// FIME: remove item and ask themeframe to re-layout
+			// FIME: remove item and ask themeFrame to re-layout
 		}
 }
 
@@ -1265,18 +1267,24 @@ static NSButtonCell *sharedCell;
 	if((mask&GSAllWindowMask) == NSBorderlessWindowMask && [[NSScreen screens] count] > 0)
 		return 0.0;	// no title bar
 	if([[[NSScreen screens] objectAtIndex:0] frame].size.height < 400)
-		return (mask&NSUtilityWindowMask)?12.0:16.0;
+		return (mask&NSUtilityWindowMask)?12.0:16.0;	// small screen
 	else
-		return (mask&NSUtilityWindowMask)?16.0:23.0;
+		return (mask&NSUtilityWindowMask)?16.0:23.0;	// large screen
 }
 
-#if 0
+#if 1	// useful for debugging memory management problems
+- (id) retain
+{
+	NSLog(@"retain - rc(bef)=%u %p %@", [self retainCount], self, self);
+	return [super retain];
+}
+
 - (void) release
 {
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif
-	NSLog(@"release %p %@", self, self);
+	NSLog(@"release - rc(bef)=%u %p %@", [self retainCount], self, self);
 	[super release];
 }
 #endif
@@ -1284,11 +1292,10 @@ static NSButtonCell *sharedCell;
 - (void) dealloc
 {
 #if 1
-	NSLog(@"dealloc - %p %@ [%d]", self, self, [self retainCount]);
+	NSLog(@"dealloc - rc=%d %p %@", [self retainCount], self, self);
 #endif
-	[_parentWindow removeChildWindow:self];	// if we have a parent...
 	[self setDelegate:nil];	// release delegate
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:nil];	// remove all our observers
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:nil];	// remove us as observers
 	[self resignKeyWindow];
 #if 0
 	NSLog(@"a");
@@ -1315,6 +1322,7 @@ static NSButtonCell *sharedCell;
 #endif
 	[_frameSaveName release];
 	[_context release];	// if still existing
+	[self setViewsNeedDisplay:NO];	// remove runloop watcher
 #if 0
 	NSLog(@"e");
 #endif
@@ -1547,11 +1555,12 @@ static NSButtonCell *sharedCell;
 #if 1
 	NSLog(@"_setIsVisible: %d", flag);
 #endif
-	if(_w.visible == flag)
-		return;
-	_w.visible=flag;
-	if(flag)
-		[_themeFrame setNeedsDisplay:YES];
+	if(_w.visible != flag)
+		{
+		_w.visible=flag;
+		if(flag)
+			[_themeFrame setNeedsDisplay:YES]; // did become visible - we must draw the contents
+		}
 }
 
 - (BOOL) isKeyWindow						{ return [_context _windowNumber] == [_screen _keyWindowNumber]; }	// this asks the backend if we are really the key window!
@@ -2009,14 +2018,12 @@ static NSButtonCell *sharedCell;
 
 - (void) display
 {
-	if(!_w.visible)
-		[self orderFront:nil];	// will call -update when window becomes mapped
-	else
+	if(_w.visible)
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
 		_w.viewsNeedDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
 		[self disableFlushWindow];						// tmp disable of display
-		[_themeFrame display];							// Draw the window view hierarchy (if changed)
+		[_themeFrame display];							// Draw the window view hierarchy
 		[self enableFlushWindow];						// Reenable displaying
 		[self flushWindowIfNeeded];
 		[arp release];
@@ -2025,12 +2032,13 @@ static NSButtonCell *sharedCell;
 
 - (void) displayIfNeeded
 {
-	if(!_w.visible)
-		[self orderFront:nil];	// will call -update when window becomes mapped
-	else
+#if 1
+	NSLog(@"displayIfNeeded needed=%d visible=%d", _w.viewsNeedDisplay, _w.visible);
+#endif
+	if(_w.visible)
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
-		_w.viewsNeedDisplay = NO;	// reset because -display may result in callbacks that will set this flag again
+		[self setViewsNeedDisplay:NO];					// reset because -display can result in callbacks that will set this flag again
 		[self disableFlushWindow];						// tmp disable of display
 		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
 		[self enableFlushWindow];						// Reenable displaying
@@ -2039,42 +2047,56 @@ static NSButtonCell *sharedCell;
 		}
 }
 
+#define USE_PERFORMER_WITH_DELAY_0	0
+
 - (void) setViewsNeedDisplay:(BOOL) flag
 {
 	static NSArray *gsmodes;	// modes that redisplay the window
 	if(_w.viewsNeedDisplay != flag)
-		{
-		_w.viewsNeedDisplay = flag;
-		if(flag)
-			{
-//			[[NSNotificationCenter defaultCenter] postNotificationName:NSDisplayWindowIfNeeded object:self];
-			if(!gsmodes)
-				gsmodes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode,
-							NSEventTrackingRunLoopMode,
-							nil];
-			[[NSNotificationQueue defaultQueue] enqueueNotification:
-								[NSNotification notificationWithName:NSDisplayWindowIfNeeded object:self]
-								postingStyle:NSPostASAP
-								coalesceMask:NSNotificationCoalescingOnName|NSNotificationCoalescingOnSender
-								forModes:gsmodes];
-			}
+		{ // has changed
+			_w.viewsNeedDisplay = flag;
+			if(flag && _w.visible && _w.autodisplay)
+				{ // make this window autodisplay on each pass through the RunLoop - otherwise you must call -display explicitly
+					if(!gsmodes)
+						gsmodes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode,
+								 NSModalPanelRunLoopMode,
+								 NSEventTrackingRunLoopMode,
+								 nil];
+#if USE_PERFORMER_WITH_DELAY_0
+					[self performSelector:@selector(displayIfNeeded) withObject:nil afterDelay:0.0 inModes:gsmodes];
+#else
+#if 1
+					NSLog(@"setViewsNeedDisplay: rc(bef)=%d %p %@", [self retainCount], self, self);
+#endif
+					if(!notification)
+						notification=[[NSNotification notificationWithName:NSDisplayWindowIfNeeded object:self] retain];
+					[[NSNotificationQueue defaultQueue] enqueueNotification:notification
+															   postingStyle:NSPostASAP
+															   coalesceMask:NSNotificationCoalescingOnName|NSNotificationCoalescingOnSender
+																   forModes:gsmodes];
+#if 1
+					NSLog(@"setViewsNeedDisplay: rc=%d %p %@", [self retainCount], self, self);
+#endif
+#endif
+				}
+			else if(!flag)
+				{ // cancel any pending request
+#if USE_PERFORMER_WITH_DELAY_0
+					[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(displayIfNeeded) object:nil];
+#else
+					// this makes a problem since the notification retains the object!
+					// i.e. if we call this dequeue operation in the -dealloc we try to re-retain
+					[[NSNotificationQueue defaultQueue]	dequeueNotificationsMatching:notification
+																		coalesceMask:NSNotificationCoalescingOnName|NSNotificationCoalescingOnSender];
+					[notification release];	// no longer needed
+					notification=nil;
+#endif
+				}
 		}
 }
 
 - (void) update
 {
-#if OLD
-#if 0
-	NSLog(@"%@ update %d %d", self, _w.autodisplay, _w.needsDisplay);
-#endif
-	if(_w.autodisplay && _w.needsDisplay && _w.visible)
-		{ // if autodisplay is enabled and window needs display
-#if 0
-			NSLog(@"%@ update %@", self, [_themeFrame _descriptionWithSubviews]);
-#endif
-			[self displayIfNeeded];	// display subviews if needed
-    	}
-#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidUpdateNotification object:self];
 }
 
@@ -2085,8 +2107,10 @@ static NSButtonCell *sharedCell;
 }
 
 - (void) disableFlushWindow					{ _disableFlushWindow++; }
-- (void) flushWindow						{ [_context flushGraphics]; }						
+- (void) flushWindow						{ /*if disabled: NSEnableScreenUpdates()*/ [_context flushGraphics]; }					
 - (void) enableFlushWindow					{ if(_disableFlushWindow > 0) _disableFlushWindow--; }
+// FIXME: we must make sure that we call this only once and NSEnableScreenUpdates()
+- (void) disableScreenUpdatesUntilFlush		{ /*if not yet disabled*/ NSDisableScreenUpdates(); }
 - (BOOL) isAutodisplay						{ return _w.autodisplay; }
 - (BOOL) isFlushWindowDisabled				{ return _disableFlushWindow > 0; }
 - (void) setAutodisplay:(BOOL)flag			{ _w.autodisplay = flag; }
@@ -2277,7 +2301,7 @@ object:self]
 - (void) close
 {
 #if 1
-	NSLog(@"close %@", self);
+	NSLog(@"close %p %@", self, self);
 	NSLog(@"retain count %d", [self retainCount]);
 	if(_w.releasedWhenClosed)
 		NSLog(@"close %@: releasedWhenClosed", _windowTitle);
@@ -3196,7 +3220,7 @@ object:self]
 	// FIXME: do we need two separate lists?
 	// ordering of windows should reorder the parent/child
 	// movements will only move children
-	[_childWindows addObject:child];
+	[_childWindows addObject:child];	// retains the child
 	[child setParentWindow:self];
 }
 
@@ -3223,7 +3247,7 @@ object:self]
 	_parentWindow=window;
 }
 
-- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+- (BOOL) validateMenuItem:(NSMenuItem *) menuItem
 { // if there is no controller to handle that
 	NSString *action=NSStringFromSelector([menuItem action]);
 	if([action isEqualToString:@"runToolbarCustomizationPalette:"])

@@ -799,7 +799,7 @@ typedef struct
 		XRenderFreePicture(_display, _picture);	// release picture handle
 #endif
 #if 1
-	NSLog(@"NSWindow dealloc in backend: %@", self);
+	NSLog(@"_NSX11GraphicsContext dealloc: %@", self);
 #endif
 	if(_isDoubleBuffered(self))
 		XFreePixmap(_display, (Pixmap) _graphicsPort);

@@ -167,6 +167,8 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSMutableArray *_childWindows;
 	NSWindow *_parentWindow;
 	NSWindow *_attachedSheet;
+	NSNotification *notification;
+
 	float _userSpaceScaleFactor;
 
 	int _disableFlushWindow;

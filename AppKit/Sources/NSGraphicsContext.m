@@ -83,6 +83,8 @@ NSString *NSGraphicsContextPSFormat=@"ps";
 
 static NSMapTable *_gState2struct;		// map unique ID to gStates
 
+static unsigned int disableCount;	// NSDisableScreenUpdates() - not implemented!
+
 NSGraphicsContext *GSCurrentContext(void)
 { // Function for rapid access to current graphics context
 #ifdef GNUSTEP_BASE_LIBRARY
@@ -330,23 +332,6 @@ NSString *NSDeviceSize;
 
 // Functions (alphabetically sorted)
 
-void NSShowAnimationEffect(NSAnimationEffect animationEffect,
-						   NSPoint centerLocation,
-						   NSSize size,
-						   id animationDelegate,
-						   SEL didEndSelector,
-						   void *contextInfo)
-{
-	// FIXME: run animation
-	if(animationDelegate)
-		[animationDelegate performSelector:didEndSelector withObject:(id)contextInfo];	// notify completion
-}
-
-const NSWindowDepth *NSAvailableWindowDepths(void)
-{
-	return [[NSScreen deepestScreen] supportedWindowDepths];
-}
-
 void NSBeep(void)
 { // Play System Beep
 	NSLog(@"beeeeep.....");
@@ -410,8 +395,7 @@ void NSCountWindowsForContext(int context, int *count)
 
 void NSDisableScreenUpdates(void)
 {
-	// NIMP
-	return;
+	disableCount++;
 }
 
 void NSDrawBitmap(NSRect rect,							// Bitmap Images
@@ -530,7 +514,8 @@ void NSDrawWindowBackground(NSRect rect)
 
 void NSEnableScreenUpdates(void)
 {
-	// FIXME: NIMP
+	if(disableCount > 0)
+		disableCount--;
 }
 
 void NSEraseRect(NSRect aRect)
@@ -567,6 +552,17 @@ void NSFrameRectWithWidthUsingOperation(NSRect r,
 	[ctx setCompositingOperation:op];
 	NSFrameRectWithWidth(r, w);
 	[ctx restoreGraphicsState];
+}
+
+int NSGetWindowServerMemory(int context,
+							int *virtualMemory,
+							int *windowBackingMemory,
+							NSString **windowDumpStream)
+{
+	if(!context)
+		context=getpid();	// why do we pass integers for contexts?
+	// NIMP
+	return -1;
 }
 
 void NSHighlightRect(NSRect aRect)       
@@ -689,6 +685,23 @@ void NSSetFocusRingStyle(NSFocusRingPlacement placement)
 		}
 }
 
+void NSShowAnimationEffect(NSAnimationEffect animationEffect,
+						   NSPoint centerLocation,
+						   NSSize size,
+						   id animationDelegate,
+						   SEL didEndSelector,
+						   void *contextInfo)
+{
+	// FIXME: run animation
+	if(animationDelegate)
+		[animationDelegate performSelector:didEndSelector withObject:(id)contextInfo];	// notify completion
+}
+
+const NSWindowDepth *NSAvailableWindowDepths(void)
+{
+	return [[NSScreen deepestScreen] supportedWindowDepths];
+}
+
 void NSWindowList(int size, int list[])
 {
 	NSWindowListForContext(0, size, list);
@@ -699,14 +712,4 @@ void NSWindowListForContext(int context, int size, int list[])
 	[NSScreen _systemWindowListForContext:context size:size list:list];
 }
 
-int NSGetWindowServerMemory(int context,
-							int *virtualMemory,
-							int *windowBackingMemory,
-							NSString **windowDumpStream)
-{
-	if(!context)
-		context=getpid();	// why do we pass integers for contexts?
-	// NIMP
-	return -1;
-}
-
+// EOF
