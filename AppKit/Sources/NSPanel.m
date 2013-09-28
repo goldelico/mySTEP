@@ -126,12 +126,12 @@
 }
 
 - (BOOL) canBecomeMainWindow					
-{ 
+{
 	return NO; 
 }
 
 - (void) setBecomesKeyOnlyIfNeeded:(BOOL)flag	
-{ 
+{
 	_becomesKeyOnlyIfNeeded = flag;
 }
 

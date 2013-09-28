@@ -2100,7 +2100,7 @@ int index = [self columnWithIdentifier:identifier];
 		[self setDelegate:[aDecoder decodeObjectForKey:@"NSDelegate"]];	// only used for NSComboBox - dataSource&delegate are usually set by a NSNibOutletConnector
 		_dataSource=[aDecoder decodeObjectForKey:@"NSDataSource"];	// not retained
 #if 0
-		NSLog(@"initWithCoder -> enclosingScrollView=%@", [[self enclosingScrollView] _descriptionWithSubviews]);
+		NSLog(@"initWithCoder -> enclosingScrollView=%@", [[self enclosingScrollView] _subtreeDescription]);
 #endif
 		_numberOfRows=NSNotFound;	// recache
 		return self;

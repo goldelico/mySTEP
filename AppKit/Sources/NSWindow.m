@@ -416,6 +416,7 @@ static BOOL __cursorHidden = NO;
 	NSLog(@"setContentView %@", self);
 	NSLog(@"  view=%@", view);
 	NSLog(@"  cv=%@", [self contentView]);
+	NSLog(@"  w.autodisplay=%d", [_window isAutodisplay]);
 #endif
 	[self replaceSubview:cv with:view];	// this checks if a content view exists
 	[view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
@@ -423,7 +424,7 @@ static BOOL __cursorHidden = NO;
 	[self layout];
 	[self setNeedsDisplay:YES];	// show everything
 #if 0
-	NSLog(@"self=%@", [self _descriptionWithSubviews]);
+	NSLog(@"self=%@", [self _subtreeDescription]);
 #endif	
 }
 
@@ -679,6 +680,7 @@ static BOOL __cursorHidden = NO;
 	NSLog(@"layout %@", self);
 	NSLog(@"  cv=%@", cv);
 	NSLog(@"  frame=%@", NSStringFromRect(f));
+	NSLog(@"  w.autodisplay=%d", [_window isAutodisplay]);
 #endif
 	if(!cv)
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
@@ -1490,7 +1492,9 @@ static NSButtonCell *sharedCell;
 - (void) setContentView:(NSView *)aView				
 {
 #if 0
-	NSLog(@"setContentView: %@", [aView _descriptionWithSubviews]);
+	NSLog(@"setContentView: %@", aView);
+	NSLog(@"setContentView: %@", [aView _subtreeDescription]);
+	NSLog(@"  w.autodisplay=%d", _w.autodisplay);
 #endif
 	[(NSThemeFrame *) _themeFrame setContentView:aView];
 }
@@ -1552,7 +1556,7 @@ static NSButtonCell *sharedCell;
 
 - (void) _setIsVisible:(BOOL) flag
 {
-#if 1
+#if 0
 	NSLog(@"_setIsVisible: %d", flag);
 #endif
 	if(_w.visible != flag)
@@ -2051,13 +2055,13 @@ static NSButtonCell *sharedCell;
 {
 	static NSArray *gsmodes;	// modes that redisplay the window
 #if 0
-	NSLog(@"setViewsNeedDisplay:%d rc(bef)=%d %p %@", flag, [self retainCount], self, self);
+	NSLog(@"setViewsNeedDisplay:%d -> %d autodisplay=%d rc(bef)=%d %p %@", _w.viewsNeedDisplay, flag, _w.autodisplay, [self retainCount], self, self);
 #endif
 	if(_w.viewsNeedDisplay != flag)
 		{ // has changed
-			_w.viewsNeedDisplay = flag;
 			if(flag && _w.autodisplay)
 				{ // make this window autodisplay on each pass through the RunLoop - otherwise you must call -display explicitly
+					_w.viewsNeedDisplay = flag;
 					if(!gsmodes)
 						gsmodes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode,
 								 NSModalPanelRunLoopMode,
@@ -2089,7 +2093,10 @@ static NSButtonCell *sharedCell;
 					[autoDisplayNotification release];	// no longer needed
 					autoDisplayNotification=nil;
 #endif
+					_w.viewsNeedDisplay = flag;
 				}
+			else
+				abort();
 		}
 }
 
@@ -2112,7 +2119,10 @@ static NSButtonCell *sharedCell;
 - (BOOL) isAutodisplay						{ return _w.autodisplay; }
 - (BOOL) isFlushWindowDisabled				{ return _disableFlushWindow > 0; }
 - (void) setAutodisplay:(BOOL)flag
-{ _w.autodisplay = flag; }
+{
+	NSLog(@"setAutodisplay: %u", flag);
+	_w.autodisplay = flag;
+}
 - (BOOL) viewsNeedDisplay					{ return _w.viewsNeedDisplay; }
 - (void) useOptimizedDrawing:(BOOL)flag		{ _w.optimizeDrawing = flag; }
 - (BOOL) canStoreColor						{ return (_w.depthLimit > 1); }

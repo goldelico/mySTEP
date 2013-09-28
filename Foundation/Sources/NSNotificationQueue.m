@@ -252,6 +252,13 @@ id object = [notification object];
 				coalesceMask:(unsigned int)coalesceMask
 				forModes:(NSArray*)modes
 {
+#if 0
+	NSLog(@"enqueue:%@ postingStyle %u coalesceMask: %u forModes: %@",
+		  notification,
+		  postingStyle,
+		  coalesceMask,
+		  modes);
+#endif
     if (coalesceMask != NSNotificationNoCoalescing)
 		[self dequeueNotificationsMatching:notification 
 			  coalesceMask:coalesceMask];
@@ -276,7 +283,7 @@ id object = [notification object];
 					  item:(GSQueueRegistration *) item
 {
 	NSString *mode;	// check to see if run loop is in a valid mode
-#if 1
+#if 0
 	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
 #endif
     if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
@@ -315,7 +322,7 @@ id object = [notification object];
 { // trigger the Idle items
 	InstanceList *item;
 #if 0
-	NSLog(@"_runLoopIdle");
+	NSLog(@"_runLoopIdle mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
     for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
@@ -326,7 +333,7 @@ id object = [notification object];
 { // trigger the ASAP items
 	InstanceList *item;   
 #if 0
-	NSLog(@"_runLoopASAP");
+	NSLog(@"_runLoopASAP mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
     for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_asapQueue->head)

@@ -351,7 +351,7 @@
 		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];		// decode and insert
 		_titleCell = [[aDecoder decodeObjectForKey:@"NSTitleCell"] retain];
 #if 0
-		NSLog(@"_contentView=%@", [_contentView _descriptionWithSubviews]);
+		NSLog(@"_contentView=%@", [_contentView _subtreeDescription]);
 #endif		
 		[self _calcSizes];	// recalculate _titleRect with latest _titleCell
 		return self;

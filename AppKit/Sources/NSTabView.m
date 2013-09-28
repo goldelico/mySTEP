@@ -670,7 +670,7 @@ static struct _NSTabViewSizing
 		if(!tab_selected)
 			[self selectFirstTabViewItem:nil];
 #if 0
-		NSLog(@"NSTabView initialized to %@", [self _descriptionWithSubviews]);
+		NSLog(@"NSTabView initialized to %@", [self _subtreeDescription]);
 #endif
 		return self;
 		}

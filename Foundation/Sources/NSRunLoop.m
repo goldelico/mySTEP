@@ -504,11 +504,22 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	
 	if(before && [limitDate compare:before] == NSOrderedAscending)
 		{
-		before = limitDate;	// don't wait longer than until the limit date
 #if 0
-		NSLog(@"limit before date to %@", before);
+		NSLog(@"reduce before %@ to limit date %@", before, limitDate);
 #endif
+		before = limitDate;	// don't wait longer than until the limit date
 		}
+
+#if FIXME
+	// we also should timeout immediately (i.e. poll only once) if we have any pending idle notifications
+	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop has idle notifications
+		{
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+		select_timeout = &timeout;
+		}
+#endif
+	
 	if(!before || (ti = [before timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
 		{															// set SELECT_TIMEOUT.	Don't
 			timeout.tv_sec = 0;											// wait if no limit date or it lies in the past. i.e.		
@@ -588,15 +599,6 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	
 	exception_fds = read_fds;			// the file descriptors in _FDS.
 	
-#if OLD
-	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop is idle, and if needed
-		{
-		timeout.tv_sec = 0;							// dispatch notifications
-		timeout.tv_usec = 0;						// from NSNotificationQue's
-		select_timeout = &timeout;					// idle queue?
-		}
-#endif
-	
 	// FIXME: we must only select until the next timer fires and loop until we have reached the before-date - or any input watcher has data to process
 	
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
@@ -614,7 +616,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			abort();
 			}
 		}
-	
+
 	if(select_return == 0)
 		{
 		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
@@ -652,20 +654,24 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					anyInput=YES;
 					}
 				}
-			[NSNotificationQueue _runLoopASAP];
 		}
 	
 	NSResetMapTable (rfd_2_object);					// Clean up before return.
 	NSResetMapTable (wfd_2_object);
+	[NSNotificationQueue _runLoopASAP];	// run any pending notifications (similar to 'performSelector:withObject:afterDelay:0.0')
 #if 0
 	NSLog(@"acceptInput done");
 #endif
 	_current_mode = saved_mode;	// restore
-	[limitDate retain];
-	[arp release];
 	if(limit)
+		{
+		[limitDate retain];	// move to outer arp
+		[arp release];		
 		*limit=limitDate;
-	[limitDate autorelease];
+		[limitDate autorelease];
+		}
+	else
+		[arp release];
 	return anyInput;
 }
 

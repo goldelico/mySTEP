@@ -762,8 +762,8 @@ static Class __rulerViewClass = nil;
 		_cornerView=[[aDecoder decodeObjectForKey:@"NSCornerView"] retain];	// if we have one...
 		_headerContentView=[[aDecoder decodeObjectForKey:@"NSHeaderClipView"] retain];	// if we have one...
 #if 0
-		NSLog(@"corner view=%@", [_cornerView _descriptionWithSubviews]);			// not embedded in a NSClipView
-		NSLog(@"header view=%@", [_headerContentView _descriptionWithSubviews]);	// this is a NSClipView which embeds the real header view
+		NSLog(@"corner view=%@", [_cornerView _subtreeDescription]);			// not embedded in a NSClipView
+		NSLog(@"header view=%@", [_headerContentView _subtreeDescription]);	// this is a NSClipView which embeds the real header view
 #endif
 		if([aDecoder containsValueForKey:@"NSScrollAmts"])
 			{

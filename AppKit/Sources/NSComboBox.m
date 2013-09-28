@@ -255,7 +255,7 @@
 		[_tableView setUsesAlternatingRowBackgroundColors:YES];
 		[_tableView setColumnAutoresizingStyle:NSTableViewUniformColumnAutoresizingStyle];
 #if 0
-		NSLog(@"table view: %@", [_tableView _descriptionWithSubviews]);
+		NSLog(@"table view: %@", [_tableView _subtreeDescription]);
 #endif
 		tc = [[NSTableColumn alloc] initWithIdentifier:@"ComboBoxCell"];
 #if 1
@@ -286,7 +286,7 @@
 		[scrollView setAutohidesScrollers:YES];
 		[scrollView setDocumentView:_tableView];	// embed the NSTableView
 #if 0
-		NSLog(@"scroll view: %@", [scrollView _descriptionWithSubviews]);
+		NSLog(@"scroll view: %@", [scrollView _subtreeDescription]);
 #endif
 		[[_popUpWindow contentView] addSubview:scrollView];
 		[scrollView release];

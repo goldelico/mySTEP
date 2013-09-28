@@ -933,7 +933,7 @@ static NSArray *__bitmapImageRepsICNS;
 + (NSArray *) imageRepsWithData:(NSData *)data
 {
 	NSMutableArray *array = [NSMutableArray arrayWithCapacity:1];
-	GSBitmapImageRepICNS *imageRep;
+	NSBitmapImageRep *imageRep;
 	int i;
 	static struct
 		{
@@ -989,10 +989,11 @@ static NSArray *__bitmapImageRepsICNS;
 		if(!rgb)
 			continue;	// not found
 		if(reps[i].isJPEG2000)
-				{
-				NSLog(@"JPEG ICNS format not implemented");
-					// read as JPEG2000 from rgb data (which allows for alpha channel)
-					// [array addObject:imageRep];	// save this representation
+				{ // read as JPEG2000 from rgb data (which allows for alpha channel)
+					NSLog(@"JPEG ICNS format not implemented");
+					imageRep=[[GSBitmapImageRepJPEG alloc] initWithData:rgb];
+					if(imageRep)
+						[array addObject:imageRep];	// save this representation
 					continue;
 				}
 		mask=[[data subResourceWithType:reps[i].mask len:&masklen] resourceData];	// nil if not existent
