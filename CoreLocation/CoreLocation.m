@@ -556,7 +556,7 @@ static int startW2SG;
 			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 			startW2SG=0;
-			// power on GPS receiver and antenna
+			// power on GPS receiver and antenna (no longer needed on newer kernels)
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
 			[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
