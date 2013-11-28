@@ -333,28 +333,14 @@ If not, write to the Free Software Foundation,
 	return NO;
 }
 
-- (NSData *) dataRepresentationOfType:(NSString *)type
-{
-	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
-	       NSStringFromClass(isa), NSStringFromSelector(_cmd)];
-	return nil;
-}
+/* default implementations - all of them can be overridden */
+// FIXME: make this a private category to group this low-level-file interface
 
 - (BOOL) loadDataRepresentation:(NSData *)data ofType:(NSString *)type
 {
 	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
-	       NSStringFromClass(isa), NSStringFromSelector(_cmd)];
+	 NSStringFromClass(isa), NSStringFromSelector(_cmd)];
 	return NO;
-}
-
-- (NSFileWrapper *) fileWrapperRepresentationOfType:(NSString *)type
-{
-	NSData *data = [self dataRepresentationOfType:type];
-	
-	if (data == nil) 
-		return nil;
-	
-	return [[[NSFileWrapper alloc] initRegularFileWithContents:data] autorelease];
 }
 
 - (BOOL) loadFileWrapperRepresentation:(NSFileWrapper *)wrapper ofType:(NSString *)type
@@ -370,20 +356,31 @@ If not, write to the Free Software Foundation,
 	return NO;
 }
 
-- (BOOL) writeToFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL) readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **) error;
 {
-	DEPRECATED;
-	return [[self fileWrapperRepresentationOfType:type]
-	   writeToFile:fileName atomically:YES updateFilenames:YES];
+	return NO;
 }
 
-- (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)typeName error:(NSError **) error;
 { // default load - can/should be overwritten
-	DEPRECATED;
-	return [self loadDataRepresentation:[NSData dataWithContentsOfFile:fileName] ofType:type];
+	// FIXME: we loose error information that the readFromFileWrapper: could have provided
+	if([self readFromFile:fileName ofType:typeName])
+	   return YES;
+	if(error)
+		*error=[NSError errorWithDomain:@"NSDocument" code:0 userInfo:nil];
+	return NO;
 }
 
-#define isoverridden(SEL) YES	// somehow detect if selector is overridden
+- (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)typeName
+{ // default load - can/should be overwritten
+	NSFileWrapper *wrapper;
+	DEPRECATED;
+	wrapper=[[[NSFileWrapper alloc] initWithPath:fileName] autorelease];
+	if(!wrapper) return nil;	// outError has been set
+	return [self readFromFileWrapper:wrapper ofType:typeName error:NULL];
+}
+
+#define isoverridden(A) YES
 
 - (BOOL) readFromFileWrapper:(NSFileWrapper *) wrapper ofType:(NSString *) type error:(NSError **) error;
 {
@@ -395,12 +392,12 @@ If not, write to the Free Software Foundation,
 - (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError
 { // default load - can/should be overwritten
 	NSFileWrapper *wrapper;
-	if([absoluteURL isFileURL] && isoverridden(@selector(readFromFile:ofType:)))	// according to documentation we should check if readFromFile has really been overwritten
-		return [self readFromFile:[absoluteURL path] ofType:typeName];	// default
-	// FIXME: this is a 10.6 method - what did we call before???
+	if([absoluteURL isFileURL])
+		return [self readFromFile:[absoluteURL path] ofType:typeName error:outError];
 	wrapper=[[[NSFileWrapper alloc] initWithURL:absoluteURL options:0 error:outError] autorelease];
-	if(!wrapper) return nil;	// outError has been set
-	return [self readFromFileWrapper:wrapper ofType:typeName error:outError];
+	if(!wrapper)
+		return NO;	// outError has been set
+	return [self readFromFileWrapper:wrapper ofType:typeName error:outError];		
 }
 
 - (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)type
@@ -411,9 +408,30 @@ If not, write to the Free Software Foundation,
 	return [self readFromFile:[absoluteURL path] ofType:type];
 }
 
-- (BOOL) revertToSavedFromFile:(NSString *)fileName ofType:(NSString *)type
+/* same for writing */
+
+- (NSData *) dataRepresentationOfType:(NSString *)type
 {
-	return [self readFromFile:fileName ofType:type];
+	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
+	 NSStringFromClass(isa), NSStringFromSelector(_cmd)];
+	return nil;
+}
+
+- (NSFileWrapper *) fileWrapperRepresentationOfType:(NSString *)type
+{
+	NSData *data = [self dataRepresentationOfType:type];
+	
+	if (data == nil) 
+		return nil;
+	
+	return [[[NSFileWrapper alloc] initRegularFileWithContents:data] autorelease];
+}
+
+- (BOOL) writeToFile:(NSString *)fileName ofType:(NSString *)type
+{
+	DEPRECATED;
+	return [[self fileWrapperRepresentationOfType:type]
+			writeToFile:fileName atomically:YES updateFilenames:YES];
 }
 
 - (BOOL) writeToURL:(NSURL *)url ofType:(NSString *)type
@@ -424,6 +442,13 @@ If not, write to the Free Software Foundation,
 		return NO;
 	
 	return [url setResourceData: data];
+}
+
+/* use the basic layer for reading/writing files */
+
+- (BOOL) revertToSavedFromFile:(NSString *)fileName ofType:(NSString *)type
+{
+	return [self readFromFile:fileName ofType:type];
 }
 
 - (BOOL) revertToSavedFromURL:(NSURL *)url ofType:(NSString *)type
