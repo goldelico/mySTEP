@@ -190,18 +190,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			{
 			if([self batteryLevel] > 0.99)
 				return UIDeviceBatteryStateFull;
-			// check if VBUS/VAC is >= 4.4V for proper and reliable charging or report UIDeviceBatteryStateUnknown
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
 			if([status hasPrefix:@"Charging"])
+				{ // USB charger active
+				status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
+				if(!status || [status doubleValue] <4.7*1e6)	// VBUS < 4.7V - risk of HW-disconnect
+					return UIDeviceBatteryStateUnknown;	// weak and unreliable charging - check cable
 				return UIDeviceBatteryStateCharging;
+				}
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_ac/status"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
 			return UIDeviceBatteryStateUnknown;	// we don't know why the battery is charging...
 			}
 		if([status hasPrefix:@"Discharging"])
-			// FIXME: check VBUS/VAC for > 1V and report bad/insufficient charger
-			return UIDeviceBatteryStateUnplugged;	// i.e. not connected to charger
+			{
+			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
+			if(!status || [status doubleValue] >= 1.0*1e6)	// VBUS > 1V
+				return UIDeviceBatteryStateUnknown;	// discharging although VBUS is available - charger or battery broken?
+			return UIDeviceBatteryStateUnplugged;	// i.e. not connected to charger			
+			}
 		}
 	return UIDeviceBatteryStateUnknown;
 }
