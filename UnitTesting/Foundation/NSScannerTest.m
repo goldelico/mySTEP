@@ -38,6 +38,21 @@
 	STAssertTrue([sc isAtEnd], @"is at end");
 }
 
+// to be verified!
+- (void) testWeird
+{
+	NSScanner *sc=[NSScanner scannerWithString:@" b"];
+	NSString *str=nil;
+	BOOL flag;
+	flag=[sc scanString:@" " intoString:&str];
+	STAssertFalse(flag, @"does not match");
+	STAssertIsNull(str, @"string is not modified");
+	[sc setCharactersToBeSkipped:nil];	// noting to be skipped
+	flag=[sc scanString:@" " intoString:&str];
+	STAssertTrue(flag, @"does match");
+	STAssertEqualObjects(str, @" ", @"string is space");
+}
+
 /* test
  * isAtEnd
  * scanning integer, hex, longlong
@@ -46,6 +61,7 @@
  * scanning up-to
  * skipping/not skipping
  * case sensitive/insensive
+ * default charactersToBeSkipped
  * (in)dependence from locale
  * dependence on ignored character set (what if this is nil?)
  */
