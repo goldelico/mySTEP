@@ -247,6 +247,7 @@ BOOL modemLog=NO;
 	//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
 	// FIXME:
 	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
+	[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
 	[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
 	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)

@@ -832,6 +832,22 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[delegate subscriberCellularProviderDidUpdate:currentNetwork];
 			return;
 		}
+	if([line hasPrefix:@"_OLCC:"])
+		{ // call status - _OLCC: <call>,<direction>,<status>,<mode>,<multi>,<number>,<?>
+			NSArray *st=[line componentsSeparatedByString:@","];
+			int call=[[[st objectAtIndex:0] substringFromIndex:6] intValue];	// call number
+			int dir=[[st objectAtIndex:1] intValue];	// direction
+			switch([[st objectAtIndex:2] intValue]) {
+				case 0: NSLog(@"active"); break;
+				case 1: NSLog(@"held"); break;
+				case 2: NSLog(@"dialing (MO)"); break;
+				case 3: NSLog(@"alerting (MO)"); break;
+				case 4: NSLog(@"incoming (MT)"); break;
+				case 5: NSLog(@"waiting (MT)"); break;
+				case 30: NSLog(@"terminated"); break;
+			}
+			return;
+		}
 }
 
 - (CTCarrier *) subscriberCellularProvider;
