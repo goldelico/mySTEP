@@ -18,6 +18,7 @@ export SOURCES+=" NSAffineTransformTest.m"
 export SOURCES+=" NSDistantObjectTest.m"
 export SOURCES+=" NSConnectionTest.m"
 export SOURCES+=" NSPortTest.m"
+export SOURCES+=" NSInvocationTest.m"
 export WRAPPER_EXTENSION="octest"
 
 

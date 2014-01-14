@@ -46,7 +46,7 @@
 	BOOL flag;
 	flag=[sc scanString:@" " intoString:&str];
 	STAssertFalse(flag, @"does not match");
-	STAssertIsNull(str, @"string is not modified");
+	STAssertNil(str, @"string is not modified");
 	[sc setCharactersToBeSkipped:nil];	// noting to be skipped
 	flag=[sc scanString:@" " intoString:&str];
 	STAssertTrue(flag, @"does match");
