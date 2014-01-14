@@ -37,29 +37,34 @@
 {										
 	if (!value || !type)
 		{
-    	NSLog(@"Tried to create NSValue with NULL value or type");
+    	NSLog(@"NSValue: tried to create NSValue with NULL value or type");
 		return nil;
 		}
 	
     switch (*type) {
-		case _C_ID:		return [self valueWithNonretainedObject:(id)value];
+		case _C_CLASS:
+		case _C_ID:		return [self valueWithNonretainedObject:*(id *)value];
 		case _C_CHR:	return [NSNumber numberWithChar:*(char *)value];
-		case _C_INT:	return [NSNumber numberWithInt:*(int *)value]; 
-		case _C_SHT:	return [NSNumber numberWithShort:*(short *)value]; 
-		case _C_LNG:	return [NSNumber numberWithLong:*(long *)value]; 
+		case _C_INT:	return [NSNumber numberWithInt:*(int *)value];
+		case _C_SHT:	return [NSNumber numberWithShort:*(short *)value];
+		case _C_LNG:	return [NSNumber numberWithLong:*(long *)value];
 		case 'q':		return [NSNumber numberWithLongLong:*(long long *)value];
-		case _C_FLT:	return [NSNumber numberWithFloat:*(float *)value]; 
-		case _C_DBL:	return [NSNumber numberWithDouble:*(double *)value]; 
+		case _C_FLT:	return [NSNumber numberWithFloat:*(float *)value];
+		case _C_DBL:	return [NSNumber numberWithDouble:*(double *)value];
 		case _C_UCHR: 
-			return [NSNumber numberWithUnsignedChar:*(unsigned char *)value]; 
+			return [NSNumber numberWithUnsignedChar:*(unsigned char *)value];
 		case _C_USHT:	
 			return [NSNumber numberWithUnsignedShort:*(unsigned short *)value];
 		case _C_UINT:	
-			return [NSNumber numberWithUnsignedInt:*(unsigned int *)value]; 
+			return [NSNumber numberWithUnsignedInt:*(unsigned int *)value];
 		case _C_ULNG:	
-			return [NSNumber numberWithUnsignedLong:*(unsigned long *)value]; 
+			return [NSNumber numberWithUnsignedLong:*(unsigned long *)value];
 		case 'Q':		
-			return [NSNumber numberWithUnsignedLongLong:*(unsigned long long *)value]; 
+			return [NSNumber numberWithUnsignedLongLong:*(unsigned long long *)value];
+		case _C_SEL:
+		case _C_ATOM:
+		case _C_PTR:
+			return [self valueWithPointer:*(void **)value];
 		default:		
 			break;
 	}
@@ -72,10 +77,8 @@
 		return [self valueWithSize: *(NSSize *)value];
 	if (strcmp(@encode(NSRange), type) == 0)
 		return [self valueWithRange: *(NSRange *)value];
-	if (strcmp(@encode(void *), type) == 0)
-    	return [self valueWithPointer:value];
 	
-	[NSException raise:NSInvalidArgumentException format:@"Invalid objc type %s", type];
+	[NSException raise:NSInvalidArgumentException format:@"-[NSValue value:withObjCType:] unrecognized objc type %s", type];
 	
     return nil;
 }
@@ -84,7 +87,7 @@
 {
 GSNonretainedObjectValue *v = [GSNonretainedObjectValue alloc];
 
-    return [[v initWithBytes:&anObject objCType:@encode(id)] autorelease];
+    return [[v initWithBytes:&anObject objCType:@encode(void *)] autorelease];
 }
 	
 + (NSValue *) valueWithPoint:(NSPoint)point
@@ -259,7 +262,12 @@ const char *type = [self objCType];
 			objCType:(const char *)type
 {
     memcpy(&data, value, objc_sizeof_type(type));
-
+#if 0
+	NSLog(@"value=%p", value);
+	NSLog(@"type=%s", type);
+	NSLog(@"data=%@", data);
+#endif	
+	
 	return self;
 }
 
@@ -274,16 +282,18 @@ const char *type = [self objCType];
 
 - (BOOL) isEqualToValue:(NSValue*)aValue
 {
-//	NSLog(@"self=%@", self);
-//	NSLog(@"aValue=%@", aValue);
-	
+#if 0
+	NSLog(@"data=%@", data);
+	NSLog(@"self=%@", self);
+	NSLog(@"aValue=%@", aValue);
+#endif	
     if ([aValue isKindOfClass: [self class]]) 
 		return [data isEqual: [aValue nonretainedObjectValue]];
 
     return NO;
 }
 
-- (const char *) objCType					{ return @encode(id); }
+- (const char *) objCType					{ return @encode(void *); }
 - (id) nonretainedObjectValue				{ return data; }
 
 - (NSString *) description

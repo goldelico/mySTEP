@@ -11,7 +11,7 @@
  Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
  Date:	August 1998
  Rewrite: Nikolaus Schaller <hns@computer.org> - remove as much of mframe as possible and only rely on gcc/libobjc to run on ARM processor
- Date:    November 2003, Jan 2006-2007,2011-2012
+ Date:    November 2003, Jan 2006-2007,2011-2014
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -375,7 +375,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();	// make sure numArgs and type is defined
 	if(index >= numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
+		[NSException raise: NSInvalidArgumentException format: @"Index %u too high (%d).", index, numArgs];
 	return info[index+1].type;
 }
 
@@ -400,7 +400,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 - (unsigned) numberOfArguments
 {
 	NEED_INFO();
-	return numArgs;
+	return numArgs /* -1 if we change the index to count from 0 */;
 }
 
 - (void) dealloc
@@ -431,6 +431,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(other == self)
 		return YES;
 	// fixme: strip off offsets if included
+	// i.e. we should better compare numArgs and individual _argInfo:
 	if(strcmp([self _methodType], [other _methodType]) != 0)
 		return NO;
 	return [super isEqual:other];
@@ -456,9 +457,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 - (struct NSArgumentInfo *) _argInfo:(unsigned) index
 {
 	NEED_INFO();	// make sure numArgs and type is defined
-	if(index >= numArgs)
+	if(index > numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
-	return &info[index+1];	
+	return &info[index];
 }
 
 - (void *) _frameDescriptor;
@@ -559,7 +560,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	return info[index+1].size;
 }
 
@@ -567,7 +568,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	return info[index+1].qual;
 }
 
@@ -576,9 +577,12 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	char *addr;
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	if(index == -1)
 		{ // copy return value to buffer
+#if 0
+			NSLog(@"_getArgument[%d]:%p addr=%p[%d]", index, buffer, _argframe, info[index+1].size);
+#endif
 			if(info[0].size > 0)
 				memcpy(buffer, _argframe, info[0].size);
 			return info[0].type;
@@ -588,13 +592,16 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
 #if 0
-	NSLog(@"_getArgument[%d] offset=%d size=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, info[index+1].size, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
+	NSLog(@"_getArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
 	else if(info[index+1].floatAsDouble)
 		*(float*)buffer = (float)*(double*)addr;
 	else
+#if 0
+		NSLog(@"memcpy(%p, %p, %u);", buffer, addr, info[index+1].size),
+#endif
 		memcpy(buffer, addr, info[index+1].size);
 	return info[index+1].type;
 }
@@ -604,9 +611,12 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	char *addr;
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	if(index == -1)
 		{ // copy buffer to return value
+#if 0
+			NSLog(@"_setArgument[%d]:%p addr=%p[%d]", index, buffer, _argframe, info[index+1].size);
+#endif
 			if(info[0].size > 0)
 				memcpy(_argframe, buffer, info[0].size);
 			return;
@@ -616,13 +626,16 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
 #if 0
-	NSLog(@"_setArgument[%d] offset=%d size=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, info[index+1].size, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
+	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(*(void**)addr, buffer, info[index+1].size);
 	else if(info[index+1].floatAsDouble)
 		*(double*)addr = (double)*(float*)buffer;
 	else
+#if 0
+		NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+#endif
 		memcpy(addr, buffer, info[index+1].size);
 }
 
@@ -696,11 +709,11 @@ typedef union arglist {
 - (arglist_t) _allocArgFrame:(arglist_t) frame
 { // (re)allocate stack frame
 	if(!frame)
-		{ // allocate a new buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
+		{ // allocate a new buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments and methodReturnLength
 			int part1 = sizeof(void *) + STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// first part
 			unsigned long *args;
-			NEED_INFO();	// get valid argFrameLength
-			frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
+			NEED_INFO();	// get valid argFrameLength and methodReturnLength
+			frame=(arglist_t) objc_calloc(part1 + argFrameLength + info[0].size, sizeof(char));
 			args=(unsigned long *) ((char *) frame + part1);
 #if 0
 			NSLog(@"allocated frame=%p args=%p framelength=%d part1=%d", frame, args, argFrameLength, part1);
@@ -731,6 +744,7 @@ typedef union arglist {
 // NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
 // therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
 // well, this is already broken in the libobjc - there, __objc_forward() is called which calls forward:: and the latter must return a safe retval_t
+// so we would need to store the retval somewhere safely - but C code does not know anything about it
 
 #ifndef __APPLE__
 
@@ -790,12 +804,14 @@ break; \
 #ifndef __APPLE__
 	unsigned long *f=(unsigned long *) frame;
 	unsigned long *args;
-#if 1
-	NSLog(@"_returnValue:%p frame:%p (%p)", retval, frame, f);
+#if 0	// critital - calling functions will overwrite the stack!
+//	NSLog(@"_returnValue:%p frame:%p (%p)", retval, frame, f);
+	fprintf(stderr, "_returnValue:%p frame:%p (%p)\n", retval, frame, f);
 #endif
 	args=(unsigned long *) f[0];	// current arguments pointer
-#if 1
-	NSLog(@"adjusted args=%p", args);
+#if 0
+//	NSLog(@"adjusted args=%p", args);
+	fprintf(stderr, "adjusted args=%p\p", args);
 #endif
 #if ADJUST_STACK
 	args[1]=args[0];	// restore link register
@@ -860,7 +876,7 @@ break; \
 	return _r;
 }
 
-#if 0	// with logging
+#if 1	// with logging
 
 #define RETURN(CODE, TYPE) CODE: { \
 inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
@@ -876,8 +892,8 @@ NSLog(@"called retframe%s", #CODE); \
 break; \
 }
 
-#define RETURN_VOID(CODE, TYPE) CODE: { \
-inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
+#define RETURN_VOID(CODE) CODE: { \
+inline void retframe##CODE(void *imp, arglist_t frame, int stack) \
 { \
 NSLog(@"retframe%s called (imp=%p frame=%p stack=%d)", #CODE, imp, frame, stack); \
 retval_t retval=__builtin_apply(imp, frame, stack); \
@@ -902,8 +918,8 @@ __builtin_return(retval); \
 break; \
 }
 
-#define RETURN_VOID(CODE, TYPE) CODE: { \
-inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
+#define RETURN_VOID(CODE) CODE: { \
+inline void retframe##CODE(void *imp, arglist_t frame, int stack) \
 { \
 retval_t retval=__builtin_apply(imp, frame, stack); \
 __builtin_return(retval); \
@@ -941,11 +957,11 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 	typedef struct {
 		char val[1 /*info[0].size */];
 	} block;
-#if 0
-	NSLog(@"type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
+#if 1
+	NSLog(@"wrapped_builtin_apply: type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
 	switch(*info[0].type) {
-		case RETURN_VOID(_C_VOID, void);
+		case RETURN_VOID(_C_VOID);
 		case RETURN(_C_ID, id);
 		case RETURN(_C_CLASS, Class);
 		case RETURN(_C_SEL, SEL);
@@ -973,13 +989,13 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 			return NO;	// unknown type
 	}
 #endif
-	return YES;	// ok
+	return YES;	// successful
 }
 
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
 { // preload registers from stack frame and call implementation
 	NEED_INFO();	// make sure that argFrameLength is defined
-#if 0
+#if 1
 	// FIXME: it is not necessary to round that up - __builtin_apply does it for us
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength);
 #endif

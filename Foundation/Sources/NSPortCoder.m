@@ -901,7 +901,7 @@ const char *objc_skip_typespec (const char *type)
 }
 
 // this should be implemented in NSInvocation to have direct access to the iVars
-// i.e. call some private [i encodeWithCoder:self]
+// i.e. call some private (?) [i encodeWithCoder:self]
 // this would also eliminate the detection of the Class during encodeObject/decodeObject
 // DOC says: NSInvocation also conforms to the NSCoding protocol, i.e has encodeWithCoder!
 

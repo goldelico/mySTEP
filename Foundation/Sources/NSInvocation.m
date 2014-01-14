@@ -41,7 +41,7 @@
 
 - (id) init
 {
-	NSLog(@"don't call -init on NSInvocation");
+//	NSLog(@"don't call -init on NSInvocation");
 	[self release];
 	return nil;
 }
@@ -64,6 +64,9 @@
 
 - (void) setSelector:(SEL)aSelector
 {
+#if 0
+	NSLog(@"NSInvocation setSelector: %@", NSStringFromSelector(aSelector));
+#endif
 	[_sig _setArgument:&aSelector forFrame:_argframe atIndex:1];
 }
 
@@ -88,7 +91,7 @@
 	NSLog(@"sel=%p", sel);
 	NSLog(@"sel=%@", NSStringFromSelector(sel));
 #endif
-	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@ sig=%@ numargs=%u",
+	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@ numargs=%u sig=%@",
 			NSStringFromClass(isa),
 			self,
 			NSStringFromSelector(sel),
@@ -96,8 +99,8 @@
 			_types,
 			_validReturn?@"yes":@"no",
 			_argsRetained?@"yes":@"no",
-			_sig,
-			[_sig numberOfArguments]
+			[_sig numberOfArguments],
+			_sig
 			];
 }
 
@@ -121,9 +124,10 @@
 
 - (void) getArgument:(void*)buffer atIndex:(int)index
 {
-	if(!_argframe)
-		return;
-	if((unsigned)index >= _numArgs)
+#if 0
+	NSLog(@"invocation argument index (%d of %d)", index, _numArgs);
+#endif
+	if(index < -1 || index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 					format: @"bad invocation argument index (%d of %d)", index, _numArgs];
 	[_sig _getArgument:buffer fromFrame:_argframe atIndex:index];
@@ -131,30 +135,34 @@
 
 - (void) getReturnValue:(void *)buffer
 {
-	// NOTE: If the NSInvocation object has never been invoked, the result of this method is undefined.
+	[_sig _getArgument:buffer fromFrame:_argframe atIndex:-1];
+#if 0
 	if(_validReturn)
 		{
-		[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
-#if 0
 		if(*_rettype == _C_ID)
 			NSLog(@"getReturnValue id=%@", *(id *) buffer);
-#endif		
 		}
-#if 1 // this is only needed if we are encoding any NSInvocation in NSPortCoder
+#if 0 // this is only needed if we are encoding any NSInvocation in NSPortCoder
+	// and NSPortCoder is not using our encodeWithCoder: method (which can know the _validReturn variable)
 	else
 		[NSException raise: NSGenericException format: @"getReturnValue with no value set"];
 #endif
+#endif		
 }
 
 - (void) setArgument:(void*)buffer atIndex:(int)index
 {
 	const char *type;
-	if(!_argframe)
-		return;
-	if ((unsigned)index >= _numArgs)
+#if 0
+	NSLog(@"setArgument: %p atIndex:%d", buffer, index);
+#endif
+	if (index < -1 || index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 					format: @"bad invocation argument index (%d of %d)", index, _numArgs];
-	type=[_sig getArgumentTypeAtIndex:index];
+	type=(index < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:index];
+#if 0
+	NSLog(@"argtype = %s", type);
+#endif
 	if(*type == _C_CHARPTR && _argsRetained)
 		{ // free old, store a copy of new
 			char *oldstr;
@@ -174,11 +182,17 @@
 	else if(*type == _C_ID && _argsRetained)
 		{ // release/retain
 			id old=nil;
-			[_sig _getArgument:&old fromFrame:_argframe atIndex:index];	// get previous
-			[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
-			[*(id*)buffer retain];	// retain new
-			[old release];	// release old
-#if 0
+			[_sig _getArgument:&old fromFrame:_argframe atIndex:index];	// get previous value
+#if 1
+			NSLog(@"replace %@ -> %@", old, *(id*)buffer);
+#endif
+			if(*(id*)buffer != old)
+				{ // really different
+				[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
+				[*(id*)buffer retain];	// retain new
+				[old release];	// release old				
+				}
+#if 1
 			NSLog(@"retained arg %@", *(id*)buffer);
 			NSLog(@"released arg %@", old);
 #endif
@@ -206,13 +220,13 @@
 - (void) retainArguments
 {
 	int	i;
-	if(_argsRetained || !_argframe)
-		return;	// already retained or no need to do so
+	if(_argsRetained)
+		return;	// already retained
 	_argsRetained = YES;
 #if 0
 	NSLog(@"retaining arguments %@", self);
 #endif
-	for(i = 0; i < _numArgs; i++)
+	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
 		const char *type=[_sig getArgumentTypeAtIndex:i];
 		switch(*type) {
@@ -245,7 +259,7 @@
 
 - (void) invokeWithTarget:(id)anObject
 {
-	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0];
+	[self setArgument:&anObject atIndex:0];	// handle retain/release
 	[self invoke];
 }
 
@@ -255,14 +269,9 @@
 	IMP imp;			// method implementation pointer
 	id target;
 	SEL selector;
-	if(!_argframe)
-		{
-		NSLog(@"NSInvocation -invoke without argframe:%@", self);
-		return;
-		}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
 #if 0
-	NSLog(@"NSInvocation -invoke withTarget:%@", target);
+	NSLog(@"-[NSInvocation invoke]: %@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
 		{
@@ -272,7 +281,8 @@
 		}
 	
 	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
-	NSAssert(selector != NULL, @"you must set the selector before invoking");
+	if(!selector)
+		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke NULL selector: %@", self];
 	
 	imp = method_get_imp(object_is_instance(target) ?
 						 class_get_instance_method(((struct objc_class *) target )->class_pointer, selector)
@@ -285,14 +295,23 @@
 #endif
 			imp = objc_msg_lookup(target, selector);
 		}
+	if(!imp)
+		{ // still undefined
+			[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke: %@", self];
+		}
+#if 0
+	NSLog(@"imp = %p", imp);
+#endif
 #if 0
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
-	
+
 	// NOTE: we run into problems if imp is itself calling forward::
-	
+
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
+	if(!_validReturn)
+		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: failed to invoke: %@", self];
 #if 0
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
@@ -339,6 +358,8 @@
 
 - (id) initWithCoder:(NSCoder*)aCoder
 {
+	// FIXME: is not correctly implemented (at leas some note in NSPortCoder says so)
+	
 	NSMethodSignature *sig;
 	void *buffer;
 	char *type;
@@ -357,20 +378,22 @@
 	type=translateSignatureFromNetwork(type);
 #endif
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
-	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
+	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer for return value and arguments
 	self=[self _initWithMethodSignature:sig andArgFrame:NULL];
 	if(!self)
 		return nil;	// failed
-	[aCoder decodeArrayOfObjCType:@encode(char) count:len at:buffer];	// decode byte pattern
+	// check if cnt == [sig numberOfArguments]
+	[aCoder decodeArrayOfObjCType:@encode(char) count:len at:buffer];	// decode byte pattern for return value
+	// FIXME: how can we decode _validReturn?
 	[self setReturnValue:buffer];	// set value
+	[self setTarget:target];
+	[self setSelector:selector];
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
 			[aCoder decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 			// FIXME: decodeValueOfObjCType returns (id) objects that are retained!
 			[self setArgument:buffer atIndex:j];	// set value
 		}
-	[self setTarget:target];
-	[self setSelector:selector];
 	objc_free(buffer);
 	return self;
 }
@@ -414,13 +437,13 @@
 - (void) _releaseArguments
 {
 	int	i;
-	if(!_argsRetained || !_argframe)
+	if(!_argsRetained)
 		return;	// already released or no need to do so
 	_argsRetained = NO;
 #if 0
 	NSLog(@"releasing arguments %@", self);
 #endif
-	for(i = 0; i < _numArgs; i++)
+	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
 		const char *type=[_sig getArgumentTypeAtIndex:i];
 		if(*type == _C_CHARPTR)
@@ -463,6 +486,7 @@
 #if 0
 	{
 	void *buffer;
+	int _maxValueLength=MAX(_returnLength, [_sig frameLength]);
 	NSLog(@"allocating buffer - len=%d", _maxValueLength);
 	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	// print argframe
@@ -518,7 +542,7 @@
 	if(!aSignature)
 		{ // missing signature
 			[self release];
-			return nil;
+			[NSException raise:NSInvalidArgumentException format:@"NSInvocation needs a method signature"];
 		}
 	if((self=[super init]))
 		{
@@ -537,7 +561,6 @@
 		_numArgs=[aSignature numberOfArguments];
 		_rettype=[_sig methodReturnType];
 		_returnLength=[_sig methodReturnLength];
-		_maxValueLength=MAX(_returnLength, [_sig frameLength]);
 		// we could use a char private[8] if _returnLength < sizeof(private)
 		if(_returnLength > 0)
 			{
