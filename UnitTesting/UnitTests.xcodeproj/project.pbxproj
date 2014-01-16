@@ -85,6 +85,8 @@
 		EEDB5A00169878070011D22A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEDB5A01169878070011D22A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EEE514A3188817D700F96F53 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */; };
+		EEE514A4188817D700F96F53 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */; };
 		EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
 		EEE593D918840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
 		EEF7152716DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
@@ -185,6 +187,8 @@
 		EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
 		EEDB59F2169878070011D22A /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB5A09169878070011D22A /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEE514A1188817D700F96F53 /* NSMethodSignatureTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSMethodSignatureTest.h; sourceTree = "<group>"; };
+		EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMethodSignatureTest.m; sourceTree = "<group>"; };
 		EEE590E318840B2600F96F53 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEE593D618840B5600F96F53 /* NSInvocationTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSInvocationTest.h; sourceTree = "<group>"; };
 		EEE593D718840B5600F96F53 /* NSInvocationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSInvocationTest.m; sourceTree = "<group>"; };
@@ -328,6 +332,8 @@
 				EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */,
 				EEE593D618840B5600F96F53 /* NSInvocationTest.h */,
 				EEE593D718840B5600F96F53 /* NSInvocationTest.m */,
+				EEE514A1188817D700F96F53 /* NSMethodSignatureTest.h */,
+				EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */,
 				EEBB6D93109CBEE500B67699 /* NSPortCoderTest.h */,
 				EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */,
 				EE103F0816F264530037C368 /* NSPortTest.h */,
@@ -741,6 +747,7 @@
 				EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
 				EE103F0B16F264530037C368 /* NSPortTest.m in Sources */,
 				EEE593D918840B5600F96F53 /* NSInvocationTest.m in Sources */,
+				EEE514A4188817D700F96F53 /* NSMethodSignatureTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -810,6 +817,7 @@
 				EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
 				EE103F0A16F264530037C368 /* NSPortTest.m in Sources */,
 				EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */,
+				EEE514A3188817D700F96F53 /* NSMethodSignatureTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

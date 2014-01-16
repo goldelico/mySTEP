@@ -535,57 +535,91 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (BOOL) resolveClassMethod:(SEL) sel; { return NO; }
 - (BOOL) resolveInstanceMethod:(SEL) sel; { return NO; }
 
-// convert runtime forwarding arguments into NSInvocation
+/* convert runtime forwarding arguments into NSInvocation */
+
+/* basically we come here by:
+ 
+ static id __objc_word_forward (id rcv, SEL op, ...)
+	{
+	void *args, *res;
+	args = __builtin_apply_args ();
+	res = __objc_forward (rcv, op, args);
+	if (res)
+		__builtin_return (res);
+	else
+		return res;
+ }
+
+ static retval_t __objc_forward (id object, SEL sel, arglist_t args)
+	{
+	IMP imp;
+	static SEL frwd_sel = 0;
+
+	if (! frwd_sel)
+		frwd_sel = sel_get_any_uid ("forward::");
+
+	if (__objc_responds_to (object, frwd_sel))
+		{
+		imp = get_imp (object->class_pointer, frwd_sel);
+		return (*imp) (object, frwd_sel, sel, args);
+		}
+	...
+
+ so we are called here between __builtin_apply_args() and __builtin_return()
+*/
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
 	retval_t r;
+	NSMethodSignature *ms;
 	NSInvocation *inv;
 	BOOL resolved;
 #if 1
-	{ 	// show stack frame
-		int i;
-		NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
-		NSLog(@"self=%@", self);
-		NSLog(@"_cmd=%s", _cmd);
-		NSLog(@"sel=%p", aSel);
-		NSLog(@"frame=%p", argFrame);
-		for(i=0; i<24; i++)
-			{
-			NSLog(@"frame[%2d]:%p %08x", i, &((void **)argFrame)[i], ((void **)argFrame)[i]);
-			}
-	}
-#endif
+	NSLog(@"NSObject -forward:@selector(%@):%p", NSStringFromSelector(aSel), argFrame);
+	NSLog(@"  self=%@", self);
+	NSLog(@"  _cmd=%p %s", _cmd, sel_getName(_cmd));
+	NSLog(@"  sel=%p %s", aSel, sel_getName(aSel));
+	NSLog(@"  &r=%p", &r);	// local stack within forward::
+	NSLog(@"  frame=%p", argFrame);
+#endif	
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSObject forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
 	// FIXME: class or instance?
 	resolved=[self resolveInstanceMethod:aSel];	// give a chance to add to runtime methods before invoking
-	// FIXME: Cocoa is said to discard the call if methodSignature returns nil - but how do we get a retval_t??
-	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
-	if(!inv)
+	ms=[self methodSignatureForSelector:aSel];
+#if 1
+	[ms _logFrame:argFrame target:self selector:_cmd];
+#endif
+#if 1
+	NSLog(@"method signature=%@", ms);
+#endif
+	if(ms)
+		inv=[[NSInvocation alloc] _initWithMethodSignature:ms andArgFrame:argFrame];
+	if(!ms || !inv)
 		{ // unknown to system
 			[self doesNotRecognizeSelector:aSel];
-			return nil;
+			return 0;	// if it did NOT raise an exception - a retval of 0 can be returned
 		}
 	if(resolved)
 		{ // was resolved, call directly
 			[inv invoke];
 		}
 	else
-		{
+		{ // ask forwardingTarget
 		id target=[self forwardingTargetForSelector:aSel];
 		if(target != self)
 			[inv setTarget:target];	// update target
 		[self forwardInvocation:inv];
 #if 1
-		NSLog(@"invocation forwarded. Returning result");
+		NSLog(@"invocation forwarded. Now returning result");
+		[ms _logFrame:argFrame target:self selector:_cmd];
 #endif
 		}
-	r=[inv _returnValue];
-	[inv release];
+	[inv autorelease];		// don't release immediately since r is pointer to an iVar of NSInvocation (!)
+	r=[inv _returnValue];	// get the retval_t
 #if 1
-	NSLog(@"forward:: returnFrame=%08x", r);
+	fprintf(stderr, "  forward:: retval_t=%p\n", r);
 #endif
 	return r;
 }

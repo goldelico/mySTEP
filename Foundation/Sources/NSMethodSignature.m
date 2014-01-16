@@ -2,7 +2,9 @@
  NSMethodSignature.m
  
  Implementation of NSMethodSignature for mySTEP
- This file encapsulates all CPU specific specialities (e.g. how the __builtin_apply() frame is organized, how registers are handled etc.)
+ This class encapsulates all CPU specific specialities (e.g. how the __builtin_apply() frame is organized, how registers are handled etc.)
+ 
+ Note that the stack frame storage is not part of the NSMethodSignature because several NSInvocations may share the same NSMethodSignature:
  
  Copyright (C) 1994, 1995, 1996, 1998 Free Software Foundation, Inc.
  
@@ -24,7 +26,8 @@
  * so we need to create a different structure to call any existing/nonexisting method by __builtin_apply()
  * libobjc seems to use #define OBJC_MAX_STRUCT_BY_VALUE 1 (runtime-info.h) meaning that a char[1] only struct is returned in a register
  * we should use more support functions from libobjc...
- * libffi documentation: https://github.com/atgreen/libffi/blob/master/doc/libffi.info
+ 
+ * libffi (not used!) documentation: https://github.com/atgreen/libffi/blob/master/doc/libffi.info
  
  */ 
 
@@ -52,9 +55,26 @@ struct NSArgumentInfo
 
 /*
  * define architecture specific values and fixes
+ *
+ * Frame Layout assumed by __builtin_apply, __builtin_return:
+ *
+ * frame:       link pointer -->
+ *              r0			(copy of self)
+ *              r1			(copy of _cmd)
+ *              r2			(copy of arg1)
+ *              r3			(copy of args)	- REGISTER_SAVEAREA_SIZE bytes
+ *              ...			(optionally more space)
+ *              return value
+ *              self
+ *              _cmd
+ *              arg1
+ *              arg2
+ * link --->    arg3
+ *              arg4
+ *              ...
  */
 
-#if defined(__APPLE__)	// compile on MacOS X (no need to run)
+#if defined(__APPLE__)	// compile on MacOS X (don't expect it to run)
 
 #define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
@@ -66,6 +86,19 @@ struct NSArgumentInfo
 #elif defined(__arm__)	// for ARM
 #if defined(__ARM_EABI__)
 
+#if defined(__ARM_PCS_VFP)	// armhf: hard float uses VFP
+
+#define ADJUST_STACK					1
+#define REGISTER_SAVEAREA_SIZE			(1+4+16)*sizeof(long)	// has r0-r3,lr and s0-s15
+#define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
+#define STRUCT_BYREF					YES
+
+#else	// armel: soft float
+
+#warning "not tested"
+
 #define ADJUST_STACK					1
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
@@ -73,7 +106,10 @@ struct NSArgumentInfo
 #define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
-#else // not EABI
+#endif // __ARM_PCS_VFP
+#else // not EABI - must be OABI
+
+#error "not tested"
 
 #define ADJUST_STACK					1
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
@@ -85,6 +121,8 @@ struct NSArgumentInfo
 #endif	// ARM_EABI
 #elif defined(__mips__)	// for MIPS
 
+#warning "not tested"
+
 #define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
@@ -92,7 +130,9 @@ struct NSArgumentInfo
 #define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
-#elif defined(i386)	// for Intel
+#elif defined(i386)	// for Intel 32 bit
+
+#warning "not tested"
 
 #define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			7*sizeof(long)
@@ -102,9 +142,13 @@ struct NSArgumentInfo
 #define STRUCT_BYREF					YES
 
 #elif defined(__x86_64__)
+#error "not tested"
 #elif defined(__ppc__)
+#error "not tested"
 #elif defined(__ppc64__)
+#error "not tested"
 #elif defined(__m68k__)
+#error "not tested"
 
 #else
 
@@ -432,7 +476,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		return YES;
 	// fixme: strip off offsets if included
 	// i.e. we should better compare numArgs and individual _argInfo:
-	if(strcmp([self _methodType], [other _methodType]) != 0)
+	if(strcmp([self _methodTypes], [other _methodTypes]) != 0)
 		return NO;
 	return [super isEqual:other];
 }
@@ -458,7 +502,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();	// make sure numArgs and type is defined
 	if(index > numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
+		[NSException raise: NSInvalidArgumentException format: @"Index %u too high (%d).", index, numArgs];
 	return &info[index];
 }
 
@@ -477,13 +521,33 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return [NSString stringWithFormat:@"%@ %s", [super description], methodTypes];
 }
 
-- (void) _methodInfo
+- (void) _logFrame:(arglist_t) _argframe target:(id) target selector:(SEL) selector;
+{
+	int i;
+	for(i=0; i<10+(REGISTER_SAVEAREA_SIZE+[self frameLength]+[self methodReturnLength])/sizeof(void *); i++)
+		{
+		NSString *note=@"";
+		if(&((void **)_argframe)[i] == ((void **)_argframe)[0]) note=[note stringByAppendingString:@" <<- link"];
+		if(target && ((void **)_argframe)[i] == target) note=[note stringByAppendingString:@" self"];
+		if(selector && ((void **)_argframe)[i] == selector) note=[note stringByAppendingString:@" _cmd"];
+//		if(&((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@" argp"];
+		if(&((void **)_argframe)[i] == _argframe) note=[note stringByAppendingFormat:@" link %+d ->>", ((char **)_argframe)[0]-(char *) _argframe];
+		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld%@", i, 
+			  &(((void **)_argframe)[i]),
+			  4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]),
+			  ((void **)_argframe)[i],
+			  ((void **)_argframe)[i],
+			  note);
+		}
+}
+
+- (struct NSArgumentInfo *) _methodInfo
 { // collect all information from methodTypes in a platform independent way
 	if(info == NULL) 
 		{ // calculate method info
 			const char *types = methodTypes;
 			int i=0;
-			int allocArgs=5;	// this is usually enough, i.e. self+_cmd+3 args
+			int allocArgs=6;	// this is usually enough, i.e. return-value+self+_cmd+3 args
 			argFrameLength=STRUCT_RETURN_POINTER_LENGTH;
 #if 0
 			NSLog(@"methodInfo create for types %s", methodTypes);
@@ -509,14 +573,17 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
-					if(i == 0)
-						info[i].isReg=YES;	// !structReturn
 					if(info[i].align < MIN_ALIGN)
 						info[i].align=MIN_ALIGN;
-					if(!info[i].isReg)
+					if(i != 0 && !info[i].isReg)
 						{ // value is on stack - counts for frameLength
-							info[i].offset = argFrameLength;
+							info[i].offset = argFrameLength;	// replaces offset defined in signature
 							argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;						
+						}
+					if(i == 1)
+						{ // take the self argument from r0
+							info[i].isReg=YES;
+							info[i].offset = 0;
 						}
 					i++;
 				}
@@ -525,16 +592,20 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
-#if 0
+	info[0].offset=argFrameLength;	// special case to place return value behind all arguments
+#if 1
 	{
 	int i;
+	NSLog(@"%s --->", methodTypes); 
 	for(i=0; i<=numArgs; i++)
-		NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
-			  info[i].index, info[i].type, info[i].size, info[i].align,
+		NSLog(@"   %3d: size=%02d align=%01d isreg=%d offset=%02d qual=%x byRef=%d fltDbl=%d type=%s",
+			  info[i].index, info[i].size, info[i].align,
 			  info[i].isReg, info[i].offset, info[i].qual,
-			  info[i].byRef, info[i].floatAsDouble);
+			  info[i].byRef, info[i].floatAsDouble,
+			  info[i].type);
 	}
 #endif
+	return info;
 }
 
 - (id) _initWithObjCTypes:(const char*) t;
@@ -554,7 +625,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return self;
 }
 
-- (const char *) _methodType	{ return methodTypes; }
+- (const char *) _methodTypes	{ return methodTypes; }
 
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 {
@@ -572,12 +643,23 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return info[index+1].qual;
 }
 
+static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo info)
+{
+#if 0	// may break _returnValue
+	NSLog(@"_getArgumentAddress %p %d %d", frame, info.offset, info.isReg);
+#endif
+	if(!info.isReg)
+		return (*(char **)frame) - 5*sizeof(void *) + info.offset;	// indirectly through frame pointer which points to argument index 4
+	return ((char *) frame) + sizeof(void *) + info.offset;	// registers start behind frame pointer
+}
+
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 { // extract argument from frame
 	char *addr;
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
+#if 0	// no special case!
 	if(index == -1)
 		{ // copy return value to buffer
 #if 0
@@ -587,11 +669,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				memcpy(buffer, _argframe, info[0].size);
 			return info[0].type;
 		}
-	addr=(char *)_argframe;
-	if(!info[index+1].isReg)
-		addr=*(char **)addr;	// indirect through pointer
-	addr+=info[index+1].offset;
-#if 0
+#endif
+	addr=_getArgumentAddress(_argframe, info[index+1]);
+#if 1
 	NSLog(@"_getArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
@@ -602,7 +682,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #if 0
 		NSLog(@"memcpy(%p, %p, %u);", buffer, addr, info[index+1].size),
 #endif
-		memcpy(buffer, addr, info[index+1].size);
+	memcpy(buffer, addr, info[index+1].size);
 	return info[index+1].type;
 }
 
@@ -612,6 +692,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
+#if 0	// no special case!
 	if(index == -1)
 		{ // copy buffer to return value
 #if 0
@@ -621,22 +702,35 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				memcpy(_argframe, buffer, info[0].size);
 			return;
 		}
-	addr=(char *)_argframe;
-	if(!info[index+1].isReg)
-		addr=*(char **)addr;	// indirect through pointer
-	addr+=info[index+1].offset;
+#endif
+	addr=_getArgumentAddress(_argframe, info[index+1]);
 #if 0
 	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
-	if(info[index+1].byRef)
-		memcpy(*(void**)addr, buffer, info[index+1].size);
-	else if(info[index+1].floatAsDouble)
-		*(double*)addr = (double)*(float*)buffer;
-	else
+	if(buffer)
+		{
+		if(info[index+1].byRef)
+			memcpy(*(void**)addr, buffer, info[index+1].size);
+		else if(info[index+1].floatAsDouble)
+			*(double*)addr = (double)*(float*)buffer;
+		else
 #if 0
-		NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
 #endif
-		memcpy(addr, buffer, info[index+1].size);
+			memcpy(addr, buffer, info[index+1].size);
+		}
+	else
+		{ // wipe out (used for handling -invoke with nil target
+		if(info[index+1].byRef)
+			memset(*(void**)addr, 0, info[index+1].size);
+		else if(info[index+1].floatAsDouble)
+			*(double*)addr = 0.0;
+		else
+#if 0
+			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+#endif
+			memset(addr, 0, info[index+1].size);
+		}
 }
 
 /*
@@ -691,6 +785,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
  *  i.e. we must adjust frame[0] by REGISTER_SAVEAREA_SIZE
  *  and save the lr value (!)
  *
+ *  NOTE: all this might depend on the compiler/libobjc that is used...
+ *
  */
 
 /* here is the definition of the retval_t and arglist_t */
@@ -714,9 +810,9 @@ typedef union arglist {
 			unsigned long *args;
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength + info[0].size, sizeof(char));
-			args=(unsigned long *) ((char *) frame + part1);
-#if 0
-			NSLog(@"allocated frame=%p args=%p framelength=%d part1=%d", frame, args, argFrameLength, part1);
+			args=(unsigned long *) ((char *) frame + part1 + 20);	// points to index 4
+#if 10
+			NSLog(@"allocated frame=%p[%d] args=%p framelength=%d part1=%d", frame, part1 + argFrameLength + info[0].size, args, argFrameLength, part1);
 #endif
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
@@ -724,18 +820,17 @@ typedef union arglist {
 	else
 		{ // adjust the frame received from -forward:: so that argument offsets are correct and we can call __builtin_apply()
 			unsigned long *f=(unsigned long *) frame;
-			unsigned long _self=f[1];	// original r0 value
-			unsigned long *args;
-			f[0] -= STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust
+			unsigned long _self=f[1];	// original r0 value (should be self)
+			unsigned long *args=(unsigned long *) f[0];
 #if 1
 			NSLog(@"frame=%p", f);
-#endif
-			args=(unsigned long *) f[0];	// new arguments pointer - this will be copied to the stack by __builtin_apply()
-#if 1
 			NSLog(@"adjusted args=%p", args);
 #endif
-			args[0]=args[1];	// save link register in tmp
-			args[1]=_self;		// insert self value to be copied to r0
+#if OLD
+			// alternatively to the following code we could set the methodInfo[0] so that it is (always?) a register
+			args[-5]=args[-4];	// save link register in tmp (what is this good for?? We must save that or a _builtin return will fail)
+			args[-4]=f[1];		// insert self value from r0 so that we can access it through _getArgument:atIndex:0
+#endif
 		}
 #endif
 	return frame;
@@ -769,14 +864,14 @@ static retval_t apply_block(void *data)
 /*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
 inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
 fprintf(stderr, "case "#NAME":\n"); \
-memcpy(_r, apply##NAME(*(TYPE *) retval), 16); \
+memcpy(_r, apply##NAME(*(TYPE *) retval), sizeof(_r)); \
 break; \
 } 
 
 #define APPLY_VOID(NAME)  NAME: { \
 /*static*/ void return##NAME(void) { return; } \
 inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
-memcpy(_r, apply##NAME(), 16); \
+memcpy(_r, apply##NAME(), sizeof(_r)); \
 break; \
 }
 
@@ -785,25 +880,25 @@ break; \
 #define APPLY(NAME, TYPE)  NAME: { \
 /*static*/ TYPE return##NAME(TYPE data) { return data; } \
 inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
-memcpy(_r, apply##NAME(*(TYPE *) retval), 16); \
+memcpy(_r, apply##NAME(*(TYPE *) retval), sizeof(_r)); \
 break; \
 } 
 
 #define APPLY_VOID(NAME)  NAME: { \
 /*static*/ void return##NAME(void) { return; } \
 inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
-memcpy(_r, apply##NAME(), 16); \
+memcpy(_r, apply##NAME(), sizeof(_r)); \
 break; \
 }
 
 #endif
 
-- (retval_t) _returnValue:(void *) retval frame:(arglist_t) frame;
+- (retval_t) _returnValue:(arglist_t) frame retbuf:(char [32]) _r;
 { // get the return value as a retval_t so that we can return from forward::
-	//	retval_t r;
 #ifndef __APPLE__
 	unsigned long *f=(unsigned long *) frame;
 	unsigned long *args;
+	void *retval=_getArgumentAddress(frame, info[0]);	// return buffer
 #if 0	// critital - calling functions will overwrite the stack!
 //	NSLog(@"_returnValue:%p frame:%p (%p)", retval, frame, f);
 	fprintf(stderr, "_returnValue:%p frame:%p (%p)\n", retval, frame, f);
@@ -814,9 +909,12 @@ break; \
 	fprintf(stderr, "adjusted args=%p\p", args);
 #endif
 #if ADJUST_STACK
-	args[1]=args[0];	// restore link register
-	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
+//	args[1]=args[-1];	// restore link register
+//	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
 #endif
+	// FIXME: we may have to restore/set the r0 register
+	// f[1]=args[-4]; or
+	// f[1]=retval[0]; ?
 #if 0
 	args=(unsigned long *) f[0];	// current arguments pointer
 	NSLog(@"restored args=%p", args);
@@ -869,8 +967,7 @@ break; \
 		}
 	}
 #endif
-	//	r=(void *) _r;
-#if 0
+#if 0	// this may overwrite the registers we just have modified
 	fprintf(stderr, "_returnValue:frame: %p %p %p %p %p %p\n", _r, *(void **) _r, ((void **) _r)[0], ((void **) _r)[1], ((void **) _r)[2], ((void **) _r)[3]);
 #endif
 	return _r;
@@ -939,7 +1036,7 @@ break; \
 
 /*
  * formally, a __builtin_apply(imp, frame, size)
- * does (at least on ARM-EABI)
+ * does (at least on ARMHF)
  *
  *  sp -= round(size, 8);		// create space on stack (rounded up)
  * 	memcpy(sp, frame[0], size);	// copy stack frame
@@ -947,16 +1044,37 @@ break; \
  *  r1=frame[2]
  *  r2=frame[3]
  *  r3=frame[4]
+ *  s0=frame[5]
+ * ...
+ * s15=frame[...]
  *  (*imp)()
+ *  frame[1]=r0
+ *  frame[2]=r1
+ *  frame[3]=r2
+ *  frame[4]=r3
+ *  frame[5]=s0
+ *
+ * a __builtin_return(retval)
+ * does
+ *  r0=retval[0]
+ *  r1=retval[1]
+ *  r2=retval[2]
+ *  r3=retval[3]
+ *  s0=retval[4]
+ *  sp += 52;
+ *  pop {r4, r5, r6, r7, pc} (this ends the current function)
+ *  
  */
 
-static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
+static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct NSArgumentInfo *info)
 { // wrap call because it fails if __builtin_apply is called directly from within a Objective-C method
 	//	imp=[NSMethodSignature instanceMethodForSelector:@selector(test)];
 #ifndef __APPLE__
+	void *retbuf;
 	typedef struct {
 		char val[1 /*info[0].size */];
 	} block;
+	retbuf=_getArgumentAddress(frame, info[0]);
 #if 1
 	NSLog(@"wrapped_builtin_apply: type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
@@ -992,21 +1110,23 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 	return YES;	// successful
 }
 
-- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
+- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
 { // preload registers from stack frame and call implementation
-	NEED_INFO();	// make sure that argFrameLength is defined
+	NEED_INFO();	// make sure that argFrameLength is defined correctly
 #if 1
-	// FIXME: it is not necessary to round that up - __builtin_apply does it for us
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength);
 #endif
 	if(REGISTER_SAVEAREA_SIZE > 0)
-		{ // copy values from stack frame into locations where registers are loaded from
-			void *stackframe=((void **)_argframe)[0];
-			int i;
-			for(i=1; i<REGISTER_SAVEAREA_SIZE/sizeof(void *); i++)	// a good compiler should be able to unroll this loop
-				((void **)_argframe)[i] = ((void **)stackframe)[i];	// copy from stack frame to register filling locations
+		{ // copy values from stack frame into locations where registers are loaded from - except for r0 (which is handled directly)
+			void **args=((void **)_argframe)[0];
+#if 1
+			NSLog(@"memcpy(%p, %p, %u)", &((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
+#endif
+			memcpy(&((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
+			// how to initialize FPU registers?
 		}
-	return wrapped_builtin_apply(imp, _argframe, argFrameLength, retbuf, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
+	[self _logFrame:_argframe target:nil selector:NULL];
+	return wrapped_builtin_apply(imp, _argframe, argFrameLength, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 
 @end  /* NSMethodSignature (mySTEP) */

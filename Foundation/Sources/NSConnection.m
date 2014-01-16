@@ -807,6 +807,7 @@ static unsigned int _sequence;	// global sequence number
 
 // FIXME: what do we do with the 'internal' flag?
 // IDEA: it may modify exception handling
+// and it may be used when sening a methodDescription request
 
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 { // send invocation and handle result - this might be called reentrant!
@@ -815,7 +816,7 @@ static unsigned int _sequence;	// global sequence number
 	//	unsigned long flags=internal?FLAGS_INTERNAL:FLAGS_REQUEST;
 	unsigned long flags=FLAGS_REQUEST;
 	NSPortCoder *portCoder;
-#if 1
+#if 1	// special logging
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
 #if 1
 	[i _log:@"sendInvocation"];	// log incl. stack

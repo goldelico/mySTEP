@@ -407,16 +407,17 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSMethodSignature (NSPrivate)
 
-- (void) _methodInfo;
+- (struct NSArgumentInfo *) _methodInfo;	// recalculate method info
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 - (unsigned) _getArgumentQualifierAtIndex:(int) index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
-- (retval_t) _returnValue:(void *) buffer frame:(arglist_t) frame;
-- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) buffer;
+- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
+- (retval_t) _returnValue:(arglist_t) frame retbuf:(char [32]) _r;
 - (id) _initWithObjCTypes:(const char *) t;
-- (const char *) _methodType;		// full method type
+- (const char *) _methodTypes;		// full method type string
+- (void) _logFrame:(arglist_t) _argframe target:(id) target selector:(SEL) selector;
 
 @end
 
@@ -428,11 +429,11 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSInvocation (NSPrivate)
 
+/* interface used to implement forward:: to call forwardInvocation */
 - (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame;
-// - (id) _initWithSelector:(SEL) aSelector andArgFrame:(arglist_t) argFrame;
 - (retval_t) _returnValue;
-- (void) _releaseArguments;
-- (void) _releaseReturnValue;			// no longer needed so that we can reuse an invocation
+- (void) _releaseArguments;	// used by -dealloc
+- (void) _log:(NSString *) str;
 
 @end
 
@@ -457,6 +458,8 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 	SEL name;                   // this is a selector, not a string
 	char *types;                // type encoding
 	};
+ They are implemented as wrappers around -methodSignatureForSelector
+ A remote proxy may ask for these through DO
 */
 
 @interface NSObject (NSDOAdditions)
@@ -468,11 +471,6 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSProxy (NSDOAdditions)
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
-@end
-
-@interface NSProtocolChecker (NSDOAdditions)
-- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
-- (const char *) _localClassNameForClass;
 @end
 
 @interface NSPortCoder (NSPrivate)

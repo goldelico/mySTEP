@@ -14,6 +14,23 @@
 
 #import "NSInvocationTest.h"
 
+#ifdef __APPLE__
+#define sel_isEqual(A, B) ((A) == (B))
+#endif
+
+@interface NSMethodSignature (Additions)	// exposed in 10.5 and later
++ (NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
+@end
+
+@interface NSInvocationTest (Forwarding)	// define as header so that the compiler does not complain and we know the signature
+- (void) forward40;
+- (int) forward41:(int) a b:(int) b;
+- (int) forward42:(int) a b:(int) b c:(int) c d:(int) d e:(int) e f:(int) f;
+- (id) forward43:(id) a b:(id) b;
+- (void) forward44;
+- (void) forward45;
+- (int) forward46:(int) a b:(int) b;
+@end
 
 @implementation NSInvocationTest
 
@@ -81,7 +98,7 @@
 }
 
 - (void) test03
-{ // missing target or selector
+{ // missing target or selector or NULL arguments
 	id target=self;
 	SEL sel=@selector(invoke01);
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
@@ -98,6 +115,8 @@
 	STAssertEquals(invoked, 0, nil);
 	STAssertNoThrow([i invoke], nil);
 	STAssertEquals(invoked, 1, nil);	// this one was successful
+	STAssertThrowsSpecificNamed([i setArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);	// NULL address throws
+	STAssertThrowsSpecificNamed([i getArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);
 	/* conclusions
 	 * a NULL selector throws an exception
 	 * a nil target makes the invoication being ignored
@@ -181,10 +200,10 @@
 	STAssertNil(obj, nil);
 	STAssertNoThrow([i getReturnValue:&obj], nil);
 	STAssertEqualObjects(obj, self, nil);
+	obj=nil;
 	STAssertNil(obj, nil);
 	STAssertNoThrow([i getArgument:&obj atIndex:-1], nil);
 	STAssertEqualObjects(obj, self, nil);
-	obj=nil;
 	/* conlcusions:
 	 * return value is the same as index -1
 	 * the return value can be written/read back like any other argument
@@ -229,6 +248,7 @@
 - (NSString *) invoke13:(NSString *) a b:(NSString *) b c:(NSString *) c d:(NSString *) d e:(NSString *) e f:(NSString *) f g:(NSString *) g
 { // more than fits into registers
 	invoked=13;
+	STAssertTrue(sel_isEqual(_cmd, @selector(invoke13:b:c:d:e:f:g:)), nil);
 	STAssertEqualObjects(a, @"a", nil);
 	STAssertEqualObjects(b, @"b", nil);
 	STAssertEqualObjects(c, @"c", nil);
@@ -369,6 +389,7 @@ struct mydata
 	return (struct mydata) { 0xaadd, 0xbbccddee };
 }
 
+#ifndef __mySTEP__	// struct stack handling not yet implemented
 - (void) test15
 { // reading/writing many C type arguments
 	id target=self;
@@ -468,6 +489,34 @@ struct mydata
 	 */
 }
 
+#endif
+
+- (void) test17
+{ // invoke nil target
+	id target=self;
+	SEL sel=@selector(invoke02:witharg:);
+	id obj;
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	STAssertNotNil(ms, nil);
+	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:nil];
+	[i setSelector:sel];
+	[i setArgument:&self atIndex:2];
+	[i setArgument:&self atIndex:3];
+	// NOTE: we should also test if this is correctly released by the non-called invocation if we have -retainArguments mode
+	[i setReturnValue:&self];
+	invoked=0;
+	STAssertEquals(invoked, 0, nil);
+	[i getReturnValue:&obj];
+	STAssertEqualObjects(obj, self, nil);	// has been stored
+	[i invoke];	// invoke nil target
+	STAssertEquals(invoked, 0, nil);	// has NOT been called
+	[i getReturnValue:&obj];
+	STAssertEqualObjects(obj, nil, nil);	// has been wiped out
+}
+
 - (void) invoke20
 { // raise exception within invoked method
 	invoked=20;
@@ -503,30 +552,125 @@ struct mydata
 	
 }
 
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
+{ // handle dynamic method signatures
+	if(sel_isEqual(aSelector, @selector(forward40)))
+		return [NSMethodSignature signatureWithObjCTypes:"v@:"];	// void return
+	if(sel_isEqual(aSelector, @selector(forward41:b:)))
+		return [NSMethodSignature signatureWithObjCTypes:"i@:ii"];	// int return and several int arguments
+	if(sel_isEqual(aSelector, @selector(forward42:b:c:d:e:f:)))
+		return [NSMethodSignature signatureWithObjCTypes:"i@:iiiiii"];	// int return and several int arguments
+	if(sel_isEqual(aSelector, @selector(forward43:b:)))
+		return [NSMethodSignature signatureWithObjCTypes:"@@:@@"];	// id return and two id arguments
+	if(sel_isEqual(aSelector, @selector(forward44)))
+		return [NSMethodSignature signatureWithObjCTypes:"v@:"];	// void return
+	if(sel_isEqual(aSelector, @selector(forward45)))
+		return [NSMethodSignature signatureWithObjCTypes:"v@:"];	// void return
+	if(sel_isEqual(aSelector, @selector(forward46:b:)))
+		return [NSMethodSignature signatureWithObjCTypes:"i@:ii"];	// int return and several int arguments
+	return [super methodSignatureForSelector:aSelector];	// default
+}
+
 - (void) forwardInvocation:(NSInvocation *)anInvocation
-{ // test forward:: and forwardInvocation: - even with nesting
-	invoked=40;
-	
+{ // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
+	SEL sel=[anInvocation selector];
+	STAssertEqualObjects([anInvocation target], self, nil);
+	NSLog(@"** %@ called **", NSStringFromSelector(sel));
+	if(sel_isEqual(sel, @selector(forward40)))
+		{
+		invoked=40;
+		}
+	else if(sel_isEqual(sel, @selector(forward41:b:)))
+		{
+		int ret='r';
+		invoked=41;
+		[anInvocation setReturnValue:&ret];
+		}
+	else if(sel_isEqual(sel, @selector(forward42:b:c:d:e:f:)))
+		{
+		int ret='r';
+		invoked=42;
+		[anInvocation setReturnValue:&ret];
+		}
+	else if(sel_isEqual(sel, @selector(forward43:b:)))
+		{
+		id ret=@"the result";
+		invoked=43;
+		[anInvocation setReturnValue:&ret];
+		}
+	else if(sel_isEqual(sel, @selector(forward44)))
+		{
+		invoked=44;
+		[anInvocation setSelector:@selector(invoke01)];
+		STAssertEquals(invoked, 44, nil);
+		[anInvocation invoke];	// forward with a different selector
+		STAssertEquals(invoked, 1, nil);
+		}
+	else if(sel_isEqual(sel, @selector(forward45)))
+		{
+		invoked=45;
+		[anInvocation setSelector:@selector(forward40)];	// can we forward to another dynamically implemented method?
+		STAssertEquals(invoked, 45, nil);
+#ifndef __mySTEP__	// does not yet work
+		[anInvocation invoke];	// forward with a different selector
+#endif
+		STAssertEquals(invoked, 40, nil);
+		}
+	else if(sel_isEqual(sel, @selector(forward46:b:)))
+		{
+		int ret='r';
+		invoked=46;
+		/* we explicitly don't set a return value!
+		 [anInvocation setReturnValue:&ret];
+		 */
+		}
+	else
+		invoked=-99;
+	NSLog(@"** %@ done **", NSStringFromSelector(sel));
 }
 
 - (void) test40
 {
-	
-}
-
-- (void) invoke50
-{ // retain/release
-	invoked=50;
-	
-}
-
-- (void) test50
-{
-	
+	id a=self;
+	id b=self;
+	id r=self;
+	int ir=0;
+	NSLog(@"--1--");
+	invoked=0;
+	STAssertEquals(invoked, 0, nil);
+	[self forward40];
+	STAssertEquals(invoked, 40, nil);	// should have been invoked
+	NSLog(@"--2--");
+	ir=[self forward41:1 b:2];
+	STAssertEquals(invoked, 41, nil);	// should have been invoked
+	STAssertEquals(ir, 'r', nil);
+	NSLog(@"--3--");
+	ir=[self forward42:1 b:2 c:3 d:4 e:5 f:6];
+	STAssertEquals(invoked, 42, nil);	// should have been invoked
+	STAssertEquals(ir, 'r', nil);
+	NSLog(@"--4--");
+	r=[self forward43:a b:b];
+	STAssertEquals(invoked, 43, nil);	// should have been invoked
+	STAssertEqualObjects(r, @"the result", nil);
+	NSLog(@"--5--");
+	[self forward44];
+	STAssertEquals(invoked, 1, nil);	// invoke01 should have been invoked in the second step
+	NSLog(@"--6--");
+	[self forward45];
+	STAssertEquals(invoked, 40, nil);	// forward40 should have been invoked in the second step
+	NSLog(@"--7--");
+	ir=[self forward46:1 b:2];
+	STAssertEquals(invoked, 46, nil);	// should have been invoked
+	STAssertEquals(ir, 0, nil);	// most likely because the stack frame is not initialized - it is not clear if this is reproducible
+	// we could also test parameter passing for indirect calls
+	/* conclusions
+	 * -methodSignatureForSelector must be overwritten or we can't call the dynamically defined method
+	 * it is possible to forward an invocation within forwardInvocation to a different selector/object
+	 */
 }
 
 - (id) invoke60:(id) a b:(id) b
-{ // retainArguments (also retains returnValue? double call? what happens if we setArgument after that call?)
+{ // return an autoreleased object
 	invoked=60;
 	STAssertEquals([a retainCount], 1u, nil);
 	STAssertEquals([b retainCount], 1u, nil);
@@ -571,7 +715,9 @@ struct mydata
 	STAssertEquals([r retainCount], 2u, nil);
 	[arp release];	// this should release r
 	STAssertEquals([r retainCount], 1u, nil);
+	STAssertFalse([i argumentsRetained], nil);
 	[i retainArguments];
+	STAssertTrue([i argumentsRetained], nil);
 	STAssertEquals([a retainCount], 2u, nil);
 	STAssertEquals([b retainCount], 2u, nil);
 	STAssertEquals([r retainCount], 2u, nil);
@@ -591,5 +737,70 @@ struct mydata
 	 */
 }
 
+- (void) test61
+{ // invoke nil target with predefined return-value
+	id target=self;
+	SEL sel=@selector(invoke02:witharg:);
+	id obj;
+	id test;
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	STAssertNotNil(ms, nil);
+	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:nil];
+	[i setSelector:sel];
+	[i setArgument:&self atIndex:2];
+	[i setArgument:&self atIndex:3];
+	test=[NSObject new];
+	STAssertEquals([test retainCount], 1u, nil);
+	[i setReturnValue:&test];
+	[i retainArguments];
+	STAssertEquals([test retainCount], 2u, nil);
+	invoked=0;
+	STAssertEquals(invoked, 0, nil);
+	[i getReturnValue:&obj];
+	STAssertEqualObjects(obj, test, nil);	// has been stored
+	[i invoke];	// invoke nil target
+	STAssertEquals([test retainCount], 2u, nil);	// previously set return value should have been released - but has not!
+	STAssertEquals(invoked, 0, nil);	// has NOT been called
+	[i getReturnValue:&obj];
+	STAssertEqualObjects(obj, nil, nil);	// has been wiped out
+	/* conclusion
+	 * invoking a nil target leaks a previously retained returnValue
+	 * NOTE: this test is not able to find out if the value is autoreleased!
+	 */
+}
+
+- (void) test63
+{ // test if setArguments releases previous retain
+	id target=self;
+	SEL sel=@selector(invoke02:witharg:);
+	id obj;
+	id test, test2;
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	STAssertNotNil(ms, nil);
+	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:nil];
+	[i setSelector:sel];
+	test=[NSObject new];
+	STAssertEquals([test retainCount], 1u, nil);
+	[i setArgument:&test atIndex:2];
+	[i retainArguments];
+	STAssertEquals([test retainCount], 2u, nil);
+	test2=[NSObject new];
+	STAssertEquals([test2 retainCount], 1u, nil);
+	[i setArgument:&test2 atIndex:2];	// replace
+	STAssertEquals([test retainCount], 2u, nil);	// no, leaks
+	STAssertEquals([test2 retainCount], 2u, nil);
+	[i setArgument:&test2 atIndex:3];	// set (with retainArguments enabled)
+	STAssertEquals([test2 retainCount], 3u, nil);	// ok, is retained before setting
+	/* conclusion
+	 * retainArguments only instructs to retain - but does not release
+	 * NOTE: this test is not able to find out if they are autoreleased!
+	 */
+}
 
 @end

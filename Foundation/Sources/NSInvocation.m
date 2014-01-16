@@ -13,7 +13,8 @@
  plus some private methods of NSMethodSignature that wrap __builtin_apply()
  (the compiler should hide and manage the processor architecture as good as possible!).
  
- Sept 2007 - should now be machine independent
+ Sept 2007		- should now be machine independent
+ 2008 - 2014	- further extensions and improvements
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -34,7 +35,7 @@
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *)aSig
 {
 #if 0
-	NSLog(@"NSInvocation invocationWithMethodSignature:%@ %s", aSig, [aSig _methodType]);
+	NSLog(@"NSInvocation invocationWithMethodSignature:%@ %s", aSig, [aSig _methodTypes]);
 #endif
 	return [[[NSInvocation alloc] initWithMethodSignature:aSig] autorelease];
 }
@@ -85,7 +86,7 @@
 {
 	id target=[self target];
 	SEL sel=[self selector];
-#if 0	// recursive NSLog!
+#if 0	// this would lead to a recursive NSLog!
 	NSLog(@"target=%p", target);
 	NSLog(@"target=%@", target);
 	NSLog(@"sel=%p", sel);
@@ -113,9 +114,7 @@
 	if(_argsRetained && _argframe && _sig)
 		[self _releaseArguments];
 	if(_argframeismalloc && _argframe)
-		objc_free(_argframe);	// deallocate incl. struct return buffer
-	if(_retvalismalloc && _retval)
-		objc_free(_retval);
+		objc_free(_argframe);	// deallocate buffer (if not taken from stack)
 	[_sig release];
 	[super dealloc];
 }
@@ -130,6 +129,8 @@
 	if(index < -1 || index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 					format: @"bad invocation argument index (%d of %d)", index, _numArgs];
+	if(!buffer)
+		[NSException raise: NSInvalidArgumentException format: @"NULL buffer"];
 	[_sig _getArgument:buffer fromFrame:_argframe atIndex:index];
 }
 
@@ -159,17 +160,24 @@
 	if (index < -1 || index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 					format: @"bad invocation argument index (%d of %d)", index, _numArgs];
+	if(!buffer)
+		[NSException raise: NSInvalidArgumentException format: @"NULL buffer"];
 	type=(index < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:index];
 #if 0
 	NSLog(@"argtype = %s", type);
 #endif
+	// FIXME: we maybe should move that to _setArgument:forFrame:atIndex:
+	// several reasons
+	// a) we need to calculate the address only once and don't need the local oldstr and old buffer variables
+	// b) we can better handle releasing and setting a NULL return value
+	// c) releaseArguments can simply call _setArgument:NULL for all indexes
 	if(*type == _C_CHARPTR && _argsRetained)
 		{ // free old, store a copy of new
 			char *oldstr;
 			char *newstr = *(char**)buffer;
 			[_sig _getArgument:&oldstr fromFrame:_argframe atIndex:index];	// get previous
 			if(newstr == NULL)
-				[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
+				[_sig _setArgument:buffer forFrame:_argframe atIndex:index];	// store pointer to NULL
 			else
 				{
 				char *tmp = objc_malloc(strlen(newstr)+1);
@@ -201,19 +209,15 @@
 		[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
 }
 
-- (void) setReturnValue:(void*)buffer
+- (void) setReturnValue:(void *) buffer
 {
-#if 0
-	NSLog(@"setReturnValue: _retval=%p", _retval);
-	NSLog(@"setReturnValue:buffer=%p *buffer=%p", buffer, *(void **) buffer);
+#if 1
+	NSLog(@"setReturnValue: _argframe=%p", _argframe);
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
 #endif
-	[_sig _setArgument:buffer forFrame:_retval atIndex:-1];
-#if 0
-	if(*_rettype == _C_ID)
-		NSLog(@"  object id=%@", *(id *) _retval);
-#endif
+	// FIXME: handle retain/release!
+	[_sig _setArgument:buffer forFrame:_argframe atIndex:-1];
 	_validReturn = YES;
 }
 
@@ -228,7 +232,7 @@
 #endif
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
-		const char *type=[_sig getArgumentTypeAtIndex:i];
+		const char *type=(i < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:i];
 		switch(*type) {
 			case _C_CHARPTR: { // store a copy
 				char *str=NULL;
@@ -265,28 +269,30 @@
 
 - (void) invoke
 {
-#ifndef __APPLE__
 	IMP imp;			// method implementation pointer
 	id target;
 	SEL selector;
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 0
+#if 1
 	NSLog(@"-[NSInvocation invoke]: %@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
 		{
-		memset(_retval, 0, [_sig methodReturnLength]);		// wipe out return value
+		if(!_argsRetained)
+			NSLog(@"invoke nil target with retained arguments not implemented");	// we should (auto?)release a previously retained returnValue!
+		[_sig _setArgument:NULL forFrame:_argframe atIndex:-1];	// wipe out return value
 		_validReturn = YES;
 		return;
 		}
-	
 	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
 	if(!selector)
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke NULL selector: %@", self];
 	
+#ifndef __APPLE__
 	imp = method_get_imp(object_is_instance(target) ?
 						 class_get_instance_method(((struct objc_class *) target )->class_pointer, selector)
 						 : class_get_class_method(((struct objc_class *) target )->class_pointer, selector));
+#endif
 	
 	if(imp == NULL)
 		{ // If fast lookup failed, we may be forwarding or something ...
@@ -302,20 +308,19 @@
 #if 0
 	NSLog(@"imp = %p", imp);
 #endif
-#if 0
+#if 1
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
 
 	// NOTE: we run into problems if imp is itself calling forward::
 
-	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
+	_validReturn=[_sig _call:imp frame:_argframe];	// call
 	if(!_validReturn)
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: failed to invoke: %@", self];
-#if 0
+#if 1
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
-#endif
 #endif
 }
 
@@ -327,7 +332,7 @@
 	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
 	// if we move this to NSInvocation we don't even need the private methods
 	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
-	//	const char *type=[sig _methodType];	// would be a little faster
+	//	const char *type=[sig _methodTypes];	// would be a little faster
 	id target=[self target];
 	SEL selector=[self selector];
 	int j;
@@ -339,7 +344,7 @@
 #endif
 	[aCoder encodeValueOfObjCType:@encode(char *) at:&type];	// method type
 	if(_validReturn)
-		[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
+		[_sig _getArgument:buffer fromFrame:_argframe atIndex:-1];
 	else
 		{
 		NSLog(@"encodeInvocation has no return value to encode");	// e.g. if [i invoke] did result in an exception!
@@ -429,64 +434,19 @@
 
 @implementation NSInvocation (NSPrivate)
 
-- (void) _releaseReturnValue;
-{ // no longer needed so that we can reuse an invocation
-	_validReturn=NO;	// invalidate - so that initWithCoder properly handles requests&responses
-}
-
-- (void) _releaseArguments
-{
-	int	i;
-	if(!_argsRetained)
-		return;	// already released or no need to do so
-	_argsRetained = NO;
-#if 0
-	NSLog(@"releasing arguments %@", self);
-#endif
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
-		{
-		const char *type=[_sig getArgumentTypeAtIndex:i];
-		if(*type == _C_CHARPTR)
-			{ // release the copy
-				char *str;
-				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-				if(str != NULL)
-					objc_free(str);	// ??? immediately, or should we put it into the ARP?
-			}
-		else if(*type == _C_ID)
-			{ // release object
-				id obj;
-				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 0
-				NSLog(@"release arg %@", obj);
-#endif
-				[obj release];
-			}
-		}
-}
-
 - (void) _log:(NSString *) str;
 {
-	int i;
 	id target=[self target];
 	SEL selector=[self selector];
 	NSLog(@"%@ types=%s argframe=%p", str, _types, _argframe);
 	if(!_argframe)
 		return;
-	for(i=0; i<18+[_sig frameLength]/4; i++)
-		{ // print stack
-			NSString *note=@"";
-			if(&((void **)_argframe)[i] == ((void **)_argframe)[0]) note=[note stringByAppendingString:@"<<- link "];
-			if(((void **)_argframe)[i] == target) note=[note stringByAppendingString:@"self "];
-			if(((void **)_argframe)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
-			if(((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@"argp "];
-			if(((void **)_argframe)[i] == _argframe) note=[note stringByAppendingString:@"link ->> "];
-			NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)_argframe)[i]), 4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
-		}
-#if 0
+	[_sig _logFrame:_argframe target:target selector:selector];
+#if 0	// print argument values
 	{
 	void *buffer;
 	int _maxValueLength=MAX(_returnLength, [_sig frameLength]);
+	int i;
 	NSLog(@"allocating buffer - len=%d", _maxValueLength);
 	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	// print argframe
@@ -556,37 +516,56 @@
 				[self release];
 				return nil;
 			}
-		_argframeismalloc=(_argframe != argFrame);	// was re-allocated if different
-		_types=[_sig _methodType];	// get method type
+		_argframeismalloc=(_argframe != argFrame);	// was re-allocated/copied if different
+		_types=[_sig _methodTypes];	// get method type
 		_numArgs=[aSignature numberOfArguments];
 		_rettype=[_sig methodReturnType];
 		_returnLength=[_sig methodReturnLength];
-		// we could use a char private[8] if _returnLength < sizeof(private)
-		if(_returnLength > 0)
-			{
-			_retval = objc_calloc(1, _returnLength);
-			if(!_retval)
-				{ // could not allocate
 #if 1
-					NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _retval");
+		NSLog(@"-[NSInvocation(%p) _initWithMethodSignature:%s andArgFrame:%p] successfull", self, _types, argFrame);
 #endif
-					[self release];
-					return nil;
-				}
-			_retvalismalloc=YES;	// always...
-			}
-#if 0
-		[self _log:@"_initWithMethodSignature:andArgFrame:"];
-#endif
+		NSLog(@"self target: %@", [self target]);
 		}
 	return self;
+}
+
+- (void) _releaseArguments
+{ // used by -dealloc
+	int	i;
+	if(!_argsRetained || !_argframe)
+		return;	// already released or no need to do so
+	_argsRetained = NO;
+#if 0
+	NSLog(@"releasing arguments %@", self);
+#endif
+	for(i = 0; i < _numArgs; i++)
+		{
+		const char *type=[_sig getArgumentTypeAtIndex:i];
+		if(*type == _C_CHARPTR)
+			{ // release the copy
+				char *str;
+				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
+				if(str != NULL)
+					objc_free(str);	// ??? immediately, or should we put it into the ARP?
+			}
+		else if(*type == _C_ID)
+			{ // release object
+				id obj;
+				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
+#if 0
+				NSLog(@"release arg %@", obj);
+#endif
+				[obj release];
+			}
+		}
+	_argsRetained=NO;
 }
 
 - (retval_t) _returnValue;
 { // encode the return value so that it can be passed back to the libobjc forward:: method
 	retval_t retval;
-#if 0
-	NSLog(@"_returnValue called");
+#if 1
+	NSLog(@"-[NSInvocation(%p) _returnValue] called", self);
 	[self _log:@"before getting retval"];
 	if(_rettype[0] == _C_ID)
 		{
@@ -595,22 +574,22 @@
 		NSLog(@"value = %@", ret);
 		}
 #endif
-	if(_argsRetained)
-		[self _releaseArguments];
+#if 0	// Cocoa does not check
 	if(!_validReturn && *_rettype != _C_VOID)
 		{ // no valid return value
 			NSLog(@"warning - no valid return value set");
 			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
 		}
-	retval=[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
-#if 0	// this call to _log will almost certainly overwrite the much deeper stack value of retval!
+#endif
+	retval=[_sig _returnValue:_argframe retbuf:_retbuf];	// get return value - use _retbuf as a temporary buffer
+#if 0
 	[self _log:@"after getting retval"];
 #endif
 	if(!_argframeismalloc)
-		_argframe=NULL;	// invalidate since it was inherited from our caller
+		_argframe=NULL;	// invalidate since it was inherited from our caller and we should not use the cached value again
 #if 0
 	fprintf(stderr, "_returnValue: %p %p %p %p %p %p\n", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
-	NSLog(@"_returnValue: %p %p %p %p %p %p", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
+//	NSLog(@"_returnValue: %p %p %p %p %p %p", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
 #endif
 	return retval;
 }

@@ -72,13 +72,11 @@ typedef struct
 	const char *_types;	// cached
 	int _numArgs;	// cached
 	unsigned int _returnLength;	// cached
+	char _retbuf[32];	// should be big enough for a retval_t
 	// FIXME: should we use bitfields
 	BOOL _argframeismalloc;		// _argframe has been malloc'ed locally
 	BOOL _argsRetained;			// (id) arguments have been retained
 	BOOL _validReturn;			// setReturn or invoke has been called
-	// deprecated
-	BOOL _retvalismalloc;		// _retval has been malloc'ed locally
-	void *_retval;
 }
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;

@@ -32,10 +32,9 @@
     const char *methodTypes;		// ObjCTypes
     unsigned argFrameLength;
     unsigned numArgs;
-    struct NSArgumentInfo *info;	// forward reference
-	void *internal1;	// used to reference ffi_cif
-	void *internal2;	// used to reference ffi_type
-	char _r[16];
+    struct NSArgumentInfo *info;	// forward reference for struct definition
+	void *internal1;	// may be used to reference ffi_cif
+	void *internal2;	// may be used to reference ffi_type
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *) types;

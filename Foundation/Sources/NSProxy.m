@@ -183,15 +183,6 @@
 - (BOOL) isEqual:(id)anObject				{ return (self == anObject); }
 #endif
 
-#if 0
-- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
-{
-	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
-	return NULL;
-}
-
-#endif
-
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
 { // default implementation raises exception
 	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];

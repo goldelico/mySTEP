@@ -107,7 +107,13 @@
 @end
 #endif
 
+/* the DO protocol calls some very old methods that we must implement on the basis of newer ones */
+
+// FIXME: do the same for NSProxy!
+
 @implementation NSObject (NSDOAdditions)
+
+// FIXME: we must call methodSignatureForSelector and translate because that one might be overwritten (see -[NSObject forwardInvocation:])!
 
 // this are very old Obj-C methods now completely wrapped but still used as the backbone of DO
 
@@ -122,14 +128,26 @@
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 { // the result is compatible to because the struct is defined in GNU libobjc as { SEL sel, char *types; } */
+#if 1
+	struct objc_method_description *r;
+	NSMethodSignature *ms=[self methodSignatureForSelector:sel];
+	if(!ms)
+		return NULL;
+	r=(struct objc_method_description *) [[NSMutableData dataWithCapacity:sizeof(*r)] bytes];	// get an autoreleased data area to work with
+	r->types=(char *) [ms _methodTypes];	// type string
+//	r->types=translateSignatureToNetwork([ms _methodTypes]);
+	r->name=sel_registerName(sel_getName(sel));
+	return r;
+#else
 	struct objc_method_description *r=class_get_instance_method(self->isa, sel);
 #if 1
 	NSLog(@"- methodDescriptionForSelector:'%@'", NSStringFromSelector(sel));
 #endif
 #if 0
-	r.types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
+	r->types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
 #endif
 	return r;
+#endif
 }
 
 // this is listed in http://www.opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
@@ -142,6 +160,10 @@
 	return class_get_class_name(self);
 #endif
 }
+
+// What is this good for? It is called by Cocoa remote clients
+// Maybe we can/should ask the NSPortCoder for translations?
+// but NSCoder and NSPortCoder has no -classNameEncodedForTrueClassName, only an NSArchiver
 
 - (const char *) _localClassNameForClass;
 {
@@ -451,11 +473,19 @@ static Class _doClass;
 #endif
 }
 
-#if 0	// we can use the normal forwardInvocation: strategy
-
 // FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'?
 // it appears that DO always uses a remote methodDescriptionForSelector even to get a methodSignatureForSelector
 // so we must implement this method for local objects (so that a client can ask us)
+// but we must base it in top of - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
+// because that one might be overwritten to implement forwardInvocation
+
+// so clear answer: 
+// -methodSignatureForSelector: is the basic (and user-visible) method
+// and we just must be prepared that a distant object might ask for -methodDescriptionForSelector:
+
+
+#if 0	// we can use the normal forwardInvocation: strategy
+// and we can use the overwriting of methodSignatureForSelector in NSObject and NSProxy
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL)aSelector;
 { // returns NULL if unknown
@@ -495,11 +525,10 @@ static Class _doClass;
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
-	struct objc_method_description *md=NULL;
+	struct objc_method_description *md;
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
-	// FIXME: what about methodSignature of the methods in NSDistantObject/NSProxy?
 #if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
@@ -508,6 +537,7 @@ static Class _doClass;
 		ret=[_local methodSignatureForSelector:aSelector];	// ask local object for its signature
 		if(!ret)
 			[NSException raise:NSInternalInconsistencyException format:@"local object does not define @selector(%@): %@", NSStringFromSelector(aSelector), _local];
+		md=NULL;
 		}
 	else if(_protocol)
 		{ // ask protocol
@@ -519,10 +549,10 @@ static Class _doClass;
 				[NSException raise:NSInternalInconsistencyException format:@"@protocol %s does not define @selector(%@)", [_protocol name], NSStringFromSelector(aSelector)];
 		}
 	else
-		{	// we must ask the peer for a methodDescription
+		{	// we must ask the peer for a methodDescription, i.e. translate the response into a NSMethodSignature
 			NSMethodSignature *sig=[_selectorCache objectForKey:@"methodDescriptionForSelector:"];
 			NSInvocation *i=[NSInvocation invocationWithMethodSignature:sig];
-			NSAssert(sig, @"methodsignature for methodDescriptionForSelector: must be known");
+			NSAssert(i, @"methodsignature for methodDescriptionForSelector: must be known");
 #if 1
 			NSLog(@"_selectorCache=%@", _selectorCache);
 			NSLog(@"ask peer: %@", i);
@@ -586,7 +616,6 @@ static Class _doClass;
 - (Class) classForCoder; { return _doClass; }	// for compatibility
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
-
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number

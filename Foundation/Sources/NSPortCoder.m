@@ -900,61 +900,15 @@ const char *objc_skip_typespec (const char *type)
 	objc_free(buffer);
 }
 
+- (void) encodeInvocation:(NSInvocation *) i
+{
+	[i encodeWithCoder:self];
+}
+
 // this should be implemented in NSInvocation to have direct access to the iVars
 // i.e. call some private (?) [i encodeWithCoder:self]
 // this would also eliminate the detection of the Class during encodeObject/decodeObject
 // DOC says: NSInvocation also conforms to the NSCoding protocol, i.e has encodeWithCoder!
-
-- (void) encodeInvocation:(NSInvocation *) i
-{
-#if 1
-	[i encodeWithCoder:self];
-#else
-	NIMP;
-	NSMethodSignature *sig=[i methodSignature];
-	unsigned char len=[sig methodReturnLength];	// this should be the lenght really allocated
-	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
-	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
-	// if we move this to NSInvocation we don't even need the private methods
-	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
-//	const char *type=[sig _methodType];	// would be a little faster
-	id target=[i target];
-	SEL selector=[i selector];
-	int j;
-#if 0
-	NSLog(@"encodeInvocation1 comp=%@", _components);
-#endif
-	[self encodeValueOfObjCType:@encode(id) at:&target];
-	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
-	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
-#if 0
-	type=translateSignatureToNetwork(type);
-#endif
-	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
-#if 0
-	NSLog(@"encodeInvocation2 comp=%@", _components);
-#endif
-	NS_DURING
-		[i getReturnValue:buffer];	// get value
-	NS_HANDLER	// not needed if we implement encoding in NSInvocation
-		NSLog(@"encodeInvocation has no return value");	// e.g. if [i invoke] did result in an exception!
-		len=1;
-		*(char *) buffer=0x40;
-	NS_ENDHANDLER
-	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
-	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
-	for(j=2; j<cnt; j++)
-		{ // encode arguments
-			// set byRef & byCopy flags here
-			[i getArgument:buffer atIndex:j];	// get value
-			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
-		}
-#if 0
-	NSLog(@"encodeInvocation3 comp=%@", _components);
-#endif
-	objc_free(buffer);
-#endif
-}
 
 - (NSInvocation *) decodeInvocation;
 {

@@ -42,3 +42,8 @@
 }
 
 @end
+
+/* more tests
+ * [nsnumber isEqual:nil] - raise exception?
+ */
+
