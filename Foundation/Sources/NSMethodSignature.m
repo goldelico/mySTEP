@@ -692,17 +692,6 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
-#if 0	// no special case!
-	if(index == -1)
-		{ // copy buffer to return value
-#if 0
-			NSLog(@"_setArgument[%d]:%p addr=%p[%d]", index, buffer, _argframe, info[index+1].size);
-#endif
-			if(info[0].size > 0)
-				memcpy(_argframe, buffer, info[0].size);
-			return;
-		}
-#endif
 	addr=_getArgumentAddress(_argframe, info[index+1]);
 #if 0
 	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
@@ -731,6 +720,102 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 #endif
 			memset(addr, 0, info[index+1].size);
 		}
+}
+
+- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
+{
+	char *addr;
+	NEED_INFO();
+	if(index < -1 || index >= (int)numArgs)
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
+	addr=_getArgumentAddress(_argframe, info[index+1]);
+#if 0
+	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
+#endif
+	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
+		{ // retain/copy C-strings if needed
+			if(buffer && *(char **)buffer == *(char **)addr)
+				return;	// no need to change
+			if((*(char **)addr) && mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
+				{
+#if 1
+				NSLog(@"free old %s", *(char **)addr);
+#endif
+				objc_free(*(char **)addr);
+				}
+			if(buffer && (*(char **)buffer) && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
+				{
+				char *tmp;
+#if 1
+				NSLog(@"copy new %s", *(char **)buffer);
+#endif
+				tmp = objc_malloc(strlen(*(char **)buffer)+1);
+				strcpy(tmp, *(char **)buffer);
+				*(char **)buffer=tmp;
+				}
+			else if(mode == _INVOCATION_ARGUMENT_RETAIN)
+			   {
+			   char *tmp;
+#if 1
+			   NSLog(@"copy current %@", *(id*)addr);
+#endif
+			   tmp = objc_malloc(strlen(*(char **)addr)+1);
+			   strcpy(tmp, *(char **)addr);
+			   *(char **)addr=tmp;
+			   return;	// copy but ignore buffer
+			   }
+		}
+	else if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_ID)
+		{ // retain objects if needed
+			if(buffer && *(id*)buffer == *(id*)addr)
+				return;	// no need to change
+			if(mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
+				{
+#if 1
+				NSLog(@"release old %@", *(id*)addr);
+#endif
+				[*(id*)addr release];
+				}
+			if(buffer && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
+				{
+#if 1
+				NSLog(@"retain new %@", *(id*)buffer);
+#endif
+				[*(id*)buffer retain];
+				}
+			else if(mode == _INVOCATION_ARGUMENT_RETAIN)
+				{
+#if 1
+				NSLog(@"retain current %@", *(id*)addr);
+#endif
+				[*(id*)addr retain];
+				return;	// retain but ignore buffer
+				}
+		}
+	if(buffer)
+		{
+		if(info[index+1].byRef)
+			memcpy(*(void**)addr, buffer, info[index+1].size);
+		else if(info[index+1].floatAsDouble)
+			*(double*)addr = (double)*(float*)buffer;
+		else
+#if 0
+			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+#endif
+			memcpy(addr, buffer, info[index+1].size);
+		}
+	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
+		{ // wipe out (used for handling the return value of -invoke with nil target)
+			if(info[index+1].byRef)
+				memset(*(void**)addr, 0, info[index+1].size);
+			else if(info[index+1].floatAsDouble)
+				*(double*)addr = 0.0;
+			else
+#if 0
+				NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+#endif
+				memset(addr, 0, info[index+1].size);
+		}	
 }
 
 /*

@@ -166,11 +166,16 @@
 #if 0
 	NSLog(@"argtype = %s", type);
 #endif
-	// FIXME: we maybe should move that to _setArgument:forFrame:atIndex:
-	// several reasons
-	// a) we need to calculate the address only once and don't need the local oldstr and old buffer variables
-	// b) we can better handle releasing and setting a NULL return value
-	// c) releaseArguments can simply call _setArgument:NULL for all indexes
+	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
+	// we must loop over the indexes anyways
+	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
+	// 0: don't retain
+	// 1: release old and retain new value
+	// 2: release current value (but don't modify)
+	// 3: retain current value (but don't modify)
+	// i.e. we loop here with [_sig setArgument:buffer fromFrame:_argFrame atIndex:i retainMode:_argsRetained];
+	[_sig _setArgument:buffer forFrame:_argframe atIndex:index retainMode:_argsRetained];
+#if OLD
 	if(*type == _C_CHARPTR && _argsRetained)
 		{ // free old, store a copy of new
 			char *oldstr;
@@ -207,6 +212,7 @@
 		}
 	else
 		[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
+#endif
 }
 
 - (void) setReturnValue:(void *) buffer
@@ -216,8 +222,7 @@
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
 #endif
-	// FIXME: handle retain/release!
-	[_sig _setArgument:buffer forFrame:_argframe atIndex:-1];
+	[self setArgument:buffer atIndex:-1];
 	_validReturn = YES;
 }
 
@@ -230,8 +235,17 @@
 #if 0
 	NSLog(@"retaining arguments %@", self);
 #endif
+	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
+	// we must loop over the indexes anyways
+	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
+	// 0: don't retain
+	// 1: release old and retain new value
+	// 2: release if there is an old value
+	// 3: retain existing value (but don't modify)
+	// i.e. we loop here with [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:3];
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
+#if OLD
 		const char *type=(i < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:i];
 		switch(*type) {
 			case _C_CHARPTR: { // store a copy
@@ -258,6 +272,8 @@
 			default:
 				break;
 		}
+#endif
+		[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RETAIN];
 		}
 }
 
@@ -278,9 +294,17 @@
 #endif
 	if(target == nil)			// A message to a nil object returns nil
 		{
-		if(!_argsRetained)
-			NSLog(@"invoke nil target with retained arguments not implemented");	// we should (auto?)release a previously retained returnValue!
-		[_sig _setArgument:NULL forFrame:_argframe atIndex:-1];	// wipe out return value
+//		if(!_argsRetained)
+//			NSLog(@"invoke nil target with retained arguments not implemented");	// we should (auto?)release a previously retained returnValue!
+		// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
+		// we must loop over the indexes anyways
+		// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
+		// 0: don't retain
+		// 1: release old and retain new value
+		// 2: release current value (but don't modify)
+		// 3: retain current value (but don't modify)
+		// i.e. we call [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:_argsRetained];
+		[_sig _setArgument:NULL forFrame:_argframe atIndex:-1 retainMode:_argsRetained];	// wipe out return value
 		_validReturn = YES;
 		return;
 		}
@@ -538,8 +562,18 @@
 #if 0
 	NSLog(@"releasing arguments %@", self);
 #endif
+	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
+	// we must loop over the indexes anyways
+	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
+	// 0: don't retain
+	// 1: release old and retain new value
+	// 2: release if there is an old value
+	// 3: retain existing value (but don't modify)
+	// i.e. we loop here with [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:2];
 	for(i = 0; i < _numArgs; i++)
 		{
+		[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RELEASE];
+#if OLD
 		const char *type=[_sig getArgumentTypeAtIndex:i];
 		if(*type == _C_CHARPTR)
 			{ // release the copy
@@ -557,6 +591,7 @@
 #endif
 				[obj release];
 			}
+#endif
 		}
 	_argsRetained=NO;
 }

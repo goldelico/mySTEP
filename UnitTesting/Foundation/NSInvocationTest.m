@@ -389,7 +389,6 @@ struct mydata
 	return (struct mydata) { 0xaadd, 0xbbccddee };
 }
 
-#ifndef __mySTEP__	// struct stack handling not yet implemented
 - (void) test15
 { // reading/writing many C type arguments
 	id target=self;
@@ -488,8 +487,6 @@ struct mydata
 	 * works
 	 */
 }
-
-#endif
 
 - (void) test17
 { // invoke nil target
@@ -611,9 +608,7 @@ struct mydata
 		invoked=45;
 		[anInvocation setSelector:@selector(forward40)];	// can we forward to another dynamically implemented method?
 		STAssertEquals(invoked, 45, nil);
-#ifndef __mySTEP__	// does not yet work
 		[anInvocation invoke];	// forward with a different selector
-#endif
 		STAssertEquals(invoked, 40, nil);
 		}
 	else if(sel_isEqual(sel, @selector(forward46:b:)))
