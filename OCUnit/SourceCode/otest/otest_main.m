@@ -35,7 +35,7 @@ int main (int argc, const char *argv[])
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 #ifdef __mySTEP__
 	extern BOOL __printLog;
-	__printLog=YES;	// enable NSLog
+//	__printLog=YES;	// enable NSLog
 #endif
     [SenTestTool run];
     [pool release];

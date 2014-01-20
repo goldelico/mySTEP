@@ -83,8 +83,9 @@ static NSString *SenTestDefaultScope = @"Self";
 
 - (void) showUsage
 {
-    NSLog (@"Usage: %@ [-SenTest Self | All | None | <TestCaseClassName/testMethodName>] <path of unit to be tested>",
-           [[NSProcessInfo processInfo] processName]);
+    NSString *line=[NSString stringWithFormat:@"Usage: %@ [-SenTest Self | All | None | <TestCaseClassName> | <TestCaseClassName/testMethodName>] <path of unit to be tested>\n",
+           [[NSProcessInfo processInfo] processName]];
+	[(NSFileHandle *)[NSFileHandle fileHandleWithStandardError] writeData:[line dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 
