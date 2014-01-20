@@ -74,21 +74,37 @@ struct NSArgumentInfo
  *              ...
  */
 
+/* here is the definition of the retval_t and arglist_t */
+
+#if 0	// already defined in objc.h on Linux */
+
+typedef void* retval_t;		/* return value */
+
+typedef void(*apply_t)(void);	/* function pointer */
+
+typedef union arglist {
+	char *arg_ptr;
+	char arg_regs[sizeof (char*)];
+} *arglist_t;			/* argument frame */
+
+#endif
+
 #if defined(__APPLE__)	// compile on MacOS X (don't expect it to run)
 
-#define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
+#define ARG_PTR(FRAME) (*(char **) FRAME))
+#define ARG_REGS(FRAME) ((char **) FRAME)
+
 #elif defined(__arm__)	// for ARM
 #if defined(__ARM_EABI__)
 
 #if defined(__ARM_PCS_VFP)	// armhf: hard float uses VFP
 
-#define ADJUST_STACK					1
 #define REGISTER_SAVEAREA_SIZE			(1+4+16)*sizeof(long)	// has r0-r3,lr and s0-s15
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
 #define FLOAT_AS_DOUBLE					YES
@@ -99,7 +115,6 @@ struct NSArgumentInfo
 
 #warning "not tested"
 
-#define ADJUST_STACK					1
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
 #define FLOAT_AS_DOUBLE					YES
@@ -111,7 +126,6 @@ struct NSArgumentInfo
 
 #error "not tested"
 
-#define ADJUST_STACK					1
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
 #define FLOAT_AS_DOUBLE					YES
@@ -123,7 +137,6 @@ struct NSArgumentInfo
 
 #warning "not tested"
 
-#define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
 #define FLOAT_AS_DOUBLE					YES
@@ -134,7 +147,6 @@ struct NSArgumentInfo
 
 #warning "not tested"
 
-#define ADJUST_STACK					0
 #define REGISTER_SAVEAREA_SIZE			7*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	0
 #define FLOAT_AS_DOUBLE					YES
@@ -415,7 +427,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return argFrameLength;
 }
 
-- (const char *) getArgumentTypeAtIndex:(unsigned)index
+- (const char *) getArgumentTypeAtIndex:(unsigned) index
 {
 	NEED_INFO();	// make sure numArgs and type is defined
 	if(index >= numArgs)
@@ -458,19 +470,19 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 // NOTE: this encoding is not platform independent! And not compatible to OSX!
 
-- (void) encodeWithCoder:(NSCoder*)aCoder
+- (void) encodeWithCoder:(NSCoder*) aCoder
 { // encode type string - NOTE: it can't encode _makeOneWay
 	[aCoder encodeValueOfObjCType:@encode(char *) at:&methodTypes];
 }
 
-- (id) initWithCoder:(NSCoder*)aCoder
+- (id) initWithCoder:(NSCoder*) aCoder
 { // initialize from received type string
 	char *type;
 	[aCoder decodeValueOfObjCType:@encode(char *) at:&type];
 	return [self _initWithObjCTypes:type];
 }
 
-- (BOOL) isEqual:(id)other
+- (BOOL) isEqual:(id) other
 {
 	if(other == self)
 		return YES;
@@ -541,6 +553,18 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		}
 }
 
+- (void) _logMethodTypes;
+{
+	int i;
+	NSLog(@"method Types %s:", methodTypes); 
+	for(i=0; i<=numArgs; i++)
+		NSLog(@"   %3d: size=%02d align=%01d isreg=%d offset=%02d qual=%x byRef=%d fltDbl=%d type=%s",
+			  info[i].index, info[i].size, info[i].align,
+			  info[i].isReg, info[i].offset, info[i].qual,
+			  info[i].byRef, info[i].floatAsDouble,
+			  info[i].type);
+}
+
 - (struct NSArgumentInfo *) _methodInfo
 { // collect all information from methodTypes in a platform independent way
 	if(info == NULL) 
@@ -593,17 +617,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
     	}
 	info[0].offset=argFrameLength;	// special case to place return value behind all arguments
-#if 1
-	{
-	int i;
-	NSLog(@"%s --->", methodTypes); 
-	for(i=0; i<=numArgs; i++)
-		NSLog(@"   %3d: size=%02d align=%01d isreg=%d offset=%02d qual=%x byRef=%d fltDbl=%d type=%s",
-			  info[i].index, info[i].size, info[i].align,
-			  info[i].isReg, info[i].offset, info[i].qual,
-			  info[i].byRef, info[i].floatAsDouble,
-			  info[i].type);
-	}
+#if 0
+	[self _logMethodTypes];
 #endif
 	return info;
 }
@@ -635,7 +650,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return info[index+1].size;
 }
 
-- (unsigned) _getArgumentQualifierAtIndex:(int)index;
+- (unsigned) _getArgumentQualifierAtIndex:(int) index;
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
@@ -645,11 +660,15 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo info)
 {
-#if 0	// may break _returnValue
+#if 0
 	NSLog(@"_getArgumentAddress %p %d %d", frame, info.offset, info.isReg);
 #endif
+	if(!frame)
+		[NSException raise:NSInternalInconsistencyException format:@"missing stack frame"];
 	if(!info.isReg)
+		// return frame.arg_ptr - 5*sizeof(void *) + info.offset
 		return (*(char **)frame) - 5*sizeof(void *) + info.offset;	// indirectly through frame pointer which points to argument index 4
+	// return ((char *) &frame.arg_regs[1]) + info.offset;
 	return ((char *) frame) + sizeof(void *) + info.offset;	// registers start behind frame pointer
 }
 
@@ -659,19 +678,8 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
-#if 0	// no special case!
-	if(index == -1)
-		{ // copy return value to buffer
-#if 0
-			NSLog(@"_getArgument[%d]:%p addr=%p[%d]", index, buffer, _argframe, info[index+1].size);
-#endif
-			if(info[0].size > 0)
-				memcpy(buffer, _argframe, info[0].size);
-			return info[0].type;
-		}
-#endif
 	addr=_getArgumentAddress(_argframe, info[index+1]);
-#if 1
+#if 0
 	NSLog(@"_getArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
@@ -679,47 +687,13 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	else if(info[index+1].floatAsDouble)
 		*(float*)buffer = (float)*(double*)addr;
 	else
-#if 0
-		NSLog(@"memcpy(%p, %p, %u);", buffer, addr, info[index+1].size),
-#endif
-	memcpy(buffer, addr, info[index+1].size);
-	return info[index+1].type;
-}
-
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
-{
-	char *addr;
-	NEED_INFO();
-	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
-	addr=_getArgumentAddress(_argframe, info[index+1]);
-#if 0
-	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
-#endif
-	if(buffer)
 		{
-		if(info[index+1].byRef)
-			memcpy(*(void**)addr, buffer, info[index+1].size);
-		else if(info[index+1].floatAsDouble)
-			*(double*)addr = (double)*(float*)buffer;
-		else
 #if 0
-			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+		NSLog(@"_getArgument memcpy(%p, %p, %u);", buffer, addr, info[index+1].size),
 #endif
-			memcpy(addr, buffer, info[index+1].size);
+		memcpy(buffer, addr, info[index+1].size);
 		}
-	else
-		{ // wipe out (used for handling -invoke with nil target
-		if(info[index+1].byRef)
-			memset(*(void**)addr, 0, info[index+1].size);
-		else if(info[index+1].floatAsDouble)
-			*(double*)addr = 0.0;
-		else
-#if 0
-			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
-#endif
-			memset(addr, 0, info[index+1].size);
-		}
+	return info[index+1].type;
 }
 
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
@@ -739,7 +713,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			if((*(char **)addr) && mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
 				{
 #if 1
-				NSLog(@"free old %s", *(char **)addr);
+				NSLog(@"_setArgument free old %s", *(char **)addr);
 #endif
 				objc_free(*(char **)addr);
 				}
@@ -747,7 +721,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 				{
 				char *tmp;
 #if 1
-				NSLog(@"copy new %s", *(char **)buffer);
+				NSLog(@"_setArgument copy new %s", *(char **)buffer);
 #endif
 				tmp = objc_malloc(strlen(*(char **)buffer)+1);
 				strcpy(tmp, *(char **)buffer);
@@ -757,7 +731,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			   {
 			   char *tmp;
 #if 1
-			   NSLog(@"copy current %@", *(id*)addr);
+			   NSLog(@"_setArgument copy current %@", *(id*)addr);
 #endif
 			   tmp = objc_malloc(strlen(*(char **)addr)+1);
 			   strcpy(tmp, *(char **)addr);
@@ -772,21 +746,21 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			if(mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
 				{
 #if 1
-				NSLog(@"release old %@", *(id*)addr);
+				NSLog(@"_setArgument release old %@", *(id*)addr);
 #endif
 				[*(id*)addr release];
 				}
 			if(buffer && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
 				{
 #if 1
-				NSLog(@"retain new %@", *(id*)buffer);
+				NSLog(@"_setArgument retain new %@", *(id*)buffer);
 #endif
 				[*(id*)buffer retain];
 				}
 			else if(mode == _INVOCATION_ARGUMENT_RETAIN)
 				{
 #if 1
-				NSLog(@"retain current %@", *(id*)addr);
+				NSLog(@"_setArgument retain current %@", *(id*)addr);
 #endif
 				[*(id*)addr retain];
 				return;	// retain but ignore buffer
@@ -799,10 +773,12 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		else if(info[index+1].floatAsDouble)
 			*(double*)addr = (double)*(float*)buffer;
 		else
+			{
 #if 0
-			NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+			NSLog(@"_setArgument memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
 #endif
 			memcpy(addr, buffer, info[index+1].size);
+			}
 		}
 	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
@@ -811,10 +787,12 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			else if(info[index+1].floatAsDouble)
 				*(double*)addr = 0.0;
 			else
-#if 0
-				NSLog(@"memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+				{
+#if 1
+				NSLog(@"_setArgument memset(%p, %ul, %u);", addr, 0, info[index+1].size),
 #endif
 				memset(addr, 0, info[index+1].size);
+				}
 		}	
 }
 
@@ -874,19 +852,6 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
  *
  */
 
-/* here is the definition of the retval_t and arglist_t */
-
-#if 0	// already defined in objc.h on Linux */
-
-typedef void* retval_t;		/* return value */
-typedef void(*apply_t)(void);	/* function pointer */
-typedef union arglist {
-	char *arg_ptr;
-	char arg_regs[sizeof (char*)];
-} *arglist_t;			/* argument frame */
-
-#endif
-
 - (arglist_t) _allocArgFrame:(arglist_t) frame
 { // (re)allocate stack frame
 	if(!frame)
@@ -896,35 +861,14 @@ typedef union arglist {
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength + info[0].size, sizeof(char));
 			args=(unsigned long *) ((char *) frame + part1 + 20);	// points to index 4
-#if 10
+#if 0
 			NSLog(@"allocated frame=%p[%d] args=%p framelength=%d part1=%d", frame, part1 + argFrameLength + info[0].size, args, argFrameLength, part1);
 #endif
+// On __APPLE__ this is an opaque type!		frame.arg_ptr=args;
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
-#if ADJUST_STACK
-	else
-		{ // adjust the frame received from -forward:: so that argument offsets are correct and we can call __builtin_apply()
-			unsigned long *f=(unsigned long *) frame;
-			unsigned long _self=f[1];	// original r0 value (should be self)
-			unsigned long *args=(unsigned long *) f[0];
-#if 1
-			NSLog(@"frame=%p", f);
-			NSLog(@"adjusted args=%p", args);
-#endif
-#if OLD
-			// alternatively to the following code we could set the methodInfo[0] so that it is (always?) a register
-			args[-5]=args[-4];	// save link register in tmp (what is this good for?? We must save that or a _builtin return will fail)
-			args[-4]=f[1];		// insert self value from r0 so that we can access it through _getArgument:atIndex:0
-#endif
-		}
-#endif
 	return frame;
 }
-
-// NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
-// therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
-// well, this is already broken in the libobjc - there, __objc_forward() is called which calls forward:: and the latter must return a safe retval_t
-// so we would need to store the retval somewhere safely - but C code does not know anything about it
 
 #ifndef __APPLE__
 
@@ -981,30 +925,15 @@ break; \
 - (retval_t) _returnValue:(arglist_t) frame retbuf:(char [32]) _r;
 { // get the return value as a retval_t so that we can return from forward::
 #ifndef __APPLE__
-	unsigned long *f=(unsigned long *) frame;
-	unsigned long *args;
 	void *retval=_getArgumentAddress(frame, info[0]);	// return buffer
 #if 0	// critital - calling functions will overwrite the stack!
 //	NSLog(@"_returnValue:%p frame:%p (%p)", retval, frame, f);
 	fprintf(stderr, "_returnValue:%p frame:%p (%p)\n", retval, frame, f);
 #endif
-	args=(unsigned long *) f[0];	// current arguments pointer
 #if 0
-//	NSLog(@"adjusted args=%p", args);
-	fprintf(stderr, "adjusted args=%p\p", args);
-#endif
-#if ADJUST_STACK
-//	args[1]=args[-1];	// restore link register
-//	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
-#endif
-	// FIXME: we may have to restore/set the r0 register
-	// f[1]=args[-4]; or
-	// f[1]=retval[0]; ?
-#if 0
-	args=(unsigned long *) f[0];	// current arguments pointer
-	NSLog(@"restored args=%p", args);
-	NSLog(@"frame=%p", f);
-	NSLog(@"apply %s", info[0].type);
+	NSLog(@"  args=%p", frame.arg_ptr[0]);
+	NSLog(@"  frame=%p", frame);
+	NSLog(@"  apply %s", info[0].type);
 #endif
 	switch(*info[0].type) {
 		case APPLY_VOID(_C_VOID);
@@ -1112,13 +1041,6 @@ break; \
 
 #endif
 
-#if 0
-- (void) test
-{
-	NSLog(@"test");
-}
-#endif
-
 /*
  * formally, a __builtin_apply(imp, frame, size)
  * does (at least on ARMHF)
@@ -1160,7 +1082,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 		char val[1 /*info[0].size */];
 	} block;
 	retbuf=_getArgumentAddress(frame, info[0]);
-#if 1
+#if 0
 	NSLog(@"wrapped_builtin_apply: type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
 	switch(*info[0].type) {
@@ -1207,10 +1129,13 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 #if 1
 			NSLog(@"memcpy(%p, %p, %u)", &((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
 #endif
+			// memcpy(&_argframe.arg_res[2], _argframe.arg_ptr-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
 			memcpy(&((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
 			// how to initialize FPU registers?
 		}
+#if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
+#endif
 	return wrapped_builtin_apply(imp, _argframe, argFrameLength, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 

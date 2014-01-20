@@ -32,7 +32,7 @@
 
 @implementation NSInvocation
 
-+ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *)aSig
++ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) aSig
 {
 #if 0
 	NSLog(@"NSInvocation invocationWithMethodSignature:%@ %s", aSig, [aSig _methodTypes]);
@@ -47,35 +47,33 @@
 	return nil;
 }
 
-- (void) setTarget:(id)anObject
+- (void) setTarget:(id) anObject
 {
 #if 0
 	NSLog(@"NSInvocation setTarget: %@", anObject);
 #endif
-	[self setArgument:&anObject	atIndex:0];	// handles retain/release
+	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0 retainMode:_argsRetained];
 }
 
 - (id) target
 {
-	id target=nil;	// if _sig is nil
-	if(_argframe)
-		[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
+	id target=nil;	// if _sig is nil (which should not happen)
+	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
 	return target;
 }
 
-- (void) setSelector:(SEL)aSelector
+- (void) setSelector:(SEL) aSelector
 {
 #if 0
 	NSLog(@"NSInvocation setSelector: %@", NSStringFromSelector(aSelector));
 #endif
-	[_sig _setArgument:&aSelector forFrame:_argframe atIndex:1];
+	[_sig _setArgument:&aSelector forFrame:_argframe atIndex:1 retainMode:_argsRetained];
 }
 
 - (SEL) selector
 {
 	SEL selector=NULL;	// if _sig is nil
-	if(_argframe)
-		[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
+	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
 	return selector;
 }
 
@@ -121,7 +119,7 @@
 
 // Access message elements.
 
-- (void) getArgument:(void*)buffer atIndex:(int)index
+- (void) getArgument:(void*) buffer atIndex:(int) index
 {
 #if 0
 	NSLog(@"invocation argument index (%d of %d)", index, _numArgs);
@@ -134,26 +132,17 @@
 	[_sig _getArgument:buffer fromFrame:_argframe atIndex:index];
 }
 
-- (void) getReturnValue:(void *)buffer
+- (void) getReturnValue:(void *) buffer
 {
 	[_sig _getArgument:buffer fromFrame:_argframe atIndex:-1];
 #if 0
-	if(_validReturn)
-		{
-		if(*_rettype == _C_ID)
-			NSLog(@"getReturnValue id=%@", *(id *) buffer);
-		}
-#if 0 // this is only needed if we are encoding any NSInvocation in NSPortCoder
-	// and NSPortCoder is not using our encodeWithCoder: method (which can know the _validReturn variable)
-	else
-		[NSException raise: NSGenericException format: @"getReturnValue with no value set"];
-#endif
+	if(_validReturn && *_rettype == _C_ID)
+		NSLog(@"getReturnValue id=%@", *(id *) buffer);
 #endif		
 }
 
-- (void) setArgument:(void*)buffer atIndex:(int)index
+- (void) setArgument:(void*) buffer atIndex:(int) index
 {
-	const char *type;
 #if 0
 	NSLog(@"setArgument: %p atIndex:%d", buffer, index);
 #endif
@@ -162,57 +151,10 @@
 					format: @"bad invocation argument index (%d of %d)", index, _numArgs];
 	if(!buffer)
 		[NSException raise: NSInvalidArgumentException format: @"NULL buffer"];
-	type=(index < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:index];
 #if 0
 	NSLog(@"argtype = %s", type);
 #endif
-	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
-	// we must loop over the indexes anyways
-	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
-	// 0: don't retain
-	// 1: release old and retain new value
-	// 2: release current value (but don't modify)
-	// 3: retain current value (but don't modify)
-	// i.e. we loop here with [_sig setArgument:buffer fromFrame:_argFrame atIndex:i retainMode:_argsRetained];
 	[_sig _setArgument:buffer forFrame:_argframe atIndex:index retainMode:_argsRetained];
-#if OLD
-	if(*type == _C_CHARPTR && _argsRetained)
-		{ // free old, store a copy of new
-			char *oldstr;
-			char *newstr = *(char**)buffer;
-			[_sig _getArgument:&oldstr fromFrame:_argframe atIndex:index];	// get previous
-			if(newstr == NULL)
-				[_sig _setArgument:buffer forFrame:_argframe atIndex:index];	// store pointer to NULL
-			else
-				{
-				char *tmp = objc_malloc(strlen(newstr)+1);
-				strcpy(tmp, newstr);
-				[_sig _setArgument:tmp forFrame:_argframe atIndex:index];
-				}
-			if(oldstr != NULL)
-				objc_free(oldstr);
-		}
-	else if(*type == _C_ID && _argsRetained)
-		{ // release/retain
-			id old=nil;
-			[_sig _getArgument:&old fromFrame:_argframe atIndex:index];	// get previous value
-#if 1
-			NSLog(@"replace %@ -> %@", old, *(id*)buffer);
-#endif
-			if(*(id*)buffer != old)
-				{ // really different
-				[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
-				[*(id*)buffer retain];	// retain new
-				[old release];	// release old				
-				}
-#if 1
-			NSLog(@"retained arg %@", *(id*)buffer);
-			NSLog(@"released arg %@", old);
-#endif
-		}
-	else
-		[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
-#endif
 }
 
 - (void) setReturnValue:(void *) buffer
@@ -222,64 +164,27 @@
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
 #endif
-	[self setArgument:buffer atIndex:-1];
+	[_sig _setArgument:buffer forFrame:_argframe atIndex:-1 retainMode:_argsRetained];
 	_validReturn = YES;
 }
 
 - (void) retainArguments
 {
-	int	i;
-	if(_argsRetained)
-		return;	// already retained
-	_argsRetained = YES;
-#if 0
-	NSLog(@"retaining arguments %@", self);
-#endif
-	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
-	// we must loop over the indexes anyways
-	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
-	// 0: don't retain
-	// 1: release old and retain new value
-	// 2: release if there is an old value
-	// 3: retain existing value (but don't modify)
-	// i.e. we loop here with [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:3];
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
+	if(!_argsRetained)
 		{
-#if OLD
-		const char *type=(i < 0)?[_sig methodReturnType]:[_sig getArgumentTypeAtIndex:i];
-		switch(*type) {
-			case _C_CHARPTR: { // store a copy
-				char *str=NULL;
-				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-				if(str != NULL)
-					{
-					char *tmp = objc_malloc(strlen(str)+1);
-					strcpy(tmp, str);
-					[_sig _setArgument:tmp forFrame:_argframe atIndex:i];
-					}
-				break;
-			}
-			case _C_ID: { // retain object
-				id obj;
-				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 0
-				NSLog(@"retaining arg %p", obj);
-				NSLog(@"retaining arg %@", obj);
+		int	i;
+#if 1
+		NSLog(@"retaining arguments %@", self);
 #endif
-				[obj retain];
-				break;
-			}
-			default:
-				break;
-		}
-#endif
-		[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RETAIN];
+		for(i = _validReturn?-1:0; i < _numArgs; i++)
+			[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RETAIN];
+		_argsRetained = YES;
 		}
 }
 
-- (void) invokeWithTarget:(id)anObject
+- (void) invokeWithTarget:(id) anObject
 {
-	[self setArgument:&anObject atIndex:0];	// handle retain/release
+	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0 retainMode:_argsRetained];
 	[self invoke];
 }
 
@@ -292,18 +197,8 @@
 #if 1
 	NSLog(@"-[NSInvocation invoke]: %@", target);
 #endif
-	if(target == nil)			// A message to a nil object returns nil
-		{
-//		if(!_argsRetained)
-//			NSLog(@"invoke nil target with retained arguments not implemented");	// we should (auto?)release a previously retained returnValue!
-		// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
-		// we must loop over the indexes anyways
-		// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
-		// 0: don't retain
-		// 1: release old and retain new value
-		// 2: release current value (but don't modify)
-		// 3: retain current value (but don't modify)
-		// i.e. we call [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:_argsRetained];
+	if(target == nil)
+		{ // a message to a nil object returns nil or 0 or 0.0 etc.
 		[_sig _setArgument:NULL forFrame:_argframe atIndex:-1 retainMode:_argsRetained];	// wipe out return value
 		_validReturn = YES;
 		return;
@@ -385,9 +280,9 @@
 	objc_free(buffer);
 }
 
-- (id) initWithCoder:(NSCoder*)aCoder
+- (id) initWithCoder:(NSCoder*) aCoder
 {
-	// FIXME: is not correctly implemented (at leas some note in NSPortCoder says so)
+	// FIXME: is not correctly implemented (at least some note in NSPortCoder says so)
 	
 	NSMethodSignature *sig;
 	void *buffer;
@@ -466,38 +361,6 @@
 	if(!_argframe)
 		return;
 	[_sig _logFrame:_argframe target:target selector:selector];
-#if 0	// print argument values
-	{
-	void *buffer;
-	int _maxValueLength=MAX(_returnLength, [_sig frameLength]);
-	int i;
-	NSLog(@"allocating buffer - len=%d", _maxValueLength);
-	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
-	// print argframe
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
-		{
-		const char *type;
-		unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
-		if(i >= 0)
-			{ // normal argument
-				type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
-			}
-		else
-			{ // return value
-				type=[_sig methodReturnType];
-				[self getReturnValue:buffer];
-			}
-		if(*type == _C_ID)
-			NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
-		// NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
-		else if(*type == _C_SEL)
-			NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
-		else
-			NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
-		}
-	objc_free(buffer);
-	}
-#endif
 }
 
 // this is called from NSObject/NSProxy from the forward:: method
@@ -506,22 +369,10 @@
 {
 #if 0
 	NSLog(@"NSInovcation _initWithMethodSignature:%@ andArgFrame:%p", aSignature, argFrame);
-#endif
 #if 0
 	if(argFrame)
-		{
-		int i, imax=18+[aSignature frameLength]/4;
-		for(i=0; i<imax; i++)
-			{ // print stack
-				NSString *note=@"";
-				if(&((void **)argFrame)[i] == ((void **)argFrame)[0]) note=[note stringByAppendingString:@"<<- link "];
-				//			if(((void **)argFrame)[i] == target) note=[note stringByAppendingString:@"self "];
-				//			if(((void **)argFrame)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
-				if(((void **)argFrame)[i] == (argFrame+0x28)) note=[note stringByAppendingString:@"argp "];
-				if(((void **)argFrame)[i] == argFrame) note=[note stringByAppendingString:@"link ->> "];
-				NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)argFrame)[i]), 4*i, ((char *)&(((void **)argFrame)[i]))-(((char **)argFrame)[0]), ((void **)argFrame)[i], ((void **)argFrame)[i], note);
-			}	
-		}
+		[aSignature _logFrame:argFrame target:nil selector:NULL];
+#endif
 #endif
 	if(!aSignature)
 		{ // missing signature
@@ -545,55 +396,26 @@
 		_numArgs=[aSignature numberOfArguments];
 		_rettype=[_sig methodReturnType];
 		_returnLength=[_sig methodReturnLength];
-#if 1
+#if 0
 		NSLog(@"-[NSInvocation(%p) _initWithMethodSignature:%s andArgFrame:%p] successfull", self, _types, argFrame);
-#endif
 		NSLog(@"self target: %@", [self target]);
+#endif
 		}
 	return self;
 }
 
 - (void) _releaseArguments
 { // used by -dealloc
-	int	i;
-	if(!_argsRetained || !_argframe)
-		return;	// already released or no need to do so
-	_argsRetained = NO;
-#if 0
-	NSLog(@"releasing arguments %@", self);
-#endif
-	// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
-	// we must loop over the indexes anyways
-	// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
-	// 0: don't retain
-	// 1: release old and retain new value
-	// 2: release if there is an old value
-	// 3: retain existing value (but don't modify)
-	// i.e. we loop here with [_sig setArgument:NULL fromFrame:_argFrame atIndex:i retainMode:2];
-	for(i = 0; i < _numArgs; i++)
+	if(_argsRetained && _argframe)
 		{
-		[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RELEASE];
-#if OLD
-		const char *type=[_sig getArgumentTypeAtIndex:i];
-		if(*type == _C_CHARPTR)
-			{ // release the copy
-				char *str;
-				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-				if(str != NULL)
-					objc_free(str);	// ??? immediately, or should we put it into the ARP?
-			}
-		else if(*type == _C_ID)
-			{ // release object
-				id obj;
-				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 0
-				NSLog(@"release arg %@", obj);
+		int	i;
+#if 1
+		NSLog(@"releasing arguments %@", self);
 #endif
-				[obj release];
-			}
-#endif
+		for(i = 0; i < _numArgs; i++)
+			[_sig _setArgument:NULL forFrame:_argframe atIndex:i retainMode:_INVOCATION_ARGUMENT_RELEASE];		
+		_argsRetained = NO;
 		}
-	_argsRetained=NO;
 }
 
 - (retval_t) _returnValue;
@@ -607,13 +429,6 @@
 		id ret;
 		[self getReturnValue:&ret];
 		NSLog(@"value = %@", ret);
-		}
-#endif
-#if 0	// Cocoa does not check
-	if(!_validReturn && *_rettype != _C_VOID)
-		{ // no valid return value
-			NSLog(@"warning - no valid return value set");
-			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
 		}
 #endif
 	retval=[_sig _returnValue:_argframe retbuf:_retbuf];	// get return value - use _retbuf as a temporary buffer
@@ -630,78 +445,3 @@
 }
 
 @end
-
-#if 0	// test
-
-@implementation NSInvocation (Testing)
-
-- (void) test1
-{
-	NSLog(@"*** test1 ***");
-	NSLog(@"  self=%p", self);
-	NSLog(@"  _cmd=%p", _cmd);
-	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
-	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
-}
-
-- (void) test2:(id) arg
-{
-	NSLog(@"*** test2: ***");
-	NSLog(@"  self=%p", self);
-	NSLog(@"  _cmd=%p", _cmd);
-	NSLog(@"  arg=%p", arg);
-	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
-	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
-	NSAssert(arg != nil, @"arg is not set correctly; NSInvocation may be broken");	
-}
-
-- (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
-{ // must be overridden or forwardInvocation: will not be called
-	NSLog(@"methodSignatureForSelector %@ %p", NSStringFromSelector(aSelector), aSelector);
-	return [NSString instanceMethodSignatureForSelector:aSelector];
-}
-
-- (void) forwardInvocation:(NSInvocation *)anInvocation
-{
-	id ret=nil;
-	NSLog(@"NSInvocation %p forwardInvocation: %@", self, anInvocation);
-	[anInvocation setReturnValue:&ret];
-}
-
-+ (void) initialize
-{
-	SEL sel=@selector(test2:);	// default
-	NSInvocation *test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	NSString *str=@"teststring";
-#if 0
-	NSLog(@"-- NSInvocation initialize -- testing ---");
-	sel=@selector(test1);
-	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	[test setSelector:sel];
-	NSLog(@"-- test1 ---");
-	[test invokeWithTarget:test];
-	NSLog(@"-- test1 done ---");
-	sel=@selector(test2:);
-	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	[test setSelector:sel];
-	[test setArgument:&str atIndex:2];
-	NSLog(@"-- test2 ---");
-	[test invokeWithTarget:test];
-	NSLog(@"-- test2 done ---");
-#endif
-	NSLog(@"-- test3 ---");
-	NSLog(@"  self=%p", test);
-	NSLog(@"  selector=%p", sel);
-	NSLog(@"  object=%p", str);
-	NSLog(@"  imp=%p", [NSString instanceMethodForSelector:@selector(writeToFile:atomically:encoding:error:)]);
-	NSLog(@"  this=%p", [self methodForSelector:@selector(initialize)]);
-	//	[test makeObjectsPerformSelector:(SEL) 0x11111111 withObject:(id) 0x22222222];	// not existing (in this class)  -> calls forward::
-	[test writeToFile:(id) 0x11111111 atomically:(BOOL)0x22222222 encoding:0x33333333 error:(NSError **)0x44444444];
-	
-	NSLog(@"-- test3 done ---");
-	NSLog(@"-- NSInvocation initialize -- done ---");
-}
-
-@end
-
-#endif

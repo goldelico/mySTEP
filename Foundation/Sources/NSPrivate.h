@@ -412,22 +412,13 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (unsigned) _getArgumentQualifierAtIndex:(int) index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 
-// FIXME: how can we easily implement that in NSMethodSignature if we move the retain code there?
-// we must loop over the indexes anyways
-// maybe by a multi-level parameter to _setArgument:forFrame:atIndex:retainMode:
-// 0: don't retain
-// 1: release old and retain new value (depending on data type)
-// 2: release current value (but don't modify)
-// 3: retain current value (but don't modify)
-
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE {
-_INVOCATION_ARGUMENT_SET_NOT_RETAINED = NO,
-_INVOCATION_ARGUMENT_SET_RETAINED = YES,
-_INVOCATION_ARGUMENT_RELEASE,
-_INVOCATION_ARGUMENT_RETAIN,
+_INVOCATION_ARGUMENT_SET_NOT_RETAINED = NO,	// don't retain/copy/release
+_INVOCATION_ARGUMENT_SET_RETAINED = YES,	// release/free old value and retain/copy new (objects and C-Strings)
+_INVOCATION_ARGUMENT_RELEASE,	// release current value (but ignore _buffer)
+_INVOCATION_ARGUMENT_RETAIN,	// retain current value (but ignore _buffer)
 }) mode;
 
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
 - (retval_t) _returnValue:(arglist_t) frame retbuf:(char [32]) _r;
