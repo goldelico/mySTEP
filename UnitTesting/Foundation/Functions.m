@@ -6,8 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "Functions.h"
+#import <SenTestingKit/SenTestingKit.h>
 
+
+@interface FunctionsTest : SenTestCase {
+	
+}
+
+@end
 
 @implementation FunctionsTest
 

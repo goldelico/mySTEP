@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSAttributedStringTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSAttributedStringTest : SenTestCase {
+	
+}
+
+@end
 
 @interface NSColor : NSObject
 + (id) redColor;

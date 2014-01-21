@@ -6,7 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "ABPersonTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface ABPersonTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation ABPersonTest

@@ -12,7 +12,14 @@
 //  Copyright 2014 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSInvocationTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+@interface NSInvocationTest : SenTestCase {
+	int invoked;
+}
+
+@end
+
 
 #ifdef __APPLE__
 #define sel_isEqual(A, B) ((A) == (B))

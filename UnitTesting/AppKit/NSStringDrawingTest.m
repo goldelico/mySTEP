@@ -7,7 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NSStringDrawingTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSStringDrawingTest : SenTestCase {
+	
+}
+
+@end
 
 @implementation NSStringDrawingTest
 

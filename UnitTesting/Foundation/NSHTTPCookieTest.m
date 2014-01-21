@@ -7,7 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSHTTPCookieTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSHTTPCookieTest : SenTestCase
+{
+	NSHTTPCookie *c1, *c2;
+}
+
+@end
 
 
 @implementation NSHTTPCookieTest

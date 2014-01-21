@@ -6,7 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSAffineTransformTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSAffineTransformTest : SenTestCase {
+	NSAffineTransform *t;
+}
+
+@end
 
 // FIXME: apply withAccuracy to comparing NSPoints and NSSize!
 

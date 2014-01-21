@@ -6,7 +6,15 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSTextViewTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+#import <Cocoa/Cocoa.h>
+
+
+@interface NSTextViewTest : SenTestCase {
+	NSTextView *view;
+}
+
+@end
 
 
 @implementation NSTextViewTest

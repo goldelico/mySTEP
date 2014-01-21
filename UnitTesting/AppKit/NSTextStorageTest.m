@@ -6,7 +6,15 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSTextStorageTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+#import <Cocoa/Cocoa.h>
+
+
+@interface NSTextStorageTest : SenTestCase {
+	
+}
+
+@end
 
 @interface SomeLayoutManager : NSObject
 {

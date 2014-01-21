@@ -7,7 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSPredicateTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSPredicateTest : SenTestCase
+{
+	NSMutableDictionary *dict;
+}
+
+@end
 
 
 @implementation NSPredicateTest

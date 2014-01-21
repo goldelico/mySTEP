@@ -6,9 +6,15 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SenTestingKit/SenTestingKit.h>
 
-#import "NSStringTest.h"
+
+@interface NSStringTest : SenTestCase {
+	
+}
+
+@end
+
 #ifndef __mySTEP__
 @interface NSCFString : NSString
 @end

@@ -6,7 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "ABSearchTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface ABSearchTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation ABSearchTest

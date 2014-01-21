@@ -7,7 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NSScannerTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSScannerTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation NSScannerTest

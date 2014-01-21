@@ -7,7 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NSTextFieldCellTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSTextFieldCellTest : SenTestCase {
+	
+}
+
+@end
 
 // see http://developer.apple.com/tools/unittest.html
 // and http://www.cocoadev.com/index.pl?OCUnit

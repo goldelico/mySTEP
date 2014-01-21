@@ -6,7 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSPortTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSPortTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation NSPortTest

@@ -6,7 +6,14 @@
 //  Copyright 2014 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSMethodSignatureTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSMethodSignatureTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation NSMethodSignatureTest

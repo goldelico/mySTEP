@@ -7,7 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NSFontTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSFontTest : SenTestCase {
+	
+}
+
+@end
 
 @implementation NSFontTest
 

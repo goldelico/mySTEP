@@ -6,7 +6,18 @@
 //  Copyright 2012 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSLayoutManagerTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+#import <Cocoa/Cocoa.h>
+
+
+@interface NSLayoutManagerTest : SenTestCase {
+	NSTextStorage *textStorage;
+	NSLayoutManager *layoutManager;
+	NSTextContainer *textContainer;
+	NSTextView *textView;	
+}
+
+@end
 
 
 @implementation NSLayoutManagerTest

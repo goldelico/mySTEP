@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSURLTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSURLTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation NSURLTest

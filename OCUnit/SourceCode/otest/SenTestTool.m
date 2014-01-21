@@ -109,7 +109,9 @@ static NSString *SenTestDefaultScope = @"Self";
         // so SenTestProbe should be available
         // (but we do not want to link otest with SenTestingKit to be able to test the kit itself.)
         id testProbeClass = NSClassFromString (@"SenTestProbe");
+#if 1
 		NSLog(@"probe class: %@", NSStringFromClass(testProbeClass));
+#endif
         if (testProbeClass != nil) {
             [testProbeClass performSelector:@selector(runTests:) withObject:nil];
         }

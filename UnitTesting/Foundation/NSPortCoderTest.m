@@ -8,7 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import <Foundation/NSMethodSignature.h>
-#import "NSPortCoderTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSPortCoderTest : SenTestCase {
+	NSConnection *connection;
+}
+
+@end
 
 
 @interface NSMethodSignature (Since10_5)

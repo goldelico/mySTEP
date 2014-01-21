@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSByteSwappingTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSByteSwappingTest : SenTestCase {
+	
+}
+
+@end
 
 
 @implementation NSByteSwappingTest

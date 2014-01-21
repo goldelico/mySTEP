@@ -6,7 +6,15 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSConnectionTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSConnectionTest : SenTestCase
+{
+	NSConnection *connection;
+}
+
+@end
 
 #if 0
 

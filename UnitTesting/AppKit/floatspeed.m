@@ -6,7 +6,14 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "floatspeed.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface floatspeed : SenTestCase {
+	
+}
+
+@end
 
 #ifndef NS_TIME_START
 

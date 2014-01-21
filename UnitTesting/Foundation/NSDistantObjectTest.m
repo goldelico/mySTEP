@@ -6,7 +6,15 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "NSDistantObjectTest.h"
+#import <SenTestingKit/SenTestingKit.h>
+
+
+@interface NSDistantObjectTest : SenTestCase
+{
+	
+}
+
+@end
 
 @interface NSPortCoder (NSConcretePortCoder)
 - (NSArray *) components;
