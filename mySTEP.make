@@ -208,7 +208,8 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			? ) export ARCHITECTURE=unknown-linux-gnu;; \
+			all ) export ARCHITECTURE=all;; \
+			* ) export ARCHITECTURE=unknown-linux-gnu;; \
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
