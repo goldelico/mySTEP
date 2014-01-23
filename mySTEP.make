@@ -213,7 +213,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
-		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		make -j4 -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
 ifneq ($(ARCHITECTURES),)
@@ -222,7 +222,7 @@ ifneq ($(ARCHITECTURES),)
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
 		export ARCHITECTURES="$$ARCHITECTURES"; \
-		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+		make -j4 -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
 endif
 
