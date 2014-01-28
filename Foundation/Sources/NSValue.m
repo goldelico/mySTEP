@@ -23,6 +23,7 @@
 #import <Foundation/NSException.h>
 
 
+@interface GSValue					: NSValue	{ void *data; char *dataType; unsigned int dataSize; }		@end	// store arbitrary value
 @interface GSNonretainedObjectValue : NSValue	{ id data; }		@end
 @interface GSPointValue				: NSValue	{ NSPoint data; }	@end
 @interface GSPointerValue			: NSValue	{ void *data; }		@end
@@ -34,7 +35,7 @@
 @implementation NSValue
 
 + (NSValue *) value:(const void *)value withObjCType:(const char *)type
-{										
+{ // decode special variants and fall back to the universal only if no special version is found						
 	if (!value || !type)
 		{
     	NSLog(@"NSValue: tried to create NSValue with NULL value or type");
@@ -64,8 +65,9 @@
 		case _C_SEL:
 		case _C_ATOM:
 		case _C_PTR:
+		case _C_CHARPTR:
 			return [self valueWithPointer:*(void **)value];
-		default:		
+		default:
 			break;
 	}
 	
@@ -78,9 +80,9 @@
 	if (strcmp(@encode(NSRange), type) == 0)
 		return [self valueWithRange: *(NSRange *)value];
 	
-	[NSException raise:NSInvalidArgumentException format:@"-[NSValue value:withObjCType:] unrecognized objc type %s", type];
-	
-    return nil;
+	return [[[GSValue alloc] initWithBytes:value objCType:type] autorelease];
+
+//	[NSException raise:NSInvalidArgumentException format:@"-[NSValue value:withObjCType:] unrecognized objc type %s", type];
 }
 
 + (NSValue *) valueWithNonretainedObject:(id)anObject
@@ -178,19 +180,99 @@ NSDictionary *dict = [string propertyList];
 }
 
 - (BOOL) isEqualToValue:(NSValue*)other		{ SUBCLASS return NO; }
-- (id) copyWithZone:(NSZone *) z									{ return [self retain]; }
+- (id) copyWithZone:(NSZone *) z			{ return [self retain]; }
 - (void) getValue:(void *)value				{ SUBCLASS }
 - (const char *) objCType					{ SUBCLASS return 0; }
-- (id) nonretainedObjectValue				{ SUBCLASS return nil; }
-- (void *) pointerValue						{ SUBCLASS return 0; }
+- (id) nonretainedObjectValue				{ return nil; }	// result is undefined if not available
+- (void *) pointerValue						{ return NULL; }	// result is undefined if not available
 - (NSRect) rectValue						{ SUBCLASS return NSZeroRect; }
 - (NSSize) sizeValue						{ SUBCLASS return NSZeroSize; }
 - (NSPoint) pointValue						{ SUBCLASS return NSZeroPoint;}
 - (NSRange) rangeValue						{ SUBCLASS return NSMakeRange(0, 0);}
+
+// FIXME - shouldn't we have a generic encoder and classForCoder?
+
 - (id) initWithCoder:(NSCoder *)coder		{ SUBCLASS return nil;}
 - (void) encodeWithCoder:(NSCoder *)coder	{ [super encodeWithCoder:coder]; }
 
 @end /* NSValue */
+
+//*****************************************************************************
+//
+// 		GSValue 
+//
+//*****************************************************************************
+
+@implementation GSValue
+
+- (id) initWithBytes:(const void *)value
+			objCType:(const char *)type
+{ /* store a copy of type and data */
+	int tsize = strlen(type);
+	dataType = objc_malloc(tsize+1);
+	strcpy(dataType, type);
+	dataSize = objc_sizeof_type(dataType);
+	data = objc_malloc(dataSize);
+    memcpy(data, value, dataSize);
+	return self;
+}
+
+- (void) dealloc
+{
+	objc_free(data);
+	objc_free(dataType);
+	[super dealloc];
+}
+
+- (void) getValue:(void *)value								// Accessing Data
+{
+    if (!value)
+		[NSException raise:NSInvalidArgumentException
+					format:@"Cannot copy value into NULL buffer"];
+	
+    memcpy(value, data, dataSize);
+}
+
+- (BOOL) isEqualToValue:(NSValue*)aValue
+{
+    if ([aValue isKindOfClass: [self class]])
+		{
+		if(dataSize != ((GSValue *) aValue) -> dataSize)
+			return NO;	// different length
+		return memcmp(data, ((GSValue *) aValue) -> data, dataSize) == 0;	// same contents?
+		}
+    return NO;
+}
+
+- (const char *) objCType					{ return dataType; }
+- (void *) pointerValue						{ return data; }
+
+- (NSString *) description
+{
+	return [NSString stringWithFormat: @"{pointer = %p; size = %d; type = %s;}", data, dataSize, dataType];
+}
+
+- (id) initWithCoder:(NSCoder *)coder
+{
+	// decode type and data
+	// initialize size from type
+	NIMP;
+    return self;
+}
+
+- (void) encodeWithCoder:(NSCoder *)coder
+{
+	// encode type and data - size is not necessary
+
+	const char *type = [self objCType];
+	
+    [super encodeWithCoder:coder];
+	NIMP;
+    [coder encodeValueOfObjCType:@encode(char *) at:&type];
+    [coder encodeValueOfObjCType:type at:&data];
+}
+
+@end /* GSValue */
 
 //*****************************************************************************
 //
@@ -203,8 +285,7 @@ NSDictionary *dict = [string propertyList];
 - (id) initWithBytes:(const void *)value
 			objCType:(const char *)type
 {
-    memcpy(&data, value, objc_sizeof_type(type));
-
+	data = *(void **) value;
 	return self;
 }
 
@@ -250,6 +331,7 @@ const char *type = [self objCType];
 
 @end /* GSPointerValue */
 
+
 //*****************************************************************************
 //
 // 		GSNonretainedObjectValue 
@@ -287,8 +369,12 @@ const char *type = [self objCType];
 	NSLog(@"self=%@", self);
 	NSLog(@"aValue=%@", aValue);
 #endif	
-    if ([aValue isKindOfClass: [self class]]) 
-		return [data isEqual: [aValue nonretainedObjectValue]];
+    if ([aValue isKindOfClass: [self class]])
+		{
+		id adata=[aValue nonretainedObjectValue];
+		// treat nil values as isEqual:
+		return (data == adata) || [data isEqual:adata];
+		}
 
     return NO;
 }
