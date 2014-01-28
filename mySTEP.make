@@ -213,7 +213,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
-		make -j4 -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
 ifneq ($(ARCHITECTURES),)
@@ -222,7 +222,7 @@ ifneq ($(ARCHITECTURES),)
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
 		export ARCHITECTURES="$$ARCHITECTURES"; \
-		make -j4 -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
 endif
 
@@ -752,7 +752,7 @@ clean:
 
 # FIXME: use dependencies to link only if any object file has changed
 
-"$(BINARY)":: $(OBJECTS)
+"$(BINARY)":: headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
