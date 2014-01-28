@@ -39,7 +39,7 @@
 
 /*
  * it is not easy to find out if we have a mutable or an immutable object in Cocoa
- * since CoreFoundation objects are returned from NSMutableString alloc and e.g. @"constant"
+ * since CoreFoundation objects are returned from -[NSMutableString alloc] and e.g. @"constant"
  * and they all have the full NSMutableString @interface but return error messages if
  * we attempt to apply a mutable operation to an immutable object!
  *
@@ -79,8 +79,6 @@
 #define TEST0(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertNil([INPUT METHOD], nil); }
 #define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test_##METHOD##NAME; { STAssertEqualObjects([INPUT METHOD], OUTPUT, nil); }
 #define TEST2(NAME, INPUT, METHOD, ARG, OUTPUT) - (void) test_##METHOD##NAME; { STAssertEqualObjects([INPUT METHOD:ARG], OUTPUT, nil); }
-
-// FIXME: test creation, conversions, appending, mutability, sorting, isEqual, intValue, floatValue etc.
 
 - (void) testMutablility
 {
@@ -342,11 +340,13 @@ TEST1(21, @"~/path", stringByStandardizingPath, [NSHomeDirectory() stringByAppen
 TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// implicitly assumes that /.. is the same as /
 
 // add many more such tests
+// FIXME: test creation, conversions, appending, mutability, sorting, isEqual, intValue, floatValue etc.
 
 - (void) test90
 {
 	NSString *obj=@"0";
 	STAssertEqualObjects([obj self], @"0", nil);
+	STAssertFalse([obj class] == [NSString class], nil);	// constant strings have a private class
 	// starts availability in 10.5
 	STAssertEquals([obj boolValue], NO, nil);
 	STAssertEquals([obj intValue], 0, nil);

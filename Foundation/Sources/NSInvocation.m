@@ -232,7 +232,7 @@
 	//	*((long *)1)=0;
 #endif
 
-	// NOTE: we run into problems if imp is itself calling forward::
+	// NOTE: we can run into problems if imp is itself calling forward::
 
 	_validReturn=[_sig _call:imp frame:_argframe];	// call
 	if(!_validReturn)

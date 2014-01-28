@@ -18,6 +18,9 @@
 
 @end
 
+@interface NSMethodSignature (Additions)	// exposed in 10.5 and later
++ (NSMethodSignature *) signatureWithObjCTypes:(const char *)types;
+@end
 
 @implementation NSMethodSignatureTest
 
@@ -37,7 +40,7 @@
 	ms=[NSMethodSignature signatureWithObjCTypes:"v@:"];
 	STAssertNotNil(ms, nil);
 	STAssertEquals([ms numberOfArguments], 2u, nil);
-#if 1	// this is architecture specific!
+#if 0	// this is architecture specific!
 	STAssertEquals([ms frameLength], 8u, nil);
 #endif
 	STAssertTrue(strcmp([ms methodReturnType], "v") == 0, nil);
@@ -54,7 +57,7 @@
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(retain)];
 	STAssertNotNil(ms, nil);
 	STAssertEquals([ms numberOfArguments], 2u, nil);
-#if 1	// this is architecture specific!
+#if 0	// this is architecture specific!
 	STAssertEquals([ms frameLength], 8u, nil);
 #endif
 	STAssertTrue(strcmp([ms methodReturnType], "@") == 0, nil);
@@ -62,7 +65,7 @@
 	STAssertTrue(strcmp([ms getArgumentTypeAtIndex:1], ":") == 0, nil);
 	STAssertThrowsSpecificNamed([ms getArgumentTypeAtIndex:2], NSException, NSInvalidArgumentException, nil);
 	STAssertThrowsSpecificNamed([ms getArgumentTypeAtIndex:-1], NSException, NSInvalidArgumentException, nil);
-#if 1	// this is architecture specific!
+#if 0	// this is architecture specific!
 	STAssertEquals([ms methodReturnLength], 4u, nil);
 #endif
 	STAssertFalse([ms isOneway], nil);

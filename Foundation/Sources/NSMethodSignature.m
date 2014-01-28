@@ -866,6 +866,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 #endif
 // On __APPLE__ this is an opaque type!		frame.arg_ptr=args;
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
+			// how can/should we set the link register?
 		}
 	return frame;
 }

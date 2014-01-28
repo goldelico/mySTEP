@@ -26,7 +26,7 @@
 #endif
 
 @interface NSMethodSignature (Additions)	// exposed in 10.5 and later
-+ (NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
++ (NSMethodSignature *) signatureWithObjCTypes:(const char *)types;
 @end
 
 @interface NSInvocationTest (Forwarding)	// define as header so that the compiler does not complain and we know the signature
@@ -294,6 +294,7 @@
 	invoked=0;
 	[i invoke];
 	STAssertEquals(invoked, 13, nil);
+	STAssertEqualObjects(obj, @"g", nil);
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, @"r", nil);
 	[i getArgument:&obj atIndex:2];
