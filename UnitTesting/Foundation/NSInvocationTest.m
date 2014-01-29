@@ -39,6 +39,7 @@
 - (int) forward46:(int) a b:(int) b;
 - (float) forward47:(int) a b:(int) b c:(float) c d:(int) d e:(float) e f:(float) f;
 - (double) forward48:(int) a b:(long long) b c:(float) c d:(int) d e:(double) e f:(float) f;
+// test char, short, struct, array arguments and return values (alignment!)
 @end
 
 @implementation NSInvocationTest
@@ -650,47 +651,49 @@ struct mydata
 	else if(sel_isEqual(sel, @selector(forward47:b:c:d:e:f:)))
 		{
 		int ival=0;
-		float val=0.0;
+		float fval=0.0;
 		float r=3.1415;
 		invoked=47;
 		STAssertEquals(ival, 0, nil);
-		STAssertEquals(val, 0.0f, nil);
+		STAssertEquals(fval, 0.0f, nil);
 		[anInvocation getArgument:&ival atIndex:2];
 		STAssertEquals(ival, 1, nil);
 		[anInvocation getArgument:&ival atIndex:3];
 		STAssertEquals(ival, 2, nil);
-		[anInvocation getArgument:&val atIndex:4];
-		STAssertEquals(val, 3.0f, nil);
+		[anInvocation getArgument:&fval atIndex:4];
+		STAssertEquals(fval, 3.0f, nil);
 		[anInvocation getArgument:&ival atIndex:5];
 		STAssertEquals(ival, 4, nil);
-		[anInvocation getArgument:&val atIndex:6];
-		STAssertEquals(val, 5.0f, nil);
-		[anInvocation getArgument:&val atIndex:7];
-		STAssertEquals(val, 6.0f, nil);
+		[anInvocation getArgument:&fval atIndex:6];
+		STAssertEquals(fval, 5.0f, nil);
+		[anInvocation getArgument:&fval atIndex:7];
+		STAssertEquals(fval, 6.0f, nil);
 		[anInvocation setReturnValue:&r];
 		}
 	else if(sel_isEqual(sel, @selector(forward48:b:c:d:e:f:)))
 		{
 		int ival=0;
 		long long llval=0;
-		float val=0.0;
+		float fval=0.0;
 		double dval=0;
 		double r=3.1415;
 		invoked=48;
 		STAssertEquals(ival, 0, nil);
-		STAssertEquals(val, 0.0f, nil);
+		STAssertEquals(llval, 0ll, nil);
+		STAssertEquals(fval, 0.0f, nil);
+		STAssertEquals(dval, 0.0, nil);
 		[anInvocation getArgument:&ival atIndex:2];
 		STAssertEquals(ival, 1, nil);
 		[anInvocation getArgument:&llval atIndex:3];
 		STAssertEquals(llval, -2ll, nil);
-		[anInvocation getArgument:&val atIndex:4];
-		STAssertEquals(val, 3.0f, nil);
+		[anInvocation getArgument:&fval atIndex:4];
+		STAssertEquals(fval, 3.0f, nil);
 		[anInvocation getArgument:&ival atIndex:5];
 		STAssertEquals(ival, 4, nil);
 		[anInvocation getArgument:&dval atIndex:6];
 		STAssertEquals(dval, 5.0, nil);
-		[anInvocation getArgument:&val atIndex:7];
-		STAssertEquals(val, 6.0f, nil);
+		[anInvocation getArgument:&fval atIndex:7];
+		STAssertEquals(fval, 6.0f, nil);
 		[anInvocation setReturnValue:&r];
 		}
 	else

@@ -591,9 +591,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	int i;
 	struct stackframe *f=(struct stackframe *) _argframe;
 	void **af=(void **) _argframe;
-	int len = offsetof(struct stackframe, copied);	// first part
+	int len;
 	NEED_INFO();	// get valid argFrameLength and methodReturnLength
-	len += argFrameLength + info[0].size;	// that is how allocArgFrame:0 calculates
+	len=offsetof(struct stackframe, more) + argFrameLength + info[0].size;	// as calculated by _allocArgFrame
 	for(i=0; i<10+(len/sizeof(void *)); i++)
 		{
 		NSString *note=@"";
@@ -603,12 +603,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		if(selector && af[i] == selector) note=[note stringByAppendingString:@" _cmd"];
 //		if(&((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@" argp"];
 		if((char *) &af[i] == ((char *) _argframe)+len) note=[note stringByAppendingString:@" <<- END"];
-		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld%@", i, 
+		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld %12g%@", i, 
 			  &af[i],
 			  (char *) &af[i] - (char *) &af[0],
 			  (char *) &af[i] - (char *) f->fp,
 			  af[i],
-			  af[i],
+			  (long) af[i],
+			  *(float *) &af[i],
 			  note);
 		}
 }
@@ -635,6 +636,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			int i=0;
 			int nextireg=offsetof(struct stackframe, iregs);	// first integer register offset
 			int nextfpreg=offsetof(struct stackframe, fpuregs);	// first fp register offset
+			int nextdpreg=nextfpreg;	// double precision offset
 			int allocArgs=6;	// this is usually enough, i.e. retval+self+_cmd+3 args
 			int needs;
 			argFrameLength=0;	// offset on stack
@@ -670,13 +672,33 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 						continue;
 						}
 					needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
-					if(info[i].type[0] == _C_FLT || info[i].type[0] == _C_DBL)
+					if(info[i].type[0] == _C_FLT)
 						{ // try to put into FPU_REGISTER
 							if(nextfpreg + needs <= offsetof(struct stackframe, unused))
 								{ // yes, fits into the FPU register area
 									info[i].isReg=YES;
 									info[i].offset = nextfpreg;
-									nextfpreg+=needs;
+									if(nextfpreg == nextdpreg)
+										{
+										nextdpreg+=sizeof(double);
+										nextfpreg+=needs;
+										}
+									else
+										nextfpreg=nextdpreg;	// we did fill a gap before the next double register
+									i++;
+									continue;
+								}
+							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
+						}
+					else if(info[i].type[0] == _C_DBL)
+						{ // try to put into double precision FPU_REGISTER
+							if(nextdpreg + needs <= offsetof(struct stackframe, unused))
+								{ // yes, fits into the double precision FPU register area
+									info[i].isReg=YES;
+									info[i].offset = nextdpreg;
+									if(nextfpreg == nextdpreg)
+										nextfpreg+=needs;	// don't assign as fp registers
+									nextdpreg+=needs;
 									i++;
 									continue;
 								}
@@ -806,7 +828,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, info[index+1]);
-#if 0
+#if 1
 	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
@@ -962,7 +984,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			struct stackframe *f;
 			unsigned int len;
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
-			len=offsetof(struct stackframe, lr) + argFrameLength + info[0].size;
+			len=offsetof(struct stackframe, more) + argFrameLength + info[0].size;
 			f=(struct stackframe *) objc_calloc(len, sizeof(char));
 			frame=(arglist_t) f;
 #if 0
@@ -1230,20 +1252,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength);
 #endif
 	if(size > 0)
-		{ // copy values from stack frame into locations where registers are loaded from - except for r0 (which is handled directly)
-#if OLD
-			void **args=((void **)_argframe)[0];
-#if 1
-			NSLog(@"memcpy(%p, %p, %u)", &((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE+FPU_REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE+FPU_REGISTER_SAVEAREA_SIZE-sizeof(long));
-#endif
-			// memcpy(&_argframe.arg_res[2], _argframe.arg_ptr-(REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE-sizeof(long));
-			memcpy(&((void **)_argframe)[2], ((char *) args)-(REGISTER_SAVEAREA_SIZE+FPU_REGISTER_SAVEAREA_SIZE-sizeof(long)), REGISTER_SAVEAREA_SIZE+FPU_REGISTER_SAVEAREA_SIZE-sizeof(long));
-			// how to initialize FPU registers?
-#else
-//			memcpy(&f->iregs[1], f->copied, size);	// copy from stack to registers
-			memcpy(f->copied, &f->iregs[1], size);	// copy from registers to stack
-#endif
-		}
+		memcpy(f->copied, &f->iregs[1], size);	// copy from registers to stack
 #if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
 #endif
