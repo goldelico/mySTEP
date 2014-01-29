@@ -308,6 +308,7 @@ NSDictionary *dict = [string propertyList];
 
 - (const char *) objCType					{ return @encode(void *); }
 - (void *) pointerValue						{ return data; }
+- (id) nonretainedObjectValue				{ return data; }
 
 - (NSString *) description
 {

@@ -37,6 +37,8 @@
 - (void) forward44;
 - (void) forward45;
 - (int) forward46:(int) a b:(int) b;
+- (float) forward47:(int) a b:(int) b c:(float) c d:(int) d e:(float) e f:(float) f;
+- (double) forward48:(int) a b:(long long) b c:(float) c d:(int) d e:(double) e f:(float) f;
 @end
 
 @implementation NSInvocationTest
@@ -81,8 +83,8 @@
 
 - (id) invoke02:arg1 witharg:(id) arg2;
 { // some object arguments and return value
-//	STAssertNotNil(arg1, nil);
-//	STAssertNotNil(arg2, nil);
+	//	STAssertNotNil(arg1, nil);
+	//	STAssertNotNil(arg2, nil);
 	invoked=2;
 	return [[arg1 description] stringByAppendingString:[arg2 description]];
 }
@@ -188,10 +190,10 @@
 	STAssertNil(obj, nil);	// arguments appear to be initialized to nil
 	STAssertThrowsSpecificNamed([i getArgument:&obj atIndex:4], NSException, NSInvalidArgumentException, nil);	// out of bounds
 	STAssertNoThrow([i getReturnValue:&obj], nil);	// can be called before [i invoke] is called
-//	STAssertNil(obj, nil);	// this is not guaranteed: "the result of this method is undefined"
+	//	STAssertNil(obj, nil);	// this is not guaranteed: "the result of this method is undefined"
 	// this is not documented but reported e.g. though: -[NSInvocation getArgument:atIndex:]: index (2) out of bounds [-1, 1]
 	STAssertNoThrow([i getArgument:&obj atIndex:-1], nil);
-//	STAssertNil(obj, nil);
+	//	STAssertNil(obj, nil);
 	[i setArgument:&self atIndex:2];
 	obj=nil;
 	STAssertNil(obj, nil);
@@ -360,20 +362,20 @@
 	[i getReturnValue:&r];
 	STAssertEquals(r, (unichar) 0x30AB, nil);
 	/*
-	[i getArgument:&obj atIndex:2];
-	STAssertEqualObjects(obj, @"a", nil);
-	[i getArgument:&obj atIndex:3];
-	STAssertEqualObjects(obj, @"b", nil);
-	[i getArgument:&obj atIndex:4];
-	STAssertEqualObjects(obj, @"c", nil);
-	[i getArgument:&obj atIndex:5];
-	STAssertEqualObjects(obj, @"d", nil);
-	[i getArgument:&obj atIndex:6];
-	STAssertEqualObjects(obj, @"e", nil);
-	[i getArgument:&obj atIndex:7];
-	STAssertEqualObjects(obj, @"f", nil);
-	[i getArgument:&obj atIndex:8];
-	STAssertEqualObjects(obj, @"g", nil);
+	 [i getArgument:&obj atIndex:2];
+	 STAssertEqualObjects(obj, @"a", nil);
+	 [i getArgument:&obj atIndex:3];
+	 STAssertEqualObjects(obj, @"b", nil);
+	 [i getArgument:&obj atIndex:4];
+	 STAssertEqualObjects(obj, @"c", nil);
+	 [i getArgument:&obj atIndex:5];
+	 STAssertEqualObjects(obj, @"d", nil);
+	 [i getArgument:&obj atIndex:6];
+	 STAssertEqualObjects(obj, @"e", nil);
+	 [i getArgument:&obj atIndex:7];
+	 STAssertEqualObjects(obj, @"f", nil);
+	 [i getArgument:&obj atIndex:8];
+	 STAssertEqualObjects(obj, @"g", nil);
 	 */
 	/* conclusions
 	 * works
@@ -573,6 +575,11 @@ struct mydata
 		return [NSMethodSignature signatureWithObjCTypes:"v@:"];	// void return
 	if(sel_isEqual(aSelector, @selector(forward46:b:)))
 		return [NSMethodSignature signatureWithObjCTypes:"i@:ii"];	// int return and several int arguments
+	if(sel_isEqual(aSelector, @selector(forward47:b:c:d:e:f:)))
+		return [NSMethodSignature signatureWithObjCTypes:"f@:iififf"];	// float return and several int and float arguments mixed
+	if(sel_isEqual(aSelector, @selector(forward48:b:c:d:e:f:)))
+		return [NSMethodSignature signatureWithObjCTypes:"d@:iqfidf"];	// double return and several int and float, double arguments mixed
+	// same for structs...
 	return [super methodSignatureForSelector:aSelector];	// default
 }
 
@@ -586,46 +593,105 @@ struct mydata
 		invoked=40;
 		}
 	else if(sel_isEqual(sel, @selector(forward41:b:)))
-		{
-		int ret='r';
-		invoked=41;
-		[anInvocation setReturnValue:&ret];
+		{ // return an int
+			int ret='r';
+			invoked=41;
+			[anInvocation setReturnValue:&ret];
 		}
 	else if(sel_isEqual(sel, @selector(forward42:b:c:d:e:f:)))
-		{
-		int ret='r';
-		invoked=42;
-		[anInvocation setReturnValue:&ret];
+		{ // return an int
+			int p;
+			int ret='r';
+			[anInvocation getArgument:&p atIndex:2];
+			STAssertEquals(p, 1, nil);
+			[anInvocation getArgument:&p atIndex:3];
+			STAssertEquals(p, 2, nil);
+			[anInvocation getArgument:&p atIndex:4];
+			STAssertEquals(p, 3, nil);
+			[anInvocation getArgument:&p atIndex:5];
+			STAssertEquals(p, 4, nil);
+			[anInvocation getArgument:&p atIndex:6];
+			STAssertEquals(p, 5, nil);
+			[anInvocation getArgument:&p atIndex:7];
+			STAssertEquals(p, 6, nil);
+			invoked=42;
+			[anInvocation setReturnValue:&ret];
 		}
 	else if(sel_isEqual(sel, @selector(forward43:b:)))
-		{
-		id ret=@"the result";
-		invoked=43;
-		[anInvocation setReturnValue:&ret];
+		{ // return a string
+			id ret=@"the result";
+			invoked=43;
+			[anInvocation setReturnValue:&ret];
 		}
 	else if(sel_isEqual(sel, @selector(forward44)))
-		{
-		invoked=44;
-		[anInvocation setSelector:@selector(invoke01)];
-		STAssertEquals(invoked, 44, nil);
-		[anInvocation invoke];	// forward with a different selector
-		STAssertEquals(invoked, 1, nil);
+		{ // forward with a modified selector
+			invoked=44;
+			[anInvocation setSelector:@selector(invoke01)];
+			STAssertEquals(invoked, 44, nil);
+			[anInvocation invoke];
+			STAssertEquals(invoked, 1, nil);
 		}
 	else if(sel_isEqual(sel, @selector(forward45)))
-		{
-		invoked=45;
-		[anInvocation setSelector:@selector(forward40)];	// can we forward to another dynamically implemented method?
-		STAssertEquals(invoked, 45, nil);
-		[anInvocation invoke];	// forward with a different selector
-		STAssertEquals(invoked, 40, nil);
+		{ // can we forward to another dynamically implemented method?
+			invoked=45;
+			[anInvocation setSelector:@selector(forward40)];
+			STAssertEquals(invoked, 45, nil);
+			[anInvocation invoke];	// forward with a different selector
+			STAssertEquals(invoked, 40, nil);
 		}
 	else if(sel_isEqual(sel, @selector(forward46:b:)))
+		{ // we explicitly don't set a return value to see if that raises an exception or something!
+			int ret='r';
+			invoked=46;
+			/*
+			 * [anInvocation setReturnValue:&ret];
+			 */
+		}
+	else if(sel_isEqual(sel, @selector(forward47:b:c:d:e:f:)))
 		{
-		int ret='r';
-		invoked=46;
-		/* we explicitly don't set a return value!
-		 [anInvocation setReturnValue:&ret];
-		 */
+		int ival=0;
+		float val=0.0;
+		float r=3.1415;
+		invoked=47;
+		STAssertEquals(ival, 0, nil);
+		STAssertEquals(val, 0.0f, nil);
+		[anInvocation getArgument:&ival atIndex:2];
+		STAssertEquals(ival, 1, nil);
+		[anInvocation getArgument:&ival atIndex:3];
+		STAssertEquals(ival, 2, nil);
+		[anInvocation getArgument:&val atIndex:4];
+		STAssertEquals(val, 3.0f, nil);
+		[anInvocation getArgument:&ival atIndex:5];
+		STAssertEquals(ival, 4, nil);
+		[anInvocation getArgument:&val atIndex:6];
+		STAssertEquals(val, 5.0f, nil);
+		[anInvocation getArgument:&val atIndex:7];
+		STAssertEquals(val, 6.0f, nil);
+		[anInvocation setReturnValue:&r];
+		}
+	else if(sel_isEqual(sel, @selector(forward48:b:c:d:e:f:)))
+		{
+		int ival=0;
+		long long llval=0;
+		float val=0.0;
+		double dval=0;
+		double r=3.1415;
+		invoked=48;
+		STAssertEquals(ival, 0, nil);
+		STAssertEquals(val, 0.0f, nil);
+		[anInvocation getArgument:&ival atIndex:2];
+		STAssertEquals(ival, 1, nil);
+		[anInvocation getArgument:&llval atIndex:3];
+		STAssertEquals(llval, -2ll, nil);
+		[anInvocation getArgument:&val atIndex:4];
+		STAssertEquals(val, 3.0f, nil);
+		[anInvocation getArgument:&ival atIndex:5];
+		STAssertEquals(ival, 4, nil);
+		[anInvocation getArgument:&dval atIndex:6];
+		STAssertEquals(dval, 5.0, nil);
+		[anInvocation getArgument:&val atIndex:7];
+		STAssertEquals(val, 6.0f, nil);
+		[anInvocation setReturnValue:&r];
 		}
 	else
 		invoked=-99;
@@ -634,42 +700,85 @@ struct mydata
 
 - (void) test40
 {
-	id a=self;
-	id b=self;
-	id r=self;
-	int ir=0;
-	NSLog(@"--1--");
 	invoked=0;
 	STAssertEquals(invoked, 0, nil);
 	[self forward40];
 	STAssertEquals(invoked, 40, nil);	// should have been invoked
-	NSLog(@"--2--");
-	ir=[self forward41:1 b:2];
-	STAssertEquals(invoked, 41, nil);	// should have been invoked
-	STAssertEquals(ir, 'r', nil);
-	NSLog(@"--3--");
-	ir=[self forward42:1 b:2 c:3 d:4 e:5 f:6];
-	STAssertEquals(invoked, 42, nil);	// should have been invoked
-	STAssertEquals(ir, 'r', nil);
-	NSLog(@"--4--");
-	r=[self forward43:a b:b];
-	STAssertEquals(invoked, 43, nil);	// should have been invoked
-	STAssertEqualObjects(r, @"the result", nil);
-	NSLog(@"--5--");
-	[self forward44];
-	STAssertEquals(invoked, 1, nil);	// invoke01 should have been invoked in the second step
-	NSLog(@"--6--");
-	[self forward45];
-	STAssertEquals(invoked, 40, nil);	// forward40 should have been invoked in the second step
-	NSLog(@"--7--");
-	ir=[self forward46:1 b:2];
-	STAssertEquals(invoked, 46, nil);	// should have been invoked
-	STAssertEquals(ir, 0, nil);	// most likely because the stack frame is not initialized - it is not clear if this is reproducible
 	// we could also test parameter passing for indirect calls
 	/* conclusions
 	 * -methodSignatureForSelector must be overwritten or we can't call the dynamically defined method
 	 * it is possible to forward an invocation within forwardInvocation to a different selector/object
 	 */
+}
+
+- (void) test41
+{
+	int ir=0;
+	invoked=0;
+	ir=[self forward41:1 b:2];
+	STAssertEquals(invoked, 41, nil);	// should have been invoked
+	STAssertEquals(ir, 'r', nil);
+}
+
+- (void) test42
+{
+	int ir=0;
+	invoked=0;
+	ir=[self forward42:1 b:2 c:3 d:4 e:5 f:6];
+	STAssertEquals(invoked, 42, nil);	// should have been invoked
+	STAssertEquals(ir, 'r', nil);
+}
+
+- (void) test43
+{
+	id a=self;
+	id b=self;
+	id r=self;
+	invoked=0;
+	r=[self forward43:a b:b];
+	STAssertEquals(invoked, 43, nil);	// should have been invoked
+	STAssertEqualObjects(r, @"the result", nil);
+}
+
+- (void) test44
+{
+	invoked=0;
+	[self forward44];
+	STAssertEquals(invoked, 1, nil);	// invoke01 should have been invoked in the second step
+}
+
+- (void) test45
+{
+	invoked=0;
+	[self forward45];
+	STAssertEquals(invoked, 40, nil);	// forward40 should have been invoked in the second step
+}
+
+- (void) test46
+{
+	int ir=0;
+	invoked=0;
+	ir=[self forward46:1 b:2];
+	STAssertEquals(invoked, 46, nil);	// should have been invoked
+	STAssertEquals(ir, 0, nil);	// most likely because the stack frame is not initialized - it is not clear if this is reproducible
+}
+
+- (void) test47
+{
+	float fr=0.0;
+	invoked=0;
+	fr=[self forward47:1 b:2 c:3.0f d:4 e:5 f:6.0];
+	STAssertEquals(invoked, 47, nil);	// should have been invoked
+	STAssertEquals(fr, 3.1415f, nil);
+}
+
+- (void) test48
+{
+	double fr=0.0;
+	invoked=0;
+	fr=[self forward48:1 b:-2 c:3.0f d:4 e:5 f:6.0];
+	STAssertEquals(invoked, 48, nil);	// should have been invoked
+	STAssertEquals(fr, 3.1415, nil);
 }
 
 - (id) invoke60:(id) a b:(id) b

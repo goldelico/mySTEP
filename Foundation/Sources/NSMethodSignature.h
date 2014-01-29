@@ -29,7 +29,7 @@
 
 @interface NSMethodSignature : NSObject
 {
-    const char *methodTypes;		// ObjCTypes
+    char *methodTypes;		// ObjCTypes
     unsigned argFrameLength;
     unsigned numArgs;
     struct NSArgumentInfo *info;	// forward reference for struct definition
