@@ -73,6 +73,12 @@ struct NSArgumentInfo
  * link --->    arg3
  *              arg4
  *              ...
+ *
+ * note: if the function returns a struct, r0 is used to reference the storage area and r1 is _self, r2 is _cmd
+ *
+ * i.e. [obj struct_returning_method:arg]
+ * should have IMP like struct_returning_method(struct *ret, id self, SEL _cmd, arg);
+ *
  */
 
 /* here is the definition of the retval_t and arglist_t */
@@ -94,12 +100,12 @@ typedef union arglist {
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
 	void *fp;			// points to the 'more' field
-	long iregs[4];		// r0..r3
+	long iregs[0];		// r0..r3
 	float fpuregs[0];	// s0..s15
 	void *unused;
 	void *lr;			// link register
@@ -114,16 +120,16 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					NO
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
 	void *fp;			// points to the 'more' field
 	long iregs[4];		// r0..r3
-	float fpuregs[16];	// s0..s15
+	float fpuregs[16];	// s0..s15 / d0..d7
 	void *unused[3];
 	void *lr;			// link register
-	long copied[3];		// copied between iregs[1..n]
+	long copied[3];		// copied between iregs[1..n] - most likely that we can ask for the address of a parameter passed in a register
 	char more[0];		// dynamically extended to what we need
 };
 
@@ -133,7 +139,7 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
@@ -153,7 +159,7 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
@@ -173,7 +179,7 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
@@ -192,7 +198,7 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_BYREF					YES
+#define STRUCT_RETURN_BYREF					YES
 
 struct stackframe
 {
@@ -232,6 +238,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	// FIXME: NO, we should keep the flags+type but remove the offset
 	info->qual = 0;	// start with no qualifier
 	info->isReg = NO;
+	info->byRef = NO;
 	info->floatAsDouble = NO;
 	// Skip past any type qualifiers,
 	for(; YES; typePtr++)
@@ -251,12 +258,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		break;	// break loop if there was no continue
 		}
 	info->type = typePtr;
-	
-	if(STRUCT_BYREF)
-		info->byRef = (*typePtr == _C_STRUCT_B || *typePtr == _C_UNION_B || *typePtr == _C_ARY_B);
-	else
-		info->byRef = NO;
-	
 	switch (*typePtr++) { // Scan for size and alignment information.
 		case _C_ID:
 			info->size = sizeof(id);
@@ -477,6 +478,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();
 	// FIXME: this should probably be the stackframe length + what additional arguments and return value need
+	// or it is the real argument length (but not return value and additional register area) so that we have to add sizeof(fp->copied)
 	return argFrameLength;
 }
 
@@ -646,6 +648,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
 			while(*types)
 				{ // process all types
+					char *t;
 #if 0
 					NSLog(@"%d: %s", i, types);
 #endif
@@ -654,25 +657,33 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					types = mframe_next_arg(types, &info[i]);
 					if(!types)
 						break;	// some error
+					t=info[i].type;
 					if((info[i].qual & _F_INOUT) == 0)
 						{ // add default qualifiers
 							if(i == 0)
 								info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
-							else if(*info[i].type == _C_PTR || *info[i].type == _C_ATOM || *info[i].type == _C_CHARPTR)
+							else if(*t == _C_PTR || *t == _C_ATOM || *t == _C_CHARPTR)
 								info[i].qual |= _F_INOUT;	// pointers default to "bycopy in/out"
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
 					if(info[i].align < MIN_ALIGN)
 						info[i].align=MIN_ALIGN;
-					info[i].isReg=NO;	// default on stack
+					info[i].isReg=NO;	// default to pass-on-stack
 					if(i == 0)
 						{ // return value
-						i++;
-						continue;
+							if(STRUCT_RETURN_BYREF && (*t == _C_STRUCT_B || *t == _C_UNION_B || *t == _C_ARY_B))
+								{ // the first ireg is reserved for the struct return pointer to a memory area allocated by the caller
+									info[0].byRef=YES;
+									info[0].isReg=YES;
+									info[0].offset=nextireg;
+									nextireg+=sizeof(void *);
+								}
+							i++;
+							continue;
 						}
 					needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
-					if(info[i].type[0] == _C_FLT)
+					if(*t == _C_FLT)
 						{ // try to put into FPU_REGISTER
 							if(nextfpreg + needs <= offsetof(struct stackframe, unused))
 								{ // yes, fits into the FPU register area
@@ -690,7 +701,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 								}
 							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
 						}
-					else if(info[i].type[0] == _C_DBL)
+					else if(*t == _C_DBL)
 						{ // try to put into double precision FPU_REGISTER
 							if(nextdpreg + needs <= offsetof(struct stackframe, unused))
 								{ // yes, fits into the double precision FPU register area
@@ -705,7 +716,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
 						}
 					else
-						{ // if integer type
+						// FIXME what about small structs passed as arguments?
+						{ // if integer or other type
 							if(nextireg + needs <= offsetof(struct stackframe, fpuregs))
 								{ // yes, fits into the integer register area
 									info[i].isReg=YES;
@@ -717,23 +729,11 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 								}
 							nextireg=offsetof(struct stackframe, fpuregs);	// don't put more values into registers if any was on stack
 						}
-					// this is still inconsisten - is [self frameLength] the total length? Or just the stack?
+					// this is still inconsistent - is [self frameLength] the total length? Or just the stack?
 					// does lr+copied count or not?
 					// currently we have a framelength > what we really need - but it does not include the fp+registers
 					info[i].offset=argFrameLength;	// offset relative to frame pointer
 					argFrameLength+=needs;
-#if OLD
-					if(i != 0 && !info[i].isReg)
-						{ // value is on stack - counts for frameLength
-							info[i].offset = argFrameLength;	// replaces offset defined in signature
-							argFrameLength += needs;						
-						}
-					if(i == 1)
-						{ // take the self argument from r0
-							info[i].isReg=YES;
-							info[i].offset = 0;
-						}
-#endif
 					i++;
 				}
 			numArgs = i-1;	// return type does not count
@@ -741,8 +741,10 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
-	info[0].offset=argFrameLength-(offsetof(struct stackframe, more)-offsetof(struct stackframe, copied));	// special case to place return value behind all arguments
+	if(!info[0].isReg)
+		info[0].offset=argFrameLength;	// unless returned indirectly through r0, place return value behind all arguments
 	// FIXME: how to return float values?
+	// FIXME: does return value count to the argFrameLength?
 #if 1
 	[self _logMethodTypes];
 #endif
@@ -829,7 +831,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, info[index+1]);
 #if 1
-	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type);
+	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s mode=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type, 1);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
 		{ // retain/copy C-strings if needed
@@ -893,13 +895,13 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		}
 	if(buffer)
 		{
-		if(info[index+1].byRef)
+		if(info[index+1].byRef)	// struct by reference
 			memcpy(*(void**)addr, buffer, info[index+1].size);
 		else if(info[index+1].floatAsDouble)
 			*(double*)addr = (double)*(float*)buffer;
 		else
 			{
-#if 0
+#if 1
 			NSLog(@"_setArgument memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
 #endif
 			memcpy(addr, buffer, info[index+1].size);
@@ -907,7 +909,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		}
 	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
-			if(info[index+1].byRef)
+			if(info[index+1].byRef)	// struct by reference
 				memset(*(void**)addr, 0, info[index+1].size);
 			else if(info[index+1].floatAsDouble)
 				*(double*)addr = 0.0;
@@ -1180,7 +1182,7 @@ break; \
  *  s0=frame[5]
  * ...
  * s15=frame[...]
- *  (*imp)()
+ *  (*imp)() -- calls implementation
  *  frame[1]=r0
  *  frame[2]=r1
  *  frame[3]=r2
@@ -1204,8 +1206,9 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	//	imp=[NSMethodSignature instanceMethodForSelector:@selector(test)];
 #ifndef __APPLE__
 	void *retbuf;
+	unsigned structlen=info[0].size;
 	typedef struct {
-		char val[1 /*info[0].size */];
+		char val[100 /* structlen - this results in a gcc bus error :( */];	// variable size
 	} block;
 	retbuf=_getArgumentAddress(frame, info[0]);
 #if 0
@@ -1232,7 +1235,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 		case RETURN(_C_ATOM, char *);
 		case RETURN(_C_CHARPTR, char *);
 			// FIXME: needs special handling for variable size
-		case RETURN(_C_ARY_B, block);
+		case RETURN(_C_ARY_B, block);	// does this really exist? How can a method return an array and not a pointer?
 		case RETURN(_C_STRUCT_B, block);
 		case RETURN(_C_UNION_B, block);
 		default:
@@ -1256,6 +1259,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 #if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
 #endif
+	// FIXME: is this argFrameLength ok???
 	return wrapped_builtin_apply(imp, _argframe, argFrameLength, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 

@@ -300,7 +300,7 @@
 	STAssertEqualObjects(obj, @"g", nil);
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, @"r", nil);
-	[i getArgument:&obj atIndex:2];
+	[i getArgument:&obj atIndex:2];	// this checks if the arguments are still intact after doing the invoke+return
 	STAssertEqualObjects(obj, @"a", nil);
 	[i getArgument:&obj atIndex:3];
 	STAssertEqualObjects(obj, @"b", nil);
@@ -383,21 +383,23 @@
 	 */
 }
 
-struct mydata
+struct mystruct
 {
 	int a;
-	long b;
+	long long b;
 };
 
-- (struct mydata) invoke15:(char) a b:(struct mydata) b c:(struct mydata *) c
+- (struct mystruct) invoke15:(char) a b:(struct mystruct) b c:(struct mystruct *) c
 { // pass structs by copy and by reference
+	NSLog(@"invoke15 called");
 	invoked=15;
 	STAssertEquals(a, (char) 'a', nil);
 	STAssertEquals(b.a, 1234, nil);
-	STAssertEquals(b.b, 123456789l, nil);
+	STAssertEquals(b.b, 123456789ll, nil);
 	STAssertEquals(c->a, 4321, nil);
-	STAssertEquals(c->b, 987654321l, nil);
-	return (struct mydata) { 0xaadd, 0xbbccddee };
+	STAssertEquals(c->b, 987654321ll, nil);
+	NSLog(@"invoke15 returning");
+	return (struct mystruct) { 0xaadd, 0xbbccddee };
 }
 
 - (void) test15
@@ -405,23 +407,27 @@ struct mydata
 	id target=self;
 	SEL sel=@selector(invoke15:b:c:);
 	char a='a';
-	struct mydata b={ 1234, 123456789 };
-	struct mydata c={ 4321, 987654321 }, *cp=&c;
-	struct mydata r={ 1, 2 };
+	struct mystruct b={ 1234, 123456789 };
+	struct mystruct c={ 4321, 987654321 }, *cp=&c;
+	struct mystruct r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:target];
 	[i setSelector:sel];
+	NSLog(@"invoking invoke15 a");
 	[i setArgument:&a atIndex:2];
-	[i setArgument:&b atIndex:3];
-	[i setArgument:&cp atIndex:4];	// passs pointer
+	NSLog(@"invoking invoke15 b");
+	[i setArgument:&b atIndex:3];	// pass as copy on stack
+	NSLog(@"invoking invoke15 c");
+	[i setArgument:&cp atIndex:4];	// pass as pointer to struct on stack
 	invoked=0;
+	NSLog(@"invoking invoke15 d");
 	[i invoke];
 	STAssertEquals(invoked, 15, nil);
 	[i getReturnValue:&r];
-	STAssertEquals(r, ((struct mydata) { 0xaadd, 0xbbccddee }), nil);
+	STAssertEquals(r, ((struct mystruct) { 0xaadd, 0xbbccddee }), nil);
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 STAssertEqualObjects(obj, @"a", nil);
@@ -443,14 +449,81 @@ struct mydata
 	 */
 }
 
-- (struct mydata *) invoke16:(char) a b:(struct mydata) b c:(struct mydata *) c
+/* on some architectures a struct can be passed through a register if small enough
+ * and the same could hold for the return value
+ * so we run this test as well as the implementation may run a different algorithm
+ */
+
+struct mysmallstruct
+{
+	char a;
+	char b;
+};
+
+- (struct mysmallstruct) invoke15s:(char) a b:(struct mysmallstruct) b c:(struct mysmallstruct *) c
+{ // pass small structs by copy and by reference
+	NSLog(@"invoke15s called");
+	invoked=-15;
+	STAssertEquals(a, (char) 'a', nil);
+	STAssertEquals(b.a, (char) 'b', nil);
+	STAssertEquals(b.b, (char) 'B', nil);
+	STAssertEquals(c->a, (char) 'c', nil);
+	STAssertEquals(c->b, (char) 'C', nil);
+	NSLog(@"invoke15s returning");
+	return (struct mysmallstruct) { 'r', 'R' };
+}
+
+- (void) test15s
+{ // reading/writing small C struct arguments
+	id target=self;
+	SEL sel=@selector(invoke15s:b:c:);
+	char a='a';
+	struct mysmallstruct b={ 'b', 'B' };
+	struct mysmallstruct c={ 'c', 'C' }, *cp=&c;
+	struct mysmallstruct r={ 1, 2 };
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	STAssertNotNil(ms, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:target];
+	[i setSelector:sel];
+	[i setArgument:&a atIndex:2];
+	[i setArgument:&b atIndex:3];	// pass as copy on stack
+	[i setArgument:&cp atIndex:4];	// pass as pointer to struct on stack
+	invoked=0;
+	[i invoke];
+	STAssertEquals(invoked, -15, nil);
+	[i getReturnValue:&r];
+	STAssertEquals(r, ((struct mysmallstruct) { 'r', 'R' }), nil);
+	/*
+	 [i getArgument:&obj atIndex:2];
+	 STAssertEqualObjects(obj, @"a", nil);
+	 [i getArgument:&obj atIndex:3];
+	 STAssertEqualObjects(obj, @"b", nil);
+	 [i getArgument:&obj atIndex:4];
+	 STAssertEqualObjects(obj, @"c", nil);
+	 [i getArgument:&obj atIndex:5];
+	 STAssertEqualObjects(obj, @"d", nil);
+	 [i getArgument:&obj atIndex:6];
+	 STAssertEqualObjects(obj, @"e", nil);
+	 [i getArgument:&obj atIndex:7];
+	 STAssertEqualObjects(obj, @"f", nil);
+	 [i getArgument:&obj atIndex:8];
+	 STAssertEqualObjects(obj, @"g", nil);
+	 */
+	/* conclusions
+	 * works
+	 */
+}
+
+- (struct mystruct *) invoke16:(char) a b:(struct mystruct) b c:(struct mystruct *) c
 { // return struct by reference
 	invoked=16;
 	STAssertEquals(a, (char) 'a', nil);
 	STAssertEquals(b.a, 1234, nil);
-	STAssertEquals(b.b, 123456789l, nil);
+	STAssertEquals(b.b, 123456789ll, nil);
 	STAssertEquals(c->a, 4321, nil);
-	STAssertEquals(c->b, 987654321l, nil);
+	STAssertEquals(c->b, 987654321ll, nil);
 	return c;
 }
 
@@ -459,9 +532,9 @@ struct mydata
 	id target=self;
 	SEL sel=@selector(invoke16:b:c:);
 	char a='a';
-	struct mydata b={ 1234, 123456789 };
-	struct mydata c={ 4321, 987654321 }, *cp=&c;
-	struct mydata *r=NULL;
+	struct mystruct b={ 1234, 123456789 };
+	struct mystruct c={ 4321, 987654321 }, *cp=&c;
+	struct mystruct *r=NULL;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);

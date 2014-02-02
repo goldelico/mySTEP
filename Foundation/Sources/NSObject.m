@@ -476,7 +476,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 						}
 			}
 #if 1
-	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass(isa), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
+	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	if(types)
 		NSLog(@" -> %s", types);
 	else
@@ -493,6 +493,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 }
 
 // inofficial default implementation
+// it simply wraps the standard NSEnumerator
 // NSFastEnumerationState must have been zeroed before first call!
 // you should not empty the ARP within a loop!
 
@@ -503,7 +504,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	id *s0=stackbuf;
 	if(state->state != 0x55aa5a5a || !state->itemsPtr)	// some safety if zeroing was forgotten
 		{ // assume we have not been initialized
-		state->itemsPtr=(id *) [(NSArray *) self objectEnumerator];	// misuse...
+		state->itemsPtr=(id *) [(NSArray *) self objectEnumerator];	// misuse the items pointer for a primitive NSEnumerator...
 		state->state=0x55aa5a5a;
 		}
 	while(len-- > 0)
