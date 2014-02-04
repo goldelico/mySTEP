@@ -1078,7 +1078,7 @@ static NSFileManager *__fm = nil;
 - (unsigned long long) fileSize
 {
 	id o=[self objectForKey:NSFileSize];
-	return o?[o unsignedLongLongValue]:0;
+	return o?[o unsignedLongLongValue]:0;	// may not return 0ul id o == nil!
 }
 
 - (NSString*) fileType;		{ return [self objectForKey:NSFileType]; }

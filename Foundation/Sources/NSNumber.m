@@ -932,8 +932,8 @@ int	o = [self _typeOrder];
 
 - (NSComparisonResult) _promotedCompare:(NSNumber*)other
 {
-long long v0 = [self longLongValue];
-long long v1 = [other longLongValue];
+	long long v0 = [self longLongValue];
+	long long v1 = [other longLongValue];
 
     if (v0 == v1)
 		return NSOrderedSame;
@@ -1008,8 +1008,8 @@ int	o = [self _typeOrder];
 
 - (NSComparisonResult) _promotedCompare:(NSNumber*)other
 {
-long long v0 = [self longLongValue];
-long long v1 = [other longLongValue];
+	long long v0 = [self longLongValue];
+	long long v1 = [other longLongValue];	// other==nil may not return nil!
 
     if (v0 == v1)
 		return NSOrderedSame;

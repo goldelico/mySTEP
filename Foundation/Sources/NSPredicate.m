@@ -357,7 +357,7 @@
 {
 	_NSAndCompoundPredicate *c=[isa allocWithZone:z];
 	if(c)
-		c->_subs=[_subs copyWithZone:z];	// FIXME: must we do a deep copy?
+		c->_subs=[_subs mutableCopyWithZone:z];	// FIXME: must we do a deep copy?
 	return c;
 }
 
@@ -433,7 +433,7 @@
 {
 	_NSOrCompoundPredicate *c=[isa allocWithZone:z];
 	if(c)
-		c->_subs=[_subs copyWithZone:z];	// FIXME: must we do a deep copy?
+		c->_subs=[_subs mutableCopyWithZone:z];	// FIXME: must we do a deep copy?
 	return c;
 }
 
@@ -584,7 +584,7 @@
 		NSExpression *from, *to;
 		// FIXME: we have three operands!
 		// the easiest way is to define a _NSBetweenComparisonPredicate : NSComparisonPredicate
-		// or put the between range into an Array
+		// or put the between range into an Array (which we do here)
 		type=NSBetweenPredicateOperatorType;
 		from=[NSExpression _parseBinaryExpressionWithScanner:sc];
 		if(![sc _scanPredicateKeyword:@"AND"])
@@ -676,6 +676,7 @@
 
 - (void) dealloc;
 {
+	NSLog(@"self=%@", self);
 	[_left release];
 	[_right release];
 	[super dealloc];
@@ -965,7 +966,7 @@
 		if([sc scanString:@"**" intoString:NULL])
 			{
 			right=[self _parseFunctionalExpressionWithScanner:sc];
-			left=[self expressionForFunction:@"pow" arguments:[NSArray arrayWithObjects:left, right, nil]];
+			left=[self expressionForFunction:@"_pow" arguments:[NSArray arrayWithObjects:left, right, nil]];
 			}
 		else
 			return left;
@@ -978,9 +979,9 @@
 	while(YES)
 		{
 		if([sc scanString:@"*" intoString:NULL])
-			left=[self expressionForFunction:@"mult" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
+			left=[self expressionForFunction:@"_mult" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
 		else if([sc scanString:@"/" intoString:NULL])
-			left=[self expressionForFunction:@"div" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
+			left=[self expressionForFunction:@"_div" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
 		else
 			return left;
 		}
@@ -992,9 +993,9 @@
 	while(YES)
 		{
 		if([sc scanString:@"+" intoString:NULL])
-			left=[self expressionForFunction:@"add" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
+			left=[self expressionForFunction:@"_add" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
 		else if([sc scanString:@"-" intoString:NULL])
-			left=[self expressionForFunction:@"sub" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
+			left=[self expressionForFunction:@"_sub" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
 		else
 			return left;
 		}
@@ -1008,7 +1009,7 @@
 		if([sc scanString:@":=" intoString:NULL])	// assignment
 			{
 			// check left to be a variable?
-			left=[self expressionForFunction:@"assign" arguments:[NSArray arrayWithObjects:left, [self _parseAdditionExpressionWithScanner:sc], nil]];
+			left=[self expressionForFunction:@"_assign" arguments:[NSArray arrayWithObjects:left, [self _parseAdditionExpressionWithScanner:sc], nil]];
 			}
 		else
 			return left;
@@ -1040,13 +1041,14 @@
 		[NSException raise:NSInvalidArgumentException format:@"Unknown selector: %@", selector];
 	e->_argc=[args count];
 	e->_args=[args retain];
-	e->_eargs=[args mutableCopy];	// make space for evaluated arguments - this is not a deep copy!
+	e->_eargs=[args mutableCopy];	// preallocate a working array with the same number of entries as the arguments (and initially the arguments themselves)
 	return e;
 }
 
 + (NSExpression *) expressionForFunction:(NSString *) name arguments:(NSArray *) args;
 { // translate built-in function
-	return [self expressionForFunction:[[_NSEvaluatedObjectExpression new] autorelease] selectorName:[NSString stringWithFormat:@"_eval_%@:context:", name] arguments:args];
+	NSString *sel=[NSString stringWithFormat:@"_eval_%@:context:", name];
+	return [self expressionForFunction:[[_NSEvaluatedObjectExpression new] autorelease] selectorName:sel arguments:args];
 }
 
 + (NSExpression *) expressionForIntersectSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;
@@ -1252,7 +1254,7 @@
 
 - (NSExpression *) _expressionWithSubstitutionVariables:(NSDictionary *)variables;
 { // substitute in expression arguments
-	_NSFunctionExpression *copy=[self copy];
+	_NSFunctionExpression *copy=[self copy];	// should we have a mutableCopy???
 	unsigned int i, count=[copy->_args count];
 	for(i=0; i<count; i++)
 		[(NSMutableArray *) (copy->_args) replaceObjectAtIndex:i withObject:[[_args objectAtIndex:i] _expressionWithSubstitutionVariables:variables]];
@@ -1264,10 +1266,13 @@
 
 - (NSString *) description;
 {
+	NSString *sel=NSStringFromSelector(_selector);
 	// FIXME:
 	// here we should recognize binary and unary operators and convert back to standard format
-	// and add parentheses only if required
-	// below, we must expand description of arguments into a comma-separated list
+	// and add parentheses only if required (private method _bindingLevel - maybe we should have some NSDicts for this infos
+	if([sel isEqualToString:@"_eval__add:context:"]) return @"l+r";
+	if([sel isEqualToString:@"_eval__sub:context:"]) return @"l-r";
+	// below, we must expand the total description of the arguments into a comma-separated list
 	return [NSString stringWithFormat:@"%@(%@)", [self function], _args];
 }
 
@@ -1280,6 +1285,12 @@
 		[_eargs replaceObjectAtIndex:i withObject:[[_args objectAtIndex:i] expressionValueWithObject:object context:context]];
 	return [self performSelector:_selector withObject:object withObject:context];
 }
+
+/*
+ * all evaluators are of this signature
+ * question: what do we need the object for???
+ * it is because the selector assumes this for expressionForFunction:selectorName:arguments:
+ */
 
 - (id) _eval__chs:(id) object context:(NSMutableDictionary *) context;
 {
@@ -1305,40 +1316,100 @@
 
 - (id) _eval_count:(id) object context:(NSMutableDictionary *) context;
 {
-	if(_argc != 1)
-		;	// error
 	return [NSNumber numberWithUnsignedInt:[[_eargs objectAtIndex:0] count]];
 }
 
-- (id) _eval_avg:(NSArray *) expressions context:(NSMutableDictionary *) context;
+- (id) _eval_avg:(id) object context:(NSMutableDictionary *) context;
 {
-	NIMP;
-	return [NSNumber numberWithDouble:0.0];
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	if([_eargs count] == 0)
+		[NSException raise:@"Arithmetic" format:@"Division by zero in avg(...)"];
+	while((val=[e nextObject]))
+		r += [val doubleValue];
+	r /= [_eargs count];
+	return [NSNumber numberWithDouble:r];
 }
 
-- (id) _eval_sum:(NSArray *) expressions context:(NSMutableDictionary *) context;
+- (id) _eval_sum:(id) object context:(NSMutableDictionary *) context;
 {
-	NIMP;
-	return [NSNumber numberWithDouble:0.0];
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	while((val=[e nextObject]))
+		r += [val doubleValue];
+	return [NSNumber numberWithDouble:r];
 }
 
-- (id) _eval_min:(NSArray *) expressions context:(NSMutableDictionary *) context;
+- (id) _eval_min:(id) object context:(NSMutableDictionary *) context;
 {
-	NIMP;
-	return [NSNumber numberWithDouble:0.0];
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	BOOL first=YES;
+	while((val=[e nextObject]))
+		{
+		double v=[val doubleValue];
+		if(first || v < r)
+			r = v;
+		first=NO;
+		}
+	return [NSNumber numberWithDouble:r];
 }
 
-- (id) _eval_max:(NSArray *) expressions context:(NSMutableDictionary *) context;
+- (id) _eval_max:(id) object context:(NSMutableDictionary *) context;
 {
-	NIMP;
-	return [NSNumber numberWithDouble:0.0];
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	BOOL first=YES;
+	while((val=[e nextObject]))
+		{
+		double v=[val doubleValue];
+		if(first || v > r)
+			r = v;
+		first=NO;
+		}
+	return [NSNumber numberWithDouble:r];
 }
 
 /* add other arithmetic functions here
 	average, median, mode, stddev, sqrt, log, ln, exp, floor, ceiling, abs, trunc, random, random, now
 */
 
-- (NSString *) function; { return [NSStringFromSelector(_selector) substringFromIndex:6]; }
+- (id) _eval__add:(id) object context:(NSMutableDictionary *) context;
+{
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	while((val=[e nextObject]))
+		r += [val doubleValue];
+	return [NSNumber numberWithDouble:r];
+}
+
+/* add operators like
+	_add, _sub, _mult, _div, _pow, _assign
+ */
+
+- (id) _eval__sub:(id) object context:(NSMutableDictionary *) context;
+{
+	NSEnumerator *e=[_eargs objectEnumerator];
+	NSNumber *val;
+	double r=0.0;
+	BOOL first=YES;
+	while((val=[e nextObject]))
+		{
+		if(first)
+			r = [val doubleValue];
+		else
+			r -= [val doubleValue];
+		first=NO;
+		}
+	return [NSNumber numberWithDouble:r];
+}
+
+- (NSString *) function; { return [NSStringFromSelector(_selector) substringFromIndex:6]; }	// strip off "_eval_"
 - (NSString *) keyPath; { return nil; }
 - (NSExpression *) operand; { return nil; }
 - (NSString *) variable; { return nil; }
@@ -1350,7 +1421,7 @@
 		{
 		c->_args=[_args copyWithZone:z];
 		c->_argc=_argc;
-		c->_eargs=[c->_args mutableCopy];	// space for evaluated arguments
+		c->_eargs=[c->_args mutableCopy];	// pre-occupy space for evaluated arguments
 		c->_selector=_selector;
 		}
 	return c;
