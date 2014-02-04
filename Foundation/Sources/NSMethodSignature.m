@@ -995,7 +995,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			// how can/should we set the link register?
 			f->fp=(void *) f->more;	// set frame link pointer
 			if(INDIRECT_RETURN(info[0]))
-				f->iregs[0]=(long) _getArgumentAddress(frame, info[0]);	// initialize r0 with address of return value buffer
+				f->iregs[0]=(long) (f->more + argFrameLength);	// initialize r0 with address of return value buffer (behind all arguments on stack)
 		}
 	return frame;
 }
@@ -1215,8 +1215,7 @@ break; \
  */
 
 static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct NSArgumentInfo *info)
-{ // wrap call because it fails if __builtin_apply is called directly from within a Objective-C method
-	//	imp=[NSMethodSignature instanceMethodForSelector:@selector(test)];
+{ // wrap call by C function because it fails if __builtin_apply is called directly from within a Objective-C method
 #ifndef __APPLE__
 	void *retbuf;
 	unsigned structlen=info[0].size;
@@ -1244,9 +1243,15 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 		case RETURN(_C_PTR, char *);
 		case RETURN(_C_ATOM, char *);
 		case RETURN(_C_CHARPTR, char *);
+			// FIXME: if(INDIRECT_RETURN(info[0]))
+		case _C_ARY_B:
+		case _C_STRUCT_B:
+		case RETURN_VOID(_C_UNION_B);	// will be returned indirectly through return buffer
+#if 0
 		case RETURN(_C_ARY_B, big_block);	// does this really exist? How can a method return an array and not a pointer?
 		case RETURN(_C_STRUCT_B, big_block);
 		case RETURN(_C_UNION_B, big_block);
+#endif
 		default:
 			NSLog(@"unprocessed type %s for _call", info[0].type);
 			return NO;	// unknown type
