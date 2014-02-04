@@ -383,6 +383,59 @@
 	 */
 }
 
+- (long long) invoke14ll:(char) a b:(long long) b
+{ // pass long longs
+	NSLog(@"invoke14ll called");
+	invoked=-14;
+	NSLog(@"invoked = %d", invoked);
+	STAssertEquals(a, (char) 'a', nil);
+	STAssertEquals(b, 9876543210ll, nil);
+	NSLog(@"test14ll done");
+	return 1234567890123ll;
+}
+
+- (void) test14ll
+{ // pass long longs
+	id target=self;
+	SEL sel=@selector(invoke14ll:b:);
+	char a='a';
+	long long b=9876543210ll;
+	long long r;
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	NSLog(@"test14ll started");
+	STAssertNotNil(ms, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:target];
+	[i setSelector:sel];
+	[i setArgument:&a atIndex:2];
+	[i setArgument:&b atIndex:3];
+	invoked=0;
+	[i invoke];
+	STAssertEquals(invoked, -14, nil);
+	[i getReturnValue:&r];
+	STAssertEquals(r, 1234567890123ll, nil);
+	/*
+	 [i getArgument:&obj atIndex:2];
+	 STAssertEqualObjects(obj, @"a", nil);
+	 [i getArgument:&obj atIndex:3];
+	 STAssertEqualObjects(obj, @"b", nil);
+	 [i getArgument:&obj atIndex:4];
+	 STAssertEqualObjects(obj, @"c", nil);
+	 [i getArgument:&obj atIndex:5];
+	 STAssertEqualObjects(obj, @"d", nil);
+	 [i getArgument:&obj atIndex:6];
+	 STAssertEqualObjects(obj, @"e", nil);
+	 [i getArgument:&obj atIndex:7];
+	 STAssertEqualObjects(obj, @"f", nil);
+	 [i getArgument:&obj atIndex:8];
+	 STAssertEqualObjects(obj, @"g", nil);
+	 */
+	/* conclusions
+	 * works
+	 */
+}
+
 struct mystruct
 {
 	int a;
@@ -449,7 +502,8 @@ struct mystruct
 	 */
 }
 
-/* on some architectures a struct can be passed through a register if small enough
+/* 
+ * on some architectures a struct can be passed through a register if small enough
  * and the same could hold for the return value
  * so we run this test as well as the implementation may run a different algorithm
  */
@@ -464,6 +518,7 @@ struct mysmallstruct
 { // pass small structs by copy and by reference
 	NSLog(@"invoke15s called");
 	invoked=-15;
+	NSLog(@"invoked = %d", invoked);
 	STAssertEquals(a, (char) 'a', nil);
 	STAssertEquals(b.a, (char) 'b', nil);
 	STAssertEquals(b.b, (char) 'B', nil);
@@ -676,6 +731,7 @@ struct mysmallstruct
 		{ // return an int
 			int p;
 			int ret='r';
+			id s=self;
 			[anInvocation getArgument:&p atIndex:2];
 			STAssertEquals(p, 1, nil);
 			[anInvocation getArgument:&p atIndex:3];
@@ -690,6 +746,19 @@ struct mysmallstruct
 			STAssertEquals(p, 6, nil);
 			invoked=42;
 			[anInvocation setReturnValue:&ret];
+			STAssertEqualObjects([anInvocation target], s, nil);	// was not overwritten by setReturnValue - even if this is stored in the same register
+			[anInvocation getArgument:&p atIndex:2];
+			STAssertEquals(p, 1, nil);
+			[anInvocation getArgument:&p atIndex:3];
+			STAssertEquals(p, 2, nil);
+			[anInvocation getArgument:&p atIndex:4];
+			STAssertEquals(p, 3, nil);
+			[anInvocation getArgument:&p atIndex:5];
+			STAssertEquals(p, 4, nil);
+			[anInvocation getArgument:&p atIndex:6];
+			STAssertEquals(p, 5, nil);
+			[anInvocation getArgument:&p atIndex:7];
+			STAssertEquals(p, 6, nil);
 		}
 	else if(sel_isEqual(sel, @selector(forward43:b:)))
 		{ // return a string

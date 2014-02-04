@@ -100,14 +100,14 @@ typedef union arglist {
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			NO	// assume never
 
-struct stackframe
+struct stackframe /* Apple */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[0];		// r0..r3
 	float fpuregs[0];	// s0..s15
-	void *unused;
+	void *unused[0];
 	void *lr;			// link register
 	long copied[0];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -120,9 +120,9 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					NO
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
-struct stackframe
+struct stackframe /* armhf eabi */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[4];		// r0..r3
@@ -139,14 +139,14 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
-struct stackframe
+struct stackframe /* armel eabi */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[4];		// r0..r3
 	float fpuregs[0];	// s0..s15
-	void *unused;
+	void *unused[3];
 	void *lr;			// link register
 	long copied[3];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -159,14 +159,14 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
-struct stackframe
+struct stackframe /* armel oabi */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[4];		// r0..r3
 	float fpuregs[0];	// s0..s15
-	void *unused;
+	void *unused[3];
 	void *lr;			// link register
 	long copied[3];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -179,14 +179,14 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
-struct stackframe
+struct stackframe /* mipsel */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[4];		// r0..r3
 	float fpuregs[0];	// s0..s15
-	void *unused;
+	void *unused[3];
 	void *lr;			// link register
 	long copied[3];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -198,14 +198,14 @@ struct stackframe
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define STRUCT_RETURN_BYREF					YES
+#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
-struct stackframe
+struct stackframe /* i386 */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[7];		// r0..r3
 	float fpuregs[0];	// s0..s15
-	void *unused;
+	void *unused[3];
 	void *lr;			// link register
 	long copied[3];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -648,7 +648,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
 			while(*types)
 				{ // process all types
-					char *t;
+					const char *t;
 #if 0
 					NSLog(@"%d: %s", i, types);
 #endif
@@ -672,7 +672,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					info[i].isReg=NO;	// default to pass-on-stack
 					if(i == 0)
 						{ // return value
-							if(STRUCT_RETURN_BYREF && (*t == _C_STRUCT_B || *t == _C_UNION_B || *t == _C_ARY_B))
+							if(INDIRECT_RETURN(info[0]))
 								{ // the first ireg is reserved for the struct return pointer to a memory area allocated by the caller
 									info[0].byRef=YES;
 									info[0].isReg=YES;
@@ -994,6 +994,8 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 #endif
 			// how can/should we set the link register?
 			f->fp=(void *) f->more;	// set frame link pointer
+			if(INDIRECT_RETURN(info[0]))
+				f->iregs[0]=(long) _getArgumentAddress(frame, info[0]);	// initialize r0 with address of return value buffer
 		}
 	return frame;
 }
@@ -1003,9 +1005,9 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 // the following functions convert their argument into a proper retval_t that can be passed back
 // they do it by using __builtin_apply() on well known functions which transparently pass back their argument
 
-typedef struct { id many[8]; } __big;		// For returning structures ...etc
+typedef struct { id many[8]; } big_block;		// For returning big structures ...etc. real size does not matter
 
-static __big return_block (void *data)		{ return *(__big*)data; }
+static big_block return_block (void *data)		{ return *(big_block*)data; }
 
 static retval_t apply_block(void *data)
 {
@@ -1115,6 +1117,17 @@ break; \
 	return _r;
 }
 
+/*
+ * the following macros define the case selectors
+ * for handling different return data types of wrapped_builtin_apply
+ * so that the return value is stored in the retbuf
+ * for that we define an (inlined) helper function that handles
+ * the call to __builtin_return() for conversion into the type we need
+ *
+ * FIXME: handle struct return of variable size!
+ * FIXME: handle float/double return correctly (unclear if the bug is here)
+ */
+
 #if 1	// with logging
 
 #define RETURN(CODE, TYPE) CODE: { \
@@ -1122,7 +1135,7 @@ inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
 { \
 NSLog(@"retframe%s called (imp=%p frame=%p stack=%d)", #CODE, imp, frame, stack); \
 retval_t retval=__builtin_apply(imp, frame, stack); \
-NSLog(@"__builtin_apply called"); \
+NSLog(@"retframe%s: returned from __builtin_apply", #CODE); \
 __builtin_return(retval); \
 }; \
 NSLog(@"call retframe%s", #CODE); \
@@ -1136,7 +1149,7 @@ inline void retframe##CODE(void *imp, arglist_t frame, int stack) \
 { \
 NSLog(@"retframe%s called (imp=%p frame=%p stack=%d)", #CODE, imp, frame, stack); \
 retval_t retval=__builtin_apply(imp, frame, stack); \
-NSLog(@"__builtin_apply called"); \
+NSLog(@"retframe%s: returned from __builtin_apply", #CODE); \
 __builtin_return(retval); \
 }; \
 NSLog(@"call retframe%s", #CODE); \
@@ -1207,9 +1220,6 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 #ifndef __APPLE__
 	void *retbuf;
 	unsigned structlen=info[0].size;
-	typedef struct {
-		char val[100 /* structlen - this results in a gcc bus error :( */];	// variable size
-	} block;
 	retbuf=_getArgumentAddress(frame, info[0]);
 #if 0
 	NSLog(@"wrapped_builtin_apply: type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
@@ -1234,10 +1244,9 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 		case RETURN(_C_PTR, char *);
 		case RETURN(_C_ATOM, char *);
 		case RETURN(_C_CHARPTR, char *);
-			// FIXME: needs special handling for variable size
-		case RETURN(_C_ARY_B, block);	// does this really exist? How can a method return an array and not a pointer?
-		case RETURN(_C_STRUCT_B, block);
-		case RETURN(_C_UNION_B, block);
+		case RETURN(_C_ARY_B, big_block);	// does this really exist? How can a method return an array and not a pointer?
+		case RETURN(_C_STRUCT_B, big_block);
+		case RETURN(_C_UNION_B, big_block);
 		default:
 			NSLog(@"unprocessed type %s for _call", info[0].type);
 			return NO;	// unknown type
@@ -1246,21 +1255,21 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	return YES;	// successful
 }
 
+#define EXTRA	0	// it does not appear as if we need extra stack space
+
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
 { // preload registers from stack frame and call implementation
 	struct stackframe *f=(struct stackframe *) _argframe;
-	int size=sizeof(f->copied);;
 	NEED_INFO();	// make sure that argFrameLength is defined correctly
 #if 1
-	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength);
+	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength+EXTRA);
 #endif
-	if(size > 0)
-		memcpy(f->copied, &f->iregs[1], size);	// copy from registers to stack
+	if(sizeof(f->copied) > 0)
+		memcpy(f->copied, &f->iregs[1], sizeof(f->copied));	// copy from registers to stack
 #if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
 #endif
-	// FIXME: is this argFrameLength ok???
-	return wrapped_builtin_apply(imp, _argframe, argFrameLength, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
+	return wrapped_builtin_apply(imp, _argframe, argFrameLength+EXTRA, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 
 @end  /* NSMethodSignature (mySTEP) */
