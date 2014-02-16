@@ -138,4 +138,6 @@
 
 // same for class&protocol
 
+// NSMakeRange - test for corner cases (0 start + 0 length, >0 start + 0 length, negative start + negative length, maxint start + >0 length etc.)
+
 @end
