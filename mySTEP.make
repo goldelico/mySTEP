@@ -104,7 +104,7 @@ TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
-CC := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
+CC := LANG=C $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
