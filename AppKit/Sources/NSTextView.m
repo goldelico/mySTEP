@@ -1070,7 +1070,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 					}
 				else
 					{
-					[NSEvent stopPeriodicEvents];
+					if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 					lastMouseEvent=nil;
 					}
 			}
@@ -1083,8 +1083,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
 		}
-	if(lastMouseEvent)
-		[NSEvent stopPeriodicEvents];
+	if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
 	NSLog(@"NSTextView mouseDown up");

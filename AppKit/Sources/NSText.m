@@ -822,7 +822,7 @@ object:self]
 					}
 				else
 					{
-					[NSEvent stopPeriodicEvents];
+					if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 					lastMouseEvent=nil;
 					}
 			}
@@ -832,8 +832,7 @@ object:self]
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
   		}
-	if(lastMouseEvent)
-		[NSEvent stopPeriodicEvents];
+	if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng];	// finally update selection
 #if 1
 	NSLog(@"NSText mouseDown up");

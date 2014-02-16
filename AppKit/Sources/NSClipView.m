@@ -130,8 +130,10 @@
 - (BOOL) autoscroll:(NSEvent*)event			
 {
 	NSPoint aPoint = [event locationInWindow];
-	NSRect frame=[self convertRectToBase:[self frame]];
-	NSRect bounds=[self bounds];
+	NSRect frame=[[self superview] convertRect:[self frame] toView:nil];
+	NSRect bounds;
+	float dx, dy;
+//	NSLog(@"autoscroll");
 	if(!_documentView)
 		return NO;
 	// check for valid event type
@@ -142,16 +144,28 @@
 			if(NSPointInRect(aPoint, frame))
 				return NO;	// no need to scroll
 		}
+//	NSLog(@"point=%@ frame=%@", NSStringFromPoint(aPoint), NSStringFromRect(frame));
+	dx=0.0, dy=0.0;
 	if(aPoint.x < NSMinX(frame))
-		bounds.origin.x -= NSMinX(frame) - aPoint.x;	// how far to the left
+		dx = aPoint.x - NSMinX(frame);	// how far beyond the left
 	else if(aPoint.x > NSMaxX(frame))
-		bounds.origin.x += aPoint.x - NSMaxX(frame);	// how far to the right
+		dx = aPoint.x - NSMaxX(frame);	// how far beyond the right
 	if(aPoint.y < NSMinY(frame))
-		bounds.origin.y += NSMinY(frame) - aPoint.y;	// how far to the left
+		dy = aPoint.y - NSMinY(frame);	// how far below the bottom
 	else if(aPoint.y > NSMaxY(frame))
-		bounds.origin.y -= aPoint.y - NSMaxY(frame);	// how far to the right
+		dy = aPoint.y - NSMaxY(frame);	// how far above the top
+//	NSLog(@"dx=%g dy=%g", dx, dy);
+	bounds=[self bounds];
+	bounds.origin.x += dx;
+	bounds.origin.y -= dy;
+//	NSLog(@"autoscroll %@ -> %@", NSStringFromRect([self bounds]), NSStringFromPoint(bounds.origin));
 	[self scrollToPoint:bounds.origin];
-	// FIXME; also return NO if there is no effective change for whatever reasons
+	// FIXME: this does also not help
+	// the issue is that if we call autorscoll from the NSPeriodic Event there will be no redraw of the contents!
+	// and we see multiple stopPeriodicEvent
+	[_documentView setNeedsDisplay:YES];	// if triggered by periodic event
+//	NSLog(@"  -> %@", NSStringFromRect([self bounds]));
+	// FIXME; also return NO if there is no effective change for whatever reasons (e.g. scrolled to end of document)
 	return YES;
 }
 

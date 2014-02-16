@@ -1581,7 +1581,7 @@ int index = [self columnWithIdentifier:identifier];
 					}
 				else
 					{
-					[NSEvent stopPeriodicEvents];
+					if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 					lastMouseEvent=nil;
 					}
 			}
@@ -1591,8 +1591,7 @@ int index = [self columnWithIdentifier:identifier];
 									 dequeue:YES];
 		}
 	
-	if(lastMouseEvent)
-		[NSEvent stopPeriodicEvents];
+	if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 	
 	if(_tv.allowsMultipleSelection)
 		_lastSelectedRow = (startRow > lastRow) ? startRow : lastRow;

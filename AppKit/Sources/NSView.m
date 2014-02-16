@@ -1517,6 +1517,7 @@ printing
 
 - (NSRect) convertRectToBase:(NSRect) r
 {
+	// FIXME: this may be broken if flipping is involved! Use convertRect: toView:nil
 	return [[self _bounds2base] _transformRect:r];	
 }
 
