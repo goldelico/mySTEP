@@ -968,6 +968,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSRange initialRange=_selectedRange;	// initial range (for extending selection)
 	NSRange rng;					// current selected range
 	unsigned int modifiers=[event modifierFlags];
+	NSEvent *lastMouseEvent=nil;
 	if(!_tx.selectable)
 		return;	// ignore
 	
@@ -978,9 +979,15 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #endif
 	while(YES)	// loop outside until mouse goes up 
 		{
-		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-		// FIXME: this method expects SCREEN coordinates!
-		unsigned int pos=[self characterIndexForPoint:p];	// convert to character index
+		NSPoint p;
+		unsigned int pos;
+		if([event type] == NSPeriodic)
+			{
+			event=lastMouseEvent;	// repeat
+			continue;			
+			}
+		p=[self convertPoint:[event locationInWindow] fromView:nil];
+		pos=[self characterIndexForPoint:p];	// convert to character index
 #if 1
 		NSLog(@"NSTextView mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
 #endif
@@ -1051,10 +1058,21 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				}
 			initialRange=rng;
 			}
-		else
-			{ // moved or up
+		else if([event type] == NSLeftMouseDragged)
+			{ // moved
 				[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 				rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
+				if([self autoscroll:event])
+					{ // repeat autoscroll
+						if(!lastMouseEvent)
+							[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
+						lastMouseEvent=event;					
+					}
+				else
+					{
+					[NSEvent stopPeriodicEvents];
+					lastMouseEvent=nil;
+					}
 			}
 		if([event type] == NSLeftMouseUp)
 			break;	// done with loop
@@ -1065,6 +1083,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
 		}
+	if(lastMouseEvent)
+		[NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
 	NSLog(@"NSTextView mouseDown up");

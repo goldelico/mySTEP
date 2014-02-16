@@ -772,6 +772,7 @@ object:self]
 - (void) mouseDown:(NSEvent *)event
 { // simple mouse down mechanism
 	NSRange rng=_selectedRange;	// current selected range
+	NSEvent *lastMouseEvent=nil;
 #if 1
 	NSLog(@"%@ mouseDown: %@", NSStringFromClass(isa), event);
 #endif
@@ -784,14 +785,23 @@ object:self]
 		}
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 		{
-		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+		NSPoint p;
 		// unsigned int pos=[self characterIndexForPoint:p];
 		unsigned int pos=0;
 #if 0
 		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
+		if([event type] == NSPeriodic)
+			{
+			event=lastMouseEvent;	// repeat
+			continue;			
+			}
+		p=[self convertPoint:[event locationInWindow] fromView:nil];
 		if([event type] == NSLeftMouseDragged)
+			{
 			[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+			lastMouseEvent=event;
+			}
 		// handle click on NSTextAttachments
 		if(NSLocationInRange(pos, _selectedRange))
 			{ // in current range we already hit the current selection it is a potential drag&drop
@@ -801,12 +811,29 @@ object:self]
 			rng=NSMakeRange(pos, 0);	// set cursor to location where we did click
 		else if(0) // shift key
 			rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend
+		if([event type] == NSLeftMouseDragged)
+			{ // moved
+				[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+				if([self autoscroll:event])
+					{ // repeat autoscroll
+						if(!lastMouseEvent)
+							[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
+						lastMouseEvent=event;					
+					}
+				else
+					{
+					[NSEvent stopPeriodicEvents];
+					lastMouseEvent=nil;
+					}
+			}
 		[self setSelectedRange:rng];
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:[NSDate distantFuture]						// get next event
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
   		}
+	if(lastMouseEvent)
+		[NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng];	// finally update selection
 #if 1
 	NSLog(@"NSText mouseDown up");

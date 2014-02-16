@@ -1411,6 +1411,7 @@ int index = [self columnWithIdentifier:identifier];
 	int row = [self rowAtPoint:p];
 	NSRange extend = {-1, 0}, reduce = {-1, 0};
 	NSEventType eventType;
+	NSEvent *lastMouseEvent=nil;
 	NSRect r, visibleRect;
 	NSTableColumn *clickedCol;
 	BOOL scrolled=NO;
@@ -1448,20 +1449,18 @@ int index = [self columnWithIdentifier:identifier];
 	startRow = lastRow = row;
 	visibleRect = [self visibleRect];
 
-	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.03];
-	
 	while (YES) 
 		{
 		eventType = [event type];
+		if([event type] == NSPeriodic)
+			{
+			NSLog(@"periodic");
+			event=lastMouseEvent;	// repeat
+			continue;			
+			}
 		if(eventType == NSLeftMouseUp)
 			break;	// done
-		// 
-		// we should make periodic events after some delay simply call [self autoscroll:lastmouse] while the mouse is outside of a certain inner frame
-		//
-		if (eventType == NSPeriodic)
-			; // [self autoscroll:lastmouse];
-		else
-			current = [event locationInWindow];	// update location
+		current = [event locationInWindow];	// update location
 		if (eventType == NSLeftMouseDown || current.x != previous.x || current.y != previous.y || scrolled) 
 			{ // something changed
 			previous = current;
@@ -1570,13 +1569,30 @@ int index = [self columnWithIdentifier:identifier];
 					}
 				}
 			}
+		if([event type] == NSLeftMouseDragged)
+			{ // moved
+				[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+////				rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
+				if([self autoscroll:event])
+					{ // repeat autoscroll
+						if(!lastMouseEvent)
+							[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
+						lastMouseEvent=event;					
+					}
+				else
+					{
+					[NSEvent stopPeriodicEvents];
+					lastMouseEvent=nil;
+					}
+			}
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:[NSDate distantFuture] 
 									  inMode:NSEventTrackingRunLoopMode
 									 dequeue:YES];
 		}
-
-	[NSEvent stopPeriodicEvents];
+	
+	if(lastMouseEvent)
+		[NSEvent stopPeriodicEvents];
 	
 	if(_tv.allowsMultipleSelection)
 		_lastSelectedRow = (startRow > lastRow) ? startRow : lastRow;

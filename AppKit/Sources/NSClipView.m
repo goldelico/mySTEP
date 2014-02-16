@@ -130,14 +130,29 @@
 - (BOOL) autoscroll:(NSEvent*)event			
 {
 	NSPoint aPoint = [event locationInWindow];
-	NSRect aRect;
+	NSRect frame=[self convertRectToBase:[self frame]];
+	NSRect bounds=[self bounds];
 	if(!_documentView)
 		return NO;
-	aRect.origin = [_documentView convertPoint:aPoint fromView:nil];
-	aRect.size = (NSSize){10,10};
-//	NSLog (@"NSClipView: autoscroll %f, %f ", aPoint.x,aPoint.y);
-//	NSLog (@"NSClipView: aRect %f, %f ", aRect.origin.x,aRect.origin.y);
-	return [_documentView scrollRectToVisible:aRect];
+	// check for valid event type
+	if(NSPointInRect(aPoint, frame))
+		{ // is inside - check with screen frame
+			aPoint=[[self window] convertBaseToScreen:aPoint];
+			frame=NSInsetRect([[[self window] screen] visibleFrame], 30.0, 30.0);
+			if(NSPointInRect(aPoint, frame))
+				return NO;	// no need to scroll
+		}
+	if(aPoint.x < NSMinX(frame))
+		bounds.origin.x -= NSMinX(frame) - aPoint.x;	// how far to the left
+	else if(aPoint.x > NSMaxX(frame))
+		bounds.origin.x += aPoint.x - NSMaxX(frame);	// how far to the right
+	if(aPoint.y < NSMinY(frame))
+		bounds.origin.y += NSMinY(frame) - aPoint.y;	// how far to the left
+	else if(aPoint.y > NSMaxY(frame))
+		bounds.origin.y -= aPoint.y - NSMaxY(frame);	// how far to the right
+	[self scrollToPoint:bounds.origin];
+	// FIXME; also return NO if there is no effective change for whatever reasons
+	return YES;
 }
 
 - (void) viewBoundsChanged:(NSNotification*)aNotification
