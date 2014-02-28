@@ -37,6 +37,7 @@ include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean build build_architecture
 
+# FIXME: is this ARCHITECTURES variable still used?
 ARCHITECTURES=arm-linux-gnueabi
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
@@ -64,6 +65,7 @@ endif
 
 ROOT:=$(QuantumSTEP)
 
+# read $(shell defaults read de.dsitri.ZMacSync RootPath 2>/dev/null)
 ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
