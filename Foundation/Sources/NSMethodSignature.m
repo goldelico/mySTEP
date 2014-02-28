@@ -194,8 +194,6 @@ struct stackframe /* mipsel */
 
 #elif defined(i386)	// for Intel 32 bit
 
-#warning "not tested"
-
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
 #define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
@@ -203,22 +201,22 @@ struct stackframe /* mipsel */
 struct stackframe /* i386 */
 {
 	void *fp;			// points to the 'more' field
-	long iregs[7];		// r0..r3
-	float fpuregs[0];	// s0..s15
-	void *unused[3];
+	long iregs[0];		// all on stack
+	float fpuregs[0];	// all on stack
+	void *unused[6];
 	void *lr;			// link register
-	long copied[3];		// copied between iregs[1..n]
+	long copied[0];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
 };
 
 #elif defined(__x86_64__)
-#error "not tested"
+#error "not implemented"
 #elif defined(__ppc__)
-#error "not tested"
+#error "not implemented"
 #elif defined(__ppc64__)
-#error "not tested"
+#error "not implemented"
 #elif defined(__m68k__)
-#error "not tested"
+#error "not implemented"
 
 #else
 
@@ -469,6 +467,47 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	
 	return typePtr;
 }
+
+#if 1	// enable to find out how the stack frame coming from forward:: is looking like
+
+@interface _AnalyseMethodSignature : NSObject
+@end
+
+@interface _AnalyseMethodSignature (Forwarding)	// define as header so that the compiler does not complain
+- (int) forward:(int) a b:(int) b;
+@end
+
+@implementation _AnalyseMethodSignature
+
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
+{ // handle dynamic method signatures
+	if(sel_isEqual(aSelector, @selector(forward:b:)))
+		return [NSMethodSignature signatureWithObjCTypes:"i@:ii"];	// assume int return and several int arguments
+	return [super methodSignatureForSelector:aSelector];	// default
+}
+
+- (void) forwardInvocation:(NSInvocation *)anInvocation
+{ // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
+	SEL sel=[anInvocation selector];
+	NSLog(@"** %p %@ called **", self, NSStringFromSelector(sel));
+}
+
+@end
+
+@implementation NSMethodSignature (_AnalyseMethodSignature)
+
++ (void) initialize
+{
+	_AnalyseMethodSignature *a=[_AnalyseMethodSignature new];
+	/* here we could print the expected stack layout from the macros/struct stackframe */
+	NSLog(@"link offset expected by code: %+d", offsetof(struct stackframe, more));
+	[a forward:0xaaaaaaaa b:0x55555555];	// issue a foward-invocation
+	[a release];
+}
+
+@end
+
+#endif
 
 @implementation NSMethodSignature
 

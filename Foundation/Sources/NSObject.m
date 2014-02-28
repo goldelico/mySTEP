@@ -342,6 +342,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) retain
 {
+	NSAssert(((_object_layout)(self))[-1].retained+1 != 0, @"don't retain object that is already deallocated");
 	((_object_layout)(self))[-1].retained++;
 	return self;
 }
@@ -577,7 +578,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	BOOL resolved;
 #if 1
 	NSLog(@"NSObject -forward:@selector(%@):%p", NSStringFromSelector(aSel), argFrame);
-	NSLog(@"  self=%@", self);
+	NSLog(@"  self=%p %@", self, self);
 	NSLog(@"  _cmd=%p %s", _cmd, sel_getName(_cmd));
 	NSLog(@"  sel=%p %s", aSel, sel_getName(aSel));
 	NSLog(@"  &r=%p", &r);	// local stack within forward::

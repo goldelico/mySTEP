@@ -267,12 +267,25 @@ char *objc_dynamic_find_file(const void *address);
 #define SIGN(x)  ({typeof(x) _x = (x); _x > 0 ? 1 : (_x == 0 ? 0 : -1); })
 #endif
 
+// NOTE: this is some triplication (SEL_EQ, sel_eq, sel_isEqual)!
+
+// sel_eq disappears in gcc 4.7 - so we should always use sel_isEqual()!
+
 #ifndef SEL_EQ
 #ifdef __linux__
 #define SEL_EQ(sel1, sel2)	sel_eq(sel1, sel2)
 #else
 #define SEL_EQ(sel1, sel2)	(sel1 == sel2)
+#if 1	// #if SDK before 10.5
 #endif
+
+#endif
+#endif
+
+#ifdef __APPLE__	// & SDK before 10.5
+#define sel_isEqual(A, B) ((A) == (B))
+#else
+extern BOOL sel_isEqual(SEL a, SEL b);	// we must declare the function for Debian-i386
 #endif
 
 #ifndef MAX
