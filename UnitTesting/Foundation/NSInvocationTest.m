@@ -20,8 +20,7 @@
 
 @end
 
-
-#ifdef __APPLE__
+#ifdef __APPLE__	// & SDK before 10.5
 #define sel_isEqual(A, B) ((A) == (B))
 #endif
 
@@ -716,14 +715,26 @@ struct mysmallstruct
 { // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
 	SEL sel=[anInvocation selector];
 	STAssertEqualObjects([anInvocation target], self, nil);
-	NSLog(@"** %@ called **", NSStringFromSelector(sel));
+	invoked=-99;
+	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
+	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
+	NSLog(@"** Cstring %s **", "forward40");
+	NSLog(@"** %p - %p **", sel, @selector(forward40));
+	NSLog(@"** %02x - %02x **", *(char *)sel, *(char *)@selector(forward40));
+	NSLog(@"** %s - %s **", sel, @selector(forward40));
+#ifndef __APPLE__	// & SDK before 10.5
+
+	NSLog(@"** %s - %s **", sel_get_name(sel), sel_get_name(@selector(forward40)));
+#endif
 	if(sel_isEqual(sel, @selector(forward40)))
 		{
+		NSLog(@"here forward40");
 		invoked=40;
 		}
 	else if(sel_isEqual(sel, @selector(forward41:b:)))
 		{ // return an int
 			int ret='r';
+			NSLog(@"here forward41:b:");
 			invoked=41;
 			[anInvocation setReturnValue:&ret];
 		}
@@ -839,7 +850,7 @@ struct mysmallstruct
 		[anInvocation setReturnValue:&r];
 		}
 	else
-		invoked=-99;
+		STAssertTrue(NO, @"unrecognized selector");
 	NSLog(@"** %@ done **", NSStringFromSelector(sel));
 }
 

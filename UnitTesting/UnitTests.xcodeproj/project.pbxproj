@@ -45,7 +45,6 @@
 		EE547ABE168BAC8E00164AB4 /* NSFontTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547ABD168BAC8E00164AB4 /* NSFontTest.m */; };
 		EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
 		EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */; };
-		EE65676318B143C6008CDCE3 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65676218B143C6008CDCE3 /* NSViewTest.m */; };
 		EE65676418B143C6008CDCE3 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65676218B143C6008CDCE3 /* NSViewTest.m */; };
 		EE65676518B143C6008CDCE3 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65676218B143C6008CDCE3 /* NSViewTest.m */; };
 		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
@@ -92,8 +91,8 @@
 		EEE514A4188817D700F96F53 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */; };
 		EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
 		EEE593D918840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
-		EEF7152716DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
-		EEF7152816DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
+		EEF7152716DD27C200CD94B5 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* FunctionsTest.m */; };
+		EEF7152816DD27C200CD94B5 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* FunctionsTest.m */; };
 		EEF742F016E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
 		EEF742F116E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
 		EEF742F416E903D100CD94B5 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F316E903D100CD94B5 /* ABPersonTest.m */; };
@@ -179,7 +178,7 @@
 		EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMethodSignatureTest.m; sourceTree = "<group>"; };
 		EEE590E318840B2600F96F53 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEE593D718840B5600F96F53 /* NSInvocationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSInvocationTest.m; sourceTree = "<group>"; };
-		EEF7152616DD27C200CD94B5 /* Functions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Functions.m; sourceTree = "<group>"; };
+		EEF7152616DD27C200CD94B5 /* FunctionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionsTest.m; sourceTree = "<group>"; };
 		EEF7425216E9036E00CD94B5 /* AddressBook */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AddressBook; path = ../AddressBook; sourceTree = SOURCE_ROOT; };
 		EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABAddressBookTest.m; path = AddressBook/ABAddressBookTest.m; sourceTree = "<group>"; };
 		EEF742F316E903D100CD94B5 /* ABPersonTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABPersonTest.m; path = AddressBook/ABPersonTest.m; sourceTree = "<group>"; };
@@ -298,7 +297,7 @@
 			children = (
 				EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */,
 				EE13454410A04EB700169BC8 /* Sources */,
-				EEF7152616DD27C200CD94B5 /* Functions.m */,
+				EEF7152616DD27C200CD94B5 /* FunctionsTest.m */,
 				EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */,
 				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
 				EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */,
@@ -729,7 +728,7 @@
 				EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */,
 				EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */,
 				EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEF7152716DD27C200CD94B5 /* Functions.m in Sources */,
+				EEF7152716DD27C200CD94B5 /* FunctionsTest.m in Sources */,
 				EEF7BCD316E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
 				EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
 				EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */,
@@ -801,14 +800,13 @@
 				EEDB59E7169878070011D22A /* NSURLTest.m in Sources */,
 				EEDB59E8169878070011D22A /* NSPortCoderTest.m in Sources */,
 				EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEF7152816DD27C200CD94B5 /* Functions.m in Sources */,
+				EEF7152816DD27C200CD94B5 /* FunctionsTest.m in Sources */,
 				EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
 				EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
 				EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
 				EE103F0A16F264530037C368 /* NSPortTest.m in Sources */,
 				EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */,
 				EEE514A3188817D700F96F53 /* NSMethodSignatureTest.m in Sources */,
-				EE65676318B143C6008CDCE3 /* NSViewTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

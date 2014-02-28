@@ -8,6 +8,9 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
+#ifdef __APPLE__	// & SDK before 10.5
+#define sel_isEqual(A, B) ((A) == (B))
+#endif
 
 @interface FunctionsTest : SenTestCase {
 	
@@ -119,25 +122,43 @@
 }
 
 - (void) test91
-{
+{ // nil object method calls
 	id obj=nil;
 	STAssertEqualObjects([obj self], nil, nil);
 	STAssertEquals([obj boolValue], NO, nil);
 	STAssertEquals([obj intValue], 0, nil);
 	STAssertEquals([obj longValue], 0l, nil);
+	/* these are known to fail on Debian-i386 */
 	STAssertEquals([obj longLongValue], 0ll, nil);
 	STAssertEquals([obj floatValue], 0.0f, nil);
 	STAssertEquals([obj doubleValue], 0.0, nil);
 }
 
 - (void) test90
-{
+{ // selectors and equality
 	SEL s=NSSelectorFromString(@"test90");
-	// check if we can create nil selectors, "unknown" selctors, UTF8 selectors etc.
+#if 0 // this was from debugging Debian-i386
+	NSLog(@"%s -- %s", s, @selector(test90));
+	NSLog(@"1: %@", sel_isEqual(s, @selector(test90))?@"YES":@"NO");
+	NSLog(@"2: %@", sel_isEqual(s, @selector(test91))?@"YES":@"NO");
+	NSLog(@"3: %@", sel_isEqual(@selector(test90), @selector(test91))?@"YES":@"NO");
+	NSLog(@"4: %@", !sel_isEqual(@selector(test90), @selector(test91))?@"YES":@"NO");
+	NSLog(@"1: %d", sel_isEqual(s, @selector(test90)));
+	NSLog(@"2: %d", sel_isEqual(s, @selector(test91)));
+	NSLog(@"3: %d", sel_isEqual(@selector(test90), @selector(test91)));
+	NSLog(@"4: %d", !sel_isEqual(@selector(test90), @selector(test91)));
+#endif
+	STAssertTrue(sel_isEqual(s, @selector(test90)), nil);
+	STAssertTrue(sel_isEqual(_cmd, @selector(test90)), nil);
+	STAssertTrue(sel_isEqual(_cmd, s), nil);
+	STAssertFalse(sel_isEqual(_cmd, @selector(test91)), nil);
+	STAssertFalse(sel_isEqual(@selector(test90), @selector(test91)), nil);
+//	STAssertTrue(sel_isEqual(@selector(test90), @selector(test91)), nil);
+//	STAssertFalse(sel_isEqual(@selector(test91), @selector(test91)), nil);
+	STAssertTrue(sel_isEqual(@selector(test91), @selector(test91)), nil);
+	// check if we can create nil selectors, empty selectors (""), "unknown" selctors, UTF8 selectors etc.
+	// Note: on Debian-i386, SEL are not simple C-Strings
 }
-
-// same for class&protocol
-
 // NSMakeRange - test for corner cases (0 start + 0 length, >0 start + 0 length, negative start + negative length, maxint start + >0 length etc.)
 
 @end
