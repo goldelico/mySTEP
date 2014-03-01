@@ -255,7 +255,7 @@
 	NSLog(@"%@ == %@?", target, aTarget);
 	NSLog(@"%@ == %@?", argument, anArgument);
 #endif
-	return (target == aTarget) && SEL_EQ(aSelector, selector) && (argument == anArgument || [argument isEqual:anArgument]);
+	return (target == aTarget) && sel_isEqual(aSelector, selector) && (argument == anArgument || [argument isEqual:anArgument]);
 }
 
 - (NSArray*) modes						{ return modes; }

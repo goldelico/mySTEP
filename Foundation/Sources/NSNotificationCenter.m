@@ -52,7 +52,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
     	return NO;
 
 	return (observer == ((GSNoteObserver *)other)->observer) 
-			&& SEL_EQ(selector, ((GSNoteObserver *)other)->selector);
+			&& sel_isEqual(selector, ((GSNoteObserver *)other)->selector);
 }
 
 - (unsigned) hash
