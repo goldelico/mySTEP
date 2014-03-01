@@ -626,6 +626,8 @@ struct mysmallstruct
 	 */
 }
 
+// FIXME: write a test if we handle zero-sized structs byref or bycopy correctly
+
 - (void) test17
 { // invoke nil target
 	id target=self;

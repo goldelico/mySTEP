@@ -196,7 +196,9 @@ struct stackframe /* mipsel */
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
-#define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
+// can we have zero sized structs?
+#define INDIRECT_RETURN(info)			(info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B)	// independent of size
+// #define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
 struct stackframe /* i386 */
 {
