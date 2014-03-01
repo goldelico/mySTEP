@@ -899,30 +899,30 @@ struct mysmallstruct
 }
 
 - (void) test44
-{
+{ // nested invoke
 	invoked=0;
 	[self forward44];
 	STAssertEquals(invoked, 1, nil);	// invoke01 should have been invoked in the second step
 }
 
 - (void) test45
-{
+{ // nested invoke
 	invoked=0;
 	[self forward45];
 	STAssertEquals(invoked, 40, nil);	// forward40 should have been invoked in the second step
 }
 
 - (void) test46
-{
+{ // what happens if forward-invocation does not set a return value?
 	int ir=0;
 	invoked=0;
-	ir=[self forward46:1 b:2];
+	ir=[self forward46:1 b:2];	// does not set a return value!
 	STAssertEquals(invoked, 46, nil);	// should have been invoked
-	STAssertEquals(ir, 0, nil);	// most likely because the stack frame is not initialized - it is not clear if this is reproducible
+	STAssertEquals(ir, 0, @"unreliable");	// most likely because the stack frame is not initialized - it is not clear if this is reproducible by our implementation
 }
 
 - (void) test47
-{
+{ // float return
 	float fr=0.0;
 	invoked=0;
 	fr=[self forward47:1 b:2 c:3.0f d:4 e:5 f:6.0];
@@ -931,7 +931,7 @@ struct mysmallstruct
 }
 
 - (void) test48
-{
+{ // double return
 	double fr=0.0;
 	invoked=0;
 	fr=[self forward48:1 b:-2 c:3.0f d:4 e:5 f:6.0];

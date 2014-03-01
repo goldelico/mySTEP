@@ -128,10 +128,11 @@
 	STAssertEquals([obj boolValue], NO, nil);
 	STAssertEquals([obj intValue], 0, nil);
 	STAssertEquals([obj longValue], 0l, nil);
+	/* these are known to fail on all Debian */
+	STAssertEquals([obj longLongValue], 0ll, @"unreliable");
 	/* these are known to fail on Debian-i386 */
-	STAssertEquals([obj longLongValue], 0ll, nil);
-	STAssertEquals([obj floatValue], 0.0f, nil);
-	STAssertEquals([obj doubleValue], 0.0, nil);
+	STAssertEquals([obj floatValue], 0.0f, @"i386 unreliable");
+	STAssertEquals([obj doubleValue], 0.0, @"i386 unreliable");
 }
 
 - (void) test90

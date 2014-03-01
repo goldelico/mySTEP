@@ -194,18 +194,18 @@ struct stackframe /* mipsel */
 
 #elif defined(i386)	// for Intel 32 bit
 
-#define FLOAT_AS_DOUBLE					YES
+#define FLOAT_AS_DOUBLE					NO
 #define MIN_ALIGN						sizeof(long)
-// can we have zero sized structs?
+// define LONGLONG_ALIGN				__alignof__(long)
+// how are zero sized structs handled?
 #define INDIRECT_RETURN(info)			(info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B)	// independent of size
-// #define INDIRECT_RETURN(info)			(info.size > sizeof(void *) && (info.type[0] == _C_STRUCT_B || info.type[0] == _C_UNION_B || info.type[0] == _C_ARY_B))
 
 struct stackframe /* i386 */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[0];		// all on stack
-	float fpuregs[2];	// copied from/to stack
-	void *unused[4];
+	float fpuregs[0];	// copied from/to stack
+	void *unused[6];
 	void *lr;			// link register
 	long copied[0];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -482,11 +482,11 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return typePtr;
 }
 
+#if 0
+
 /* enable to find out how the stack frame coming from forward:: is looking like
  * can be used to analyse even if NSMethodSignature does not yet support a new architecture
  */
-
-#if 1
 
 @interface _AnalyseMethodSignature : NSObject
 @end
