@@ -314,14 +314,23 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			
 		case _C_LNG_LNG:
 			info->size = sizeof(long long);
+#if defined(i386)	// for Intel 32 bit
+			info->align = __alignof__(long);
+#else
 			info->align = __alignof__(long long);
+#endif
 			break;
 			
 		case _C_ULNG_LNG:
 			info->size = sizeof(unsigned long long);
+#if defined(i386)	// for Intel 32 bit
+			info->align = __alignof__(unsigned long);
+#else
 			info->align = __alignof__(unsigned long long);
+#endif
 			break;
-			
+// FIXME: i386 may have unexpected alignment rules
+// http://www.wambold.com/Martin/writings/alignof.html
 		case _C_FLT:
 			if(FLOAT_AS_DOUBLE)
 				{
@@ -845,9 +854,6 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	NSLog(@"_getArgumentAddress %p %p %d %d", frame, addr, info.offset, info.isReg);
 #endif
 	return addr + info.offset;
-	if(!info.isReg)
-		return ((char *) ((struct stackframe *)frame)->fp) + info.offset;	// indirectly through frame pointer
-	return ((char *) &((struct stackframe *)frame)->fp) + info.offset;	// registers start behind frame pointer
 }
 
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
@@ -1046,7 +1052,13 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			// how can/should we set the link register?
 			f->fp=(void *) f->more;	// set frame link pointer
 			if(INDIRECT_RETURN(info[0]))
-				f->iregs[0]=(long) (f->more + argFrameLength);	// initialize r0 with address of return value buffer (behind all arguments on stack)
+				{ // initialize struct return pointer (virtual first argument) with address of return value buffer (behind all arguments on stack)
+					void **a=_getArgumentAddress(frame, info[0]);
+#if 0
+					NSLog(@"struct return buffer pointer=%p", a);
+#endif
+					*a = (void *) (f->more + argFrameLength);
+				}
 		}
 	return frame;
 }
