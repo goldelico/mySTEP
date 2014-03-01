@@ -202,8 +202,8 @@ struct stackframe /* i386 */
 {
 	void *fp;			// points to the 'more' field
 	long iregs[0];		// all on stack
-	float fpuregs[0];	// all on stack
-	void *unused[6];
+	float fpuregs[2];	// copied from/to stack
+	void *unused[4];
 	void *lr;			// link register
 	long copied[0];		// copied between iregs[1..n]
 	char more[0];		// dynamically extended to what we need
@@ -382,10 +382,10 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			struct { unsigned char x; } fooalign;
 			int acc_size = 0;
 			int acc_align = __alignof__(fooalign);
-			
-			while (*typePtr != _C_STRUCT_E)			// Skip "<name>=" stuff.
-				if (*typePtr++ == '=')
-					break;
+			while (*typePtr && *typePtr != _C_STRUCT_E && *typePtr != '=')			// Skip "<strut-name>="
+				typePtr++;
+			if (*typePtr == '=')	// did end at '='
+				typePtr++;
 			// Base structure alignment 
 			if (*typePtr != _C_STRUCT_E)			// on first element.
 				{
@@ -398,7 +398,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				acc_align = MAX(local.align, __alignof__(fooalign));
 				}
 			// Continue accumulating 
-			while (*typePtr != _C_STRUCT_E)			// structure size.
+			while (*typePtr && *typePtr != _C_STRUCT_E)			// structure size.
 				{
 				typePtr = mframe_next_arg(typePtr, &local);
 				if (!typePtr)
@@ -410,7 +410,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			info->size = acc_size;
 			info->align = acc_align;
 			//printf("_C_STRUCT_B  size %d align %d\n",info->size,info->align);
-			typePtr++;								// Skip end-of-struct
+			if(*typePtr)
+				typePtr++;		// Skip end-of-struct
 			break;
 		}
 			
@@ -419,11 +420,12 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			int	max_size = 0;
 			int	max_align = 0;
 			
-			while (*typePtr != _C_UNION_E)			// Skip "<name>=" stuff.
-				if (*typePtr++ == '=')
-					break;
+			while (*typePtr && *typePtr != _C_UNION_E && *typePtr != '=')			// Skip "<strut-name>="
+				typePtr++;
+			if (*typePtr == '=')	// did end at '='
+				typePtr++;
 			
-			while (*typePtr != _C_UNION_E)
+			while (*typePtr && *typePtr != _C_UNION_E)
 				{
 				typePtr = mframe_next_arg(typePtr, &local);
 				if (!typePtr)
@@ -433,7 +435,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				}
 			info->size = max_size;
 			info->align = max_align;
-			typePtr++;								// Skip end-of-union
+			if(*typePtr)
+				typePtr++;		// Skip end-of-struct
 			break;
 		}
 			
@@ -468,13 +471,18 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return typePtr;
 }
 
-#if 1	// enable to find out how the stack frame coming from forward:: is looking like
+/* enable to find out how the stack frame coming from forward:: is looking like
+ * can be used to analyse even if NSMethodSignature does not yet support a new architecture
+ */
+
+#if 1
 
 @interface _AnalyseMethodSignature : NSObject
 @end
 
 @interface _AnalyseMethodSignature (Forwarding)	// define as header so that the compiler does not complain
 - (int) forward:(int) a b:(int) b;
+- (NSPoint) forwardPoint:(NSPoint) a;
 @end
 
 @implementation _AnalyseMethodSignature
@@ -483,11 +491,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 { // handle dynamic method signatures
 	if(sel_isEqual(aSelector, @selector(forward:b:)))
 		return [NSMethodSignature signatureWithObjCTypes:"i@:ii"];	// assume int return and several int arguments
+	if(sel_isEqual(aSelector, @selector(forwardPoint:)))
+		return [NSMethodSignature signatureWithObjCTypes:"{NSPoint=ff}@:{NSPoint=ff}"];
 	return [super methodSignatureForSelector:aSelector];	// default
 }
 
 - (void) forwardInvocation:(NSInvocation *)anInvocation
-{ // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
+{ // test forward:: and forwardInvocation:
 	SEL sel=[anInvocation selector];
 	NSLog(@"** %p %@ called **", self, NSStringFromSelector(sel));
 }
@@ -498,10 +508,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 + (void) initialize
 {
+	int i;
+	NSPoint p;
 	_AnalyseMethodSignature *a=[_AnalyseMethodSignature new];
 	/* here we could print the expected stack layout from the macros/struct stackframe */
 	NSLog(@"link offset expected by code: %+d", offsetof(struct stackframe, more));
-	[a forward:0xaaaaaaaa b:0x55555555];	// issue a foward-invocation
+	i=[a forward:0xaaaaaaaa b:0x55555555];	// issue a foward-invocation
+	p=[a forwardPoint:NSMakePoint(1.0, 2.0)];	// issue a foward-invocation
 	[a release];
 }
 
@@ -711,17 +724,16 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					info[i].isReg=NO;	// default to pass-on-stack
 					if(i == 0)
 						{ // return value
-							if(INDIRECT_RETURN(info[0]))
-								{ // the first ireg is reserved for the struct return pointer to a memory area allocated by the caller
-									info[0].byRef=YES;
-									info[0].isReg=YES;
-									info[0].offset=nextireg;
-									nextireg+=sizeof(void *);
+							if(!INDIRECT_RETURN(info[0]))
+								{ // keep as !byRef
+								i++;
+								continue;
 								}
-							i++;
-							continue;
+							info[0].byRef=YES;	// use register/stack to indirectly reference
+							needs=sizeof(void *);	// we need a struct pointer...
 						}
-					needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
+					else
+						needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
 					if(*t == _C_FLT)
 						{ // try to put into FPU_REGISTER
 							if(nextfpreg + needs <= offsetof(struct stackframe, unused))
@@ -780,7 +792,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
-	if(!info[0].isReg)
+	if(!info[0].byRef)
 		info[0].offset=argFrameLength;	// unless returned indirectly through r0, place return value behind all arguments
 	// FIXME: how to return float values?
 	// FIXME: does return value count to the argFrameLength?
