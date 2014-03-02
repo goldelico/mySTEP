@@ -930,11 +930,11 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 			if(buffer && *(id*)buffer == *(id*)addr)
 				return;	// no need to change
 			if(mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
-				{
+				{ // release current value
 #if 1
 				NSLog(@"_setArgument release old %@", *(id*)addr);
 #endif
-				[*(id*)addr release];
+				[*(id*)addr autorelease];	// this makes retainCount compatible with OS X
 				}
 			if(buffer && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
 				{

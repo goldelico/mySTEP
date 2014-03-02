@@ -995,7 +995,7 @@ struct mysmallstruct
 	STAssertEquals([a retainCount], 2u, nil);
 	STAssertEquals([b retainCount], 2u, nil);
 	STAssertEquals([r retainCount], 2u, nil);
-	[arp2 release];	// this releases the invocation - and the retained arguments
+	[arp2 release];	// this releases the invocation - and all retained arguments
 	STAssertEquals([a retainCount], 1u, nil);
 	STAssertEquals([b retainCount], 1u, nil);
 	STAssertEquals([r retainCount], 1u, nil);
@@ -1032,13 +1032,13 @@ struct mysmallstruct
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, test, nil);	// has been stored
 	[i invoke];	// invoke nil target
-	STAssertEquals([test retainCount], 2u, nil);	// previously set return value should have been released - but has not!
+	STAssertEquals([test retainCount], 2u, nil);	// previously set return value should have been released - but has not (but may have been autoreleased)!
 	STAssertEquals(invoked, 0, nil);	// has NOT been called
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, nil, nil);	// has been wiped out
 	/* conclusion
-	 * invoking a nil target leaks a previously retained returnValue
-	 * NOTE: this test is not able to find out if the value is autoreleased!
+	 * invoking a nil target leaks a previously retained returnValue on OS X 10.6
+	 * NOTE: this test is not able to find out if the value is autoreleased later!
 	 */
 }
 
@@ -1063,7 +1063,7 @@ struct mysmallstruct
 	test2=[NSObject new];
 	STAssertEquals([test2 retainCount], 1u, nil);
 	[i setArgument:&test2 atIndex:2];	// replace
-	STAssertEquals([test retainCount], 2u, nil);	// no, leaks
+	STAssertEquals([test retainCount], 2u, nil);	// likely autoreleased
 	STAssertEquals([test2 retainCount], 2u, nil);
 	[i setArgument:&test2 atIndex:3];	// set (with retainArguments enabled)
 	STAssertEquals([test2 retainCount], 3u, nil);	// ok, is retained before setting
