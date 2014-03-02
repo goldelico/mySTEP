@@ -41,14 +41,15 @@
 
 - (void) setUp;
 {
-	// create window with defined properties
+	window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0.0, 0.0, 1000.0, 1000.0) styleMask:0xf backing:NSBackingStoreBuffered defer:YES];
 	view=[[NSTestView alloc] initWithFrame:NSMakeRect(30.0, 50.0, 700.0, 1100.0)];
-	// add as subview to contentView
+	[[window contentView] addSubview:view];
 }
 
 - (void) tearDown;
 {
 	[view release];
+	[window release];
 }
 
 - (void) test01
@@ -63,11 +64,11 @@
 
 - (void) test02
 {
-	STAssertFalse([view needsDisplay], nil);
-	[view setNeedsDisplay:YES];	
-	STAssertTrue([view needsDisplay], nil);	// false if we have no window
+	STAssertTrue([view needsDisplay], nil);	// has already been set by adding the view to a winodw
 	[view setNeedsDisplay:NO];	
 	STAssertFalse([view needsDisplay], nil);
+	[view setNeedsDisplay:YES];	
+	STAssertTrue([view needsDisplay], nil);
 }
 
 // check transform to superview
