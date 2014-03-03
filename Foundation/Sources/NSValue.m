@@ -249,7 +249,7 @@ NSDictionary *dict = [string propertyList];
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat: @"{pointer = %p; size = %d; type = %s;}", data, dataSize, dataType];
+	return [NSString stringWithFormat: @"{pointer = %p; size = %d; type = %s; %@%@;}", data, dataSize, dataType, [NSData dataWithBytes:data length:MIN(dataSize, 30)], dataSize>30?@"...":@""];
 }
 
 - (id) initWithCoder:(NSCoder *)coder

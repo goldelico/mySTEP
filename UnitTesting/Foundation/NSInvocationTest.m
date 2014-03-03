@@ -28,6 +28,12 @@
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *)types;
 @end
 
+struct fd
+{
+	float a;
+	double b;
+};
+
 @interface NSInvocationTest (Forwarding)	// define as header so that the compiler does not complain and we know the signature
 - (void) forward40;
 - (int) forward41:(int) a b:(int) b;
@@ -38,6 +44,7 @@
 - (int) forward46:(int) a b:(int) b;
 - (float) forward47:(int) a b:(int) b c:(float) c d:(int) d e:(float) e f:(float) f;
 - (double) forward48:(int) a b:(long long) b c:(float) c d:(int) d e:(double) e f:(float) f;
+- (void) forward49:(float) a b:(double) b c:(struct fd) c;
 // test char, short, struct, array arguments and return values (alignment!)
 @end
 
@@ -324,9 +331,10 @@
 	STAssertEquals(a, (char) 'a', nil);
 	STAssertEquals(b, (short) 0xbbb, nil);
 	STAssertEquals(c, (unsigned char) 0xcc, nil);
-	STAssertEquals(d, 12345, nil);
-	STAssertEquals(e, 123456789l, nil);
-	STAssertEquals(f, 123456789012345678ll, nil);
+	STAssertEquals(d, 0xdd00, nil);
+	STAssertEquals(e, 0x1e0000eel, nil);
+	NSLog(@"%llx", f);
+	STAssertEquals(f, 0x1f00ff0000ff00ffll, nil);
 	STAssertEquals(g, (char *) "g", nil);
 	return 0x30AB;
 }
@@ -338,9 +346,9 @@
 	char a='a';
 	short b=0xbbb;
 	unsigned char c=0xcc;
-	int d=12345;
-	long e=123456789;
-	long long f=123456789012345678ll;
+	int d=0xdd00;
+	long e=0x1e0000eel;
+	long long f=0x1f00ff0000ff00ffll;
 	char *g="g";
 	unichar r=0;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
@@ -394,7 +402,7 @@
 }
 
 - (void) test14ll
-{ // pass long longs
+{ // pass long longs (in register on armhf)
 	id target=self;
 	SEL sel=@selector(invoke14ll:b:);
 	char a='a';
@@ -433,6 +441,54 @@
 	/* conclusions
 	 * works
 	 */
+}
+
+// this is a tricky to implement case
+// on some architectures (i386) alignment may differ between stack and structs
+// http://www.wambold.com/Martin/writings/alignof.html
+// on armhf it *may* be that the compiler knows that the whole struct can be passed in vector registers
+
+- (void) invoke14df:(float) a b:(double) b c:(struct fd) c
+{ // pass float and double
+	NSLog(@"invoke14df called");
+	invoked=14;
+	NSLog(@"invoked = %d", invoked);
+	STAssertEquals(a, (float) 1.1, nil);
+	STAssertEquals(b, 2.2, nil);
+	NSLog(@"&a=%p a=%g", &a, a);
+	NSLog(@"&b=%p b=%lg", &b, b);
+	NSLog(@"&c=%p", &c);
+	NSLog(@"&c.a=%p c.a=%g", &c.a, c.a);
+	NSLog(@"&c.b=%p c.b=%lg", &c.b, c.b);
+	STAssertEquals(c.a, (float) 3.3, nil);
+	STAssertEquals(c.b, 4.4, nil);
+	NSLog(@"test14df done");
+}
+
+- (void) test14df
+{ // pass float and double
+	id target=self;
+	SEL sel=@selector(invoke14df:b:c:);
+	float a=1.1;
+	double b=2.2;
+	struct fd c={
+		3.3,
+		4.4
+	};
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	NSLog(@"test14df started");
+	NSLog(@"%d+%d -- %d", sizeof(a), sizeof(b), sizeof(c));
+	STAssertNotNil(ms, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:target];
+	[i setSelector:sel];
+	[i setArgument:&a atIndex:2];
+	[i setArgument:&b atIndex:3];
+	[i setArgument:&c atIndex:4];	// pass by copy
+	invoked=0;
+	[i invoke];
+	STAssertEquals(invoked, 14, nil);
 }
 
 struct mystruct
@@ -654,6 +710,9 @@ struct mysmallstruct
 	STAssertEqualObjects(obj, nil, nil);	// has been wiped out
 }
 
+// FIXME: write a test what happens if we use &self, &_cmd, &a in the called method
+// since they are normally passed in registers (on armhf)
+
 - (void) invoke20
 { // raise exception within invoked method
 	invoked=20;
@@ -709,7 +768,9 @@ struct mysmallstruct
 		return [NSMethodSignature signatureWithObjCTypes:"f@:iififf"];	// float return and several int and float arguments mixed
 	if(sel_isEqual(aSelector, @selector(forward48:b:c:d:e:f:)))
 		return [NSMethodSignature signatureWithObjCTypes:"d@:iqfidf"];	// double return and several int and float, double arguments mixed
-	// same for structs...
+	if(sel_isEqual(aSelector,@selector(forward49:b:c:)))
+	   return [NSMethodSignature signatureWithObjCTypes:"v@:fd{fd=fd}"];	// double return and several int and float, double arguments mixed
+	   // same for structs...
 	return [super methodSignatureForSelector:aSelector];	// default
 }
 
@@ -719,6 +780,7 @@ struct mysmallstruct
 	STAssertEqualObjects([anInvocation target], self, nil);
 	invoked=-99;
 	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
+#if 0
 	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
 	NSLog(@"** Cstring %s **", "forward40");
 	NSLog(@"** %p - %p **", sel, @selector(forward40));
@@ -727,6 +789,7 @@ struct mysmallstruct
 #ifndef __APPLE__	// & SDK before 10.5
 
 	NSLog(@"** %s - %s **", sel_get_name(sel), sel_get_name(@selector(forward40)));
+#endif
 #endif
 	if(sel_isEqual(sel, @selector(forward40)))
 		{
@@ -851,6 +914,10 @@ struct mysmallstruct
 		STAssertEquals(fval, 6.0f, nil);
 		[anInvocation setReturnValue:&r];
 		}
+	else if(sel_isEqual(sel,@selector(forward49:b:c:)))
+		{
+		invoked=49;
+		}
 	else
 		STAssertTrue(NO, @"unrecognized selector");
 	NSLog(@"** %@ done **", NSStringFromSelector(sel));
@@ -937,6 +1004,20 @@ struct mysmallstruct
 	fr=[self forward48:1 b:-2 c:3.0f d:4 e:5 f:6.0];
 	STAssertEquals(invoked, 48, nil);	// should have been invoked
 	STAssertEquals(fr, 3.1415, nil);
+}
+
+- (void) test49
+{ // similar to test14df
+	id target=self;
+	SEL sel=@selector(invoke14df:b:c:);
+	float a=1.1;
+	double b=2.2;
+	struct fd c={
+		3.3,
+		4.4
+	};
+	[self forward49:a b:b c:c];
+	STAssertEquals(invoked, 49, nil);
 }
 
 - (id) invoke60:(id) a b:(id) b

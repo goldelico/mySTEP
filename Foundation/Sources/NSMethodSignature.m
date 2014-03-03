@@ -232,7 +232,7 @@ struct stackframe /* i386 */
 
 // FIXME: move some of this to NSGetSizeAndAlignment()
 
-static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
+static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 { // returns NULL on error
 	NSCAssert(info, @"missing NSArgumentInfo");
 	// FIXME: NO, we should keep the flags+type but remove the offset
@@ -331,12 +331,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			info->align = __alignof__(unsigned long long);
 #endif
 			break;
-// FIXME: i386 may have unexpected alignment rules
-// http://www.wambold.com/Martin/writings/alignof.html
 		case _C_FLT:
 			if(FLOAT_AS_DOUBLE)
 				{
-				// I guess we should set align/size differently...
 				info->floatAsDouble = YES;
 				info->size = sizeof(double);
 				info->align = __alignof__(double);
@@ -361,7 +358,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			else
 				{ // recursively
 					struct NSArgumentInfo local;
-					typePtr = mframe_next_arg(typePtr, &local);
+					typePtr = next_arg(typePtr, &local);
 					info->isReg = local.isReg;
 					info->offset = local.offset;
 				}
@@ -380,7 +377,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			while (isdigit(*typePtr))
 				typePtr++;
 			
-			typePtr = mframe_next_arg(typePtr, &local);
+			typePtr = next_arg(typePtr, &local);
 			info->size = length * ROUND(local.size, local.align);
 			info->align = local.align;
 			typePtr++;								// Skip end-of-array
@@ -400,7 +397,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			// Base structure alignment 
 			if (*typePtr != _C_STRUCT_E)			// on first element.
 				{
-				typePtr = mframe_next_arg(typePtr, &local);
+				typePtr = next_arg(typePtr, &local);
 				if (!typePtr)
 					return typePtr;						// error
 				
@@ -411,7 +408,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			// Continue accumulating 
 			while (*typePtr && *typePtr != _C_STRUCT_E)			// structure size.
 				{
-				typePtr = mframe_next_arg(typePtr, &local);
+				typePtr = next_arg(typePtr, &local);
 				if (!typePtr)
 					return typePtr;						// error
 				
@@ -438,7 +435,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			
 			while (*typePtr && *typePtr != _C_UNION_E)
 				{
-				typePtr = mframe_next_arg(typePtr, &local);
+				typePtr = next_arg(typePtr, &local);
 				if (!typePtr)
 					return typePtr;						// error
 				max_size = MAX(max_size, local.size);
@@ -541,7 +538,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 {
 	NEED_INFO();
 	// FIXME: this should probably be the stackframe length + what additional arguments and return value need
-	// or it is the real argument length (but not return value and additional register area) so that we have to add sizeof(fp->copied)
+	// or it is the real argument length (but not return value and additional register area)? So that we have to add sizeof(fp->copied)
 	return argFrameLength;
 }
 
@@ -668,13 +665,14 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		if(selector && af[i] == selector) note=[note stringByAppendingString:@" _cmd"];
 //		if(&((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@" argp"];
 		if((char *) &af[i] == ((char *) _argframe)+len) note=[note stringByAppendingString:@" <<- END"];
-		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld %12g%@", i, 
+		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld %12g %12lg%@", i, 
 			  &af[i],
 			  (char *) &af[i] - (char *) &af[0],
 			  (char *) &af[i] - (char *) f->fp,
 			  af[i],
 			  (long) af[i],
 			  *(float *) &af[i],
+			  *(double *) &af[i],
 			  note);
 		}
 }
@@ -717,7 +715,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
 					if(i >= allocArgs)
 						allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
-					types = mframe_next_arg(types, &info[i]);
+					types = next_arg(types, &info[i]);
 					if(!types)
 						break;	// some error
 					t=info[i].type;
@@ -730,9 +728,16 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
+					info[i].isReg=NO;	// default is to pass-on-stack
 					if(info[i].align < MIN_ALIGN)
 						info[i].align=MIN_ALIGN;
-					info[i].isReg=NO;	// default to pass-on-stack
+#if defined(i386)
+					// i386 has different alignment rules for structs and stack
+					// next_arg returns alignment for structs so we have to fix for stack
+					// http://www.wambold.com/Martin/writings/alignof.html
+					if(*t == _C_DBL)
+						info[i].align = __alignof__(float);
+#endif
 					if(i == 0)
 						{ // return value
 							if(!INDIRECT_RETURN(info[0]))
@@ -777,25 +782,33 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 								}
 							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
 						}
+					/* else if(*t == _STRUCT_B || *t == _UNION_B)
+					 {
+					 }
+					 */
 					else
-						// FIXME what about small structs passed as arguments?
 						{ // if integer or other type
 							if(nextireg + needs <= offsetof(struct stackframe, fpuregs))
-								{ // yes, fits into the integer register area
+								{ // yes, fits completely into the integer register area
 									info[i].isReg=YES;
 									info[i].offset = nextireg;
 									nextireg+=needs;
-					//				argFrameLength+=needs;	// and reserve space on stack
 									i++;
 									continue;
 								}
 							nextireg=offsetof(struct stackframe, fpuregs);	// don't put more values into registers if any was on stack
 						}
-					// this is still inconsistent - is [self frameLength] the total length? Or just the stack?
-					// does lr+copied count or not?
-					// currently we have a framelength > what we really need - but it does not include the fp+registers
-					info[i].offset=argFrameLength;	// offset relative to frame pointer
-					argFrameLength+=needs;
+#if 0 && defined(__ARM_PCS_VFP)	// armhf: appears to split structs between registers and stack
+					// test14df runs into this issue
+					// how can we represent that???
+					// the simple isReg !isReg rule does NOT apply in this case...
+					// well, we can identify the shadow registers by a negative index
+					// and always use them - except r0 which is used directly
+					if(*t == _C_STRUCT_B && argFrameLength == 0)
+						argFrameLength= -8;	// partial workaround for test14df - but it breaks several other tests
+#endif
+					info[i].offset=ROUND(argFrameLength, info[i].align);	// offset relative to frame pointer
+					argFrameLength=info[i].offset+needs;
 					i++;
 				}
 			numArgs = i-1;	// return type does not count
@@ -806,7 +819,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!info[0].byRef)
 		info[0].offset=argFrameLength;	// unless returned indirectly through r0, place return value behind all arguments
 	// FIXME: how to return float values?
-	// FIXME: does return value count to the argFrameLength?
 #if 1
 	[self _logMethodTypes];
 #endif
@@ -1335,6 +1347,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength+EXTRA);
 #endif
 	if(sizeof(f->copied) > 0)
+		// if we use negative !isReg offsets we have to move the copied registers to &iregs[1]
 		memcpy(f->copied, &f->iregs[1], sizeof(f->copied));	// copy from registers to stack
 #if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
