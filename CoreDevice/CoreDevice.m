@@ -175,11 +175,33 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 }
 
-- (UIDeviceBatteryState) batteryState;
+- (BOOL) checkCable;
+{ // if user should check charging cable
+	if([self batteryState] == UIDeviceBatteryStateCharging)
+		{
+		NSString *status;
+		status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
+		if([status hasPrefix:@"Charging"])
+			{ // USB charger active
+				{ // USB charger active
+					if([self chargerVoltage] < 4.7)	// VBUS < 4.7V - risk of HW-disconnect
+						return YES;	// weak and unreliable charging - check cable
+				}
+			}
+		}
+	/* if unplugged:
+	 status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
+	 if(!status || [status doubleValue] >= 1.0*1e6)	// VBUS > 1V
+	 return UIDeviceBatteryStateUnknown;	// discharging although VBUS is available - charger or battery broken?
+		*/
+	return NO;
+}
+
+- (UIDeviceBatteryState) _batteryState;
 { // should not be called too often in sequence!
-	// we may check when it was lastly asked for and cache the value...
+	// we should check when it was lastly asked for and return a cached value if less than some timeout...
 	NSString *status=[NSString stringWithContentsOfFile:[self batteryPath:@"status"]];
-#if 0
+#if 1
 	NSLog(@"batteryState=%@", status);
 #endif
 	if(status)
@@ -192,12 +214,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				return UIDeviceBatteryStateFull;
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
 			if([status hasPrefix:@"Charging"])
-				{ // USB charger active
-				status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
-				if(!status || [status doubleValue] <4.7*1e6)	// VBUS < 4.7V - risk of HW-disconnect
-					return UIDeviceBatteryStateUnknown;	// weak and unreliable charging - check cable
 				return UIDeviceBatteryStateCharging;
-				}
 			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_ac/status"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
@@ -205,17 +222,27 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 		if([status hasPrefix:@"Discharging"])
 			{
-			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
-			if(!status || [status doubleValue] >= 1.0*1e6)	// VBUS > 1V
-				return UIDeviceBatteryStateUnknown;	// discharging although VBUS is available - charger or battery broken?
 			return UIDeviceBatteryStateUnplugged;	// i.e. not connected to charger			
 			}
 		}
 	return UIDeviceBatteryStateUnknown;
 }
 
+- (UIDeviceBatteryState) batteryState;
+{
+	// static or iVars???
+	static time_t last;
+	static UIDeviceBatteryState lastState;	// cached state
+	time_t t=time(NULL);
+	if(t >= last+1)
+		lastState=[self _batteryState];	// get new value
+	last=t;
+	return lastState;
+}
+
 - (NSTimeInterval) remainingTime;
 { // estimate remaining time (in seconds)
+	// FIXME: only available if discharging! During charging we have time_to_full_now
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"time_to_empty_now"]];
 	return [val doubleValue];
 }
@@ -232,16 +259,16 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [val floatValue] * 1e-6;
 }
 
-- (float) chargerVoltage;
-{
-	// FIXME: use VAC or VBUS
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"voltage_now"]];
-	return [val floatValue] * 1e-6;
-}
-
 - (float) batteryDischargingCurrent;
 {
 	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"current_now"]];
+	return [val floatValue] * 1e-6;
+}
+
+- (float) chargerVoltage;
+{
+	// FIXME: use VAC or VBUS whatever is available
+	NSString *val=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
 	return [val floatValue] * 1e-6;
 }
 
