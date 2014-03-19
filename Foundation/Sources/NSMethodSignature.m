@@ -738,6 +738,10 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 					if(*t == _C_DBL)
 						info[i].align = __alignof__(float);
 #endif
+#if defined(__ARM_PCS_VFP)	// armhf - don't know/care about armel yet
+					if(*t == _C_LNG_LNG || *t == _C_ULNG_LNG)
+						info[i].align = __alignof__(long);
+#endif
 					if(i == 0)
 						{ // return value
 							if(!INDIRECT_RETURN(info[0]))
@@ -782,31 +786,23 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 								}
 							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
 						}
-					/* else if(*t == _STRUCT_B || *t == _UNION_B)
-					 {
-					 }
-					 */
-					else
-						{ // if integer or other type
-							if(nextireg + needs <= offsetof(struct stackframe, fpuregs))
-								{ // yes, fits completely into the integer register area
+					else if(nextireg < offsetof(struct stackframe, fpuregs))
+						{ // yes, fits into the integer register area
+							// make this all dependend on sizeof(copied)-sizeof(iregs)
+							// so that we theoretically can specify more than one "real" register
+							if(nextireg == offsetof(struct stackframe, iregs))
+								{ // first register that is allocated is "real"
 									info[i].isReg=YES;
 									info[i].offset = nextireg;
-									nextireg+=needs;
-									i++;
-									continue;
 								}
-							nextireg=offsetof(struct stackframe, fpuregs);	// don't put more values into registers if any was on stack
+							else
+								info[i].offset = ROUND(nextireg - offsetof(struct stackframe, iregs[1]) - sizeof(((struct stackframe *) NULL)->copied), info[i].align);	// use negative offset relative to link register
+							nextireg+=needs;
+							if(nextireg > offsetof(struct stackframe, fpuregs))
+								argFrameLength+=nextireg-offsetof(struct stackframe, fpuregs); // handle overflow into real stack
+							i++;
+							continue;
 						}
-#if 0 && defined(__ARM_PCS_VFP)	// armhf: appears to split structs between registers and stack
-					// test14df runs into this issue
-					// how can we represent that???
-					// the simple isReg !isReg rule does NOT apply in this case...
-					// well, we can identify the shadow registers by a negative index
-					// and always use them - except r0 which is used directly
-					if(*t == _C_STRUCT_B && argFrameLength == 0)
-						argFrameLength= -8;	// partial workaround for test14df - but it breaks several other tests
-#endif
 					info[i].offset=ROUND(argFrameLength, info[i].align);	// offset relative to frame pointer
 					argFrameLength=info[i].offset+needs;
 					i++;
@@ -1347,8 +1343,8 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength+EXTRA);
 #endif
 	if(sizeof(f->copied) > 0)
-		// if we use negative !isReg offsets we have to move the copied registers to &iregs[1]
-		memcpy(f->copied, &f->iregs[1], sizeof(f->copied));	// copy from registers to stack
+		// make the first ireg dependend on sizeof(copied)-sizeof(iregs)
+		memcpy(&f->iregs[1], f->copied, sizeof(f->copied));	// copy from negative stack area to registers
 #if 1
 	[self _logFrame:_argframe target:nil selector:NULL];
 #endif

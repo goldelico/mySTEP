@@ -235,7 +235,7 @@
 {
 	int pos=[[[notification userInfo] objectForKey:@"NSMenuItemIndex"] intValue];	// position
 	id cell=[self menuItemCellForItemAtIndex:pos];					// get cell
-#if 0
+#if 1
 	NSMenuItem *item=[[_menumenu itemArray] objectAtIndex:pos];							// changed item
 	NSLog(@"itemChanged - pos=%d, item=%@", pos, item);
 #endif
@@ -457,6 +457,9 @@
 
 - (void) setNeedsDisplayForItemAtIndex:(int) index;
 {
+#if 1
+	NSLog(@"setNeedsDisplayForItemAtIndex:%d rect=%@", index, NSStringFromRect([self rectOfItemAtIndex:index]));
+#endif
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
 	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing for this cell
 }

@@ -2049,7 +2049,7 @@ static NSButtonCell *sharedCell;
 		}
 }
 
-#define USE_PERFORMER_WITH_DELAY_0	0
+#define USE_PERFORMER_WITH_DELAY_0	0	// appears to work with queue now so we may remove the performer solution
 
 - (void) setViewsNeedDisplay:(BOOL) flag
 {
@@ -2069,7 +2069,7 @@ static NSButtonCell *sharedCell;
 								 nil];
 #if USE_PERFORMER_WITH_DELAY_0
 					[self performSelector:@selector(displayIfNeeded) withObject:nil afterDelay:0.0 inModes:gsmodes];
-#else
+#else	// using a NSNotificationQueue should make sure that we call it only once if we have several setViewsNeedDisplay:YES
 					if(!autoDisplayNotification)
 						autoDisplayNotification=[[NSNotification notificationWithName:NSDisplayWindowIfNeeded object:self] retain];
 					[[NSNotificationQueue defaultQueue] enqueueNotification:autoDisplayNotification

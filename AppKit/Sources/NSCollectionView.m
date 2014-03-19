@@ -54,7 +54,7 @@
 }
 - (NSCollectionViewItem *) newItemForRepresentedObject:(id) obj{
 	NSCollectionViewItem *item = [_itemPrototype copy];
-	[item performSelector:@selector(_setCollectionView:) withObject:self];
+	[item _setCollectionView:self];
 	[item setRepresentedObject:obj];
 	return item;
 }

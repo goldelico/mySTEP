@@ -109,7 +109,7 @@ static BOOL __userKeyEquivalents = YES;
 #if 0
 	NSLog(@"NSMenuItem %@ changed", [self title]);
 #endif
-	[_menu performSelector:@selector(itemChanged:) withObject:self];	// notify menu
+	[_menu itemChanged:self];	// notify menu
 }
 
 - (void) setMenu:(NSMenu *) menu;
@@ -529,11 +529,14 @@ static BOOL __userKeyEquivalents = YES;
 		int row=[_menuItems indexOfObject:anItem];
 		if(row == NSNotFound)
 			return; // not part of this menu
+#if 0
+		NSLog(@"itemChanged notification");
+#endif
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSMenuDidChangeItemNotification
 															object:self
 														  userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:row] forKey:@"NSMenuItemIndex"]];
 		}
-	_mn.menuHasChanged = YES;							// menu needs update (maybe later)
+	_mn.menuHasChanged = YES;	// menu needs update (maybe later)
 }
 
 - (NSMenuItem *) itemWithTag:(int)aTag
@@ -613,7 +616,7 @@ static BOOL __userKeyEquivalents = YES;
 #if 0
 		NSLog(@"check %@=%@", NSStringFromSelector([item action]), NSStringFromSelector(action));
 #endif
-		if(!action || ([item action] && SEL_EQ([item action], action)))
+		if(!action || ([item action] && sel_isEqual([item action], action)))
 			return i;	// first with matching target or the one matching action
 		}
 	return -1;  // not found

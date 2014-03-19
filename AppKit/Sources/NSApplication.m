@@ -1753,7 +1753,7 @@ NSWindow *w;
 			idx++;	// append behind separator
 			break;
 			}
-		if (!SEL_EQ([item action], winaction))
+		if (!sel_isEqual([item action], winaction))
 			{ // different action found, i.e. start of list - append separator and item
 			[_windowsMenu addItem:[NSMenuItem separatorItem]];
 			idx+=2;	// insert first behind separator

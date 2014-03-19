@@ -1993,7 +1993,6 @@ printing
 					_v.needsDisplaySubviews=YES;	// mark to redraw subviews
 					}
 				[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
-//				[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 				return;
 				}
 			r=[self convertRect:rect toView:_superview];
@@ -2001,8 +2000,10 @@ printing
 			}
 		else
 			{
+#if 0
+			NSLog(@"setViewsNeedDisplay: %@", _window);
+#endif
 			[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
-//			[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 			}
 		}
 #if FIXME	// FIXME: this does not properly work!
