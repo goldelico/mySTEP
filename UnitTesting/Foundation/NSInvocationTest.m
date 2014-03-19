@@ -396,9 +396,9 @@ struct fd
 	invoked=-14;
 	NSLog(@"invoked = %d", invoked);
 	STAssertEquals(a, (char) 'a', nil);
-	STAssertEquals(b, 9876543210ll, nil);
+	STAssertEquals(b, 0x1f00ff0000ff00ffll, nil);
 	NSLog(@"test14ll done");
-	return 1234567890123ll;
+	return 0x7fff00ffff00ff00ll;
 }
 
 - (void) test14ll
@@ -406,7 +406,7 @@ struct fd
 	id target=self;
 	SEL sel=@selector(invoke14ll:b:);
 	char a='a';
-	long long b=9876543210ll;
+	long long b=0x1f00ff0000ff00ffll;
 	long long r;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
@@ -421,7 +421,7 @@ struct fd
 	[i invoke];
 	STAssertEquals(invoked, -14, nil);
 	[i getReturnValue:&r];
-	STAssertEquals(r, 1234567890123ll, nil);
+	STAssertEquals(r, 0x7fff00ffff00ff00ll, nil);
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 STAssertEqualObjects(obj, @"a", nil);
@@ -502,10 +502,10 @@ struct mystruct
 	NSLog(@"invoke15 called");
 	invoked=15;
 	STAssertEquals(a, (char) 'a', nil);
-	STAssertEquals(b.a, 1234, nil);
-	STAssertEquals(b.b, 123456789ll, nil);
-	STAssertEquals(c->a, 4321, nil);
-	STAssertEquals(c->b, 987654321ll, nil);
+	STAssertEquals(b.a, 0x1234, nil);
+	STAssertEquals(b.b, 0x7fff00ffff00ff00ll, nil);
+	STAssertEquals(c->a, 0x4321, nil);
+	STAssertEquals(c->b, 0x1f00ff0000ff00ffll, nil);
 	NSLog(@"invoke15 returning");
 	return (struct mystruct) { 0xaadd, 0xbbccddee };
 }
@@ -515,8 +515,8 @@ struct mystruct
 	id target=self;
 	SEL sel=@selector(invoke15:b:c:);
 	char a='a';
-	struct mystruct b={ 1234, 123456789 };
-	struct mystruct c={ 4321, 987654321 }, *cp=&c;
+	struct mystruct b={ 0x1234, 0x7fff00ffff00ff00ll };
+	struct mystruct c={ 0x4321, 0x1f00ff0000ff00ffll }, *cp=&c;
 	struct mystruct r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
