@@ -137,7 +137,7 @@ NSString *NSLocaleCurrencyCode=@"NSLocaleCurrencyCode";
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	NSLocale *l=[super copyWithZone:z];
+	NSLocale *l=[NSLocale allocWithZone:z];
 	l->_localeIdentifier=[_localeIdentifier copyWithZone:z];
 	return l;
 }
