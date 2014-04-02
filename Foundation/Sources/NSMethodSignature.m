@@ -135,7 +135,7 @@ struct stackframe /* armhf eabi */
 
 #else	// armel: soft float
 
-#warning "not tested"
+#warning "armel: not tested"
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
@@ -155,7 +155,7 @@ struct stackframe /* armel eabi */
 #endif // __ARM_PCS_VFP
 #else // not EABI - must be OABI
 
-#error "not tested"
+#error "arm oabi: not tested"
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
@@ -175,7 +175,7 @@ struct stackframe /* armel oabi */
 #endif	// ARM_EABI
 #elif defined(__mips__)	// for MIPS
 
-#warning "not tested"
+#warning "mips: not tested"
 
 #define FLOAT_AS_DOUBLE					YES
 #define MIN_ALIGN						sizeof(long)
@@ -1070,6 +1070,10 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 					*a = (void *) (f->more + argFrameLength);
 				}
 		}
+	else
+		{ // clear return value (if there is no setReturnValue for a forwardInvocation:
+			memset(_getArgumentAddress(frame, info[0]), 0, info[0].size);
+		}
 	return frame;
 }
 
@@ -1290,9 +1294,8 @@ break; \
 static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct NSArgumentInfo *info)
 { // wrap call by C function because it fails if __builtin_apply is called directly from within a Objective-C method
 #ifndef __APPLE__
-	void *retbuf;
 	unsigned structlen=info[0].size;
-	retbuf=_getArgumentAddress(frame, info[0]);
+	void *retbuf=_getArgumentAddress(frame, info[0]);
 #if 0
 	NSLog(@"wrapped_builtin_apply: type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
