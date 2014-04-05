@@ -8,7 +8,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2013
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2014
 # This document is licenced using LGPL
 #
 # Requires Xcode 3.2 or later
@@ -18,13 +18,13 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 #  1. create a project.qcodeproj file
 #  2. open through QuantumCode and edit the project definitions
-#  3. open the xcode project
+#  3. open the Xcode project
 #  4. select the intended target in the Targets group
 #  5. select from the menu Build/New Build Phase/New Shell Script Build Phase
 #  6. select the "Shell Script Files" phase in the target
 #  7. open the information (i) or (Apple-I)
 #  8. add the following code into the "Script" area
-#     ./project.qcodeproj
+#     cd path-to qcodeproj; ./project.qcodeproj
 #  9. Build the project (either in deployment or development mode)
 #
 endif
@@ -37,30 +37,6 @@ include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean build build_architecture
 
-# FIXME: is this ARCHITECTURES variable still used?
-ARCHITECTURES=arm-linux-gnueabi
-
-ifeq ($(BUILD_FOR_DEPLOYMENT),true)
-ifeq ($(ARCHITECTURES),)
-# set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
-# and that other libraries and include directories are available...
-# should exclude i386-apple-darwin
-ARCHITECTURES=$(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-# ARCHITECTURES+=i386-apple-darwin
-endif
-endif
-
-ifeq ($(ARCHITECTURES),)	# try to read from ZMacSync
-ARCHITECTURES:=$(shell defaults read de.dsitri.ZMacSync SelectedArchitecture 2>/dev/null)
-endif
-
-ifeq ($(ARCHITECTURES),)	# still not defined
-ARCHITECTURES=i486-linux-gnu
-endif
-
-# experimental
-# ARCHITECTURES+=i386-apple-darwin
-
 # configure Embedded System if undefined
 
 ROOT:=$(QuantumSTEP)
@@ -70,15 +46,8 @@ ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
-# FIXME: zaurusconnect (rename to zrsh) should simply know how to access the currently selected device
-
-IP_ADDR:=$(shell defaults read de.dsitri.ZMacSync SelectedHost 2>/dev/null)
-
-ifeq ($(IP_ADDR),)	# set a default
-IP_ADDR:=192.168.129.201
-endif
-
 DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
+# DOWNLOAD := $(QuantumSTEP)/System/Library/Frameworks/DeviceManager/Contents/MacOS/qsrsh -l
 
 # tools
 ifeq ($(shell uname),Darwin)
@@ -186,16 +155,22 @@ endif
 endif
 endif
 
+# default is to build for all
+
 ifeq ($(DEBIAN_ARCHITECTURES),)
+# try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
 DEBIAN_ARCHITECTURES=armel armhf i386 # mipsel -ltiff is broken
 endif
 
 # this is the default/main target
 
-build:	build_doxy
+build:	build_doxy make_php build_debs install_local install_tool deploy_remote launch_remote
+	date
+
+build_debs:
+
 ### check if meta package
 ### copy/install $DATA and $FILES
-### use ARCHITECTURE=all
 ### build_deb (only)
 ### architecture all-packages are part of machine specific Packages.gz (!)
 ### there is not necessarily a special binary-all directory but we can do that
@@ -218,15 +193,6 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
-ifneq ($(ARCHITECTURES),)
-	# make for architectures $(ARCHITECTURES)
-	for ARCH in $(ARCHITECTURES); do \
-		echo "*** building for $$ARCH ***"; \
-		export ARCHITECTURE="$$ARCH"; \
-		export ARCHITECTURES="$$ARCHITECTURES"; \
-		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
-		done
-endif
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -244,7 +210,7 @@ OPTIMIZE := 2
 	# install in our file system so that we can build the package
 INSTALL := true
 	# don't send to the device
-SEND2ZAURUS := false
+DEPLOY := false
 	# and don't run
 RUN := false
 endif
@@ -282,12 +248,12 @@ TARGET_INSTALL_PATH := $(INSTALL_PATH)
 endif
 
 # check if embedded device responds
-ifneq ($(SEND2ZAURUS),false) # check if we can reach the device
-ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
-SEND2ZAURUS := false
-RUN := false
-endif
-endif
+#ifneq ($(DEPLOY),false) # check if we can reach the device
+#ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
+#DEPLOY := false
+#RUN := false
+#endif
+#endif
 
 # could better check ifeq ($(PRODUCT_TYPE),com.apple.product-type.framework)
 
@@ -434,13 +400,11 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 # makefile targets
 #
 
-build_architecture: make_bundle make_exec make_binary make_php install_local install_tool install_remote launch_remote
-	# $(BINARY) for $(ARCHITECTURE) built.
-	date
-
 make_bundle:
+# make bundle
 
 make_exec: "$(EXEC)"
+# make exec
 
 ifneq ($(strip $(SRCOBJECTS)),)
 make_binary: "$(BINARY)"
@@ -451,6 +415,7 @@ make_binary:
 endif
 
 make_php:
+# make PHP
 	for PHP in *.php Sources/*.php; do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
@@ -546,7 +511,7 @@ endif
 DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
-build_deb: make_bundle make_exec make_binary install_tool \
+build_deb: make_bundle make_exec make_binary \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
@@ -699,13 +664,14 @@ else
 endif
 
 install_local:
+# install_local
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 else
 	# don't install local
 endif
-	
+
 install_tool:
 ifneq ($(OBJECTS),)
 ifneq ($(INSTALL),false)
@@ -716,27 +682,31 @@ else
 endif
 endif
 
-install_remote:
+deploy_remote:
 ifneq ($(OBJECTS),)
-ifneq ($(SEND2ZAURUS),false)
-	ls -l "$(BINARY)"
+ifneq ($(DEPLOY),false)
+	- ls -l "$(BINARY)" # fails because we are on the outer level and have included an empty $DEBIAN_ARCHTIECTURE in $BINARY
+	#"$(DOWNLOAD) -a" | while read DEVICE
+	#do
+	#$(DOWNLOAD) -d $DEVICE command
 	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -"
-	# installed on $(IP_ADDR) at $(TARGET_INSTALL_PATH)
+	- echo installed on $(IP_ADDR) at $(TARGET_INSTALL_PATH)
+	#done
 else
-	# don't install on $(IP_ADDR)
+	# not deployed
 endif
 endif
 
 launch_remote:
 ifneq ($(OBJECTS),)
-ifneq ($(SEND2ZAURUS),false)
+ifneq ($(DEPLOY),false)
 ifneq ($(RUN),false)
 ifeq ($(WRAPPER_EXTENSION),app)
 	# try to launch $(RUN) Application
 	: defaults write com.apple.x11 nolisten_tcp false; \
 	defaults write org.x.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
-	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
+	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
 	$(DOWNLOAD) \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
 endif		
