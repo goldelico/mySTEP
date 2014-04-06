@@ -41,13 +41,15 @@ include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 ROOT:=$(QuantumSTEP)
 
-# read $(shell defaults read de.dsitri.ZMacSync RootPath 2>/dev/null)
 ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
-DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
-# DOWNLOAD := $(QuantumSTEP)/System/Library/Frameworks/DeviceManager/Contents/MacOS/qsrsh -l
+### FIXME: what is the right path???
+
+# DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
+DOWNLOAD := $(QuantumSTEP)/System/Library/Frameworks/DeviceManager/Contents/MacOS/qsrsh
+DOWNLOAD := $(QuantumSTEP)/System/Sources/PrivateFrameworks/DeviceManager/build/Development/qsrsh
 
 # tools
 ifeq ($(shell uname),Darwin)
@@ -668,6 +670,7 @@ install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
+	# installed on localhost
 else
 	# don't install local
 endif
@@ -686,11 +689,11 @@ deploy_remote:
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
 	- ls -l "$(BINARY)" # fails because we are on the outer level and have included an empty $DEBIAN_ARCHTIECTURE in $BINARY
-	#"$(DOWNLOAD) -a" | while read DEVICE
-	#do
-	#$(DOWNLOAD) -d $DEVICE command
-	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -"
-	- echo installed on $(IP_ADDR) at $(TARGET_INSTALL_PATH)
+	- $(DOWNLOAD) -a | while read DEVICE NAME; \
+		do \
+		$(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" ; \
+		echo installed on $$NAME at $(TARGET_INSTALL_PATH); \
+		done
 	#done
 else
 	# not deployed
@@ -707,8 +710,10 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	defaults write org.x.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
-	$(DOWNLOAD) \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
+	RUN=$$($(DOWNLOAD) -r) | head -n 1) \
+	[ "$$RUN" ] && $(DOWNLOAD) $$RUN \
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
+		|| echo failed to run;
 endif		
 endif
 endif
