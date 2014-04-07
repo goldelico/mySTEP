@@ -48,8 +48,9 @@ endif
 ### FIXME: what is the right path???
 
 # DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
-DOWNLOAD := $(QuantumSTEP)/System/Library/Frameworks/DeviceManager/Contents/MacOS/qsrsh
-DOWNLOAD := $(QuantumSTEP)/System/Sources/PrivateFrameworks/DeviceManager/build/Development/qsrsh
+# FIXME: this does only work on the Mac! On embedded the qsrsh is in /usr/bin/$HOST_ARCH or $PATH
+DOWNLOAD := $(QuantumSTEP)/usr/bin/qsrsh
+# DOWNLOAD := $(QuantumSTEP)/System/Sources/PrivateFrameworks/DeviceManager/build/Development/qsrsh
 
 # tools
 ifeq ($(shell uname),Darwin)
@@ -117,11 +118,13 @@ endif
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
-	NAME_EXT=$(PRODUCT_NAME)
-	PKG=$(BUILT_PRODUCTS_DIR)/$(ARCHITECTURE)/bin
-	EXEC=$(PKG)
-	BINARY=$(EXEC)/$(NAME_EXT)
-	# architecture specific version (only if it does not yet have the prefix
+	# shared between all binary tools
+	NAME_EXT=bin
+	# this keeps the binaries separated for installation/packaging
+	PKG=$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).bin
+	EXEC=$(PKG)/$(NAME_EXT)/$(ARCHITECTURE)
+	BINARY=$(EXEC)/$(PRODUCT_NAME)
+	# architecture specific version (only if it does not yet have the prefix)
 ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)$(INSTALL_PATH)
 endif
@@ -166,7 +169,7 @@ endif
 
 # this is the default/main target
 
-build:	build_doxy make_php build_debs install_local install_tool deploy_remote launch_remote
+build:	build_doxy make_php build_debs install_local_in_library install_local deploy_remote launch_remote
 	date
 
 build_debs:
@@ -665,30 +668,35 @@ else
 	# no debug version
 endif
 
-install_local:
-# install_local
+install_local_in_library:
+# install_local_in_library
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 	# installed on localhost
 else
-	# don't install local
+	# don't install local in /Library/Frameworks
 endif
 
-install_tool:
+install_local:
 ifneq ($(OBJECTS),)
 ifneq ($(INSTALL),false)
-	$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
+	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
+	# therefore the rm is disabled (which may leave files if we remove them from the sources/resources)
+	- $(TAR) czf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
-	# don't install tool
+	# don't install locally
 endif
 endif
 
 deploy_remote:
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
-	- ls -l "$(BINARY)" # fails because we are on the outer level and have included an empty $DEBIAN_ARCHTIECTURE in $BINARY
+	# depoly remote
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- $(DOWNLOAD) -a | while read DEVICE NAME; \
 		do \
 		$(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" ; \
