@@ -697,10 +697,10 @@ ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
 	# depoly remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
-	- $(DOWNLOAD) -a | while read DEVICE NAME; \
+	- $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
-		$(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" ; \
-		echo installed on $$NAME at $(TARGET_INSTALL_PATH); \
+		$(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
+		&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
 	#done
 else
