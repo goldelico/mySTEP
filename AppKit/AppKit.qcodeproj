@@ -129,6 +129,8 @@ export SOURCES+=" Sources/Externs.m"
 export SOURCES+=" Sources/Functions.m"
 export SOURCES+=" Sources/GSBitmapImageReps.m"
 export SOURCES+=" Sources/GSServices.m"
+export WRAPPER_EXTENSION="framework"
+
 
 
 
