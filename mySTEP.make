@@ -169,12 +169,20 @@ endif
 
 # this is the default/main target
 
-build:	build_doxy make_php build_debs install_local_in_library install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy make_php build_debs install_local_in_library install_local deploy_remote launch_remote
 	date
 
-build_debs:
+# FIXME: QuantumCode should protect that we don't include ourselves…
+# FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
-### check if meta package
+build_subprojects:
+ifeq ($(RECURSIVE),true)
+	for i in $(SUBPROJECTS); \
+		do ( cd $$(dirname $$i) && ./$$(basename $$i) ); \
+	done
+endif
+
+### check for debian meta package
 ### copy/install $DATA and $FILES
 ### build_deb (only)
 ### architecture all-packages are part of machine specific Packages.gz (!)
@@ -182,6 +190,7 @@ build_debs:
 
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
+build_debs:
 ifneq ($(DEBIAN_ARCHITECTURES),)
 	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
