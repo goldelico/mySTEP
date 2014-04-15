@@ -3,7 +3,7 @@
 export DEBIAN_DEPENDS="quantumstep-foundation-framework"
 export DEBIAN_DEPENDS+=", quantumstep-appkit-framework"
 export INSTALL_PATH="/System/Library/Frameworks"
-export PRODUCT_NAME="Addressbook"
+export PRODUCT_NAME="AddressBook"
 export SOURCES="ABAddressBook.m"
 export SOURCES+=" ABGlobals.m"
 export SOURCES+=" ABGroup.m"
