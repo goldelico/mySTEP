@@ -20,6 +20,11 @@ export DEBIAN_DEPENDS+=", quantumstep-coremotion-framework"
 export DEBIAN_DEPENDS+=", quantumstep-corewlan-framework"
 export DEBIAN_DEPENDS+=", quantumstep-corerfid-framework"
 export PRODUCT_NAME="Frameworks"
+export SOURCES="AddressBook/AddressBook.qcodeproj"
+export SOURCES+=" AppKit/AppKit.qcodeproj"
+export SOURCES+=" Cocoa/Cocoa.qcodeproj"
+export SOURCES+=" Foundation/Foundation.qcodeproj"
+
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
 /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
