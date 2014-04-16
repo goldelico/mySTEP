@@ -4,7 +4,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # This file is part of mySTEP
 #
-# Last Change: $Id$
+# Last Change: $Id: mySTEP.make 3263 2014-04-07 09:44:11Z hns $
 #
 # You should not edit this file as it affects all projects you will compile!
 #
@@ -169,7 +169,7 @@ endif
 
 # this is the default/main target
 
-build:	build_doxy make_php build_debs install_local_in_library install_local deploy_remote launch_remote
+build:	build_doxy make_php install_local_in_library install_local build_debs deploy_remote launch_remote
 	date
 
 build_debs:
@@ -203,6 +203,10 @@ __dummy__:
 	# dummy target to allow for comments while setting more make variables
 	
 	# override if (stripped) package is build using xcodebuild
+
+ifeq ($(RUN_CMD),)
+RUN_CMD := run
+endif
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # ifneq ($(BUILD_STYLE),Development)
@@ -718,9 +722,9 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	defaults write org.x.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
-	RUN=$$($(DOWNLOAD) -r) | head -n 1) \
-	[ "$$RUN" ] && $(DOWNLOAD) $$RUN \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
+	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) \
+	[ "$$RUN" ] && $(DOWNLOAD) $$RUN_DEVICE \
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
 		|| echo failed to run;
 endif		
 endif
