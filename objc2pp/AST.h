@@ -22,6 +22,9 @@
 	NSMutableArray *children;	// subnodes
 }
 
++ (Node *) nodeWithContentsOfFile:(NSString *) path;	// unarchive from file
+- (BOOL) writeToFile:(NSString *) path;	// archive to file
+
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
 
 // type should be ordinary alphanum or we can't define the methods for doSelectorByType:
