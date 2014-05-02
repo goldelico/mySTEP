@@ -58,10 +58,14 @@ int main(int argc, char *argv[])
 		char first[512];
 		int l;
 		n=nil;
-		NSString *object=nil;
+		NSString *object=@"take $1 as path name";
 		if(precompile)
 			{
-			// derive binary name from source by appending o, i.e. .m -> .mo, .c -> .co
+			if([[object pathExtension] length] > 0)
+				object=[object stringByAppendingString:@"objc"];	// extend suffix
+			else
+				object=[object stringByAppendingPathExtension:@"objc"];	// first suffix
+			// derive binary name from source by appending o, i.e. .m -> .mobjc, .c -> .cobjc
 			// try to load n from precompiled file
 			// and check if source script is newer
 			n=[Node nodeWithContentsOfFile:object];

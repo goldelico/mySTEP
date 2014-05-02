@@ -1,4 +1,4 @@
-#### OLD ####
+#### OLD (?) ####
 
 YFLAGS  = -d -b y
 # enable debug:

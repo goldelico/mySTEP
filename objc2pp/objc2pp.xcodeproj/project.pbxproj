@@ -72,6 +72,7 @@
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		EE5539D41913C78900C22634 /* Evaluate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evaluate.h; sourceTree = "<group>"; };
 		EE5539D51913C78900C22634 /* Evaluate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Evaluate.m; sourceTree = "<group>"; };
+		EE553A0D1913D2FF00C22634 /* script.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = script.m; path = test/script.m; sourceTree = "<group>"; };
 		EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
 		EE55BFD01504DB7400BDF3F7 /* objc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,25 +137,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EE6D3DE0137553DE003D5863 /* Testing */ = {
+		EE553A0E1913D42200C22634 /* objc */ = {
 			isa = PBXGroup;
 			children = (
 				EE4108520B956BA30065DD36 /* main.m */,
+			);
+			name = objc;
+			sourceTree = "<group>";
+		};
+		EE6D3DE0137553DE003D5863 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
 				EE6D3E0013755472003D5863 /* Input */,
 				EE6D3DE713755422003D5863 /* Output */,
 			);
-			name = Testing;
+			name = Tests;
 			sourceTree = "<group>";
 		};
 		EE6D3DE3137553ED003D5863 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				EE4108530B956BA30065DD36 /* Makefile */,
+				EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */,
 				EE67075B17184FF000A38486 /* gram.ym */,
 				EE67075517184EDD00A38486 /* scan.lm */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
-				EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -180,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				EE6D3E0513755497003D5863 /* main.m */,
+				EE553A0D1913D2FF00C22634 /* script.m */,
 				EE6D3DDD137553CE003D5863 /* simple.m */,
 				EEEB4C461509E84D000EE2E5 /* special.m */,
 				EEFD77D40B957C83002EA6A8 /* test.m */,
@@ -187,7 +196,7 @@
 			name = Input;
 			sourceTree = "<group>";
 		};
-		EE8E488B16F21D7D00DF50B4 /* Actions */ = {
+		EE8E488B16F21D7D00DF50B4 /* Compiler Actions */ = {
 			isa = PBXGroup;
 			children = (
 				EEEB70FD150DD753000EE2E5 /* Expression.h */,
@@ -207,7 +216,7 @@
 				EE8E48C216F22BD500DF50B4 /* compile.h */,
 				EE8E48C316F22BD500DF50B4 /* compile.m */,
 			);
-			name = Actions;
+			name = "Compiler Actions";
 			sourceTree = "<group>";
 		};
 		EED3C1200488F87500000103 = {
@@ -218,9 +227,10 @@
 				EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */,
 				EE8E487C16F21C0900DF50B4 /* objc2pp.qcodeproj */,
 				EE6D3DE3137553ED003D5863 /* Source */,
-				EE8E488B16F21D7D00DF50B4 /* Actions */,
+				EE8E488B16F21D7D00DF50B4 /* Compiler Actions */,
 				EE088098171C1A7700CD24AD /* DerivedSources */,
-				EE6D3DE0137553DE003D5863 /* Testing */,
+				EE553A0E1913D42200C22634 /* objc */,
+				EE6D3DE0137553DE003D5863 /* Tests */,
 				EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */,
 				EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */,
 				EE55BFD01504DB7400BDF3F7 /* objc */,
@@ -382,7 +392,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"copying $BUILT_PRODUCTS_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION -> /Library/Frameworks\"\n(cd $BUILT_PRODUCTS_DIR && tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd /Library/Frameworks && tar xvzf -) \n";
+			shellScript = "## FIXME: this can now be done my mySTEP.make\necho \"copying $BUILT_PRODUCTS_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION -> /Library/Frameworks\"\n(cd $BUILT_PRODUCTS_DIR && tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd /Library/Frameworks && tar xvzf -) \n";
 		};
 		EEEB4C051508D643000EE2E5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -539,7 +549,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
+				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -561,7 +571,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
+				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -582,7 +592,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
+				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
