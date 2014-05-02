@@ -327,6 +327,8 @@ XSOURCES := $(wildcard $(SOURCES))
 # get the objects from all sources we need to compile and link
 OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
 CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
+LEXSRCS := $(filter %.l %.lm,$(XSOURCES))
+YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
 SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
 OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
@@ -391,7 +393,7 @@ LIBRARIES += -lgcc_s
 endif
 endif
 
-.SUFFIXES : .o .c .cpp .m
+.SUFFIXES : .o .c .cpp .m .lm .ym
 
 # adding /+ to the file path looks strange but is to avoid problems with ../neighbour/source.m
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
@@ -413,6 +415,8 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+
+# FIXME: handle .lm .ym
 
 #
 # makefile targets

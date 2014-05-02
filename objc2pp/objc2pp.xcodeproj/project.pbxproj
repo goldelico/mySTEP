@@ -369,7 +369,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
+			shellScript = "# currently disabled because we can't cross-compule .lm and .ym files yet\n# and therefore the grammar is missing in ObjC.framework\n\nexit\n\nexport QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
 		};
 		EEEB4C031508D63A000EE2E5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
