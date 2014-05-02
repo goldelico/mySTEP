@@ -3,10 +3,8 @@
 export DEBIAN_DEPENDS="quantumstep-objc-framework"
 export FRAMEWORKS="ObjCKit CoreLocation"
 export INSTALL_PATH="/Developer/bin"
-export PRODUCT_NAME="objc2pp"
+export PRODUCT_NAME="objc"
 export SOURCES="main.m"
-
-
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
 /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION

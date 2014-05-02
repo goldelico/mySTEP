@@ -21,6 +21,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		EE5539D61913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
+		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; };
+		EE5539D81913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
 		EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22087E14EDB23500E78349 /* AST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D6105137AF9E5007F7BD7 /* AST.m */; };
 		EE55BFD61504DB8100BDF3F7 /* ObjCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */; };
@@ -67,9 +70,11 @@
 		EE22088A14EDB51200E78349 /* Simplify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simplify.m; sourceTree = "<group>"; };
 		EE4108520B956BA30065DD36 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		EE5539D41913C78900C22634 /* Evaluate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evaluate.h; sourceTree = "<group>"; };
+		EE5539D51913C78900C22634 /* Evaluate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Evaluate.m; sourceTree = "<group>"; };
 		EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
-		EE55BFD01504DB7400BDF3F7 /* objc2pp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc2pp; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE55BFD01504DB7400BDF3F7 /* objc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE67070617183F7300A38486 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE67075517184EDD00A38486 /* scan.lm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; path = scan.lm; sourceTree = "<group>"; };
 		EE67075B17184FF000A38486 /* gram.ym */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = gram.ym; sourceTree = "<group>"; };
@@ -189,6 +194,8 @@
 				EEEB70FE150DD753000EE2E5 /* Expression.m */,
 				EE22088714EDB47600E78349 /* Print.h */,
 				EE22088814EDB47600E78349 /* Print.m */,
+				EE5539D41913C78900C22634 /* Evaluate.h */,
+				EE5539D51913C78900C22634 /* Evaluate.m */,
 				EE22088914EDB51200E78349 /* Simplify.h */,
 				EE22088A14EDB51200E78349 /* Simplify.m */,
 				EE8E488716F21D6400DF50B4 /* Refactor.h */,
@@ -216,7 +223,7 @@
 				EE6D3DE0137553DE003D5863 /* Testing */,
 				EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */,
 				EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */,
-				EE55BFD01504DB7400BDF3F7 /* objc2pp */,
+				EE55BFD01504DB7400BDF3F7 /* objc */,
 				EE67070617183F7300A38486 /* test */,
 			);
 			sourceTree = "<group>";
@@ -230,6 +237,7 @@
 			files = (
 				EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */,
 				EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */,
+				EE5539D71913C78900C22634 /* Evaluate.h in Headers */,
 				EE8E488916F21D6400DF50B4 /* Refactor.h in Headers */,
 				EE8E493F16F23D4800DF50B4 /* Print.h in Headers */,
 				EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */,
@@ -278,7 +286,7 @@
 			);
 			name = objc2pp;
 			productName = objc2pp;
-			productReference = EE55BFD01504DB7400BDF3F7 /* objc2pp */;
+			productReference = EE55BFD01504DB7400BDF3F7 /* objc */;
 			productType = "com.apple.product-type.tool";
 		};
 		EE67070517183F7300A38486 /* test */ = {
@@ -347,7 +355,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\t# here we would have to define all -I and -D\nPREPROCESS=\"cc -E -P\"\t# this variant applies the default definitions and search paths of gcc\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc2pp\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
+			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\t# here we would have to define all -I and -D\nPREPROCESS=\"cc -E -P\"\t# this variant applies the default definitions and search paths of gcc\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc -c\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
 		};
 		EE8B94D8153DC9D0009770D4 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -399,6 +407,7 @@
 			files = (
 				EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */,
 				EEEB7100150DD753000EE2E5 /* Expression.m in Sources */,
+				EE5539D81913C78900C22634 /* Evaluate.m in Sources */,
 				EEC876B11716E39E0093590B /* Print.m in Sources */,
 				EEC876B01716E3900093590B /* Simplify.m in Sources */,
 				EE8E488A16F21D6400DF50B4 /* Refactor.m in Sources */,
@@ -415,6 +424,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */,
+				EE5539D61913C78900C22634 /* Evaluate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,7 +547,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = objc2pp;
+				PRODUCT_NAME = objc;
 			};
 			name = Development;
 		};
@@ -559,7 +569,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = objc2pp;
+				PRODUCT_NAME = objc;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -580,7 +590,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = objc2pp;
+				PRODUCT_NAME = objc;
 			};
 			name = Default;
 		};
