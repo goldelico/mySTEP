@@ -1,4 +1,5 @@
 #import <ObjCKit/AST.h>
+#import <ObjCKit/Evaluate.h>
 #import <ObjCKit/Expression.h>
 #import <ObjCKit/Print.h>
 #import <ObjCKit/Simplify.h>
