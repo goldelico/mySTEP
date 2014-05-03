@@ -269,7 +269,6 @@
 				EE55BFBC1504DB3900BDF3F7 /* Resources */,
 				EE55BFBD1504DB3900BDF3F7 /* Sources */,
 				EE55BFBE1504DB3900BDF3F7 /* Frameworks */,
-				EEEB4C031508D63A000EE2E5 /* ShellScript */,
 				EEEB4C051508D643000EE2E5 /* Cross Compile */,
 			);
 			buildRules = (
@@ -379,20 +378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# currently disabled because we can't cross-compule .lm and .ym files yet\n# and therefore the grammar is missing in ObjC.framework\n\nexit\n\nexport QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
-		};
-		EEEB4C031508D63A000EE2E5 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "## FIXME: this can now be done my mySTEP.make\necho \"copying $BUILT_PRODUCTS_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION -> /Library/Frameworks\"\n(cd $BUILT_PRODUCTS_DIR && tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd /Library/Frameworks && tar xvzf -) \n";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
 		};
 		EEEB4C051508D643000EE2E5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -406,7 +392,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./ObjCKit.qcodeproj";
+			shellScript = "ADD_MAC_LIBRARY=true ./ObjCKit.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 
