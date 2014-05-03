@@ -192,6 +192,7 @@ endif
 
 build_debs:
 ifneq ($(DEBIAN_ARCHITECTURES),)
+ifneq ($(DEBIAN_ARCHITECTURES),none)
 	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
@@ -206,6 +207,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
+endif
 endif
 
 __dummy__:
