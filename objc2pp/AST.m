@@ -12,10 +12,6 @@ BOOL _debug;
 	extern int yyparse();
 	extern void scaninit(void);
 	extern Node *rootnode;
-#if 0
-	extern int yydebug;
-	yydebug=1;
-#endif
 	static BOOL busy=NO;
 	NSAssert(!busy, @"parser is busy");
 	busy=YES;

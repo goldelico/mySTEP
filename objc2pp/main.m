@@ -46,7 +46,11 @@ int main(int argc, char *argv[])
 					// FIXME: allow setting --pretty-spaciness --max-line-length etc.
 				case 'c': compile=YES; break;
 					// case 'b' install pipeline bundle
-				case 'd': _debug=YES; break;
+				case 'd': {
+					extern int yydebug;
+					if(_debug) yydebug=1;
+					_debug=YES; break;
+				}
 				case 'I':
 				default:
 					usage();
