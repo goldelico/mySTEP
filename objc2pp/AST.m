@@ -3,6 +3,8 @@
 
 #import <ObjCKit/AST.h>
 
+BOOL _debug;
+
 #if OLD
 
 #include "node.h"

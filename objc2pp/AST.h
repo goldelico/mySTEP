@@ -14,6 +14,8 @@
 // request substream for #import and #include...
 @end
 
+extern BOOL _debug;
+
 @interface Node : NSObject
 { /* internal structure */
 	NSString *type;	// node type

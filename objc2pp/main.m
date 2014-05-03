@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
 					// FIXME: allow setting --pretty-spaciness --max-line-length etc.
 				case 'c': compile=YES; break;
 					// case 'b' install pipeline bundle
+				case 'd': _debug=YES; break;
 				case 'I':
 				default:
 					usage();
@@ -71,14 +72,10 @@ int main(int argc, char *argv[])
 				object=[source stringByAppendingString:@"objc"];	// extend suffix
 			else
 				object=[source stringByAppendingPathExtension:@"objc"];	// first suffix
-#if 0
-			NSLog(@"%@ -> %@", source, object);
-#endif
+			if(_debug) NSLog(@"%@ -> %@", source, object);
 			sattribs=[fm attributesOfItemAtPath:source error:NULL];
 			oattribs=[fm attributesOfItemAtPath:object error:NULL];
-#if 0
-			NSLog(@"%@ -> %@", sattribs, oattribs);
-#endif
+			if(_debug) NSLog(@"%@ -> %@", sattribs, oattribs);
 			if(oattribs && [[sattribs fileModificationDate] compare:[oattribs fileModificationDate]] != NSOrderedDescending)
 				{ // source is older so we don't need to recompile
 				n=[Node nodeWithContentsOfFile:object];
@@ -87,9 +84,8 @@ int main(int argc, char *argv[])
 		if(!n)
 			{
 			int fd=open(argv[1], 0);
-#if 1
-			NSLog(@"didn't load from %@", object);
-#endif
+			if(_debug)
+				NSLog(@"didn't load from %@", object);
 			if(fd < 0)
 				{
 				perror("input file");
