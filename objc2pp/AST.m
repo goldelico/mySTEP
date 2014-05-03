@@ -243,6 +243,29 @@ void setkeyval(int dictionary, const char *key, int value)
 	return n;
 }
 
++ (Node *) nodeWithContentsOfFile:(NSString *) path;
+{ // unarchive from file
+	id obj=nil;
+#if 1
+	NSLog(@"unarchive %@", path);
+#endif
+	NS_DURING
+		obj=[NSUnarchiver unarchiveObjectWithFile:path];
+	NS_HANDLER
+	NS_ENDHANDLER
+	if([obj isKindOfClass:self])
+		return obj;	// did properly unarchive
+	return nil;	// unarchiving error
+}
+
+- (BOOL) writeToFile:(NSString *) path;
+{ // archive to file
+#if 1
+	NSLog(@"archive to %@", path);
+#endif
+	return [NSArchiver archiveRootObject:self toFile:path];
+}
+
 - (id) attributeForKey:(NSString *) key
 { // look up identifier
 	return [attributes objectForKey:key];
