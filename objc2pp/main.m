@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 			switch(*c++) {
 				case 'l': lint=YES; break;
 				case 'p': pretty=YES; break;
+					// FIXME: allow setting --pretty-spaciness --max-line-length etc.
 				case 'c': compile=YES; break;
 					// case 'b' install pipeline bundle
 				case 'I':
@@ -58,35 +59,62 @@ int main(int argc, char *argv[])
 		char first[512];
 		int l;
 		n=nil;
-		NSString *object=@"take $1 as path name";
+		NSString *object=nil;
 		if(precompile)
 			{
-			if([[object pathExtension] length] > 0)
-				object=[object stringByAppendingString:@"objc"];	// extend suffix
+			NSFileManager *fm=[NSFileManager defaultManager];
+			NSString *source;
+			NSDictionary *sattribs;
+			NSDictionary *oattribs;
+			source=[fm stringWithFileSystemRepresentation:argv[1] length:strlen(argv[1])];
+			if([[source pathExtension] length] > 0)
+				object=[source stringByAppendingString:@"objc"];	// extend suffix
 			else
-				object=[object stringByAppendingPathExtension:@"objc"];	// first suffix
-			// derive binary name from source by appending o, i.e. .m -> .mobjc, .c -> .cobjc
-			// try to load n from precompiled file
-			// and check if source script is newer
-			n=[Node nodeWithContentsOfFile:object];
+				object=[source stringByAppendingPathExtension:@"objc"];	// first suffix
+#if 0
+			NSLog(@"%@ -> %@", source, object);
+#endif
+			sattribs=[fm attributesOfItemAtPath:source error:NULL];
+			oattribs=[fm attributesOfItemAtPath:object error:NULL];
+#if 0
+			NSLog(@"%@ -> %@", sattribs, oattribs);
+#endif
+			if(oattribs && [[sattribs fileModificationDate] compare:[oattribs fileModificationDate]] != NSOrderedDescending)
+				{ // source is older so we don't need to recompile
+				n=[Node nodeWithContentsOfFile:object];
+				}
 			}
 		if(!n)
 			{
 			int fd=open(argv[1], 0);
+#if 1
+			NSLog(@"didn't load from %@", object);
+#endif
 			if(fd < 0)
 				{
-				perror("input file:");
+				perror("input file");
 				exit(1);
 				}
 			dup2(fd, 0);	// use this file as stdin
 			l=read(0, first, sizeof(first));
-			// check for #!/path prefix
-			// if found, lseek to first real line
-			// else lseek(0, 0l, 0);
+			if(l < 0)
+				{
+				perror("read error");
+				exit(1);
+				}
+			if(l > 3 && strncmp(first, "#!/", 3) == 0)
+				{ // there is a #!/path prefix for the shell
+					int i=0;
+					while(i < l && first[i] != '\n')
+						i++;	// search first \n
+					lseek(0, i, 0);	// rewind to first \n
+				}
+			else
+				lseek(0, 0l, 0);	// rewind to beginning
 			// pipe through cpp
 			n=[Node parse:nil delegate:nil];	// parse stdin
-			if(precompile)
-				{
+			if(n && precompile)
+				{ // was successfully parsed
 				[n simplify];
 				[n writeToFile:object];	// store n as binary representation for fast execution
 				}
@@ -121,6 +149,7 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
-	[n evaluate:@"main"];	// run in interpreter
+	// and make us call the main() function
+	[n evaluate];	// run in interpreter
 	return 0;
 }
