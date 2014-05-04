@@ -90,7 +90,7 @@
 		EE6D3DFD13755463003D5863 /* test4.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test4.i; path = test/test4.i; sourceTree = "<group>"; };
 		EE6D3E0513755497003D5863 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE6D6105137AF9E5007F7BD7 /* AST.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AST.m; sourceTree = "<group>"; };
-		EE8E487C16F21C0900DF50B4 /* objc2pp.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = objc2pp.qcodeproj; sourceTree = "<group>"; };
+		EE8E487C16F21C0900DF50B4 /* ObjC.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ObjC.qcodeproj; sourceTree = "<group>"; };
 		EE8E488716F21D6400DF50B4 /* Refactor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Refactor.h; sourceTree = "<group>"; };
 		EE8E488816F21D6400DF50B4 /* Refactor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Refactor.m; sourceTree = "<group>"; };
 		EE8E48BE16F22B1200DF50B4 /* objc10.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc10.h; sourceTree = "<group>"; };
@@ -225,7 +225,7 @@
 				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
 				EEEB4C011508D617000EE2E5 /* mySTEP.make */,
 				EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */,
-				EE8E487C16F21C0900DF50B4 /* objc2pp.qcodeproj */,
+				EE8E487C16F21C0900DF50B4 /* ObjC.qcodeproj */,
 				EE6D3DE3137553ED003D5863 /* Source */,
 				EE8E488B16F21D7D00DF50B4 /* Compiler Actions */,
 				EE088098171C1A7700CD24AD /* DerivedSources */,
@@ -280,9 +280,9 @@
 			productReference = EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		EE55BFCF1504DB7400BDF3F7 /* objc2pp */ = {
+		EE55BFCF1504DB7400BDF3F7 /* objc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc2pp" */;
+			buildConfigurationList = EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc" */;
 			buildPhases = (
 				EE55BFCD1504DB7400BDF3F7 /* Sources */,
 				EE55BFCE1504DB7400BDF3F7 /* Frameworks */,
@@ -293,7 +293,7 @@
 			dependencies = (
 				EE55C02D1504DFB600BDF3F7 /* PBXTargetDependency */,
 			);
-			name = objc2pp;
+			name = objc;
 			productName = objc2pp;
 			productReference = EE55BFD01504DB7400BDF3F7 /* objc */;
 			productType = "com.apple.product-type.tool";
@@ -319,7 +319,7 @@
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "objc2pp" */;
+			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -335,7 +335,7 @@
 			projectRoot = "";
 			targets = (
 				EE55BFBF1504DB3900BDF3F7 /* ObjC */,
-				EE55BFCF1504DB7400BDF3F7 /* objc2pp */,
+				EE55BFCF1504DB7400BDF3F7 /* objc */,
 				EE55C0761504F20E00BDF3F7 /* Test */,
 				EE67070517183F7300A38486 /* test */,
 			);
@@ -378,7 +378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc2pp.qcodeproj";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc.qcodeproj";
 		};
 		EEEB4C051508D643000EE2E5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -715,7 +715,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc2pp" */ = {
+		EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE55BFD21504DB7500BDF3F7 /* Development */,
@@ -745,7 +745,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "objc2pp" */ = {
+		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE772D2F0A10C27000F73E78 /* Development */,
