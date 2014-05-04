@@ -4,8 +4,9 @@
 #import <ObjCKit/AST.h>
 
 BOOL _debug;
+int yydebug;
 
-@implementation Node 
+@implementation Node
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
 {

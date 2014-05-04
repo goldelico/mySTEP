@@ -21,7 +21,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		EE5539D61913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
 		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; };
 		EE5539D81913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
 		EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22087E14EDB23500E78349 /* AST.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -420,7 +419,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */,
-				EE5539D61913C78900C22634 /* Evaluate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
