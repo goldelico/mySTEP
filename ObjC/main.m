@@ -23,7 +23,7 @@
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: objc [ -clp ] [ file... ]\n");
+	fprintf(stderr, "usage: objc [ -cdlp ] [ file... ]\n");
 	exit(1);
 }
 
