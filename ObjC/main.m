@@ -87,19 +87,20 @@ int main(int argc, char *argv[])
 			}
 		if(!n)
 			{
-			int fd=open(argv[1], 0);
+			int fd;
 			if(_debug)
 				NSLog(@"didn't load from %@", object);
+			fd=open(argv[1], 0);
 			if(fd < 0)
 				{
-				perror("input file");
+				perror(argv[1]);
 				exit(1);
 				}
 			dup2(fd, 0);	// use this file as stdin
 			l=read(0, first, sizeof(first));
 			if(l < 0)
 				{
-				perror("read error");
+				perror(argv[1]);
 				exit(1);
 				}
 			if(l > 3 && strncmp(first, "#!/", 3) == 0)
