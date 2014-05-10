@@ -55,29 +55,6 @@ int yydebug;
 	return n;
 }
 
-+ (Node *) nodeWithContentsOfFile:(NSString *) path;
-{ // unarchive from file
-	id obj=nil;
-#if 1
-	NSLog(@"unarchive %@", path);
-#endif
-	NS_DURING
-		obj=[NSUnarchiver unarchiveObjectWithFile:path];
-	NS_HANDLER
-	NS_ENDHANDLER
-	if([obj isKindOfClass:self])
-		return obj;	// did properly unarchive
-	return nil;	// unarchiving error
-}
-
-- (BOOL) writeToFile:(NSString *) path;
-{ // archive to file
-#if 1
-	NSLog(@"archive to %@", path);
-#endif
-	return [NSArchiver archiveRootObject:self toFile:path];
-}
-
 - (id) attributeForKey:(NSString *) key
 { // look up identifier
 	return [attributes objectForKey:key];
@@ -326,5 +303,66 @@ int yydebug;
 	[children makeObjectsPerformSelector:aSelector withObject:object];
 }
 
-@end
++ (Node *) nodeWithContentsOfFile:(NSString *) path;
+{ // unarchive from file
+	id obj=nil;
+#if 1
+	NSLog(@"unarchive %@", path);
+#endif
+	NS_DURING
+	obj=[NSUnarchiver unarchiveObjectWithFile:path];
+	NS_HANDLER
+	NS_ENDHANDLER
+	if([obj isKindOfClass:self])
+		return obj;	// did properly unarchive
+	return nil;	// unarchiving error
+}
 
+- (BOOL) writeToFile:(NSString *) path;
+{ // archive to file
+#if 1
+	NSLog(@"archive to %@", path);
+#endif
+	return [NSArchiver archiveRootObject:self toFile:path];
+}
+
+- (id) initWithCoder:(NSCoder *) coder
+{
+//	self=[super initWithCoder:coder];
+	if([coder allowsKeyedCoding])
+		{
+		type=[[coder decodeObjectForKey:@"type"] retain];
+		attributes=[[coder decodeObjectForKey:@"attributes"] retain];
+		parent=[[coder decodeObjectForKey:@"parent"] retain];
+		children=[[coder decodeObjectForKey:@"children"] retain];
+		}
+	else
+		{
+		type=[[coder decodeObject] retain];
+		attributes=[[coder decodeObject] retain];
+		parent=[[coder decodeObject] retain];
+		children=[[coder decodeObject] retain];
+		}
+	return self;
+}
+
+- (void) encodeWithCoder:(NSCoder *) coder
+{
+//	[super encodeWithCoder:coder];
+	if([coder allowsKeyedCoding])
+		{
+		[coder encodeObject:type forKey:@"type"];
+		[coder encodeObject:attributes forKey:@"attributes"];
+		[coder encodeConditionalObject:parent forKey:@"parent"];
+		[coder encodeObject:children forKey:@"children"];
+		}
+	else
+		{
+		[coder encodeObject:type];
+		[coder encodeObject:attributes];
+		[coder encodeConditionalObject:parent];
+		[coder encodeObject:children];
+		}
+}
+
+@end

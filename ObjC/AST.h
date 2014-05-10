@@ -16,7 +16,7 @@
 
 extern BOOL _debug;
 
-@interface Node : NSObject
+@interface Node : NSObject <NSCoding>
 { /* internal structure */
 	NSString *type;	// node type
 	NSMutableDictionary *attributes;		// e.g. leaf value, keyword code, assigned typedef etc.
