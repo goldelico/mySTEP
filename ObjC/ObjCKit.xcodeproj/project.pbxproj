@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		EE5582D3191EA0A700C22634 /* Test script */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EE5582D5191EA0A700C22634 /* Build configuration list for PBXAggregateTarget "Test script" */;
+			buildPhases = (
+				EE5582D4191EA0A700C22634 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Test script";
+			productName = Test;
+		};
 		EE55C0761504F20E00BDF3F7 /* Test */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE55C07F1504F21800BDF3F7 /* Build configuration list for PBXAggregateTarget "Test" */;
@@ -335,6 +346,7 @@
 			targets = (
 				EE55BFBF1504DB3900BDF3F7 /* ObjCKit */,
 				EE55BFCF1504DB7400BDF3F7 /* objc */,
+				EE5582D3191EA0A700C22634 /* Test script */,
 				EE55C0761504F20E00BDF3F7 /* Test */,
 				EE67070517183F7300A38486 /* test */,
 			);
@@ -352,6 +364,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EE5582D4191EA0A700C22634 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm -f test/script.mobjc\ntest/script.m";
+		};
 		EE55C0751504F20E00BDF3F7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -444,6 +469,34 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		EE5582D6191EA0A700C22634 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = Test;
+			};
+			name = Development;
+		};
+		EE5582D7191EA0A700C22634 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = Test;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE5582D8191EA0A700C22634 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Test;
+			};
+			name = Default;
+		};
 		EE55BFC21504DB3A00BDF3F7 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -703,6 +756,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EE5582D5191EA0A700C22634 /* Build configuration list for PBXAggregateTarget "Test script" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE5582D6191EA0A700C22634 /* Development */,
+				EE5582D7191EA0A700C22634 /* Deployment */,
+				EE5582D8191EA0A700C22634 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
 		EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjCKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
