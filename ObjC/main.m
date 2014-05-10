@@ -18,6 +18,13 @@
  * PS: you can also interpret C programs since C is a subset of ObjC
  */
 
+/* FIXME:
+ * allow for configuration through defaults
+ * - where to store compiled binaries (if at all)
+ * - always recompile (for testing)
+ * - default pretty print style
+ */
+
 #import <Cocoa/Cocoa.h>
 #import <ObjCKit/ObjcKit.h>
 
@@ -88,7 +95,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		if(!n)
-			{
+			{ // preparsed tree not found/not loaded
 			int fd;
 			if(_debug)
 				NSLog(@"didn't load from %@", object);
@@ -122,8 +129,6 @@ int main(int argc, char *argv[])
 				[n writeToFile:object];	// store n as binary representation for fast execution
 				}
 			}
-		else
-			n=[Node parse:nil delegate:nil];	// parse stdin
 		}
 	/*
 	 * implement these phases as loadable bundles that can be configured as a pipeline

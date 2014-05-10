@@ -315,6 +315,9 @@ int yydebug;
 	NS_ENDHANDLER
 	if([obj isKindOfClass:self])
 		return obj;	// did properly unarchive
+#if 1
+	NSLog(@"unarchiving error");
+#endif
 	return nil;	// unarchiving error
 }
 
