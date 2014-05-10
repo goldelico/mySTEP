@@ -237,6 +237,13 @@ int yydebug;
 	[children removeObjectAtIndex:idx];
 }
 
+- (Node *) firstChild;
+{
+	if([children count] > 0)
+		return [children objectAtIndex:0];
+	return nil;
+}
+
 - (Node *) lastChild
 {
 	return [children lastObject];

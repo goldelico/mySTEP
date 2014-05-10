@@ -49,6 +49,7 @@ extern BOOL _debug;
 - (void) insertChild:(Node *) n atIndex:(unsigned) idx;
 - (void) removeChild:(Node *) n;
 - (void) removeChildAtIndex:(unsigned) idx;
+- (Node *) firstChild;
 - (Node *) lastChild;
 - (void) removeLastChild;
 - (Node *) childAtIndex:(unsigned) idx;

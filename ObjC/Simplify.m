@@ -24,12 +24,24 @@
 
 - (void) simplify;
 {
-	[self performSelectorForAllChildren:_cmd];
+	// loop while something has been modified
+	[self doSelectorByType:@"simplify"];
+}
+
+- (void) simplifyparaexpr
+{
+	[self replaceBy:[self firstChild]];	// remove braces node
+}
+
+- (void) simplifyblock
+{
+	if([self childrenCount] == 0)
+		[self replaceBy:nil];	// remove
 }
 
 - (void) simplifyif
 {
-	[self performSelectorForAllChildren:_cmd];
+	[self performSelectorForAllChildren:@selector(simplify)];
 	// check for constant condition
 	// replace by then or else part
 	if([self childrenCount] == 0)
@@ -38,7 +50,7 @@
 
 - (void) simplifywhile
 {
-	[self performSelectorForAllChildren:_cmd];
+	[self performSelectorForAllChildren:@selector(simplify)];
 	// check for constant condition
 	// optionally remove whole loop
 	/* should we eliminate empty while loops in any case? what with while(1); ? */
