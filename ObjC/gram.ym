@@ -112,7 +112,7 @@ primary_expression
 	: IDENTIFIER
 	| CONSTANT
 	| STRING_LITERAL
-	| '(' expression ')'  { $$=[Node node:@"parexpr", $2, nil]; }
+	| '(' expression ')'  { $$=[Node node:@"parexpr", $2, nil]; }	// it is the job of the simplifier to remove this
 /*	| '(' expression { error("missing )"); } */
 	/* gcc extension */
 	| '(' compound_statement ')'  { $$=[Node node:@"statementexpr", $2, nil]; }

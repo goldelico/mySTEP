@@ -17,6 +17,7 @@
  * expand static inline
  * loop unrolling/vectorization
  * evaluate common subexpressions only once
+ * remove "parexpr"
  */
 
 @implementation Node (Simplify)
