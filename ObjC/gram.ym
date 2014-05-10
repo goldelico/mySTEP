@@ -27,9 +27,10 @@
 
 #import <ObjCKit/AST.h>
 
-	extern int nokeyword;	// if set to 1 an IDENTIFIER is always returned (even if it looks like a keyword)
-	extern int objctype;	// if set to 1 decode some special identifiers as keywords (e.g. in, byref, oneway)
-	extern int typename;	// if 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
+	/* variables that control the scanner */
+	extern int nokeyword;	// if set to 1, an IDENTIFIER is always returned (even if it looks like a keyword or type name)
+	extern int objctype;	// if set to 1, decode some special identifiers as keywords (e.g. in, byref, oneway)
+	extern int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
 		
 	extern Node *scopestack;	// scope stack
 
