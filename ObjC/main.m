@@ -107,10 +107,10 @@ int main(int argc, char *argv[])
 				}
 			if(l > 3 && strncmp(first, "#!/", 3) == 0)
 				{ // there is a #!/path prefix for the shell
-					int i=0;
+					int i=3;
 					while(i < l && first[i] != '\n')
 						i++;	// search first \n
-					lseek(0, i, 0);	// rewind to first \n
+					lseek(0, i, 0);	// rewind to first \n (included in parsing so that line counter is correct)
 				}
 			else
 				lseek(0, 0l, 0);	// rewind to beginning
