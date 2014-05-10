@@ -251,9 +251,8 @@ void scaninit(void)
 	/* FIXME: handle unterminated quotes and comments which is difficult! */
 	/* well we could return " and ' and /* as bare tokens to yacc incl. <<EOF>> */
 	/* FIXME: this comment rule does not end at the first * / but the last! */
-"/*"(.|{NL})*"*/"		{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */ }
-	/* "/*"(.|{NL})*<<EOF>>	{ charCount(); yylval = [Node leaf:@"/* unterminated" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); * / } */
-"//".*$					{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */; }
+"/*"([^*]*"*")+"/"		{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */ }
+"//".*$					{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */; }
 
 	/* preprocessor statements */
 	/* FIXME: handle \ at end of line, often used by #define */
@@ -334,6 +333,8 @@ L?\"(\\.|[^\\"])*\"	{ /* " balance */ charCount(); yylval=constant(yytext); retu
 "|"				{ charCount(); return('|'); }
 "?"				{ charCount(); return('?'); }
  
+	/* "/*">	{ charCount(); yylval = [Node leaf:@"/* unterminated" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
+	/* "\"">	{ charCount(); yylval = [Node leaf:@"unterminated string" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
 .				{ charCount(); yylval=[Node leaf:@"bad character" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); */ }
 
 %%
