@@ -28,13 +28,14 @@ AT			@{WS}*
 
 /* scanner control */
 
-int nokeyword;	// if set to 1 an IDENTIFIER is always returned (even if it looks like a keyword)
-int objctype;	// if set to 1 do special handling for byref, oneway etc.
-int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPE_NAME	
+int nokeyword;	// if set to 1, an IDENTIFIER is always returned (even if it looks like a keyword or type name)
+int attoken;	// if set to 1, decode @ keywords (e.g. @interface)
+int objctype;	// if set to 1, decode some special identifiers as keywords (e.g. in, byref, oneway)
+int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
 
 void charCount(void);
 Node *constant(char *str);
-int symbol(int atsym);
+int symbol(void);
 
 int column = 0;
 int line = 1;
@@ -108,43 +109,43 @@ struct RESERVED
 	atreserved[]={
 	/* Obj-C 1.0 extensions */
 	
-	@"@interface", AT_INTERFACE, 
-	@"@implementation", AT_IMPLEMENTATION, 
-	@"@end", AT_END, 
-	@"@class", AT_CLASS, 
-	@"@protocol", AT_PROTOCOL, 
-	@"@defs", AT_DEFS, 
-	@"@selector", AT_SELECTOR, 
-	@"@encode", AT_ENCODE, 
-	@"@protected", AT_PROTECTED, 
-	@"@private", AT_PRIVATE, 
-	@"@public", AT_PUBLIC,
+	@"interface", AT_INTERFACE,
+	@"implementation", AT_IMPLEMENTATION,
+	@"end", AT_END,
+	@"class", AT_CLASS,
+	@"protocol", AT_PROTOCOL,
+	@"defs", AT_DEFS,
+	@"selector", AT_SELECTOR,
+	@"encode", AT_ENCODE,
+	@"protected", AT_PROTECTED,
+	@"private", AT_PRIVATE,
+	@"public", AT_PUBLIC,
 		
 	/* Obj-C 1.5 extensions */
 	
-	@"@property", AT_PROPERTY, 
-	@"@synthesize", AT_SYNTHESIZE, 
-	@"@optional", AT_OPTIONAL, 
-	@"@required", AT_REQUIRED, 
+	@"property", AT_PROPERTY,
+	@"synthesize", AT_SYNTHESIZE,
+	@"optional", AT_OPTIONAL,
+	@"required", AT_REQUIRED,
 		
 	/* Obj-C 2.0 extensions */
 		
-	@"@try", AT_TRY, 
-	@"@catch", AT_CATCH, 
-	@"@finally", AT_FINALLY, 
-	@"@throw", AT_TRY, 
-	@"@synchronized", AT_SYNCHRONIZED, 
+	@"try", AT_TRY,
+	@"catch", AT_CATCH,
+	@"finally", AT_FINALLY,
+	@"throw", AT_TRY,
+	@"synchronized", AT_SYNCHRONIZED,
 		
 	/* Obj-C 2.5 extensions */
 		
-	@"@autoreleasepool", AT_AUTORELEASEPOOL,
+	@"autoreleasepool", AT_AUTORELEASEPOOL,
 	},
 
 	objcreserved[]={
 		/* Obj-C-extensions: */
 
-		@"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
-		@"__autoreleasing", AT_AUTORELEASING,
+		@"__unsafe_unretained", UNSAFE_UNRETAINED,
+		@"__autoreleasing", AUTORELEASING,
 		// these two are real keywords and only allowed in type specifiers
 		@"__weak", WEAK,
 		@"__strong", STRONG,
@@ -247,21 +248,28 @@ void scaninit(void)
 {NL}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */ }
 {WS}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */  }
 
-"/*"(.|{NL})*"*/"	{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */ }
-"/*"(.|{NL})*		{ charCount(); yylval = [Node leaf:@"/* unterminated" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); */ }
-"//".*$				{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */; }
+	/* FIXME: handle unterminated quotes and comments which is difficult! */
+	/* well we could return " and ' and /* as bare tokens to yacc incl. <<EOF>> */
+	/* FIXME: this comment rule does not end at the first * / but the last! */
+"/*"(.|{NL})*"*/"		{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */ }
+	/* "/*"(.|{NL})*<<EOF>>	{ charCount(); yylval = [Node leaf:@"/* unterminated" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); * / } */
+"//".*$					{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */; }
 
 	/* preprocessor statements */
 	/* FIXME: handle \ at end of line, often used by #define */
 	/* can be matched similarily to handling of \' embedded into '' */
-^"#".*$		{ NSLog(@"preproc %s", yytext); charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; return(COMMENT); }
+^"#".*$		{ NSLog(@"preproc %s", yytext); charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; /*return(COMMENT);*/ }
 
 	/* identifiers and keywords */
 
 	/* we could make @ change the state of symbol table processing - but then we have to lock against strange things like @17, 3+@5 */
+	/* or we simply decode the AT_TOKEN and make the grammar interpret symbols differently (like handling of nokeyword, objtype etc.
+	 * i.e. write in yacc: AT_TOKEN { attoken=1; } IMPLEMENTATION ... { rule; }
+	 * or AT_TOKEN '{' ...
+	 */
 
-{AT}*({L}|{D})*		{ NSLog(@"@sym %s", yytext); charCount(); return symbol(1); }
-{L}({L}|{D})*		{ NSLog(@"sym %s", yytext); charCount(); return symbol(0); }
+{AT}				{ return(AT_TOKEN); }
+{L}({L}|{D})*		{ NSLog(@"sym %s", yytext); charCount(); return symbol(); }
 
 	/* numeral CONSTANTs */
 0[xX]{H}+{IS}?		{ charCount(); yylval=constant(yytext); return(CONSTANT); }
@@ -276,12 +284,6 @@ L?'(\\.|[^\\'])+'	{ /* ' balance */ charCount(); yylval=constant(yytext); return
 	/* string CONSTANTs */
 
 L?\"(\\.|[^\\"])*\"	{ /* " balance */ charCount(); yylval=constant(yytext); return(STRING_LITERAL); }
-{AT}*\"(\\.|[^\\"])*\" { /* " balance */ charCount(); yylval=constant(yytext); return(AT_STRING_LITERAL); }
-
-	/* other Obj-C literals */
-{AT}"("	{ charCount(); return AT_ARRAY_LITERAL; }
-{AT}"["	{ charCount(); return AT_ARRAY_LITERAL; }
-{AT}"{"	{ charCount(); return AT_ARRAY_LITERAL; }
 
 	/* standard operators */
 
@@ -342,7 +344,7 @@ int yywrap(void)
 	return(1);
 }
 
-int symbol(int atsym)
+int symbol(void)
 {
 	/*
 	 * symbol table entries are nodes with type "identifier"
@@ -354,13 +356,11 @@ int symbol(int atsym)
 	int n;
 	char *csym=yytext;
 	NSString *sym;
-	while(atsym && csym[0] == '@' && csym[1] <= ' ')
-		(++csym)[0]='@';	// strip off embedded whitespace between @ and keyword
-	// use other symbol table
 	sym=[NSString stringWithUTF8String:csym];
 	if(!nokeyword)
-		{ // check for keywords
-			s=[atsym?atkeywordtab:keywordtab attributeForKey:sym];
+		{ // check for keywords (either C or Obj-C keyword table)
+			s=[attoken?atkeywordtab:keywordtab attributeForKey:sym];
+			attoken=0;
 			if(s)
 				return [s intValue];	// keyword found - convert into token code
 		}

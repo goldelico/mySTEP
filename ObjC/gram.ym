@@ -29,9 +29,10 @@
 
 	/* variables that control the scanner */
 	extern int nokeyword;	// if set to 1, an IDENTIFIER is always returned (even if it looks like a keyword or type name)
+	extern int attoken;		// if set to 1, decode @ keywords (e.g. @interface)
 	extern int objctype;	// if set to 1, decode some special identifiers as keywords (e.g. in, byref, oneway)
 	extern int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
-		
+
 	extern Node *scopestack;	// scope stack
 
 	Node *rootnode;	// root node of the whole tree
@@ -60,6 +61,8 @@
 
 %token ASM
 
+%token AT_TOKEN
+
 %token ID SELECTOR BOOLTYPE UNICHAR CLASS
 %token AT_CLASS AT_PROTOCOL AT_INTERFACE AT_IMPLEMENTATION AT_END
 %token AT_PRIVATE AT_PUBLIC AT_PROTECTED
@@ -69,8 +72,7 @@
 
 %token AT_PROPERTY AT_SYNTHESIZE AT_OPTIONAL AT_REQUIRED WEAK STRONG
 %token AT_SYNCHRONIZED AT_DEFS
-%token AT_AUTORELEASEPOOL AT_UNSAFE_UNRETAINED AT_AUTORELEASING
-
+%token AT_AUTORELEASEPOOL UNSAFE_UNRETAINED AUTORELEASING
 
 %token IDENTIFIER
 %token TYPE_NAME
@@ -115,13 +117,13 @@ primary_expression
 	/* gcc extension */
 	| '(' compound_statement ')'  { $$=[Node node:@"statementexpr", $2, nil]; }
 	/* Obj-C extensions */
-	| AT_STRING_LITERAL
-	| AT_SELECTOR '(' selector ')'  { $$=$3; }
-/*	| AT_SELECTOR '(' selector { $$=$3; error("missing )"); } */
-	| AT_ENCODE '(' type_name ')'  { $$=[Node node:@"encode", $3, nil]; }
-	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=[Node node:@"protocol", $3, nil]; }
+	| AT_TOKEN STRING_LITERAL
+	| AT_TOKEN { attoken=1; } AT_SELECTOR '(' selector ')'  { $$=$3; }
+/*	| AT_TOKEN { attoken=1; }  '(' selector { $$=$3; error("missing )"); } */
+	| AT_TOKEN { attoken=1; } AT_ENCODE '(' type_name ')'  { $$=[Node node:@"encode", $3, nil]; }
+	| AT_TOKEN { attoken=1; } AT_PROTOCOL '(' IDENTIFIER ')'  { $$=[Node node:@"protocol", $3, nil]; }
 	| '[' expression selector_with_arguments ']'  { $$=[Node node:@"methodcall", $2, $3, nil]; }
-	| AT_ARRAY_LITERAL { $$=[Node node:@"arraylit", nil]; }
+	| AT_TOKEN '{' primary_expression '}' { $$=[Node node:@"arraylit", nil]; }
 	| error
 	;
 
@@ -325,8 +327,8 @@ method_declaration
 
 method_declaration_list
 	: method_declaration ';'  { $$=[Node node:@"interface", $1, nil]; }
-	| AT_OPTIONAL method_declaration ';'  { [$2 addChild:$1]; $$=[Node node:@"interface", $2, nil]; }
-	| AT_REQUIRED method_declaration ';'  { [$2 addChild:$1]; $$=[Node node:@"interface", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_OPTIONAL method_declaration ';'  { [$2 addChild:$1]; $$=[Node node:@"interface", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_REQUIRED method_declaration ';'  { [$2 addChild:$1]; $$=[Node node:@"interface", $2, nil]; }
 	| method_declaration_list method_declaration ';'  { $$=$1; [$$ addChild:$2]; }
 	| error ';'
 	;
@@ -357,16 +359,16 @@ class_name_list
 	;
 
 objc_declaration
-	: AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
-	| AT_PROTOCOL class_name_declaration AT_END  { $$=[Node node:@"protocol", $2, nil]; [$2 setAttribute:@"" forKey:@"protocol"]; }
-	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
-	| AT_INTERFACE class_name_declaration AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation AT_END  { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
-	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_END  { $$=[Node node:@"implementation", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	: AT_TOKEN { attoken=1; } AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_PROTOCOL class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, nil]; [$2 setAttribute:@"" forKey:@"protocol"]; }
+	| AT_TOKEN { attoken=1; } AT_PROTOCOL class_name_declaration method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
+	| AT_TOKEN { attoken=1; } AT_INTERFACE class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_TOKEN { attoken=1; } AT_INTERFACE class_name_declaration ivar_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_TOKEN { attoken=1; } AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_TOKEN { attoken=1; } AT_IMPLEMENTATION class_implementation AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_TOKEN { attoken=1; } AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
+	| AT_TOKEN { attoken=1; } AT_IMPLEMENTATION class_implementation method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_TOKEN { attoken=1; } AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	;
 
 declaration
@@ -402,6 +404,8 @@ init_declarator_list
  *
  * and we must set it right after parsing the declarator and before the initializer
  * so that we can correctly reference int a=sizeof(a);
+ *
+ * for typedefs and @class we must set the @"typename" attribute
  */
 
 init_declarator
@@ -469,19 +473,19 @@ struct_declaration
 	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"struct", $1, $2, $3, nil]; }
 	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=[Node node:@"struct", $1, $2, $3, nil]; }
 /* formally this is only allowed in iVar declaration but not for structs */
-	| AT_SYNTHESIZE ivar_list ';'  { $$=[Node node:@"synthesize", $2, nil]; }
-	| AT_DEFS '(' IDENTIFIER ')' { $$=[Node node:@"defs", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_SYNTHESIZE ivar_list ';'  { $$=[Node node:@"synthesize", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_DEFS '(' IDENTIFIER ')' { $$=[Node node:@"defs", $2, nil]; }
 	;
 
 protection_qualifier
-	: AT_PRIVATE	{ $$=[Node leaf:@"private"]; }
-	| AT_PUBLIC	{ $$=[Node leaf:@"public"]; }
-	| AT_PROTECTED	{ $$=[Node leaf:@"protected"]; }
+	: AT_TOKEN { attoken=1; } AT_PRIVATE	{ $$=[Node leaf:@"private"]; }
+	| AT_TOKEN { attoken=1; } AT_PUBLIC	{ $$=[Node leaf:@"public"]; }
+	| AT_TOKEN { attoken=1; } AT_PROTECTED	{ $$=[Node leaf:@"protected"]; }
 	;
 
 property_qualifier
-	: AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"property", $1, $3]; }
-	| AT_PROPERTY
+	: AT_TOKEN { attoken=1; } AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"property", $1, $3]; }
+	| AT_TOKEN { attoken=1; } AT_PROPERTY
 	;
 
 ivar_list
@@ -621,22 +625,22 @@ statement
 	| iteration_statement
 	| jump_statement
 	| asm_statement
-	| AT_TRY compound_statement catch_sequence finally	{ $$=[Node node:@"try", $2, $3, $4, nil]; }
-	| AT_THROW ';'	{ $$=[Node node:@"throw", nil]; }
-	| AT_THROW expression ';'	{ $$=[Node node:@"throw", $2, nil]; }
-	| AT_SYNCHRONIZED '(' expression ')' compound_statement	{ $$=[Node node:@"synchronized", $2, $4, nil]; }
-	| AT_AUTORELEASEPOOL compound_statement	{ $$=[Node node:@"arp", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_TRY compound_statement catch_sequence finally	{ $$=[Node node:@"try", $2, $3, $4, nil]; }
+	| AT_TOKEN { attoken=1; } AT_THROW ';'	{ $$=[Node node:@"throw", nil]; }
+	| AT_TOKEN { attoken=1; } AT_THROW expression ';'	{ $$=[Node node:@"throw", $2, nil]; }
+	| AT_TOKEN { attoken=1; } AT_SYNCHRONIZED '(' expression ')' compound_statement	{ $$=[Node node:@"synchronized", $2, $4, nil]; }
+	| AT_TOKEN { attoken=1; } AT_AUTORELEASEPOOL compound_statement	{ $$=[Node node:@"arp", $2, nil]; }
 	| error ';' 	{ $$=[Node leaf:@"error"]; }
 	| error '}'		{ $$=[Node leaf:@"error"]; }
 	;
 
 catch_sequence
-	: AT_CATCH compound_statement	{ $$=[Node node:@"catch", $2, nil]; }
-	| catch_sequence AT_CATCH compound_statement	{ $$=$1, [$$ addChild:$3]; }
+	: AT_TOKEN { attoken=1; } AT_CATCH compound_statement	{ $$=[Node node:@"catch", $2, nil]; }
+	| catch_sequence AT_TOKEN { attoken=1; } AT_CATCH compound_statement	{ $$=$1, [$$ addChild:$3]; }
 	;
 
 finally
-	: AT_FINALLY compound_statement	{ $$=[Node node:@"finally", $2, nil]; }
+	: AT_TOKEN { attoken=1; } AT_FINALLY compound_statement	{ $$=[Node node:@"finally", $2, nil]; }
 	;
 
 labeled_statement
