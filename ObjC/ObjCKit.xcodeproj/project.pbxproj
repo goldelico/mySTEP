@@ -260,9 +260,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		EE55BFBF1504DB3900BDF3F7 /* ObjC */ = {
+		EE55BFBF1504DB3900BDF3F7 /* ObjCKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjC" */;
+			buildConfigurationList = EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjCKit" */;
 			buildPhases = (
 				EE55BFBB1504DB3900BDF3F7 /* Headers */,
 				EE55BFBC1504DB3900BDF3F7 /* Resources */,
@@ -274,7 +274,7 @@
 			);
 			dependencies = (
 			);
-			name = ObjC;
+			name = ObjCKit;
 			productName = ObjC;
 			productReference = EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -318,7 +318,7 @@
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC" */;
+			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjCKit" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -333,7 +333,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE55BFBF1504DB3900BDF3F7 /* ObjC */,
+				EE55BFBF1504DB3900BDF3F7 /* ObjCKit */,
 				EE55BFCF1504DB7400BDF3F7 /* objc */,
 				EE55C0761504F20E00BDF3F7 /* Test */,
 				EE67070517183F7300A38486 /* test */,
@@ -438,7 +438,7 @@
 /* Begin PBXTargetDependency section */
 		EE55C02D1504DFB600BDF3F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EE55BFBF1504DB3900BDF3F7 /* ObjC */;
+			target = EE55BFBF1504DB3900BDF3F7 /* ObjCKit */;
 			targetProxy = EE55C02C1504DFB600BDF3F7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -703,7 +703,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjC" */ = {
+		EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjCKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE55BFC21504DB3A00BDF3F7 /* Development */,
@@ -743,7 +743,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC" */ = {
+		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjCKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE772D2F0A10C27000F73E78 /* Development */,
