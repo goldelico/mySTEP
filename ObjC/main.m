@@ -76,6 +76,8 @@ int main(int argc, char *argv[])
 				object=[source stringByAppendingString:@"objc"];	// extend suffix
 			else
 				object=[source stringByAppendingPathExtension:@"objc"];	// first suffix
+			// we may also prefix the object path to e.g. /tmp/objc and mkdir -p $(dirname $object))
+			// the prefix could be made configurable (through NSUserDefaults)
 			if(_debug) NSLog(@"%@ -> %@", source, object);
 			sattribs=[fm attributesOfItemAtPath:source error:NULL];
 			oattribs=[fm attributesOfItemAtPath:object error:NULL];
