@@ -19,10 +19,15 @@
 	
 }
 
-- (void) compile:(NSString *) target;
+- (void) compile:(NSString *) target_architecture;
+{
+	[self treeWalk:[@"compile_" stringByAppendingString:target_architecture]];
+}
+
+- (void) compile_arm_default;
 { // translate to asm() statements
 	Node *n=[Node node:@"asm"];
-	[n addChild:[Node leaf:@"string" value:@"some asm statement"]];
+	[n addChild:[Node leaf:@"string" value:[NSString stringWithFormat:@"some asm statement for %@", [self type]]]];
 	[self replaceBy:n];
 }
 

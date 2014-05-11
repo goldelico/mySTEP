@@ -13,19 +13,25 @@
 
 - (void) objc10;	// translate objc 2.0 idioms to objc 1.0
 {
-	[self performSelectorForAllChildren:_cmd];
+	[self treeWalk:@"objc10"];
 }
 
-- (void) objc10something;
+- (void) objc10_default;
 {
-	[self performSelectorForAllChildren:@selector(objc10)];
-	// check for idioms
-	// . notation for KVC
-	// @try, @catch
-	// @synchronized
-	// @synthesize
-	// @autorelease
-	// ARC
+	return;	// leave untouched
+}
+
+// check for idioms
+// . notation for KVC
+// @try, @catch
+// @synchronized
+// @synthesize
+// @autorelease
+// ARC
+
+- (void) objc10try
+{
+	
 }
 
 @end

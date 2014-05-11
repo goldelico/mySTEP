@@ -20,7 +20,7 @@ extern BOOL _debug;
 { /* internal structure */
 	NSString *type;	// node type
 	NSMutableDictionary *attributes;		// e.g. leaf value, keyword code, assigned typedef etc.
-	Node *parent;	// parent node
+	Node /*nonretained*/ *parent;	// parent node
 	NSMutableArray *children;	// subnodes
 }
 
@@ -55,10 +55,8 @@ extern BOOL _debug;
 - (Node *) childAtIndex:(unsigned) idx;
 - (NSEnumerator *) childrenEnumerator;
 - (void) replaceBy:(Node *) other;	// replace in parent's children list (if other = nil, we are removed from our parent)
-- (void) doSelectorByType:(NSString *) prefix;	// call tag specific (or general) method
-- (void) doSelectorByType:(NSString *) prefix withObject:(id) obj;	// call tag specific (or general) method
-- (void) performSelectorForAllChildren:(SEL) aSelector;
-- (void) performSelectorForAllChildren:(SEL) aSelector withObject:(id) object;
+- (void) treeWalk:(NSString *) prefix;
+- (void) treeWalk:(NSString *) prefix withObject:(id) object;
 - (Node *) parent;
 - (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
 - (void) _setParent:(Node *) n;

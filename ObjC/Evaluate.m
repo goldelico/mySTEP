@@ -22,6 +22,25 @@
 
 - (void) evaluate;
 {
+	id machine=nil;
+	[self treeWalk:@"evaluate" withObject:machine];	// recursive
+}
+
+- (void) evaluate_default:(id) machine
+{
+	NSLog(@"can't evaluate");
+}
+
+- (void) evaluate_const:(id) machine
+{
+	NSLog(@"can't evaluate");
+	// push value on stack
+}
+
+- (void) evaluate_ident:(id) machine
+{
+	NSLog(@"can't evaluate");
+	// push reference to variable storage
 }
 
 @end

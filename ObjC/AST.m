@@ -172,6 +172,26 @@ int yydebug;
 	return [attributes objectForKey:@"value"];
 }
 
+- (void) setValue:(id) val;
+{
+	[self setAttribute:val forKey:@"value"];
+}
+
+- (void) setType:(NSString *) t;
+{
+	[type autorelease];
+	type=[t retain];
+}
+
+/* children (and parent) management */
+
+- (Node *) root;
+{
+	while(parent)
+		self=parent;
+	return self;
+}
+
 - (Node *) parent;
 {
 	return parent;
@@ -184,27 +204,9 @@ int yydebug;
 	return self;	// has type or is nil
 }
 
-- (Node *) root;
-{
-	while(parent)
-		self=parent;
-	return self;
-}
-
 - (void) _setParent:(Node *) n;
 {
 	parent=n;
-}
-
-- (void) setValue:(id) val;
-{
-	[self setAttribute:val forKey:@"value"];
-}
-
-- (void) setType:(NSString *) t;
-{
-	[type autorelease];
-	type=[t retain];
 }
 
 - (NSArray *) children
@@ -269,6 +271,8 @@ int yydebug;
 	return [children objectEnumerator];
 }
 
+/* node manipulation */
+
 - (void) replaceBy:(Node *) other;	// replace in parent's children list
 {
 	unsigned idx=[(NSMutableArray *) [parent children] indexOfObject:self];
@@ -278,37 +282,48 @@ int yydebug;
 	if(other)
 		[(NSMutableArray *) [parent children] replaceObjectAtIndex:idx withObject:other];
 	else
-		[parent removeChildAtIndex:idx];	// remove me from parent
+		[parent removeChildAtIndex:idx];	// remove me from my parent
 	[self release];
 }
 
-- (SEL) selectorForType:(NSString *) prefix;
+// do we need some "rotate left/right"?
+
+/* depth first tree walk */
+
+// FIXME: using NSString might be inefficient
+// FIXME: recursion could make the CPU stack overflow...
+
+- (void) treeWalk:(NSString *) prefix;
 {
-	SEL sel=NSSelectorFromString([prefix stringByAppendingString:type]);
-	if(![self respondsToSelector:sel])
-		sel=NSSelectorFromString(prefix);	// default selector
-	return sel;
+	NSEnumerator *e=[children objectEnumerator];
+	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_default"]);	// default
+	Node *c;
+	while((c=[e nextObject]))
+		{
+		SEL sel=NSSelectorFromString([prefix stringByAppendingString:[c type]]);	// node specific selector
+		if(![c respondsToSelector:sel])
+			sel=defaultsel;	// no special method for this node type
+		[c treeWalk:prefix];	// recursive first
+		[c performSelector:sel];
+		}
 }
 
-- (void) doSelectorByType:(NSString *) prefix;	// call tag specific (or general) method
+- (void) treeWalk:(NSString *) prefix withObject:(id) object;
 {
-	[self performSelector:[self selectorForType:prefix]];
+	NSEnumerator *e=[children objectEnumerator];
+	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_default:"]);	// default
+	Node *c;
+	while((c=[e nextObject]))
+		{
+		SEL sel=NSSelectorFromString([prefix stringByAppendingFormat:@"%@:", [c type]]);	// node specific selector
+		if(![c respondsToSelector:sel])
+			sel=defaultsel;	// no special method for this node type
+		[c treeWalk:prefix withObject:object];	// recursive first
+		[c performSelector:sel withObject:object];
+		}
 }
 
-- (void) doSelectorByType:(NSString *) prefix withObject:(id) obj;	// call tag specific (or general) method
-{
-	[self performSelector:[self selectorForType:prefix] withObject:obj];
-}
-
-- (void) performSelectorForAllChildren:(SEL) aSelector;
-{
-	[children makeObjectsPerformSelector:aSelector];
-}
-
-- (void) performSelectorForAllChildren:(SEL) aSelector withObject:(id) object;
-{
-	[children makeObjectsPerformSelector:aSelector withObject:object];
-}
+/* persistence */
 
 + (Node *) nodeWithContentsOfFile:(NSString *) path;
 { // unarchive from file
@@ -343,7 +358,7 @@ int yydebug;
 		{
 		type=[[coder decodeObjectForKey:@"type"] retain];
 		attributes=[[coder decodeObjectForKey:@"attributes"] retain];
-		parent=[[coder decodeObjectForKey:@"parent"] retain];
+		parent=[coder decodeObjectForKey:@"parent"];	// not retained
 		children=[[coder decodeObjectForKey:@"children"] retain];
 		}
 	else

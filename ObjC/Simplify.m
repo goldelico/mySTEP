@@ -22,10 +22,26 @@
 
 @implementation Node (Simplify)
 
-- (void) simplify;
+- (void) redo
 {
-	// loop while something has been modified
-	[self doSelectorByType:@"simplify"];
+	// set redo flag
+	// can be called as [self redo] or [parent redo]
+}
+
+- (void) simplify;
+{ // main function
+	// FIXME: should loop on each level individually!
+	// should loop while something has been modified or a redo-indicator/attribute has been set
+	[self treeWalk:@"simplify"];	// recursive
+}
+
+- (void) simplify_default
+{
+}
+
+- (void) simplifycomment
+{
+	[self replaceBy:nil];	// delete
 }
 
 - (void) simplifyparaexpr
@@ -41,7 +57,6 @@
 
 - (void) simplifyif
 {
-	[self performSelectorForAllChildren:@selector(simplify)];
 	// check for constant condition
 	// replace by then or else part
 	if([self childrenCount] == 0)
@@ -50,7 +65,6 @@
 
 - (void) simplifywhile
 {
-	[self performSelectorForAllChildren:@selector(simplify)];
 	// check for constant condition
 	// optionally remove whole loop
 	/* should we eliminate empty while loops in any case? what with while(1); ? */

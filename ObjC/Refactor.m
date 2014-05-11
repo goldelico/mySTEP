@@ -12,15 +12,19 @@
 
 - (void) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
 {
-	NSString *t=[self type];
-	if([t isEqualToString:@"identifier"])
-		{
-		NSString *new=[substitutions objectForKey:[self value]];
-		if(new)
-			[self setValue:new];	// replace identifier
-		}
-	else
-		[self performSelectorForAllChildren:_cmd withObject:substitutions];
+	[self treeWalk:@"refactor" withObject:substitutions];
+}
+
+- (void) refactoridentifier:(NSDictionary *) substitutions;
+{
+	NSString *new=[substitutions objectForKey:[self value]];
+	if(new)
+		[self setValue:new];	// replace identifier
+}
+
+- (void) refactor_default:(NSDictionary *) substitutions;
+{
+	return;	// don't touch all other nodes
 }
 
 @end
