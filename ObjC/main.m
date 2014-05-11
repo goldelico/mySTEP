@@ -37,11 +37,11 @@ static void usage(void)
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	Node *n;
 	BOOL lint=NO;		// -l
 	BOOL pretty=NO;		// -p
 	BOOL compile=NO;	// -c
 	BOOL precompile=NO;
+	Node *result=nil;
 	while(argv[1] && argv[1][0] == '-')
 		{
 		char *c=&argv[1][1];
@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
 		argv++;
 		}
 	precompile=!lint && !pretty && !compile;	// we run in script mode and should store a binary AST for faster execution
-	if(argv[1])
+	while(argv[1])
 		{
 		char first[512];
 		int l;
-		n=nil;
+		Node *n=nil;
 		NSString *object=nil;
 		if(precompile)
 			{
@@ -129,7 +129,14 @@ int main(int argc, char *argv[])
 				[n writeToFile:object];	// store n as binary representation for fast execution
 				}
 			}
+		if(result)
+			; // merge
+		else
+			result=n;	// first source file
+		argv++;
 		}
+	if(!result)
+		result=[Node parse:nil delegate:nil];	// parse stdin
 	/*
 	 * implement these phases as loadable bundles that can be configured as a pipeline
 	 * and use a default pipeline if nothing is specified elsewhere
@@ -137,27 +144,27 @@ int main(int argc, char *argv[])
 	if(lint)
 		return 0;	// print parse errors only
 #if 1
-	NSLog(@"parse result:\n%@", n);	// print as xml
+	NSLog(@"parse result:\n%@", result);	// print as xml
 #endif
 	if(compile)
 		{
-		[n simplify];
+		[result simplify];
 #if 1
-		NSLog(@"simplified:\n%@", n);
+		NSLog(@"simplified:\n%@", result);
 #endif
 		// choose how we should translate -> 1.0 -> 2.0 -> ARM -> Std-C
-		[n objc10];	// translate to Obj-C 1.0
+		[result objc10];	// translate to Obj-C 1.0
 #if 1
-		NSLog(@"translated:\n%@", n);
+		NSLog(@"translated:\n%@", result);
 #endif
 		}
 	if(pretty)
 		{ // pretty print
-			printf("%s", [[n prettyObjC] UTF8String]);	// pretty print
+			printf("%s", [[result prettyObjC] UTF8String]);	// pretty print
 			return 0;
 		}
 	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
 	// and make us call the main() function
-	[n evaluate];	// run in interpreter
+	[result evaluate];	// run in interpreter
 	return 0;
 }
