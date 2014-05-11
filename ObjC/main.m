@@ -39,6 +39,13 @@ static void usage(void)
 	exit(1);
 }
 
+static BOOL older(NSDictionary *file1attribs, NSDictionary *file2attribs)
+{ // true if file1 is older (modified) than file2
+	if(!file1attribs) return YES;	// not existent is older than anything
+	if(!file2attribs) return NO;	// we are never older than non-existent
+	return [[file1attribs fileModificationDate] compare:[file2attribs fileModificationDate]] != NSOrderedDescending;
+}
+
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
@@ -113,21 +120,25 @@ int main(int argc, char *argv[])
 			{
 			NSFileManager *fm=[NSFileManager defaultManager];
 			NSString *source;
+			NSString *compiler;
 			NSDictionary *sattribs;
 			NSDictionary *oattribs;
+			NSDictionary *cattribs;
 			source=[fm stringWithFileSystemRepresentation:argv[1] length:strlen(argv[1])];
+			compiler=[fm stringWithFileSystemRepresentation:argv[0] length:strlen(argv[0])];
 			if([[source pathExtension] length] > 0)
 				object=[source stringByAppendingString:@"objc"];	// extend suffix
 			else
 				object=[source stringByAppendingPathExtension:@"objc"];	// first suffix
 			// we may also prefix the object path to e.g. /tmp/objc and mkdir -p $(dirname $object))
 			// the prefix could be made configurable (through NSUserDefaults)
-			if(_debug) NSLog(@"%@ -> %@", source, object);
+			if(_debug) NSLog(@"%@ -> %@ (%@)", source, object, compiler);
 			sattribs=[fm attributesOfItemAtPath:source error:NULL];
 			oattribs=[fm attributesOfItemAtPath:object error:NULL];
-			if(_debug) NSLog(@"%@ -> %@", sattribs, oattribs);
-			if(oattribs && [[sattribs fileModificationDate] compare:[oattribs fileModificationDate]] != NSOrderedDescending)
-				{ // source is older so we don't need to recompile
+			cattribs=[fm attributesOfItemAtPath:compiler error:NULL];
+			if(_debug) NSLog(@"%@ -> %@ (%@)", sattribs, oattribs, cattribs);
+			if(older(sattribs, oattribs) && older(cattribs, oattribs))
+				{ // last time compile was after last update of source and compiler
 				n=[Node nodeWithContentsOfFile:object];
 				}
 			}
