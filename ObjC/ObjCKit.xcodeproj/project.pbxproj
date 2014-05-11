@@ -23,6 +23,8 @@
 /* Begin PBXBuildFile section */
 		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; };
 		EE5539D81913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
+		EE5583AD191F6DBA00C22634 /* objc20.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5583AB191F6DBA00C22634 /* objc20.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE5583AE191F6DBA00C22634 /* objc20.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5583AC191F6DBA00C22634 /* objc20.m */; };
 		EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22087E14EDB23500E78349 /* AST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D6105137AF9E5007F7BD7 /* AST.m */; };
 		EE55BFD61504DB8100BDF3F7 /* ObjCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */; };
@@ -44,7 +46,7 @@
 		EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088914EDB51200E78349 /* Simplify.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEC876B01716E3900093590B /* Simplify.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088A14EDB51200E78349 /* Simplify.m */; };
 		EEC876B11716E39E0093590B /* Print.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088814EDB47600E78349 /* Print.m */; };
-		EEC876BF1716E49C0093590B /* objc2c.h in Headers */ = {isa = PBXBuildFile; fileRef = EEC876BD1716E49C0093590B /* objc2c.h */; };
+		EEC876BF1716E49C0093590B /* objc2c.h in Headers */ = {isa = PBXBuildFile; fileRef = EEC876BD1716E49C0093590B /* objc2c.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEC876C01716E49C0093590B /* objc2c.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC876BE1716E49C0093590B /* objc2c.m */; };
 		EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */ = {isa = PBXBuildFile; fileRef = EEEB70FD150DD753000EE2E5 /* Expression.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEEB7100150DD753000EE2E5 /* Expression.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB70FE150DD753000EE2E5 /* Expression.m */; };
@@ -72,6 +74,8 @@
 		EE5539D41913C78900C22634 /* Evaluate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evaluate.h; sourceTree = "<group>"; };
 		EE5539D51913C78900C22634 /* Evaluate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Evaluate.m; sourceTree = "<group>"; };
 		EE553A0D1913D2FF00C22634 /* script.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = script.m; path = test/script.m; sourceTree = "<group>"; };
+		EE5583AB191F6DBA00C22634 /* objc20.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc20.h; sourceTree = "<group>"; };
+		EE5583AC191F6DBA00C22634 /* objc20.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc20.m; sourceTree = "<group>"; };
 		EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
 		EE55BFD01504DB7400BDF3F7 /* objc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -210,6 +214,8 @@
 				EE8E488816F21D6400DF50B4 /* Refactor.m */,
 				EE8E48BE16F22B1200DF50B4 /* objc10.h */,
 				EE8E48BF16F22B1200DF50B4 /* objc10.m */,
+				EE5583AB191F6DBA00C22634 /* objc20.h */,
+				EE5583AC191F6DBA00C22634 /* objc20.m */,
 				EEC876BD1716E49C0093590B /* objc2c.h */,
 				EEC876BE1716E49C0093590B /* objc2c.m */,
 				EE8E48C216F22BD500DF50B4 /* compile.h */,
@@ -254,6 +260,7 @@
 				EE8E48C416F22BD500DF50B4 /* compile.h in Headers */,
 				EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */,
 				EEC876BF1716E49C0093590B /* objc2c.h in Headers */,
+				EE5583AD191F6DBA00C22634 /* objc20.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +418,7 @@
 				EEC876C01716E49C0093590B /* objc2c.m in Sources */,
 				EE67075617184EDD00A38486 /* scan.lm in Sources */,
 				EE67075C17184FF000A38486 /* gram.ym in Sources */,
+				EE5583AE191F6DBA00C22634 /* objc20.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

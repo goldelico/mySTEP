@@ -8,8 +8,6 @@
 
 #import <ObjCKit/AST.h>
 
-@interface Node (objc2c)
-
-- (void) objc2c;	// translate objc 1.0 to standard C, i.e. expand class definitions, method names, method headers etc.
+@interface Node (ObjC2C)
 
 @end

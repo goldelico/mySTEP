@@ -14,14 +14,27 @@
 
 @implementation Node (Compile)
 
++ (NSArray *) compileTargets;
+{
+	static NSArray *targets=nil;
+	if(!targets)
+		targets=[[NSArray alloc] initWithObjects:
+				 @"C",	// translate (expand) to C code
+				 @"objc1",	// translate (expand) to ObjC-1.0
+				 @"objc2",	// translate (simplify) to ObjC-2.0
+				 @"arm",	// translate to ARM asm statements
+				 nil];
+	return targets;
+}
+
 - (void) registerAssign
 { // assign explicit 'register' and temporary stack variables
 	
 }
 
-- (void) compile:(NSString *) target_architecture;
+- (void) compile:(NSString *) target;
 {
-	[self treeWalk:[@"compile_" stringByAppendingString:target_architecture]];
+	[self treeWalk:[@"compile_" stringByAppendingString:target]];
 }
 
 - (void) compile_arm_default;

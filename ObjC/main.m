@@ -35,7 +35,7 @@
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: objc [ -cdlp ] [ -m machine ] [ file... ]\n");
+	fprintf(stderr, "usage: objc [ -cdlp ] [ -m machine ] { -r old=new } [ file... ]\n");
 	exit(1);
 }
 
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 	NSString *machine;	// -m
 	BOOL precompile=NO;
 	Node *result=nil;
+	NSMutableDictionary *refactor=[NSMutableDictionary dictionaryWithCapacity:10];
 	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
 	while(argv[1] && argv[1][0] == '-')
 		{
@@ -69,11 +70,31 @@ int main(int argc, char *argv[])
 					if(*c)
 						machine=[NSString stringWithUTF8String:c];
 					else if(argv[2])
-						machine=[NSString stringWithUTF8String:argv[2]], arvg++;
+						machine=[NSString stringWithUTF8String:argv[2]], argv++;
 					else
 						usage();
-					c+=strlen(c)
+					c+=strlen(c);
 					break;	
+				case 'r': {
+					NSString *rule;
+					NSRange r;
+					NSString *old, *new;
+					if(*c)
+						rule=[NSString stringWithUTF8String:c];
+					else if(argv[2])
+						rule=[NSString stringWithUTF8String:argv[2]], argv++;
+					else
+						usage();
+					c+=strlen(c);
+					r=[rule rangeOfString:@"="];
+					if(r.location == NSNotFound)
+						usage();	// missing =
+					old=[rule substringToIndex:r.length];
+					new=[rule substringFromIndex:r.location+1];
+					// FIXME: check for empty substitutions
+					[refactor setObject:new forKey:old];
+					break;					
+				}
 				case 'I':
 				default:
 					usage();
@@ -165,6 +186,7 @@ int main(int argc, char *argv[])
 	if(compile)
 		{
 		[result simplify];
+		[result refactor:refactor];
 #if 1
 		NSLog(@"simplified:\n%@", result);
 #endif

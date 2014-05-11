@@ -12,7 +12,8 @@
 
 - (void) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
 {
-	[self treeWalk:@"refactor" withObject:substitutions];
+	if([substitutions count] > 0)
+		[self treeWalk:@"refactor" withObject:substitutions];
 }
 
 - (void) refactoridentifier:(NSDictionary *) substitutions;

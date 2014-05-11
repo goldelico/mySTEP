@@ -8,6 +8,6 @@
 
 #import <ObjCKit/AST.h>
 
-@interface Node (Objc10)
+@interface Node (Objc20)
 
 @end

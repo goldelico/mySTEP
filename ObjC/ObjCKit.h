@@ -5,4 +5,6 @@
 #import <ObjCKit/Simplify.h>
 #import <ObjCKit/Refactor.h>
 #import <ObjCKit/objc10.h>
+#import <ObjCKit/objc20.h>
+#import <ObjCKit/objc2c.h>
 #import <ObjCKit/compile.h>

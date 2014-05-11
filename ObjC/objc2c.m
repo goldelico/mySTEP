@@ -9,18 +9,11 @@
 #import "objc2c.h"
 
 
-@implementation Node (objc2c)
+@implementation Node (ObjC2C)
 
-- (void) objc2c;	// translate objc 1.0 to standard C, i.e. expand class definitions, method names, method headers etc.
+- (void) compile_C_default;
 {
-	// check for objc code
-	// @selector -> get_sel("string")
-	// @interface -> struct class { };
-	// @implementation -> struct class *
-	// [... ] -> objc_send(obj, "selector", args)
-	// handle special [super method]
-	// for(var in array) -> block type var; NSEnumerator *_e=[array objectEnumerator]; while((var=[_e nextObject]) body /block
-	// etc.
+	return;	// leave untouched
 }
 
 @end

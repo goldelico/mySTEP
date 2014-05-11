@@ -10,6 +10,8 @@
 
 @interface Node (Compile)
 
-- (void) compile:(NSString *) target_architecture;	// translate to asm() statements
++ (NSArray *) compileTargets;
+
+- (void) compile:(NSString *) target;	// translate to asm() statements
 
 @end

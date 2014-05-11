@@ -9,9 +9,9 @@
 #import "objc10.h"
 
 
-@implementation Node (Objc10)
+@implementation Node (Objc20)
 
-- (void) compile_objc1_default;
+- (void) compile_objc2_default;
 {
 	return;	// leave untouched
 }
@@ -24,7 +24,7 @@
 // @autorelease
 // ARC
 
-- (void) compile_objc1try
+- (void) compile_objc2try
 {
 	
 }
