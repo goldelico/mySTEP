@@ -23,6 +23,11 @@
  * - where to store compiled binaries (if at all)
  * - always recompile (for testing)
  * - default pretty print style
+ * - default compiler
+ *
+ * allow to build a chain of tree modification bundles
+ * allow to pass parameters to stages
+ * allow to call the refactor module with a set of translation strings (e.g. -r new=old)
  */
 
 #import <Cocoa/Cocoa.h>
@@ -30,7 +35,7 @@
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: objc [ -cdlp ] [ file... ]\n");
+	fprintf(stderr, "usage: objc [ -cdlp ] [ -m machine ] [ file... ]\n");
 	exit(1);
 }
 
@@ -40,8 +45,10 @@ int main(int argc, char *argv[])
 	BOOL lint=NO;		// -l
 	BOOL pretty=NO;		// -p
 	BOOL compile=NO;	// -c
+	NSString *machine;	// -m
 	BOOL precompile=NO;
 	Node *result=nil;
+	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
 	while(argv[1] && argv[1][0] == '-')
 		{
 		char *c=&argv[1][1];
@@ -58,6 +65,15 @@ int main(int argc, char *argv[])
 					if(_debug) yydebug=1;
 					_debug=YES; break;
 				}
+				case 'm':
+					if(*c)
+						machine=[NSString stringWithUTF8String:c];
+					else if(argv[2])
+						machine=[NSString stringWithUTF8String:argv[2]], arvg++;
+					else
+						usage();
+					c+=strlen(c)
+					break;	
 				case 'I':
 				default:
 					usage();
@@ -152,8 +168,8 @@ int main(int argc, char *argv[])
 #if 1
 		NSLog(@"simplified:\n%@", result);
 #endif
-		// choose how we should translate -> 1.0 -> 2.0 -> ARM -> Std-C
-		[result objc10];	// translate to Obj-C 1.0
+		// we should be able to chain several loadable bundles
+		[result compile:machine];	// translate
 #if 1
 		NSLog(@"translated:\n%@", result);
 #endif
