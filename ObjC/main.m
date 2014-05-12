@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
 				case 'p': pretty=YES; break;
 					// FIXME: allow setting --pretty-spaciness --max-line-length etc.
 				case 'c': compile=YES; break;
-					// case 'b' install pipeline bundle
 				case 'd': {
 					extern int yydebug;
 					if(_debug) yydebug=1;
-					_debug=YES; break;
+					_debug=YES;
+					break;
 				}
 				case 'm':
 					if(*c)
@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
 					// FIXME: result=[Node parse:script delegate:nil];	// parse script
 					break;					
 				}
-				case 'I':
+				case 'b':	// install pipeline bundle
+				case 'I':	// set include search path(s)
 				default:
 					usage();
 			}
