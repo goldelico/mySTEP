@@ -216,6 +216,14 @@ int main(int argc, char *argv[])
 		return 0;	// print parse errors only
 #if 1
 	NSLog(@"parse result:\n%@", result);	// print as xml
+	{
+	/* FIXME: what should the parse: method return?
+	 * the rootnode which represents the sequence of statements on global level
+	 * or the scopestack which should be the symtab of all global objects
+	 */
+	extern Node *scopestack;	// scope stack
+	NSLog(@"scope stack:\n%@", scopestack);
+	}
 #endif
 	if(compile)
 		{
