@@ -35,7 +35,8 @@
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: objc [ -cdlp ] [ -m machine ] { -r old=new } [ file... ]\n");
+	fprintf(stderr, "usage: objc -c|-l|-p [ -d ] [ -m machine ] { -r old=new } [ file... ]\n");
+	fprintf(stderr, "       objc [ -d ] [ file | -f script ] [ args... ]\n");
 	exit(1);
 }
 
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
 	BOOL pretty=NO;		// -p
 	BOOL compile=NO;	// -c
 	NSString *machine;	// -m
-	BOOL precompile=NO;
+	BOOL interpret=NO;
 	Node *result=nil;
 	NSMutableDictionary *refactor=[NSMutableDictionary dictionaryWithCapacity:10];
 	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
@@ -98,8 +99,21 @@ int main(int argc, char *argv[])
 						usage();	// missing =
 					old=[rule substringToIndex:r.length];
 					new=[rule substringFromIndex:r.location+1];
-					// FIXME: check for empty substitutions
 					[refactor setObject:new forKey:old];
+					break;					
+				}
+				case 'f': {
+					NSString *script;
+					if(*c)
+						script=[NSString stringWithUTF8String:c];
+					else if(argv[2])
+						script=[NSString stringWithUTF8String:argv[2]], argv++;
+					else
+						usage();
+					c+=strlen(c);
+					// [script writeToFile:temp]
+					// or [NSInputStream streamWithString:script]
+					// FIXME: result=[Node parse:script delegate:nil];	// parse script
 					break;					
 				}
 				case 'I':
@@ -109,22 +123,21 @@ int main(int argc, char *argv[])
 			}
 		argv++;
 		}
-	precompile=!lint && !pretty && !compile;	// we run in script mode and should store a binary AST for faster execution
-	while(argv[1])
-		{
+	interpret=!lint && !pretty && !compile;	// we run in script mode and should store a binary AST for faster execution
+	while(argv[1] && (!interpret || !result))
+		{ // get file arguments to process
 		char first[512];
 		int l;
 		Node *n=nil;
 		NSString *object=nil;
-		if(precompile)
+		NSFileManager *fm=[NSFileManager defaultManager];
+		NSString *source=[fm stringWithFileSystemRepresentation:argv[1] length:strlen(argv[1])];
+		if(interpret)
 			{
-			NSFileManager *fm=[NSFileManager defaultManager];
-			NSString *source;
 			NSString *compiler;
 			NSDictionary *sattribs;
 			NSDictionary *oattribs;
 			NSDictionary *cattribs;
-			source=[fm stringWithFileSystemRepresentation:argv[1] length:strlen(argv[1])];
 			compiler=[fm stringWithFileSystemRepresentation:argv[0] length:strlen(argv[0])];
 			if([[source pathExtension] length] > 0)
 				object=[source stringByAppendingString:@"objc"];	// extend suffix
@@ -132,6 +145,7 @@ int main(int argc, char *argv[])
 				object=[source stringByAppendingPathExtension:@"objc"];	// first suffix
 			// we may also prefix the object path to e.g. /tmp/objc and mkdir -p $(dirname $object))
 			// the prefix could be made configurable (through NSUserDefaults)
+			// default prefix should be "./"
 			if(_debug) NSLog(@"%@ -> %@ (%@)", source, object, compiler);
 			sattribs=[fm attributesOfItemAtPath:source error:NULL];
 			oattribs=[fm attributesOfItemAtPath:object error:NULL];
@@ -147,6 +161,7 @@ int main(int argc, char *argv[])
 			int fd;
 			if(_debug)
 				NSLog(@"didn't load from %@", object);
+				// stream=[[NSInputStream streamWithContentsOfFile:source];
 			fd=open(argv[1], 0);
 			if(fd < 0)
 				{
@@ -154,6 +169,7 @@ int main(int argc, char *argv[])
 				exit(1);
 				}
 			dup2(fd, 0);	// use this file as stdin
+				// [stream getBytes:first length:]
 			l=read(0, first, sizeof(first));
 			if(l < 0)
 				{
@@ -169,9 +185,10 @@ int main(int argc, char *argv[])
 				}
 			else
 				lseek(0, 0l, 0);	// rewind to beginning
+//				[stream setProperty:[NSNumber numberWithUnsignedInt:0 forKey:NSStreamFileCurrentOffsetKey];
 			// pipe through cpp
 			n=[Node parse:nil delegate:nil];	// parse stdin
-			if(n && precompile)
+			if(n && interpret)
 				{ // was successfully parsed
 				[n simplify];
 				[n writeToFile:object];	// store n as binary representation for fast execution
@@ -184,7 +201,13 @@ int main(int argc, char *argv[])
 		argv++;
 		}
 	if(!result)
-		result=[Node parse:nil delegate:nil];	// parse stdin
+		{ // no source found yet
+		if(interpret)	// don't parse stdin in script mode
+			usage();
+			// how can we open an NSInputStream for STDIN?
+			// reading from standardInput file handle as NSData and then converting into a NSStream is wasting memory
+		result=[Node parse:nil delegate:nil];	// parse stdin		
+		}
 	/*
 	 * implement these phases as loadable bundles that can be configured as a pipeline
 	 * and use a default pipeline if nothing is specified elsewhere
