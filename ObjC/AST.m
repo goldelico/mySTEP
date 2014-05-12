@@ -125,14 +125,14 @@ int yydebug;
 	while((key=[e nextObject]))
 		{
 		if(![key isEqualToString:@"value"])
-			[attribs appendFormat:@" \"%@\"=\"%@\"", key, [[attributes objectForKey:key] description]];
+			[attribs appendFormat:@" \"%@\"=\"%@\"", key, [[[attributes objectForKey:key] description] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
 		}
 	if([self childrenCount] == 0)
 		{
 		if([self value])
-			s=[NSMutableString stringWithFormat:@"<%@%@>%@</%@>\n", type, attribs, [self value], type];
+			s=[NSMutableString stringWithFormat:@"<%@%@>%@</%@>\n", type, attribs, [[self value] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]], type];
 		else
-			s=[NSMutableString stringWithFormat:@"<%@%@/>\n", attribs, type];
+			s=[NSMutableString stringWithFormat:@"<%@%@/>\n", type, attribs];
 		}
 	else
 		{
@@ -152,7 +152,6 @@ int yydebug;
 	[arp release];
 	return [s autorelease];
 }
-
 
 - (void) dealloc
 {
