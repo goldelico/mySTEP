@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 	BOOL interpret=NO;
 	Node *result=nil;
 	NSMutableDictionary *refactor=[NSMutableDictionary dictionaryWithCapacity:10];
+	char *arg0=argv[0];
 	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
 	while(argv[1] && argv[1][0] == '-')
 		{
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 				case 'c': compile=YES; break;
 				case 'd': {
 					extern int yydebug;
-					if(_debug) yydebug=1;
+					if(_debug) yydebug=1;	// -dd
 					_debug=YES;
 					break;
 				}
@@ -139,7 +140,7 @@ int main(int argc, char *argv[])
 			NSDictionary *sattribs;
 			NSDictionary *oattribs;
 			NSDictionary *cattribs;
-			compiler=[fm stringWithFileSystemRepresentation:argv[0] length:strlen(argv[0])];
+			compiler=[fm stringWithFileSystemRepresentation:arg0 length:strlen(arg0)];
 			if([[source pathExtension] length] > 0)
 				object=[source stringByAppendingString:@"objc"];	// extend suffix
 			else
