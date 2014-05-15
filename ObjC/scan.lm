@@ -15,7 +15,7 @@ FS			(f|F|l|L)
 	/* int suffix */
 IS			(u|U|l|L)*
 	/* white space */
-WS			[ \t\v\f]
+WS			[ \r\t\v\f]
 	/* new line */
 NL			[\n]
 	/* Obj-C @ */
@@ -244,28 +244,19 @@ void scaninit(void)
 %}
 
 %%
-	/* white space */
+	/* white space and comments */
 {NL}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */ }
 {WS}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */  }
 
-	/* FIXME: handle unterminated quotes and comments which is difficult! */
-	/* well we could return " and ' and /* as bare tokens to yacc incl. <<EOF>> */
-	/* FIXME: this comment rule does not end at the first * / but the last! */
 "/*"([^*]*"*")+"/"		{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */ }
 "//".*$					{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */; }
 
 	/* preprocessor statements */
 	/* FIXME: handle \ at end of line, often used by #define */
 	/* can be matched similarily to handling of \' embedded into '' */
-^"#".*$		{ NSLog(@"preproc %s", yytext); charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; /*return(COMMENT);*/ }
+^"#"([^\n]|(\\[\n]))*$		{ NSLog(@"preproc %s", yytext); charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; /*return(COMMENT);*/ }
 
 	/* identifiers and keywords */
-
-	/* we could make @ change the state of symbol table processing - but then we have to lock against strange things like @17, 3+@5 */
-	/* or we simply decode the AT_TOKEN and make the grammar interpret symbols differently (like handling of nokeyword, objtype etc.
-	 * i.e. write in yacc: AT_TOKEN { attoken=1; } IMPLEMENTATION ... { rule; }
-	 * or AT_TOKEN '{' ...
-	 */
 
 {AT}				{ return(AT_TOKEN); }
 {L}({L}|{D})*		{ NSLog(@"sym %s", yytext); charCount(); return symbol(); }
@@ -404,7 +395,7 @@ void charCount(void)
 #endif
 	for (i = 0; yytext[i] != '\0'; i++)
 		if (yytext[i] == '\n')
-			column = 0;
+			column = 0, line++;
 		else if (yytext[i] == '\t')
 			column += 8 - (column % 8);
 		else
