@@ -112,6 +112,8 @@ int main(int argc, char *argv[])
 					else
 						usage();
 					c+=strlen(c);
+					NSLog(@"not implemented");
+					usage();
 					// [script writeToFile:temp]
 					// or [NSInputStream streamWithString:script]
 					// FIXME: result=[Node parse:script delegate:nil];	// parse script
@@ -190,10 +192,18 @@ int main(int argc, char *argv[])
 //				[stream setProperty:[NSNumber numberWithUnsignedInt:0 forKey:NSStreamFileCurrentOffsetKey];
 			// pipe through cpp
 			n=[Node parse:nil delegate:nil];	// parse stdin
-			if(n && interpret)
-				{ // was successfully parsed
-				[n simplify];
-				[n writeToFile:object];	// store n as binary representation for fast execution
+			if(interpret)
+				{
+				if(n)
+					{ // was successfully parsed
+						[n simplify];
+						[n writeToFile:object];	// store n as binary representation for fast execution
+					}
+				else
+					{
+					NSLog(@"could not parse");
+					exit(1);
+					}
 				}
 			}
 		if(result)
