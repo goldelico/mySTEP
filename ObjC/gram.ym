@@ -110,7 +110,9 @@ selector_with_arguments
 
 primary_expression
 	: IDENTIFIER
-	| CONSTANT
+	| CONSTANT {
+		NSLog(@"constant: %@", $$);
+	}
 	| STRING_LITERAL
 	| '(' expression ')'  { $$=[Node node:@"parexpr", $2, nil]; }	// it is the job of the simplifier to remove this
 /*	| '(' expression { error("missing )"); } */
@@ -176,9 +178,9 @@ cast_expression
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression { $$=[Node node:@"mult", $1, $3]; }
-	| multiplicative_expression '/' cast_expression { $$=[Node node:@"div", $1, $3]; }
-	| multiplicative_expression '%' cast_expression { $$=[Node node:@"rem", $1, $3]; }
+	| multiplicative_expression '*' cast_expression { $$=[Node node:@"mult", $1, $3, nil]; }
+	| multiplicative_expression '/' cast_expression { $$=[Node node:@"div", $1, $3, nil]; }
+	| multiplicative_expression '%' cast_expression { $$=[Node node:@"rem", $1, $3, nil]; }
 	;
 
 additive_expression
@@ -345,7 +347,7 @@ class_implementation
 
 method_implementation
 	: method_declaration compound_statement  { $$=[Node node:@"method", $1, $2, nil]; }
-	| method_declaration ';' compound_statement  { $$=[Node node:@"method", $1, $3]; }	/* ignore extra ; */
+	| method_declaration ';' compound_statement  { $$=[Node node:@"method", $1, $3, nil]; }	/* ignore extra ; */
 	;
 
 method_implementation_list
@@ -372,8 +374,10 @@ objc_declaration
 	;
 
 declaration
-	: declaration_specifiers ';'  { $$=[Node node:@"decl", $1, nil]; }	// e.g. struct name {};
-	| declaration_specifiers { currentDeclarationSpecifier=$1; } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
+	: declaration_specifiers {
+		NSLog(@"declspec");
+	} ';'  { $$=[Node node:@"decl", $1, nil]; }	// e.g. struct name {};
+	| declaration_specifiers { currentDeclarationSpecifier=$1; NSLog(@"declspec %@", $1); } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
 	| objc_declaration
 	;
 
@@ -396,7 +400,7 @@ storage_class_specifier
 
 init_declarator_list
 	: init_declarator
-	| init_declarator_list ',' init_declarator  { $$=[Node node:@"list", $1, $3]; }
+	| init_declarator_list ',' init_declarator  { $$=[Node node:@"list", $1, $3, nil]; }
 	;
 
 /* for each declarator we should set the attribute
@@ -411,21 +415,23 @@ init_declarator_list
 init_declarator
 	: declarator 
 		{ /* add to symbol table */
+			NSLog(@"init_declarator");
 			[declaredName attributeForKey:@"type"];
 			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
 		}
 	| declarator '='
 		{ /* add to symbol table */
+			NSLog(@"init_declarator=");
 			[declaredName attributeForKey:@"type"];
 			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
-		} initializer  { $$=[Node node:@"=", $1, $3]; }
+		} initializer { $$=[Node node:@"=", $1, $3, nil]; }
 	;
 
 protocol_list
 	: IDENTIFIER  { declaredName=$1; }
-	| protocol_list ',' IDENTIFIER  { $$=[Node node:@"list", $1, $3]; }
+	| protocol_list ',' IDENTIFIER  { $$=[Node node:@"list", $1, $3, nil]; }
 
 type_specifier
 	: VOID	{ $$=[Node leaf:@"void"]; }
@@ -484,7 +490,7 @@ protection_qualifier
 	;
 
 property_qualifier
-	: AT_TOKEN { attoken=1; } AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"property", $1, $3]; }
+	: AT_TOKEN { attoken=1; } AT_PROPERTY '(' property_attributes_list ')'  { $$=[Node node:@"property", $1, $3, nil]; }
 	| AT_TOKEN { attoken=1; } AT_PROPERTY
 	;
 
@@ -535,12 +541,14 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator  { $$=[Node node:@" ", $1, $2]; }
-	| direct_declarator
+	: pointer direct_declarator  { $$=[Node node:@" ", $1, $2, nil]; }
+	| direct_declarator {
+		NSLog(@"dir declarator");
+	}
 	;
 
 direct_declarator
-	: IDENTIFIER { $$=declaredName=$1; }
+	: IDENTIFIER { $$=declaredName=$1; NSLog(@"declarator: %@", $$); }
 	| '(' declarator ')'  { $$=[Node node:@"(", $2, nil]; }
 	| direct_declarator '[' constant_expression ']'  { $$=[Node node:@"dim", $1, $3, nil]; }
 	| direct_declarator '[' ']'  { $$=[Node node:@"undim", $1, nil]; }
@@ -691,17 +699,21 @@ jump_statement
 	;
 
 function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
-	: declaration_specifiers declarator compound_statement { $$=[Node node:@"function", $1, $2, $3, nil]; }
+	: declaration_specifiers declarator {
+		NSLog(@"function");
+	} compound_statement { $$=[Node node:@"function", $1, $2, $3, nil]; }
 	| declarator compound_statement { $$=[Node node:@"function", [Node leaf:@"public"], $1, $2, nil]; }
 	;
 
 external_declaration
-	: function_definition
-	| declaration
+	: declaration
+/*	| function_definition */
 	| asm_statement
 	;
 
 // allow to notify the delegate for each translation unit and clean up memory from nodes we don't need any more
+// add translation units to the global symbol table (?)
+// so that the return value of parsing a file is the global symtab with all compiled objects
 
 translation_unit
 	: external_declaration { $$=rootnode=$1; /* notify delegate */ }
@@ -719,6 +731,7 @@ char *s;
 	// forward to AST delegate (if it exists)
 	fflush(stdout);
 	printf("#error line %d column %d\n", line, column);
+	// FIXME: print full line and not only yytext or the column does not match
 	printf("/* %s\n * %*s\n * %*s\n*/\n", yytext, column, "^", column, s);
 	fflush(stdout);
 }
