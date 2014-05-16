@@ -63,7 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EE088098171C1A7700CD24AD /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = build/objc2pp.build/Development/ObjC.build/DerivedSources; sourceTree = "<group>"; };
+		EE088098171C1A7700CD24AD /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = build/ObjCKit.build/Development/ObjCKit.build/DerivedSources; sourceTree = "<group>"; };
 		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
 		EE22088714EDB47600E78349 /* Print.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
 		EE22088814EDB47600E78349 /* Print.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Print.m; sourceTree = "<group>"; };
@@ -468,6 +468,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -476,6 +477,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
+				YACCFLAGS = "";
 			};
 			name = Development;
 		};
@@ -494,6 +496,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -502,6 +505,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
+				YACCFLAGS = "";
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -519,6 +523,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -527,6 +532,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
+				YACCFLAGS = "";
 			};
 			name = Default;
 		};
