@@ -26,8 +26,8 @@ export SOURCES+=" Refactor.h"
 export SOURCES+=" Simplify.h"
 export SOURCES+=" Evaluate.h"
 export SOURCES+=" Evaluate.m"
-export SOURCES+=" build/objc2pp.build/Development/ObjC.build/DerivedSources/scan.yy.m"
-export SOURCES+=" build/objc2pp.build/Development/ObjC.build/DerivedSources/y.tab.m"
+export SOURCES+=" build/ObjCKit.build/Development/ObjCKit.build/DerivedSources/scan.yy.m"
+export SOURCES+=" build/ObjCKit.build/Development/ObjCKit.build/DerivedSources/y.tab.m"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
