@@ -373,12 +373,11 @@ objc_declaration
 	| AT_TOKEN { attoken=1; } AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $4, $5, $6, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	;
 
-declaration
+var_declaration
 	: declaration_specifiers {
-		NSLog(@"declspec");
+		NSLog(@"declspec %@", $1);
 	} ';'  { $$=[Node node:@"decl", $1, nil]; }	// e.g. struct name {};
 	| declaration_specifiers { currentDeclarationSpecifier=$1; NSLog(@"declspec %@", $1); } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
-	| objc_declaration
 	;
 
 declaration_specifiers
@@ -544,7 +543,7 @@ type_qualifier
 declarator
 	: pointer direct_declarator  { $$=[Node node:@" ", $1, $2, nil]; }
 	| direct_declarator {
-		NSLog(@"dir declarator");
+		NSLog(@"dir declarator: %@", $$);
 	}
 	;
 
@@ -670,14 +669,15 @@ labeled_statement
 compound_statement
 	: '{' '}'  { $$=[Node node:@"block", nil]; }
 /* FIXME: what happens if no statement_list is found? Is the scope stack garbled? */
-	| '{' { pushscope(); } statement_list '}'  { $$=[Node node:@"{", $3, nil]; popscope(); }
+	| '{' { pushscope(); } statement_list '}'  { $$=[Node node:@"block", $3, nil]; popscope(); }
 	;
 
 statement_list
-	: declaration { $$=[Node node:@"statementlist", $1, nil]; }
+/* allow empty? */
+	: var_declaration { $$=[Node node:@"statementlist", $1, nil]; }
 	| statement { $$=[Node node:@"statementlist", $1, nil]; }
+	| statement_list var_declaration  { $$=$1, [$$ addChild:$2]; }
 	| statement_list statement  { $$=$1, [$$ addChild:$2]; }
-    | statement_list declaration  { $$=$1, [$$ addChild:$2]; }
 	;
 
 expression_statement
@@ -696,8 +696,8 @@ iteration_statement
 	| DO statement WHILE '(' expression ')' ';'  { $$=[Node node:@"do", $3, $5, nil]; }
 	| FOR '(' expression_statement expression_statement ')' statement { $$=[Node node:@"for", $3, $5, $6, nil]; }
 	| FOR '(' expression_statement expression_statement expression ')' statement { $$=[Node node:@"forinc", $3, $4, $5, $7, nil]; }
-	| FOR '(' declaration expression_statement expression ')' statement	 { $$=[Node node:@"fordecl", $3, $4, $5, $7, nil]; }
-	| FOR '(' declaration IN expression ')' statement	 { $$=[Node node:@"forin", $3, $5, $7, nil]; }
+	| FOR '(' var_declaration expression_statement expression ')' statement	 { $$=[Node node:@"fordecl", $3, $4, $5, $7, nil]; }
+	| FOR '(' var_declaration IN expression ')' statement	 { $$=[Node node:@"forin", $3, $5, $7, nil]; }
 	;
 
 jump_statement
@@ -709,15 +709,14 @@ jump_statement
 	;
 
 function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
-	: declaration_specifiers declarator {
-		NSLog(@"function");
-	} compound_statement { $$=[Node node:@"function", $1, $2, $4, nil]; }
+	: declaration_specifiers declarator compound_statement { $$=[Node node:@"function", $1, $2, $3, nil]; }
 	| declarator compound_statement { $$=[Node node:@"function", [Node leaf:@"public"], $1, $2, nil]; }
 	;
 
 external_declaration
-	: declaration
+	: var_declaration
 	| function_definition
+	| objc_declaration
 	| asm_statement
 	;
 
