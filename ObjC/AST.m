@@ -4,7 +4,6 @@
 #import <ObjCKit/AST.h>
 
 BOOL _debug;
-int yydebug;
 
 @implementation Node
 
