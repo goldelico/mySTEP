@@ -15,10 +15,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+int x;
+int y=5;
+
 int main()
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSLog(@"hello world");
+	NSLog(@"x=%d y=%d", x, y);
 	[arp release];
 	exit(0);
 }
