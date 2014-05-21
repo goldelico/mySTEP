@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 	NSString *machine;	// -m
 	BOOL interpret=NO;
 	Node *result=nil;
+	Node *main;
 	NSMutableDictionary *refactor=[NSMutableDictionary dictionaryWithCapacity:10];
 	char *arg0=argv[0];
 	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
@@ -255,8 +256,14 @@ int main(int argc, char *argv[])
 			printf("%s", [[result prettyObjC] UTF8String]);	// pretty print
 			return 0;
 		}
+	main=[result attributeForKey:@"main"];	// get main function
+	if(!main)
+		{
+		fprintf(stderr, "no main() function found\n");	// pretty print
+		return 1;
+		}
 	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
 	// and make us call the main() function
-	[result evaluate];	// run in interpreter
+	[main evaluate];	// run in interpreter
 	return 0;
 }
