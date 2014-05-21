@@ -11,7 +11,7 @@ BOOL _debug;
 {
 	extern int yyparse();
 	extern void scaninit(void);
-	extern Node *rootnode;
+	extern Node *globals();
 	static BOOL busy=NO;
 	NSAssert(!busy, @"parser is busy");
 	busy=YES;
@@ -19,7 +19,7 @@ BOOL _debug;
 	scaninit();
 	yyparse();
 	busy=NO;
-	return rootnode;
+	return globals();
 }
 
 + (Node *) node:(NSString *) type, ...;

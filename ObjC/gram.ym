@@ -34,8 +34,7 @@
 	extern int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
 
 	extern Node *scopestack;	// scope stack
-
-	Node *rootnode;	// root node of the whole tree
+	extern Node *globals(void);	// returns the globals level
 	
 	Node *declaredName;	// current declarator IDENTIFIER object
 	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
@@ -374,9 +373,7 @@ objc_declaration
 	;
 
 var_declaration
-	: declaration_specifiers {
-		NSLog(@"declspec %@", $1);
-	} ';'  { $$=[Node node:@"decl", $1, nil]; }	// e.g. struct name {};
+	: declaration_specifiers ';' { $$=[Node node:@"decl", $1, nil]; NSLog(@"var: %@", $$); }	// e.g. struct name {};
 	| declaration_specifiers { currentDeclarationSpecifier=$1; NSLog(@"declspec %@", $1); } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
 	;
 
@@ -548,7 +545,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER { $$=declaredName=$1; NSLog(@"declarator: %@", $$); }
+	: IDENTIFIER { $$=declaredName=$1; NSLog(@"declaredName: %@", declaredName); }
 	| '(' declarator ')'  { $$=[Node node:@"(", $2, nil]; }
 	| direct_declarator '[' constant_expression ']'  { $$=[Node node:@"dim", $1, $3, nil]; }
 	| direct_declarator '[' ']'  { $$=[Node node:@"undim", $1, nil]; }
@@ -640,8 +637,8 @@ statement
 	| jump_statement
 	| asm_statement
 	| AT_TOKEN { attoken=1; } AT_TRY compound_statement catch_sequence finally	{ $$=[Node node:@"try", $4, $5, $6, nil]; }
-	| AT_TOKEN { attoken=1; } AT_THROW ';'	{ $$=[Node node:@"throw", nil]; }
 	| AT_TOKEN { attoken=1; } AT_THROW expression ';'	{ $$=[Node node:@"throw", $4, nil]; }
+	| AT_TOKEN { attoken=1; } AT_THROW ';'	{ $$=[Node node:@"throw", nil]; }
 	| AT_TOKEN { attoken=1; } AT_SYNCHRONIZED '(' expression ')' compound_statement	{ $$=[Node node:@"synchronized", $5, $7, nil]; }
 	| AT_TOKEN { attoken=1; } AT_AUTORELEASEPOOL compound_statement	{ $$=[Node node:@"arp", $4, nil]; }
 	| error ';' 	{ $$=[Node leaf:@"error"]; }
@@ -726,8 +723,8 @@ external_declaration
 
 translation_unit
 	: /* empty */
-	| external_declaration { $$=rootnode=$1; /* notify delegate */ }
-	| translation_unit external_declaration { $$=rootnode=[Node node:@"unit", $1, $2, nil]; /* notify delegate */ }
+	| external_declaration { [globals() addChild:$1]; /* notify delegate */ }
+	| translation_unit external_declaration { [globals() addChild:$2]; /* notify delegate */ }
 	;
 
 %%

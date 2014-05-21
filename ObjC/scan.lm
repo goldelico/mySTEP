@@ -168,7 +168,7 @@ Node *specialkeywordtab;	/* special keyword table */
 
 void pushscope(void)
 { // start a new local variable scope
-	[scopestack addChild:[Node leaf:@"$symtab$"]];	// create symbol table for this level
+	[scopestack addChild:[Node leaf:@"symtab"]];	// create symbol table for this level
 }
 	
 void popscope(void)
