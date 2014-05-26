@@ -477,7 +477,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
-				YACCFLAGS = "";
+				YACCFLAGS = "--debug --verbose";
 			};
 			name = Development;
 		};
@@ -505,7 +505,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
-				YACCFLAGS = "";
+				YACCFLAGS = "--debug --verbose";
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -532,7 +532,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ObjCKit;
-				YACCFLAGS = "";
+				YACCFLAGS = "--debug --verbose";
 			};
 			name = Default;
 		};
