@@ -7,16 +7,11 @@
  * - accept *any* valid keyword as selector components (and not only non-keywords): + (void) for:x in:y default:z;
  * - correctly handle typedefs for list of names: typedef int t1, t2, t3;
  * - handle nesting of type specifiers, i.e. typedef int (*intfn)(int arg)
- * - handle global/local name scope
  * - handle name spaces for structs and enums
  * - handle @implementation, @interface, @protocol add the object to the (global) symbol table
  * - get notion of 'current class', 'current method' etc.
  * - collect @property entries so that @synthesisze can expand them
- * - add all these Obj-C 2.0 expansions
- *
- * - use the new multi-child approach for nodes
- * - just parse Obj-C 2.x
- * - don't mix with simplification and translation!!! I.e. it must be possible to reconstruct (pretty print) the source code (except for white-space)
+ * - add all these new Obj-C 2.0 extensions
  *
  */
  
@@ -38,6 +33,8 @@
 	
 	Node *declaredName;	// current declarator IDENTIFIER object
 	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
+	Node *currentClass;		// name of current @interface or @implementation context
+	Node *currentFunctionOrMethod;	// name of current function/method
 
 	Node *structNames;	// struct namespace (dictionary)
 	/* is there a separate namespace for unions? */
@@ -127,7 +124,7 @@ primary_expression
 	| AT_TOKEN { attoken=1; } at_primary_expression
 	| '[' expression selector_with_arguments ']'  { $$=[Node node:@"methodcall", $2, $3, nil]; }
 	/* catch error */
-	| error
+	| error 	{ $$=[Node leaf:@"error"]; }
 	;
 
 postfix_expression
@@ -286,7 +283,7 @@ class_name_declaration
 	| class_with_superclass '<' inherited_protocols '>' { $$=[Node node:@"class", $1, $3, nil]; }
 	| class_with_superclass '(' category_name ')'  { $$=[Node node:@"class", $1, $3, nil]; }
 	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=[Node node:@"class", $1, $3, $5, nil]; }
-	| error
+	| error 	{ $$=[Node leaf:@"error"]; }
 	;
 
 class_or_instance_method_specifier
@@ -333,12 +330,7 @@ method_declaration_list
 	| AT_TOKEN { attoken=1; } AT_OPTIONAL method_declaration ';'  { $$=[Node node:@"optional", $4, nil]; }
 	| AT_TOKEN { attoken=1; } AT_REQUIRED method_declaration ';'  { $$=[Node node:@"required", $4, nil]; }
 	| method_declaration_list method_declaration ';'  { $$=$1; [$$ addChild:$2]; }
-	| error ';'
-	;
-
-ivar_declaration_list
-	: '{' '}'  { $$=[Node node:@"components", nil]; }	// empty
-	| '{' struct_declaration_list '}'  { $$=$2; }
+	| error ';' 	{ $$=[Node leaf:@"error"]; }
 	;
 
 class_implementation
@@ -363,15 +355,16 @@ class_name_list
 
 objc_declaration_body
 	: AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
+/* FIXME: set/reset currentClass */
 	| AT_PROTOCOL class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
 	| AT_PROTOCOL class_name_declaration method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
 	| AT_INTERFACE class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration struct_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration struct_declaration_list method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	| AT_IMPLEMENTATION class_implementation AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
+	| AT_IMPLEMENTATION class_implementation struct_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"];}
 	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, $6, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation struct_declaration_list method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, $6, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	;
 
 var_declaration
@@ -443,9 +436,12 @@ type_specifier
 	| UNSIGNED	{ $$=[Node leaf:@"unsigned"]; }
 	| struct_or_union_specifier
 	| enum_specifier
-	| { typename=1; } TYPE_NAME '<' protocol_list '>'	{ $$=[Node node:@"type", $2, $4, nil]; }
-	| { typename=1; } TYPE_NAME	{ $$=[Node node:@"type", $2, nil]; }
+	| { typename=1; } type_specifier_with_protocol_list
 	;
+
+type_specifier_with_protocol_list
+	: TYPE_NAME '<' protocol_list '>'	{ $$=[Node node:@"type", $1, $3, nil]; }
+	| TYPE_NAME { $$=[Node node:@"type", $1, nil]; }
 
 struct_or_union
 	: STRUCT	{ $$=[Node leaf:@"struct"]; }
@@ -453,17 +449,18 @@ struct_or_union
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=[Node node:@"struct", $1, $2, $4, nil]; /* accept only forward defines */ [structNames setAttribute:@"" forKey:[$2 value]]; }
-	| struct_or_union IDENTIFIER '{' '}'  { $$=[Node node:@"struct", $1, $2, nil]; /* accept only forward defines */ [structNames setAttribute:@"" forKey:[$2 value]]; }
-	| struct_or_union '{' struct_declaration_list '}'  { $$=[Node node:@"struct", $1, [Node leaf:@"identifier" value:@"@anonymous@"], $3, nil]; }
-	| struct_or_union '{' '}'  { $$=[Node node:@"struct", $1, [Node leaf:@"identifier" value:@"@anonymous@"], nil]; }
+	: struct_or_union IDENTIFIER struct_declaration_list  { $$=[Node node:@"struct", $1, $2, $3, nil]; /* accept only forward defines */ [structNames setAttribute:@"" forKey:[$2 value]]; }
+	| struct_or_union struct_declaration_list  { $$=[Node node:@"struct", $1, [Node leaf:@"identifier" value:@"@anonymous@"], $2, nil]; }
 	| struct_or_union IDENTIFIER { /* lookup in structNames or forward-define [structNames attributeForKey:[$2 value]] */ $$=[Node node:@"struct", $2, nil]; }
 	;
 
 struct_declaration_list
-	: /* empty */
-	| struct_declaration  { $$=[Node node:@"components", $1, nil]; }
-	| struct_declaration_list struct_declaration  { $$=$1; [$$ addChild:$2]; }
+	: '{' '}' { $$=[Node node:@"components", nil]; }
+	| '{' component_declaration_list '}'
+
+component_declaration_list
+	: struct_declaration  { $$=[Node node:@"components", $1, nil]; }
+	| component_declaration_list struct_declaration  { $$=$1; [$$ addChild:$2]; }
 	;
 
 property_attributes_list
@@ -643,7 +640,6 @@ statement
 	| jump_statement
 	| asm_statement
 	| AT_TOKEN { attoken=1; } at_statement
-	| error ';' 	{ $$=[Node leaf:@"error"]; }
 	| error '}'		{ $$=[Node leaf:@"error"]; }
 	;
 
@@ -654,14 +650,19 @@ at_statement
 	| AT_SYNCHRONIZED '(' expression ')' compound_statement	{ $$=[Node node:@"synchronized", $3, $5, nil]; }
 	| AT_AUTORELEASEPOOL compound_statement	{ $$=[Node node:@"arp", $2, nil]; }
 
+catch
+/* FIXME: we need to add a type to the expression! */
+	: { attoken=1; } AT_CATCH '(' expression ')' compound_statement	{ $$=[Node node:@"catchcondition", $4, $6, nil]; }
+	;
+
 catch_sequence
-	: /* empty */
-	| AT_TOKEN { attoken=1; } AT_CATCH compound_statement	{ $$=[Node node:@"catch", $4, nil]; }
-	| catch_sequence AT_TOKEN { attoken=1; } AT_CATCH compound_statement	{ $$=$1, [$$ addChild:$5]; }
+	: /* empty */	{ $$=[Node node:@"catch", nil]; }
+	| AT_TOKEN catch	{ $$=[Node node:@"catch", $2, nil]; }
+	| catch_sequence AT_TOKEN catch	{ $$=$1, [$$ addChild:$3]; }
 	;
 
 finally
-	: /* empty */
+	: /* empty */	{ $$=[Node node:@"finally", nil]; }
 	| AT_TOKEN { attoken=1; } AT_FINALLY compound_statement	{ $$=[Node node:@"finally", $4, nil]; }
 	;
 
@@ -726,14 +727,10 @@ external_declaration
 	| asm_statement
 	;
 
-// allow to notify the delegate for each translation unit and clean up memory from nodes we don't need any more
-// add translation units to the global symbol table (?)
-// so that the return value of parsing a file is the global symtab with all compiled objects
-
 translation_unit
 	: /* empty */
-	| external_declaration { [globals() addChild:$1]; /* notify delegate */ }
-	| translation_unit external_declaration { [globals() addChild:$2]; /* notify delegate */ }
+	| external_declaration { [$$=globals() addChild:$1]; /* + notify delegate */ }
+	| translation_unit external_declaration { [$1 addChild:$2]; /* + notify delegate */ }
 	;
 
 %%
