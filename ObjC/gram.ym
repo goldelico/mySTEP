@@ -104,11 +104,15 @@ selector_with_arguments
 
 at_primary_expression
 	: STRING_LITERAL
+	| CONSTANT	{ $$=[Node node:@"box", $1, nil]; }
 	| AT_SELECTOR '(' selector ')'  { $$=$3; }
 /*	| AT_SELECTOR '(' selector { $$=$5; error("missing )"); } */
 	| AT_ENCODE '(' type_name ')'  { $$=[Node node:@"encode", $3, nil]; }
 	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=[Node node:@"protocol", $3, nil]; }
-	| '{' expression '}' { $$=[Node node:@"arraylit", $2, nil]; }
+/* FIXME: accept lists of objects/pairs */
+	| '[' expression ']' { $$=[Node node:@"arraylit", $2, nil]; }
+	| '{' expression ':' expression '}' { $$=[Node node:@"dictlit", $2, $4, nil]; }
+	| '(' expression ')' { $$=[Node node:@"box", $2, nil]; }
 
 primary_expression
 	: IDENTIFIER
@@ -520,6 +524,7 @@ enum_specifier
 	: ENUM '{' enumerator_list '}' { $$=[Node node:@"enum", $3, nil]; }
 	| ENUM IDENTIFIER '{' enumerator_list '}' { $$=[Node node:@"enum", $2, $4, nil]; }
 	| ENUM IDENTIFIER { $$=[Node node:@"enum", nil]; }
+	/* ADDME: new syntax enum : type { ... } makes a typed enum */
 	;
 
 enumerator_list
