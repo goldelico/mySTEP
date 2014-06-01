@@ -273,6 +273,8 @@ BOOL _debug;
 
 - (void) replaceBy:(Node *) other;	// replace in parent's children list
 {
+	// FIXME: we should not try to replace the root node...
+	// another problem might arise if we optimize some object that is also stored in the attributes list of the root node
 	unsigned idx=[(NSMutableArray *) [parent children] indexOfObject:self];
 	if(idx == NSNotFound)
 		return;

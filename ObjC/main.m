@@ -257,13 +257,13 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	main=[result attributeForKey:@"main"];	// get main function
-	if(!main)
+	if(!main /* || is not function */)
 		{
 		fprintf(stderr, "no main() function found\n");	// pretty print
 		return 1;
 		}
 	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
-	// and make us call the main() function
+	// and make us call the main(argc, argv, envp) function
 	[main evaluate];	// run in interpreter
 	return 0;
 }
