@@ -102,8 +102,13 @@ selector_with_arguments
 	| selector_with_arguments ':' expression  { $$=$1; [$$ addChild:$3]; }
 	;
 
-at_primary_expression
+string_literal
 	: STRING_LITERAL
+	| string_literal STRING_LITERAL { $$=[Node node:@"concat", $1, $2, nil]; }
+	;
+
+at_primary_expression
+	: string_literal	/* FIXME: convert into obj-C string literal! */
 	| CONSTANT	{ $$=[Node node:@"box", $1, nil]; }
 	| AT_SELECTOR '(' selector ')'  { $$=$3; }
 /*	| AT_SELECTOR '(' selector { $$=$5; error("missing )"); } */
@@ -119,7 +124,7 @@ primary_expression
 	| CONSTANT {
 		NSLog(@"constant: %@", $$);
 	}
-	| STRING_LITERAL
+	| string_literal
 	| '(' expression ')'  { $$=[Node node:@"parexpr", $2, nil]; }	// it is the job of the simplifier to remove this
 /*	| '(' expression { error("missing )"); } */
 	/* gcc extension */
@@ -283,16 +288,16 @@ inherited_protocols
 	;
 
 class_name_declaration
-	: class_with_superclass { $$=[Node node:@"class", $1, nil]; }
-	| class_with_superclass '<' inherited_protocols '>' { $$=[Node node:@"class", $1, $3, nil]; }
-	| class_with_superclass '(' category_name ')'  { $$=[Node node:@"class", $1, $3, nil]; }
-	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=[Node node:@"class", $1, $3, $5, nil]; }
+	: class_with_superclass { currentClass=$$=[Node node:@"class", $1, nil]; }
+	| class_with_superclass '<' inherited_protocols '>' { currentClass=$$=[Node node:@"class", $1, $3, nil]; }
+	| class_with_superclass '(' category_name ')'  { currentClass=$$=[Node node:@"class", $1, $3, nil]; }
+	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { currentClass=$$=[Node node:@"class", $1, $3, $5, nil]; }
 	| error 	{ $$=[Node leaf:@"error"]; }
 	;
 
 class_or_instance_method_specifier
-	: '+'  { $$=[Node leaf:@"classmethod"]; }
-	| '-'  { $$=[Node leaf:@"instancemethod"]; }
+	: '+'  { currentFunctionOrMethod=$$=[Node leaf:@"classmethod"]; }
+	| '-'  { currentFunctionOrMethod=$$=[Node leaf:@"instancemethod"]; }
 	;
 
 do_atribute_specifiers
@@ -350,6 +355,7 @@ method_implementation
 method_implementation_list
 	: method_implementation  { $$=[Node node:@"implementation", $1, nil]; }
 	| method_implementation_list method_implementation  { $$=$1; [$$ addChild:$2]; }
+/* FIXME: gcc accepts also C variables and functions declared within @implementation context! */
 	;
 
 class_name_list
@@ -359,7 +365,6 @@ class_name_list
 
 objc_declaration_body
 	: AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
-/* FIXME: set/reset currentClass */
 	| AT_PROTOCOL class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
 	| AT_PROTOCOL class_name_declaration method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
 	| AT_INTERFACE class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
@@ -373,16 +378,16 @@ objc_declaration_body
 
 var_declaration
 	: declaration_specifiers ';' { $$=[Node node:@"decl", $1, nil]; NSLog(@"var: %@", $$); }	// e.g. struct name {};
-	| declaration_specifiers { currentDeclarationSpecifier=$1; NSLog(@"declspec %@", $1); } init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
+	| declaration_specifiers init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
 	;
 
 declaration_specifiers
-	: storage_class_specifier  { $$=[Node node:@"type", $1, nil]; }	// auto, register, typedef...
-	| type_qualifier  { $$=[Node node:@"type", $1, nil]; }	// const, volatile, ...
-	| type_specifier  { $$=[Node node:@"type", $1, nil]; }	// int, long, ...
-	| declaration_specifiers storage_class_specifier  { $$=$1; [$$ addChild:$2]; }
-	| declaration_specifiers type_qualifier  { $$=$1; [$$ addChild:$2]; }
-	| declaration_specifiers type_specifier  { $$=$1; [$$ addChild:$2]; }
+	: storage_class_specifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// auto, register, typedef...
+	| type_qualifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// const, volatile, ...
+	| type_specifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// int, long, ...
+	| declaration_specifiers storage_class_specifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_qualifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_specifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
 	;
 
 storage_class_specifier
@@ -557,9 +562,10 @@ direct_declarator
 	| '(' declarator ')'  { $$=[Node node:@"(", $2, nil]; }
 	| direct_declarator '[' constant_expression ']'  { $$=[Node node:@"dim", $1, $3, nil]; }
 	| direct_declarator '[' ']'  { $$=[Node node:@"undim", $1, nil]; }
-	| direct_declarator '(' parameter_type_list ')'  { $$=[Node node:@"function", $1, $3, nil]; }
-	| direct_declarator '(' identifier_list ')'  { $$=[Node node:@"function", $1, $3, nil]; }
-	| direct_declarator '(' ')'  { $$=[Node node:@"function", $1, nil]; }
+/* FIXME: should this currentFunctionOrMethod be defined only on top level? Otherwise we get a problem with extern function(void); within a block */
+	| direct_declarator '(' parameter_type_list ')'  { currentFunctionOrMethod=$$=[Node node:@"function", $1, $3, nil]; }
+	| direct_declarator '(' identifier_list ')'  { currentFunctionOrMethod=$$=[Node node:@"function", $1, $3, nil]; }
+	| direct_declarator '(' ')'  { currentFunctionOrMethod=$$=[Node node:@"function", $1, nil]; }
 	;
 
 pointer
@@ -625,15 +631,17 @@ initializer
 	: assignment_expression {
 		NSLog(@"assign=%@", $$);
 	}
+/* FIXME: there can be a sequence of '.' IDENTIFIER to select fields of nested structs */
+/* a logical extension would be to allow '[' constant_expression ']' '=' to initialize specific array elements instead of 'next element' */
 	| '.' IDENTIFIER '=' assignment_expression  { $$=[Node node:@"componentinit", $2, $4, nil]; }	// struct = { .component=something }
 	| '{' initializer_list '}'  { $$=[Node node:@"init", $2, nil]; }
-	| '{' initializer_list ',' '}'  { $$=[Node node:@"init", $2, nil]; }	/* removes extra , */
 	;
 
 initializer_list
 /* allow empty? */
 	: initializer   { $$=[Node node:@"initlist", $1, nil]; }
 	| initializer_list ',' initializer  { $$=$1; [$$ addChild:$3]; }
+	| initializer_list ','		/* removes extra , */
 	;
 
 statement
@@ -732,10 +740,14 @@ external_declaration
 	| asm_statement
 	;
 
+external_declaration_list
+	: external_declaration { [$$=globals() addChild:$1]; /* + notify delegate */ }
+	| external_declaration_list external_declaration { [$1 addChild:$2]; /* + notify delegate */ }
+	;
+
 translation_unit
-	: /* empty */
-	| external_declaration { [$$=globals() addChild:$1]; /* + notify delegate */ }
-	| translation_unit external_declaration { [$1 addChild:$2]; /* + notify delegate */ }
+	: external_declaration_list
+	| /* empty */
 	;
 
 %%
