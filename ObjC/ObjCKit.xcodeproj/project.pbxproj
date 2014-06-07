@@ -71,6 +71,7 @@
 		EE22088A14EDB51200E78349 /* Simplify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simplify.m; sourceTree = "<group>"; };
 		EE4108520B956BA30065DD36 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		EE5372E8193DA3FF002C3408 /* helloworld.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = helloworld.m; path = test/helloworld.m; sourceTree = "<group>"; };
 		EE5539D41913C78900C22634 /* Evaluate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evaluate.h; sourceTree = "<group>"; };
 		EE5539D51913C78900C22634 /* Evaluate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Evaluate.m; sourceTree = "<group>"; };
 		EE553A0D1913D2FF00C22634 /* script.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = script.m; path = test/script.m; sourceTree = "<group>"; };
@@ -191,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				EE6D3E0513755497003D5863 /* main.m */,
+				EE5372E8193DA3FF002C3408 /* helloworld.m */,
 				EE553A0D1913D2FF00C22634 /* script.m */,
 				EE6D3DDD137553CE003D5863 /* simple.m */,
 				EEEB4C461509E84D000EE2E5 /* special.m */,
