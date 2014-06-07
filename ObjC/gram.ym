@@ -332,6 +332,8 @@ selector_with_argument_declaration
 
 method_declaration
 	: class_or_instance_method_specifier '(' objc_declaration_specifiers ')' selector_with_argument_declaration { $$=[Node node:@"methoddeclaration", $1, $3, $5, nil]; }
+	| var_declaration
+	| function_definition
 	;
 
 method_declaration_list
@@ -419,6 +421,7 @@ init_declarator
 			[declaredName attributeForKey:@"type"];
 			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
+			[declaredName setAttribute:$1 forKey:@"value"];
 		}
 	| declarator '='
 		{ /* add to symbol table */
@@ -426,7 +429,12 @@ init_declarator
 			[declaredName attributeForKey:@"type"];
 			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
-		} initializer { $$=[Node node:@"=", $1, $4, nil]; }
+			[declaredName setAttribute:$1 forKey:@"value"];
+		} initializer
+		{
+			$$=[Node node:@"=", $1, $4, nil];
+			[declaredName setAttribute:$4 forKey:@"init"];
+		}
 	;
 
 protocol_list
@@ -729,7 +737,17 @@ jump_statement
 	;
 
 function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
-	: declaration_specifiers declarator compound_statement { $$=[Node node:@"function", $1, $2, $3, nil]; }
+	: declaration_specifiers declarator
+	{
+		[declaredName attributeForKey:@"type"];
+		/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
+		[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
+	}
+	compound_statement
+		{
+		$$=[Node node:@"function", $1, $2, $4, nil];
+		[declaredName setAttribute:$4 forKey:@"value"];
+		}
 	| declarator compound_statement { $$=[Node node:@"function", [Node leaf:@"public"], $1, $2, nil]; }
 	;
 
