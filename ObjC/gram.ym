@@ -103,12 +103,12 @@ selector_with_arguments
 	;
 
 string_literal
-	: STRING_LITERAL
+	: STRING_LITERAL	{ $$=[Node node:@"string", $1, nil]; }
 	| string_literal STRING_LITERAL { $$=[Node node:@"concat", $1, $2, nil]; }
 	;
 
 at_primary_expression
-	: string_literal	/* FIXME: convert into obj-C string literal! */
+	: string_literal	{ [$$ setType:@"ATstring"]; } /* convert into obj-C string literal */
 	| CONSTANT	{ $$=[Node node:@"box", $1, nil]; }
 	| AT_SELECTOR '(' selector ')'  { $$=$3; }
 /*	| AT_SELECTOR '(' selector { $$=$5; error("missing )"); } */
@@ -140,8 +140,8 @@ postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'  { $$=[Node node:@"index", $1, $3, nil]; }
 // FIXME: check if the postfix_expression is a IDENTIFIER: then make it an implicitly declared extern function()
-	| postfix_expression '(' ')'  { $$=[Node node:@"functioncall", $1, nil]; }
 	| postfix_expression '(' argument_expression_list ')'  { $$=[Node node:@"functioncall", $1, $3, nil]; }
+	| postfix_expression '(' ')'  { $$=[Node node:@"functioncall", $1, nil]; }
 	| postfix_expression '.' IDENTIFIER  { $$=[Node node:@"structref", $1, $3, nil]; }
 	| postfix_expression PTR_OP IDENTIFIER  { $$=[Node node:@"structderef", $1, $3, nil]; }
 	| postfix_expression INC_OP  { $$=[Node node:@"postinc", $1, nil]; }

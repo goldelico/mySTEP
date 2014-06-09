@@ -68,7 +68,7 @@
 	// return [NSNumber numberWithInt:sum];
 }
 
-- (id) evaluate_call:(id) machine
+- (id) evaluate_functioncall:(id) machine
 { // function call
 	// dereference children
 	// push on stack
