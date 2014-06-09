@@ -129,7 +129,7 @@ BOOL _debug;
 	if([self childrenCount] == 0)
 		{
 		if([self value])
-			s=[NSMutableString stringWithFormat:@"<%@%@>%@</%@>\n", type, attribs, [[self value] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]], type];
+			s=[NSMutableString stringWithFormat:@"<%@%@>%@</%@>\n", type, attribs, [[[self value] description] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]], type];
 		else
 			s=[NSMutableString stringWithFormat:@"<%@%@/>\n", type, attribs];
 		}
