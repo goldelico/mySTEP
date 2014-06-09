@@ -559,7 +559,7 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator  { $$=[Node node:@" ", $1, $2, nil]; }
+	: pointer direct_declarator  { $$=[Node node:@"pointer", $1, $2, nil]; }
 	| direct_declarator {
 		NSLog(@"dir declarator: %@", $$);
 	}
@@ -614,13 +614,13 @@ identifier_list
 
 type_name
 	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator  { $$=[Node node:@" ", $1, $2, nil]; }
+	| specifier_qualifier_list abstract_declarator  { $$=[Node node:@"type", $1, $2, nil]; }
 	;
 
 abstract_declarator
 	: pointer
 	| direct_abstract_declarator
-	| pointer direct_abstract_declarator  { $$=[Node node:@" ", $1, $2, nil]; }
+	| pointer direct_abstract_declarator  { $$=[Node node:@"pointer", $1, $2, nil]; }
 	;
 
 direct_abstract_declarator
@@ -732,8 +732,9 @@ jump_statement
 	: GOTO IDENTIFIER ';'  { $$=[Node node:@"goto", $2, nil]; }
 	| CONTINUE ';'  { $$=[Node leaf:@"continue"]; }
 	| BREAK ';' { $$=[Node leaf:@"break"]; }
+	| RETURN expression ';'
+{ $$=[Node node:@"return", $2, nil]; }
 	| RETURN ';' { $$=[Node leaf:@"return"]; }
-	| RETURN expression ';' { $$=[Node node:@"return", $2, nil]; }
 	;
 
 function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
