@@ -262,6 +262,8 @@ int main(int argc, char *argv[])
 		}
 	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
 	// and make us call the main(argc, argv, envp) function
+	// maybe we should create a "functioncall" node with the main-function, argc and argv as children
+	// but we can't call evaluate directly, since tree-walk calls the children only
 	[main evaluate];	// run in interpreter
 	return 0;
 }
