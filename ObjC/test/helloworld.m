@@ -5,6 +5,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class NSAutoreleasePool;
+
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
