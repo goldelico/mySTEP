@@ -37,6 +37,7 @@ extern BOOL _debug;
 
 - (id) attributeForKey:(NSString *) key;	// look up entry with key in dictionary
 - (void) setAttribute:(id) value forKey:(NSString *) key;
+- (NSDictionary *) attributes;
 
 - (id) initWithType:(NSString *) type;
 - (NSString *) type;

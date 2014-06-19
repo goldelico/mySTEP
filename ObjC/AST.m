@@ -2,6 +2,7 @@
 
 
 #import <ObjCKit/AST.h>
+#import <ObjCKit/Prepare.h>
 
 BOOL _debug;
 
@@ -19,6 +20,7 @@ BOOL _debug;
 	scaninit();
 	yyparse();
 	busy=NO;
+	[globals() prepare];	// analyse and add links as needed
 	return globals();
 }
 
@@ -67,6 +69,11 @@ BOOL _debug;
 		[attributes setObject:value forKey:key];
 	else
 		attributes=[[NSMutableDictionary alloc] initWithObjects:&value forKeys:&key count:1];
+}
+
+- (NSDictionary *) attributes;
+{
+	return attributes;
 }
 
 - (id) initWithType:(NSString *) t;
