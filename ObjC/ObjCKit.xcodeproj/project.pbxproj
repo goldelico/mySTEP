@@ -21,7 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; };
+		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5539D81913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
 		EE5583AD191F6DBA00C22634 /* objc20.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5583AB191F6DBA00C22634 /* objc20.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5583AE191F6DBA00C22634 /* objc20.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5583AC191F6DBA00C22634 /* objc20.m */; };
@@ -44,6 +44,8 @@
 		EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E493F16F23D4800DF50B4 /* Print.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088714EDB47600E78349 /* Print.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088914EDB51200E78349 /* Simplify.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9E1F2C19536DFF003A4586 /* Prepare.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E1F2A19536DFF003A4586 /* Prepare.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9E1F2D19536DFF003A4586 /* Prepare.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9E1F2B19536DFF003A4586 /* Prepare.m */; };
 		EEC876B01716E3900093590B /* Simplify.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088A14EDB51200E78349 /* Simplify.m */; };
 		EEC876B11716E39E0093590B /* Print.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088814EDB47600E78349 /* Print.m */; };
 		EEC876BF1716E49C0093590B /* objc2c.h in Headers */ = {isa = PBXBuildFile; fileRef = EEC876BD1716E49C0093590B /* objc2c.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -103,6 +105,8 @@
 		EE8E48C316F22BD500DF50B4 /* compile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compile.m; sourceTree = "<group>"; };
 		EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ObjCKit.qcodeproj; sourceTree = "<group>"; };
 		EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCKit.h; sourceTree = "<group>"; };
+		EE9E1F2A19536DFF003A4586 /* Prepare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prepare.h; sourceTree = "<group>"; };
+		EE9E1F2B19536DFF003A4586 /* Prepare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prepare.m; sourceTree = "<group>"; };
 		EEC876BD1716E49C0093590B /* objc2c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc2c.h; sourceTree = "<group>"; };
 		EEC876BE1716E49C0093590B /* objc2c.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc2c.m; sourceTree = "<group>"; };
 		EEEB4C011508D617000EE2E5 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
@@ -167,6 +171,8 @@
 				EE67075517184EDD00A38486 /* scan.lm */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
+				EE9E1F2A19536DFF003A4586 /* Prepare.h */,
+				EE9E1F2B19536DFF003A4586 /* Prepare.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -263,6 +269,7 @@
 				EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */,
 				EEC876BF1716E49C0093590B /* objc2c.h in Headers */,
 				EE5583AD191F6DBA00C22634 /* objc20.h in Headers */,
+				EE9E1F2C19536DFF003A4586 /* Prepare.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,6 +428,7 @@
 				EE67075617184EDD00A38486 /* scan.lm in Sources */,
 				EE67075C17184FF000A38486 /* gram.ym in Sources */,
 				EE5583AE191F6DBA00C22634 /* objc20.m in Sources */,
+				EE9E1F2D19536DFF003A4586 /* Prepare.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
