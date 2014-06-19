@@ -30,6 +30,9 @@
 	Node *declaredName;	// current declarator IDENTIFIER object
 	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
 
+	void checkTypedef(void);
+	void yyerror(char *s);
+
 %}
 
 %token SIZEOF PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -350,20 +353,20 @@ method_implementation_list
 	;
 
 class_name_list
-	: IDENTIFIER { $$=[Node node:@"classname", $1, nil]; [$1 setAttribute:@"" forKey:@"class"]; }
-	| class_name_list ',' IDENTIFIER  { $$=$1; [$$ addChild:$3]; [$3 setAttribute:@"" forKey:@"class"]; }
+	: IDENTIFIER { $$=[Node node:@"forwardclass", $1, nil]; [$1 setAttribute:@"" forKey:@"typename"]; }
+	| class_name_list ',' IDENTIFIER  { $$=$1; [$$ addChild:$3]; [$3 setAttribute:@"" forKey:@"tpename"]; }
 	;
 
 objc_declaration_body
-	: AT_CLASS class_name_list ';' { $$=[Node node:@"forwardclass", $2, nil]; }
-	| AT_PROTOCOL class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
+	: AT_CLASS class_name_list ';' { $$=$2; }
+	| AT_PROTOCOL class_name_declaration AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"protocol", $2, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
 	| AT_PROTOCOL class_name_declaration method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"protocol", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"protocol"]; }
-	| AT_INTERFACE class_name_declaration AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_INTERFACE class_name_declaration struct_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"interface", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_INTERFACE class_name_declaration struct_declaration_list AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"interface", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	| AT_INTERFACE class_name_declaration struct_declaration_list method_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"interface", $2, $3, $4, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation struct_declaration_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
-	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"implementation", $2, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation struct_declaration_list AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
+	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_TOKEN { attoken=1; } AT_END { $$=[Node node:@"implementation", $2, $3, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	| AT_IMPLEMENTATION class_implementation struct_declaration_list method_implementation_list AT_TOKEN { attoken=1; } AT_END  { $$=[Node node:@"implementation", $2, $3, $6, nil]; [declaredName setAttribute:@"" forKey:@"class"]; }
 	;
 
@@ -372,13 +375,15 @@ var_declaration
 	| declaration_specifiers init_declarator_list ';' { $$=[Node node:@"decl", $1, $3, nil]; }
 	;
 
+// FIXME: we could syntactically exclude multiple storage classes and weird mix of type and storage class
+
 declaration_specifiers
 	: storage_class_specifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// auto, register, typedef...
 	| type_qualifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// const, volatile, ...
 	| type_specifier  { currentDeclarationSpecifier=$$=[Node node:@"type", $1, nil]; }	// int, long, ...
-	| declaration_specifiers storage_class_specifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
-	| declaration_specifiers type_qualifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
-	| declaration_specifiers type_specifier  { currentDeclarationSpecifier=$$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers storage_class_specifier  { $$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_qualifier  { $$=$1; [$$ addChild:$2]; }
+	| declaration_specifiers type_specifier  { $$=$1; [$$ addChild:$2]; }
 	;
 
 storage_class_specifier
@@ -394,31 +399,20 @@ init_declarator_list
 	| init_declarator_list ',' init_declarator  { $$=[Node node:@"list", $1, $3, nil]; }
 	;
 
-/* for each declarator we should set the attribute
- * @"type" for the class/type (if defined)
- *
- * and we must set it right after parsing the declarator and before the initializer
- * so that we can correctly reference int a=sizeof(a);
- *
- * for typedefs and @class we must set the @"typename" attribute
- */
-
 init_declarator
 	: declarator 
 		{ /* add to symbol table */
-			NSLog(@"init_declarator");
-			[declaredName attributeForKey:@"type"];
-			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
+//			NSLog(@"init_declarator");
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
 			[declaredName setAttribute:$1 forKey:@"declarator"];
+			checkTypedef();
 		}
 	| declarator '='
 		{ /* add to symbol table */
-			NSLog(@"init_declarator=");
-			[declaredName attributeForKey:@"type"];
-			/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
+//			NSLog(@"init_declarator=");
 			[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
 			[declaredName setAttribute:$1 forKey:@"declarator"];
+			checkTypedef();
 		} initializer
 		{
 			$$=[Node node:@"=", $1, $4, nil];
@@ -427,8 +421,8 @@ init_declarator
 	;
 
 protocol_list
-	: IDENTIFIER  { declaredName=$1; }
-	| protocol_list ',' IDENTIFIER  { $$=[Node node:@"list", $1, $3, nil]; }
+	: IDENTIFIER  { $$=[Node node:@"protocol", $1, nil]; }
+	| protocol_list ',' IDENTIFIER  { $$=$1; [$1 addChild:$3]; }
 
 type_specifier
 	: VOID	{ $$=[Node leaf:@"void"]; }
@@ -761,8 +755,21 @@ translation_unit
 extern char *yytext;
 extern int line, column;
 
-yyerror(s)
-char *s;
+void checkTypedef(void)
+{
+	NSEnumerator *e=[[currentDeclarationSpecifier children] objectEnumerator];
+	Node *type;
+	while((type=[e nextObject]))
+		{
+		if([[type type] isEqualToString:@"typedef"])
+			{ // typedef storage class
+				[declaredName setAttribute:@"" forKey:@"typename"];	// make it a typename for the scanner
+				return;
+			}
+		}
+}
+
+void yyerror(char *s)
 {
 	// forward to AST delegate (if it exists)
 	fflush(stdout);

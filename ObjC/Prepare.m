@@ -23,6 +23,8 @@
 	// check for mismatch in storage class
 	// ?? expand @synthesise ?
 	// check/warn for declarations inserted between statements
+	// warn duplicate storage class specifiers
+	// can't initialize externs and typedefs
 }
 
 @end
