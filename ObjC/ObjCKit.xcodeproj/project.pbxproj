@@ -46,6 +46,9 @@
 		EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088914EDB51200E78349 /* Simplify.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE9E1F2C19536DFF003A4586 /* Postprocess.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E1F2A19536DFF003A4586 /* Postprocess.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE9E1F2D19536DFF003A4586 /* Postprocess.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9E1F2B19536DFF003A4586 /* Postprocess.m */; };
+		EE9E1FBF1954BEDC003A4586 /* Inspector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E1FBD1954BEDC003A4586 /* Inspector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9E1FC01954BEDC003A4586 /* Inspector.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9E1FBE1954BEDC003A4586 /* Inspector.m */; };
+		EE9E20631954C09D003A4586 /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE9E20621954C09D003A4586 /* Inspector.xib */; };
 		EEC876B01716E3900093590B /* Simplify.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088A14EDB51200E78349 /* Simplify.m */; };
 		EEC876B11716E39E0093590B /* Print.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088814EDB47600E78349 /* Print.m */; };
 		EEC876BF1716E49C0093590B /* objc2c.h in Headers */ = {isa = PBXBuildFile; fileRef = EEC876BD1716E49C0093590B /* objc2c.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -107,6 +110,9 @@
 		EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCKit.h; sourceTree = "<group>"; };
 		EE9E1F2A19536DFF003A4586 /* Postprocess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Postprocess.h; sourceTree = "<group>"; };
 		EE9E1F2B19536DFF003A4586 /* Postprocess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Postprocess.m; sourceTree = "<group>"; };
+		EE9E1FBD1954BEDC003A4586 /* Inspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inspector.h; sourceTree = "<group>"; };
+		EE9E1FBE1954BEDC003A4586 /* Inspector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Inspector.m; sourceTree = "<group>"; };
+		EE9E20621954C09D003A4586 /* Inspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Inspector.xib; sourceTree = "<group>"; };
 		EEC876BD1716E49C0093590B /* objc2c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc2c.h; sourceTree = "<group>"; };
 		EEC876BE1716E49C0093590B /* objc2c.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc2c.m; sourceTree = "<group>"; };
 		EEEB4C011508D617000EE2E5 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
@@ -162,10 +168,9 @@
 			name = Tests;
 			sourceTree = "<group>";
 		};
-		EE6D3DE3137553ED003D5863 /* Source */ = {
+		EE6D3DE3137553ED003D5863 /* Parser Source */ = {
 			isa = PBXGroup;
 			children = (
-				EE4108530B956BA30065DD36 /* Makefile */,
 				EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */,
 				EE67075B17184FF000A38486 /* gram.ym */,
 				EE67075517184EDD00A38486 /* scan.lm */,
@@ -173,8 +178,11 @@
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
 				EE9E1F2A19536DFF003A4586 /* Postprocess.h */,
 				EE9E1F2B19536DFF003A4586 /* Postprocess.m */,
+				EE9E1FBD1954BEDC003A4586 /* Inspector.h */,
+				EE9E1FBE1954BEDC003A4586 /* Inspector.m */,
+				EE9E20621954C09D003A4586 /* Inspector.xib */,
 			);
-			name = Source;
+			name = "Parser Source";
 			sourceTree = "<group>";
 		};
 		EE6D3DE713755422003D5863 /* Output */ = {
@@ -210,24 +218,24 @@
 		EE8E488B16F21D7D00DF50B4 /* Compiler Actions */ = {
 			isa = PBXGroup;
 			children = (
-				EEEB70FD150DD753000EE2E5 /* Expression.h */,
-				EEEB70FE150DD753000EE2E5 /* Expression.m */,
-				EE22088714EDB47600E78349 /* Print.h */,
-				EE22088814EDB47600E78349 /* Print.m */,
+				EE8E48C216F22BD500DF50B4 /* compile.h */,
+				EE8E48C316F22BD500DF50B4 /* compile.m */,
 				EE5539D41913C78900C22634 /* Evaluate.h */,
 				EE5539D51913C78900C22634 /* Evaluate.m */,
-				EE22088914EDB51200E78349 /* Simplify.h */,
-				EE22088A14EDB51200E78349 /* Simplify.m */,
-				EE8E488716F21D6400DF50B4 /* Refactor.h */,
-				EE8E488816F21D6400DF50B4 /* Refactor.m */,
+				EEEB70FD150DD753000EE2E5 /* Expression.h */,
+				EEEB70FE150DD753000EE2E5 /* Expression.m */,
 				EE8E48BE16F22B1200DF50B4 /* objc10.h */,
 				EE8E48BF16F22B1200DF50B4 /* objc10.m */,
 				EE5583AB191F6DBA00C22634 /* objc20.h */,
 				EE5583AC191F6DBA00C22634 /* objc20.m */,
 				EEC876BD1716E49C0093590B /* objc2c.h */,
 				EEC876BE1716E49C0093590B /* objc2c.m */,
-				EE8E48C216F22BD500DF50B4 /* compile.h */,
-				EE8E48C316F22BD500DF50B4 /* compile.m */,
+				EE22088714EDB47600E78349 /* Print.h */,
+				EE22088814EDB47600E78349 /* Print.m */,
+				EE8E488716F21D6400DF50B4 /* Refactor.h */,
+				EE8E488816F21D6400DF50B4 /* Refactor.m */,
+				EE22088914EDB51200E78349 /* Simplify.h */,
+				EE22088A14EDB51200E78349 /* Simplify.m */,
 			);
 			name = "Compiler Actions";
 			sourceTree = "<group>";
@@ -239,7 +247,8 @@
 				EEEB4C011508D617000EE2E5 /* mySTEP.make */,
 				EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */,
 				EE8E487C16F21C0900DF50B4 /* ObjC.qcodeproj */,
-				EE6D3DE3137553ED003D5863 /* Source */,
+				EE4108530B956BA30065DD36 /* Makefile */,
+				EE6D3DE3137553ED003D5863 /* Parser Source */,
 				EE8E488B16F21D7D00DF50B4 /* Compiler Actions */,
 				EE088098171C1A7700CD24AD /* DerivedSources */,
 				EE553A0E1913D42200C22634 /* objc */,
@@ -270,6 +279,7 @@
 				EEC876BF1716E49C0093590B /* objc2c.h in Headers */,
 				EE5583AD191F6DBA00C22634 /* objc20.h in Headers */,
 				EE9E1F2C19536DFF003A4586 /* Postprocess.h in Headers */,
+				EE9E1FBF1954BEDC003A4586 /* Inspector.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +372,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9E20631954C09D003A4586 /* Inspector.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +440,7 @@
 				EE67075C17184FF000A38486 /* gram.ym in Sources */,
 				EE5583AE191F6DBA00C22634 /* objc20.m in Sources */,
 				EE9E1F2D19536DFF003A4586 /* Postprocess.m in Sources */,
+				EE9E1FC01954BEDC003A4586 /* Inspector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
