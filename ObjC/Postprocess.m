@@ -6,7 +6,7 @@
 //  Copyright 2014 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "Prepare.h"
+#import "Postprocess.h"
 
 @implementation Node (Postprocess)
 

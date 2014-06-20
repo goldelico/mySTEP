@@ -2,7 +2,7 @@
 
 
 #import <ObjCKit/AST.h>
-#import <ObjCKit/Prepare.h>
+#import <ObjCKit/Postprocess.h>
 
 BOOL _debug;
 
