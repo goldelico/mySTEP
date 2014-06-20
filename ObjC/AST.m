@@ -3,6 +3,7 @@
 
 #import <ObjCKit/AST.h>
 #import <ObjCKit/Postprocess.h>
+#import <ObjCKit/Inspector.h>
 
 BOOL _debug;
 
@@ -395,6 +396,23 @@ BOOL _debug;
 		[coder encodeConditionalObject:parent];
 		[coder encodeObject:children];
 		}
+}
+
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+{
+	return YES;
+}
+
+- (void) inspect;	// open in GUI (can this be called from debugger)
+{
+	Inspector *i=[[Inspector new] autorelease];
+	[i performSelector:@selector(openInspector:) withObject:self afterDelay:0.01];	// in new runloop
+	if(!NSApp)
+		{
+		NSApplication *app=[NSApplication sharedApplication];	// create
+		[app setDelegate:(id <NSApplicationDelegate>) self];
+		}
+	[(NSApplication *) NSApp run];
 }
 
 @end

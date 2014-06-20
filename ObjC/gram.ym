@@ -718,19 +718,17 @@ jump_statement
 	| RETURN ';' { $$=[Node leaf:@"return"]; }
 	;
 
-function_definition // FIXME: add to symbol table - may overwrite/augment/conflict a function declaration or implicit forward declaration
+function_definition
 	: declaration_specifiers declarator
 	{
-		[declaredName attributeForKey:@"type"];
-		/* check if changed or if we can accept a second declaration; e.g. extern function() + auto function() or an identical definition */
 		[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
 	}
 	compound_statement
 		{
-		$$=[Node node:@"function", $1, $2, $4, nil];
+		$$=[Node node:@"functiondef", $1, $2, $4, nil];
 		[declaredName setAttribute:$4 forKey:@"value"];
 		}
-	| declarator compound_statement { $$=[Node node:@"function", [Node leaf:@"public"], $1, $2, nil]; }
+	| declarator compound_statement { $$=[Node node:@"functiondef", [Node leaf:@"public"], $1, $2, nil]; }
 	;
 
 external_declaration

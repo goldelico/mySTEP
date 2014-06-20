@@ -64,6 +64,7 @@ extern BOOL _debug;
 - (Node *) root;
 
 - (NSString *) description;	// create an XML representation
+- (void) inspect;	// open in GUI
 
 @end
 

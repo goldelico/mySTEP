@@ -12,6 +12,7 @@
 
 - (void) postprocess;	// prepare tree for symbol table and semantic issues check
 {
+	[self inspect];
 	// walk through all translation units
 	// collect objects (global/local)
 	// assign declarators/types to identifiers
