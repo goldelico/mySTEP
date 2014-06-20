@@ -217,7 +217,7 @@ void scaninit(void)
 		{ // use attributes as keyword symbol table
 			[specialkeywordtab setAttribute:[NSNumber numberWithInt:specialreserved[i].token] forKey:specialreserved[i].word];
 		}
-#if 1
+#if 0
 	NSLog(@"%@", [keywordtab description]);
 	NSLog(@"%@", [atkeywordtab description]);
 	NSLog(@"%@", [specialkeywordtab description]);
@@ -248,18 +248,18 @@ void scaninit(void)
 {NL}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */ }
 {WS}			{ charCount(); /* create node(s) if we want to be able to 100% reconstruct the source! */  }
 
-"/*"([^*]*"*")+"/"		{ charCount(); yylval = [Node leaf:@"/*" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */ }
-"//".*$					{ charCount(); yylval = [Node leaf:@"//" value:[NSString stringWithUTF8String:yytext]]; NSLog(@"comment: %@", yylval); /* return(COMMENT); */; }
+"/*"([^*]*"*")+"/"		{ charCount(); yylval = [Node leaf:@"comment" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */ }
+"//".*$					{ charCount(); yylval = [Node leaf:@"cpp_comment" value:[NSString stringWithUTF8String:yytext]]; /* return(COMMENT); */; }
 
 	/* preprocessor statements */
 	/* FIXME: handle \ at end of line, often used by #define */
 	/* can be matched similarily to handling of \' embedded into '' */
-^"#"([^\n]|(\\[\n]))*$		{ NSLog(@"preproc %s", yytext); charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; /*return(COMMENT);*/ }
+^"#"([^\n]|(\\[\n]))*$		{ charCount(); yylval=[Node leaf:@"preproc" value:[NSString stringWithUTF8String:yytext]]; /*return(COMMENT);*/ }
 
 	/* identifiers and keywords */
 
 {AT}				{ return(AT_TOKEN); }
-{L}({L}|{D})*		{ NSLog(@"sym %s", yytext); charCount(); return symbol(); }
+{L}({L}|{D})*		{ charCount(); return symbol(); }
 
 	/* numeral CONSTANTs */
 0[xX]{H}+{IS}?		{ charCount(); yylval=constant(yytext); return(CONSTANT); }
@@ -324,9 +324,9 @@ L?\"(\\.|[^\\"])*\"	{ /* " balance */ charCount(); yylval=constant(yytext); retu
 "|"				{ charCount(); return('|'); }
 "?"				{ charCount(); return('?'); }
  
-	/* "/*">	{ charCount(); yylval = [Node leaf:@"/* unterminated" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
-	/* "\"">	{ charCount(); yylval = [Node leaf:@"unterminated string" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
-.				{ charCount(); yylval=[Node leaf:@"bad character" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); */ }
+	/* "/*">	{ charCount(); yylval = [Node leaf:@"unterminated_comment" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
+	/* "\"">	{ charCount(); yylval = [Node leaf:@"unterminated_string" value:[NSString stringWithUTF8String:yytext]]; STATE = UNTERMINATED /* return(ERROR); * / } */
+.				{ charCount(); yylval=[Node leaf:@"bad_character" value:[NSString stringWithUTF8String:yytext]]; /* return(ERROR); */ }
 
 %%
 
@@ -390,7 +390,7 @@ int symbol(void)
 void charCount(void)
 { // count characters so that we know the column position and keep track of line numbers
 	int i;
-#if 1
+#if 0
 	NSLog(@"charCount: %s", yytext);
 #endif
 	for (i = 0; yytext[i] != '\0'; i++)
