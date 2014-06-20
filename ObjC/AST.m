@@ -20,7 +20,7 @@ BOOL _debug;
 	scaninit();
 	yyparse();
 	busy=NO;
-	[globals() prepare];	// analyse and add links as needed
+	[globals() postprocess];	// analyse and add links as needed
 	return globals();
 }
 

@@ -8,9 +8,9 @@
 
 #import "Prepare.h"
 
-@implementation Node (Prepare)
+@implementation Node (Postprocess)
 
-- (void) prepare;	// prepare tree for symbol table and semantic issues check
+- (void) postprocess;	// prepare tree for symbol table and semantic issues check
 {
 	// walk through all translation units
 	// collect objects (global/local)

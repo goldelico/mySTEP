@@ -9,8 +9,8 @@
 #import <ObjCKit/AST.h>
 
 
-@interface Node (Prepare)
+@interface Node (Postprocess)
 
-- (void) prepare;	// prepare tree for symbol table and semantic issues check
+- (void) postprocess;	// postprocess tree for symbol table and semantic issues check
 
 @end
