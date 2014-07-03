@@ -340,6 +340,10 @@ class NSFileManager extends NSObject
 		global $ROOT;
 		return "$ROOT/$path";
 		}
+
+	// fixme: allow to control access rights by writing to .htaccess so that we can hide private files and directories from web-access
+	// this means we have "owner" and "other"
+
 	}
 
 // EOF
