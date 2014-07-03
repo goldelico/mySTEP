@@ -117,7 +117,7 @@ primary_expression
 	}
 	| string_literal
 	| '(' expression ')'  { $$=[Node node:@"parexpr", $2, nil]; }	// it is the job of the simplifier to remove this
-/*	| '(' expression { error("missing )"); } */
+	| '(' expression	  { $$=[Node node:@"parexpr_missing_parenthesis", $2, nil]; }
 	/* gcc extension */
 	| '(' compound_statement ')'  { $$=[Node node:@"statementexpr", $2, nil]; }
 	/* Obj-C extensions */
