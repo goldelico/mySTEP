@@ -1266,7 +1266,7 @@
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
 		EE59A470158F513300ADD1C9 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AlertPanel.nib; sourceTree = "<group>"; };
-		EE59BFFC15624FD000754103 /* executable.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = executable.php; path = Sources/executable.php; sourceTree = "<group>"; };
+		EE59BFFC15624FD000754103 /* AppKit.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = AppKit.php; path = Sources/AppKit.php; sourceTree = "<group>"; };
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2217,7 +2217,7 @@
 		EE59BFFE15624FD900754103 /* Web */ = {
 			isa = PBXGroup;
 			children = (
-				EE59BFFC15624FD000754103 /* executable.php */,
+				EE59BFFC15624FD000754103 /* AppKit.php */,
 			);
 			name = Web;
 			sourceTree = "<group>";
