@@ -7,6 +7,42 @@
 
 // echo "loading Foundation<br>";
 
+// error handler function
+function myErrorHandler($errno, $errstr, $errfile, $errline)
+{
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+
+    switch ($errno) {
+    case E_USER_ERROR:
+        echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+        echo "  Fatal error on line $errline in file $errfile";
+        echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+        echo "Aborting...<br />\n";
+        exit(1);
+        break;
+
+    case E_USER_WARNING:
+        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        break;
+
+    case E_USER_NOTICE:
+        echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
+        break;
+
+    default:
+        echo "Unknown error type: [$errno] $errstr<br />\n";
+        break;
+    }
+
+    /* Don't execute PHP internal error handler */
+    return true;
+}
+
+$old_error_handler = set_error_handler("myErrorHandler");
+
 class NSObject
 	{
 	public function forwardInvocation(NSInvocation $invocation)
@@ -50,8 +86,6 @@ class NSInvocation extends NSObject
 		$this->$selector=$selector;
 		}
 	}
-
-// define (simple) classes for NSBundle, NSUserDefaults, etc.
 
 class NSPropertyListSerialization extends NSObject
 	{
@@ -225,7 +259,7 @@ class NSBundle extends NSObject
 	 * $_COOKIE['passcode']=$passcode;
 	 * NSUserDefaults::resetStandardUserDefaults();
 	 *
-	 * was bedeutet das fÃ¼r den aktuellen login?
+	 * was bedeutet das fŸr den aktuellen login?
 	 * vermutlich, dass man sich in der aktuellen App noch bewegen kann
 	 *
 	 */
@@ -254,8 +288,8 @@ class NSUserDefaults extends NSObject
 	public $registeredDefaults=array();
 	public static function standardUserDefaults()
 	{
-	if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
-		{ // read and check for proper login
+		if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
+			{ // read and check for proper login
 //			echo "read and check for proper login ";
 			
 			$checkPassword=true;
@@ -275,8 +309,8 @@ class NSUserDefaults extends NSObject
 			if($doublehash != $stored)
 				$defaults->user="";	// does not match
 			}
-		}
-	return self::$standardUserDefaults;
+			}
+		return self::$standardUserDefaults;
 	}
 	public static function resetStandardUserDefaults()
 	{ // force re-read
@@ -335,14 +369,76 @@ class NSUserDefaults extends NSObject
 
 class NSFileManager extends NSObject
 	{
-	public static function fileSystemRepresentationWithPath($path)
+	public static $defaultManager;
+	public $user="";
+	public $defaults;
+	public $registeredDefaults=array();
+	public static function defaultManager()
+	{
+		if(!isset(self::$defaultManager)
+			{ // read and check for proper login
+			$defaultManager=new NSFileManager();
+			}
+		return self::$defaultManager;
+	}
+	public function fileSystemRepresentationWithPath($path)
 		{
 		global $ROOT;
 		return "$ROOT/$path";
 		}
-
+	public function stringWithFileSystemRepresentation($path)
+		{
+		global $ROOT;
+		// strip off $ROOT/ prefix
+		}
+	public function attributesOfItemAtPath($path)
+		{
+		$attribs=array();
+/*
+ * collect real file access permissions as defined by file system, local and global .htaccess etc.
+ *
+ * user:
+ * group:
+ * other: defines access as through web server
+ */
+		$attribs['name']=$path;
+		return $attribs;
+		}
+	public function setAttributesOfItemAtPath($path, $attributes)
+		{
+		}
+	public function fileExistsAtPath($path)
+		{
+		return $this->attributesOfItemAtPath($path) != nil;
+		}
+	public function isReadableAtPath($path)
+		{
+		return YES;
+		}
 	// fixme: allow to control access rights by writing to .htaccess so that we can hide private files and directories from web-access
 	// this means we have "owner" and "other"
+	public function changeCurrentDirectoryPath($path)
+		{
+		// change in PHP or file manager only?
+		}
+	public function currentDirectoryPath()
+		{
+		}
+	public function contentsAtPath($path)
+		{
+		// read as string
+		}
+	public function contentsOfDirectoryAtPath($path)
+		{
+		// read as array
+		}
+	public function subpathsAtPath($path)
+		{
+		// read recursive as array
+		}
+/*
+createDirectoryAtPath:withIntermediateDirectories:attributes:error:
+createFileAtPath:contents:attributes:
 
 	}
 

@@ -7,53 +7,15 @@
 	 */
 
 global $ROOT;	// must be set by some .app
-// require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";
-require_once "../Foundation/Sources/executable.php";
+// require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
+require_once "../Foundation/Sources/Foundation.php";
 
 echo "<h1>CoreDataBase.framework</h1>";
-
-// include Foundation framework
-// move such code there
-
-// error handler function
-function myErrorHandler($errno, $errstr, $errfile, $errline)
-{
-    if (!(error_reporting() & $errno)) {
-        // This error code is not included in error_reporting
-        return;
-    }
-
-    switch ($errno) {
-    case E_USER_ERROR:
-        echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
-        echo "  Fatal error on line $errline in file $errfile";
-        echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-        echo "Aborting...<br />\n";
-        exit(1);
-        break;
-
-    case E_USER_WARNING:
-        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
-        break;
-
-    case E_USER_NOTICE:
-        echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
-        break;
-
-    default:
-        echo "Unknown error type: [$errno] $errstr<br />\n";
-        break;
-    }
-
-    /* Don't execute PHP internal error handler */
-    return true;
-}
-
-$old_error_handler = set_error_handler("myErrorHandler");
 
 class ManagedObjectContext extends NSObject
 {
 	// can we manage different hosts and databases?
+	// if we have a "database-handle"
 
 	public function constructor($host, $user, $password, $database)
 		{
@@ -71,18 +33,13 @@ echo "select $database<p>";
 			}
 		}
 
-	public function sql_escape($s)
-		{ // for inserting into SQL statement
-		return addslashes($s);
-		}
-
 	public function quote($str) 
 		{ // quote argument for sql queries 
-		return "'".$this->addslashes($str)."'"; 
+		return "'".($this->addslashes($str))."'"; 
 		}
 
 	public function query($query)
-		{ // run query and notify errors
+		{ // run query and report errors
 		echo "query ".htmlentities($query)."<p>";
 		$result=mysql_query($query);
 		if(mysql_errno() != 0)
@@ -130,7 +87,7 @@ echo "new<p>";
 		return $mo;
 		}
 
-// das sollte Ã¼berflÃ¼ssig sein!
+// das sollte ŸberflŸssig sein!
 // genaugenommen ist das ein (beschreibbarer) SQL-View was wir hier versuchen nachzubilden
 
 	public function getBySQL($where, $order, $group, $limit=0)
@@ -243,22 +200,5 @@ class ManagedObject extends NSObject
 		}
 
 }
-
-// get access to database
-
-$context=new ManagedObjectContext("localhost", "root", "ja2654sc", "test");
-
-// get access to table
-$test=$context->entity("data", "uuid");	// table "data"
-
-// create a new entry
-$mo=$test->newObject();
-
-// get/set values
-$mo->a=5;
-$mo->b="hello";
-$mo->d=$mo->a+3;
-
-$mo->sync();		// write
 
 ?>

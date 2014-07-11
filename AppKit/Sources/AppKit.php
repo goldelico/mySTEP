@@ -5,8 +5,9 @@
  * All rights reserved.
  *
  * defines (simple) classes for NSWindow, NSView, NSButton, NSTextField, NSSecureTextField, NSForm, NSImage, NSTable, NSPopUpButton
- * draw method generates html output
- * hitTest, sendEvent and mouseDown called when button is clicked or something modified
+ * draw method generates HTML and CSS output
+ *
+ * hitTest, sendEvent and mouseDown are called when button is clicked or something modified
  */
 
 // echo "loading AppKit<br>";
@@ -21,7 +22,7 @@ if($_SERVER['SERVER_PORT']!=443)
 }
 
 global $ROOT;	// must be set by some .app
-require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
+require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
 function parameter($name, $value)
 {
@@ -190,6 +191,36 @@ class NSColor
 		}
 	}
 
+class NSView
+{ // semi-abstract superclass
+	public $elementName;
+	public $subviews = array();
+	public $autoResizing;
+	public function subviews() { return $this->subviews; }
+	public function addSubview($view) { $this->subviews[]=$view; }
+	public function NSView()
+		{
+		static $elementNumber;	// unique number
+		$this->elementName="NSView-".(++$elementNumber);
+		}
+	public function draw()
+		{
+//		echo "<!-- ".$this->elementName." -->\n";
+		foreach($this->subviews as $view)
+			$view->draw();
+		}
+	public function sendEvent($event)
+		{
+		foreach($this->subviews as $view)
+			$view->sendEvent($event);
+		}
+	public function sendAction($action, $target)
+		{
+		global $NSApp;
+		$NSApp->sendActionToTarget($this, $action, $target);
+		}
+}
+
 class NSMenuItemView extends NSView
 	{	
 		public $label;
@@ -306,24 +337,28 @@ class NSMenuView extends NSView
 	}
 
 	// FIXME: shouldn't we separate between NSImage and NSImageView?
-	
-class NSImageView extends NSView
+
+class NSImage extends NSObject
 {
 	public static $images=array();
-	public $name;
 	public $url;
+	public $name;
 	public $width=32;
 	public $height=32;
+	public function size
+		{
+		return array($width, $height);
+		}
 	public static function imageNamed($name)
 		{
 		$img=self::$images[$name];
 		if(isset($img))
 			return $img;	// known
-		return new NSImageView($name);	// create
+		return new NSImage($name);	// create
 		}
-	public function NSImageView()
+	public function NSImage()
 		{
-       		parent::__construct();
+		parent::__construct();
 		}
 	public function setName($name)
 		{
@@ -340,53 +375,41 @@ class NSImageView extends NSView
 				}
 			}
 		}
-	public function setURL($url)
+	public function initByReferencingURL($url)
 		{
 		$this->url=$url;
 		// $this->setName(basename($path)) - ohne Suffix
 		}
-	public function setFilePath($path)
+	public function initByReferencingFile($path)
 		{
 		$this->setURL("https://".$_SERVER['HTTP_HOST']."/$path");
+		}
+}
+
+class NSImageView extends NSView
+{
+	public $image;
+	public function NSImageView()
+		{
+		parent::__construct();
+		}
+	public function image()
+		{
+		return $image;
+		}
+	public function setImage($img)
+		{
+		$image=$img;
+		$this->setNeedsDisplay();
 		}
 	public function draw()
 		{
 		parent::draw();
 		echo "<img";
-		parameter("src", htmlentities($this->url));
-		parameter("name", htmlentities($this->name));
-		parameter("style", "{ width:".htmlentities($this->width).", height:".htmlentities($this->height)."}");
+		parameter("src", htmlentities($image->url));
+		parameter("name", htmlentities($image->name));
+		parameter("style", "{ width:".htmlentities($image->width).", height:".htmlentities($image->height)."}");
 		echo ">\n";
-		}
-}
-
-class NSView
-{ // semi-abstract superclass
-	public $elementName;
-	public $subviews = array();
-	public $autoResizing;
-	public function subviews() { return $this->subviews; }
-	public function addSubview($view) { $this->subviews[]=$view; }
-	public function NSView()
-		{
-		static $elementNumber;	// unique number
-		$this->elementName="NSView-".(++$elementNumber);
-		}
-	public function draw()
-		{
-//		echo "<!-- ".$this->elementName." -->\n";
-		foreach($this->subviews as $view)
-			$view->draw();
-		}
-	public function sendEvent($event)
-		{
-		foreach($this->subviews as $view)
-			$view->sendEvent($event);
-		}
-	public function sendAction($action, $target)
-		{
-		global $NSApp;
-		$NSApp->sendActionToTarget($this, $action, $target);
 		}
 }
 
