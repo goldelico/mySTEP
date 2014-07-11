@@ -22,7 +22,7 @@ if($_SERVER['SERVER_PORT']!=443)
 }
 
 global $ROOT;	// must be set by some .app
-require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
+require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
 function parameter($name, $value)
 {

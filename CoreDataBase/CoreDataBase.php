@@ -7,8 +7,8 @@
 	 */
 
 global $ROOT;	// must be set by some .app
-// require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";
-require_once "../Foundation/Sources/executable.php";
+// require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
+require_once "../Foundation/Sources/Foundation.php";
 
 echo "<h1>CoreDataBase.framework</h1>";
 
@@ -33,18 +33,13 @@ echo "select $database<p>";
 			}
 		}
 
-	public function sql_escape($s)
-		{ // for inserting into SQL statement
-		return addslashes($s);
-		}
-
 	public function quote($str) 
 		{ // quote argument for sql queries 
 		return "'".($this->addslashes($str))."'"; 
 		}
 
 	public function query($query)
-		{ // run query and notify errors
+		{ // run query and report errors
 		echo "query ".htmlentities($query)."<p>";
 		$result=mysql_query($query);
 		if(mysql_errno() != 0)
