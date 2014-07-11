@@ -169,7 +169,7 @@ endif
 
 # this is the default/main target
 
-build:	build_subprojects build_doxy make_php install_local_in_library install_local build_debs deploy_remote launch_remote
+build:	build_subprojects build_doxy make_php install_local_in_library build_debs install_local deploy_remote launch_remote
 	date
 
 # FIXME: QuantumCode should protect that we don't include ourselves…
