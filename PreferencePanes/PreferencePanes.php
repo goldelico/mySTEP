@@ -12,7 +12,7 @@
 // echo "loading PreferencePanes.framework<br>";
 
 global $ROOT;	// must be set by some .app
-require_once "$ROOT/System/Library/Frameworks/AppKit.framework/Versions/Current/php/executable.php";		
+require_once "$ROOT/System/Library/Frameworks/AppKit.framework/Versions/Current/php/AppKit.php";		
 
 class NSPreferencePane
 	{

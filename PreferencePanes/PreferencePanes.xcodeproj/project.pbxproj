@@ -16,6 +16,7 @@
 
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE43E9911990D99900A05174 /* PreferencePanes.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = PreferencePanes.php; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* PreferencePanes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PreferencePanes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7AB620174766E5003133D9 /* PreferencePanes.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = PreferencePanes.qcodeproj; sourceTree = "<group>"; };
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
@@ -45,6 +46,7 @@
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE7AB620174766E5003133D9 /* PreferencePanes.qcodeproj */,
+				EE43E9911990D99900A05174 /* PreferencePanes.php */,
 				EEE1CC351568157400EA623F /* Web */,
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,

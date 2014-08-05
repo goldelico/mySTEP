@@ -7,8 +7,7 @@
 	 */
 
 global $ROOT;	// must be set by some .app
-// require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
-require_once "../Foundation/Sources/Foundation.php";
+require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
 echo "<h1>CoreDataBase.framework</h1>";
 

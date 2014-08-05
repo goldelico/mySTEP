@@ -12,8 +12,10 @@
 
 // echo "loading AppKit<br>";
 
-if($_SERVER['SERVER_PORT']!=443)
-{ // reload page as https
+	// FIXME: make this configurabe (how?)
+
+if(false && $_SERVER['SERVER_PORT'] != 443)
+{ // try to reload page as https
 	if($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
 		header("location: https://".$_SERVER['HTTP_HOST']."/");
 	else
@@ -345,7 +347,7 @@ class NSImage extends NSObject
 	public $name;
 	public $width=32;
 	public $height=32;
-	public function size
+	public function size()
 		{
 		return array($width, $height);
 		}
@@ -864,7 +866,9 @@ class NSWorkspace
 //					echo "$dir/$bundle<br>";
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
-						// check for bundle
+							// checks that the PHP executable exists
+				//		if(!NSFileManager::isBundleAtPath($bundle))
+				//			continue;
 						$name=substr($bundle, 0, strlen($bundle)-4);
 						self::$knownApplications[$bundle]=array(
 							"NSApplicationName" => $name,

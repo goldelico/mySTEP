@@ -15,6 +15,7 @@
 
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/mySTEP.make; sourceTree = "<absolute>"; };
+		EE43EA391990E37B00A05174 /* Cocoa.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = Cocoa.php; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* Cocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Cocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA331B90953FB0D001244CF /* Cocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "Cocoa-Info.plist"; sourceTree = "<group>"; };
 		EEA331BA0953FB15001244CF /* Cocoa.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Cocoa.h; sourceTree = "<group>"; };
@@ -42,6 +43,7 @@
 			children = (
 				EEFC896E16D4EE60005171C9 /* Cocoa.qcodeproj */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
+				EE43EA391990E37B00A05174 /* Cocoa.php */,
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,

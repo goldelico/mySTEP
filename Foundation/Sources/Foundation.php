@@ -5,6 +5,8 @@
 	 * All rights reserved.
 	 */
 
+// global $ROOT must be set
+
 // echo "loading Foundation<br>";
 
 // error handler function
@@ -52,6 +54,7 @@ class NSObject
 	
 	public function __call($name, $arguments)
     		{
+			$inv = new NSInvocation($name, $arguments);
 		// convert into forwardInvocation
         	// Note: value of $name is case sensitive.
         	echo "Calling object method '$name' "
@@ -375,7 +378,7 @@ class NSFileManager extends NSObject
 	public $registeredDefaults=array();
 	public static function defaultManager()
 	{
-		if(!isset(self::$defaultManager)
+		if(!isset(self::$defaultManager))
 			{ // read and check for proper login
 			$defaultManager=new NSFileManager();
 			}
@@ -439,7 +442,7 @@ class NSFileManager extends NSObject
 /*
 createDirectoryAtPath:withIntermediateDirectories:attributes:error:
 createFileAtPath:contents:attributes:
-
+*/
 	}
 
 // EOF
