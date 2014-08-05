@@ -44,6 +44,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef __APPLE__	// & SDK before 10.5
+#define sel_isEqual(A, B) ((A) == (B))
+#endif
+
 // Menu delegate classes instantiated by NIBLoading
 
 @interface _NSWindowMenuUpdater : NSObject

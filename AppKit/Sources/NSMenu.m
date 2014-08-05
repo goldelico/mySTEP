@@ -25,6 +25,10 @@
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSException.h>
 
+#ifdef __APPLE__	// & SDK before 10.5
+#define sel_isEqual(A, B) ((A) == (B))
+#endif
+
 #define _mySTEP_H_NSMenuItem	// don't load definition because we have our own
 
 #import <AppKit/NSMenu.h>
