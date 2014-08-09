@@ -5,7 +5,14 @@
 	 * All rights reserved.
 	 */
 
-// global $ROOT must be set
+	/*
+	 * design principle
+	 * 1. resemble Cocoa classes (exceptions: arrays and strings)
+	 * 2. use class::name() / public static function name() for class methods
+	 * 3. use $this->name() / public function name() for instance methods
+	 */
+
+// global $ROOT must be set by some application
 
 // echo "loading Foundation<br>";
 
@@ -55,7 +62,6 @@ class NSObject
 	public function __call($name, $arguments)
     		{
 			$inv = new NSInvocation($name, $arguments);
-		// convert into forwardInvocation
         	// Note: value of $name is case sensitive.
         	echo "Calling object method '$name' "
              		. implode(', ', $arguments). "\n";
@@ -68,9 +74,9 @@ class NSObject
 
 class NSInvocation extends NSObject
 	{
-	public $target;
-	public $selector;
-	public $args=array();
+	protected $target;
+	protected $selector;
+	protected $args=array();
 
 	public function invoke()
 		{
@@ -92,7 +98,7 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
-	static function readPropertyListElementFromFile($file, $thisline)
+	private static function readPropertyListElementFromFile($file, $thisline)
 		{ // read next element
 			$line=trim($thisline);
 				// this is a hack to read XML property lists
@@ -176,15 +182,17 @@ class NSPropertyListSerialization extends NSObject
 //		echo "<br>";
 		return $plist;
 		}
-	static function writePropertyListElementToFile($element, $file)
+	private static function writePropertyListElementToFile($element, $file)
 		{
+		echo "no idea yet how to writePropertyListElementToPath(..., $file)<br>";
 		// detect element type
 		// write in XML string fromat
 		}
 	public static function writePropertyListToPath($plist, $path)
 		{
-		echo "no idea yet how to writePropertyListToPath($path)<br>";
-		exit;		
+		// write header
+		writePropertyListElementToFile($plist, path);
+		// append trailer
 		}
 	}
 
@@ -196,16 +204,19 @@ function __load($path)
 
 class NSBundle extends NSObject
 { // abstract superclass
-	public $path;
-	public static $mainBundle;
-	public $infoDictionary;
-	public $loaded=false;
+	protected $path;
+	protected static $mainBundle;
+	protected $allBundles;
+	protected $infoDictionary;
+	protected $loaded=false;
 	public function __contructor($path)
 		{
 		parent::__constructor();
 		$this->path=$path;
+		$allBundles[]=$this;
 		}
 	public static function bundleWithPath($path) { return new NSBundle($path); }
+	public static function allBundles() { return $allBundles; }
 	public static function mainBundle()
 		{
 		global $NSApp;
@@ -215,11 +226,10 @@ class NSBundle extends NSObject
 		}
 	public static function bundleForClass($class)
 		{
-		echo "no idea yet how to get bundleForClass($class)<br>";
+		echo "no idea how to get bundleForClass($class)<br>";
 		// get_declared_classes()
 		exit;
 		}
-	public function executablePath() { return $this->path."/Contents/php/executable.php"; }
 	public function infoDictionary()
 	{
 		if(!isset($this->infoDictionary))
@@ -230,6 +240,7 @@ class NSBundle extends NSObject
 			}
 		return $this->infoDictionary;
 	}
+	public function executablePath() { return $this->path."/Contents/php/".($this->objectForInfoDictionaryKey('CFBundleExecutable')).".php"; }
 	public function pathForResourceOfType($name, $type)
 		{
 		// should apply search path and look in /Contents/Resources, /Resources until we find an existing file
@@ -241,6 +252,13 @@ class NSBundle extends NSObject
 		return $dict[$key];
 		}
 	public function bundleIdentifier() { return $this->objectForInfoDictionaryKey('CFBundleIdentifier'); }
+	public static function bundleWithIdentifier($ident)
+		{
+		foreach ($allBundles as $bundle)
+			if($bundle->bundleIdentifier() == $ident)
+				return $bundle;	// found
+		return NULL;
+		}
 	public function principalClass()
 		{
 		$this->load();
@@ -280,44 +298,49 @@ function NSHomeDirectoryForUser($user)
 
 function NSHomeDirectory()
 	{
-	return NSHomeDirectoryForUser(NSUserDefaults::standardUserDefaults()->user);
+	$ud=NSUserDefaults::standardUserDefaults();
+	if(!isset($ud))
+		return @"/";
+	return NSHomeDirectoryForUser($ud->user());
 	}
 	
 class NSUserDefaults extends NSObject
 { // persistent values (user settings)
-	public static $standardUserDefaults;
-	public $user="";
-	public $defaults;
-	public $registeredDefaults=array();
+	protected static $standardUserDefaults;
+	protected $user="";
+	protected $defaults;
+	protected $registeredDefaults=array();
 	public static function standardUserDefaults()
 	{
-		if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
-			{ // read and check for proper login
-//			echo "read and check for proper login ";
+	if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
+		{ // read and check for proper login
+			//			echo "read and check for proper login ";
 			
+			// FIXME: should be some site specific setting?
 			$checkPassword=true;
 
-		$defaults=new NSUserDefaults();
-		self::$standardUserDefaults=$defaults;
-		if(!$checkPassword)
-			{ // dummy initialization
-			$defaults->user="unchecked";
-			$defaults->defaults=array();
-			}
-		else if($defaults->user != "" && isset($_COOKIE['passcode']))
-			{ // check passcode
-			$doublehash=md5($_COOKIE['passcode'].$defaults->user);	// 2nd hash so that the passcode can't be determined from the file system
-			$stored=$defaults->stringForKey("NSUserPassword");
-			echo "check $doublehash with $stored<br>";
-			if($doublehash != $stored)
-				$defaults->user="";	// does not match
-			}
-			}
-		return self::$standardUserDefaults;
+			$defaults=new NSUserDefaults();
+			self::$standardUserDefaults=$defaults;
+			// FIXME: check if this is really best in class passwort handling for web/php
+			if(!$checkPassword)
+				{ // dummy initialization
+					$defaults->user="N.N.";
+					$defaults->defaults=array();
+				}
+			else if($defaults->user != "" && isset($_COOKIE['passcode']))
+				{ // check passcode
+					$doublehash=md5($_COOKIE['passcode'].$defaults->user);	// 2nd hash so that the passcode can't be determined from the file system
+					$stored=$defaults->stringForKey("NSUserPassword");
+					echo "check $doublehash with $stored<br>";
+					if($doublehash != $stored)
+						$this->resetStandardUserDefaults();	// does not match
+				}
+		}
+	return self::$standardUserDefaults;
 	}
 	public static function resetStandardUserDefaults()
 	{ // force re-read
-		self::$standardUserDefaults->user="";
+		unset(self::$standardUserDefaults);
 	}
 	public function __constructor()
 	{
@@ -372,30 +395,41 @@ class NSUserDefaults extends NSObject
 
 class NSFileManager extends NSObject
 	{
-	public static $defaultManager;
-	public $user="";
-	public $defaults;
-	public $registeredDefaults=array();
+	const NSFileName="NSFileName";
+	const NSFileType="NSFileType";
+	const NSFileTypeDirectory="NSFileTypeDirectory";
+	const NSFileTypeRegular="NSFileTypeRegular";
+	protected static $defaultManager;
+	protected $user="";
+	protected $defaults;
+	protected $registeredDefaults=array();
 	public static function defaultManager()
 	{
 		if(!isset(self::$defaultManager))
 			{ // read and check for proper login
-			$defaultManager=new NSFileManager();
+			self::$defaultManager=new NSFileManager();
 			}
 		return self::$defaultManager;
 	}
 	public function fileSystemRepresentationWithPath($path)
 		{
 		global $ROOT;
-		return "$ROOT/$path";
+		// check for absolute vs. relative paths???
+		return $path;
 		}
 	public function stringWithFileSystemRepresentation($path)
 		{
 		global $ROOT;
 		// strip off $ROOT/ prefix
+		return $path;
 		}
 	public function attributesOfItemAtPath($path)
 		{
+		$f=$this->fileSystemRepresentationWithPath($path);
+//		echo "attributesOfItemAtPath($path) -> $f ";
+		$a=stat($f);
+		if($a === FALSE)
+			return NULL;
 		$attribs=array();
 /*
  * collect real file access permissions as defined by file system, local and global .htaccess etc.
@@ -404,7 +438,8 @@ class NSFileManager extends NSObject
  * group:
  * other: defines access as through web server
  */
-		$attribs['name']=$path;
+		$attribs[NSFileManager::NSFileName]=$path;
+		$attribs[NSFileManager::NSFileType]=is_dir($f)?NSFileManager::NSFileTypeDirectory:NSFileManager::NSFileTypeRegular;
 		return $attribs;
 		}
 	public function setAttributesOfItemAtPath($path, $attributes)
@@ -412,28 +447,47 @@ class NSFileManager extends NSObject
 		}
 	public function fileExistsAtPath($path)
 		{
-		return $this->attributesOfItemAtPath($path) != nil;
+		return $this->attributesOfItemAtPath($path) != NULL;
 		}
-	public function isReadableAtPath($path)
+	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
 		{
-		return YES;
+		$attr=$this->attributesOfItemAtPath($path);
+		if($attr == NULL)
+			return NO;
+		$isDir=$attr[NSFileManager::NSFileType] == NSFileManager::NSFileTypeDirectory;
+		return true;
 		}
 	// fixme: allow to control access rights by writing to .htaccess so that we can hide private files and directories from web-access
 	// this means we have "owner" and "other"
+	public function isReadableAtPath($path)
+		{
+		$attr=$this->attributesOfItemAtPath($path);
+		// check for posix read permissions
+		return YES;
+		}
 	public function changeCurrentDirectoryPath($path)
 		{
 		// change in PHP or file manager only?
 		}
 	public function currentDirectoryPath()
 		{
+		// change in PHP or file manager only?
 		}
 	public function contentsAtPath($path)
 		{
 		// read as string
 		}
 	public function contentsOfDirectoryAtPath($path)
-		{
-		// read as array
+		{ // return directory contents as array
+//			echo "contentsOfDirectoryAtPath($path) ";
+		$dir=opendir($this->fileSystemRepresentation($path));
+		if(!$dir)
+			return NULL;
+		$files=array();
+		while($sub=readdir($dir))
+			$r[]=$sub;
+		closedir($dir);
+		return $r;
 		}
 	public function subpathsAtPath($path)
 		{
@@ -443,6 +497,56 @@ class NSFileManager extends NSObject
 createDirectoryAtPath:withIntermediateDirectories:attributes:error:
 createFileAtPath:contents:attributes:
 */
+	/* non-standard - we need this to convert file system paths into an external URL */
+	public function externalURLforPath($path)
+		{
+		// enable read (only) access to file (if not yet possible)
+		echo "path: $path"."<br>";
+		echo "__FILE__: ".$__FILE__."<br>";
+		print_r($_SERVER);
+		echo "<br>";
+		}
+	}
+
+class HTML
+	{
+		const encoding='UTF-8';
+		public function value($name, $value)
+		{
+		return " $name=\"".htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding)."\"";
+		}
+		public function linkval($name, $url)
+		{
+			return " $name=\"".rawurlencode($url)."\"";
+		}
+		public static function tag($tag, $contents, $args="")
+		{
+			return "<$tag$args>".$contents."</$tag>";
+		}
+		public static function text($contents)
+		{
+			return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
+		}
+		public static function bold($contents)
+		{
+			return tag("b", $contents);
+		}
+		public static function link($url, $contents)
+		{
+			return tag("a", $contents, linkval("src", $url));
+		}
+		public static function img($url)
+		{
+			return tag("img", "", linkval("src", $url));
+		}
+		public static function input($size, $value)
+		{
+			return tag("input", "", value("size", $size).value("value", $value));
+		}
+		public static function textarea($size, $value)
+		{
+			return tag("textarea", $value, value("size", $size));
+		}
 	}
 
 // EOF

@@ -32,25 +32,33 @@ function parameter($name, $value)
 }
 // check if login is required to run the App
 
+function _htmlentities($string)
+{
+	return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8');
+}
 	
 global $NSApp;
 
 class NSApplication
 {
 	// FIXME: part of this belongs to NSWorkspace!?!
-	public $name;
-	public $argv;	// arguments (?)
-	public $delegate;
-	public $mainWindow;
-	public $mainMenu;
+	protected $name;
+	protected $argv;	// arguments (?)
+	protected $delegate;
+	protected $mainWindow;
+	protected $mainMenu;
 
+	public function delegate() { return $this->delegate; }
+	public function setDelegate($d) { $this->delegate=$d; }
+	public function mainWindow() { return $this->mainWindow; }
+	public function setMainWindow($w) { $this->mainWindow=$w; }
 	function logout($sender)
 	{
 		setcookie("login", "", 24*3600);
 		setcookie("passcode", "", 24*3600);
 		$this->open("loginwindow.app");
 	}
-	function openSettings($sender)
+	public function openSettings($sender)
 	{
 		$this->open("settings.app");
 	}
@@ -60,8 +68,7 @@ class NSApplication
 		global $NSApp;
 		$NSApp=$this;
 		$this->name=$name;
-		$NSApp->mainMenu=new NSMenuView();	// create menu bar
-		$NSApp->mainMenu->isHorizontal=true;
+		$NSApp->mainMenu=new NSMenuView(true);	// create horizontal menu bar
 		
 		// we should either load or extend that
 
@@ -121,7 +128,8 @@ class NSApplication
 		if(isset($bundle))
 			{
 // ask $bundle->executablePath;
-			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
+			$executablePath=NSFileManager::defaultManager()->externalURLForPath($bundle->executablePath());
+//			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
 // how can we pass arbitrary parameters to their NSApplication $argv???
 			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
 			exit;
@@ -150,7 +158,7 @@ echo "<br>";
 		{
 		$defaults=NSUserDefaults::standardUserDefaults();	// try to read
 		print_r($defaults);
-		if($defaults->user == "")
+		if(!isset($defaults))
 			echo "Login failed!";
 //			$this->open("loginwindow.app");	// go back to login
 		
@@ -174,17 +182,18 @@ function NSApplicationMain($name)
 		exit;	
 		}
 	new NSApplication($name);
-	$NSApp->delegate=new AppController;	// this should come from the NIB file!
-	if(method_exists($NSApp->delegate, "awakeFromNib"))
-		$NSApp->delegate->awakeFromNib();
-	if(method_exists($NSApp->delegate, "didFinishLoading"))
-		$NSApp->delegate->didFinishLoading();
+	$NSApp->setDelegate(new AppController);	// this should come from the NIB file!
+	// FIXME: should we implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
+	if(method_exists($NSApp->delegate(), "awakeFromNib"))
+		$NSApp->delegate()->awakeFromNib();
+	if(method_exists($NSApp->delegate(), "didFinishLoading"))
+		$NSApp->delegate()->didFinishLoading();
 	$NSApp->run();
 }
 
 class NSColor
 	{
-	public $rgb;
+	protected $rgb;
 	public function name() { }
 	public static function systemColorWithName($name)
 		{
@@ -195,9 +204,9 @@ class NSColor
 
 class NSView
 { // semi-abstract superclass
-	public $elementName;
-	public $subviews = array();
-	public $autoResizing;
+	protected $elementName;
+	protected $subviews = array();
+	protected $autoResizing;
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view) { $this->subviews[]=$view; }
 	public function NSView()
@@ -225,13 +234,13 @@ class NSView
 
 class NSMenuItemView extends NSView
 	{	
-		public $label;
-		public $icon;
-		public $shortcut;
-		public $subMenuView;
-		public $action;
-		public $target;
-		public $isSelected;
+		protected $label;
+		protected $icon;
+		protected $shortcut;
+		protected $subMenuView;
+		protected $action;
+		protected $target;
+		protected $isSelected;
 		public function NSMenuItemView($label)
 			{
 			parent::__construct();
@@ -244,18 +253,17 @@ class NSMenuItemView extends NSView
 			}
 		public function setSubmenu($submenu)
 			{
-			$submenu->isHorizontal=false;
 			$this->subMenuView=$submenu;
 			}
 		public function draw($superview="")
 			{
 			// FXIME: use <style>
 			// if no action -> grey out
-			echo htmlentities($this->label);
+			echo _htmlentities($this->label);
 			if(isset($this->subMenuView))
 				{
 // for this to work correctly we must know our superview!	if(!$superview->isHorizontal)
-					echo htmlentities(" >");
+					echo _htmlentities(" >");
 				if($this->isSelected)
 					{
 					echo "<br>";
@@ -263,7 +271,7 @@ class NSMenuItemView extends NSView
 					}
 				}
 			else if(isset($this->shortcut))
-				echo htmlentities(" ".$this->shortcut);
+				echo _htmlentities(" ".$this->shortcut);
 			}
 	}
 
@@ -271,7 +279,7 @@ class NSMenuItemSeparator extends NSMenuItemView
 	{	
 		public function NSMenuItemSeparator()
 		{
-		parent::__construct("---");
+			parent::__construct("---");
 		}
 		public function draw()
 		{
@@ -281,14 +289,15 @@ class NSMenuItemSeparator extends NSMenuItemView
 
 class NSMenuView extends NSView
 	{
-	public $border=1;
-	public $width="100%";
-	public $isHorizontal;
-	public $menuItems;
-	public $selectedItem=-1;
-	public function NSMenuItemView()
+	protected $border=1;
+	protected $width="100%";
+	protected $isHorizontal;
+	protected $menuItems;
+	protected $selectedItem=-1;
+	public function NSMenuItemView($horizontal=false)
 		{
 		parent::__construct();
+		$this->isHorizontal=$horizontal;
 		$menuItems=array();
 		}
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
@@ -342,11 +351,11 @@ class NSMenuView extends NSView
 
 class NSImage extends NSObject
 {
-	public static $images=array();
-	public $url;
-	public $name;
-	public $width=32;
-	public $height=32;
+	protected static $images=array();
+	protected $url;
+	protected $name;
+	protected $width=32;
+	protected $height=32;
 	public function size()
 		{
 		return array($width, $height);
@@ -384,13 +393,15 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
-		$this->setURL("https://".$_SERVER['HTTP_HOST']."/$path");
+		$url=NSFileManager::defaultManager()->externalURLforPath($path);
+		$this->initByReferencingURL($url);
+//		$this->seinitByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
 }
 
 class NSImageView extends NSView
 {
-	public $image;
+	protected $image;
 	public function NSImageView()
 		{
 		parent::__construct();
@@ -408,19 +419,19 @@ class NSImageView extends NSView
 		{
 		parent::draw();
 		echo "<img";
-		parameter("src", htmlentities($image->url));
-		parameter("name", htmlentities($image->name));
-		parameter("style", "{ width:".htmlentities($image->width).", height:".htmlentities($image->height)."}");
+		parameter("src", _htmlentities($image->url));
+		parameter("name", _htmlentities($image->name));
+		parameter("style", "{ width:"._htmlentities($image->width).", height:"._htmlentities($image->height)."}");
 		echo ">\n";
 		}
 }
 
 class NSCollectionView extends NSView
 {
-	public $colums=5;
-	public $border=0;
-	public $width="100%";
-	public $content;
+	protected $colums=5;
+	protected $border=0;
+	protected $width="100%";
+	protected $content;
 	public function content() { return $this->content; }
 	public function setContent($array) { $this->content=$array; }
 	// FIXME: we should decide which method we prefer!
@@ -475,8 +486,10 @@ class NSCollectionView extends NSView
 
 class NSTabViewItem
 	{
-	public $label;
-	public $view;
+	protected $label;
+	protected $view;
+	public function label() { return $this->label; }
+	public function view() { return $this->view; }
 	public function NSTabViewItem($label, $view)
 		{
 		$this->label=$label;
@@ -486,11 +499,13 @@ class NSTabViewItem
 
 class NSTabView extends NSView
 	{
-	public $border=1;
-	public $width="100%";
-	public $tabViewItems;
-	public $selectedIndex=0;
-	public $delegate;
+	protected $border=1;
+	protected $width="100%";
+	protected $tabViewItems;
+	protected $selectedIndex=0;
+	protected $delegate;
+	public function delegate() { return $this->delegate; }
+	public function setDelegate($d) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
 	public function addTabViewItem($item) { $this->tabViewItems[]=$item; }
 	public function selectedTabViewItem() {	return $this->tabViewItems[$this->selectedIndex]; }
@@ -538,7 +553,7 @@ class NSTabView extends NSView
 			}
 		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
-			$selectedItem->view->sendEvent($event);
+			$selectedItem->view()->sendEvent($event);
 		}
 	public function draw()
 		{
@@ -564,7 +579,7 @@ class NSTabView extends NSView
 			parameter("class", "NSTabViewItemsButton");
 			parameter("type", "submit");
 			parameter("name", $this->elementName."-".$index++);
-			parameter("value", htmlentities($item->label));
+			parameter("value", _htmlentities($item->label()));
 			if($item == $this->selectedTabViewItem())
 				parameter("style", "color=green;");
 			else
@@ -579,9 +594,9 @@ class NSTabView extends NSView
 		echo ">\n";
 		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
-			$selectedItem->view->draw();	// draw current tab
+			$selectedItem->view()->draw();	// draw current tab
 		else
-			echo htmlentities("No tab at index ".$this->selectedIndex);
+			echo _htmlentities("No tab at index ".$this->selectedIndex);
 		echo "</td>";
 		echo "</tr>\n";
 		echo "</table>\n";
@@ -590,12 +605,15 @@ class NSTabView extends NSView
 	
 class NSTableView extends NSView
 	{
-	public $headers;
-	public $border=0;
-	public $width="100%";
-	public $dataSource;
-	public $visibleRows=20;
-	public $selectedRow=-1;
+	protected $headers;
+	protected $border=0;
+	protected $width="100%";
+	protected $delegate;
+	protected $dataSource;
+	protected $visibleRows=20;
+	protected $selectedRow=-1;
+	public function delegate() { return $this->delegate; }
+	public function setDelegate($d) { $this->delegate=$d; }
 	public function setDataSource($source) { $this->dataSource=$source; }
 	public function setHeaders($headers) { $this->headers=$headers; }
 	public function setBorder($border) { $this->border=0+$border; }
@@ -648,7 +666,7 @@ class NSTableView extends NSView
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
 			echo ">\n";
-			echo htmlentities($header);
+			echo _htmlentities($header);
 			echo "</th>\n";
 			}
 		echo "</tr>\n";
@@ -667,7 +685,7 @@ class NSTableView extends NSView
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					// we should insert that into the $column->cell
 				//	$item->draw();					
-					echo htmlentities($item);
+					echo _htmlentities($item);
 					}
 				else
 					echo "&nbsp;";	// add empty rows
@@ -681,9 +699,9 @@ class NSTableView extends NSView
 	
 class NSButton extends NSView
 {
-	public $title;
-	public $target;	// object
-	public $action;	// function name
+	protected $title;
+	protected $target;	// object
+	protected $action;	// function name
 	public function NSButton($newtitle = "NSButton")
 		{
        		parent::__construct();
@@ -704,7 +722,7 @@ class NSButton extends NSView
 		parameter("class", "NSButton");
 		parameter("type", "submit");
 		parameter("name", $this->elementName);
-		parameter("value", htmlentities($this->title));
+		parameter("value", _htmlentities($this->title));
 		echo "\"/>\n";
 		}
 }
@@ -714,11 +732,11 @@ class NSButton extends NSView
 class NSTextField extends NSView
 {
 // FIXME: should we use cookies to store values when switching apps???
-	public $stringValue;
-	public $backgroundColor;
-	public $align;
-	public $type="text";
-	public $width;
+	protected $stringValue;
+	protected $backgroundColor;
+	protected $align;
+	protected $type="text";
+	protected $width;
 	public function stringValue() { return $this->stringValue; }
 	public function NSTextField($width=30, $stringValue = "")
 	{
@@ -739,7 +757,7 @@ class NSTextField extends NSView
 		parameter("type", $this->type);
 		parameter("size", $this->width);
 		parameter("name", $this->elementName);
-		parameter("value", htmlentities($this->stringValue));
+		parameter("value", _htmlentities($this->stringValue));
 		echo "\"/>\n";
 		}
 }
@@ -757,7 +775,7 @@ class NSSecureTextField extends NSTextField
 
 class NSStaticTextField extends NSView
 {
-	public $stringValue;
+	protected $stringValue;
 	public function NSStaticTextField($stringValue = "")
 	{
        		parent::__construct();
@@ -766,15 +784,15 @@ class NSStaticTextField extends NSView
 	public function draw()
 		{
 		parent::draw();
-		echo htmlentities($this->stringValue);
+		echo _htmlentities($this->stringValue);
 		}
 }
 
 class NSTextView extends NSView
 {
-	public $string="";
-	public $width;
-	public $height;
+	protected $string="";
+	protected $width;
+	protected $height;
 	public function NSTextView($width = 80, $height = 20)
 		{
        		parent::__construct();
@@ -794,15 +812,15 @@ class NSTextView extends NSView
 		parameter("height", $this->height);
 		parameter("name", $this->elementName);
 		echo "\">";
-		echo htmlentities($this->stringValue);
+		echo _htmlentities($this->stringValue);
 		echo "</textarea>\n";
 		}
 }
 
 class NSWindow
 {
-	public $title;
-	public $contentView;
+	protected $title;
+	protected $contentView;
 	public function contentView() { return $this->contentView; }
 	public function setContentView($view) { $this->contentView=$view; }
 	public function NSWindow($newtitle = "QuantumSTEP Cloud")
@@ -811,8 +829,8 @@ class NSWindow
 // echo "NSWindow $newtitle<br>";
 		$this->title=$newtitle;
 		$this->setContentView(new NSView());
-		if(!$NSApp->mainWindow)
-			$NSApp->mainWindow=$this;
+		if($NSApp->mainWindow() == NULL)
+			$NSApp->setMainWindow($this);
 // print_r($NSApp);
 		}
 	public function sendEvent($event)
@@ -826,9 +844,10 @@ class NSWindow
 		echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
 		echo "<html>\n";
 		echo "<head>\n";
-		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">\n";	// sollte UTF8 sein!
+		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF8\">\n";
+		// FIXME: add links to AppKit.css and AppKit.js - if they exist
 		// meta content generator...
-		echo "<title>".htmlentities($this->title)."</title>\n";
+		echo "<title>"._htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
 		echo "<body";
 //		parameter("bgcolor", "grey");
@@ -847,7 +866,14 @@ class NSWindow
 
 class NSWorkspace
 {
-	public static $knownApplications;
+	protected static $sharedWorkspace;
+	protected static $knownApplications;
+	public static function sharedWorkspace()
+		{
+		if(!isset($sharedWorkspace))
+			$sharedWorkspace=new NSWorkspace();
+		return $sharedWorkspace;
+		}
 	public static function knownApplications()
 		{
 		if(isset(self::$knownApplications))
@@ -863,17 +889,18 @@ class NSWorkspace
 				{
 				while($bundle=readdir($f))
 					{
+					#
 //					echo "$dir/$bundle<br>";
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
 							// checks that the PHP executable exists
-				//		if(!NSFileManager::isBundleAtPath($bundle))
-				//			continue;
-						$name=substr($bundle, 0, strlen($bundle)-4);
-						self::$knownApplications[$bundle]=array(
-							"NSApplicationName" => $name,
-							"NSApplicationPath" => "$dir/$bundle",
-							"NSApplicationDomain" => $dir
+							if(!NSWorkspace::sharedWorkspace()->isFilePackageAtPath("$ROOT/$dir/$bundle"))
+								continue;	// is not a bundle
+							$name=substr($bundle, 0, strlen($bundle)-4);
+							self::$knownApplications[$bundle]=array(
+									"NSApplicationName" => $name,
+									"NSApplicationPath" => "$dir/$bundle",
+									"NSApplicationDomain" => $dir
 							);
 						// collect suffixes handled by this app
 						}
@@ -884,9 +911,9 @@ class NSWorkspace
 //		print_r($knownApplications);
 		return self::$knownApplications;
 		}
-	public static function fullPathForApplication($name)
+	public function fullPathForApplication($name)
 		{
-		NSWorkspace::knownApplications();
+		NSWorkspace::knownApplications();	// update list
 //		echo "$name<br>";
 		$app=self::$knownApplications[$name];
 		if(isset($app))
@@ -895,15 +922,23 @@ class NSWorkspace
 		print_r(self::$knownApplications);
 		return $app;
 		}
-	public static function iconForFile($path)
+	public function iconForFile($path)
 		{
 		return NSImageView::imageNamed("NSApplication");	// default
 		// check if that is a bundle -> get through Info.plist / bundle
 		// $bundle->objectForInfoDictionaryKey('CFBundleIconFile');
 		// else find application by suffix
 		}
-	public static function openFile($file)
+	public function openFile($file)
 		{
+		// locate application and open with passing the $file
+		}
+	public function isFilePackageAtPath($path)
+		{
+		$fm=NSFileManager::defaultManager();
+		if($fm->fileExistsAtPathAndIsDirectory($path, $dir) && $dir && $fm->fileExistsAtPathAndIsDirectory($path."/Contents", $dir) && $dir)
+		   return true;
+		return false;
 		}
 }
 
