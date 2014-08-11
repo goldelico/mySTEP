@@ -52,7 +52,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 
 $old_error_handler = set_error_handler("myErrorHandler");
 
-class NSObject
+class NSObject /* root class */
 	{
 	public function forwardInvocation(NSInvocation $invocation)
 		{
@@ -70,6 +70,19 @@ class NSObject
 	public function __construct()
 		{ // empty constructor
 		}
+	public function self()
+		{
+		return $this;
+		}
+	public function class_()
+		{ // returns class name
+		return get_class($this);
+		}
+	}
+
+function NSStringFromClass($class)
+	{
+	return $class;	// is already a string...
 	}
 
 class NSInvocation extends NSObject
@@ -206,17 +219,20 @@ class NSBundle extends NSObject
 { // abstract superclass
 	protected $path;
 	protected static $mainBundle;
-	protected $allBundles;
+	protected $allBundlesByPath;
 	protected $infoDictionary;
 	protected $loaded=false;
 	public function __contructor($path)
 		{
+		echo "__contructor: $path ";
+		if(isset($allBundlesByPath[$path]))
+			return $allBundlesByPath[$path];	// return bundle object we already know
 		parent::__constructor();
 		$this->path=$path;
-		$allBundles[]=$this;
+		$allBundles[$path]=$this;
 		}
-	public static function bundleWithPath($path) { return new NSBundle($path); }
-	public static function allBundles() { return $allBundles; }
+	public static function bundleWithPath($path) { echo "bundleWithPath: $path "; return new NSBundle($path); }
+	public static function allBundles() { return $allBundlesByPath; }
 	public static function mainBundle()
 		{
 		global $NSApp;
@@ -226,9 +242,9 @@ class NSBundle extends NSObject
 		}
 	public static function bundleForClass($class)
 		{
-		echo "no idea how to get bundleForClass($class)<br>";
-		// get_declared_classes()
-		exit;
+		$reflector = new ReflectionClass($class);
+		echo "bundleForClass: $class ";
+		return NSBundle::bundleWithPath($reflector->getFileName());
 		}
 	public function infoDictionary()
 	{
@@ -243,8 +259,11 @@ class NSBundle extends NSObject
 	public function executablePath() { return $this->path."/Contents/php/".($this->objectForInfoDictionaryKey('CFBundleExecutable')).".php"; }
 	public function pathForResourceOfType($name, $type)
 		{
-		// should apply search path and look in /Contents/Resources, /Resources until we find an existing file
-		return $this->path."/Contents/$name.$type";
+		$fm=NSFileManager::defaultManager();
+		$p=$this->path."/Contents/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->path."/Contents/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->path."/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
+		return NULL;
 		}
 	public function objectForInfoDictionaryKey($key)
 		{
@@ -254,7 +273,7 @@ class NSBundle extends NSObject
 	public function bundleIdentifier() { return $this->objectForInfoDictionaryKey('CFBundleIdentifier'); }
 	public static function bundleWithIdentifier($ident)
 		{
-		foreach ($allBundles as $bundle)
+		foreach ($allBundlesByPath as $bundle)
 			if($bundle->bundleIdentifier() == $ident)
 				return $bundle;	// found
 		return NULL;
@@ -427,6 +446,8 @@ class NSFileManager extends NSObject
 		{
 		$f=$this->fileSystemRepresentationWithPath($path);
 //		echo "attributesOfItemAtPath($path) -> $f ";
+		if(!file_exists($f))
+			return NULL;	// does not exist
 		$a=stat($f);
 		if($a === FALSE)
 			return NULL;
@@ -508,7 +529,7 @@ createFileAtPath:contents:attributes:
 		}
 	}
 
-class HTML
+class HTML extends NSObject
 	{
 		const encoding='UTF-8';
 		public function value($name, $value)
