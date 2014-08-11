@@ -39,7 +39,12 @@ function _htmlentities($string)
 	
 global $NSApp;
 
-class NSApplication
+class NSResponder extends NSObject
+{
+
+}
+
+class NSApplication extends NSResponder
 {
 	// FIXME: part of this belongs to NSWorkspace!?!
 	protected $name;
@@ -191,7 +196,7 @@ function NSApplicationMain($name)
 	$NSApp->run();
 }
 
-class NSColor
+class NSColor extends NSObject
 	{
 	protected $rgb;
 	public function name() { }
@@ -202,7 +207,7 @@ class NSColor
 		}
 	}
 
-class NSView
+class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $elementName;
 	protected $subviews = array();
@@ -484,7 +489,7 @@ class NSCollectionView extends NSView
 		}
 }
 
-class NSTabViewItem
+class NSTabViewItem extends NSObject
 	{
 	protected $label;
 	protected $view;
@@ -817,7 +822,7 @@ class NSTextView extends NSView
 		}
 }
 
-class NSWindow
+class NSWindow extends NSResponder
 {
 	protected $title;
 	protected $contentView;
@@ -845,8 +850,19 @@ class NSWindow
 		echo "<html>\n";
 		echo "<head>\n";
 		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF8\">\n";
-		// FIXME: add links to AppKit.css and AppKit.js - if they exist
-		// meta content generator...
+		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
+		if(isset($r))
+		   {
+		   echo "<link rel=\"stylesheet\" href=\"";
+		   echo $fm->externalURLforPath($r);
+		   echo "\" type=\"text/css\">";
+		   }
+		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "js");
+		if(isset($r))
+		   {
+		   echo "<script src=\"".$fm->externalURLforPath($r)."\" type=\"text/javascript\"></script>";
+		   echo "<noscript>Your browser does not support JavaScript!</noscript>";
+		   }
 		echo "<title>"._htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
 		echo "<body";
