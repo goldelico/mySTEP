@@ -7,14 +7,25 @@
 
 	/*
 	 * design principle
-	 * 1. resemble Cocoa classes (exceptions: arrays and strings)
-	 * 2. use class::name() / public static function name() for class methods
-	 * 3. use $this->name() / public function name() for instance methods
+	 * resemble Cocoa classes (exceptions: arrays and strings)
+	 * - (type) method:(type) arg1 text:(type) arg2  ->  public function methodText($arg1, $arg2)
+	 * + (type) method:(type) arg1 text:(type) arg2  ->  public static function methodText($arg1, $arg2)
+	 * [object method:p1 text:p2] ->  $object->methodText($1, $2)
+	 * [Class method:p1 text:p2] ->  Class::methodText($1, $2)
+	 * iVar ->  $this->iVar
+	 * [Class alloc] -> new Class --- but don't use! Use factory class methods
 	 */
 
 // global $ROOT must be set by some application
 
 // echo "loading Foundation<br>";
+
+function NSLog($format)
+	{
+	// append \n only if not yet appended
+	// NSDate::date()->description()
+	echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
+	}
 
 // error handler function
 function myErrorHandler($errno, $errstr, $errfile, $errline)
@@ -34,15 +45,15 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         break;
 
     case E_USER_WARNING:
-        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        NSLog("<b>My WARNING</b> [$errno] $errstr");
         break;
 
     case E_USER_NOTICE:
-        echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
+        NSLog("<b>My NOTICE</b> [$errno] $errstr");
         break;
 
     default:
-        echo "Unknown error type: [$errno] $errstr<br />\n";
+        NSLog("Unknown error type: [$errno] $errstr");
         break;
     }
 
@@ -67,9 +78,6 @@ class NSObject /* root class */
              		. implode(', ', $arguments). "\n";
     		}
 
-	public function __construct()
-		{ // empty constructor
-		}
 	public function self()
 		{
 		return $this;
@@ -102,10 +110,11 @@ class NSInvocation extends NSObject
 		return $this->invoke();
 		}
 
-	public function __constructor($selector)
+	public static function invocationWithSelector($selector)
 		{
-		parent::__constructor();
-		$this->$selector=$selector;
+		$r=new NSInvocation;
+		$r->selector=$selector;
+		return r;
 		}
 	}
 
@@ -197,7 +206,7 @@ class NSPropertyListSerialization extends NSObject
 		}
 	private static function writePropertyListElementToFile($element, $file)
 		{
-		echo "no idea yet how to writePropertyListElementToPath(..., $file)<br>";
+		NSLog("no idea yet how to writePropertyListElementToPath(..., $file)");
 		// detect element type
 		// write in XML string fromat
 		}
@@ -222,41 +231,63 @@ class NSBundle extends NSObject
 	protected $allBundlesByPath;
 	protected $infoDictionary;
 	protected $loaded=false;
-	public function __contructor($path)
+	public function __contruct()
 		{
-		echo "__contructor: $path ";
+		NSLog("__contruct: $path");
+		parent::__construct();
+		}
+	public static function bundleWithPath($path) 
+		{
+		NSLog("bundleWithPath: $path");
 		if(isset($allBundlesByPath[$path]))
 			return $allBundlesByPath[$path];	// return bundle object we already know
-		parent::__constructor();
-		$this->path=$path;
-		$allBundles[$path]=$this;
+		$r=new NSBundle($path);
+		$r->path=$path;
+		$allBundles[$path]=$r;
+		NSLog("bundleWithPath generated");
+		return $r;
 		}
-	public static function bundleWithPath($path) { echo "bundleWithPath: $path "; return new NSBundle($path); }
-	public static function allBundles() { return $allBundlesByPath; }
+	public static function allBundles()
+		{
+		return $allBundlesByPath;
+		}
 	public static function mainBundle()
 		{
+		// FIXME: this requires us to use AppKit.php...
 		global $NSApp;
-		if(!isset(NSBundle::$mainBundle))
-			NSBundle::$mainBundle=new NSBundle($NSApp->path);
-		return NSBundle::$mainBundle;
+		NSLog("mainBundle");
+		if(isset($NSApp))
+			return NSBundle::bundleForClass($NSApp->class_);	// assume that some NSApp object exists
+		return NULL;	// unknown
 		}
 	public static function bundleForClass($class)
 		{
 		$reflector = new ReflectionClass($class);
-		echo "bundleForClass: $class ";
-		return NSBundle::bundleWithPath($reflector->getFileName());
+		NSLog("bundleForClass: $class");
+		$path=$reflector->getFileName();	// path for .php file of given class
+		NSLog(" path $path");
+		// FIXME: this is tailored for .framework bundles! .app bundles may look differently
+		$path=dirname($path);	// Versions/A/php/Something.php
+		$path=dirname($path);	// Versions/A/php
+		$path=dirname($path);	// Versions/A
+		$path=dirname($path);	// Versions
+		NSLog(" path $path");
+		return NSBundle::bundleWithPath($path);
 		}
 	public function infoDictionary()
-	{
+		{
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
 				$plistPath=$this->pathForResourceOfType("Info", "plist");
-				echo "read $plistPath<br>";
+				NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
 		return $this->infoDictionary;
-	}
-	public function executablePath() { return $this->path."/Contents/php/".($this->objectForInfoDictionaryKey('CFBundleExecutable')).".php"; }
+		}
+	public function executablePath()
+		{
+		return $this->path."/Contents/php/".($this->objectForInfoDictionaryKey('CFBundleExecutable')).".php";
+		}
 	public function pathForResourceOfType($name, $type)
 		{
 		$fm=NSFileManager::defaultManager();
@@ -334,7 +365,20 @@ class NSUserDefaults extends NSObject
 	if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
 		{ // read and check for proper login
 			//			echo "read and check for proper login ";
-			
+
+			/*
+			if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
+				{
+				$this->user=$_COOKIE['login'];
+				$plist=NSHomeDirectoryForUser($this->user)."/Library/Preferences/NSGlobalDomain.plist";
+				$this->defaults=NSPropertyListSerialization::propertyListFromPath($plist);
+				if(!isset($this->defaults))
+					$this->user="";
+				}
+			else
+				$this->user="";
+			 */
+
 			// FIXME: should be some site specific setting?
 			$checkPassword=true;
 
@@ -350,7 +394,7 @@ class NSUserDefaults extends NSObject
 				{ // check passcode
 					$doublehash=md5($_COOKIE['passcode'].$defaults->user);	// 2nd hash so that the passcode can't be determined from the file system
 					$stored=$defaults->stringForKey("NSUserPassword");
-					echo "check $doublehash with $stored<br>";
+					NSLog("check $doublehash with $stored");
 					if($doublehash != $stored)
 						$this->resetStandardUserDefaults();	// does not match
 				}
@@ -360,20 +404,6 @@ class NSUserDefaults extends NSObject
 	public static function resetStandardUserDefaults()
 	{ // force re-read
 		unset(self::$standardUserDefaults);
-	}
-	public function __constructor()
-	{
-		parent::__constructor();
-		if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
-			{
-			$this->user=$_COOKIE['login'];
-			$plist=NSHomeDirectoryForUser($this->user)."/Library/Preferences/NSGlobalDomain.plist";
-			$this->defaults=NSPropertyListSerialization::propertyListFromPath($plist);
-			if(!isset($this->defaults))
-				$this->user="";
-			}
-		else
-			$this->user="";
 	}
 	public function registerDefaults($dict)
 	{
@@ -468,6 +498,7 @@ class NSFileManager extends NSObject
 		}
 	public function fileExistsAtPath($path)
 		{
+		NSLog("fileExistsAtPath($path)");
 		return $this->attributesOfItemAtPath($path) != NULL;
 		}
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
@@ -518,55 +549,43 @@ class NSFileManager extends NSObject
 createDirectoryAtPath:withIntermediateDirectories:attributes:error:
 createFileAtPath:contents:attributes:
 */
-	/* non-standard - we need this to convert file system paths into an external URL */
-	public function externalURLforPath($path)
-		{
-		// enable read (only) access to file (if not yet possible)
-		echo "path: $path"."<br>";
-		echo "__FILE__: ".$__FILE__."<br>";
-		print_r($_SERVER);
-		echo "<br>";
-		}
 	}
 
-class HTML extends NSObject
+class NSDate extends NSObject
 	{
-		const encoding='UTF-8';
-		public function value($name, $value)
-		{
-		return " $name=\"".htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding)."\"";
+		protected $timestamp;
+		public static function date() { $r=new NSDate; $r->timestamp=time(); }
+		public function description()
+			{
+			// return formatted string
+			}
+	public function dateWithString($str)
+		{ // YYYY-MM-DD HH:MM:SS ±HHMM
+		
 		}
-		public function linkval($name, $url)
+	public function dateWithTimeIntervalSince1970($interval)
 		{
-			return " $name=\"".rawurlencode($url)."\"";
+		
 		}
-		public static function tag($tag, $contents, $args="")
+	public function dateWithTimeIntervalSinceNow()
 		{
-			return "<$tag$args>".$contents."</$tag>";
+		
 		}
-		public static function text($contents)
+	public function dateWithTimeIntervalSinceReferenceDate()
 		{
-			return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
+		
 		}
-		public static function bold($contents)
+	public function timeIntervalSinceReference1970()
 		{
-			return tag("b", $contents);
+		return $timestamp;
 		}
-		public static function link($url, $contents)
+	public function timeIntervalSinceNow()
 		{
-			return tag("a", $contents, linkval("src", $url));
+		
 		}
-		public static function img($url)
+	public function timeIntervalSinceReferenceDate()
 		{
-			return tag("img", "", linkval("src", $url));
-		}
-		public static function input($size, $value)
-		{
-			return tag("input", "", value("size", $size).value("value", $value));
-		}
-		public static function textarea($size, $value)
-		{
-			return tag("textarea", $value, value("size", $size));
+		
 		}
 	}
 
