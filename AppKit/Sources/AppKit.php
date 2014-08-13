@@ -26,6 +26,8 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
+// replace by NSGraphicsContext::currentContext->method
+
 function parameter($name, $value)
 {
 	echo " $name=\"".$value."\"";
@@ -34,9 +36,95 @@ function parameter($name, $value)
 
 function _htmlentities($string)
 {
-	return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8');
+	return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
 }
+
+class NSGraphicsContext extends NSObject
+	{
+	protected static $currentContext;
+	public static function currentContext()
+		{
+		if(!isset(self::$currentContext))
+			self::$currentContext=new NSHTMLGraphicsContext;
+		return self::$currentContext;
+		}
+	}
+
+class NSHTMLGraphicsContext extends NSGraphicsContext
+	{
+	const encoding='UTF-8';
+	// FIXME: make more useful commands that allow to flush
+	// html primitives
+	public function flushGraphics()
+		{
+			flush();
+		}
+	public function _value($name, $value)
+		{
+		return " $name=\"".htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding)."\"";
+		}
+	public function _linkval($name, $url)
+		{
+		return " $name=\"".rawurlencode($url)."\"";
+		}
+	public function _tag($tag, $contents, $args="")
+		{
+		return "<$tag$args>".$contents."</$tag>";
+		}
+	public function bold($contents)
+		{
+		return _tag("b", $contents);
+		}
+	// write output objects
+	public function header()
+		{
+		echo _tag("html");
+		}
+	public function footer()
+		{
+		
+		}
+	public function text($contents)
+		{
+		echo htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
+		}
+	public function link($url, $contents)
+		{
+		echo $this->_tag("a", $contents, $this->_linkval("src", $url));
+		}
+	public function img($url)
+		{
+		echo $this->_tag("img", "", $this->_linkval("src", $url));
+		}
+	public function input($size, $value)
+		{
+		echo $this->_tag("input", "", $this->_value("size", $size).$this->_value("value", $value));
+		}
+	public function textarea($size, $value)
+		{
+		echo $this->_tag("textarea", $value, $this->_value("size", $size));
+		}
+	/* we need this to convert file system paths into an external URL */
+	/* hm, here we have a fundamental problem:
+	 * we don't know where the framework/bundle requesting the path can be accessed from extern!
+	 * because that is very very installation dependent (mapping from external URLs through links to local file paths)
+	 */
+	public function externalURLforPath($path)
+		{
+		// enable read (only) access to file (if not yet possible)
+		// NSLog("path: $path");
+		$path=str_replace("/Users/hns/Documents/Projects", "", $path);
+		$path="http://localhost".$path;
+		// strip off: /Users/hns/Documents/Projects
+//		NSLog("__FILE__: ".$__FILE__);
+//		print_r($_SERVER);
+		
+		// NSLog("URL: $path");
+		return $path;
+		}
 	
+	}
+
 global $NSApp;
 
 class NSResponder extends NSObject
@@ -57,6 +145,8 @@ class NSApplication extends NSResponder
 	public function setDelegate($d) { $this->delegate=$d; }
 	public function mainWindow() { return $this->mainWindow; }
 	public function setMainWindow($w) { $this->mainWindow=$w; }
+	public function mainMenu() { return $this->mainMenu; }
+	public function setMainMenu($m) { $this->mainMenu=$m; }
 	function logout($sender)
 	{
 		setcookie("login", "", 24*3600);
@@ -71,6 +161,11 @@ class NSApplication extends NSResponder
 	public function NSApplication($name)
 		{
 		global $NSApp;
+		if(isset($NSApp))
+			{
+			NSLog("NSApplication is already defined (".($NSApp->name).")");
+			exit;
+			}
 		$NSApp=$this;
 		$this->name=$name;
 		$NSApp->mainMenu=new NSMenuView(true);	// create horizontal menu bar
@@ -84,7 +179,12 @@ class NSApplication extends NSResponder
 		$submenu->addMenuItemWithTitleAndAction("About", "orderFrontAboutPanel", $NSApp);
 		$submenu->addMenuItemWithTitleAndAction("Settings", "openSettings", $NSApp);
 		$submenu->addMenuItemSeparator();
-		$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $NSApp);
+		// make this switch between Login... // Logout...
+		$ud=NSUserDefaults::standardUserDefaults();
+		if(isset($ud))
+			$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $NSApp);
+		else
+			$submenu->addMenuItemWithTitleAndAction("Login...", "login", $NSApp);
 
 		$item=new NSMenuItemView($this->name);
 		$submenu=new NSMenuView();
@@ -133,7 +233,7 @@ class NSApplication extends NSResponder
 		if(isset($bundle))
 			{
 // ask $bundle->executablePath;
-			$executablePath=NSFileManager::defaultManager()->externalURLForPath($bundle->executablePath());
+			$executablePath=NSHTMLGraphicsContext::currentContext()->externalURLForPath($bundle->executablePath());
 //			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
 // how can we pass arbitrary parameters to their NSApplication $argv???
 			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
@@ -161,16 +261,11 @@ echo "<br>";
 		}
 	public function run()
 		{
-		$defaults=NSUserDefaults::standardUserDefaults();	// try to read
-		print_r($defaults);
-		if(!isset($defaults))
-			echo "Login failed!";
-//			$this->open("loginwindow.app");	// go back to login
-		
-// FIXME: wir mŸssen die View-Hierarchie zweimal durchlaufen!
-// zuerst die neuen $_POST-Werte in die NSTextFields Ÿbernehmen
+
+// FIXME: wir mÃ¼ssen die View-Hierarchie zweimal durchlaufen!
+// zuerst die neuen $_POST-Werte in die NSTextFields Ã¼bernehmen
 // und dann erst den NSButton-action aufrufen
-// sonst hŠngt es davon ab wo der NSButton in der Hierarchie steht ob die Felder Werte haben oder nicht
+// sonst hÃ¤ngt es davon ab wo der NSButton in der Hierarchie steht ob die Felder Werte haben oder nicht
 		
 		$this->mainWindow->sendEvent($_POST);
 		$this->mainWindow->display();
@@ -184,11 +279,11 @@ function NSApplicationMain($name)
 	if(!isset($ROOT))
 		{
 		echo '$ROOT is not set globally!';
-		exit;	
+		exit;
 		}
 	new NSApplication($name);
 	$NSApp->setDelegate(new AppController);	// this should come from the NIB file!
-	// FIXME: should we implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
+	// FIXME: shouldn't we better implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
 	if(method_exists($NSApp->delegate(), "awakeFromNib"))
 		$NSApp->delegate()->awakeFromNib();
 	if(method_exists($NSApp->delegate(), "didFinishLoading"))
@@ -246,6 +341,8 @@ class NSMenuItemView extends NSView
 		protected $action;
 		protected $target;
 		protected $isSelected;
+		public function isSelected() { return $this->isSelected; }
+		public function setSelected($sel) { $this->isSelected=$sel; }
 		public function NSMenuItemView($label)
 			{
 			parent::__construct();
@@ -342,7 +439,7 @@ class NSMenuView extends NSView
 			parameter("class", "NSMenuItem");
 			parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
 			echo ">\n";
-			$item->isSelected=($this->selectedItem == $index);
+			$item->setSelected($this->selectedItem == $index);
 			$item->draw();
 			echo "</td>";
 			$index++;
@@ -398,7 +495,7 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
-		$url=NSFileManager::defaultManager()->externalURLforPath($path);
+		NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 		$this->initByReferencingURL($url);
 //		$this->seinitByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
@@ -845,32 +942,34 @@ class NSWindow extends NSResponder
 		}
 	public function display() 
 		{
+		// FIXME: use HTML class and CSS
 		global $NSApp;
 		echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
 		echo "<html>\n";
 		echo "<head>\n";
-		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF8\">\n";
+		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=".NSHTMLGraphicsContext::encoding."\">\n";
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 		   {
 		   echo "<link rel=\"stylesheet\" href=\"";
-		   echo $fm->externalURLforPath($r);
+		   echo NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
 		   echo "\" type=\"text/css\">";
 		   }
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 		   {
-		   echo "<script src=\"".$fm->externalURLforPath($r)."\" type=\"text/javascript\"></script>";
+		   echo "<script src=\"";
+		   echo NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
+		   echo "\" type=\"text/javascript\"></script>";
 		   echo "<noscript>Your browser does not support JavaScript!</noscript>";
 		   }
 		echo "<title>"._htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
-		echo "<body";
-//		parameter("bgcolor", "grey");
-		echo ">\n";
-		if(isset($NSApp->mainMenu))
-			$NSApp->mainMenu->draw();
-		echo "<form method=\"POST\">\n";	// a window is a big form to handle all input/output through POST (and GET)
+		echo "<body>\n";
+		echo "<form name=\"myform\" accept_charset=\"".NSHTMLGraphicsContext::encoding."\" method=\"POST\">\n";	// a window is a big form to handle all input/output through POST (and GET)
+		$mm=$NSApp->mainMenu();
+		if(isset($mm))
+			$mm->draw();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->draw();
 		// add footer (Impressum, Version etc.)
