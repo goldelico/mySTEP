@@ -231,20 +231,15 @@ class NSBundle extends NSObject
 	protected $allBundlesByPath;
 	protected $infoDictionary;
 	protected $loaded=false;
-	public function __contruct()
-		{
-		NSLog("__contruct: $path");
-		parent::__construct();
-		}
 	public static function bundleWithPath($path) 
 		{
-		NSLog("bundleWithPath: $path");
+//		NSLog("bundleWithPath: $path");
 		if(isset($allBundlesByPath[$path]))
 			return $allBundlesByPath[$path];	// return bundle object we already know
 		$r=new NSBundle($path);
 		$r->path=$path;
 		$allBundles[$path]=$r;
-		NSLog("bundleWithPath generated");
+//		NSLog("bundleWithPath stored");
 		return $r;
 		}
 	public static function allBundles()
@@ -263,15 +258,15 @@ class NSBundle extends NSObject
 	public static function bundleForClass($class)
 		{
 		$reflector = new ReflectionClass($class);
-		NSLog("bundleForClass: $class");
+//		NSLog("bundleForClass: $class");
 		$path=$reflector->getFileName();	// path for .php file of given class
-		NSLog(" path $path");
+//		NSLog(" path $path");
 		// FIXME: this is tailored for .framework bundles! .app bundles may look differently
 		$path=dirname($path);	// Versions/A/php/Something.php
 		$path=dirname($path);	// Versions/A/php
 		$path=dirname($path);	// Versions/A
 		$path=dirname($path);	// Versions
-		NSLog(" path $path");
+//		NSLog(" path $path");
 		return NSBundle::bundleWithPath($path);
 		}
 	public function infoDictionary()
@@ -279,7 +274,7 @@ class NSBundle extends NSObject
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
 				$plistPath=$this->pathForResourceOfType("Info", "plist");
-				NSLog("read $plistPath");
+//				NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
 		return $this->infoDictionary;
@@ -498,7 +493,7 @@ class NSFileManager extends NSObject
 		}
 	public function fileExistsAtPath($path)
 		{
-		NSLog("fileExistsAtPath($path)");
+//		NSLog("fileExistsAtPath($path)");
 		return $this->attributesOfItemAtPath($path) != NULL;
 		}
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
