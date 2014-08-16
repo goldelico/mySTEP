@@ -13,6 +13,7 @@
 // echo "loading AppKit<br>";
 
 	// FIXME: make this configurabe (how?)
+// through User-Defaults? Or should the web site be configured???
 
 if(false && $_SERVER['SERVER_PORT'] != 443)
 { // try to reload page as https
@@ -325,16 +326,64 @@ class NSView extends NSResponder
 		foreach($this->subviews as $view)
 			$view->sendEvent($event);
 		}
+}
+
+class NSControl extends NSView
+	{
 	public function sendAction($action, $target)
 		{
 		global $NSApp;
 		$NSApp->sendActionToTarget($this, $action, $target);
 		}
-}
+	}
 
-class NSMenuItemView extends NSView
+class NSButton extends NSControl
+	{
+	protected $title;
+	protected $target;	// object
+	protected $action;	// function name
+	protected $state;
+	protected $buttonType;
+	public function isSelected()
+		{
+		return true;
+		}
+	public function NSButton($newtitle = "NSButton")
+		{
+		parent::__construct();
+		// echo "NSButton $newtitle<br>";
+		$this->title=$newtitle;
+		}
+	public function title() { return $this->title; }
+	public function setTitle($title); { $this->title=$title; }
+	public function state() { return $this->state; }
+	public function setState($s); { $this->state=$s; }
+	public function sendEvent($event)
+	{ // this button may have been pressed
+		// print_r($event);
+		// print_r($this);
+		if(isset($event[$this->elementName]) && $event[$this->elementName] == $this->title)
+			$this->sendAction($this->action, $this->target);
+	}
+	public function draw()
+		{
+		parent::draw();
+		// checkbox, radiobutton
+		echo "<input";
+		parameter("class", "NSButton");
+		parameter("type", "submit");
+		parameter("name", $this->elementName);
+		parameter("value", _htmlentities($this->title));
+		if($item == $this->isSelected())
+			parameter("style", "color=green;");
+		else
+			parameter("style", "color=red;");
+		echo "\"/>\n";
+		}
+	}
+
+class NSMenuItemView extends NSButton
 	{	
-		protected $label;
 		protected $icon;
 		protected $shortcut;
 		protected $subMenuView;
@@ -345,8 +394,7 @@ class NSMenuItemView extends NSView
 		public function setSelected($sel) { $this->isSelected=$sel; }
 		public function NSMenuItemView($label)
 			{
-			parent::__construct();
-			$this->label=$label;
+			parent::__construct($label);
 			}
 		public function setActionAndTarget($action, $target)
 			{
@@ -361,7 +409,7 @@ class NSMenuItemView extends NSView
 			{
 			// FXIME: use <style>
 			// if no action -> grey out
-			echo _htmlentities($this->label);
+			echo _htmlentities($this->title);
 			if(isset($this->subMenuView))
 				{
 // for this to work correctly we must know our superview!	if(!$superview->isHorizontal)
@@ -389,7 +437,7 @@ class NSMenuItemSeparator extends NSMenuItemView
 		}
 	}
 
-class NSMenuView extends NSView
+class NSMenuView extends NSControl
 	{
 	protected $border=1;
 	protected $width="100%";
@@ -501,7 +549,7 @@ class NSImage extends NSObject
 		}
 }
 
-class NSImageView extends NSView
+class NSImageView extends NSControl
 {
 	protected $image;
 	public function NSImageView()
@@ -528,7 +576,7 @@ class NSImageView extends NSView
 		}
 }
 
-class NSCollectionView extends NSView
+class NSCollectionView extends NSControl
 {
 	protected $colums=5;
 	protected $border=0;
@@ -586,6 +634,12 @@ class NSCollectionView extends NSView
 		}
 }
 
+class NSSegmentedControl extends NSControl
+	{
+	protected $segments;
+	protected $selectedIndex=0;
+	}
+
 class NSTabViewItem extends NSObject
 	{
 	protected $label;
@@ -599,13 +653,14 @@ class NSTabViewItem extends NSObject
 		}
 	}
 
-class NSTabView extends NSView
+class NSTabView extends NSControl
 	{
 	protected $border=1;
 	protected $width="100%";
 	protected $tabViewItems;
 	protected $selectedIndex=0;
 	protected $delegate;
+	protected $segmentedControl;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
@@ -698,14 +753,14 @@ class NSTabView extends NSView
 		if(isset($selectedItem))
 			$selectedItem->view()->draw();	// draw current tab
 		else
-			echo _htmlentities("No tab at index ".$this->selectedIndex);
+			echo _htmlentities("No tab for index ".$this->selectedIndex);
 		echo "</td>";
 		echo "</tr>\n";
 		echo "</table>\n";
 		}
 	}
 	
-class NSTableView extends NSView
+class NSTableView extends NSControl
 	{
 	protected $headers;
 	protected $border=0;
@@ -799,39 +854,7 @@ class NSTableView extends NSView
 		}
 	}
 	
-class NSButton extends NSView
-{
-	protected $title;
-	protected $target;	// object
-	protected $action;	// function name
-	public function NSButton($newtitle = "NSButton")
-		{
-       		parent::__construct();
-// echo "NSButton $newtitle<br>";
-		$this->title=$newtitle;
-		}
-	public function sendEvent($event)
-		{ // this button may have been pressed
-// print_r($event);
-// print_r($this);
-		if(isset($event[$this->elementName]) && $event[$this->elementName] == $this->title)
-			$this->sendAction($this->action, $this->target);
-		}
-	public function draw()
-		{
-		parent::draw();
-		echo "<input";
-		parameter("class", "NSButton");
-		parameter("type", "submit");
-		parameter("name", $this->elementName);
-		parameter("value", _htmlentities($this->title));
-		echo "\"/>\n";
-		}
-}
-
-// checkbox, radiobutton
-
-class NSTextField extends NSView
+class NSTextField extends NSControl
 {
 // FIXME: should we use cookies to store values when switching apps???
 	protected $stringValue;
@@ -875,7 +898,7 @@ class NSSecureTextField extends NSTextField
 
 }
 
-class NSStaticTextField extends NSView
+class NSStaticTextField extends NSControl
 {
 	protected $stringValue;
 	public function NSStaticTextField($stringValue = "")
@@ -890,7 +913,7 @@ class NSStaticTextField extends NSView
 		}
 }
 
-class NSTextView extends NSView
+class NSTextView extends NSControl
 {
 	protected $string="";
 	protected $width;
