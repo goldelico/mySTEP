@@ -130,7 +130,10 @@ global $NSApp;
 
 class NSResponder extends NSObject
 {
-
+	public function __construct()
+	{
+		// parent::__construct();
+	}
 }
 
 class NSApplication extends NSResponder
@@ -159,9 +162,10 @@ class NSApplication extends NSResponder
 		$this->open("settings.app");
 	}
 	
-	public function NSApplication($name)
+	public function __construct($name)
 		{
 		global $NSApp;
+		// parent::__construct();
 		if(isset($NSApp))
 			{
 			NSLog("NSApplication is already defined (".($NSApp->name).")");
@@ -310,9 +314,10 @@ class NSView extends NSResponder
 	protected $autoResizing;
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view) { $this->subviews[]=$view; }
-	public function NSView()
+	public function __construct()
 		{
 		static $elementNumber;	// unique number
+		parent::__construct();
 		$this->elementName="NSView-".(++$elementNumber);
 		}
 	public function draw()
@@ -348,16 +353,17 @@ class NSButton extends NSControl
 		{
 		return true;
 		}
-	public function NSButton($newtitle = "NSButton")
+	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
 		// echo "NSButton $newtitle<br>";
 		$this->title=$newtitle;
+		$this->buttonType=$type;
 		}
 	public function title() { return $this->title; }
-	public function setTitle($title); { $this->title=$title; }
+	public function setTitle($title) { $this->title=$title; }
 	public function state() { return $this->state; }
-	public function setState($s); { $this->state=$s; }
+	public function setState($s) { $this->state=$s; }
 	public function sendEvent($event)
 	{ // this button may have been pressed
 		// print_r($event);
@@ -371,16 +377,32 @@ class NSButton extends NSControl
 		// checkbox, radiobutton
 		echo "<input";
 		parameter("class", "NSButton");
+		switch($buttonType)
+			{
+				case "CheckBox":
+					parameter("type", "checkbox");
+				break;
+				case "Radio":
+					parameter("type", "radio");
+				break;
+				default:
+					parameter("type", "submit");
+			}
 		parameter("type", "submit");
 		parameter("name", $this->elementName);
 		parameter("value", _htmlentities($this->title));
 		if($item == $this->isSelected())
+			{
+			parameter("checked", "checked");
 			parameter("style", "color=green;");
+			}
 		else
 			parameter("style", "color=red;");
 		echo "\"/>\n";
 		}
 	}
+
+// FIXME: we currently do not separate between NSMenu/NSMenuItem and NSMenuView/NSMenuItemView
 
 class NSMenuItemView extends NSButton
 	{	
@@ -392,7 +414,7 @@ class NSMenuItemView extends NSButton
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
 		public function setSelected($sel) { $this->isSelected=$sel; }
-		public function NSMenuItemView($label)
+		public function __construct($label)
 			{
 			parent::__construct($label);
 			}
@@ -412,13 +434,24 @@ class NSMenuItemView extends NSButton
 			echo _htmlentities($this->title);
 			if(isset($this->subMenuView))
 				{
-// for this to work correctly we must know our superview!	if(!$superview->isHorizontal)
-					echo _htmlentities(" >");
-				if($this->isSelected)
-					{
-					echo "<br>";
-					$this->subMenuView->draw();	// draw submenu (vertical)
-					}
+				echo "<select";
+				parameter("class", "NSMenuItemView");
+				parameter("name", $this->elementName);
+				parameter("size", 1);	// make a popup not a combo-box
+				echo ">\n";
+				$index=0;
+				foreach($this->subMenuView->menuItems() as $item)
+				{ // add menu buttons and switching logic
+					echo "<option";
+					parameter("class", "NSMenuItem");
+					if($this->selectedItem == $index)
+						parameter("selected", "selected");	// mark menu title as selected
+					echo ">";
+					$item->draw();	// draws the title
+					echo "</option>\n";
+					$index++;
+				}
+				echo "</select>\n";
 				}
 			else if(isset($this->shortcut))
 				echo _htmlentities(" ".$this->shortcut);
@@ -444,12 +477,14 @@ class NSMenuView extends NSControl
 	protected $isHorizontal;
 	protected $menuItems;
 	protected $selectedItem=-1;
-	public function NSMenuItemView($horizontal=false)
+	public function __construct($horizontal=false)
 		{
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
+//		echo $this->isHorizontal?"horizontal":"vertical";
 		$menuItems=array();
 		}
+	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
 	public function addMenuItem($item) { $this->menuItems[]=$item; }
 	public function addMenuItemWithTitleAndAction($title, $action, $target)
@@ -466,38 +501,66 @@ class NSMenuView extends NSControl
 		}
 	public function draw()
 		{
-		echo "<input";
-		parameter("type", "hidden");
-		parameter("name", $this->elementName."-selectedIndex");
-		parameter("value", $this->selectedItem);
-		echo ">\n";
-		echo "<table";
-		parameter("border", $this->border);
-		if($this->isHorizontal)
-			parameter("width", $this->width);
-		echo "\">\n";
-		echo "<tr";
-		parameter("class", "NSMenuItemView");
-		//		parameter("bgcolor", "LightSteelBlue");
-		echo ">\n";
-		$index=0;
-		foreach($this->menuItems as $item)
-		{ // add menu buttons and switching logic
-			echo "<td";
-			parameter("class", "NSMenuItem");
-			parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
+		if(0)
+			{ // show menu as buttons
+			echo "<input";
+			parameter("type", "hidden");
+			parameter("name", $this->elementName."-selectedIndex");
+			parameter("value", $this->selectedItem);
 			echo ">\n";
-			$item->setSelected($this->selectedItem == $index);
-			$item->draw();
-			echo "</td>";
-			$index++;
-		}
-		echo "</tr>\n";
-		echo "</table>\n";		
+			echo "<table";
+			parameter("border", $this->border);
+			if($this->isHorizontal)
+				parameter("width", $this->width);
+			echo "\">\n";
+			echo "<tr";
+			parameter("class", "NSMenuItemView");
+			//		parameter("bgcolor", "LightSteelBlue");
+			echo ">\n";
+			$index=0;
+			foreach($this->menuItems as $item)
+			{ // add menu buttons and switching logic
+				echo "<td";
+				parameter("class", "NSMenuItem");
+				parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
+				echo ">\n";
+				$item->setSelected($this->selectedItem == $index);
+				$item->draw();
+				echo "</td>\n";
+				$index++;
+			}
+			echo "</tr>\n";
+			echo "</table>\n";
+			}
+		else
+			{ // show menu as popup items
+				// HTML5 hat <menu> und <menuitem> tags!
+				if($this->isHorizontal)
+					{ // draw all submenus because we are top-level
+						echo "<div";
+						parameter("class", "NSMenuView");
+						echo ">\n";
+						foreach($this->menuItems as $item)
+						{ // add menu buttons and switching logic
+							$item->draw();
+						}
+						echo "</div>\n";
+					}
+				else
+					{
+					echo "vertical menu on top level";
+					// will be drawn by NSMenuItemView
+					}
+			}
 		}
 	}
 
-	// FIXME: shouldn't we separate between NSImage and NSImageView?
+class NSComboBox extends NSControl
+	{
+	// use <select size > 1>
+	}
+
+// FIXME: shouldn't we separate between NSImage and NSImageView?
 
 class NSImage extends NSObject
 {
@@ -517,7 +580,7 @@ class NSImage extends NSObject
 			return $img;	// known
 		return new NSImage($name);	// create
 		}
-	public function NSImage()
+	public function __construct()
 		{
 		parent::__construct();
 		}
@@ -552,7 +615,7 @@ class NSImage extends NSObject
 class NSImageView extends NSControl
 {
 	protected $image;
-	public function NSImageView()
+	public function __construct()
 		{
 		parent::__construct();
 		}
@@ -592,9 +655,9 @@ class NSCollectionView extends NSControl
 // allow to define colspan and rowspan objects
 // allow to modify alignment
 
-	public function NSCollectionView($cols=5, $items=array())
+	public function __construct($cols=5, $items=array())
 		{
-       		parent::__construct();
+		parent::__construct();
 		$this->columns=$cols;
 		$this->content=$items;
 // echo "NSCollectionView $cols<br>";
@@ -646,8 +709,9 @@ class NSTabViewItem extends NSObject
 	protected $view;
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
-	public function NSTabViewItem($label, $view)
+	public function __construct($label, $view)
 		{
+//		parent::__construct();
 		$this->label=$label;
 		$this->view=$view;
 		}
@@ -690,7 +754,7 @@ class NSTabView extends NSControl
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		}
 	public function setBorder($border) { $this->border=0+$border; }
-	public function NSTabView($items=array())
+	public function __construct($items=array())
 		{
        		parent::__construct();
 			$this->tabViewItems=$items;
@@ -780,7 +844,7 @@ class NSTableView extends NSControl
 	// allow to define colspan and rowspan objects
 	// allow to modify alignment
 	
-	public function NSTableView($headers=array("Column1"), $visibleRows=20)
+	public function __construct($headers=array("Column1"), $visibleRows=20)
 		{
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
@@ -863,7 +927,7 @@ class NSTextField extends NSControl
 	protected $type="text";
 	protected $width;
 	public function stringValue() { return $this->stringValue; }
-	public function NSTextField($width=30, $stringValue = "")
+	public function __construct($width=30, $stringValue = "")
 	{
        		parent::__construct();
 		$this->stringValue=$stringValue;
@@ -889,7 +953,7 @@ class NSTextField extends NSControl
 
 class NSSecureTextField extends NSTextField
 {
-	public function NSSecureTextField($width=30)
+	public function __construct($width=30)
 	{
        		parent::__construct($width);
 	//	parent::NSTextField($width);
@@ -901,7 +965,7 @@ class NSSecureTextField extends NSTextField
 class NSStaticTextField extends NSControl
 {
 	protected $stringValue;
-	public function NSStaticTextField($stringValue = "")
+	public function __construct($stringValue = "")
 	{
        		parent::__construct();
 		$this->stringValue=$stringValue;
@@ -918,7 +982,7 @@ class NSTextView extends NSControl
 	protected $string="";
 	protected $width;
 	protected $height;
-	public function NSTextView($width = 80, $height = 20)
+	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
 		$this->width=$width;
@@ -948,9 +1012,10 @@ class NSWindow extends NSResponder
 	protected $contentView;
 	public function contentView() { return $this->contentView; }
 	public function setContentView($view) { $this->contentView=$view; }
-	public function NSWindow($newtitle = "QuantumSTEP Cloud")
+	public function __construct($newtitle = "QuantumSTEP Cloud")
 		{
 		global $NSApp;
+		parent::__construct();
 // echo "NSWindow $newtitle<br>";
 		$this->title=$newtitle;
 		$this->setContentView(new NSView());
@@ -970,26 +1035,38 @@ class NSWindow extends NSResponder
 		echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
 		echo "<html>\n";
 		echo "<head>\n";
-		echo "<meta http-equiv=\"content-type\" content=\"text/html; charset=".NSHTMLGraphicsContext::encoding."\">\n";
+		echo "<meta";
+		parameter("http-equiv", "content-type");
+		parameter("content", "text/html; charset=".NSHTMLGraphicsContext::encoding);
+		echo ">\n";
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 		   {
-		   echo "<link rel=\"stylesheet\" href=\"";
-		   echo NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
-		   echo "\" type=\"text/css\">";
+		   echo "<link";
+		   parameter("rel", "stylesheet");
+		   parameter("href", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
+		   parameter("type", "text/css");
+		   echo ">\n";
 		   }
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 		   {
-		   echo "<script src=\"";
-		   echo NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
-		   echo "\" type=\"text/javascript\"></script>";
-		   echo "<noscript>Your browser does not support JavaScript!</noscript>";
+		   echo "<script";
+		   parameter("src", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
+		   parameter("type", "text/javascript");
+		   echo ">\n";
+		   echo "</script>\n";
+		   echo "<noscript>Your browser does not support JavaScript!</noscript>\n";
 		   }
 		echo "<title>"._htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
 		echo "<body>\n";
-		echo "<form name=\"myform\" accept_charset=\"".NSHTMLGraphicsContext::encoding."\" method=\"POST\">\n";	// a window is a big form to handle all input/output through POST (and GET)
+		echo "<form";
+		parameter("name", "NSWindow");
+		parameter("class", "NSWindow");
+		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
+		parameter("method", "POST");	// a window is a big form to handle all input/output through POST (and GET)
+		echo ">\n";
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->draw();	// draw main menu before content view
