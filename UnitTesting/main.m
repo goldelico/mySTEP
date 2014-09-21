@@ -20,11 +20,13 @@ void searchData(id obj)
 void analyse(NSAttributedString *s)
 {
 	NSPropertyListFormat format;
-	NSError *error;
+	NSString *error=nil;
 	NSData *d;
 	NSLog(@"string=%@", s);
 	d=[NSKeyedArchiver archivedDataWithRootObject:s];
 	id obj=[NSPropertyListSerialization propertyListFromData:d mutabilityOption:NSPropertyListImmutable format:&format errorDescription:&error];
+    if(!obj)
+        NSLog(@"error: %@", error);
 	searchData(obj);
 }
 

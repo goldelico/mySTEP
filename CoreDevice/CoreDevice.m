@@ -42,9 +42,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (id) retain { return self; }
 
-- (unsigned) retainCount { return UINT_MAX; }
+- (NSUInteger) retainCount { return UINT_MAX; }
 
-- (void) release {}
+- (oneway void) release {}
 
 - (id) autorelease { return self; }
 
