@@ -26,6 +26,9 @@
 
 	extern Node *scopestack;	// scope stack
 	extern Node *globals(void);	// returns the globals level
+    
+    extern void pushscope();
+    extern void popscope();
 	
 	Node *declaredName;	// current declarator IDENTIFIER object
 	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)

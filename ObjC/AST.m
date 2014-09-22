@@ -31,7 +31,7 @@ BOOL _debug;
 	va_list va;
 	Node *cn;
     va_start(va, type);
-    while (cn = va_arg(va, Node *))
+    while ((cn = va_arg(va, Node *)))
 		[node addChild:cn];	// add children
 	va_end(va);
 	return node;

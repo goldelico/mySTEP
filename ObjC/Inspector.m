@@ -13,24 +13,24 @@
 - (id) outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 	if(!item) item=root;
-	return [item childAtIndex:index];
+	return [(Node *) item childAtIndex:index];
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	if(!item) item=root;
-	return [item childrenCount] > 0;
+	return [(Node *) item childrenCount] > 0;
 }
 
 - (NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 	if(!item) item=root;
-	return [item childrenCount];
+	return [(Node *) item childrenCount];
 }
 
 - (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-	return [item type];
+	return [(Node *) item type];
 }
 
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
