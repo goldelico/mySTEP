@@ -33,6 +33,10 @@ ifeq ($(QuantumSTEP),)
 QuantumSTEP:=$(QuantumSTEP)
 endif
 
+# deprecated (we should simply use /usr/share/QuantumSTEP/Library/Frameworks):
+ADD_MAC_LIBRARY:=false
+INSTALL:=true
+
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean build build_architecture
@@ -177,12 +181,13 @@ build:	build_subprojects build_doxy make_php install_local_in_library build_debs
 
 build_subprojects:
 ifeq ($(RECURSIVE),true)
+# wird RECURSIVE=true vererbt? Sonst einfach neu setzen...
 	for i in $(SUBPROJECTS); \
 		do ( cd $$(dirname $$i) && ./$$(basename $$i) ); \
 	done
 endif
 
-### check for debian meta package
+### check for debian meta package creation
 ### copy/install $DATA and $FILES
 ### build_deb (only)
 ### architecture all-packages are part of machine specific Packages.gz (!)
@@ -266,14 +271,6 @@ TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
 endif
-
-# check if embedded device responds
-#ifneq ($(DEPLOY),false) # check if we can reach the device
-#ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
-#DEPLOY := false
-#RUN := false
-#endif
-#endif
 
 # could better check ifeq ($(PRODUCT_TYPE),com.apple.product-type.framework)
 
@@ -687,6 +684,7 @@ else
 	# no debug version
 endif
 
+# deprecated
 install_local_in_library:
 # install_local_in_library
 ifeq ($(ADD_MAC_LIBRARY),true)
@@ -756,6 +754,8 @@ clean:
 
 # FIXME: use dependencies to link only if any object file has changed
 
+# replace this my make_binary and make_bundle
+
 "$(BINARY)":: headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
@@ -774,7 +774,9 @@ endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
 endif
 
-"$(EXEC)":: headers
+resources:
+
+"$(EXEC)":: headers resources
 	# make directory for Linux executable
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
