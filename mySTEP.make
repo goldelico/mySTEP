@@ -27,10 +27,64 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #     cd path-to qcodeproj; ./project.qcodeproj
 #  9. Build the project (either in deployment or development mode)
 #
+# environment Variable dependencies
+#  Entries marked with * should be defined in the .qcodeproj
+#  Entries market with + should be defined by the caller of the .qcodeproj
+#  Entries with () are optional
+#  Entries with - should not be set
+#  general setup
+#   (*) QuantumSTEP - root of QuantumSTEP
+#  sources (input)
+#   * SOURCES
+#   (+) RECURSIVE
+#   (*) INCLUDES
+#   (*) CFLAGS
+#   PROFILING
+#   (*) FMWKS
+#   (*) LIBS
+#  compile control
+#   () BUILT_PRODUCTS_DIR - default: build/Deployment
+#   () TARGET_BUILD_DIR - default: build/Deployment
+#   BUILD_FOR_DEPLOYMENT
+#   OPTIMIZE
+#   BUILD_STYLE
+#   GCC_OPTIMIZATION_LEVEL
+#   () BUILD_DOCUMENTATION
+#  bundle definitions (output)
+#   * PROJECT_NAME
+#   PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
+#   * WRAPPER_EXTENSION
+#   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
+#   - ARCHITECTURE - the architecture triple to use
+#   * DEBIAN_ARCHITECTURES - default
+#  Debian packaging (postprocess 1)
+#   * DEBIAN_PACKAGE_NAME - quantumstep-$PRODUCT_NAME-$WRAPPER-extension
+#   * DEBIAN_DEPENDS - quantumstep-cocoa-framework
+#   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
+#   (*) DEBIAN_DESCRIPTION
+#   (*) DEBIAN_MAINTAINER
+#   (*) DEBIAN_SECTION - x11
+#   (*) DEBIAN_PRIORITY - optional
+#   - DEBIAN_VERSION - current date/time
+#   (*) FILES
+#   (*) DATA
+#  download and test (postprocess 2)
+#   () EMBEDDED_ROOT - root on embedded device (default /usr/share/QuantumSTEP)
+#   * INSTALL_PATH
+#   - ADD_MAC_LIBRARY
+#   - INSTALL
+#   (+) DEPLOY
+#   (+) RUN
+#   (+) RUN_CMD
+
 endif
 
 ifeq ($(QuantumSTEP),)
-QuantumSTEP:=$(QuantumSTEP)
+QuantumSTEP:=/usr/share/QuantumSTEP
+endif
+
+ifeq ($(EMBEDDED_ROOT),)
+EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
 # deprecated (we should simply use /usr/share/QuantumSTEP/Library/Frameworks):
@@ -44,10 +98,6 @@ include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 # configure Embedded System if undefined
 
 ROOT:=$(QuantumSTEP)
-
-ifeq ($(EMBEDDED_ROOT),)
-EMBEDDED_ROOT:=/usr/share/QuantumSTEP
-endif
 
 ### FIXME: what is the right path???
 
@@ -119,6 +169,10 @@ endif
 ifeq ($(EXECUTABLE_NAME),All)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
+ifeq ($(EXECUTABLE_NAME),)
+# FIXME: should extract from Info.plist
+EXECUTABLE_NAME=$(PRODUCT_NAME)
+endif
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
@@ -183,7 +237,7 @@ build_subprojects:
 ifeq ($(RECURSIVE),true)
 # wird RECURSIVE=true vererbt? Sonst einfach neu setzen...
 	for i in $(SUBPROJECTS); \
-		do ( cd $$(dirname $$i) && ./$$(basename $$i) ); \
+		do ( cd $$(dirname $$i) && echo Entering $$PWD && ./$$(basename $$i) && echo Leaving $$PWD); \
 	done
 endif
 
@@ -444,6 +498,7 @@ make_php:
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
+ifneq ($(BUILD_DOCUMENTATION),false)
 	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
 		tar xf - && \
@@ -455,12 +510,13 @@ build_doxy:	build/$(PRODUCT_NAME).docset
 		  done; \
 		  echo "<ul>" \
 		) >index.html )
+endif
 
 # rebuild if any header was changed
 
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(NO_DOXY),true)
+ifneq ($(BUILD_DOCUMENTATION),false)
 	mkdir -p build
 	- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	pwd
@@ -710,10 +766,11 @@ endif
 endif
 
 deploy_remote:
+    # DEPLOY: $(DEPLOY)
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
 	# depoly remote
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
@@ -726,11 +783,14 @@ endif
 endif
 
 launch_remote:
+    # DEPLOY: $(DEPLOY)
+    # RUN: $(RUN)
+    # RUN_CMD: $(RUN_CMD)
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
 ifneq ($(RUN),false)
 ifeq ($(WRAPPER_EXTENSION),app)
-	# try to launch deployed $(RUN) Application using our local Xquartz as a remote display
+	# try to launch deployed Application using our local Xquartz as a remote display
 	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
 	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
