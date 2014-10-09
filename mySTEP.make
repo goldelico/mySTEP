@@ -382,22 +382,38 @@ OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
 CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
 LEXSRCS := $(filter %.l %.lm,$(XSOURCES))
 YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
+
+# sources that drive the compiler
+# FIXME: include LEX/YACC?
 SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
+
 OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 
+# PHP and shell scripts
 PHPSRCS   := $(filter %.php,$(XSOURCES))
 SHSRCS   := $(filter %.sh,$(XSOURCES))
 
-RESOURCES := $(strip $(filter-out $(SRCOBJECTS),$(XSOURCES)))	# all remaining (re)sources
-SUBPROJECTS:= $(strip $(filter %.qcodeproj,$(RESOURCES)))	# subprojects
-DEBIAN_CONTROL:= $(strip $(filter %.preinst %.postinst %.prerm %.postrm,$(RESOURCES)))	# additional debian control files
-# build them in a loop - if not globaly disabled
-HEADERSRC := $(strip $(filter %.h,$(RESOURCES)))	# header files
-IMAGES := $(strip $(filter %.png %.jpg %.icns %.gif %.tiff,$(RESOURCES)))	# image/icon files
+# INfo.plist
+INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
+
+# subprojects
+SUBPROJECTS:= $(strip $(filter %.qcodeproj,$(XSOURCES)))
+
+# header files
+HEADERSRC := $(strip $(filter %.h,$(XSOURCES)))
+
+# additional debian control files
+DEBIAN_CONTROL:= $(strip $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES)))
+
+# all sources that are processed specially
+PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
+
+# all remaining selected (re)sources
+RESOURCES := $(strip $(filter-out $(PROCESSEDSRC),$(XSOURCES)))
 
 ifeq ($(PRODUCT_NAME),Foundation)
 FMWKS := $(addprefix -l,$(FRAMEWORKS))
@@ -754,6 +770,7 @@ endif
 install_local:
 ifneq ($(OBJECTS),)
 ifneq ($(INSTALL),false)
+    # INSTALL: $(INSTALL)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
 	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
@@ -766,9 +783,9 @@ endif
 endif
 
 deploy_remote:
-    # DEPLOY: $(DEPLOY)
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
+    # DEPLOY: $(DEPLOY)
 	# depoly remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- $(DOWNLOAD) -n | while read DEVICE NAME; \
@@ -783,13 +800,13 @@ endif
 endif
 
 launch_remote:
-    # DEPLOY: $(DEPLOY)
-    # RUN: $(RUN)
-    # RUN_CMD: $(RUN_CMD)
 ifneq ($(OBJECTS),)
 ifneq ($(DEPLOY),false)
 ifneq ($(RUN),false)
 ifeq ($(WRAPPER_EXTENSION),app)
+    # DEPLOY: $(DEPLOY)
+    # RUN: $(RUN)
+    # RUN_CMD: $(RUN_CMD)
 	# try to launch deployed Application using our local Xquartz as a remote display
 	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
 	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
@@ -816,6 +833,29 @@ clean:
 
 # replace this my make_binary and make_bundle
 
+# link headers of framework
+
+headers:
+ifeq ($(WRAPPER_EXTENSION),framework)
+ifneq ($(strip $(HEADERSRC)),)
+# included header files $(HEADERSRC)
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
+endif
+	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
+endif
+
+resources:
+ifneq ($(WRAPPER_EXTENSION),)
+# included resources $(INFOPLISTS) $(RESOURCES)
+ifneq ($(strip $(INFOPLISTS)),)
+	- cp $(INFOPLISTS) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+endif
+ifneq ($(strip $(RESOURCES)),)
+	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
+	- cp $(RESOURCES) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"  # copy resources
+endif
+endif
+
 "$(BINARY)":: headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
@@ -823,27 +863,18 @@ clean:
 	$(NM) -u "$(BINARY)"
 	# compiled.
 
-# link headers of framework
-
-headers:
-ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(strip $(HEADERSRC)),)
-	# included header files $(HEADERSRC)
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
-endif
-	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
-endif
-
-resources:
-
 "$(EXEC)":: headers resources
 	# make directory for Linux executable
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
 	# OBJCSRCS: $(OBJCSRCS)
+	# CSRCS: $(CSRCS)
+	# LEXSRCS: $(LEXSRCS)
+	# YACCSRCS: $(YACCSRCS)
 	# OBJECTS: $(OBJECTS)
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
+	# INFOPLISTS: $(INFOPLISTS)
 	# SUBPROJECTS: $(SUBPROJECTS)
 	mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
