@@ -93,7 +93,7 @@ INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean build build_architecture
+.PHONY:	clean build build_architecture build_subprojects build_doxy make_php install_local_in_library build_debs install_local deploy_remote launch_remote
 
 # configure Embedded System if undefined
 
@@ -230,15 +230,34 @@ endif
 build:	build_subprojects build_doxy make_php install_local_in_library build_debs install_local deploy_remote launch_remote
 	date
 
-# FIXME: QuantumCode should protect that we don't include ourselves…
 # FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
 build_subprojects:
+	# SUBPROJECTS: $(SUBPROJECTS)
+	# RECURSIVE: $(RECURSIVE)
+	# stripped: "$(strip $(SUBPROJECTS))"
+ifneq "$(SUBPROJECTS)" ""
+	# neq 1
+	# does not work! make bug???
+endif
+ifneq "$(strip $(SUBPROJECTS))" ""
+	# neq 2
+	# does not work! make bug???
+endif
+ifeq ($(strip $(SUBPROJECTS)),)
+	# eq
+	# this is true ???
+endif
 ifeq ($(RECURSIVE),true)
-# wird RECURSIVE=true vererbt? Sonst einfach neu setzen...
+ifneq ($(strip $(SUBPROJECTS)),)
+	# any subprojects
+# wird RECURSIVE=true und werden andere Variablen (RUN, EMBEDDED_ROOT, ROOT) vererbt? Sonst einfach neu setzen...
+# FIXME: protect that we never include ourselves
 	for i in $(SUBPROJECTS); \
-		do ( cd $$(dirname $$i) && echo Entering $$PWD && ./$$(basename $$i) && echo Leaving $$PWD); \
+	do \
+		( cd $$(dirname $$i) && echo Entering directory '$$PWD' && RECURSIVE=true ./$$(basename $$i) && echo Leaving directory '$$PWD'); \
 	done
+endif
 endif
 
 ### check for debian meta package creation
@@ -401,19 +420,19 @@ SHSRCS   := $(filter %.sh,$(XSOURCES))
 INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
 
 # subprojects
-SUBPROJECTS:= $(strip $(filter %.qcodeproj,$(XSOURCES)))
+SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
 
 # header files
-HEADERSRC := $(strip $(filter %.h,$(XSOURCES)))
+HEADERSRC := $(filter %.h,$(XSOURCES))
 
 # additional debian control files
-DEBIAN_CONTROL:= $(strip $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES)))
+DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES))
 
 # all sources that are processed specially
 PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
 
 # all remaining selected (re)sources
-RESOURCES := $(strip $(filter-out $(PROCESSEDSRC),$(XSOURCES)))
+RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 ifeq ($(PRODUCT_NAME),Foundation)
 FMWKS := $(addprefix -l,$(FRAMEWORKS))
@@ -507,13 +526,14 @@ endif
 
 make_php:
 # make PHP
-	for PHP in *.php Sources/*.php; do \
+	for PHP in *.php Sources/?*.php; do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
+	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifneq ($(BUILD_DOCUMENTATION),false)
 	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
@@ -875,7 +895,6 @@ endif
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
-	# SUBPROJECTS: $(SUBPROJECTS)
 	mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
