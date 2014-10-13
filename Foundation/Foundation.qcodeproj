@@ -220,6 +220,10 @@ export SOURCES+=" Sources/NSXMLNode.h"
 export SOURCES+=" Sources/NSXMLNodeOptions.h"
 export SOURCES+=" Sources/NSXMLParser.h"
 export SOURCES+=" Sources/NSZone.h"
+export SOURCES+=" CharacterSets"
+export SOURCES+=" Foundation-Info.plist"
+export SOURCES+=" Sources/HTMLEntities.strings"
+export SOURCES+=" Sources/NSSystemDirectories.h"
 export WRAPPER_EXTENSION="framework"
 
 # project settings
@@ -229,10 +233,5 @@ export WRAPPER_EXTENSION="framework"
 #export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 
-
-
-
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

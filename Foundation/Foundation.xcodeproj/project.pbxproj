@@ -58,6 +58,7 @@
 		EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114F90CDF568D0062A8AD /* NSOperation.m */; };
 		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
+		EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */ = {isa = PBXBuildFile; fileRef = EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
 		EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57B0DA2C1A40007817B /* NSXMLDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6D46C50DEB1BE800399D29 /* NSXMLDTD.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57D0DA2C1A40007817B /* NSXMLDTD.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -331,6 +332,7 @@
 		EE2114F90CDF568D0062A8AD /* NSOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSOperation.m; path = Sources/NSOperation.m; sourceTree = "<group>"; };
 		EE2115110CDF58F70062A8AD /* NSCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSCondition.h; path = Sources/NSCondition.h; sourceTree = "<group>"; };
 		EE2115120CDF58F70062A8AD /* NSCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSCondition.m; path = Sources/NSCondition.m; sourceTree = "<group>"; };
+		EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSSystemDirectories.h; path = Sources/NSSystemDirectories.h; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
 		EE59B9BE156247E700754103 /* Foundation.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = Foundation.php; path = Sources/Foundation.php; sourceTree = "<group>"; };
@@ -627,6 +629,7 @@
 				EEA32F2B09537D0D001244CF /* NSObject.h */,
 				EEA32F2C09537D0D001244CF /* NSObject.m */,
 				EEA32F2D09537D0D001244CF /* NSPathUtilities.h */,
+				EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */,
 				EEA32F3C09537D0D001244CF /* NSRange.h */,
 				EE81F9690962EB5200F9F896 /* NSUtilities.h */,
 				EE81F9680962EB5200F9F896 /* NSZone.h */,
@@ -1026,6 +1029,7 @@
 				EEAA862D0A148ED200F2E5B5 /* NSDecimal.h in Headers */,
 				EEAA862E0A148ED200F2E5B5 /* NSDecimalNumber.h in Headers */,
 				EEAA862F0A148ED200F2E5B5 /* NSDictionary.h in Headers */,
+				EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */,
 				EEAA86300A148ED200F2E5B5 /* NSDistantObject.h in Headers */,
 				EEAA86310A148ED200F2E5B5 /* NSDistributedLock.h in Headers */,
 				EEAA86320A148ED200F2E5B5 /* NSDistributedNotificationCenter.h in Headers */,

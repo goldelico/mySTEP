@@ -95,6 +95,7 @@
 #import <Foundation/NSSpellServer.h>
 #import <Foundation/NSStream.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSSystemDirectories.h>
 #import <Foundation/NSTask.h>
 #import <Foundation/NSThread.h>
 #import <Foundation/NSTimer.h>
