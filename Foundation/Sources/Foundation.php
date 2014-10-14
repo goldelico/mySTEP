@@ -328,6 +328,38 @@ class NSBundle extends NSObject
 	 * was bedeutet das für den aktuellen login?
 	 * vermutlich, dass man sich in der aktuellen App noch bewegen kann
 	 *
+	 * best in class:
+	 *   modify:
+	 *   $salt = random $salt (may include/depend on $user)
+	 *   $store [$user] = $salt . hash($algo, $salt . $password, false);
+	 *
+	 *   check:
+	 *   $salt = substring($store [$user], len);
+	 *   if ( $store [$user] == $salt . hash($algo, $salt . $password, false) ) then ok
+	 *
+	 * oder wenn man "login" in cookie speichert:
+	 *   cookie['user'] = $user
+	 *   cookie['password'] = hash($algo, $salt . $password, false)
+	 * 
+	 *   check:
+	 *   $salt = substring($store [cookie['user']], len);
+	 *   if ( $store [$user] == $salt . cookie['password'] ) then ok
+	 *
+	 * wobei das dann einfach ein "token" wird... Sobald jemand das kennt kann er sich immer einloggen.
+	 *
+	 * noch besser: Eigenschaft eines NSSecureTextFields machen - so dass das nie den Text als Klartext ausspuckt!
+	 * und noch besser: schon auf dem Client (JavaScript) hashen - dann kann das Formular sogar in http: übertragen werden
+	 * aber: wie handhabt man dann das "salt"??? Das wäre dann jedesmal anders :(
+	 * oder man trennt zwischen Password-Check-Field und Password-Eingabefeld
+	 * beim Check-Field kommt das $salt aus der Datenbank (sobald man einen User-Namen gewählt hat)
+	 * beim Eingabefeld wird es neu erzeugt
+	 *
+	 * see: http://programmers.stackexchange.com/questions/76939/why-almost-no-webpages-hash-passwords-in-the-client-before-submitting-and-hashi
+	 * and although people recommend to use TLS or SSH, we know that those might not be secure as well
+	 * so we never transport the password - and users who use the same password for different systems have less trouble
+	 *
+	 * aber es gibt Leute die das ganze Verfahren für unsicher halten...
+	 *
 	 */
 
 // FIXME: chmod("/einverzeichnis/einedatei", 0750);	auf /Users/<username>
