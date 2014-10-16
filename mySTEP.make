@@ -506,9 +506,6 @@ ifeq ($(RECURSIVE),true)
 	# RECURSIVE: $(RECURSIVE)
 	# stripped: "$(strip $(SUBPROJECTS))"
 ifneq "$(strip $(SUBPROJECTS))" ""
-	# any subprojects
-	# wird RECURSIVE=true und werden andere Variablen (RUN, EMBEDDED_ROOT, ROOT) vererbt? Sonst einfach neu setzen...
-	# FIXME: protect that we never include ourselves
 	for i in $(SUBPROJECTS); \
 	do \
 		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_PACKAGE_NAME WRAPPER_EXTENSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \

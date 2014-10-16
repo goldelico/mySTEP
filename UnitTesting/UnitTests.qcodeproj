@@ -8,7 +8,6 @@ export DEBIAN_DEPENDS+=", quantumtep-mapkittests-octest"
 export DEBIAN_DEPENDS+=", quantumtep-messagetests-octest"
 export DEBIAN_DEPENDS+=", quantumtep-pdfkittests-octest"
 export FRAMEWORKS="SenTestingKit"
-export INSTALL_PATH="/Library/UnitTests"
 export PRODUCT_NAME="UnitTests"
 export SOURCES="AddressBook/AddressBookTests.qcodeproj"
 export SOURCES+=" AppKit/AppKitTests.qcodeproj"
@@ -18,7 +17,5 @@ export SOURCES+=" MapKit/MapKitTests.qcodeproj"
 export SOURCES+=" Message/MessageTests.qcodeproj"
 export SOURCES+=" PDFKit/PDFKitTests.qcodeproj"
 
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
