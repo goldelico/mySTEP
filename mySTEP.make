@@ -76,6 +76,11 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (+) DEPLOY
 #   (+) RUN
 #   (+) RUN_CMD
+#
+# targets
+#   build:		build everything (outer level)
+#   build_deb:	called recursively to build for a specific debian architecture
+#   clean:		clears build directory (not for subprojects)
 
 endif
 
@@ -93,7 +98,7 @@ INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean build build_architecture build_subprojects build_doxy make_php install_local_in_library build_debs install_local deploy_remote launch_remote
+.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local_in_library  install_local deploy_remote launch_remote
 
 # configure Embedded System if undefined
 
@@ -225,40 +230,13 @@ ifeq ($(DEBIAN_ARCHITECTURES),)
 DEBIAN_ARCHITECTURES=armel armhf i386 # mipsel -ltiff is broken
 endif
 
-# this is the default/main target
+# this is the default/main target on the outer level
 
-build:	build_subprojects build_doxy make_php install_local_in_library build_debs install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy make_php build_architectures install_local_in_library install_local deploy_remote launch_remote
 	date
 
-# FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
-
-build_subprojects:
-	# SUBPROJECTS: $(SUBPROJECTS)
-	# RECURSIVE: $(RECURSIVE)
-	# stripped: "$(strip $(SUBPROJECTS))"
-ifneq "$(SUBPROJECTS)" ""
-	# neq 1
-	# does not work! make bug???
-endif
-ifneq "$(strip $(SUBPROJECTS))" ""
-	# neq 2
-	# does not work! make bug???
-endif
-ifeq ($(strip $(SUBPROJECTS)),)
-	# eq
-	# this is true ???
-endif
-ifeq ($(RECURSIVE),true)
-ifneq ($(strip $(SUBPROJECTS)),)
-	# any subprojects
-# wird RECURSIVE=true und werden andere Variablen (RUN, EMBEDDED_ROOT, ROOT) vererbt? Sonst einfach neu setzen...
-# FIXME: protect that we never include ourselves
-	for i in $(SUBPROJECTS); \
-	do \
-		( cd $$(dirname $$i) && echo Entering directory '$$PWD' && RECURSIVE=true ./$$(basename $$i) && echo Leaving directory '$$PWD'); \
-	done
-endif
-endif
+clean:	# also clean for subprojects???
+	rm -rf build
 
 ### check for debian meta package creation
 ### copy/install $DATA and $FILES
@@ -268,7 +246,7 @@ endif
 
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
-build_debs:
+build_architectures:
 ifneq ($(DEBIAN_ARCHITECTURES),)
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
@@ -510,6 +488,24 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 # makefile targets
 #
 
+# FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
+
+build_subprojects:
+ifeq ($(RECURSIVE),true)
+	# SUBPROJECTS: $(SUBPROJECTS)
+	# RECURSIVE: $(RECURSIVE)
+	# stripped: "$(strip $(SUBPROJECTS))"
+ifneq "$(strip $(SUBPROJECTS))" ""
+	# any subprojects
+	# wird RECURSIVE=true und werden andere Variablen (RUN, EMBEDDED_ROOT, ROOT) vererbt? Sonst einfach neu setzen...
+	# FIXME: protect that we never include ourselves
+	for i in $(SUBPROJECTS); \
+	do \
+		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_PACKAGE_NAME WRAPPER_EXTENSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
+	done
+endif
+endif
+
 make_bundle:
 # make bundle
 
@@ -534,7 +530,7 @@ DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
-ifneq ($(BUILD_DOCUMENTATION),false)
+ifeq ($(BUILD_DOCUMENTATION),true)
 	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
 		tar xf - && \
@@ -552,7 +548,7 @@ endif
 
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(BUILD_DOCUMENTATION),false)
+ifeq ($(BUILD_DOCUMENTATION),true)
 	mkdir -p build
 	- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	pwd
@@ -624,7 +620,11 @@ endif
 DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
-build_deb: make_bundle make_exec make_binary \
+# allow to disable building debian packages
+
+build_deb: make_bundle make_exec make_binary build_debian_packages
+
+build_debian_packages: \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
@@ -788,10 +788,10 @@ else
 endif
 
 install_local:
+ifeq ($(INSTALL),true)
 ifneq ($(OBJECTS),)
-ifneq ($(INSTALL),false)
     # INSTALL: $(INSTALL)
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
 	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
 	# therefore the rm is disabled (which may leave files if we remove them from the sources/resources)
@@ -803,8 +803,8 @@ endif
 endif
 
 deploy_remote:
+ifeq ($(DEPLOY),true)
 ifneq ($(OBJECTS),)
-ifneq ($(DEPLOY),false)
     # DEPLOY: $(DEPLOY)
 	# depoly remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
@@ -820,10 +820,10 @@ endif
 endif
 
 launch_remote:
-ifneq ($(OBJECTS),)
-ifneq ($(DEPLOY),false)
-ifneq ($(RUN),false)
+ifeq ($(DEPLOY),true)
+ifeq ($(RUN),true)
 ifeq ($(WRAPPER_EXTENSION),app)
+ifneq ($(OBJECTS),)
     # DEPLOY: $(DEPLOY)
     # RUN: $(RUN)
     # RUN_CMD: $(RUN_CMD)
@@ -840,9 +840,6 @@ endif
 endif
 endif
 endif
-
-clean:
-	# ignored
 
 # generic bundle rule
 
