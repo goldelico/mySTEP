@@ -11,8 +11,16 @@ export DEBIAN_DEPENDS+=", quantumstep-scselect"
 export DEBIAN_DEPENDS+=", quantumstep-scutil"
 export INSTALL_PATH="/"
 export PRODUCT_NAME="Tools"
+export SOURCES="abook.qcodeproj"
+export SOURCES+=" defaults.qcodeproj"
+export SOURCES+=" ibtool.qcodeproj"
+export SOURCES+=" mdo.qcodeproj"
+export SOURCES+=" open.qcodeproj"
+export SOURCES+=" PlistBuddy.qcodeproj"
+export SOURCES+=" plutil.qcodeproj"
+export SOURCES+=" say.qcodeproj"
+export SOURCES+=" scselect.qcodeproj"
+export SOURCES+=" scutil.qcodeproj"
 
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

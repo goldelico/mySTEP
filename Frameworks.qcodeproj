@@ -59,6 +59,7 @@ export SOURCES+=" SystemUIPlugin/SystemUIPlugin.qcodeproj"
 export SOURCES+=" Tools/Tools.qcodeproj"
 export SOURCES+=" UIKit/UIKit.qcodeproj"
 export SOURCES+=" UnitTesting/UnitTests.qcodeproj"
+export SOURCES+=" IOBluetooth/IOBluetoothUI.qcodeproj"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
