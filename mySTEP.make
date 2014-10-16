@@ -124,8 +124,8 @@ PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-TOOLCHAIN=/Developer/usr/bin
-CC := $(TOOLCHAIN)/gcc-4.0
+TOOLCHAIN=/usr/bin
+CC := $(TOOLCHAIN)/gcc
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
@@ -196,7 +196,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)
+else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
+endif
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
@@ -209,7 +213,11 @@ else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
+ifeq ($(ARCHITECTURE),i386-apple-darwin)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS
+else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
+endif
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
@@ -256,7 +264,9 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
+			apple ) export ARCHITECTURE=i386-apple-darwin;; \
 			all ) export ARCHITECTURE=all;; \
+			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
@@ -337,7 +347,7 @@ INCLUDES := $(INCLUDES) \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
-INCLUDES += -I$(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/include -I/usr/include/X11/.. -I/usr/include/X11/../freetype2
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2
 endif
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
@@ -449,7 +459,7 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(LIBRARIES)
 else
-LIBRARIES := -L$(QuantumSTEP)/System/Sources/Frameworks/macports-dylibs/lib -L/usr/X11R6/lib $(LIBRARIES)
+LIBRARIES := -L/opt/local/lib $(LIBRARIES) -L/Library/Frameworks/*.framework/Versions/Current -L/System/Library/Frameworks/*.framework/Versions/Current
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
