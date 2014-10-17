@@ -836,12 +836,15 @@ ifneq ($(OBJECTS),)
     # RUN_CMD: $(RUN_CMD)
 	# try to launch deployed Application using our local Xquartz as a remote display
 	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
+	#
+	# FIXME: how do we know the $(ARCHITECTURE) used to specify the EXECUTABLE_PATH?
+	#
 	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
-	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) \
-	[ "$$RUN" ] && $(DOWNLOAD) $$RUN_DEVICE \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
+	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) && \
+	[ "$$RUN" ] && $(DOWNLOAD) "$$RUN_DEVICE" \
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
 		|| echo failed to run;
 endif		
 endif
