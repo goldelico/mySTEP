@@ -71,7 +71,6 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #  download and test (postprocess 2)
 #   () EMBEDDED_ROOT - root on embedded device (default /usr/share/QuantumSTEP)
 #   * INSTALL_PATH
-#   - ADD_MAC_LIBRARY
 #   - INSTALL
 #   (+) DEPLOY
 #   (+) RUN
@@ -92,13 +91,11 @@ ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
-# deprecated (we should simply use /usr/share/QuantumSTEP/Library/Frameworks):
-ADD_MAC_LIBRARY:=false
 INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local_in_library  install_local deploy_remote launch_remote
+.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote
 
 # configure Embedded System if undefined
 
@@ -106,10 +103,8 @@ ROOT:=$(QuantumSTEP)
 
 ### FIXME: what is the right path???
 
-# DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
 # FIXME: this does only work on the Mac! On embedded the qsrsh is in /usr/bin/$HOST_ARCH or $PATH
 DOWNLOAD := $(QuantumSTEP)/usr/bin/qsrsh
-# DOWNLOAD := $(QuantumSTEP)/System/Sources/PrivateFrameworks/DeviceManager/build/Development/qsrsh
 
 # tools
 ifeq ($(shell uname),Darwin)
@@ -240,7 +235,7 @@ endif
 
 # this is the default/main target on the outer level
 
-build:	build_subprojects build_doxy make_php build_architectures install_local_in_library install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy make_php build_architectures install_local deploy_remote launch_remote
 	date
 
 clean:	# also clean for subprojects???
@@ -781,17 +776,6 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	ls -l $@
 else
 	# no debug version
-endif
-
-# deprecated
-install_local_in_library:
-# install_local_in_library
-ifeq ($(ADD_MAC_LIBRARY),true)
-	# install locally in /Library/Frameworks
-	- tar cf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpvf -))
-	# installed on localhost
-else
-	# don't install local in /Library/Frameworks
 endif
 
 install_local:
