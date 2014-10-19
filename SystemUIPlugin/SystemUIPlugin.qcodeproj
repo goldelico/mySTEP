@@ -5,7 +5,7 @@ export PRODUCT_NAME="SystemUIPlugin"
 export SOURCES="NSMenuExtra.m"
 export SOURCES+=" NSMenuExtra.h"
 export SOURCES+=" SystemUIPlugin-Info.plist"
+export WRAPPER_EXTENSION="framework"
 
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
