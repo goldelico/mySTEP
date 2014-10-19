@@ -19,9 +19,9 @@ export SOURCES+=" CLLocationManagerDelegate.h"
 export SOURCES+=" CLPlacemark.h"
 export SOURCES+=" CLRegion.h"
 export SOURCES+=" CoreLocation.h"
+export SOURCES+=" CoreLocationDaemon.qcodeproj"
+export SOURCES+=" cltest.qcodeproj"
 export WRAPPER_EXTENSION="framework"
 
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
