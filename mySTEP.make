@@ -650,9 +650,7 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-ifneq ($(OBJECTS),)
 	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
-endif
 ifneq ($(FILES),)
 	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
 endif
@@ -780,7 +778,6 @@ endif
 
 install_local:
 ifeq ($(INSTALL),true)
-ifneq ($(OBJECTS),)
     # INSTALL: $(INSTALL)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
@@ -791,11 +788,9 @@ ifneq ($(OBJECTS),)
 else
 	# don't install locally
 endif
-endif
 
 deploy_remote:
 ifeq ($(DEPLOY),true)
-ifneq ($(OBJECTS),)
     # DEPLOY: $(DEPLOY)
 	# depoly remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
@@ -808,13 +803,11 @@ ifneq ($(OBJECTS),)
 else
 	# not deployed
 endif
-endif
 
 launch_remote:
 ifeq ($(DEPLOY),true)
 ifeq ($(RUN),true)
 ifeq ($(WRAPPER_EXTENSION),app)
-ifneq ($(OBJECTS),)
     # DEPLOY: $(DEPLOY)
     # RUN: $(RUN)
     # RUN_CMD: $(RUN_CMD)
@@ -830,7 +823,6 @@ ifneq ($(OBJECTS),)
 	[ "$$RUN" ] && $(DOWNLOAD) "$$RUN_DEVICE" \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
 		|| echo failed to run;
-endif		
 endif
 endif
 endif
