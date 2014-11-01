@@ -9,11 +9,14 @@
  *
  * objc -c -o a.out file.m
  *
- * a script may begin with #!/path-to-objc
+ * A script may begin with #!/path-to-objc
  * and if chmod +x is set, the script can be simply
- * executed by specifying its name
+ * executed by specifying its name.
+ * The #!/path-to-objc may also specify preprocessor,
+ * compiler and linker options e.g. to define which
+ * Frameworks are available to the script.
  *
- * the script arguments are available through NSProcessInfo
+ * The script arguments are available through NSProcessInfo
  *
  * PS: you can also interpret C programs since C is a subset of ObjC
  */
@@ -35,6 +38,8 @@
 
 static void usage(void)
 {
+    // FIXME: use more "standard" options like -Dmacro=value -Ipath -Lpath -llib
+    // so that they can be passed within a #! invocation
 	fprintf(stderr, "usage: objc -c|-l|-p [ -d ] [ -m machine ] { -r old=new } [ file... ]\n");
 	fprintf(stderr, "       objc [ -d ] [ file | -f script ] [ args... ]\n");
 	exit(1);
@@ -60,7 +65,7 @@ int main(int argc, char *argv[])
 	NSMutableDictionary *refactor=[NSMutableDictionary dictionaryWithCapacity:10];
 	char *arg0=argv[0];
 	machine=[[Node compileTargets] objectAtIndex:0];	// default compiler
-	while(argv[1] && argv[1][0] == '-')
+	while(argv[1] && argv[1][0] == '-' && argv[1][1] != '-' )
 		{
 		char *c=&argv[1][1];
 		while(*c)
@@ -122,6 +127,7 @@ int main(int argc, char *argv[])
 				}
 				case 'b':	// install pipeline bundle
 				case 'I':	// set include search path(s)
+                    break;
 				default:
 					usage();
 			}
@@ -260,7 +266,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "no main() function found\n");	// pretty print
 		return 1;
 		}
-	// manipulate NSProcessInfo so that $0 = script name, $1... are aditional parameters
+	// manipulate NSProcessInfo so that $0 = script name (arg0), $1... are the additional parameters
+    // as defined by the current argv pointer
 	// and make us call the main(argc, argv, envp) function
 	// maybe we should create a "functioncall" node with the main-function, argc and argv as children
 	// but we can't call evaluate directly, since tree-walk calls the children only
