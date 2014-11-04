@@ -307,6 +307,7 @@ export SOURCES+=" Panels/German.lproj"
 export SOURCES+=" Panels/Spanish.lproj"
 export SOURCES+=" Panels/Swedish.lproj"
 export SOURCES+=" AppKit-Info.plist"
+export SOURCES+=" AppKitNibTest.qcodeproj"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
