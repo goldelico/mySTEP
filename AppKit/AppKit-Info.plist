@@ -38,6 +38,132 @@
 		<string>/Developer/Applications</string>
 		<string>/Developer/Applications/Utilities</string>
 	</array>
+	<key>NSBuiltinToolbarItems</key>
+	<dict>
+		<key>NSToolbarCustomizeToolbarItem</key>
+		<dict>
+			<key>Action</key>
+			<string>runToolbarCustomizationPalette:</string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
+			<key>Icon</key>
+			<string>NSToolbarCustomize</string>
+			<key>Label</key>
+			<string>Customize</string>
+			<key>MaxSize</key>
+			<string></string>
+			<key>MinSize</key>
+			<string></string>
+			<key>PaletteLabel</key>
+			<string>Customize Toolbar</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+		<key>NSToolbarFlexibleSpaceItem</key>
+		<dict>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
+			<key>Label</key>
+			<string></string>
+			<key>MaxSize</key>
+			<string>{9999999,0}</string>
+			<key>MinSize</key>
+			<string>{0,0}</string>
+			<key>PaletteLabel</key>
+			<string>Flexible Space</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+		<key>NSToolbarPrintItem</key>
+		<dict>
+			<key>Action</key>
+			<string>print:</string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
+			<key>Icon</key>
+			<string>NSToolbarPrint</string>
+			<key>Label</key>
+			<string>Print</string>
+			<key>MaxSize</key>
+			<string></string>
+			<key>MinSize</key>
+			<string></string>
+			<key>PaletteLabel</key>
+			<string>Print</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+		<key>NSToolbarSeparatorItem</key>
+		<dict>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
+			<key>Label</key>
+			<string></string>
+			<key>MaxSize</key>
+			<string>{5,100000}</string>
+			<key>MinSize</key>
+			<string>{5,0}</string>
+			<key>PaletteLabel</key>
+			<string>Separator</string>
+			<key>ToolTip</key>
+			<string></string>
+			<key>ViewClass</key>
+			<string>_NSToolbarSeparatorItemView</string>
+		</dict>
+		<key>NSToolbarShowColorsItem</key>
+		<dict>
+			<key>Action</key>
+			<string>orderFrontColorPanel:</string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
+			<key>Icon</key>
+			<string>NSToolbarShowColors</string>
+			<key>Label</key>
+			<string>Colors</string>
+			<key>MaxSize</key>
+			<string></string>
+			<key>MinSize</key>
+			<string></string>
+			<key>PaletteLabel</key>
+			<string>Colors</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+		<key>NSToolbarShowFontsItem</key>
+		<dict>
+			<key>Action</key>
+			<string>orderFrontFontPanel:</string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
+			<key>Icon</key>
+			<string>NSToolbarShowFonts</string>
+			<key>Label</key>
+			<string>Fonts</string>
+			<key>MaxSize</key>
+			<string></string>
+			<key>MinSize</key>
+			<string></string>
+			<key>PaletteLabel</key>
+			<string>Fonts</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+		<key>NSToolbarSpaceItem</key>
+		<dict>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
+			<key>Label</key>
+			<string></string>
+			<key>MaxSize</key>
+			<string>{15,100000}</string>
+			<key>MinSize</key>
+			<string>{15,0}</string>
+			<key>PaletteLabel</key>
+			<string>Space</string>
+			<key>ToolTip</key>
+			<string></string>
+		</dict>
+	</dict>
 	<key>NSFontSearchPath</key>
 	<array>
 		<string>/System/Library/Fonts</string>
@@ -51,44 +177,59 @@
 		<key>en</key>
 		<string>English</string>
 	</dict>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSPrintInfoDefault</key>
+	<dict>
+		<key>PrintOrientation</key>
+		<integer>0</integer>
+		<key>PrintPaperName</key>
+		<string>DIN A4</string>
+		<key>PrintPaperSize</key>
+		<string>{ 595, 842 }</string>
+		<key>PrintScalingFactor</key>
+		<real>1</real>
+	</dict>
 	<key>NSSystemColorList</key>
 	<dict>
+		<key>alternateSelectedControlColor</key>
+		<string>whiteColor</string>
+		<key>alternateSelectedControlTextColor</key>
+		<string>blackColor</string>
+		<key>blackColor</key>
+		<string>0.0 0.0 0.0</string>
+		<key>blueColor</key>
+		<string>0.0 0.0 1.0</string>
+		<key>brownColor</key>
+		<string>0.6 0.4 0.2</string>
+		<key>clearColor</key>
+		<string>0.0 0.0 0.0 0.0</string>
 		<key>controlBackgroundColor</key>
 		<string>whiteColor</string>
 		<key>controlColor</key>
 		<string>whiteColor</string>
-		<key>alternateSelectedControlColor</key>
-		<string>whiteColor</string>
+		<key>controlDarkShadowColor</key>
+		<string>blackColor</string>
 		<key>controlHighlightColor</key>
 		<string>0.91 0.91 0.91</string>
-		<key>selectedControlColor</key>
-		<string>0.60 0.75 0.98</string>
 		<key>controlLightHighlightColor</key>
 		<string>whiteColor</string>
 		<key>controlShadowColor</key>
 		<string>0.57 0.57 0.57</string>
-		<key>controlDarkShadowColor</key>
-		<string>blackColor</string>
 		<key>controlTextColor</key>
 		<string>blackColor</string>
+		<key>cyanColor</key>
+		<string>0.0 1.0 1.0</string>
+		<key>darkGrayColor</key>
+		<string>0.333 0.333 0.333</string>
 		<key>disabledControlTextColor</key>
 		<string>0.53 0.53 0.53</string>
-		<key>selectedControlTextColor</key>
-		<string>blackColor</string>
-		<key>alternateSelectedControlTextColor</key>
-		<string>blackColor</string>
-		<key>secondarySelectedControlColor</key>
-		<string>grayColor</string>
-		<key>textBackgroundColor</key>
-		<string>whiteColor</string>
-		<key>selectedTextBackgroundColor</key>
-		<string>0.70 0.85 0.98</string>
-		<key>textColor</key>
-		<string>blackColor</string>
-		<key>selectedTextColor</key>
-		<string>blackColor</string>
+		<key>grayColor</key>
+		<string>0.5 0.5 0.5</string>
+		<key>greenColor</key>
+		<string>0.0 1.0 0.0</string>
 		<key>gridColor</key>
 		<string>grayColor</string>
 		<key>headerColor</key>
@@ -97,44 +238,12 @@
 		<string>blackColor</string>
 		<key>highlightColor</key>
 		<string>whiteColor</string>
-		<key>knobColor</key>
-		<string>0.60 0.60 0.73</string>
-		<key>scrollBarColor</key>
-		<string>whiteColor</string>
-		<key>selectedMenuItemColor</key>
-		<string>0.16 0.40 0.80</string>
-		<key>selectedMenuItemTextColor</key>
-		<string>whiteColor</string>
-		<key>selectedKnobColor</key>
-		<string>0.40 0.40 0.60</string>
-		<key>shadowColor</key>
-		<string>blackColor</string>
 		<key>keyboardFocusIndicatorColor</key>
 		<string>0.70 0.85 0.98</string>
-		<key>windowBackgroundColor</key>
-		<string>0.95 0.95 0.95</string>
-		<key>windowFrameColor</key>
-		<string>lightGrayColor</string>
-		<key>windowFrameTextColor</key>
-		<string>blackColor</string>
-		<key>blackColor</key>
-		<string>0.0 0.0 0.0</string>
-		<key>darkGrayColor</key>
-		<string>0.333 0.333 0.333</string>
-		<key>grayColor</key>
-		<string>0.5 0.5 0.5</string>
+		<key>knobColor</key>
+		<string>0.60 0.60 0.73</string>
 		<key>lightGrayColor</key>
 		<string>0.667 0.667 0.667</string>
-		<key>whiteColor</key>
-		<string>1.0 1.0 1.0</string>
-		<key>blueColor</key>
-		<string>0.0 0.0 1.0</string>
-		<key>brownColor</key>
-		<string>0.6 0.4 0.2</string>
-		<key>cyanColor</key>
-		<string>0.0 1.0 1.0</string>
-		<key>greenColor</key>
-		<string>0.0 1.0 0.0</string>
 		<key>magentaColor</key>
 		<string>1.0 0.0 1.0</string>
 		<key>orangeColor</key>
@@ -143,147 +252,40 @@
 		<string>0.5 0.0 0.5</string>
 		<key>redColor</key>
 		<string>1.0 0.0 0.0</string>
+		<key>scrollBarColor</key>
+		<string>whiteColor</string>
+		<key>secondarySelectedControlColor</key>
+		<string>grayColor</string>
+		<key>selectedControlColor</key>
+		<string>0.60 0.75 0.98</string>
+		<key>selectedControlTextColor</key>
+		<string>blackColor</string>
+		<key>selectedKnobColor</key>
+		<string>0.40 0.40 0.60</string>
+		<key>selectedMenuItemColor</key>
+		<string>0.16 0.40 0.80</string>
+		<key>selectedMenuItemTextColor</key>
+		<string>whiteColor</string>
+		<key>selectedTextBackgroundColor</key>
+		<string>0.70 0.85 0.98</string>
+		<key>selectedTextColor</key>
+		<string>blackColor</string>
+		<key>shadowColor</key>
+		<string>blackColor</string>
+		<key>textBackgroundColor</key>
+		<string>whiteColor</string>
+		<key>textColor</key>
+		<string>blackColor</string>
+		<key>whiteColor</key>
+		<string>1.0 1.0 1.0</string>
+		<key>windowBackgroundColor</key>
+		<string>0.95 0.95 0.95</string>
+		<key>windowFrameColor</key>
+		<string>lightGrayColor</string>
+		<key>windowFrameTextColor</key>
+		<string>blackColor</string>
 		<key>yellowColor</key>
 		<string>1.0 1.0 0.0</string>
-		<key>clearColor</key>
-		<string>0.0 0.0 0.0 0.0</string>
-	</dict>
-	<key>NSBuiltinToolbarItems</key>
-	<dict>
-		<key>NSToolbarSeparatorItem</key>
-		<dict>
-			<key>Label</key>
-			<string></string>
-			<key>PaletteLabel</key>
-			<string>Separator</string>
-			<key>MinSize</key>
-			<string>{5,0}</string>
-			<key>MaxSize</key>
-			<string>{5,100000}</string>
-			<key>ViewClass</key>
-			<string>_NSToolbarSeparatorItemView</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>1</string>
-		</dict>
-		<key>NSToolbarSpaceItem</key>
-		<dict>
-			<key>Label</key>
-			<string></string>
-			<key>PaletteLabel</key>
-			<string>Space</string>
-			<key>MinSize</key>
-			<string>{15,0}</string>
-			<key>MaxSize</key>
-			<string>{15,100000}</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>1</string>
-		</dict>
-		<key>NSToolbarFlexibleSpaceItem</key>
-		<dict>
-			<key>Label</key>
-			<string></string>
-			<key>PaletteLabel</key>
-			<string>Flexible Space</string>
-			<key>MinSize</key>
-			<string>{0,0}</string>
-			<key>MaxSize</key>
-			<string>{9999999,0}</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>1</string>
-		</dict>
-		<key>NSToolbarShowColorsItem</key>
-		<dict>
-			<key>Label</key>
-			<string>Colors</string>
-			<key>PaletteLabel</key>
-			<string>Colors</string>
-			<key>Icon</key>
-			<string>NSToolbarShowColors</string>
-			<key>MinSize</key>
-			<string></string>
-			<key>MaxSize</key>
-			<string></string>
-			<key>Action</key>
-			<string>orderFrontColorPanel:</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>0</string>
-		</dict>
-		<key>NSToolbarShowFontsItem</key>
-		<dict>
-			<key>Label</key>
-			<string>Fonts</string>
-			<key>PaletteLabel</key>
-			<string>Fonts</string>
-			<key>Icon</key>
-			<string>NSToolbarShowFonts</string>
-			<key>MinSize</key>
-			<string></string>
-			<key>MaxSize</key>
-			<string></string>
-			<key>Action</key>
-			<string>orderFrontFontPanel:</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>0</string>
-		</dict>
-		<key>NSToolbarCustomizeToolbarItem</key>
-		<dict>
-			<key>Label</key>
-			<string>Customize</string>
-			<key>PaletteLabel</key>
-			<string>Customize Toolbar</string>
-			<key>Icon</key>
-			<string>NSToolbarCustomize</string>
-			<key>MinSize</key>
-			<string></string>
-			<key>MaxSize</key>
-			<string></string>
-			<key>Action</key>
-			<string>runToolbarCustomizationPalette:</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>0</string>
-		</dict>
-		<key>NSToolbarPrintItem</key>
-		<dict>
-			<key>Label</key>
-			<string>Print</string>
-			<key>PaletteLabel</key>
-			<string>Print</string>
-			<key>Icon</key>
-			<string>NSToolbarPrint</string>
-			<key>MinSize</key>
-			<string></string>
-			<key>MaxSize</key>
-			<string></string>
-			<key>Action</key>
-			<string>print:</string>
-			<key>ToolTip</key>
-			<string></string>
-			<key>AllowsDuplicates</key>
-			<string>0</string>
-		</dict>
-	</dict>
-	<key>NSPrintInfoDefault</key>
-	<dict>
-		<key>PrintPaperName</key>
-		<string>DIN A4</string>
-		<key>PrintPaperSize</key>
-		<string>{ 595, 842 }</string>
-		<key>PrintOrientation</key>
-		<integer>0</integer>
-		<key>PrintScalingFactor</key>
-		<real>1</real>
 	</dict>
 </dict>
 </plist>

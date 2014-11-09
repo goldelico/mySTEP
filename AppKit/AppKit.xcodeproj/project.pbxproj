@@ -319,6 +319,7 @@
 		EE22B2B5151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
 		EE22B2B6151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
 		EE22B2B7151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
+		EE268FBE1A0F88BC00C73243 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE268FBD1A0F88BC00C73243 /* Foundation.framework */; };
 		EE291C7C0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE291C7D0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE291C7E0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -577,7 +578,6 @@
 		EE31950709AA47490089A9A2 /* NSNibConnectors.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D437E0995047F00DDE5E0 /* NSNibConnectors.m */; };
 		EE31950809AA47490089A9A2 /* NSFont.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48710997962600DDE5E0 /* NSFont.m */; };
 		EE31950909AA47490089A9A2 /* NSCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = EE52832F09A1FB2E00218247 /* NSCursor.m */; };
-		EE31957C09AA477F0089A9A2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE31972209AB7F290089A9A2 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
 		EE31972309AB7F290089A9A2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31970C09AB7E8B0089A9A2 /* main.m */; };
 		EE31972409AB7F290089A9A2 /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31971209AB7E8B0089A9A2 /* myView.m */; };
@@ -630,7 +630,6 @@
 		EE419D7E0E463B02005B7EF0 /* NSToolbarShowColors.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D740E463B02005B7EF0 /* NSToolbarShowColors.icns */; };
 		EE419D800E463B02005B7EF0 /* NSToolbarShowFonts.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.icns */; };
 		EE43E539199023C400A05174 /* AppKit.css in Resources */ = {isa = PBXBuildFile; fileRef = EE43E537199023C400A05174 /* AppKit.css */; };
-		EE43E53A199023C400A05174 /* AppKit.js in Sources */ = {isa = PBXBuildFile; fileRef = EE43E538199023C400A05174 /* AppKit.js */; };
 		EE43E53D1990241500A05174 /* AppKit.js in Resources */ = {isa = PBXBuildFile; fileRef = EE43E538199023C400A05174 /* AppKit.js */; };
 		EE469E530D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E520D1B9D4800E99DA0 /* NSToolbar.m */; };
@@ -654,7 +653,6 @@
 		EE5283E609A308F600218247 /* GSBitmapImageReps.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3719C09540271001244CF /* GSBitmapImageReps.m */; };
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
-		EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE59A471158F513300ADD1C9 /* AlertPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE59A46F158F513300ADD1C9 /* AlertPanel.nib */; };
 		EE59A472158F513300ADD1C9 /* AlertPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE59A46F158F513300ADD1C9 /* AlertPanel.nib */; };
 		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
@@ -1196,7 +1194,8 @@
 		EE1D90250A921A71003988F3 /* NSSound.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSound.m; sourceTree = "<group>"; };
 		EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = StandardKeyBinding.dict; sourceTree = "<group>"; };
 		EE22B2B4151B166900E3BAF9 /* paper_clip.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = paper_clip.png; path = ../../Applications/myMail/Icons/paper_clip.png; sourceTree = SOURCE_ROOT; };
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
+		EE268FBD1A0F88BC00C73243 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechRecognizer.h; sourceTree = "<group>"; };
 		EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechSynthesizer.h; sourceTree = "<group>"; };
 		EE291CD60AD7EA40004A1CA6 /* NSSpeechSynthesizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechSynthesizer.m; sourceTree = "<group>"; };
@@ -1293,7 +1292,6 @@
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
 		EE9929C409FD233C003C308D /* NSSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSegmentedControl.m; sourceTree = "<group>"; };
 		EEA331A30953FA54001244CF /* AppKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "AppKit-Info.plist"; sourceTree = "<group>"; };
-		EEA370FF09540065001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3717D09540271001244CF /* AppKit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppKit.h; sourceTree = "<group>"; };
 		EEA3719609540271001244CF /* Externs.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Externs.m; sourceTree = "<group>"; };
 		EEA3719709540271001244CF /* Functions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Functions.m; sourceTree = "<group>"; };
@@ -1560,7 +1558,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE31957C09AA477F0089A9A2 /* Foundation.framework in Frameworks */,
 				EE0E66CB0DBC828600564003 /* libfreetype.6.3.15.dylib in Frameworks */,
 				EE0E66CC0DBC828700564003 /* libfreetype.6.dylib in Frameworks */,
 				EE0E66CD0DBC828700564003 /* libfreetype.dylib in Frameworks */,
@@ -1599,7 +1596,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */,
+				EE268FBE1A0F88BC00C73243 /* Foundation.framework in Frameworks */,
 				EE0E66670DBC828600564003 /* libfreetype.6.3.15.dylib in Frameworks */,
 				EE0E66680DBC828600564003 /* libfreetype.6.dylib in Frameworks */,
 				EE0E66690DBC828600564003 /* libfreetype.dylib in Frameworks */,
@@ -2257,7 +2254,7 @@
 		EEA370FA09540051001244CF /* mySTEP Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EEA370FF09540065001244CF /* Foundation.framework */,
+				EE268FBD1A0F88BC00C73243 /* Foundation.framework */,
 			);
 			name = "mySTEP Frameworks";
 			sourceTree = "<group>";
@@ -3074,7 +3071,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = EE5B0DF0098C08400017AC60 /* Build configuration list for PBXProject "AppKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3648,7 +3645,6 @@
 				EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */,
 				EEF6E6FB1021A3E600764AC3 /* NSShadow.m in Sources */,
 				EE2D206014F7D0D300652883 /* NSTypesetter.m in Sources */,
-				EE43E53A199023C400A05174 /* AppKit.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3801,7 +3797,8 @@
 		EE31950E09AA47490089A9A2 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -3816,35 +3813,40 @@
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"SEL_EQ(A,B)=((A)==(B))",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
 					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
 					"objc_malloc=malloc",
 					"objc_free=free",
 					"objc_calloc=calloc",
 					"objc_realloc=realloc",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3)",
+					"\"NSUInteger=unsigned int\"",
 					"CGFloat=float",
 					"NSInteger=int",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "-D__SYNCHRONIZE__";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -3857,25 +3859,24 @@
 					"-lungif",
 					"-ltiff",
 					"-lobjc",
+					/System/Library/Frameworks/Foundation.framework/Foundation,
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
 		EE31950F09AA47490089A9A2 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -3887,35 +3888,40 @@
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"SEL_EQ(A,B)=((A)==(B))",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
 					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
 					"objc_malloc=malloc",
 					"objc_free=free",
 					"objc_calloc=calloc",
 					"objc_realloc=realloc",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3)",
+					"\"NSUInteger=unsigned int\"",
 					"CGFloat=float",
 					"NSInteger=int",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -3928,25 +3934,24 @@
 					"-lungif",
 					"-ltiff",
 					"-lobjc",
+					/System/Library/Frameworks/Foundation.framework/Foundation,
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
 		EE31951009AA47490089A9A2 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -3956,35 +3961,40 @@
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"SEL_EQ(A,B)=((A)==(B))",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
 					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
 					"objc_malloc=malloc",
 					"objc_free=free",
 					"objc_calloc=calloc",
 					"objc_realloc=realloc",
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3)",
+					"\"NSUInteger=unsigned int\"",
 					"CGFloat=float",
 					"NSInteger=int",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "-D__SYNCHRONIZE__";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -3997,12 +4007,11 @@
 					"-lungif",
 					"-ltiff",
 					"-lobjc",
+					/System/Library/Frameworks/Foundation.framework/Foundation,
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4021,7 +4030,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -4032,19 +4040,18 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = ../TestApplications/NIB/Info.cocoa.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SYMROOT = build/Cocoa;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -4057,7 +4064,6 @@
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -4067,18 +4073,17 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/Cocoa;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4089,7 +4094,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -4099,33 +4103,30 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/Cocoa;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		EE5B0DE1098C08400017AC60 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					/System/Library/Frameworks,
-					"$(SRCROOT)/../Foundation/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -4133,22 +4134,40 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NSDebugLog(...)=",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
+					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
+					"objc_malloc=malloc",
+					"objc_free=free",
+					"objc_calloc=calloc",
+					"objc_realloc=realloc",
+					"\"NSUInteger=unsigned int\"",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				OTHER_CFLAGS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
+				);
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -4162,51 +4181,65 @@
 					"-ltiff",
 					"-lobjc",
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
 		EE5B0DE2098C08400017AC60 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					/System/Library/Frameworks,
-					"$(SRCROOT)/../Foundation/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NSDebugLog(...)=",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
+					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
+					"objc_malloc=malloc",
+					"objc_free=free",
+					"objc_calloc=calloc",
+					"objc_realloc=realloc",
+					"\"NSUInteger=unsigned int\"",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -4220,48 +4253,62 @@
 					"-ltiff",
 					"-lobjc",
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
 		EE5B0DE3098C08400017AC60 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					/System/Library/Frameworks,
-					"$(SRCROOT)/../Foundation/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NSDebugLog(...)=",
+					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
+					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
+					"SUBCLASS=nil;",
+					"SEL_EQ(A,B)=((A)==(B))",
+					"objc_malloc=malloc",
+					"objc_free=free",
+					"objc_calloc=calloc",
+					"objc_realloc=realloc",
+					"\"NSUInteger=unsigned int\"",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../macports-dylibs/include",
-					/usr/include/X11/..,
-					/usr/include/X11/../freetype2,
+					/opt/local/include,
+					/opt/local/include/X11/..,
+					/opt/local/include/X11/../freetype2,
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = (
+					"-D__SYNCHRONIZE__",
+					"-isysroot",
+					/,
+					"-isystem",
+					Sources,
+					"-I/usr/include",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
@@ -4275,11 +4322,9 @@
 					"-ltiff",
 					"-lobjc",
 				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../macports-dylibs/include /usr/include/X11/.. /usr/include/X11/../freetype2";
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /opt/local/include/X11/.. /opt/local/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4292,22 +4337,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
@@ -4317,17 +4351,9 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4335,16 +4361,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
 			};
 			name = Default;
 		};
@@ -4391,7 +4410,6 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				PRODUCT_NAME = UpdateLocalizedNIBs;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4412,24 +4430,22 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = "../TestApplications/NIB/Info ViewTest.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info ViewTest.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				KEEP_PRIVATE_EXTERNS = NO;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myViewTest.mixed;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -4441,22 +4457,20 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/../Test/AppKit/NIB/Info copy.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info ViewTest.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mixed;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4466,22 +4480,20 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/../Test/AppKit/NIB/Info copy.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info ViewTest.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mixed;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Default;
 		};
@@ -4495,7 +4507,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
@@ -4513,17 +4524,15 @@
 					/usr/X11R6/lib,
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
-				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mixed;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -4536,7 +4545,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -4554,15 +4562,14 @@
 					/opt/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mixed;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4573,7 +4580,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -4591,15 +4597,14 @@
 					/opt/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mixed;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Default;
 		};
@@ -4613,7 +4618,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -4623,13 +4627,12 @@
 				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = myTest.mySTEP;
-				SDKROOT = "";
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
@@ -4645,7 +4648,6 @@
 				);
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -4653,12 +4655,12 @@
 				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mySTEP;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -4672,7 +4674,6 @@
 					"$(SRCROOT)/../Foundation/build/Development",
 				);
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -4680,12 +4681,12 @@
 				INFOPLIST_FILE = NibTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.mySTEP;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Default;
 		};
