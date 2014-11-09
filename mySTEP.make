@@ -360,8 +360,7 @@ CFLAGS := $(CFLAGS) \
 		-g -O$(OPTIMIZE) -fPIC -rdynamic \
 		$(WARNINGS) \
 		$(DEFINES) \
-		$(INCLUDES) \
-		$(OTHER_CFLAGS)
+		$(INCLUDES)
 
 ifeq ($(PROFILING),YES)
 CFLAGS := -pg $(CFLAGS)
