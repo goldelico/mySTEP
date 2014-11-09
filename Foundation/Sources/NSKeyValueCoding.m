@@ -16,6 +16,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 
 @implementation NSObject (NSKeyValueCoding)
 
+#ifndef __APPLE__
+
 + (BOOL) accessInstanceVariablesDirectly;
 {
 	return YES;	// default is YES
@@ -83,8 +85,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		msg = objc_msg_lookup(self, s);
 #else
 		struct objc_method *m = (object_is_instance(self) 
-								 ? class_get_instance_method(isa, s)
-								 : class_get_class_method(isa, s));
+								 ? class_get_instance_method([self class], s)
+								 : class_get_class_method([self class], s));
 		Class c = object_get_class(self);
 		struct objc_protocol_list *protocols = c?c->protocols:NULL;
 		msg=m?m->method_imp:NULL;
@@ -95,7 +97,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 #endif
 //		NSLog(@"IMP = %p", msg);
 		if (!msg)
-			return [self _error:"unknown getter %s", sel_get_name(s)];
+			return [self _error:"unknown getter %s", sel_getName(s)];
 		}
 	else if([isa accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
@@ -355,6 +357,8 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 - (NSMutableArray *) mutableArrayValueForKeyPath:(NSString *) str; { return NIMP; }
 - (NSMutableSet *) mutableSetValueForKey:(NSString *) key; { return NIMP; }
 - (NSMutableSet *) mutableSetValueForKeyPath:(NSString *) keyPath; { return NIMP; }
+
+#endif
 
 @end
 

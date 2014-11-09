@@ -119,11 +119,15 @@
 
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
+#ifndef __APPLE__
 	struct objc_method_description *r=class_get_instance_method(self, sel);
 #if 0
 	r.types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
 #endif
 	return r;
+#else
+	return NULL;
+#endif
 }
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
@@ -449,6 +453,7 @@ static Class _doClass;
 { // we should use [_protocol name] but that appears to be broken
 	if(_local)
 		return [_local description];
+#ifndef __APPLE__
 	return [NSString stringWithFormat:
 			@"<%@ %p>\ntarget/local=%p remote=%p\nprotocol=%s\nconnection=%@",
 			NSStringFromClass([self class]), self,
@@ -456,6 +461,15 @@ static Class _doClass;
 			_protocol?[_protocol name]:"<NULL>",
 			// FIXME: connection is not retained!
 			_connection];
+#else
+	return [NSString stringWithFormat:
+		   @"<%@ %p>\ntarget/local=%p remote=%p\nprotocol=%s\nconnection=%@",
+		   NSStringFromClass([self class]), self,
+		   _local,	_remote,
+		   "?",
+		   // FIXME: connection is not retained!
+		   _connection];
+#endif
 }
 
 - (void) forwardInvocation:(NSInvocation *) invocation;
@@ -539,6 +553,7 @@ static Class _doClass;
 			[NSException raise:NSInternalInconsistencyException format:@"local object does not define @selector(%@): %@", NSStringFromSelector(aSelector), _local];
 		md=NULL;
 		}
+#ifndef __APPLE__
 	else if(_protocol)
 		{ // ask protocol
 #if 1
@@ -548,6 +563,7 @@ static Class _doClass;
 			if(!md)
 				[NSException raise:NSInternalInconsistencyException format:@"@protocol %s does not define @selector(%@)", [_protocol name], NSStringFromSelector(aSelector)];
 		}
+#endif
 	else
 		{	// we must ask the peer for a methodDescription, i.e. translate the response into a NSMethodSignature
 			NSMethodSignature *sig=[_selectorCache objectForKey:@"methodDescriptionForSelector:"];
@@ -591,16 +607,20 @@ static Class _doClass;
 
 + (BOOL) respondsToSelector:(SEL)aSelector;
 {
+#ifndef __APPLE__
 	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
+#endif
 }
 
 // this is officially only available in NSObject class (not protocol!)
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector;
 { // CHECKME: how can we know that?
+#ifndef __APPLE__
 	if(class_get_instance_method(self, aSelector) != METHOD_NULL)
 		return YES;	// this is a method of NSDistantObject
 	// we don't know a remote object or protocols here!
+#endif
 	return NO;
 }
 

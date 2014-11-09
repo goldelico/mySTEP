@@ -165,12 +165,11 @@ va_list va;
 
 - (id) initWithObject:(id)firstObject arglist:(va_list)argList
 {
-id object;
-id *objs;
-va_list va = argList;
-int count = 0;
+	id object;
+	id *objs;
+	int count = 0;
     
-    for (object = firstObject; object; object = va_arg(va,id))
+    for (object = firstObject; object; object = va_arg(argList,id))
 		count++;
     
     objs = objc_malloc(sizeof(id)*count);

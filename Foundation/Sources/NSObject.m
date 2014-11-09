@@ -175,7 +175,11 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
+#else
+	return NO;
+#endif
 }
 
 /**
@@ -215,6 +219,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #if 0 && !defined(__APPLE__)
 	fprintf(stderr, "+[%s conformsToProtocol: %s]\n", class_get_class_name(self), [aProtocol name]);
 #endif
+#ifndef __APPLE__
 	for(proto_list = ((struct objc_class*)self)->protocols;
 		 proto_list; proto_list = proto_list->next)
 		{
@@ -227,6 +232,10 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			}
 		}
 	return object_get_super_class(self) && [object_get_super_class(self) conformsToProtocol: aProtocol];
+
+#else
+	return NO;
+#endif
 }
 
 - (BOOL) conformsToProtocol:(Protocol*)aProtocol
@@ -237,14 +246,22 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 + (IMP) instanceMethodForSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	return (IMP)method_get_imp(class_get_instance_method(self, aSelector));
+#else
+	return NULL;
+#endif
 }
   
 - (IMP) methodForSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	return (IMP)(method_get_imp(object_is_instance(self)
                          ? class_get_instance_method(isa, aSelector)
                          : class_get_class_method(isa, aSelector)));
+#else
+	return NULL;
+#endif
 }
 
 - (id) awakeAfterUsingCoder:(NSCoder*)aDecoder			{ return self; }
@@ -360,9 +377,13 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
 	if(!aSelector) return NO;
+#ifndef __APPLE__
 	if (CLS_ISCLASS(((Class)self)->class_pointer))
 		return (class_get_instance_method(isa, aSelector) != METHOD_NULL);
 	return (class_get_class_method(isa, aSelector) != METHOD_NULL);
+#else
+	return NULL;
+#endif
 }
 
 - (void) forwardInvocation:(NSInvocation*)anInvocation
@@ -401,36 +422,49 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) performSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s", sel_get_name(_cmd)];
 
 	return (*msg)(self, aSelector);
+#else
+	return nil;
+#endif
 }
 
 - (id) performSelector:(SEL)aSelector withObject:anObject
 {
+#ifndef __APPLE__
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s",sel_get_name(_cmd)];
 
 	return (*msg)(self, aSelector, anObject);
+#else
+	return nil;
+#endif
 }
 
 - (id) performSelector:(SEL)aSelector withObject:object1 withObject:object2
 {
+#ifndef __APPLE__
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s",sel_get_name(_cmd)];
 
 	return (*msg)(self, aSelector, object1, object2);
+#else
+	return nil;
+#endif
 }
 
 + (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	struct objc_method *m = class_get_instance_method(self, aSelector);
 #if 0
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass(isa), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
@@ -439,10 +473,12 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #endif
 	// CHECKME: should we also check for Protocols?
     return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : (NSMethodSignature *) nil;
+#endif
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
 {
+#ifndef __APPLE__
 	struct objc_method *m = (object_is_instance(self) 
 													 ? class_get_instance_method(isa, aSelector)
 													 : class_get_class_method(isa, aSelector));
@@ -486,6 +522,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
+#endif
 }
 
 - (id) forwardingTargetForSelector:(SEL) sel;

@@ -214,7 +214,7 @@ NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 						context:(void *) context;
 { // default implementation
 	[NSException raise: NSInvalidArgumentException
-				format: @"-%@ should be implemented by %@", NSStringFromSelector(_cmd), NSStringFromClass(isa)];
+				format: @"-%@ should be implemented by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])];
 	return;
 }
 

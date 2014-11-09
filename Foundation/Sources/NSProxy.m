@@ -39,7 +39,11 @@
 
 + (BOOL) respondsToSelector:(SEL)aSelector
 {
+#ifndef __APPLE__
 	return (class_get_class_method(self, aSelector) != METHOD_NULL);
+#else
+	return NO;
+#endif
 }
 
 + (unsigned) retainCount		{ return UINT_MAX; }

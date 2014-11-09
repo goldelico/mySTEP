@@ -97,10 +97,6 @@
 # include <utime.h>
 #endif
 
-typedef struct _NSDirectoryEnumerator_t {
-	@defs(NSDirectoryEnumerator)
-} NSDirectoryEnumerator_t;
-
 // Class variables
 static NSFileManager *__fm = nil;
 
@@ -511,7 +507,7 @@ static NSFileManager *__fm = nil;
 	const char *cpath = [self fileSystemRepresentationWithPath: path];
 	if(!cpath)
 		return NO;
-    return (access(cpath, X_OK || W_OK) == 0);
+    return (access(cpath, (X_OK | W_OK)) == 0);
 }
 
 - (NSDictionary*) fileAttributesAtPath:(NSString*)path 
@@ -691,28 +687,25 @@ static NSFileManager *__fm = nil;
 
 - (NSDirectoryEnumerator*) enumeratorAtPath:(NSString*)path
 {
-	NSDirectoryEnumerator_t *de;
+	NSDirectoryEnumerator *de;
 	BOOL isDir;
 	DIR *dir;
 	
     if (![self fileExistsAtPath:path isDirectory:&isDir] || !isDir)
 		return nil;
 	
-	de = (NSDirectoryEnumerator_t *)[NSDirectoryEnumerator alloc];
-    de->_pathStack = [NSMutableArray new];	// recurse into directory `path',
-    de->_enumStack = [NSMutableArray new];	// push relative path (to root of  
-    de->_topPath = [path retain];			// search) on _pathStack and push
+	de = [[NSDirectoryEnumerator alloc] initWithPath:path];
 	// sys dir enumerator onto enumPath
 	//
 	// FIXME: handle virtual home /Users/*
 	//
     if ((dir = opendir([__fm  fileSystemRepresentationWithPath:path])))
 		{
-		[de->_pathStack addObject:@""];
-		[de->_enumStack addObject:[NSValue valueWithPointer:dir]];
+		[de _pathStackAddObject:@""];
+		[de _enumStackAddObject:[NSValue valueWithPointer:dir]];
 		}
 	
-	return [(NSDirectoryEnumerator *)de autorelease];
+	return [de autorelease];
 }
 
 - (NSArray*) subpathsAtPath:(NSString*)path
@@ -897,7 +890,7 @@ static NSFileManager *__fm = nil;
 			*error=[NSError errorWithDomain:@"NSFileManager" code:0 userInfo:[NSDictionary dictionaryWithObject:path forKey:@"path"]];
 		return nil;		
 		}
-    ((NSDirectoryEnumerator_t *) de)->_fm.shallow = YES;
+	[de setShallow:YES];
 	c = [NSMutableArray arrayWithCapacity:25];	// guess for average sized directories
     while((path = [de nextObject]))
 		{
@@ -969,6 +962,33 @@ static NSFileManager *__fm = nil;
     [_topPath release];
 	[super dealloc];
 }
+
+- (id) _initWithPath:(NSString *) path
+{
+	if((self=[super init]))
+		{
+		_pathStack = [NSMutableArray new];	// recurse into directory `path',
+		_enumStack = [NSMutableArray new];	// push relative path (to root of
+		_topPath = [path retain];			// search) on _pathStack and push
+		}
+	return self;
+}
+
+- (void) _pathStackAddObject:(id) object
+{
+	[_pathStack addObject:object];
+}
+
+- (void) _enumStackAddObject:(id) object
+{
+	[_enumStack addObject:object];
+}
+
+- (void) _setShallow:(BOOL) val
+{
+	_fm.shallow=val;
+}
+
 // Getting attributes
 - (NSDictionary*) directoryAttributes
 {

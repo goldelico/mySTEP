@@ -107,7 +107,7 @@
 	[dc run];		// collect
 	[dc release];
 #if 1
-	NSLog(@"received data: %p (%lu bytes)", data, [data length]);
+	NSLog(@"received data: %p (%lu bytes)", data, (unsigned long)[data length]);
 #endif
 	return data;
 }

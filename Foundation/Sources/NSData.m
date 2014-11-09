@@ -346,7 +346,7 @@ static IMP appendImp;
 			{
 				int i;
 				for(i=0; i<length && i<3; i++)
-					bytes=bytes<<8+(*src++);
+					bytes=(bytes<<8)+(*src++);	// collect bytes
 				for(i=0; i<4; i++)
 						{
 							int bits=bytes&0x3f;
@@ -950,7 +950,7 @@ static IMP appendImp;
 	// could analyse response for content-type, content-encoding...
 	[self release];
 #if 1
-	NSLog(@"received data length=%lu", [data length]);
+	NSLog(@"received data length=%lu", (unsigned long)[data length]);
 #endif
 	return [data retain];
 }
@@ -2177,7 +2177,7 @@ unsigned l;
 		}
         case _C_CLASS: 
 			{
-				const char *name = *(Class*)data ? (*(Class*)data)->name : "";
+				const char *name = *(Class*)data ? class_getImageName((Class*)data) : "";
 				unsigned ln = strlen(name);
 				unsigned minimum = length + ln + sizeof(unsigned);
 				unsigned ni;

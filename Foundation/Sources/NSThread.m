@@ -41,10 +41,11 @@ typedef enum _NSThreadPriority
 
 	objc_thread_set_data(self);
 	_autorelease_vars.current_pool = [NSAutoreleasePool new];
-
+#ifndef __APPLE__
 	if ((imp = (id(*)(id, SEL, id))objc_msg_lookup(_target, _selector)))
 		(*imp)(_target, _selector, anArgument);
 	else
+#endif
 		NSLog(@"Unable to call thread detach method");	// FIX ME exception
 }
 

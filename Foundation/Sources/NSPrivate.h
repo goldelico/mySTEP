@@ -236,7 +236,10 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 - (id) _initWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
 - (id) _initWithString:(NSString *) format args:(NSEnumerator *) args;
 - (NSEnumerator *) _args;
+#ifndef __APPLE__
+// FIXME: - this is not valid in C (at least with clang)
 - (va_list) _vargs;
+#endif
 - (BOOL) _scanPredicateKeyword:(NSString *) key;
 
 @end
@@ -300,6 +303,13 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 - (void) _setReadMode:(int) mode inModes:(NSArray *) modes;
 
+@end
+
+@interface NSDirectoryEnumerator (NSPrivate)
+- (id) _initWithPath:(NSString *) path;
+- (void) _pathStackAddObject:(id) object;
+- (void) _enumStackAddObject:(id) object;
+- (void) _setShallow:(BOOL) val;
 @end
 
 @interface NSPort (NSPrivate)
@@ -405,6 +415,13 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @end
 
+enum _INVOCATION_MODE {
+	_INVOCATION_ARGUMENT_SET_NOT_RETAINED = NO,	// don't retain/copy/release
+	_INVOCATION_ARGUMENT_SET_RETAINED = YES,	// release/free old value and retain/copy new (objects and C-Strings)
+	_INVOCATION_ARGUMENT_RELEASE,	// release current value (but ignore _buffer)
+	_INVOCATION_ARGUMENT_RETAIN,	// retain current value (but ignore _buffer)
+};
+
 @interface NSMethodSignature (NSPrivate)
 
 - (struct NSArgumentInfo *) _methodInfo;	// recalculate method info
@@ -412,12 +429,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (unsigned) _getArgumentQualifierAtIndex:(int) index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE {
-_INVOCATION_ARGUMENT_SET_NOT_RETAINED = NO,	// don't retain/copy/release
-_INVOCATION_ARGUMENT_SET_RETAINED = YES,	// release/free old value and retain/copy new (objects and C-Strings)
-_INVOCATION_ARGUMENT_RELEASE,	// release current value (but ignore _buffer)
-_INVOCATION_ARGUMENT_RETAIN,	// retain current value (but ignore _buffer)
-}) mode;
+- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
 
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;

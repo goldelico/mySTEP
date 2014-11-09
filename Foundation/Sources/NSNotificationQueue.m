@@ -25,7 +25,11 @@ typedef struct _InstanceList {
 } _NSQueueInstanceList;
 
 typedef struct _NSNotificationQueue_t {
+#ifndef __APPLE__
 	@defs(NSNotificationQueue)
+#else
+	struct _NSNotificationQueue_t *head, *_idleQueue, *_asapQueue;
+#endif
 } NSNotificationQueue_t;
 
 // Class variables
@@ -222,7 +226,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		{
 		next = item->next;
 		if ((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
-			!(coalesceMask & NSNotificationCoalescingOnSender) || (object == item->object)) 
+			!(coalesceMask & NSNotificationCoalescingOnSender) || (object == item->object))
 			{
 			_NSRemoveFromQueue(_asapQueue, item);
 			continue;

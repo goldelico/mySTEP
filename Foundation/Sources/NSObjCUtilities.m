@@ -670,8 +670,10 @@ NSClassFromString(NSString *aClassName)
 NSString *
 NSStringFromProtocol(Protocol *aProtocol)
 {
+#ifndef __APPLE__
 	if (aProtocol != (Protocol*)0)
 		return [NSString stringWithUTF8String:(const char*)[aProtocol name]];
+#endif
 	return nil;
 }
 

@@ -91,7 +91,7 @@
 	NSLog(@"sel=%@", NSStringFromSelector(sel));
 #endif
 	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@ numargs=%u sig=%@",
-			NSStringFromClass(isa),
+			NSStringFromClass([self class]),
 			self,
 			NSStringFromSelector(sel),
 			target==self?@"(self)":target,
@@ -211,8 +211,6 @@
 	imp = method_get_imp(object_is_instance(target) ?
 						 class_get_instance_method(((struct objc_class *) target )->class_pointer, selector)
 						 : class_get_class_method(((struct objc_class *) target )->class_pointer, selector));
-#endif
-	
 	if(imp == NULL)
 		{ // If fast lookup failed, we may be forwarding or something ...
 #if 0
@@ -224,6 +222,7 @@
 		{ // still undefined
 			[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke: %@", self];
 		}
+#endif
 #if 0
 	NSLog(@"imp = %p", imp);
 #endif

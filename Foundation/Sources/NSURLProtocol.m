@@ -150,7 +150,7 @@ static NSMutableArray *_registeredClasses;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ %@", NSStringFromClass(isa), _request];
+	return [NSString stringWithFormat:@"%@ %@", NSStringFromClass([self class]), _request];
 }
 
 - (NSCachedURLResponse *) cachedResponse; { return _cachedResponse; }
@@ -466,7 +466,7 @@ static NSMutableDictionary *_httpConnections;
 		}
 	[headerData appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
 #if 1
-	NSLog(@"header=%@\n", headerData, [[[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding] autorelease]);
+	NSLog(@"header=%@\n%@\n", headerData, [[[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding] autorelease]);
 #endif
 	_headerStream=[[NSInputStream alloc] initWithData:headerData];	// convert into a stream
 	[headerData release];

@@ -33,9 +33,10 @@
 //    [ tx ty  1 ]
 //
 
+#if 0
+
 static const float pi = 3.1415926535897932384626433;
 
-#if 0
 #define check() if(!((_isIdentity && A==1.0 && B==0.0 && C==0.0 && D==1.0) || (_isFlipY && A==1.0 && B==0.0 && C==0.0 && D==-1.0) || !(_isIdentity&&_isFlipY))) NSLog(@"*** Invalid matrix flags: %@ ***", self)
 #else
 #define check()

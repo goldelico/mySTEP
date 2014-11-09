@@ -116,7 +116,9 @@
 {
 	if((self=[self _initWithString:format args:args]))
 		{
+#ifndef __APPLE__
 		_vargs=vargs;
+#endif
 		}
 	return self;
 }
@@ -129,8 +131,9 @@
  */
 
 - (NSEnumerator *) _args; { return _args; }
+#ifndef __APPLE__
 - (va_list) _vargs; { return _vargs; }
-
+#endif
 - (BOOL) _scanPredicateKeyword:(NSString *) key;
 {
 	unsigned loc=[self scanLocation];	// save to back up
@@ -853,10 +856,12 @@
 			[NSException raise:NSInvalidArgumentException format:@"Invalid variable identifier: %@", var];
 		return [NSExpression expressionForVariable:[var keyPath]];
 		}
+#ifndef __APPLE__
 	if([sc _scanPredicateKeyword:@"%K"])
 		{
 		NSEnumerator *e=[sc _args];
 		va_list vargs=[sc _vargs];	// does this work or must we pass a pointer???
+									// is not assignable on OSX with clang
 		if(e)
 			return [NSExpression expressionForKeyPath:[e nextObject]];		// should we even allow to pass in/pass through an NSExpression to %K and convert only NSString objects to keyPaths?
 		return [NSExpression expressionForKeyPath:va_arg(vargs, id)];
@@ -869,6 +874,7 @@
 			return [NSExpression expressionForConstantValue:[e nextObject]];
 		return [NSExpression expressionForConstantValue:va_arg(vargs, id)];
 		}
+#endif
 	// FIXME: other formats
 	if([sc scanString:@"\"" intoString:NULL])
 		{

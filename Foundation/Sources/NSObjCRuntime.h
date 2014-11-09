@@ -53,6 +53,9 @@
 
 #include <objc/objc.h>
 #include <objc/objc-api.h>
+#ifdef __APPLE__
+#undef __OBJC2__	/* avoid problems with objc/Protocol.h on Xcode SDK */
+#endif
 #include <objc/Protocol.h>
 
 // new types that might appear in the AppKit API of 10.5
