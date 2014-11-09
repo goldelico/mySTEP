@@ -9,3 +9,9 @@ build
 objc2pp/test
 project.xcworkspace/
 xcuserdata/
+# hide other subprojects
+CoreData/
+GNUstep/
+ObjC/
+SimpleWebKit/
+qemu-wheezy-vexpress/
