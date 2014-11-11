@@ -498,7 +498,6 @@ build_subprojects:
 ifeq ($(RECURSIVE),true)
 	# SUBPROJECTS: $(SUBPROJECTS)
 	# RECURSIVE: $(RECURSIVE)
-	# stripped: "$(strip $(SUBPROJECTS))"
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
@@ -532,9 +531,9 @@ DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 build_doxy:	build/$(PRODUCT_NAME).docset
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifeq ($(BUILD_DOCUMENTATION),true)
-	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && tar cf - $(PRODUCT_NAME).docset) | \
+	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && $(TAR) cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
-		tar xf - && \
+		$(TAR) xf - && \
 		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
 		  echo "<ul>"; \
 		  for f in *.docset; \
@@ -649,16 +648,17 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 ifneq ($(FILES),)
-	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 endif
 ifneq ($(DATA),)
-	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && tar xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
 	# strip all executables down to the minimum
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
+	# FIXME: prune .nib so that they still work
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# strip off MacOS X binary for frameworks
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
@@ -698,7 +698,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
@@ -741,7 +741,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	tar cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
@@ -782,7 +782,7 @@ ifeq ($(INSTALL),true)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
 	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
 	# therefore the rm is disabled (which may leave files if we remove them from the sources/resources)
-	- tar cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; tar xpvf -))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; $(TAR) xpvf -))
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
 	# don't install locally
@@ -828,9 +828,6 @@ endif
 
 # generic bundle rule
 
-### add rules or code to copy the Info.plist and Resources if not done by Xcode
-### so that this makefile can be used independently of Xcode to create full bundles
-
 # FIXME: use dependencies to link only if any object file has changed
 
 # replace this my make_binary and make_bundle
@@ -854,7 +851,12 @@ ifneq ($(strip $(INFOPLISTS)),)
 endif
 ifneq ($(strip $(RESOURCES)),)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
-	- cp $(RESOURCES) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"  # copy resources
+#	- cp $(RESOURCES) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"  # copy resources
+	for resource in $(RESOURCES); \
+	do \
+	(cd $$(dirname "$$resource") && $(TAR) cf - --exclude .DS_Store --exclude .git --exclude .svn $$(basename "$$resource")) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && $(TAR) xvf - ); \
+	done
+
 endif
 endif
 
@@ -882,6 +884,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
 	- ln -sf lib$(EXECUTABLE_NAME).$(SO) $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
+	# we might ave to create symlinks on top level of bundle
 endif
 
 # EOF
