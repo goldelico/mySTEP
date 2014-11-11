@@ -156,7 +156,7 @@ const char *objc_skip_typespec (const char *type);
 #define objc_thread_detach(SELECTOR, THREAD, ARG) NULL
 #define objc_thread_exit()
 
-#define class_get_class_name(CLASS) "class name"
+#define class_get_class_name(CLASS) class_getImageName(CLASS)
 #define class_get_class_method(CLASS, SELECTOR) (void *)(class_getClassMethod(CLASS, SELECTOR)->method_imp)
 #define class_get_instance_method(CLASS, SELECTOR) (void *)(class_getInstanceMethod(CLASS, SELECTOR)->method_imp)
 #define class_get_meta_class(CLASS) Nil
