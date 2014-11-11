@@ -79,7 +79,7 @@ NSInteger _descriptorComparator(id val1, id val2, void *context)
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	NSSortDescriptor *c=[isa allocWithZone:z];
+	NSSortDescriptor *c=[[self class] allocWithZone:z];
 	c->key=[key retain];	// shared
 	c->ascending=ascending;
 	c->selector=selector;

@@ -540,7 +540,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #endif
 			if([fm fileExistsAtPath:fullpath]) 
 				break;
-			if((fullpath = [isa _findFileInPath:path andName:name]))
+			if((fullpath = [[self class] _findFileInPath:path andName:name]))
 				break;
 			}
 		if(!path)
@@ -804,7 +804,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 - (NSArray *) preferredLocalizations;
 {
 	if(!_preferredLocalizations)
-		_preferredLocalizations=[[isa preferredLocalizationsFromArray:[self localizations] forPreferences:nil] retain];
+		_preferredLocalizations=[[[self class] preferredLocalizationsFromArray:[self localizations] forPreferences:nil] retain];
 #if 0
 	NSLog(@"preferredLocalizations=%@", _preferredLocalizations);
 #endif
@@ -895,22 +895,23 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		NSEnumerator *e;
 		NSString *language;
 		NSString *primary;
+		Class sc=[self class];
 		paths=[NSMutableArray arrayWithCapacity:12];	// typical size
 #if 1	// Cocoa appears to recognize this as well although not documented
-		[paths addObject:[isa _bundleResourcePath:_path subpath:subpath language:nil]];
+		[paths addObject:[sc _bundleResourcePath:_path subpath:subpath language:nil]];
 #endif
 		if(!_searchPaths)
 			_searchPaths=[[NSMutableDictionary dictionaryWithCapacity:2] retain];
 		[_searchPaths setObject:paths forKey:cachekey];	// cache search paths for given locale and subpath
 		primary=[_bundleContentPath stringByAppendingPathComponent:@"Resources"];
-		[paths addObject:[isa _bundleResourcePath:primary subpath:subpath language:nil]];
+		[paths addObject:[sc _bundleResourcePath:primary subpath:subpath language:nil]];
 		e=[languages objectEnumerator];
 		while((language = [e nextObject]))
-			[paths addObject:[isa _bundleResourcePath:primary subpath:subpath language:language]];
-		[paths addObject:[isa _bundleResourcePath:_bundleContentPath subpath:subpath language:nil]];
+			[paths addObject:[sc _bundleResourcePath:primary subpath:subpath language:language]];
+		[paths addObject:[sc _bundleResourcePath:_bundleContentPath subpath:subpath language:nil]];
 		e=[languages objectEnumerator];
 		while((language = [e nextObject]))
-			[paths addObject:[isa _bundleResourcePath:_bundleContentPath subpath:subpath language:language]];
+			[paths addObject:[sc _bundleResourcePath:_bundleContentPath subpath:subpath language:language]];
 		[arp release];
 #if 0
 		NSLog(@"  -> %@", paths);

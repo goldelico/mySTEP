@@ -113,7 +113,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 + (void) enableDoubleReleaseCheck:(BOOL)en	{ }
 - (oneway void) release						{ [self dealloc]; }
 
-- (NSString *) description; { return [NSString stringWithFormat:@"%p %@ released:%u", self, NSStringFromClass(isa), _released_count]; }
+- (NSString *) description; { return [NSString stringWithFormat:@"%p %@ released:%u", self, NSStringFromClass([self class]), _released_count]; }
 
 - (id) init
 {

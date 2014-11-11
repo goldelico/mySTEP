@@ -331,6 +331,7 @@ static unsigned int _sequence;	// global sequence number
 		{
 		NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
 		NSConnection *c;
+		Class sc=[self class];
 		if(!sendPort)
 			{
 			if(!receivePort)
@@ -348,7 +349,7 @@ static unsigned int _sequence;	// global sequence number
 			receivePort=[[[sendPort class] new] autorelease];
 			NSLog(@"new receivePort: %@", receivePort);
 			}
-		if((c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
+		if((c=[sc lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
 			{ // already exists
 #if 0
 				NSLog(@"NSConnection -init: connection exists");
@@ -363,7 +364,7 @@ static unsigned int _sequence;	// global sequence number
 				[self release];
 				return [c retain];	// use existing object
 			}
-		else if((c=[isa lookUpConnectionWithReceivePort:sendPort sendPort:receivePort]))
+		else if((c=[sc lookUpConnectionWithReceivePort:sendPort sendPort:receivePort]))
 			{ // reverse direction exists
 #if 1
 				NSLog(@"NSConnection -init: reverse connection exists; not implemented");
@@ -373,7 +374,7 @@ static unsigned int _sequence;	// global sequence number
 				[self release];
 				return nil;
 			}
-		else if(receivePort != sendPort && (c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
+		else if(receivePort != sendPort && (c=[sc lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
 			{ // parent connection exists - copy root object and all configs
 #if 0
 				NSLog(@"NSConnection -init: parent connection exists, make new connection");

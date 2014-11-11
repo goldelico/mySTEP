@@ -58,7 +58,7 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ URL=%@ POL=%d time=%f METH=%@ %@", NSStringFromClass(isa),
+	return [NSString stringWithFormat:@"%@ URL=%@ POL=%d time=%f METH=%@ %@", NSStringFromClass([self class]),
 		_url,
 		_policy,
 		_timeout,

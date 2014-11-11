@@ -164,7 +164,7 @@ static NSMutableArray *_registeredClasses;
 	NSEnumerator *e=[_registeredClasses reverseObjectEnumerator];	// go through classes starting with last one first
 	Class c;
 #if 0
-	NSLog(@"%@ initWithRequest:%@ client:%@", NSStringFromClass(isa), request, client);
+	NSLog(@"%@ initWithRequest:%@ client:%@", NSStringFromClass([self class]), request, client);
 #endif
 	if([self class] == [NSURLProtocol class])
 		{ // not a subclass
@@ -195,7 +195,7 @@ static NSMutableArray *_registeredClasses;
 
 - (void) dealloc;
 {
-	if(isa != [NSURLProtocol class])
+	if([self class] != [NSURLProtocol class])
 		{ // has been initialized
 			[self stopLoading];
 			[_request release];

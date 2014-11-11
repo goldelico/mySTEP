@@ -743,7 +743,7 @@ id key, keys = [dictionary keyEnumerator];
 
 @implementation NSConcreteMutableDictionary	// subclass of NSConcreteDictionary and not NSMutableDictionary
 
-// why do we need that? Perhaps if someone is calling [isa dictionaryWithCapacity]
+// why do we need that? Perhaps if someone is calling [[self class] dictionaryWithCapacity]
 
 + (id) dictionaryWithCapacity:(unsigned int)aNumItems
 {

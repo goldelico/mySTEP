@@ -118,7 +118,7 @@ enum {
 - (id) initForWritingWithMutableData:(NSMutableData*)_mdata
 {
 	const char *signature = SIGNATURE;
-	unsigned version = [isa version];
+	unsigned version = [[self class] version];
 
 	if((self=[super init]))
 		{

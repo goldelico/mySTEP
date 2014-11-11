@@ -656,7 +656,7 @@
 
 - (id) copyWithZone:(NSZone *) z												// NSCopying protocol
 {
-	NSScanner *n = [[isa alloc] initWithString: string];
+	NSScanner *n = [[[self class] alloc] initWithString: string];
 	[n setCharactersToBeSkipped: charactersToBeSkipped];
 	[n setLocale: locale];
 	[n setScanLocation: scanRange.location];

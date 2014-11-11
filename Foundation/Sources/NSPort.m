@@ -148,7 +148,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%p:%@ listen=%d connect=%d%@%@", self, NSStringFromClass(isa), _fd, _sendfd, _isValid?@" valid":@"", _isBound?@"":@" not bound"];
+	return [NSString stringWithFormat:@"%p:%@ listen=%d connect=%d%@%@", self, NSStringFromClass([self class]), _fd, _sendfd, _isValid?@" valid":@"", _isBound?@"":@" not bound"];
 }
 
 - (id) copyWithZone:(NSZone *) zone			{ return [self retain]; }
@@ -497,7 +497,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			NSLog(@"### accepted socket=%d", newfd);
 			NSLog(@"  address=%@", addr);
 #endif
-			newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
+			newPort=[[[self class] alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
 			NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
 			NSAssert(newPort->_fd < 0, @"Already listening!");
 			newPort->_isBound=YES;			// pretend we are already bound
@@ -1022,7 +1022,7 @@ static unsigned _portDirectoryLength;
 		}
 #if 1
 	if(self)
-		NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+		NSLog(@"new %@:%p", NSStringFromClass([self class]), self);
 #endif
 	return self;
 }
@@ -1045,7 +1045,7 @@ static unsigned _portDirectoryLength;
 		}
 #if 1
 	if(self)
-		NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+		NSLog(@"new %@:%p", NSStringFromClass([self class]), self);
 #endif
 	return self;
 }

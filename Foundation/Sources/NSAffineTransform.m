@@ -128,7 +128,7 @@ static const float pi = 3.1415926535897932384626433;
 
 - (id) copyWithZone:(NSZone *) zone;
 {
-	NSAffineTransform *new = [isa allocWithZone:zone];
+	NSAffineTransform *new = [[self class] allocWithZone:zone];
 	if(new)
 		{
 		new->_ats = _ats;

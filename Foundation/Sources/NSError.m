@@ -75,7 +75,7 @@ NSString *NSURLErrorDomain				=@"NSURLErrorDomain";
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	NSError *c=[isa allocWithZone:z];
+	NSError *c=[[self class] allocWithZone:z];
 	c->_domain=[_domain retain];
 	c->_code=_code;
 	c->_dict=[_dict retain];

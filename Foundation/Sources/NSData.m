@@ -1475,7 +1475,7 @@ void* b;
 - (id) initWithContentsOfMappedFile:(NSString *)path
 {
 #if 0
-	NSLog(@"%@ initWithContentsOfMappedFile:%@", NSStringFromClass(isa), path);
+	NSLog(@"%@ initWithContentsOfMappedFile:%@", NSStringFromClass([self class]), path);
 #endif
 #if	HAVE_MMAP
 #if 0

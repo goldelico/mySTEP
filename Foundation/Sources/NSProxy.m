@@ -158,10 +158,10 @@
 
 - (BOOL) isKindOfClass:(Class)aClass
 {
-	return _classIsKindOfClass(isa, aClass);
+	return _classIsKindOfClass([self class], aClass);
 }
 
-- (BOOL) isMemberOfClass:(Class)aClass		{ return (isa == aClass); }
+- (BOOL) isMemberOfClass:(Class)aClass		{ return ([self class] == aClass); }
 
 - (id) _nimp:(SEL) cmd;
 {
@@ -241,7 +241,7 @@
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
-	return (class_get_instance_method(isa, aSelector) != METHOD_NULL);
+	return (class_get_instance_method([self class], aSelector) != METHOD_NULL);
 //	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
 //	return NO;
 }

@@ -241,7 +241,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
 //	NSLog(@"-[%@ conformsToProtocol:aProtocol]", self);
-	return [isa conformsToProtocol:aProtocol];
+	return [[self class] conformsToProtocol:aProtocol];
 }
 
 + (IMP) instanceMethodForSelector:(SEL)aSelector
@@ -366,12 +366,12 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (BOOL) isKindOfClass:(Class)aClass
 {
-	return _classIsKindOfClass(isa, aClass);
+	return _classIsKindOfClass([self class], aClass);
 }
 
 - (unsigned) hash						{ return (unsigned)self; }
 - (BOOL) isEqual:(id)anObject			{ return (self == anObject); }
-- (BOOL) isMemberOfClass:(Class)aClass	{ return isa == aClass; }
+- (BOOL) isMemberOfClass:(Class)aClass	{ return [self class] == aClass; }
 - (BOOL) isProxy						{ return NO; }
 
 - (BOOL) respondsToSelector:(SEL)aSelector
@@ -379,8 +379,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	if(!aSelector) return NO;
 #ifndef __APPLE__
 	if (CLS_ISCLASS(((Class)self)->class_pointer))
-		return (class_get_instance_method(isa, aSelector) != METHOD_NULL);
-	return (class_get_class_method(isa, aSelector) != METHOD_NULL);
+		return (class_get_instance_method([self class], aSelector) != METHOD_NULL);
+	return (class_get_class_method([self class], aSelector) != METHOD_NULL);
 #else
 	return NULL;
 #endif
@@ -467,7 +467,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #ifndef __APPLE__
 	struct objc_method *m = class_get_instance_method(self, aSelector);
 #if 0
-	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass(isa), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
+	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	NSLog(@" -> %s", m->method_types);
 	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
@@ -480,8 +480,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 #ifndef __APPLE__
 	struct objc_method *m = (object_is_instance(self) 
-													 ? class_get_instance_method(isa, aSelector)
-													 : class_get_class_method(isa, aSelector));
+													 ? class_get_instance_method([self class], aSelector)
+													 : class_get_class_method([self class], aSelector));
 	const char *types=m?m->method_types:NULL;	// default (if we have an implementation)
 	Class c = object_get_class(self);
 	struct objc_protocol_list	*protocols = c?c->protocols:NULL;
@@ -702,9 +702,9 @@ va_list ap;
 - (BOOL) respondsTo:(SEL)aSel
 {
 	if (CLS_ISCLASS(((Class)self)->class_pointer))
-		return (class_get_instance_method(isa, aSel) != METHOD_NULL);
+		return (class_get_instance_method([self class], aSel) != METHOD_NULL);
 
-	return (class_get_class_method(isa, aSel) != METHOD_NULL);
+	return (class_get_class_method([self class], aSel) != METHOD_NULL);
 }
 
 + (BOOL) conformsTo:(Protocol*)aProtocol
@@ -729,7 +729,7 @@ va_list ap;
 - (BOOL) isMemberOfClassNamed:(const char *)aClassName
 {
 	return ((aClassName!=NULL)
-			&&!strcmp(class_get_class_name(isa), aClassName));
+			&&!strcmp(class_get_class_name([self class]), aClassName));
 }
 
 + (struct objc_method_description *) descriptionForInstanceMethod:(SEL)aSel
@@ -741,9 +741,11 @@ va_list ap;
 - (struct objc_method_description *) descriptionForMethod:(SEL)aSel
 {
 	return ((struct objc_method_description *) (object_is_instance(self)
-								? class_get_instance_method(isa, aSel)
-								: class_get_class_method(isa, aSel)));
+								? class_get_instance_method([self class], aSel)
+								: class_get_class_method([self class], aSel)));
 }
+
+// CHECKME: is this an official method?
 
 - (Class) transmuteClassTo:(Class)aClassObject
 {

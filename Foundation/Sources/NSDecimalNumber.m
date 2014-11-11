@@ -495,7 +495,7 @@ static NSDecimalNumber *one;
 - (NSDecimalNumber*) decimalNumberByAdding: (NSDecimalNumber*)decimalNumber
 {
 	return [self decimalNumberByAdding: decimalNumber 
-						  withBehavior: [isa defaultBehavior]];
+						  withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByAdding: (NSDecimalNumber*)decimalNumber 
@@ -524,7 +524,7 @@ static NSDecimalNumber *one;
 - (NSDecimalNumber*) decimalNumberBySubtracting: (NSDecimalNumber*)decimalNumber
 {
 	return [self decimalNumberBySubtracting: decimalNumber 
-							   withBehavior: [isa defaultBehavior]];
+							   withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberBySubtracting: (NSDecimalNumber*)decimalNumber
@@ -554,7 +554,7 @@ static NSDecimalNumber *one;
 	(NSDecimalNumber*)decimalNumber
 {
 	return [self decimalNumberByMultiplyingBy: decimalNumber 
-								 withBehavior: [isa defaultBehavior]];
+								 withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByMultiplyingBy:
@@ -584,7 +584,7 @@ static NSDecimalNumber *one;
 - (NSDecimalNumber*) decimalNumberByDividingBy: (NSDecimalNumber*)decimalNumber
 {
 	return [self decimalNumberByDividingBy: decimalNumber 
-							  withBehavior: [isa defaultBehavior]];
+							  withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByDividingBy: (NSDecimalNumber*)decimalNumber 
@@ -613,7 +613,7 @@ static NSDecimalNumber *one;
 - (NSDecimalNumber*) decimalNumberByMultiplyingByPowerOf10: (short)power
 {
 	return [self decimalNumberByMultiplyingByPowerOf10: power 
-										  withBehavior: [isa defaultBehavior]];
+										  withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByMultiplyingByPowerOf10: (short)power 
@@ -642,7 +642,7 @@ static NSDecimalNumber *one;
 - (NSDecimalNumber*) decimalNumberByRaisingToPower: (unsigned)power
 {
 	return [self decimalNumberByRaisingToPower: power 
-								  withBehavior: [isa defaultBehavior]];
+								  withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByRaisingToPower: (unsigned)power 
@@ -685,7 +685,7 @@ static NSDecimalNumber *one;
 								  leftOperand: (NSDecimalNumber*)leftOperand 
 								 rightOperand: (NSDecimalNumber*)rightOperand
 {
-	return [[isa defaultBehavior] exceptionDuringOperation: method 
+	return [[[self class] defaultBehavior] exceptionDuringOperation: method
 													 error: error 
 											   leftOperand: leftOperand 
 											  rightOperand: rightOperand];
@@ -693,12 +693,12 @@ static NSDecimalNumber *one;
 
 - (NSRoundingMode) roundingMode
 {
-	return [[isa defaultBehavior] roundingMode];
+	return [[[self class] defaultBehavior] roundingMode];
 }
 
 - (short) scale
 {
-	return [[isa defaultBehavior] scale];
+	return [[[self class] defaultBehavior] scale];
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;

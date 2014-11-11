@@ -86,7 +86,7 @@ static Class __stringClass = Nil;
 	NSLog(@"  array: %p", _array);
 	NSLog(@"  contents: %p", _contents);
 	NSLog(@"  a->contents: %p", _array->_contents);
-	NSLog(@"  array->isa: %@", NSStringFromClass(*(Class *) _array));
+	NSLog(@"  array->class: %@", NSStringFromClass(*(Class *) _array));
 	NSLog(@"  array: %@", [_array description]);
 	NSLog(@"  again: %p %@", _array, _array);
 	NSLog(@"  retainCount=%u", [_array retainCount]);

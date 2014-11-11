@@ -93,7 +93,7 @@ static NSIndexPath *_root;
 		}
 	if(!_children)
 		_children=[[NSMutableArray alloc] initWithCapacity:10];	// guess could be better estimated
-	child=[[isa alloc] init];	// allocate a fresh node
+	child=[[[self class] alloc] init];	// allocate a fresh node
 	child->_parent=self;
 	child->_length=_length+1;	// one level down
 	child->_index=idx;
@@ -243,7 +243,7 @@ static NSIndexPath *_root;
 
 - (BOOL) isEqual:(id) indexSet;
 {
-	return [indexSet isKindOfClass:isa] && [self isEqualToIndexSet:indexSet];
+	return [indexSet isKindOfClass:[self class]] && [self isEqualToIndexSet:indexSet];
 }
 
 - (BOOL) isEqualToIndexSet:(NSIndexSet *) other;

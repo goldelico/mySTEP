@@ -358,7 +358,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSAndCompoundPredicate *c=[isa allocWithZone:z];
+	_NSAndCompoundPredicate *c=[[self class] allocWithZone:z];
 	if(c)
 		c->_subs=[_subs mutableCopyWithZone:z];	// FIXME: must we do a deep copy?
 	return c;
@@ -434,7 +434,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSOrCompoundPredicate *c=[isa allocWithZone:z];
+	_NSOrCompoundPredicate *c=[[self class] allocWithZone:z];
 	if(c)
 		c->_subs=[_subs mutableCopyWithZone:z];	// FIXME: must we do a deep copy?
 	return c;
@@ -502,7 +502,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSNotCompoundPredicate *c=[isa allocWithZone:z];
+	_NSNotCompoundPredicate *c=[[self class] allocWithZone:z];
 	if(c)
 		c->_sub=[_sub copyWithZone:z];
 	return c;
@@ -664,7 +664,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	NSComparisonPredicate *c=[isa allocWithZone:z];
+	NSComparisonPredicate *c=[[self class] allocWithZone:z];
 	if(c)
 		{
 		c->_left=[_left copyWithZone:z];
@@ -1164,7 +1164,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSConstantValueExpression *c=[isa allocWithZone:z];
+	_NSConstantValueExpression *c=[[self class] allocWithZone:z];
 	if(c)
 		{
 		c->_obj=[_obj copyWithZone:z];
@@ -1218,7 +1218,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSVariableExpression *c=[isa allocWithZone:z];
+	_NSVariableExpression *c=[[self class] allocWithZone:z];
 	if(c)
 		{
 		c->_variable=[_variable copyWithZone:z];
@@ -1422,7 +1422,7 @@
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	_NSFunctionExpression *c=[isa allocWithZone:z];
+	_NSFunctionExpression *c=[[self class] allocWithZone:z];
 	if(c)
 		{
 		c->_args=[_args copyWithZone:z];

@@ -256,7 +256,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 							}
 #if 1
 						NSLog(@"TXT record=%@", record);
-						NSLog(@"dict=%@", [isa dictionaryFromTXTRecordData:record]);
+						NSLog(@"dict=%@", [[self class] dictionaryFromTXTRecordData:record]);
 #endif
 						}
 				// if packet received
@@ -301,7 +301,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 	if((self=[super init]))
 		{
 #if 1
-		NSLog(@"%@ initWithDomain:%@ type:%@ name:%@ port:%d", NSStringFromClass(isa), domain, type, name, port);
+		NSLog(@"%@ initWithDomain:%@ type:%@ name:%@ port:%d", NSStringFromClass([self class]), domain, type, name, port);
 #endif
 		_addresses=[[NSMutableArray alloc] initWithCapacity:10];	// store NSData objects with struct sockaddr
 		if([domain length] == 0)
@@ -538,7 +538,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 	if((self=[super init]))
 		{
 #if 1
-		NSLog(@"%@ %@", NSStringFromClass(isa), NSStringFromSelector(_cmd));
+		NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 #endif
 		}
 	return self;

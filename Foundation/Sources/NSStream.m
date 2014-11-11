@@ -161,7 +161,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (id) _initWithFileDescriptor:(int) fd;
 {
 #if 0
-	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass(isa), fd);
+	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass([self class]), fd);
 #endif
 	if(fd < 0)
 		{
@@ -184,7 +184,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass(isa), self, _fd, _streamStatus];
+	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass([self class]), self, _fd, _streamStatus];
 }
 
 - (id) initWithData:(NSData *) data
@@ -336,7 +336,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacity];
+	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass([self class]), self, _buffer, _position, _capacity];
 }
 
 - (BOOL) hasBytesAvailable; { return _position < _capacity; }
@@ -417,7 +417,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (id) _initWithFileDescriptor:(int) fd append:(BOOL) flag;
 {
 #if 0
-	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass(isa), fd);
+	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass([self class]), fd);
 #endif
 	if(fd < 0)
 		{
@@ -435,7 +435,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass(isa), self, _fd, _streamStatus];
+	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass([self class]), self, _fd, _streamStatus];
 }
 
 - (int) _writeFileDescriptor; { NSLog(@"writefd=%d", _fd); return _fd; }
@@ -535,7 +535,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacity];
+	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass([self class]), self, _buffer, _position, _capacity];
 }
 
 - (BOOL) hasSpaceAvailable; { return _position < _capacity; }

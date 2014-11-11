@@ -1092,7 +1092,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	[self getCharacters:s];
 	[aString getCharacters: s + _count];
-	return [[[isa alloc] initWithCharactersNoCopy: s
+	return [[[[self class] alloc] initWithCharactersNoCopy: s
 										   length: _count + otherLength 
 									 freeWhenDone: YES] autorelease];
 }
@@ -1159,7 +1159,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	[self getCharacters:buf range:aRange];
 	
-	return [[[isa alloc] initWithCharactersNoCopy: buf
+	return [[[[self class] alloc] initWithCharactersNoCopy: buf
 										   length: aRange.length
 									 freeWhenDone: YES] autorelease];
 }
@@ -2214,7 +2214,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	for(count = 0; count < _count; count++)
 		s[count] = uni_tolower([self characterAtIndex:count]);
 	
-	return [[[isa alloc] initWithCharactersNoCopy: s
+	return [[[[self class] alloc] initWithCharactersNoCopy: s
 										   length: _count
 									 freeWhenDone: YES] autorelease];
 }
@@ -2229,7 +2229,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	for(count = 0; count < _count; count++)
 		s[count] = uni_toupper([self characterAtIndex:count]);
 	
-	return [[[isa alloc] initWithCharactersNoCopy: s
+	return [[[[self class] alloc] initWithCharactersNoCopy: s
 										   length: _count
 									 freeWhenDone: YES] autorelease];
 }
@@ -3255,7 +3255,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if (NSMaxRange(aRange) > _count)
 		[NSException raise:NSRangeException format:@"Invalid location+length"];
 	
-	return [isa stringWithCharacters:_uniChars + aRange.location
+	return [[self class] stringWithCharacters:_uniChars + aRange.location
 							  length: aRange.length];
 }
 

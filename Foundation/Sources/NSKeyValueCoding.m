@@ -65,10 +65,11 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	IMP msg;
 	const char *type=NULL;
 	void *addr;	// address of return value
+	Class sc;
 	// FIXME: should also try to look for getter methods like <key>, _<key>, is<Key>, get<Key> etc.
 #if 1
 	NSLog(@"valueForKey: %@", str);
-	NSLog(@"selector: %@", NSStringFromSelector(s));
+	NSLog(@"selector: %@", CNSStringFromSelector(s));
 #endif
 	/* if(found in cache)
 	 get msg, type, addr from cache
@@ -87,8 +88,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		struct objc_method *m = (object_is_instance(self) 
 								 ? class_get_instance_method([self class], s)
 								 : class_get_class_method([self class], s));
-		Class c = object_get_class(self);
-		struct objc_protocol_list *protocols = c?c->protocols:NULL;
+		sc=[self class];
+		struct objc_protocol_list *protocols = sc?sc->protocols:NULL;
 		msg=m?m->method_imp:NULL;
 		type=m?m->method_types:NULL;	// default (if we have an implementation)
 		if(protocols)
@@ -99,11 +100,11 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		if (!msg)
 			return [self _error:"unknown getter %s", sel_getName(s)];
 		}
-	else if([isa accessInstanceVariablesDirectly])
+	else if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
 		struct objc_class *class;
 		const char *varName=[str UTF8String];
-		for(class=isa; class != Nil; class = class_get_super_class(class))
+		for(class=sc; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
 			if((ivars = class->ivars))
@@ -165,8 +166,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 
 /*
  use as
- if((ivar=_findIvar(isa, "_", 1, name)) == NULL)
-	if((ivar=_findIvar(isa, "_isa", 1, name)) == NULL)
+ if((ivar=_findIvar([self class], "_", 1, name)) == NULL)
+	if((ivar=_findIvar([self class], "_isa", 1, name)) == NULL)
 		return not found;
  ...
  */
@@ -204,6 +205,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 	int len=3+strlen(varName)+1+1;	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
 	char *selName=objc_malloc(len);
 	SEL s;
+	Class sc;
 	strcpy(selName, "set");
 	strcpy(selName+3, varName);	// append
 	selName[3]=toupper(selName[3]);	// capitalize the first letter following "set"
@@ -228,12 +230,12 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 #if 0
 	NSLog(@"object does not respond to setter");
 #endif
-	if([isa accessInstanceVariablesDirectly])
+	if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{
 		// FIXME: we should walk the tree for each variant!
 		// FIXME: here, we must remove the trailing ":"
 		struct objc_class *class;
-		for(class=isa; class != Nil; class = class_get_super_class(class))
+		for(class=sc; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
 			struct objc_ivar ivar;

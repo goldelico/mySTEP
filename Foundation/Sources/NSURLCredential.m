@@ -45,7 +45,7 @@
 
 - (id) copyWithZone:(NSZone *) zone;
 {
-	NSURLCredential *c=[isa allocWithZone:zone];
+	NSURLCredential *c=[[self class] allocWithZone:zone];
 	if(c)
 		{
 		c->_password=[_password copyWithZone:zone];

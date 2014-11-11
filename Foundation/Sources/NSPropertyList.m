@@ -1250,7 +1250,7 @@ next:
 			[objects release];
 #if 0
 			NSLog(@"data=%@", data);
-			NSLog(@"decoded=%@", [isa _plistFromBinaryData:data mutabilityOption:NSPropertyListImmutable]);	// parse back
+			NSLog(@"decoded=%@", [[self class] _plistFromBinaryData:data mutabilityOption:NSPropertyListImmutable]);	// parse back
 #endif
 			return data;
 			}

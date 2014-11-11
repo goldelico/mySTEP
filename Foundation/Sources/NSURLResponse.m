@@ -68,7 +68,7 @@ static NSDictionary *_mimeExtensions;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ URL=%@ MIME=%@ ENC=%@ LEN=%ld", NSStringFromClass(isa),
+	return [NSString stringWithFormat:@"%@ URL=%@ MIME=%@ ENC=%@ LEN=%ld", NSStringFromClass([self class]),
 		_URL,
 		_MIMEType,
 		_textEncodingName,
@@ -77,7 +77,7 @@ static NSDictionary *_mimeExtensions;
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	NSURLResponse *c=[isa allocWithZone:z];
+	NSURLResponse *c=[[self class] allocWithZone:z];
 	if(c)
 		{
 		c->_URL=[_URL retain];

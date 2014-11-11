@@ -62,7 +62,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: -> %@", NSStringFromClass(isa), observer];
+	return [NSString stringWithFormat:@"%@: -> %@", NSStringFromClass([self class]), observer];
 }
 
 - (void) postNotification:(NSNotification*)notification

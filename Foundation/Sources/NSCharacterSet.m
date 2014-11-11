@@ -404,7 +404,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 	if([aCoder allowsKeyedCoding])
 		{
 		[self autorelease];
-		return [[isa characterSetWithCharactersInString:[aCoder decodeObjectForKey:@"NSString"]] copy];
+		return [[[self class] characterSetWithCharactersInString:[aCoder decodeObjectForKey:@"NSString"]] copy];
 		}
 	rep=[aCoder decodeObject];
     self = [self initWithBitmap: rep];
@@ -447,7 +447,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 	if([aCoder allowsKeyedCoding])
 		{
 		[self autorelease];
-		return [[isa characterSetWithCharactersInString:[aCoder decodeObjectForKey:@"NSString"]] mutableCopy];
+		return [[[self class] characterSetWithCharactersInString:[aCoder decodeObjectForKey:@"NSString"]] mutableCopy];
 		}
 	rep=[aCoder decodeObject];
 	self = [self initWithBitmap: rep];

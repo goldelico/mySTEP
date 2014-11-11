@@ -179,7 +179,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 
 - (id) init
 {
-	return [self initWithTimeIntervalSinceReferenceDate:[isa timeIntervalSinceReferenceDate]];
+	return [self initWithTimeIntervalSinceReferenceDate:[[self class] timeIntervalSinceReferenceDate]];
 }
 
 - (id) initWithString:(NSString*)description
@@ -200,7 +200,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 - (id) initWithTimeIntervalSinceNow:(NSTimeInterval)secsToBeAdded;
 {						// Get the current time, add the secs and init thyself
 	return [self initWithTimeIntervalSinceReferenceDate:
-				[isa timeIntervalSinceReferenceDate] + secsToBeAdded];
+				[[self class] timeIntervalSinceReferenceDate] + secsToBeAdded];
 }
 
 - (id) initWithTimeIntervalSince1970:(NSTimeInterval)seconds
@@ -251,7 +251,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 - (id) addTimeInterval:(NSTimeInterval)seconds
 {									
 	NSTimeInterval total = _secondsSinceRef + seconds;
-	return [isa dateWithTimeIntervalSinceReferenceDate:total];
+	return [[self class] dateWithTimeIntervalSinceReferenceDate:total];
 }
 
 - (NSTimeInterval) timeIntervalSince1970
@@ -266,7 +266,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 
 - (NSTimeInterval) timeIntervalSinceNow
 {
-	NSTimeInterval now = [isa timeIntervalSinceReferenceDate];
+	NSTimeInterval now = [[self class] timeIntervalSinceReferenceDate];
 	return _secondsSinceRef - now;
 }
 

@@ -832,7 +832,7 @@ etc.
 #if 0
 	NSLog(@"className=%@", className);
 #endif
-	class=[isa classForClassName:className];	// apply global translation table
+	class=[[self class] classForClassName:className];	// apply global translation table
 	if(!class)
 		class=[self classForClassName:className];	// apply local translation table
 	if(!class)
