@@ -233,38 +233,38 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 - (NSArray *) veryShortWeekdaySymbols; { return [_attributes objectForKey:@"veryShortWeekdaySymbols"]; }
 - (NSArray *) weekdaySymbols; { return [_attributes objectForKey:@"weekdaySymbols"]; }
 
-- (void) setAMSymbol:(NSString *) string; { [_attributes setValue:string forKey:@"AMSymbol"]; }
-- (void) setCalendar:(NSCalendar *) cal; { [_attributes setValue:cal forKey:@"calendar"]; }
-- (void) setDateFormat:(NSString *) string; { [_attributes setValue:string forKey:@"dateFormat"]; }
-- (void) setDateStyle:(NSDateFormatterStyle) style; { [_attributes setValue:[NSNumber numberWithInt:style] forKey:@"dateFormat"]; }
-- (void) setDefaultDate:(NSDate *) date; { [_attributes setValue:date forKey:@"dateFormat"]; }
-- (void) setEraSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"eraSymbols"]; }
-- (void) setFormatterBehavior:(NSDateFormatterBehavior) behavior; { [_attributes setValue:[NSNumber numberWithInt:behavior] forKey:@"formatterBehavior"]; }
-- (void) setGeneratesCalendarDates:(BOOL) flag; { [_attributes setValue:[NSNumber numberWithBool:flag] forKey:@"generatesCalendarDates"]; }
-- (void) setGregorianStartDate:(NSDate *) date; { [_attributes setValue:date forKey:@"gregorianStartDate"]; }
-- (void) setLenient:(BOOL) flag; { [_attributes setValue:[NSNumber numberWithBool:flag] forKey:@"isLenient"]; }
-- (void) setLocale:(NSLocale *) locale; { [_attributes setValue:locale forKey:@"locale"]; }
-- (void) setLongEraSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"longEraSymbols"]; }
-- (void) setMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"monthSymbols"]; }
-- (void) setPMSymbol:(NSString *) string; { [_attributes setValue:string forKey:@"PMSymbol"]; }
-- (void) setQuarterSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"quarterSymbols"]; }
-- (void) setShortMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"shortMonthSymbols"]; }
-- (void) setShortQuarterSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"shortQuarterSymbols"]; }
-- (void) setShortStandaloneMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"shortStandaloneMonthSymbols"]; }
-- (void) setShortStandaloneQuarterSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"shortStandaloneQuarterSymbols"]; }
-- (void) setShortStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"eraSymbols"]; }
-- (void) setShortWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"standaloneWeekdaySymbols"]; }
-- (void) setStandaloneMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"standaloneMonthSymbols"]; }
-- (void) setStandaloneQuarterSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"standaloneQuarterSymbols"]; }
-- (void) setStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"standaloneWeekdaySymbols"]; }
-- (void) setTimeStyle:(NSDateFormatterStyle) style; { [_attributes setValue:[NSNumber numberWithInt:style] forKey:@"timeStyle"]; }
-- (void) setTimeZone:(NSTimeZone *) tz; { [_attributes setValue:tz forKey:@"timeZone"]; }
-- (void) setTwoDigitStartDate:(NSDate *) date; { [_attributes setValue:date forKey:@"twoDigitStartDate"]; }
-- (void) setVeryShortMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"veryShortMonthSymbols"]; }
-- (void) setVeryShortStandaloneMonthSymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"veryShortStandaloneMonthSymbols"]; }
-- (void) setVeryShortStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"veryShortStandaloneWeekdaySymbols"]; }
-- (void) setVeryShortWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"veryShortWeekdaySymbols"]; }
-- (void) setWeekdaySymbols:(NSArray *) array; { [_attributes setValue:array forKey:@"weekdaySymbols"]; }
+- (void) setAMSymbol:(NSString *) string; { [_attributes setObject:string forKey:@"AMSymbol"]; }
+- (void) setCalendar:(NSCalendar *) cal; { [_attributes setObject:cal forKey:@"calendar"]; }
+- (void) setDateFormat:(NSString *) string; { [_attributes setObject:string forKey:@"dateFormat"]; }
+- (void) setDateStyle:(NSDateFormatterStyle) style; { [_attributes setObject:[NSNumber numberWithInt:style] forKey:@"dateFormat"]; }
+- (void) setDefaultDate:(NSDate *) date; { [_attributes setObject:date forKey:@"dateFormat"]; }
+- (void) setEraSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"eraSymbols"]; }
+- (void) setFormatterBehavior:(NSDateFormatterBehavior) behavior; { [_attributes setObject:[NSNumber numberWithInt:behavior] forKey:@"formatterBehavior"]; }
+- (void) setGeneratesCalendarDates:(BOOL) flag; { [_attributes setObject:[NSNumber numberWithBool:flag] forKey:@"generatesCalendarDates"]; }
+- (void) setGregorianStartDate:(NSDate *) date; { [_attributes setObject:date forKey:@"gregorianStartDate"]; }
+- (void) setLenient:(BOOL) flag; { [_attributes setObject:[NSNumber numberWithBool:flag] forKey:@"isLenient"]; }
+- (void) setLocale:(NSLocale *) locale; { [_attributes setObject:locale forKey:@"locale"]; }
+- (void) setLongEraSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"longEraSymbols"]; }
+- (void) setMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"monthSymbols"]; }
+- (void) setPMSymbol:(NSString *) string; { [_attributes setObject:string forKey:@"PMSymbol"]; }
+- (void) setQuarterSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"quarterSymbols"]; }
+- (void) setShortMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"shortMonthSymbols"]; }
+- (void) setShortQuarterSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"shortQuarterSymbols"]; }
+- (void) setShortStandaloneMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"shortStandaloneMonthSymbols"]; }
+- (void) setShortStandaloneQuarterSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"shortStandaloneQuarterSymbols"]; }
+- (void) setShortStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"eraSymbols"]; }
+- (void) setShortWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"standaloneWeekdaySymbols"]; }
+- (void) setStandaloneMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"standaloneMonthSymbols"]; }
+- (void) setStandaloneQuarterSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"standaloneQuarterSymbols"]; }
+- (void) setStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"standaloneWeekdaySymbols"]; }
+- (void) setTimeStyle:(NSDateFormatterStyle) style; { [_attributes setObject:[NSNumber numberWithInt:style] forKey:@"timeStyle"]; }
+- (void) setTimeZone:(NSTimeZone *) tz; { [_attributes setObject:tz forKey:@"timeZone"]; }
+- (void) setTwoDigitStartDate:(NSDate *) date; { [_attributes setObject:date forKey:@"twoDigitStartDate"]; }
+- (void) setVeryShortMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"veryShortMonthSymbols"]; }
+- (void) setVeryShortStandaloneMonthSymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"veryShortStandaloneMonthSymbols"]; }
+- (void) setVeryShortStandaloneWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"veryShortStandaloneWeekdaySymbols"]; }
+- (void) setVeryShortWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"veryShortWeekdaySymbols"]; }
+- (void) setWeekdaySymbols:(NSArray *) array; { [_attributes setObject:array forKey:@"weekdaySymbols"]; }
 
 @end
 

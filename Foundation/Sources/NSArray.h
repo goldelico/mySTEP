@@ -91,7 +91,6 @@
 							      hint:(NSData *) hint;
 - (NSArray *) sortedArrayUsingSelector:(SEL) comparator;
 - (NSArray *) subarrayWithRange:(NSRange) range;
-- (id) valueForKey:(NSString *) key;
 - (BOOL) writeToFile:(NSString *) path atomically:(BOOL) useAuxilliaryFile;
 - (BOOL) writeToURL:(NSString *) path atomically:(BOOL) flag;
 

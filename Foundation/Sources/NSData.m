@@ -2177,7 +2177,7 @@ unsigned l;
 		}
         case _C_CLASS: 
 			{
-				const char *name = *(Class*)data ? class_getImageName((Class*)data) : "";
+				const char *name = *(Class*)data ? class_get_class_name(*(Class*)data) : "";
 				unsigned ln = strlen(name);
 				unsigned minimum = length + ln + sizeof(unsigned);
 				unsigned ni;

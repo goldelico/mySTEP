@@ -64,7 +64,6 @@
 - (NSEnumerator *) objectEnumerator;
 - (id) objectForKey:(id) aKey;
 - (NSArray *) objectsForKeys:(NSArray *) keys notFoundMarker:(id) notFoundObj;
-- (id) valueForKey:(NSString *) key;
 - (BOOL) writeToFile:(NSString *) path atomically:(BOOL) useAuxiliaryFile;
 - (BOOL) writeToURL:(NSURL *) aURL atomically:(BOOL) flag;
 
@@ -82,7 +81,6 @@
 - (void) removeObjectsForKeys:(NSArray *) keyArray;
 - (void) setDictionary:(NSDictionary *) otherDictionary;
 - (void) setObject:(id) anObject forKey:(id) aKey;
-- (void) setValue:(id) anObject forKey:(NSString *) aKey;
 
 @end /* NSMutableDictionary */
 

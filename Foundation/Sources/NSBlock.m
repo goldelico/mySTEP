@@ -26,14 +26,14 @@
 
 - (id) valueForKey:(NSString *) key;	// fetch environment variable
 {
-	return [_dict valueForKey:key];
+	return [_dict objectForKey:key];
 }
 
 @end
 
 /*
  * this is a simple way to get the same functionality as ObjC-2 blocks
- * but much simpler avoiding the cryptic syntax with ^block variables and block literals
+ * much simpler avoiding the cryptic syntax with ^block variables and block literals
  * but with less compiler support
  *
  * how to use:
@@ -46,7 +46,7 @@
  * and overwrite the run method
  *
  * @implementation Lit1
- * - (id) run { your literal goes here }
+ * - (id) run { your literal body goes here }
  * @end
  *
  * replace ^var with

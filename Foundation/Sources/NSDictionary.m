@@ -375,13 +375,6 @@ id *mkeys, *mobjs;
 - (NSEnumerator*) keyEnumerator							{ return SUBCLASS }
 - (id) objectForKey:(id)aKey							{ return SUBCLASS }
 
-- (id) valueForKey:(NSString *) key;
-{
-	if([key hasPrefix:@"@"])
-		return [super valueForKey:[key substringFromIndex:1]];
-	return [self objectForKey:key];
-}
-
 - (unsigned int) count									{ SUBCLASS return 0; }
 
 - (NSArray*) allKeys
@@ -744,7 +737,6 @@ id key, keys = [dictionary keyEnumerator];
 - (void) removeObjectsForKeys:(NSArray *)keyArray; { SUBCLASS; }
 - (void) setDictionary:(NSDictionary *)otherDictionary; { SUBCLASS; }
 - (void) setObject:(id)anObject forKey:(id)aKey; { SUBCLASS; }
-- (void) setValue:(id)anObject forKey:(NSString *)aKey; { SUBCLASS; }
 
 @end /* NSMutableDictionary */
 
@@ -823,14 +815,6 @@ id key, keys = [dictionary keyEnumerator];
 {
     [self removeAllObjects];
     [self addEntriesFromDictionary:otherDictionary];
-}
-
-- (void) setValue:(id)anObject forKey:(NSString *)aKey
-{ // Modifying a dictionary for KVC (allowing for deletion)
-	if(!anObject)
-		[self removeObjectForKey:aKey];
-	else
-		[self setObject:anObject forKey:aKey];
 }
 
 - (Class) classForCoder					{ return [NSMutableDictionary class]; }

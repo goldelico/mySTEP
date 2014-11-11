@@ -363,10 +363,21 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 @end
 
 @implementation NSDictionary (NSKeyValueCoding)
-- (id) valueForKey:(NSString *) key { return [self objectForKey:key]; }
+- (id) valueForKey:(NSString *) key;
+{
+	if([key hasPrefix:@"@"])
+		return [super valueForKey:[key substringFromIndex:1]];
+	return [self objectForKey:key];
+}
 @end
 
 @implementation NSMutableDictionary (NSKeyValueCoding)
-- (void) setValue:(id) value forKey:(NSString *) key { [self setObject:value forKey:key]; }
+- (void) setValue:(id)anObject forKey:(NSString *)aKey
+{ // Modifying a dictionary for KVC (allowing for deletion)
+	if(!anObject)
+		[self removeObjectForKey:aKey];
+	else
+		[self setObject:anObject forKey:aKey];
+}
 @end
 

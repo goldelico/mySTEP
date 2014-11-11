@@ -1020,22 +1020,6 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (id) init							{ return [self initWithCapacity:2]; }
 
-- (void) removeObject:(id) anObject inRange:(NSRange)aRange
-{
-	unsigned i = MIN(NSMaxRange(aRange), _count);
-	id o;
-	
-	while (i-- > aRange.location)
-		{
-		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
-			{
-			_count--;
-			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
-			[o release];
-			}
-		}
-}
-
 - (void) removeObject:(id) anObject
 { // removes all occurrences!
 	unsigned i = _count;
