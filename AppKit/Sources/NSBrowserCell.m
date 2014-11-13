@@ -40,8 +40,8 @@ static NSImage *__highlightBranchImage;
 { 
 	if((self=[self initTextCell: @"aBrowserCell"]))
 		{
-		[self setImage:[isa branchImage]];	// default
-		[self setAlternateImage:[isa highlightedBranchImage]];	// default
+		[self setImage:[[self class] branchImage]];	// default
+		[self setAlternateImage:[[self class] highlightedBranchImage]];	// default
 		}
 	return self;
 }
@@ -184,8 +184,8 @@ static NSImage *__highlightBranchImage;
 		_c.bezeled = NO;
 		_c.bordered = NO;
 		_c.enabled = YES;
-		[self setImage:[isa branchImage]];	// default
-		[self setAlternateImage:[isa highlightedBranchImage]];	// default
+		[self setImage:[[self class] branchImage]];	// default
+		[self setAlternateImage:[[self class] highlightedBranchImage]];	// default
 		[self setLeaf:NO];		// default to non-leaf
 		return self;
 		}

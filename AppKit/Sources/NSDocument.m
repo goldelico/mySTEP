@@ -66,7 +66,7 @@ If not, write to the Free Software Foundation,
 		{
 		NSArray *wt;
 		_windowControllers = [[NSMutableArray alloc] init];
-		wt=[isa writableTypes];
+		wt=[[self class] writableTypes];
 		if([wt count])
 			[self setFileType:[wt objectAtIndex: 0]];	// Set our default type
 		}
@@ -196,7 +196,7 @@ If not, write to the Free Software Foundation,
 		{
 		[NSException raise:NSInternalInconsistencyException
 					format:@"%@ must override either -windowNibName or -makeWindowControllers",
-			NSStringFromClass(isa)];
+			NSStringFromClass([self class])];
 		}
 }
 
@@ -339,7 +339,7 @@ If not, write to the Free Software Foundation,
 - (BOOL) loadDataRepresentation:(NSData *)data ofType:(NSString *)type
 {
 	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
-	 NSStringFromClass(isa), NSStringFromSelector(_cmd)];
+	 NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
 	return NO;
 }
 
@@ -413,7 +413,7 @@ If not, write to the Free Software Foundation,
 - (NSData *) dataRepresentationOfType:(NSString *)type
 {
 	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
-	 NSStringFromClass(isa), NSStringFromSelector(_cmd)];
+	 NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
 	return nil;
 }
 

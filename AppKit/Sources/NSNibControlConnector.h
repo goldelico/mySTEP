@@ -13,7 +13,7 @@
 */
 
 #ifndef _mySTEP_H_NSNibControlConnector
-#define _mySTEP_H_NSNibControlConnectorr
+#define _mySTEP_H_NSNibControlConnector
 
 #import <AppKit/NSNibConnector.h>
 

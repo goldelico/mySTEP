@@ -41,6 +41,8 @@
 @class NSImage;
 @class NSString;
 
+#ifndef __APPLE__	// since 10.7 this is moved to Foundation
+
 typedef enum
 {
 	GSFileWrapperDirectoryType,
@@ -54,8 +56,8 @@ typedef enum
 	NSString		*_preferredFilename;
 	NSMutableDictionary	*_fileAttributes;
 	GSFileWrapperType	_wrapperType;
-	id			_wrapperData;
-	NSImage		*_iconImage;
+	id	_wrapperData;
+	id	_iconImage;
 }
 
 - (NSString *) addFileWithPath:(NSString *) path;
@@ -67,8 +69,7 @@ typedef enum
 - (NSDictionary *) fileAttributes;
 - (NSString *) filename;
 - (NSDictionary *) fileWrappers;
-- (NSImage *) icon;
-- (id) initDirectoryWithFileWrappers:(NSDictionary *) docs;	 
+- (id) initDirectoryWithFileWrappers:(NSDictionary *) docs;
 - (id) initRegularFileWithContents:(NSData *) data;		 
 - (id) initSymbolicLinkWithDestination:(NSString *) path;
 - (id) initWithPath:(NSString *) path;	
@@ -84,7 +85,6 @@ typedef enum
 - (NSData *) serializedRepresentation;
 - (void) setFileAttributes:(NSDictionary *) attributes;
 - (void) setFilename:(NSString *) filename;
-- (void) setIcon:(NSImage *) icon;
 - (void) setPreferredFilename:(NSString *) filename;
 - (NSString *) symbolicLinkDestination;
 - (BOOL) updateFromPath:(NSString *) path;
@@ -92,6 +92,13 @@ typedef enum
           atomically:(BOOL) atomicFlag
      updateFilenames:(BOOL) updateFilenamesFlag;
 
+@end
+
+#endif
+
+@interface NSFileWrapper (Additions)
+- (NSImage *) icon;
+- (void) setIcon:(NSImage *) icon;
 @end
 
 #endif // _GNUstep_H_NSFileWrapper

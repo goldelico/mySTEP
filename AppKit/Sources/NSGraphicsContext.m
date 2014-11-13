@@ -427,7 +427,7 @@ void NSDrawBitmap(NSRect rect,							// Bitmap Images
 
 void NSDrawButton(NSRect aRect, NSRect clipRect)
 {
-	float grays[] = { NSBlack, NSBlack, NSWhite, NSWhite, NSDarkGray, NSDarkGray };
+	CGFloat grays[] = { NSBlack, NSBlack, NSWhite, NSWhite, NSDarkGray, NSDarkGray };
 	NSRect rect = NSDrawTiledRects(aRect, clipRect, BUTTON_EDGES_NORMAL, grays, 6);
 	[[NSColor lightGrayColor] set];
 	NSRectFill(rect);
@@ -455,7 +455,7 @@ NSRect NSDrawColorTiledRects( NSRect boundsRect,
 
 void NSDrawGrayBezel(NSRect aRect, NSRect clipRect)
 {
-	float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
+	CGFloat grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
 					  NSLightGray, NSLightGray, NSBlack, NSBlack };
 	NSRect rect;
 	rect = NSDrawTiledRects(aRect, clipRect, BEZEL_EDGES_NORMAL, grays, 8);
@@ -469,7 +469,7 @@ void NSDrawGroove(NSRect aRect, NSRect clipRect)
 {
 	NSRectEdge edges[] = { NSMinXEdge, NSMaxYEdge, NSMinXEdge, NSMaxYEdge, 
 						   NSMaxXEdge, NSMinYEdge, NSMaxXEdge, NSMinYEdge };
-	float grays[] = { NSDarkGray, NSDarkGray, NSWhite, NSWhite,
+	CGFloat grays[] = { NSDarkGray, NSDarkGray, NSWhite, NSWhite,
 					  NSWhite, NSWhite, NSDarkGray, NSDarkGray };
 	NSRect rect = NSDrawTiledRects(aRect, clipRect, edges, grays, 8);
 	[[NSColor lightGrayColor] set];
@@ -480,7 +480,7 @@ NSRect
 NSDrawTiledRects( NSRect boundsRect,
 				  NSRect clipRect,
 				  const NSRectEdge *sides,
-				  const float *grays,
+				  const CGFloat *grays,
 				  int count)
 {
 	NSRect slice, remainder = boundsRect;
@@ -499,7 +499,7 @@ NSDrawTiledRects( NSRect boundsRect,
 
 void NSDrawWhiteBezel(NSRect aRect, NSRect clipRect)
 {
-	float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
+	CGFloat grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
 					  NSLightGray, NSLightGray, NSDarkGray, NSDarkGray };
 	NSRect rect = NSDrawTiledRects(aRect, clipRect, BEZEL_EDGES_NORMAL, grays, 8);
 	[[NSColor whiteColor] set];
@@ -532,7 +532,7 @@ void NSFrameRect(NSRect aRect)
 	NSFrameRectWithWidth(aRect, 1.0);
 }
 
-void NSFrameRectWithWidth(NSRect aRect, float frameWidth)
+void NSFrameRectWithWidth(NSRect aRect, CGFloat frameWidth)
 {
 	NSRectEdge sides[] = { NSMaxXEdge, NSMinYEdge, NSMinXEdge, NSMaxYEdge };
 	NSRect remainder = aRect;
@@ -544,7 +544,7 @@ void NSFrameRectWithWidth(NSRect aRect, float frameWidth)
 }
 
 void NSFrameRectWithWidthUsingOperation(NSRect r,
-										float w,
+										CGFloat w,
 										NSCompositingOperation op)
 {
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
@@ -633,7 +633,7 @@ void NSRectFillListWithColorsUsingOperation(const NSRect *rects,
 		}
 }
 
-void NSRectFillListWithGrays(const NSRect *rects, const float *grays, int count)
+void NSRectFillListWithGrays(const NSRect *rects, const CGFloat *grays, int count)
 {
 	int i;	
 	for (i = 0; i < count; i++)					// Fills each rectangle in the 

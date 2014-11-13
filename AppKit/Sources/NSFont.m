@@ -37,7 +37,7 @@
 NSString *NSAntialiasThresholdChangedNotification=@"NSAntialiasThresholdChangedNotification";
 NSString *NSFontSetChangedNotification=@"NSFontSetChangedNotification";
 
-static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, float deflt)
+static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size, CGFloat deflt)
 { // get system font (cached)
 	NSUserDefaults *u = [NSUserDefaults standardUserDefaults];
 	NSString *fontName = [u objectForKey:key];	// e.g. NSBoldFont=Helvetica
@@ -63,22 +63,22 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 @implementation NSFont
 
-+ (NSFont *) boldSystemFontOfSize:(float)fontSize
++ (NSFont *) boldSystemFontOfSize:(CGFloat)fontSize
 {												
 	return _getNSFont(@"NSBoldFont", @"Helvetica-Bold", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) systemFontOfSize:(float)fontSize
++ (NSFont *) systemFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) titleBarFontOfSize:(float)fontSize;
++ (NSFont *) titleBarFontOfSize:(CGFloat)fontSize;
 {
 	return _getNSFont(@"NSBoldFont", @"Helvetica-Bold", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) menuFontOfSize:(float)fontSize
++ (NSFont *) menuFontOfSize:(CGFloat)fontSize
 {
 	static float size= -1.0;	// cache for default font size
 	if(size < 0.0)
@@ -86,7 +86,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return _getNSFont(@"NSMenuFont", @"Helvetica", fontSize, size);
 }
 
-+ (NSFont *) menuBarFontOfSize:(float)fontSize
++ (NSFont *) menuBarFontOfSize:(CGFloat)fontSize
 {
 	static float size= -1.0;	// cache for default font size
 	if(size <= 0.0)
@@ -94,52 +94,52 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return _getNSFont(@"NSMenuBarFont", @"Helvetica", fontSize, size);
 }
 
-+ (NSFont *) toolTipsFontOfSize:(float)fontSize
++ (NSFont *) toolTipsFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont(@"NSToolTipsFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) paletteFontOfSize:(float)fontSize
++ (NSFont *) paletteFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) messageFontOfSize:(float)fontSize
++ (NSFont *) messageFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) labelFontOfSize:(float)fontSize
++ (NSFont *) labelFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont labelFontSize]);
 }
 
-+ (NSFont *) controlContentFontOfSize:(float)fontSize
++ (NSFont *) controlContentFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont (@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) userFixedPitchFontOfSize:(float)fontSize
++ (NSFont *) userFixedPitchFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont (@"NSUserFixedPitchFont", @"Monaco", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) userFontOfSize:(float)fontSize
++ (NSFont *) userFontOfSize:(CGFloat)fontSize
 {
 	return _getNSFont (@"NSUserFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (float) systemFontSize;
++ (CGFloat) systemFontSize;
 { // return default size of standard system font
 	return 12;
 }
 
-+ (float) smallSystemFontSize;
++ (CGFloat) smallSystemFontSize;
 {
 	return 10.0;
 }
 
-+ (float) systemFontSizeForControlSize:(NSControlSize) size
++ (CGFloat) systemFontSizeForControlSize:(NSControlSize) size
 {
 	switch(size)
 		{
@@ -150,7 +150,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 		}
 }
 
-+ (float) labelFontSize;
++ (CGFloat) labelFontSize;
 { // return default size of standard system font
 	return 12;
 }
@@ -170,7 +170,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	[[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(float) size;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(CGFloat) size;
 {
 	return [self fontWithDescriptor:descriptor size:size textTransform:nil];
 }
@@ -182,7 +182,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 // the transform/matrix can be used to rotate/scale/shear the whole font (independently of the CTM!)
 
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(float) size textTransform:(NSAffineTransform *) transform;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(CGFloat) size textTransform:(NSAffineTransform *) transform;
 { // change size first
 	if(transform)
 		descriptor=[descriptor fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObject:transform forKey:NSFontMatrixAttribute]];
@@ -198,7 +198,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
-+ (NSFont *) fontWithName:(NSString*) name matrix:(const float *) fontMatrix
++ (NSFont *) fontWithName:(NSString*) name matrix:(const CGFloat *) fontMatrix
 {
 	NSFontDescriptor *descriptor;
 	NSAffineTransform *matrix=[NSAffineTransform transform];
@@ -211,7 +211,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
-+ (NSFont *) fontWithName:(NSString*) name size:(float) size
++ (NSFont *) fontWithName:(NSString*) name size:(CGFloat) size
 { // create a font without matrix
 	return [[[self alloc] _initWithName:name size:size useDefault:nil] autorelease];
 }
@@ -222,7 +222,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (NSString *) displayName						{ return [_descriptor objectForKey:NSFontVisibleNameAttribute]; }
 
-- (float) pointSize								{ return [_descriptor pointSize]; }	// effective vertical size
+- (CGFloat) pointSize								{ return [_descriptor pointSize]; }	// effective vertical size
 
 - (NSAffineTransform *) textTransform;			{ return [_descriptor matrix]; }
 
@@ -319,7 +319,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (id) copyWithZone:(NSZone *)z
 {
-	NSFont *f=[isa allocWithZone:z];
+	NSFont *f=[[self class] allocWithZone:z];
 	if(f)
 		{
 //		f->_fontName=[_fontName copyWithZone:z];
@@ -393,7 +393,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (NSFontRenderingMode) renderingMode; { return _renderingMode; }
 
-- (const float *) matrix;
+- (const CGFloat *) matrix;
 {
 	NSAffineTransform *m=[_descriptor matrix];
 	static NSAffineTransformStruct matrix;
@@ -405,7 +405,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 		matrix.m11=size;
 		matrix.m22=size;
 		}
-	return (const float *) &matrix;	// is struct with 6 float elements
+	return (const CGFloat *) &matrix;	// is struct with 6 float elements
 }
 
 - (NSSize) advancementForGlyph:(NSGlyph)aGlyph;
@@ -424,11 +424,11 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 #pragma mark BACKEND
 
-- (float) ascender; { BACKEND; return 0.0; }
+- (CGFloat) ascender; { BACKEND; return 0.0; }
 - (NSRect) boundingRectForFont; { BACKEND; return NSZeroRect; }
-- (float) capHeight; { BACKEND; return 0.0; }
+- (CGFloat) capHeight; { BACKEND; return 0.0; }
 - (NSCharacterSet *) coveredCharacterSet;  { return BACKEND; }
-- (float) descender; { BACKEND; return 0.0; }
+- (CGFloat) descender; { BACKEND; return 0.0; }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
@@ -448,9 +448,9 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (BOOL) isFixedPitch;	{ BACKEND; return NO; }
 
-- (float) italicAngle; { BACKEND; return 0.0; }
+- (CGFloat) italicAngle; { BACKEND; return 0.0; }
 
-- (float) leading; { BACKEND; return 0.0; }
+- (CGFloat) leading; { BACKEND; return 0.0; }
 
 - (NSSize) maximumAdvancement; { BACKEND; return NSZeroSize; }
 
@@ -458,11 +458,11 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (unsigned) numberOfGlyphs; { BACKEND; return 0; }
 
-- (float) underlinePosition; { BACKEND; return 0.0; }
+- (CGFloat) underlinePosition; { BACKEND; return 0.0; }
 
-- (float) underlineThickness; { BACKEND; return 0.0; }
+- (CGFloat) underlineThickness; { BACKEND; return 0.0; }
 
-- (float) xHeight; { BACKEND; return 0.0; }
+- (CGFloat) xHeight; { BACKEND; return 0.0; }
 
 #pragma mark DEPRECATED
 
@@ -536,7 +536,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 			nil]];
 }
 
-+ (id) fontDescriptorWithName:(NSString *) name size:(float) size;
++ (id) fontDescriptorWithName:(NSString *) name size:(CGFloat) size;
 {
 	return [self fontDescriptorWithFontAttributes:
 		[NSDictionary dictionaryWithObjectsAndKeys:
@@ -574,7 +574,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 	return [self fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObject:matrix forKey:NSFontMatrixAttribute]];
 }
 
-- (NSFontDescriptor *) fontDescriptorWithSize:(float) size;
+- (NSFontDescriptor *) fontDescriptorWithSize:(CGFloat) size;
 {
 	return [self fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:size] forKey:NSFontSizeAttribute]];
 }
@@ -617,7 +617,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 
 - (id) copyWithZone:(NSZone *)z
 {
-	NSFontDescriptor *f=[isa allocWithZone:z];
+	NSFontDescriptor *f=[[self class] allocWithZone:z];
 	if(f)
 		f->_attributes=[_attributes copyWithZone:z];
 	return f;
@@ -625,7 +625,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: %@", NSStringFromClass(isa), _attributes];
+	return [NSString stringWithFormat:@"%@: %@", NSStringFromClass([self class]), _attributes];
 }
 
 #if 1	// default implementation using a Property List
@@ -826,12 +826,12 @@ static BOOL changed;
 
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
 { // this calls the core font search engine that knows about font directories
-	return [isa _matchingFontDescriptorsWithAttributes:_attributes mandatoryKeys:keys limit:99999];
+	return [[self class] _matchingFontDescriptorsWithAttributes:_attributes mandatoryKeys:keys limit:99999];
 }
 
 - (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys:(NSSet *) keys;
 {
-	NSArray *r=[isa _matchingFontDescriptorsWithAttributes:_attributes mandatoryKeys:keys limit:1];
+	NSArray *r=[[self class] _matchingFontDescriptorsWithAttributes:_attributes mandatoryKeys:keys limit:1];
 	if([r count] > 0)
 		return [r objectAtIndex:0];
 	return nil;
@@ -839,7 +839,7 @@ static BOOL changed;
 
 - (NSAffineTransform *) matrix; { return [_attributes objectForKey:NSFontMatrixAttribute]; }
 - (id) objectForKey:(NSString *) attribute; { return [_attributes objectForKey:attribute]; }
-- (float) pointSize; { NSString *sz=[_attributes objectForKey:NSFontSizeAttribute]; return sz?[sz floatValue]:0.0; }
+- (CGFloat) pointSize; { NSString *sz=[_attributes objectForKey:NSFontSizeAttribute]; return sz?[sz floatValue]:0.0; }
 - (NSFontSymbolicTraits) symbolicTraits; { return [[_attributes objectForKey:NSFontSymbolicTrait] unsignedIntValue]; }
 
 - (NSString *) postscriptName;

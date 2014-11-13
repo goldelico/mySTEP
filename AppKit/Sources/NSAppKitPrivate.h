@@ -49,6 +49,11 @@
 
 #define DEPRECATED	NSLog(@"%@: %@ is deprecated", NSStringFromClass([self class]), NSStringFromSelector(_cmd))	// issue a warning
 
+#ifdef __APPLE__	// Apple Foundation does not provide these macros
+#define NS_TIME_START(A)
+#define NS_TIME_END(A, ...)
+#endif
+
 typedef struct _NSGraphicsState
 { // generic graphics state - backends might define their own object structs
 	int _gState;							// unique gState number
@@ -406,4 +411,8 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 - (void) _setToolbarView:(NSToolbarView *) view;
 - (NSToolbarView *) _toolbarView;
 - (NSArray *) _activeItems;
+@end
+
+@interface NSEvent (NSPrivate)
+- (void) _setLocation:(NSPoint) location modifierFlags:(unsigned int) flags eventTime:(NSTimeInterval) timestamp number:(int) xnumber;
 @end

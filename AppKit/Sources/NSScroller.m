@@ -254,12 +254,12 @@ static NSButtonCell *__knobCell = nil;
 	_isHorizontal=(frameRect.size.width > frameRect.size.height);
 	if (_isHorizontal) 		// determine the
 		{													// orientation of
-//		frameRect.size.height = [isa scrollerWidthForControlSize:_controlSize];		// adjust it's size
+//		frameRect.size.height = [[self class] scrollerWidthForControlSize:_controlSize];		// adjust it's size
 		_arrowsPosition = NSScrollerArrowsMinEnd;			// accordingly
 		}
 	else 
 		{
-//		frameRect.size.width = [isa scrollerWidthForControlSize:_controlSize];
+//		frameRect.size.width = [[self class] scrollerWidthForControlSize:_controlSize];
 		_arrowsPosition = NSScrollerArrowsMaxEnd;
 		}
 	[super setFrame:frameRect];

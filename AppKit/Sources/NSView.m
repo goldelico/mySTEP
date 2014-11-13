@@ -509,7 +509,7 @@ printing
 - (NSString *) description
 {
 	NSMutableString *s;
-	s=[NSMutableString stringWithFormat:@"%p: %@", self, NSStringFromClass(isa)];
+	s=[NSMutableString stringWithFormat:@"%p: %@", self, NSStringFromClass([self class])];
 	[s appendFormat:@" win=%@", [_window title]];
 	[s appendFormat:@" frame=[%.1lf,%.1lf,%.1lf,%.1lf]", _frame.origin.x, _frame.origin.y, _frame.size.width, _frame.size.height];
 	[s appendFormat:@" bounds=[%.1lf,%.1lf,%.1lf,%.1lf]", _bounds.origin.x, _bounds.origin.y, _bounds.size.width, _bounds.size.height];
@@ -564,7 +564,7 @@ printing
 #if 0
 		NSLog(@"NSView: initWithFrame 2b %@", [self _subtreeDescription]);
 #endif
-		[self setMenu:[isa defaultMenu]];	// initialize with default menu
+		[self setMenu:[[self class] defaultMenu]];	// initialize with default menu
 #if 0
 		NSLog(@"NSView: initWithFrame 3 %@", [self _subtreeDescription]);
 #endif
@@ -753,7 +753,7 @@ printing
 		[newView setNextResponder:self];
 		}
 	else
-		NSLog(@"NSView warning: replaceSubview: not found: %@, oldView");
+		NSLog(@"NSView warning: replaceSubview: not found: %@", oldView);
 }
 
 - (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *))compare 
@@ -1525,7 +1525,7 @@ printing
 {
 	if(aView == self)
 		return aPoint;
-	return [[isa _matrixFromView:aView toView:self] transformPoint:aPoint];
+	return [[[self class] _matrixFromView:aView toView:self] transformPoint:aPoint];
 }
 
 - (NSRect) convertRect:(NSRect)aRect fromView:(NSView *)aView
@@ -1534,7 +1534,7 @@ printing
 	NSAffineTransform *atm;
 	if(aView == self)
 		return aRect;
-	atm=[isa _matrixFromView:aView toView:self];
+	atm=[[self class] _matrixFromView:aView toView:self];
 #if 0
 	NSLog(@"convert rect atm: %@", atm);
 #endif
@@ -1562,7 +1562,7 @@ printing
 	NSSize s;
 	if(aView == self)
 		return aSize;
-	s=[[isa _matrixFromView:aView toView:self] transformSize:aSize];
+	s=[[[self class] _matrixFromView:aView toView:self] transformSize:aSize];
 	if((aSize.height < 0) != (s.height < 0))
 		s.height=-s.height;
 	return s;
@@ -1572,7 +1572,7 @@ printing
 {
 	if(aView == self)
 		return aPoint;
-	return [[isa _matrixFromView:self toView:aView] transformPoint:aPoint];
+	return [[[self class] _matrixFromView:self toView:aView] transformPoint:aPoint];
 }
 
 - (NSRect) convertRect:(NSRect)aRect toView:(NSView *)aView
@@ -1590,7 +1590,7 @@ printing
 #if 0
 		NSLog(@"slow"),
 #endif
-		atm=[isa _matrixFromView:self toView:aView];
+		atm=[[self class] _matrixFromView:self toView:aView];
 		r=[atm _transformRect:aRect];
 		}
 	else
@@ -1599,7 +1599,7 @@ printing
 		NSLog(@"fast");
 #endif
 		// FIXME: can we do without matrix calculations at all?
-		atm=[isa _matrixFromView:self toView:aView];
+		atm=[[self class] _matrixFromView:self toView:aView];
 		r.origin=[atm transformPoint:aRect.origin];
 		r.size=[atm transformSize:aRect.size];
 		if((aRect.size.height < 0) != (r.size.height < 0))
@@ -1622,7 +1622,7 @@ printing
 	NSSize s;
 	if(aView == self)
 		return aSize;
-	s=[[isa _matrixFromView:self toView:aView] transformSize:aSize];
+	s=[[[self class] _matrixFromView:self toView:aView] transformSize:aSize];
 	if((aSize.height < 0) != (s.height < 0))
 		s.height=-s.height;
 	return s;
@@ -2127,7 +2127,7 @@ printing
 					[context restoreGraphicsState];	// we must restore the clipping path!
 			}
 		NS_HANDLER
-			NSLog(@"%@ -drawRect: NSException %@", NSStringFromClass(isa), [localException reason]);
+			NSLog(@"%@ -drawRect: NSException %@", NSStringFromClass([self class]), [localException reason]);
 		NS_ENDHANDLER
 		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
 			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing

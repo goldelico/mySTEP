@@ -128,11 +128,11 @@ static NSString *__fontCollections = nil;
 			break;
 		case NSSizeDownFontAction: 
 			size = [fontObject pointSize];
-			for (i = sizeof(sizes)/sizeof(float) -1; i >= 0; i--)
+			for (i = sizeof(sizes)/sizeof(float); i > 0; i--)
 				{
-				if (sizes[i] < size)
+				if (sizes[i-1] < size)
 					{
-					size = sizes[i];
+					size = sizes[i-1];
 					break;
 					}
 				}
@@ -239,7 +239,7 @@ static NSString *__fontCollections = nil;
 		}
 }
 
-- (NSFont*) convertFont: (NSFont*)fontObject toSize: (float)size
+- (NSFont*) convertFont: (NSFont*)fontObject toSize: (CGFloat)size
 {
 	if ([fontObject pointSize] == size)
 		{
@@ -359,7 +359,7 @@ static NSString *__fontCollections = nil;
 - (NSFont *) fontWithFamily:(NSString *)family
 					 traits:(NSFontTraitMask)traits
 					 weight:(int)weight
-					   size:(float)size
+					   size:(CGFloat)size
 {
 	NSArray *fontDefs = [self availableMembersOfFontFamily: family];
 	unsigned int i;	

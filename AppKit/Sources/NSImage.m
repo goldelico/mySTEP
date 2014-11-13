@@ -275,7 +275,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	NSImage *copy = [isa allocWithZone:zone];
+	NSImage *copy = [[self class] allocWithZone:zone];
 	if(!_img.isValid)
 		{
 		}
@@ -358,7 +358,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"NSImage: name=%@ size=%@ %@%@%@", 
+	return [NSString stringWithFormat:@"NSImage: name=%@ size=%@ %@%@%@%@%@%@", 
 		_name, 
 		NSStringFromSize(_size),
 		_img.scalable?@" scalable":@"",

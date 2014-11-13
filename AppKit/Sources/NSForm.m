@@ -191,7 +191,7 @@ static Class __formCellClass = Nil;
 {
 	self=[super initWithFrame:frameRect
 						  mode:NSRadioModeMatrix
-					 cellClass:[isa cellClass]
+					 cellClass:[[self class] cellClass]
 				  numberOfRows:0
 			   numberOfColumns:1];	// NSForm is a single column matrix...
 	if(self)

@@ -411,20 +411,20 @@ static BOOL __userKeyEquivalents = YES;
 
 - (NSString *) _longDescription;
 { // incl. menu items and submenus
-	return [NSString stringWithFormat:@"%@ %08x: %@ -> %@",
+	return [NSString stringWithFormat:@"%@ %p: %@ -> %@",
 		NSStringFromClass([self class]), self,
 		[self title], _menuItems];
 }
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ %08x: %@", 
+	return [NSString stringWithFormat:@"%@ %p: %@",
 		NSStringFromClass([self class]), self, [self title]];
 }
 
 - (id) copyWithZone:(NSZone *) z
 {
-	NSMenu *copy = [isa allocWithZone:z];
+	NSMenu *copy = [[self class] allocWithZone:z];
 	copy->_title = [_title copyWithZone:z];
 	copy->_menuItems = [_menuItems copyWithZone:z];
 	return copy;
@@ -433,7 +433,7 @@ static BOOL __userKeyEquivalents = YES;
 - (CGFloat) menuBarHeight; 
 {
 	if(self == [NSApp mainMenu])
-		return [isa menuBarHeight];
+		return [[self class] menuBarHeight];
 	return 0.0;
 }
 

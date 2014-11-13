@@ -294,7 +294,7 @@ static NSCountedSet *__pb;
 
 - (id) copyWithZone:(NSZone *) zone;
 {
-	NSImageRep *copy = (NSImageRep*)[isa allocWithZone:zone];
+	NSImageRep *copy = (NSImageRep*)[[self class] allocWithZone:zone];
 	if(copy)
 		{
 		copy->_size = _size;
@@ -1320,7 +1320,7 @@ static NSArray *__pbBitmapImageReps;
 
 - (NSData *) representationUsingType:(NSBitmapImageFileType) storageType properties:(NSDictionary *) properties
 { // single file
-	return [isa representationOfImageRepsInArray:[NSArray arrayWithObject:self] usingType:storageType properties:properties];
+	return [[self class] representationOfImageRepsInArray:[NSArray arrayWithObject:self] usingType:storageType properties:properties];
 }
 
 + (NSData *) TIFFRepresentationOfImageRepsInArray:(NSArray *)anArray

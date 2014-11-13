@@ -120,7 +120,6 @@
 + (NSColor *) controlHighlightColor;
 + (NSColor *) controlLightHighlightColor;
 + (NSColor *) controlShadowColor;
-+ (NSColor *) controlDarkShadowColor;
 + (NSColor *) controlTextColor;
 + (NSControlTint) currentControlTint;
 + (NSColor *) cyanColor;

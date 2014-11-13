@@ -3910,7 +3910,7 @@ static NSFileHandle *fh;
 				int idx;
 				NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
 				for(idx=0; idx < 8; idx++)
-					NSLog(@"%d: %08x", idx, XLookupKeysym(&xe.xkey, idx));
+					NSLog(@"%d: %08lx", idx, XLookupKeysym(&xe.xkey, idx));
 				/* it looks as if Apple X11 delivers
 				 idx=0: lower case - or base keycode (0xff7e)
 				 idx=1: upper case
@@ -4014,6 +4014,7 @@ static NSFileHandle *fh;
 				   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
 				   [lastMotionEvent type] == type)
 					{ // replace/update if last motion event which is still unprocessed in queue
+#if OLD
 						typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
 						_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
 #if 0
@@ -4023,6 +4024,9 @@ static NSFileHandle *fh;
 						a->modifier_flags=__modFlags;
 						a->event_time=X11toTimestamp(xe.xmotion);
 						a->event_data.mouse.event_num=xe.xmotion.serial;
+#else
+						[lastMotionEvent _setLocation:X11toScreen(xe.xmotion) modifierFlags: __modFlags eventTime:X11toTimestamp(xe.xmotion) number:xe.xmotion.serial];
+#endif
 						break;
 					}
 				e = [NSEvent mouseEventWithType:type		// create NSEvent

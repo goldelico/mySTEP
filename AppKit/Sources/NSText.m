@@ -774,7 +774,7 @@ object:self]
 	NSRange rng=_selectedRange;	// current selected range
 	NSEvent *lastMouseEvent=nil;
 #if 1
-	NSLog(@"%@ mouseDown: %@", NSStringFromClass(isa), event);
+	NSLog(@"%@ mouseDown: %@", NSStringFromClass([self class]), event);
 #endif
 	// save modifiers of first event
 	if([event clickCount] > 1)
@@ -847,7 +847,7 @@ object:self]
 		// and handle keyboard shortcuts there?
 		NSMutableArray *events=[NSMutableArray arrayWithObject:event];
 #if 1
-		NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+		NSLog(@"%@ keyDown: %@", NSStringFromClass([self class]), event);
 #endif
 		while((event = [NSApp nextEventMatchingMask:NSAnyEventMask
 										  untilDate:nil	// don't wait

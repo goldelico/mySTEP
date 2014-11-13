@@ -221,7 +221,6 @@ extern id NSApp;					// NSApp global var
 - (void) applicationWillTerminate:(NSNotification *) notification;
 
 - (void) applicationWillBecomeActive:(NSNotification *) notification;
-- (void) applicationWillBecomeActive:(NSNotification *) notification;
 - (void) applicationWillResignActive:(NSNotification *) notification;
 - (void) applicationDidResignActive:(NSNotification *) notification;
 

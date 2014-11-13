@@ -68,31 +68,12 @@ static NSArray *__bitmapImageRepsPNG;
 + (NSArray *) imageFileTypes				{ return __bitmapImageRepsPNG; }
 + (NSArray *) imageUnfilteredFileTypes		{ return __bitmapImageRepsPNG; }
 
-#ifndef __APPLE__
-// FIXME: Darwinports has its own definition...
-
-void
-png_warning(png_structp png_ptr, png_const_charp message)
-{
-	PNG_CONST char *name = "UNKNOWN (ERROR!)";
-
-	if (png_ptr != NULL && png_ptr->error_ptr != NULL)
-		name = png_ptr->error_ptr;
-	NSLog(@"PNG %s: libpng warning: %s\n", name, message);
-}
-
-void
-png_error(png_structp png_ptr, png_const_charp message)
-{
-	png_warning(png_ptr, message);
-}
-#endif
-
 static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-	if(!memcpy((void *)data, (void *)png_ptr->io_ptr, (size_t)length))
+	if(!memcpy((void *)data, png_get_io_ptr(png_ptr), (size_t)length))
 		png_error(png_ptr, "Read Error");
-	*((char **) (&png_ptr->io_ptr)) += length;
+	// this does not work - and we hope that the pointer is now maintained by libpng
+	//	*((char **) (&png_ptr->io_ptr)) += length;
 }
 
 + (NSArray *) imageRepsWithData:(NSData *)data
@@ -111,13 +92,27 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	double screen_gamma = 2.2;				// A good guess for a PC monitor
 	NSAssert(data, @"PNG imageRep data is nil");		
 	pin = [data bytes];
+
 	read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
-	png_set_error_fn(read_ptr, (png_voidp)NULL, png_error, png_warning);
+	if(!read_ptr)
+		return nil;
+	png_set_error_fn(read_ptr, (png_voidp)NULL, NULL, NULL);	// use default implementation
 	read_info_ptr = png_create_info_struct(read_ptr);
+	if (!read_info_ptr)
+		{
+		png_destroy_read_struct(&read_ptr, NULL, NULL);
+		return nil;
+		}
 	end_info_ptr = png_create_info_struct(read_ptr);
-										// Establish the setjmp return context 
-	if (setjmp(read_ptr->jmpbuf))		// for my_error_exit to use.  PNG code
-		{								// has signaled an error.  Clean up.
+	if (!end_info_ptr)
+		{
+		png_destroy_read_struct(&read_ptr, &read_info_ptr, NULL);
+		return nil;
+		}
+	// Establish the setjmp return context
+	// for my_error_exit to use.
+	if (setjmp(png_jmpbuf(read_ptr)))
+		{
 		png_destroy_read_struct(&read_ptr, &read_info_ptr, &end_info_ptr);
 		NSLog(@"error while decompressing PNG");
 //		[NSException raise:NSTIFFException format: @"invalid PNG image"];
@@ -129,7 +124,8 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	png_read_info(read_ptr, read_info_ptr);
 
 	if (png_get_IHDR(read_ptr, read_info_ptr, &width, &height, &bit_depth,
-			&color_type, &interlace_type, &compression_type, &filter_type));
+			&color_type, &interlace_type, &compression_type, &filter_type))
+		;
 #if 0
 	NSLog(@"png: width=%d height=%d", width, height);
 #endif
@@ -176,7 +172,7 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 						 colorSpaceName: NSDeviceRGBColorSpace
 						 bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
 						 bytesPerRow: row_bytes
-						 bitsPerPixel: read_info_ptr->pixel_depth] autorelease];
+						 bitsPerPixel: png_get_bit_depth(read_ptr, read_info_ptr)] autorelease];
 
     buffer = (char *) [imageRep bitmapData];
 

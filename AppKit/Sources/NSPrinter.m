@@ -297,7 +297,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (id) copyWithZone:(NSZone *) z
 {
-	return [[isa alloc] initWithDictionary:info];	// return a (mutable) copy
+	return [[[self class] alloc] initWithDictionary:info];	// return a (mutable) copy
 }
 
 - (void) dealloc;
@@ -1225,9 +1225,9 @@ static NSPrintOperation *_currentOperation;
 #if 1
 	NSLog(@"run PrintOperation for %@", _view);
 #endif
-	if([isa currentOperation])
+	if([[self class] currentOperation])
 		; // FIXME: raise exception - already a print operation in progress
-	[isa setCurrentOperation:self];
+	[[self class] setCurrentOperation:self];
 	if(_showPanels || _showPrintPanel)
 		{
 #if 1
@@ -1318,7 +1318,7 @@ static NSPrintOperation *_currentOperation;
 	// [delegate <didRunSelector>:self success:_cancelled?NSPrntCancelled:NSPrintSuccess contextInfo:contextInfo];
 	if(didRunSelector)
 		[delegate performSelector:didRunSelector withObject:(id)contextInfo];
-	[isa setCurrentOperation:nil];
+	[[self class] setCurrentOperation:nil];
 }
 
 @end /* NSPrintOperation */
