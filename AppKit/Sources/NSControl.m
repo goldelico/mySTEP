@@ -43,7 +43,7 @@ static Class __controlCellClass = Nil;
 {
 	if((self=[super initWithFrame:frameRect]))
 		{
-		[self setCell:[[[isa cellClass] new] autorelease]];	// allows to override cellClass in subclasses
+		[self setCell:[[[[self class] cellClass] new] autorelease]];	// allows to override cellClass in subclasses
 		}
 	return self;
 }

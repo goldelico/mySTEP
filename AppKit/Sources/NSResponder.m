@@ -233,7 +233,7 @@
 - (void) noResponderFor:(SEL)eventSelector
 {
 #if 1
-	NSLog(@"%@: noResponderFor %@", NSStringFromClass(isa), NSStringFromSelector(eventSelector));
+	NSLog(@"%@: noResponderFor %@", NSStringFromClass([self class]), NSStringFromSelector(eventSelector));
 #endif
 	if(eventSelector == @selector(keyDown:))
 		NSBeep();									// beep if key down event

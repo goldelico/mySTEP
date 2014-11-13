@@ -268,7 +268,6 @@ originalContentsURL:(NSURL *) orig
 - (NSFileWrapper *) fileWrapperRepresentationOfType:(NSString *) type;
 - (id) initWithContentsOfFile:(NSString *) fileName ofType:(NSString *) fileType;
 - (id) initWithContentsOfURL:(NSURL *) url ofType:(NSString *) fileType;
-- (void) setFileName:(NSString *) fileName;
 - (BOOL) loadDataRepresentation:(NSData *) data ofType:(NSString *) type;
 - (BOOL) loadFileWrapperRepresentation:(NSFileWrapper *) wrapper 
 							    ofType:(NSString *) type;

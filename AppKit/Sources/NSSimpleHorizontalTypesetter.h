@@ -113,7 +113,7 @@ typedef struct _NSTypesetterGlyphInfo
 	NSGlyphLayoutMode glyphLayoutMode;
 	unsigned int *glyphCharacterIndexCache;	// local mapping from glyph index to character index?
 	char *glyphElasticCache;
-	struct _NSSize glyphLocationOffset;	// is this the accumulation of glyph location, baseline, kerning etc. before typesetterLaidOneGlyph is called?
+	NSSize glyphLocationOffset;		// is this the accumulation of glyph location, baseline, kerning etc. before typesetterLaidOneGlyph is called?
 	unsigned int lastFixedGlyphIndex;
 	int curGlyphInscription;
 	unsigned int previousBaseGlyphIndex;

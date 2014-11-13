@@ -30,7 +30,11 @@
 #ifndef _NSNibDeclarations_H_
 #define _NSNibDeclarations_H_
 
+#ifndef IBOutlet
 #define IBOutlet
+#endif
+#ifndef IBAction
 #define IBAction void
+#endif
 
 #endif

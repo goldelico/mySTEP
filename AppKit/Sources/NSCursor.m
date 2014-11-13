@@ -47,11 +47,11 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 	int cursorStackCount = [__cursorStack count];
 													// stack is now empty so
 	if(cursorStackCount == 1)						// cursor remains unchanged
-		[[__cursorStack lastObject] set];
+		[(NSCursor *)[__cursorStack lastObject] set];
 	else if (cursorStackCount > 1)					// If stack isn't empty get
 		{										// a new current cursor
 		[__cursorStack removeLastObject];
-		[[__cursorStack lastObject] set];				
+		[(NSCursor *)[__cursorStack lastObject] set];
 		}
 }													
 													// blank cursor must exist
@@ -156,7 +156,7 @@ return c; \
 - (NSPoint) hotSpot							{ return _hotSpot; }
 - (void) setOnMouseEntered:(BOOL)flag		{ _isSetOnMouseEntered = flag;}
 - (void) setOnMouseExited:(BOOL)flag		{ _isSetOnMouseExited = flag; }
-- (void) pop								{ [isa pop]; }
+- (void) pop								{ [[self class] pop]; }
 - (void) set								{ BACKEND; }
 - (BOOL) isSetOnMouseEntered				{ return _isSetOnMouseEntered;}
 - (BOOL) isSetOnMouseExited					{ return _isSetOnMouseExited; }
@@ -178,24 +178,24 @@ return c; \
 				// FIXME: can we check the list of cursor types?
 				// it appears from analyzing NIBs that cursor #13 should be the pointingHandCursor
 		default:
-		case 1:	c=[isa arrowCursor]; break;
-		case 2:	c=[isa IBeamCursor]; break;
-		case 3:	c=[isa crosshairCursor]; break;
-		case 4:	c=[isa closedHandCursor]; break;
-		case 5:	c=[isa openHandCursor]; break;
-		case 6:	c=[isa pointingHandCursor]; break;
-		case 7: c=[isa resizeLeftCursor]; break;
-		case 8: c=[isa resizeRightCursor]; break;
-		case 9: c=[isa resizeLeftRightCursor]; break;
-		case 10: c=[isa resizeUpCursor]; break;
-		case 11: c=[isa resizeDownCursor]; break;
-		case 12: c=[isa resizeUpDownCursor]; break;
-		case 13: c=[isa disappearingItemCursor]; break;
+		case 1:	c=[[self class] arrowCursor]; break;
+		case 2:	c=[[self class] IBeamCursor]; break;
+		case 3:	c=[[self class] crosshairCursor]; break;
+		case 4:	c=[[self class] closedHandCursor]; break;
+		case 5:	c=[[self class] openHandCursor]; break;
+		case 6:	c=[[self class] pointingHandCursor]; break;
+		case 7: c=[[self class] resizeLeftCursor]; break;
+		case 8: c=[[self class] resizeRightCursor]; break;
+		case 9: c=[[self class] resizeLeftRightCursor]; break;
+		case 10: c=[[self class] resizeUpCursor]; break;
+		case 11: c=[[self class] resizeDownCursor]; break;
+		case 12: c=[[self class] resizeUpDownCursor]; break;
+		case 13: c=[[self class] disappearingItemCursor]; break;
 		}
 	if(!c)
 		{
 		NSLog(@"unknown cursor type %d", type);
-		c=[isa IBeamCursor];
+		c=[[self class] IBeamCursor];
 		}
 	[c retain];	// should copy or we overwrite the original NSHotSpot of the cached cursor singleton!
 	[self autorelease];

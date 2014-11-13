@@ -782,7 +782,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 - (NSColor*) colorWithAlphaComponent:(float)alpha
 {
-	NSColor *c=[isa alloc];	// make a copy
+	NSColor *c=[[self class] alloc];	// make a copy
 	if(c)
 		{ // make a "mutable" copy
 		c->_colorspaceName=[_colorspaceName retain];
@@ -879,7 +879,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			{
 			case 6:	// Catalog
 				{
-					NSColor *c=[isa colorWithCatalogName:[aDecoder decodeObjectForKey:@"NSCatalogName"] colorName:[aDecoder decodeObjectForKey:@"NSColorName"]];
+					NSColor *c=[[self class] colorWithCatalogName:[aDecoder decodeObjectForKey:@"NSCatalogName"] colorName:[aDecoder decodeObjectForKey:@"NSColorName"]];
 					if(!c)
 						{
 						NSLog(@"substitute %@/%@", [aDecoder decodeObjectForKey:@"NSCatalogName"], [aDecoder decodeObjectForKey:@"NSColorName"]);
@@ -901,7 +901,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 						sscanf(s, "%f %f", &white, &alpha);
 					else
 						NSLog(@"NSColor initWithCoder: can't decode NSWhite (%@)", aDecoder);
-					c=[isa colorWithCalibratedWhite:white alpha:alpha];
+					c=[[self class] colorWithCalibratedWhite:white alpha:alpha];
 					[self release];
 #if 0
 					NSLog(@"initWithCoder -> %@", c);
@@ -919,7 +919,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 						sscanf(s, "%f %f %f %f", &red, &green, &blue, &alpha);	// alpha might be missing
 					else
 						NSLog(@"NSColor initWithCoder: can't decode NSRGB (%@)", aDecoder);
-					c=[isa colorWithCalibratedRed:red green:green blue:blue alpha:alpha];
+					c=[[self class] colorWithCalibratedRed:red green:green blue:blue alpha:alpha];
 					[self release];
 #if 0
 					NSLog(@"initWithCoder -> %@", c);
@@ -929,7 +929,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			default:
 				NSLog(@"unimplemented initWithCoder: for color space model %d (coder=%@)", [aDecoder decodeIntForKey:@"NSColorSpace"], aDecoder);
 				[self autorelease];
-				return [[isa grayColor] retain];
+				return [[[self class] grayColor] retain];
 			}
 		}
 	return self;

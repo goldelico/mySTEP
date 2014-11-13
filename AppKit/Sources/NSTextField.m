@@ -131,7 +131,7 @@
 - (void) drawWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
 #if 0
-	NSLog(@"%@ drawWithFrame:%@", NSStringFromClass(isa), NSStringFromRect(cellFrame));
+	NSLog(@"%@ drawWithFrame:%@", NSStringFromClass([self class]), NSStringFromRect(cellFrame));
 	NSLog(@"editable=%@", _c.editable?@"YES":@"NO");
 	NSLog(@"editing=%@", _c.editing?@"YES":@"NO");
 	NSLog(@"bezeled=%@", _c.bezeled?@"YES":@"NO");

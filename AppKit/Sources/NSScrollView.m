@@ -417,7 +417,7 @@ static Class __rulerViewClass = nil;
  		}
 
 	contentRect.origin = (NSPoint){ borderThickness, borderThickness };
-	contentRect.size = [isa contentSizeForFrameSize:_bounds.size
+	contentRect.size = [[self class] contentSizeForFrameSize:_bounds.size
 							  hasHorizontalScroller:NO
 								hasVerticalScroller:NO
 										 borderType:_sv.borderType];	// default size without any scrollers

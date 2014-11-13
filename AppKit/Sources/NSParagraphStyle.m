@@ -69,7 +69,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	NSTextTab *c=[isa allocWithZone:zone];
+	NSTextTab *c=[[self class] allocWithZone:zone];
 	c->tabStopType=tabStopType;
 	c->location=location;
 	return c;

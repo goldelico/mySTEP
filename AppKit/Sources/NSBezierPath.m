@@ -364,15 +364,15 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[path release];
 }
 
-+ (void) setDefaultFlatness:(float)flatness	{ __defaultFlatness = flatness; }
-+ (void) setDefaultLineWidth:(float)lnWidth	{ __defaultLineWidth = lnWidth; }
-+ (void) setDefaultMiterLimit:(float)limit	{ __defaultMiterLimit = limit; }
++ (void) setDefaultFlatness:(CGFloat)flatness	{ __defaultFlatness = flatness; }
++ (void) setDefaultLineWidth:(CGFloat)lnWidth	{ __defaultLineWidth = lnWidth; }
++ (void) setDefaultMiterLimit:(CGFloat)limit	{ __defaultMiterLimit = limit; }
 + (void) setDefaultWindingRule:(NSWindingRule)windingRule		{ __defaultWindingRule = windingRule; }
 + (void) setDefaultLineCapStyle:(NSLineCapStyle)lineCapStyle	{ __defaultLineCapStyle = lineCapStyle; }
 + (void) setDefaultLineJoinStyle:(NSLineJoinStyle)lineJoinStyle { __defaultLineJoinStyle = lineJoinStyle; }
-+ (float) defaultMiterLimit					{ return __defaultMiterLimit; }
-+ (float) defaultLineWidth					{ return __defaultLineWidth; }
-+ (float) defaultFlatness					{ return __defaultFlatness; }
++ (CGFloat) defaultMiterLimit					{ return __defaultMiterLimit; }
++ (CGFloat) defaultLineWidth					{ return __defaultLineWidth; }
++ (CGFloat) defaultFlatness					{ return __defaultFlatness; }
 + (NSWindingRule) defaultWindingRule		{ return __defaultWindingRule; }
 + (NSLineCapStyle) defaultLineCapStyle		{ return __defaultLineCapStyle; }
 + (NSLineJoinStyle) defaultLineJoinStyle	{ return __defaultLineJoinStyle; }
@@ -551,19 +551,19 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 - (float) lineWidth								{ return _lineWidth; }
-- (float) flatness								{ return _flatness; }
+- (CGFloat) flatness							{ return _flatness; }
 - (float) miterLimit							{ return _miterLimit; }
 - (NSLineJoinStyle) lineJoinStyle				{ return _bz.lineJoinStyle; }
 - (NSLineCapStyle) lineCapStyle					{ return _bz.lineCapStyle; }
 - (NSWindingRule) windingRule					{ return _bz.windingRule; }
-- (void) setLineWidth:(float)lineWidth			{ _lineWidth = lineWidth; }
-- (void) setFlatness:(float)flatness			{ _flatness = flatness; }
+- (void) setLineWidth:(CGFloat)lineWidth			{ _lineWidth = lineWidth; }
+- (void) setFlatness:(CGFloat)flatness			{ _flatness = flatness; }
 - (void) setLineCapStyle:(NSLineCapStyle)ls		{ _bz.lineCapStyle = ls; }
 - (void) setLineJoinStyle:(NSLineJoinStyle)lj	{ _bz.lineJoinStyle = lj; }
 - (void) setWindingRule:(NSWindingRule)wr		{ _bz.windingRule = wr; }
-- (void) setMiterLimit:(float)limit				{ _miterLimit = limit; }
+- (void) setMiterLimit:(CGFloat)limit				{ _miterLimit = limit; }
 
-- (void) getLineDash:(float *)pattern count:(int *)count phase:(float *)phase
+- (void) getLineDash:(CGFloat *)pattern count:(NSInteger *)count phase:(CGFloat *)phase
 {
 	if (count != NULL)				// FIXME: How big is the pattern array?
 		{							// We assume that this value is in count!
@@ -581,7 +581,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	memcpy(pattern, _dashPattern, _dashCount * sizeof(float));
 }
 
-- (void) setLineDash:(const float *)pattern count:(int)count phase:(float)phase
+- (void) setLineDash:(const CGFloat *)pattern count:(int)count phase:(CGFloat)phase
 {
 	if ((pattern == NULL) || (count == 0))
 		{
@@ -998,7 +998,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithRect:(NSRect)rect
 {
-	[self appendBezierPath: [isa bezierPathWithRect: rect]];
+	[self appendBezierPath: [[self class] bezierPathWithRect: rect]];
 }
 
 - (void) appendBezierPathWithPoints:(NSPoint *)points count:(int)count
@@ -1019,7 +1019,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithOvalInRect:(NSRect)aRect
 {
-	[self appendBezierPath: [isa bezierPathWithOvalInRect: aRect]];
+	[self appendBezierPath: [[self class] bezierPathWithOvalInRect: aRect]];
 }
 
 - (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
@@ -1055,9 +1055,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
-									radius:(float)radius
-								startAngle:(float)startAngle
-								  endAngle:(float)endAngle
+									radius:(CGFloat)radius
+								startAngle:(CGFloat)startAngle
+								  endAngle:(CGFloat)endAngle
 								 clockwise:(BOOL)clockwise
 {											// startAngle and endAngle are in 
 	float startAngle_rad, endAngle_rad, diff;	// degrees, counterclockwise, from 
@@ -1185,9 +1185,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
-									radius:(float)radius
-								startAngle:(float)startAngle
-								  endAngle:(float)endAngle
+									radius:(CGFloat)radius
+								startAngle:(CGFloat)startAngle
+								  endAngle:(CGFloat)endAngle
 {
 	[self appendBezierPathWithArcWithCenter: center
 									 radius: radius
@@ -1198,7 +1198,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithArcFromPoint:(NSPoint)point1
 								  toPoint:(NSPoint)point2
-								   radius:(float)radius
+								   radius:(CGFloat)radius
 {
 	float x1 = point1.x;
 	float y1 = point1.y;

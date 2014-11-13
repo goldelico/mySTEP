@@ -263,7 +263,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	BOOL isHorizontal;
 	float horizontalEdgePadding;
 #if 0
-	NSLog(@"%@ %@", NSStringFromClass(isa), NSStringFromSelector(_cmd));
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 #endif
 	if(!needsSizing)
 		return;

@@ -449,6 +449,7 @@ NSRunInformationalAlertPanel(NSString *title,
 + (NSAlert *) alertWithError:(NSError *) err;
 {
 	// initialize with components of error
+	return nil;
 }
 
 + (NSAlert *) alertWithMessageText:(NSString *) message 

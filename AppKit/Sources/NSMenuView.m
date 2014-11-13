@@ -110,7 +110,7 @@
 #if 1
 	[_menuWindow setTitle:[submenu title]];
 #endif
-	_attachedMenuView=[[isa alloc] initWithFrame:[[_menuWindow contentView] frame]];	// make new NSMenuView of matching size
+	_attachedMenuView=[[[self class] alloc] initWithFrame:[[_menuWindow contentView] frame]];	// make new NSMenuView of matching size
 	[_menuWindow setContentView:_attachedMenuView];	// make content view
 #if 0
 	NSLog(@"attachedMenuView=%@", _attachedMenuView);
@@ -191,7 +191,7 @@
 #if 0
 	NSLog(@"MenuView initWithFrame:%@", NSStringFromRect(fr));
 #endif
-	if((self=[super initWithFrame:fr]))	// WARNING: this calls [self setMenu:[isa defaultMenu]]
+	if((self=[super initWithFrame:fr]))	// WARNING: this calls [self setMenu:[[self class] defaultMenu]]
 		{
 #if 0
 		NSLog(@"initWithFrame:%@ bounds:%@", NSStringFromRect([self frame]), NSStringFromRect([self bounds]));

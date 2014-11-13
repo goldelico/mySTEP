@@ -21,6 +21,7 @@
 #ifndef _mySTEP_H_NSFontManager
 #define _mySTEP_H_NSFontManager
 
+#import <Foundation/NSGeometry.h>
 #import <Foundation/NSObject.h>
 
 @class NSString;

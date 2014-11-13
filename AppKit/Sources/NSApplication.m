@@ -1111,7 +1111,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (void) keyDown:(NSEvent *)event
 {
 #if 1
-	NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+	NSLog(@"%@ keyDown: %@", NSStringFromClass([self class]), event);
 #endif
 	if([[event characters] length] > 0)
 			{ // event is providing characters - i.e. not just a meta-key

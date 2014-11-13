@@ -12,7 +12,7 @@
 	under the terms of the GNU Library General Public License.
 */
 
-#ifndef _mySTEP_H_NSPersistentDocumentt
+#ifndef _mySTEP_H_NSPersistentDocument
 #define _mySTEP_H_NSPersistentDocument
 
 #import "AppKit/NSDocument.h"

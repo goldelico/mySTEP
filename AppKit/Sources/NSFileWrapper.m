@@ -42,6 +42,8 @@
 
 @implementation NSFileWrapper
 
+#ifndef __APPLE__
+
 //
 // Initialization 
 //
@@ -628,6 +630,7 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 		}
 	return self;
 }
+#endif
 
 @end
 

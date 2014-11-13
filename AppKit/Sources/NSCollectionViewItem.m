@@ -83,7 +83,7 @@
 }
 - (id) copyWithZone:(NSZone *) zone
 {
-	NSCollectionViewItem *c = [isa allocWithZone:zone];	// makes a real copy
+	NSCollectionViewItem *c = [[self class] allocWithZone:zone];	// makes a real copy
 	
 	c->_view = _view;
 	c->_representedObject = [_representedObject retain];

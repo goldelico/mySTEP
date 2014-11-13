@@ -389,6 +389,14 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.misc.sub_type;
 }
 
+- (void) _setLocation:(NSPoint) location modifierFlags:(unsigned int) flags eventTime:(NSTimeInterval) timestamp number:(int) number;
+{
+	location_point=location;
+	modifier_flags=flags;
+	event_time=timestamp;
+	event_data.mouse.event_num=number;
+}
+
 - (void) encodeWithCoder:(NSCoder *) aCoder							// NSCoding protocol
 {
 	[aCoder encodeValueOfObjCType: @encode(NSEventType) at: &event_type];
@@ -579,7 +587,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		"NSOtherMouseDragged",
 	};
 	if(sizeof(types)/sizeof(types[0]) != NSOtherMouseDragged) // should be optimized away by compiler as dead code if both constants are the same
-		NSLog(@"NSOtherMouseDragged=%d sizeof(types)=%d", NSOtherMouseDragged, sizeof(types)/sizeof(types[0]));
+		NSLog(@"NSOtherMouseDragged=%d sizeof(types)=%lu", NSOtherMouseDragged, sizeof(types)/sizeof(types[0]));
 	switch (event_type) 
 		{
 		case NSLeftMouseDown:
@@ -635,7 +643,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 			return [NSString stringWithFormat:
 				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
 				@" time = %f, window = %d, Context = %p, "
-				@" subtype = %d, data1 = %p, data2 = %p",
+				@" subtype = %d, data1 = %x, data2 = %x",
 				types[event_type - 1], location_point.x, location_point.y,
 				[self _modifier_flags], event_time, _windowNum, event_context,
 				event_data.misc.sub_type, event_data.misc.data1,

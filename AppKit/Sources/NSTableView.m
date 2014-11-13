@@ -464,7 +464,7 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%p %@: identifier=%@ sortDescriptor=%@", self, NSStringFromClass(isa), _identifier, _sortDescriptor];
+	return [NSString stringWithFormat:@"%p %@: identifier=%@ sortDescriptor=%@", self, NSStringFromClass([self class]), _identifier, _sortDescriptor];
 }
 
 - (id) initWithIdentifier:(id)identifier			

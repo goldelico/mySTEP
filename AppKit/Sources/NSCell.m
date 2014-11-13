@@ -65,7 +65,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		{
 		_c.enabled = YES;
 		[self sendActionOn:NSLeftMouseUpMask];
-		ASSIGN(_menu, [isa defaultMenu]);	// set default context menu
+		ASSIGN(_menu, [[self class] defaultMenu]);	// set default context menu
 		[self setImage:anImage];	// makes us an NSImageCell
 		}
 	return self;
@@ -88,7 +88,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		[_attribs setObject:[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease] forKey:NSParagraphStyleAttributeName];
 		[self setAlignment:NSCenterTextAlignment];
 		[self sendActionOn:NSLeftMouseUpMask];
-		ASSIGN(_menu, [isa defaultMenu]);	// set default context menu
+		ASSIGN(_menu, [[self class] defaultMenu]);	// set default context menu
 		_c.type = NSNullCellType;		// force initialization as NSTextCellType (incl. font & textColor)
 		[self setType:NSTextCellType];	// make us a text cell which should assign default font and color
 		ASSIGN(_contents, aString);
@@ -109,7 +109,7 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	NSCell *c = [isa allocWithZone:zone];	// makes a real copy
+	NSCell *c = [[self class] allocWithZone:zone];	// makes a real copy
 	
 	c->_contents = [_contents copyWithZone:zone];
 	c->_controlView = _controlView;

@@ -91,8 +91,8 @@
 {
 	if((self=[super initTextCell:str]))
 		{
-		_completionDelay=[isa defaultCompletionDelay];
-		_tokenizingCharacterSet=[[isa defaultTokenizingCharacterSet] retain];
+		_completionDelay=[[self class] defaultCompletionDelay];
+		_tokenizingCharacterSet=[[[self class] defaultTokenizingCharacterSet] retain];
 		}
 	return self;
 }

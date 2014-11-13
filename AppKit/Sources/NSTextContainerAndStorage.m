@@ -44,7 +44,7 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: size %@ padding=%g%@%@", NSStringFromClass(isa), NSStringFromSize(size), lineFragmentPadding, heightTracksTextView?@" height-tracks":@"", widthTracksTextView?@" width-tracks":@""];
+	return [NSString stringWithFormat:@"%@: size %@ padding=%g%@%@", NSStringFromClass([self class]), NSStringFromSize(size), lineFragmentPadding, heightTracksTextView?@" height-tracks":@"", widthTracksTextView?@" width-tracks":@""];
 }
 
 - (void) _track:(NSNotification *) n;

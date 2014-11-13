@@ -2875,13 +2875,13 @@ object:self]
 {
 #if 0
 	NSLog(@"NSWindow description");
-	NSLog(@" class %@", NSStringFromClass(isa));
+	NSLog(@" class %@", NSStringFromClass([self class]));
 	NSLog(@" win num %d", [_context _windowNumber]);
 	NSLog(@" title %@", [self title]);
 	NSLog(@" frame %@", NSStringFromRect(frame));
 #endif
-	return [NSString stringWithFormat:@"%@ [%lu]: title=%@ frame=%@",
-			NSStringFromClass(isa),
+	return [NSString stringWithFormat:@"%@ [%d]: title=%@ frame=%@",
+			NSStringFromClass([self class]),
 			[_context _windowNumber],
 			[self title],
 			NSStringFromRect(_frame)];
