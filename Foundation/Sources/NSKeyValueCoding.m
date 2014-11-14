@@ -69,7 +69,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	// FIXME: should also try to look for getter methods like <key>, _<key>, is<Key>, get<Key> etc.
 #if 1
 	NSLog(@"valueForKey: %@", str);
-	NSLog(@"selector: %@", CNSStringFromSelector(s));
+	NSLog(@"selector: %@", NSStringFromSelector(s));
 #endif
 	/* if(found in cache)
 	 get msg, type, addr from cache
