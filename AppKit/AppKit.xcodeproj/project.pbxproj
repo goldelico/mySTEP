@@ -418,6 +418,180 @@
 		EE139A2D1A14F24F00546945 /* NSX11GraphicsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48310996A68B00DDE5E0 /* NSX11GraphicsContext.m */; };
 		EE139A2E1A14F24F00546945 /* NSFreeTypeFont.m in Sources */ = {isa = PBXBuildFile; fileRef = EE09BBB10C11F69700F3199C /* NSFreeTypeFont.m */; };
 		EE139A2F1A14F24F00546945 /* GSBitmapImageReps.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3719C09540271001244CF /* GSBitmapImageReps.m */; };
+		EE139AE41A15E3DF00546945 /* AppKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3717D09540271001244CF /* AppKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AE51A15E3DF00546945 /* AppKitDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3C097027D500CBF42C /* AppKitDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AE61A15E3DF00546945 /* AppKitErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3D097027D500CBF42C /* AppKitErrors.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AE71A15E3DF00546945 /* NSAppAccessibility.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3B097027D500CBF42C /* NSAppAccessibility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AE81A15E3DF00546945 /* NSErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C43097027D500CBF42C /* NSErrors.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AE91A15E3DF00546945 /* NSHelpManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C45097027D500CBF42C /* NSHelpManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AEA1A15E3DF00546945 /* NSAffineTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371EB09540272001244CF /* NSAffineTransform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AEC1A15E3DF00546945 /* NSAttributedString.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F109540272001244CF /* NSAttributedString.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AEE1A15E3DF00546945 /* NSFileWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721B09540273001244CF /* NSFileWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF01A15E3DF00546945 /* NSParagraphStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724609540273001244CF /* NSParagraphStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF21A15E3DF00546945 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF41A15E3DF00546945 /* NSSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF61A15E3DF00546945 /* NSSpellChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726809540273001244CF /* NSSpellChecker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF81A15E3DF00546945 /* NSSpellProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726A09540273001244CF /* NSSpellProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AF91A15E3DF00546945 /* NSApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371EE09540272001244CF /* NSApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AFB1A15E3DF00546945 /* NSDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721409540273001244CF /* NSDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AFD1A15E3DF00546945 /* NSDocumentController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721609540273001244CF /* NSDocumentController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139AFF1A15E3DF00546945 /* NSPasteboard.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724809540273001244CF /* NSPasteboard.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B011A15E3E000546945 /* NSPersistentDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C50097027D600CBF42C /* NSPersistentDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B021A15E3E000546945 /* NSWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728D09540273001244CF /* NSWorkspace.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B041A15E3E000546945 /* NSColor.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720409540273001244CF /* NSColor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B061A15E3E000546945 /* NSColorList.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720609540273001244CF /* NSColorList.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B071A15E3E000546945 /* NSColorSpace.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3E097027D500CBF42C /* NSColorSpace.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B091A15E3E000546945 /* NSArrayController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F009540272001244CF /* NSArrayController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B0A1A15E3E000546945 /* NSController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721009540273001244CF /* NSController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B0C1A15E3E000546945 /* NSKeyValueBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722E09540273001244CF /* NSKeyValueBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B0E1A15E3E000546945 /* NSObjectController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723F09540273001244CF /* NSObjectController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B0F1A15E3E000546945 /* NSTreeController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728409540273001244CF /* NSTreeController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B101A15E3E000546945 /* NSTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B121A15E3E100546945 /* NSUserDefaultsController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728609540273001244CF /* NSUserDefaultsController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B131A15E3E100546945 /* NSDictionaryController.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227380D059B98000E4BA5 /* NSDictionaryController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B151A15E3E100546945 /* NSViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B171A15E3E100546945 /* NSWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728B09540273001244CF /* NSWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B191A15E3E100546945 /* NSAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3A097027D500CBF42C /* NSAnimation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B1B1A15E3E100546945 /* NSAnimationContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227790D059C9B000E4BA5 /* NSAnimationContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B1D1A15E3E100546945 /* NSBezierPath.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F309540272001244CF /* NSBezierPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B1F1A15E3E200546945 /* NSCursor.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721209540273001244CF /* NSCursor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B211A15E3E200546945 /* NSDragging.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721809540273001244CF /* NSDragging.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B221A15E3E200546945 /* NSGradient.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227700D059C5C000E4BA5 /* NSGradient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B241A15E3E200546945 /* NSGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722409540273001244CF /* NSGraphics.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B251A15E3E200546945 /* NSGraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722509540273001244CF /* NSGraphicsContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B271A15E3E200546945 /* NSInterfaceStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C48097027D500CBF42C /* NSInterfaceStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B281A15E3E200546945 /* NSStringDrawing.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727109540273001244CF /* NSStringDrawing.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B2A1A15E3E300546945 /* NSShadow.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C53097027D600CBF42C /* NSShadow.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B2C1A15E3E300546945 /* NSTrackingArea.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB143C30D1260A2001212B5 /* NSTrackingArea.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B2E1A15E3E300546945 /* NSFont.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721D09540273001244CF /* NSFont.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B301A15E3E300546945 /* NSFontDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C44097027D500CBF42C /* NSFontDescriptor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B311A15E3E300546945 /* NSFontManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721E09540273001244CF /* NSFontManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B341A15E3E400546945 /* NSCachedImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371FF09540273001244CF /* NSCachedImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B351A15E3E400546945 /* NSCIImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227430D059BC0000E4BA5 /* NSCIImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B371A15E3E400546945 /* NSCustomImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721309540273001244CF /* NSCustomImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B381A15E3E400546945 /* NSEPSImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12274F0D059BFD000E4BA5 /* NSEPSImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B3A1A15E3E400546945 /* NSImage.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722709540273001244CF /* NSImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B3C1A15E3E500546945 /* NSImageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722909540273001244CF /* NSImageCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B3D1A15E3E500546945 /* NSImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722A09540273001244CF /* NSImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B3F1A15E3E500546945 /* NSImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722C09540273001244CF /* NSImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B411A15E3E500546945 /* NSMovie.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723A09540273001244CF /* NSMovie.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B431A15E3E600546945 /* NSMovieView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723C09540273001244CF /* NSMovieView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B441A15E3E600546945 /* NSPDFImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4F097027D600CBF42C /* NSPDFImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B451A15E3E600546945 /* NSPICTImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227490D059BE9000E4BA5 /* NSPICTImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B471A15E3E600546945 /* NSSound.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726709540273001244CF /* NSSound.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B491A15E3E700546945 /* NSEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3721909540273001244CF /* NSEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B4B1A15E3E700546945 /* NSMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723309540273001244CF /* NSMenu.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B4D1A15E3E700546945 /* NSMenuItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723509540273001244CF /* NSMenuItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B4E1A15E3E700546945 /* NSMenuItemCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723609540273001244CF /* NSMenuItemCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B501A15E3E800546945 /* NSMenuView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723809540273001244CF /* NSMenuView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B521A15E3E800546945 /* NSResponder.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725409540273001244CF /* NSResponder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B541A15E3E800546945 /* NSStatusBar.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726D09540273001244CF /* NSStatusBar.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B561A15E3E900546945 /* NSStatusItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726F09540273001244CF /* NSStatusItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B581A15E3E900546945 /* NSNib.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4B097027D600CBF42C /* NSNib.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B591A15E3E900546945 /* NSNibConnector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4C097027D600CBF42C /* NSNibConnector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B5B1A15E3E900546945 /* NSNibControlConnector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4D097027D600CBF42C /* NSNibControlConnector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B5C1A15E3EA00546945 /* NSNibDeclarations.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723D09540273001244CF /* NSNibDeclarations.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B5D1A15E3EA00546945 /* NSNibLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723E09540273001244CF /* NSNibLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B5F1A15E3EA00546945 /* NSNibOutletConnector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4E097027D600CBF42C /* NSNibOutletConnector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B601A15E3EA00546945 /* NSPageLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724309540273001244CF /* NSPageLayout.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B611A15E3EB00546945 /* NSPrinter.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724D09540273001244CF /* NSPrinter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B631A15E3EB00546945 /* NSPrintInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724F09540273001244CF /* NSPrintInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B641A15E3EB00546945 /* NSPrintOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725009540273001244CF /* NSPrintOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B651A15E3EB00546945 /* NSPrintPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725109540273001244CF /* NSPrintPanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B661A15E3EB00546945 /* NSGlyphGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = EE0B25800A51B3E8002E1464 /* NSGlyphGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B671A15E3EC00546945 /* NSGlyphInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12278B0D059CCC000E4BA5 /* NSGlyphInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B691A15E3EC00546945 /* NSInputManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C46097027D500CBF42C /* NSInputManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B6A1A15E3EC00546945 /* NSInputServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C47097027D500CBF42C /* NSInputServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B6B1A15E3EC00546945 /* NSTextInputClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B6C1A15E3ED00546945 /* NSLayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723009540273001244CF /* NSLayoutManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B6E1A15E3ED00546945 /* NSSimpleHorizontalTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B6F1A15E3ED00546945 /* NSText.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727A09540273001244CF /* NSText.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B711A15E3EE00546945 /* NSTextAttachment.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727C09540273001244CF /* NSTextAttachment.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B721A15E3EE00546945 /* NSTextContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727D09540273001244CF /* NSTextContainer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B741A15E3EE00546945 /* NSTextList.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C58097027D600CBF42C /* NSTextList.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B761A15E3EF00546945 /* NSTextTable.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C59097027D600CBF42C /* NSTextTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B781A15E3EF00546945 /* NSTextStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728109540273001244CF /* NSTextStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B791A15E3EF00546945 /* NSTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728209540273001244CF /* NSTextView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B7B1A15E3F000546945 /* NSTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF5292D0A55355E0049AF3C /* NSTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B7D1A15E3F000546945 /* NSActionCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371E909540272001244CF /* NSActionCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B7F1A15E3F100546945 /* NSBox.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F609540272001244CF /* NSBox.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B811A15E3F200546945 /* NSBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F809540272001244CF /* NSBrowser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B831A15E3F200546945 /* NSBrowserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371FA09540273001244CF /* NSBrowserCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B851A15E3F300546945 /* NSButton.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371FC09540273001244CF /* NSButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B871A15E3F300546945 /* NSButtonCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371FE09540273001244CF /* NSButtonCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B881A15E3F300546945 /* NSCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720009540273001244CF /* NSCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B8A1A15E3F400546945 /* NSClipView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720209540273001244CF /* NSClipView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B8C1A15E3F400546945 /* NSCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12277F0D059CAF000E4BA5 /* NSCollectionView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B8E1A15E3F500546945 /* NSCollectionViewItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227810D059CAF000E4BA5 /* NSCollectionViewItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B901A15E3F500546945 /* NSColorWell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720A09540273001244CF /* NSColorWell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B921A15E3F600546945 /* NSComboBox.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720C09540273001244CF /* NSComboBox.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B941A15E3F700546945 /* NSComboBoxCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C3F097027D500CBF42C /* NSComboBoxCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B951A15E3F700546945 /* NSControl.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720E09540273001244CF /* NSControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B971A15E3F800546945 /* NSDatePicker.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C40097027D500CBF42C /* NSDatePicker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B991A15E3F900546945 /* NSDatePickerCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C41097027D500CBF42C /* NSDatePickerCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B9A1A15E3F900546945 /* NSForm.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722109540273001244CF /* NSForm.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B9C1A15E3F900546945 /* NSFormCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722309540273001244CF /* NSFormCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B9D1A15E3FA00546945 /* NSLevelIndicator.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C49097027D500CBF42C /* NSLevelIndicator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139B9F1A15E3FA00546945 /* NSLevelIndicatorCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C4A097027D600CBF42C /* NSLevelIndicatorCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA01A15E3FB00546945 /* NSMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3723109540273001244CF /* NSMatrix.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA21A15E3FB00546945 /* NSOutlineView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724109540273001244CF /* NSOutlineView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA31A15E3FC00546945 /* NSOutlineView.m in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724209540273001244CF /* NSOutlineView.m */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA41A15E3FC00546945 /* NSPathCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227550D059C1D000E4BA5 /* NSPathCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA61A15E3FD00546945 /* NSPathComponentCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227570D059C1D000E4BA5 /* NSPathComponentCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BA81A15E3FD00546945 /* NSPathControl.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227590D059C1D000E4BA5 /* NSPathControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BAA1A15E3FE00546945 /* NSPopUpButton.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724A09540273001244CF /* NSPopUpButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BAC1A15E3FF00546945 /* NSPopUpButtonCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724C09540273001244CF /* NSPopUpButtonCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BAD1A15E3FF00546945 /* NSProgressIndicator.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725209540273001244CF /* NSProgressIndicator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BAF1A15E40000546945 /* NSRulerMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725609540273001244CF /* NSRulerMarker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB01A15E40000546945 /* NSRulerView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725709540273001244CF /* NSRulerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB11A15E40000546945 /* NSScroller.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725B09540273001244CF /* NSScroller.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB31A15E40100546945 /* NSScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725D09540273001244CF /* NSScrollView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB51A15E40100546945 /* NSSearchField.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725F09540273001244CF /* NSSearchField.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB71A15E40200546945 /* NSSearchFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726109540273001244CF /* NSSearchFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BB81A15E40200546945 /* NSSecureTextField.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726209540273001244CF /* NSSecureTextField.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BBA1A15E40300546945 /* NSSegmentedCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C51097027D600CBF42C /* NSSegmentedCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BBB1A15E40300546945 /* NSSegmentedControl.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C52097027D600CBF42C /* NSSegmentedControl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BBD1A15E40400546945 /* NSSlider.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726409540273001244CF /* NSSlider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BBF1A15E40500546945 /* NSSliderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726609540273001244CF /* NSSliderCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC01A15E40500546945 /* NSSplitView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3726B09540273001244CF /* NSSplitView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC21A15E40600546945 /* NSStepper.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C55097027D600CBF42C /* NSStepper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC41A15E40700546945 /* NSStepperCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C56097027D600CBF42C /* NSStepperCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC51A15E40700546945 /* NSTableColumn.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727309540273001244CF /* NSTableColumn.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC61A15E40700546945 /* NSTableHeaderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C57097027D600CBF42C /* NSTableHeaderCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC71A15E40800546945 /* NSTableHeaderView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727409540273001244CF /* NSTableHeaderView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BC81A15E40800546945 /* NSTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727509540273001244CF /* NSTableView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BCA1A15E40900546945 /* NSTabView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727709540273001244CF /* NSTabView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BCC1A15E40A00546945 /* NSTabViewItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727909540273001244CF /* NSTabViewItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BCD1A15E40A00546945 /* NSTextField.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3727E09540273001244CF /* NSTextField.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BCF1A15E40B00546945 /* NSTextFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728009540273001244CF /* NSTextFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD01A15E40C00546945 /* NSTokenField.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5A097027D600CBF42C /* NSTokenField.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD21A15E40D00546945 /* NSTokenFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD31A15E40D00546945 /* NSView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728709540273001244CF /* NSView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD51A15E40E00546945 /* NSAlert.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C39097027D500CBF42C /* NSAlert.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD61A15E40E00546945 /* NSColorPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720709540273001244CF /* NSColorPanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD71A15E40E00546945 /* NSColorPicker.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720809540273001244CF /* NSColorPicker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD81A15E40F00546945 /* NSColorPicking.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3720909540273001244CF /* NSColorPicking.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BD91A15E40F00546945 /* NSDockTile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227320D059B7C000E4BA5 /* NSDockTile.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BDB1A15E41000546945 /* NSFontPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3722009540273001244CF /* NSFontPanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BDC1A15E41000546945 /* NSOpenPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724009540273001244CF /* NSOpenPanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BDD1A15E41100546945 /* NSPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3724409540273001244CF /* NSPanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BDF1A15E41200546945 /* NSPredicateEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227250D059B63000E4BA5 /* NSPredicateEditor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BE11A15E41200546945 /* NSPredicateEditorRowTemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227270D059B63000E4BA5 /* NSPredicateEditorRowTemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BE31A15E41300546945 /* NSRuleEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227670D059C39000E4BA5 /* NSRuleEditor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BE51A15E41400546945 /* NSSavePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725809540273001244CF /* NSSavePanel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BE61A15E41500546945 /* NSDrawer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C42097027D500CBF42C /* NSDrawer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BE81A15E41500546945 /* NSScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3725909540273001244CF /* NSScreen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BEA1A15E41600546945 /* NSWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728909540273001244CF /* NSWindow.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BEC1A15E41700546945 /* NSToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5C097027D600CBF42C /* NSToolbar.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BED1A15E41800546945 /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BEE1A15E41800546945 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BF01A15E41900546945 /* NSUserInterfaceValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3728509540273001244CF /* NSUserInterfaceValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE139BF11A15E41900546945 /* NSAppKitPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE05053B096EDABE004D1F47 /* NSAppKitPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		EE139BF21A15E41A00546945 /* NSBackendPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		EE139BF31A15E41A00546945 /* NSSystemServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF77A320CAE980000C71DD2 /* NSSystemServer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		EE139BF61A15E41C00546945 /* GSServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3719F09540271001244CF /* GSServices.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		EE139BF81A15E41D00546945 /* NSX11GraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1D48300996A68B00DDE5E0 /* NSX11GraphicsContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		EE139BFA1A15E41E00546945 /* NSFreeTypeFont.h in Headers */ = {isa = PBXBuildFile; fileRef = EE09BBB20C11F69700F3199C /* NSFreeTypeFont.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		EE1D437F0995047F00DDE5E0 /* NSNibConnectors.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D437E0995047F00DDE5E0 /* NSNibConnectors.m */; };
 		EE1D48720997962600DDE5E0 /* NSFont.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48710997962600DDE5E0 /* NSFont.m */; };
 		EE1D90260A921A71003988F3 /* NSSound.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D90250A921A71003988F3 /* NSSound.m */; };
@@ -1294,11 +1468,7 @@
 		EE12278B0D059CCC000E4BA5 /* NSGlyphInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSGlyphInfo.h; sourceTree = "<group>"; };
 		EE12278C0D059CCC000E4BA5 /* NSGlyphInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSGlyphInfo.m; sourceTree = "<group>"; };
 		EE1399A31A14EE2200546945 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		EE1399AA1A14EF9B00546945 /* AppKit mixed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "AppKit mixed.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE1399AD1A14EF9B00546945 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EE1399AE1A14EF9B00546945 /* AppKit mixed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppKit mixed.h"; sourceTree = "<group>"; };
-		EE1399BA1A14EF9C00546945 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EE1399BB1A14EF9C00546945 /* AppKit_mixedTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppKit_mixedTests.m; sourceTree = "<group>"; };
+		EE1399AA1A14EF9B00546945 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE1D437E0995047F00DDE5E0 /* NSNibConnectors.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSNibConnectors.m; sourceTree = "<group>"; };
 		EE1D467109964C8300DDE5E0 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EE1D471409964C8F00DDE5E0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -1387,7 +1557,6 @@
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AppKitMixed-Prefix.h"; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
 		EE8D21E41031DEF800195E25 /* GSArrowDown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GSArrowDown.png; sourceTree = "<group>"; };
@@ -1662,7 +1831,6 @@
 		EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDiscloseH.tiff; sourceTree = "<group>"; };
 		EEF6E6FA1021A3E600764AC3 /* NSShadow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSShadow.m; sourceTree = "<group>"; };
 		EEF77A320CAE980000C71DD2 /* NSSystemServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSystemServer.h; sourceTree = "<group>"; };
-		EEFC896816D4DA5E005171C9 /* AppKitNibTest.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitNibTest.qcodeproj; sourceTree = "<group>"; };
 		EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSAnimation.m; sourceTree = "<group>"; };
 		EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSBackendPrivate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1781,7 +1949,6 @@
 				EE1399A31A14EE2200546945 /* Foundation.framework */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */,
-				EEFC896816D4DA5E005171C9 /* AppKitNibTest.qcodeproj */,
 				EE59BFFE15624FD900754103 /* Web */,
 				EEA3717B09540271001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
@@ -1792,8 +1959,6 @@
 				EE4CA9E30D3D080100B1513B /* GNUstep GUI */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
-				EE1399AB1A14EF9B00546945 /* AppKit mixed */,
-				EE1399B81A14EF9C00546945 /* AppKit mixedTests */,
 				EE29D8D8058A38830035639B /* Products */,
 			);
 			name = BrowserTester;
@@ -1961,40 +2126,6 @@
 			name = "System Panels";
 			sourceTree = "<group>";
 		};
-		EE1399AB1A14EF9B00546945 /* AppKit mixed */ = {
-			isa = PBXGroup;
-			children = (
-				EE1399AE1A14EF9B00546945 /* AppKit mixed.h */,
-				EE1399AC1A14EF9B00546945 /* Supporting Files */,
-			);
-			path = "AppKit mixed";
-			sourceTree = "<group>";
-		};
-		EE1399AC1A14EF9B00546945 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				EE1399AD1A14EF9B00546945 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		EE1399B81A14EF9C00546945 /* AppKit mixedTests */ = {
-			isa = PBXGroup;
-			children = (
-				EE1399BB1A14EF9C00546945 /* AppKit_mixedTests.m */,
-				EE1399B91A14EF9C00546945 /* Supporting Files */,
-			);
-			path = "AppKit mixedTests";
-			sourceTree = "<group>";
-		};
-		EE1399B91A14EF9C00546945 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				EE1399BA1A14EF9C00546945 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -2004,7 +2135,7 @@
 				EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */,
 				EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */,
 				EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */,
-				EE1399AA1A14EF9B00546945 /* AppKit mixed.framework */,
+				EE1399AA1A14EF9B00546945 /* AppKit.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2012,7 +2143,6 @@
 		EE3196E109AB7E8A0089A9A2 /* NibTest */ = {
 			isa = PBXGroup;
 			children = (
-				EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */,
 				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
 				EE3196E309AB7E8A0089A9A2 /* AppController.m */,
 				EECD83FC0A089F8000EF3E30 /* myModel.h */,
@@ -2600,6 +2730,180 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE139AE41A15E3DF00546945 /* AppKit.h in Headers */,
+				EE139AE51A15E3DF00546945 /* AppKitDefines.h in Headers */,
+				EE139AE61A15E3DF00546945 /* AppKitErrors.h in Headers */,
+				EE139AE71A15E3DF00546945 /* NSAppAccessibility.h in Headers */,
+				EE139AE81A15E3DF00546945 /* NSErrors.h in Headers */,
+				EE139AE91A15E3DF00546945 /* NSHelpManager.h in Headers */,
+				EE139AEA1A15E3DF00546945 /* NSAffineTransform.h in Headers */,
+				EE139AEC1A15E3DF00546945 /* NSAttributedString.h in Headers */,
+				EE139AEE1A15E3DF00546945 /* NSFileWrapper.h in Headers */,
+				EE139AF01A15E3DF00546945 /* NSParagraphStyle.h in Headers */,
+				EE139AF21A15E3DF00546945 /* NSSpeechRecognizer.h in Headers */,
+				EE139AF41A15E3DF00546945 /* NSSpeechSynthesizer.h in Headers */,
+				EE139AF61A15E3DF00546945 /* NSSpellChecker.h in Headers */,
+				EE139AF81A15E3DF00546945 /* NSSpellProtocol.h in Headers */,
+				EE139AF91A15E3DF00546945 /* NSApplication.h in Headers */,
+				EE139AFB1A15E3DF00546945 /* NSDocument.h in Headers */,
+				EE139AFD1A15E3DF00546945 /* NSDocumentController.h in Headers */,
+				EE139AFF1A15E3DF00546945 /* NSPasteboard.h in Headers */,
+				EE139B011A15E3E000546945 /* NSPersistentDocument.h in Headers */,
+				EE139B021A15E3E000546945 /* NSWorkspace.h in Headers */,
+				EE139B041A15E3E000546945 /* NSColor.h in Headers */,
+				EE139B061A15E3E000546945 /* NSColorList.h in Headers */,
+				EE139B071A15E3E000546945 /* NSColorSpace.h in Headers */,
+				EE139B091A15E3E000546945 /* NSArrayController.h in Headers */,
+				EE139B0A1A15E3E000546945 /* NSController.h in Headers */,
+				EE139B0C1A15E3E000546945 /* NSKeyValueBinding.h in Headers */,
+				EE139B0E1A15E3E000546945 /* NSObjectController.h in Headers */,
+				EE139B0F1A15E3E000546945 /* NSTreeController.h in Headers */,
+				EE139B101A15E3E000546945 /* NSTreeNode.h in Headers */,
+				EE139B121A15E3E100546945 /* NSUserDefaultsController.h in Headers */,
+				EE139B131A15E3E100546945 /* NSDictionaryController.h in Headers */,
+				EE139B151A15E3E100546945 /* NSViewController.h in Headers */,
+				EE139B171A15E3E100546945 /* NSWindowController.h in Headers */,
+				EE139B191A15E3E100546945 /* NSAnimation.h in Headers */,
+				EE139B1B1A15E3E100546945 /* NSAnimationContext.h in Headers */,
+				EE139B1D1A15E3E100546945 /* NSBezierPath.h in Headers */,
+				EE139B1F1A15E3E200546945 /* NSCursor.h in Headers */,
+				EE139B211A15E3E200546945 /* NSDragging.h in Headers */,
+				EE139B221A15E3E200546945 /* NSGradient.h in Headers */,
+				EE139B241A15E3E200546945 /* NSGraphics.h in Headers */,
+				EE139B251A15E3E200546945 /* NSGraphicsContext.h in Headers */,
+				EE139B271A15E3E200546945 /* NSInterfaceStyle.h in Headers */,
+				EE139B281A15E3E200546945 /* NSStringDrawing.h in Headers */,
+				EE139B2A1A15E3E300546945 /* NSShadow.h in Headers */,
+				EE139B2C1A15E3E300546945 /* NSTrackingArea.h in Headers */,
+				EE139B2E1A15E3E300546945 /* NSFont.h in Headers */,
+				EE139B301A15E3E300546945 /* NSFontDescriptor.h in Headers */,
+				EE139B311A15E3E300546945 /* NSFontManager.h in Headers */,
+				EE139B341A15E3E400546945 /* NSCachedImageRep.h in Headers */,
+				EE139B351A15E3E400546945 /* NSCIImageRep.h in Headers */,
+				EE139B371A15E3E400546945 /* NSCustomImageRep.h in Headers */,
+				EE139B381A15E3E400546945 /* NSEPSImageRep.h in Headers */,
+				EE139B3A1A15E3E400546945 /* NSImage.h in Headers */,
+				EE139B3C1A15E3E500546945 /* NSImageCell.h in Headers */,
+				EE139B3D1A15E3E500546945 /* NSImageRep.h in Headers */,
+				EE139B3F1A15E3E500546945 /* NSImageView.h in Headers */,
+				EE139B411A15E3E500546945 /* NSMovie.h in Headers */,
+				EE139B431A15E3E600546945 /* NSMovieView.h in Headers */,
+				EE139B441A15E3E600546945 /* NSPDFImageRep.h in Headers */,
+				EE139B451A15E3E600546945 /* NSPICTImageRep.h in Headers */,
+				EE139B471A15E3E600546945 /* NSSound.h in Headers */,
+				EE139B491A15E3E700546945 /* NSEvent.h in Headers */,
+				EE139B4B1A15E3E700546945 /* NSMenu.h in Headers */,
+				EE139B4D1A15E3E700546945 /* NSMenuItem.h in Headers */,
+				EE139B4E1A15E3E700546945 /* NSMenuItemCell.h in Headers */,
+				EE139B501A15E3E800546945 /* NSMenuView.h in Headers */,
+				EE139B521A15E3E800546945 /* NSResponder.h in Headers */,
+				EE139B541A15E3E800546945 /* NSStatusBar.h in Headers */,
+				EE139B561A15E3E900546945 /* NSStatusItem.h in Headers */,
+				EE139B581A15E3E900546945 /* NSNib.h in Headers */,
+				EE139B591A15E3E900546945 /* NSNibConnector.h in Headers */,
+				EE139B5B1A15E3E900546945 /* NSNibControlConnector.h in Headers */,
+				EE139B5C1A15E3EA00546945 /* NSNibDeclarations.h in Headers */,
+				EE139B5D1A15E3EA00546945 /* NSNibLoading.h in Headers */,
+				EE139B5F1A15E3EA00546945 /* NSNibOutletConnector.h in Headers */,
+				EE139B601A15E3EA00546945 /* NSPageLayout.h in Headers */,
+				EE139B611A15E3EB00546945 /* NSPrinter.h in Headers */,
+				EE139B631A15E3EB00546945 /* NSPrintInfo.h in Headers */,
+				EE139B641A15E3EB00546945 /* NSPrintOperation.h in Headers */,
+				EE139B651A15E3EB00546945 /* NSPrintPanel.h in Headers */,
+				EE139B661A15E3EB00546945 /* NSGlyphGenerator.h in Headers */,
+				EE139B671A15E3EC00546945 /* NSGlyphInfo.h in Headers */,
+				EE139B691A15E3EC00546945 /* NSInputManager.h in Headers */,
+				EE139B6A1A15E3EC00546945 /* NSInputServer.h in Headers */,
+				EE139B6B1A15E3EC00546945 /* NSTextInputClient.h in Headers */,
+				EE139B6C1A15E3ED00546945 /* NSLayoutManager.h in Headers */,
+				EE139B6E1A15E3ED00546945 /* NSSimpleHorizontalTypesetter.h in Headers */,
+				EE139B6F1A15E3ED00546945 /* NSText.h in Headers */,
+				EE139B711A15E3EE00546945 /* NSTextAttachment.h in Headers */,
+				EE139B721A15E3EE00546945 /* NSTextContainer.h in Headers */,
+				EE139B741A15E3EE00546945 /* NSTextList.h in Headers */,
+				EE139B761A15E3EF00546945 /* NSTextTable.h in Headers */,
+				EE139B781A15E3EF00546945 /* NSTextStorage.h in Headers */,
+				EE139B791A15E3EF00546945 /* NSTextView.h in Headers */,
+				EE139B7B1A15E3F000546945 /* NSTypesetter.h in Headers */,
+				EE139B7D1A15E3F000546945 /* NSActionCell.h in Headers */,
+				EE139B7F1A15E3F100546945 /* NSBox.h in Headers */,
+				EE139B811A15E3F200546945 /* NSBrowser.h in Headers */,
+				EE139B831A15E3F200546945 /* NSBrowserCell.h in Headers */,
+				EE139B851A15E3F300546945 /* NSButton.h in Headers */,
+				EE139B871A15E3F300546945 /* NSButtonCell.h in Headers */,
+				EE139B881A15E3F300546945 /* NSCell.h in Headers */,
+				EE139B8A1A15E3F400546945 /* NSClipView.h in Headers */,
+				EE139B8C1A15E3F400546945 /* NSCollectionView.h in Headers */,
+				EE139B8E1A15E3F500546945 /* NSCollectionViewItem.h in Headers */,
+				EE139B901A15E3F500546945 /* NSColorWell.h in Headers */,
+				EE139B921A15E3F600546945 /* NSComboBox.h in Headers */,
+				EE139B941A15E3F700546945 /* NSComboBoxCell.h in Headers */,
+				EE139B951A15E3F700546945 /* NSControl.h in Headers */,
+				EE139B971A15E3F800546945 /* NSDatePicker.h in Headers */,
+				EE139B991A15E3F900546945 /* NSDatePickerCell.h in Headers */,
+				EE139B9A1A15E3F900546945 /* NSForm.h in Headers */,
+				EE139B9C1A15E3F900546945 /* NSFormCell.h in Headers */,
+				EE139B9D1A15E3FA00546945 /* NSLevelIndicator.h in Headers */,
+				EE139B9F1A15E3FA00546945 /* NSLevelIndicatorCell.h in Headers */,
+				EE139BA01A15E3FB00546945 /* NSMatrix.h in Headers */,
+				EE139BA21A15E3FB00546945 /* NSOutlineView.h in Headers */,
+				EE139BA31A15E3FC00546945 /* NSOutlineView.m in Headers */,
+				EE139BA41A15E3FC00546945 /* NSPathCell.h in Headers */,
+				EE139BA61A15E3FD00546945 /* NSPathComponentCell.h in Headers */,
+				EE139BA81A15E3FD00546945 /* NSPathControl.h in Headers */,
+				EE139BAA1A15E3FE00546945 /* NSPopUpButton.h in Headers */,
+				EE139BAC1A15E3FF00546945 /* NSPopUpButtonCell.h in Headers */,
+				EE139BAD1A15E3FF00546945 /* NSProgressIndicator.h in Headers */,
+				EE139BAF1A15E40000546945 /* NSRulerMarker.h in Headers */,
+				EE139BB01A15E40000546945 /* NSRulerView.h in Headers */,
+				EE139BB11A15E40000546945 /* NSScroller.h in Headers */,
+				EE139BB31A15E40100546945 /* NSScrollView.h in Headers */,
+				EE139BB51A15E40100546945 /* NSSearchField.h in Headers */,
+				EE139BB71A15E40200546945 /* NSSearchFieldCell.h in Headers */,
+				EE139BB81A15E40200546945 /* NSSecureTextField.h in Headers */,
+				EE139BBA1A15E40300546945 /* NSSegmentedCell.h in Headers */,
+				EE139BBB1A15E40300546945 /* NSSegmentedControl.h in Headers */,
+				EE139BBD1A15E40400546945 /* NSSlider.h in Headers */,
+				EE139BBF1A15E40500546945 /* NSSliderCell.h in Headers */,
+				EE139BC01A15E40500546945 /* NSSplitView.h in Headers */,
+				EE139BC21A15E40600546945 /* NSStepper.h in Headers */,
+				EE139BC41A15E40700546945 /* NSStepperCell.h in Headers */,
+				EE139BC51A15E40700546945 /* NSTableColumn.h in Headers */,
+				EE139BC61A15E40700546945 /* NSTableHeaderCell.h in Headers */,
+				EE139BC71A15E40800546945 /* NSTableHeaderView.h in Headers */,
+				EE139BC81A15E40800546945 /* NSTableView.h in Headers */,
+				EE139BCA1A15E40900546945 /* NSTabView.h in Headers */,
+				EE139BCC1A15E40A00546945 /* NSTabViewItem.h in Headers */,
+				EE139BCD1A15E40A00546945 /* NSTextField.h in Headers */,
+				EE139BCF1A15E40B00546945 /* NSTextFieldCell.h in Headers */,
+				EE139BD01A15E40C00546945 /* NSTokenField.h in Headers */,
+				EE139BD21A15E40D00546945 /* NSTokenFieldCell.h in Headers */,
+				EE139BD31A15E40D00546945 /* NSView.h in Headers */,
+				EE139BD51A15E40E00546945 /* NSAlert.h in Headers */,
+				EE139BD61A15E40E00546945 /* NSColorPanel.h in Headers */,
+				EE139BD71A15E40E00546945 /* NSColorPicker.h in Headers */,
+				EE139BD81A15E40F00546945 /* NSColorPicking.h in Headers */,
+				EE139BD91A15E40F00546945 /* NSDockTile.h in Headers */,
+				EE139BDB1A15E41000546945 /* NSFontPanel.h in Headers */,
+				EE139BDC1A15E41000546945 /* NSOpenPanel.h in Headers */,
+				EE139BDD1A15E41100546945 /* NSPanel.h in Headers */,
+				EE139BDF1A15E41200546945 /* NSPredicateEditor.h in Headers */,
+				EE139BE11A15E41200546945 /* NSPredicateEditorRowTemplate.h in Headers */,
+				EE139BE31A15E41300546945 /* NSRuleEditor.h in Headers */,
+				EE139BE51A15E41400546945 /* NSSavePanel.h in Headers */,
+				EE139BE61A15E41500546945 /* NSDrawer.h in Headers */,
+				EE139BE81A15E41500546945 /* NSScreen.h in Headers */,
+				EE139BEA1A15E41600546945 /* NSWindow.h in Headers */,
+				EE139BEC1A15E41700546945 /* NSToolbar.h in Headers */,
+				EE139BED1A15E41800546945 /* NSToolbarItem.h in Headers */,
+				EE139BEE1A15E41800546945 /* NSToolbarItemGroup.h in Headers */,
+				EE139BF01A15E41900546945 /* NSUserInterfaceValidation.h in Headers */,
+				EE139BF11A15E41900546945 /* NSAppKitPrivate.h in Headers */,
+				EE139BF21A15E41A00546945 /* NSBackendPrivate.h in Headers */,
+				EE139BF31A15E41A00546945 /* NSSystemServer.h in Headers */,
+				EE139BF61A15E41C00546945 /* GSServices.h in Headers */,
+				EE139BF81A15E41D00546945 /* NSX11GraphicsContext.h in Headers */,
+				EE139BFA1A15E41E00546945 /* NSFreeTypeFont.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3136,7 +3440,7 @@
 			);
 			name = AppKit.framework;
 			productName = "AppKit mixed";
-			productReference = EE1399AA1A14EF9B00546945 /* AppKit mixed.framework */;
+			productReference = EE1399AA1A14EF9B00546945 /* AppKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		EE3193ED09AA47490089A9A2 /* AppKit for Mixed old.framework */ = {
@@ -4197,7 +4501,7 @@
 					"-lgif",
 					"-ltiff",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4277,7 +4581,7 @@
 					"-lgif",
 					"-ltiff",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4357,7 +4661,7 @@
 					"-lgif",
 					"-ltiff",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -5254,6 +5558,7 @@
 				EE1399C01A14EF9C00546945 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EE31950D09AA47490089A9A2 /* Build configuration list for PBXNativeTarget "AppKit for Mixed old.framework" */ = {
 			isa = XCConfigurationList;
