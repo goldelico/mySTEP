@@ -199,8 +199,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 		NSLog(@"class = %@", NSStringFromClass(class));
 #endif
-		if(![class isSubclassOfClass:[self class]])
-		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
+		if(![class isKindOfClass:[self class]])
+		   NSLog(@"principal class (%@) of main bundle is not subclass of %@", NSStringFromClass(class), NSStringFromClass([self class]));
 		[class new];	// create instance -init will set NSApp
 		[arp release];
 		}
