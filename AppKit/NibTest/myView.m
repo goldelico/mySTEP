@@ -69,7 +69,6 @@ static NSImage *image;
 	NSRect r;
 	NSPoint pnt;
 	NSAffineTransform *atm;
-	NSView *v;
 	NSLog(@"myView drawRect:%@", NSStringFromRect(aRect));
 	NSLog(@" flipped=%d", [self isFlipped]);
 	NSLog(@" graphicscontext=%@", [NSGraphicsContext currentContext]);

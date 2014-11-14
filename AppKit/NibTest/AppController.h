@@ -16,7 +16,7 @@
     IBOutlet NSTextField  *tf;
     IBOutlet NSWindow  *win;
 	IBOutlet NSWindow  *toolWin;
-	NSMenuView *v;
+	/* NSMenuView */ id v;
 	IBOutlet NSTextField  *cont;
 	IBOutlet NSTableView  *buttonTable;
 	IBOutlet NSClipView *clipView;

@@ -36,7 +36,7 @@
 
 - (IBAction) printBezelStyle:(id) Sender;
 {
-	NSLog(@"Bezel Style = %d", [Sender bezelStyle]);
+	NSLog(@"Bezel Style = %lu", [Sender bezelStyle]);
 }
 
 - (IBAction) periodic:(id) Sender;
@@ -55,7 +55,7 @@ void printWindowList()
 	for(i=0; i<n; i++)
 			{
 				NSWindow *win=[NSApp windowWithWindowNumber:list[i]];
-				NSLog(@"[%02d]: %d %d %@ %@", i, list[i], [win level], [win title], win);
+				NSLog(@"[%02d]: %d %ld %@ %@", i, list[i], (long)[win level], [win title], win);
 			}
 }
 
@@ -63,7 +63,7 @@ void printWindowList()
 {
 	NSWindow *w;
 	NSLog(@"awakeFromNib");
-	NSLog(@"NSNotFound=%d %u %08x", NSNotFound, NSNotFound, NSNotFound);
+	NSLog(@"NSNotFound=%lu %lu %08lx", NSNotFound, NSNotFound, NSNotFound);
 	NSLog(@"NSApp=%@", NSApp);
 	NSLog(@"Bundle=%@", [NSBundle bundleForClass:[self class]]);
 #if 1
@@ -98,7 +98,7 @@ void printWindowList()
 		NSLog(@"test boldSystemFontOfSize:12 = %@", f);
 		NSLog(@"descriptor = %@", [f fontDescriptor]);
 		NSLog(@"boundingRectForFont = %@", NSStringFromRect([f boundingRectForFont]));
-		NSLog(@"numberOfGlyphs = %u", [f numberOfGlyphs]);
+		NSLog(@"numberOfGlyphs = %lu", (unsigned long)[f numberOfGlyphs]);
 		NSLog(@"ascender = %f", [f ascender]);
 		NSLog(@"descender = %f", [f descender]);
 		NSLog(@"leading = %f", [f leading]);
@@ -164,7 +164,7 @@ void printWindowList()
 	NSLog(@"after alloc %d, %@", [w retainCount], [NSApp windows]);
 	printWindowList();
 	w=[w initWithContentRect:NSMakeRect(10.0, 10.0, 50.0, 50.0) styleMask:0 backing:0 defer:NO];
-	NSLog(@"after init %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after init %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w orderFront:self];
 	NSLog(@"after orderFront %d, %@", [w retainCount], [NSApp windows]);
@@ -182,7 +182,7 @@ void printWindowList()
 	[w retain];
 	NSLog(@"after retain %d, %@", [w retainCount], [NSApp windows]);
 	[w release];
-	NSLog(@"after release %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after release %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	[w release];
 	NSLog(@"after 2nd release %d, %@", [w retainCount], [NSApp windows]);
 #if 1

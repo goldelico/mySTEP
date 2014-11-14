@@ -1,0 +1,611 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EE12A7C705A9D1690062F31B /* myView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12A7C505A9D1690062F31B /* myView.h */; };
+		EE12A7C805A9D1690062F31B /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE12A7C605A9D1690062F31B /* myView.m */; };
+		EE139ABB1A15D7DA00546945 /* mySTEP.make in Resources */ = {isa = PBXBuildFile; fileRef = EE139ABA1A15D7DA00546945 /* mySTEP.make */; };
+		EE139AC21A15D94000546945 /* AppController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033B2046FF65C1FE11CA0E35 /* AppController.h */; };
+		EE139AC31A15D94000546945 /* myView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12A7C505A9D1690062F31B /* myView.h */; };
+		EE139AC51A15D94000546945 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
+		EE139AC61A15D94000546945 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		EE139AC71A15D94000546945 /* myTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE29CD6E0586566F0035639B /* myTest.icns */; };
+		EE139AC91A15D94000546945 /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEBFB2E705E89C97002B59FD /* Default.tiff */; };
+		EE139ACB1A15D94000546945 /* mySTEP.make in Resources */ = {isa = PBXBuildFile; fileRef = EE139ABA1A15D7DA00546945 /* mySTEP.make */; };
+		EE139ACD1A15D94000546945 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033B2047FF65C1FE11CA0E35 /* AppController.m */; };
+		EE139ACE1A15D94000546945 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		EE139ACF1A15D94000546945 /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE12A7C605A9D1690062F31B /* myView.m */; };
+		EE139AD11A15D94000546945 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		EE139AD21A15D94000546945 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
+		EE139AD31A15D94000546945 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
+		EE139ADD1A15D97700546945 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE139ADC1A15D97700546945 /* AppKit.framework */; };
+		EE139CD01A15ED3000546945 /* CircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCC1A15ED3000546945 /* CircleView.h */; };
+		EE139CD11A15ED3000546945 /* CircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCC1A15ED3000546945 /* CircleView.h */; };
+		EE139CD21A15ED3000546945 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CCD1A15ED3000546945 /* CircleView.m */; };
+		EE139CD31A15ED3000546945 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CCD1A15ED3000546945 /* CircleView.m */; };
+		EE139CD41A15ED3000546945 /* myModel.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCE1A15ED3000546945 /* myModel.h */; };
+		EE139CD51A15ED3000546945 /* myModel.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCE1A15ED3000546945 /* myModel.h */; };
+		EE139CD61A15ED3000546945 /* myModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CCF1A15ED3000546945 /* myModel.m */; };
+		EE139CD71A15ED3000546945 /* myModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CCF1A15ED3000546945 /* myModel.m */; };
+		EE139CDA1A15ED5100546945 /* TestView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CD81A15ED5100546945 /* TestView.h */; };
+		EE139CDB1A15ED5100546945 /* TestView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CD81A15ED5100546945 /* TestView.h */; };
+		EE139CDC1A15ED5100546945 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CD91A15ED5100546945 /* TestView.m */; };
+		EE139CDD1A15ED5100546945 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CD91A15ED5100546945 /* TestView.m */; };
+		EE29CD6F0586566F0035639B /* myTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE29CD6E0586566F0035639B /* myTest.icns */; };
+		EE9A3D030581E60A0084D0C7 /* AppController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033B2046FF65C1FE11CA0E35 /* AppController.h */; };
+		EE9A3D050581E60A0084D0C7 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
+		EE9A3D060581E60A0084D0C7 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		EE9A3D080581E60A0084D0C7 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033B2047FF65C1FE11CA0E35 /* AppController.m */; };
+		EE9A3D090581E60A0084D0C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		EE9A3D0B0581E60A0084D0C7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		EE9A3D0C0581E60A0084D0C7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
+		EEBFB2E805E89C97002B59FD /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEBFB2E705E89C97002B59FD /* Default.tiff */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		033B2046FF65C1FE11CA0E35 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
+		033B2047FF65C1FE11CA0E35 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
+		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		EE12A7C505A9D1690062F31B /* myView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myView.h; sourceTree = "<group>"; };
+		EE12A7C605A9D1690062F31B /* myView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = myView.m; sourceTree = "<group>"; };
+		EE139ABA1A15D7DA00546945 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../mySTEP.make; sourceTree = "<group>"; };
+		EE139ABC1A15D82500546945 /* AppKitNibTest.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitNibTest.qcodeproj; sourceTree = "<group>"; };
+		EE139ABD1A15D82500546945 /* AppKitViewTest.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitViewTest.qcodeproj; sourceTree = "<group>"; };
+		EE139ADA1A15D94000546945 /* AppKitNibTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE139ADC1A15D97700546945 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		EE139CCC1A15ED3000546945 /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleView.h; sourceTree = "<group>"; };
+		EE139CCD1A15ED3000546945 /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CircleView.m; sourceTree = "<group>"; };
+		EE139CCE1A15ED3000546945 /* myModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myModel.h; sourceTree = "<group>"; };
+		EE139CCF1A15ED3000546945 /* myModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = myModel.m; sourceTree = "<group>"; };
+		EE139CD81A15ED5100546945 /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
+		EE139CD91A15ED5100546945 /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestView.m; sourceTree = "<group>"; };
+		EE29CD6E0586566F0035639B /* myTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = myTest.icns; sourceTree = "<group>"; };
+		EE9A3D100581E60A0084D0C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EEBFB2E705E89C97002B59FD /* Default.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Default.tiff; sourceTree = "<group>"; };
+		EEE41516058CDB65004BBB40 /* myTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EE139AD01A15D94000546945 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE139AD11A15D94000546945 /* Cocoa.framework in Frameworks */,
+				EE139AD21A15D94000546945 /* Foundation.framework in Frameworks */,
+				EE139AD31A15D94000546945 /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D0A0581E60A0084D0C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D0C0581E60A0084D0C7 /* Foundation.framework in Frameworks */,
+				EE139ADD1A15D97700546945 /* AppKit.framework in Frameworks */,
+				EE9A3D0B0581E60A0084D0C7 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				033B2046FF65C1FE11CA0E35 /* AppController.h */,
+				033B2047FF65C1FE11CA0E35 /* AppController.m */,
+				EE12A7C505A9D1690062F31B /* myView.h */,
+				EE12A7C605A9D1690062F31B /* myView.m */,
+				EE139CCC1A15ED3000546945 /* CircleView.h */,
+				EE139CCD1A15ED3000546945 /* CircleView.m */,
+				EE139CCE1A15ED3000546945 /* myModel.h */,
+				EE139CCF1A15ED3000546945 /* myModel.m */,
+				EE139CD81A15ED5100546945 /* TestView.h */,
+				EE139CD91A15ED5100546945 /* TestView.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
+			isa = PBXGroup;
+			children = (
+				EE139ABA1A15D7DA00546945 /* mySTEP.make */,
+				EE139ABC1A15D82500546945 /* AppKitNibTest.qcodeproj */,
+				EE139ABD1A15D82500546945 /* AppKitViewTest.qcodeproj */,
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				EE9A3D100581E60A0084D0C7 /* Info.plist */,
+				EEE41517058CDB65004BBB40 /* Products */,
+			);
+			name = BrowserTester;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				29B97316FDCFA39411CA2CEA /* main.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				EEBFB2E705E89C97002B59FD /* Default.tiff */,
+				EE29CD6E0586566F0035639B /* myTest.icns */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EE139ADC1A15D97700546945 /* AppKit.framework */,
+				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
+				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EEE41517058CDB65004BBB40 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EEE41516058CDB65004BBB40 /* myTest.app */,
+				EE139ADA1A15D94000546945 /* AppKitNibTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		EE139AC11A15D94000546945 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE139AC21A15D94000546945 /* AppController.h in Headers */,
+				EE139CD11A15ED3000546945 /* CircleView.h in Headers */,
+				EE139CDB1A15ED5100546945 /* TestView.h in Headers */,
+				EE139CD51A15ED3000546945 /* myModel.h in Headers */,
+				EE139AC31A15D94000546945 /* myView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D020581E60A0084D0C7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D030581E60A0084D0C7 /* AppController.h in Headers */,
+				EE139CD01A15ED3000546945 /* CircleView.h in Headers */,
+				EE139CDA1A15ED5100546945 /* TestView.h in Headers */,
+				EE139CD41A15ED3000546945 /* myModel.h in Headers */,
+				EE12A7C705A9D1690062F31B /* myView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		EE139AC01A15D94000546945 /* AppKitNibTest Cocoa */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest Cocoa" */;
+			buildPhases = (
+				EE139AC11A15D94000546945 /* Headers */,
+				EE139AC41A15D94000546945 /* Resources */,
+				EE139ACC1A15D94000546945 /* Sources */,
+				EE139AD01A15D94000546945 /* Frameworks */,
+				EE139AD41A15D94000546945 /* Rez */,
+				EE139AD51A15D94000546945 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AppKitNibTest Cocoa";
+			productInstallPath = "$(USER_APPS_DIR)";
+			productName = myFinder;
+			productReference = EE139ADA1A15D94000546945 /* AppKitNibTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EE9A3D010581E60A0084D0C7 /* AppKitNibTest mySTEP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest mySTEP" */;
+			buildPhases = (
+				EE9A3D020581E60A0084D0C7 /* Headers */,
+				EE9A3D040581E60A0084D0C7 /* Resources */,
+				EE9A3D070581E60A0084D0C7 /* Sources */,
+				EE9A3D0A0581E60A0084D0C7 /* Frameworks */,
+				EE9A3D0E0581E60A0084D0C7 /* Rez */,
+				EE9A3D1B0581E6480084D0C7 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AppKitNibTest mySTEP";
+			productInstallPath = "$(USER_APPS_DIR)";
+			productName = myFinder;
+			productReference = EEE41516058CDB65004BBB40 /* myTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+			};
+			buildConfigurationList = EECC15331A15D7A500F7625A /* Build configuration list for PBXProject "myTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
+			productRefGroup = EEE41517058CDB65004BBB40 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE9A3D010581E60A0084D0C7 /* AppKitNibTest mySTEP */,
+				EE139AC01A15D94000546945 /* AppKitNibTest Cocoa */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE139AC41A15D94000546945 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE139AC51A15D94000546945 /* MainMenu.nib in Resources */,
+				EE139AC61A15D94000546945 /* InfoPlist.strings in Resources */,
+				EE139AC71A15D94000546945 /* myTest.icns in Resources */,
+				EE139AC91A15D94000546945 /* Default.tiff in Resources */,
+				EE139ACB1A15D94000546945 /* mySTEP.make in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D040581E60A0084D0C7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE9A3D050581E60A0084D0C7 /* MainMenu.nib in Resources */,
+				EE9A3D060581E60A0084D0C7 /* InfoPlist.strings in Resources */,
+				EE29CD6F0586566F0035639B /* myTest.icns in Resources */,
+				EEBFB2E805E89C97002B59FD /* Default.tiff in Resources */,
+				EE139ABB1A15D7DA00546945 /* mySTEP.make in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXRezBuildPhase section */
+		EE139AD41A15D94000546945 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D0E0581E60A0084D0C7 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EE139AD51A15D94000546945 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./AppKitNibTest.qcodeproj\n";
+		};
+		EE9A3D1B0581E6480084D0C7 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./AppKitNibTest.qcodeproj\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EE139ACC1A15D94000546945 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE139CD31A15ED3000546945 /* CircleView.m in Sources */,
+				EE139ACD1A15D94000546945 /* AppController.m in Sources */,
+				EE139ACE1A15D94000546945 /* main.m in Sources */,
+				EE139ACF1A15D94000546945 /* myView.m in Sources */,
+				EE139CDD1A15ED5100546945 /* TestView.m in Sources */,
+				EE139CD71A15ED3000546945 /* myModel.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9A3D070581E60A0084D0C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE139CD21A15ED3000546945 /* CircleView.m in Sources */,
+				EE9A3D080581E60A0084D0C7 /* AppController.m in Sources */,
+				EE9A3D090581E60A0084D0C7 /* main.m in Sources */,
+				EE12A7C805A9D1690062F31B /* myView.m in Sources */,
+				EE139CDC1A15ED5100546945 /* TestView.m in Sources */,
+				EE139CD61A15ED3000546945 /* myModel.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C165DFE840E0CC02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		29B97318FDCFA39411CA2CEA /* MainMenu.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				29B97319FDCFA39411CA2CEA /* English */,
+			);
+			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EE139AD71A15D94000546945 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = AppKitNibTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EE139AD81A15D94000546945 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = AppKitNibTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE139AD91A15D94000546945 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = AppKitNibTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Default;
+		};
+		EECC152D1A15D7A500F7625A /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		EECC152E1A15D7A500F7625A /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Deployment;
+		};
+		EECC152F1A15D7A500F7625A /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+		EECC15301A15D7A500F7625A /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = myTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EECC15311A15D7A500F7625A /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
+				);
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = myTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EECC15321A15D7A500F7625A /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
+				);
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = myTest;
+				SDKROOT = macosx;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest Cocoa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE139AD71A15D94000546945 /* Development */,
+				EE139AD81A15D94000546945 /* Deployment */,
+				EE139AD91A15D94000546945 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EECC15331A15D7A500F7625A /* Build configuration list for PBXProject "myTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EECC152D1A15D7A500F7625A /* Development */,
+				EECC152E1A15D7A500F7625A /* Deployment */,
+				EECC152F1A15D7A500F7625A /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest mySTEP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EECC15301A15D7A500F7625A /* Development */,
+				EECC15311A15D7A500F7625A /* Deployment */,
+				EECC15321A15D7A500F7625A /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}

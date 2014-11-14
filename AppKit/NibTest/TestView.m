@@ -7,7 +7,7 @@
 //
 
 #import "TestView.h"
-
+#import "AppController.h"
 
 @implementation TestView
 
@@ -25,12 +25,12 @@
 	// for drawInRect: the text always starts at the upper border
 	// flipped drawAtPoint defines top left corner and goes down from there
 	// unflipped drawAtPoint defines bottom left corner and goes down to here
-	return [[NSApp delegate] isFlipped];
+	return [(AppController *) [NSApp delegate] isFlipped];
 }
 
 - (int) contentToShow
 {
-	return [[NSApp delegate] contentToShow];
+	return [(AppController *) [NSApp delegate] contentToShow];
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -45,7 +45,7 @@
 			NSPoint pnt;
 			NSString *str=@"1234\nAnd a long second line.\nShort line.";
 			NSMutableAttributedString *astr=[[NSMutableAttributedString alloc] initWithString:str];
-			switch([[NSApp delegate] alignment]) {
+			switch([(AppController *) [NSApp delegate] alignment]) {
 				case 0: [para setAlignment:NSLeftTextAlignment]; break;
 				case 1: [para setAlignment:NSRightTextAlignment]; break;
 				case 2: [para setAlignment:NSCenterTextAlignment]; break;
