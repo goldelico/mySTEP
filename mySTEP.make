@@ -834,6 +834,12 @@ endif
 
 # link headers of framework
 
+bundle:
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/
+ifeq ($(WRAPPER_EXTENSION),framework)
+# - (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/A" && ln -sf A "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current")	# link to headers to find <Framework/File.h>
+endif
+
 headers:
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
@@ -860,14 +866,14 @@ ifneq ($(strip $(RESOURCES)),)
 endif
 endif
 
-"$(BINARY)":: headers $(OBJECTS)
+"$(BINARY)":: bundle headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
 	# compiled.
 
-"$(EXEC)":: headers resources
+"$(EXEC)":: bundle headers resources
 	# make directory for Linux executable
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
