@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>AppKitNibTest</string>
+	<string>AppKitNibTestX11</string>
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP 1.0a1</string>
 	<key>CFBundleIconFile</key>
 	<string>myTest.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.quantum-step.AppKitNibTest</string>
+	<string>com.quantum-step.AppKitNibTestX11</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

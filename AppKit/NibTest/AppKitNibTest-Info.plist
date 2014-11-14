@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>myTest.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.quantum-step.AppKitNibTestCocoa</string>
+	<string>com.quantum-step.AppKitNibTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

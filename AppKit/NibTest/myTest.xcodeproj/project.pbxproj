@@ -9,21 +9,18 @@
 /* Begin PBXBuildFile section */
 		EE12A7C705A9D1690062F31B /* myView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12A7C505A9D1690062F31B /* myView.h */; };
 		EE12A7C805A9D1690062F31B /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE12A7C605A9D1690062F31B /* myView.m */; };
-		EE139ABB1A15D7DA00546945 /* mySTEP.make in Resources */ = {isa = PBXBuildFile; fileRef = EE139ABA1A15D7DA00546945 /* mySTEP.make */; };
 		EE139AC21A15D94000546945 /* AppController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033B2046FF65C1FE11CA0E35 /* AppController.h */; };
 		EE139AC31A15D94000546945 /* myView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12A7C505A9D1690062F31B /* myView.h */; };
 		EE139AC51A15D94000546945 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		EE139AC61A15D94000546945 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		EE139AC71A15D94000546945 /* myTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE29CD6E0586566F0035639B /* myTest.icns */; };
 		EE139AC91A15D94000546945 /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEBFB2E705E89C97002B59FD /* Default.tiff */; };
-		EE139ACB1A15D94000546945 /* mySTEP.make in Resources */ = {isa = PBXBuildFile; fileRef = EE139ABA1A15D7DA00546945 /* mySTEP.make */; };
 		EE139ACD1A15D94000546945 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033B2047FF65C1FE11CA0E35 /* AppController.m */; };
 		EE139ACE1A15D94000546945 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		EE139ACF1A15D94000546945 /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE12A7C605A9D1690062F31B /* myView.m */; };
 		EE139AD11A15D94000546945 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EE139AD21A15D94000546945 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		EE139AD31A15D94000546945 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
-		EE139ADD1A15D97700546945 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE139ADC1A15D97700546945 /* AppKit.framework */; };
 		EE139CD01A15ED3000546945 /* CircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCC1A15ED3000546945 /* CircleView.h */; };
 		EE139CD11A15ED3000546945 /* CircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE139CCC1A15ED3000546945 /* CircleView.h */; };
 		EE139CD21A15ED3000546945 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE139CCD1A15ED3000546945 /* CircleView.m */; };
@@ -42,7 +39,6 @@
 		EE9A3D060581E60A0084D0C7 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		EE9A3D080581E60A0084D0C7 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033B2047FF65C1FE11CA0E35 /* AppController.m */; };
 		EE9A3D090581E60A0084D0C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
-		EE9A3D0B0581E60A0084D0C7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EE9A3D0C0581E60A0084D0C7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		EEBFB2E805E89C97002B59FD /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEBFB2E705E89C97002B59FD /* Default.tiff */; };
 /* End PBXBuildFile section */
@@ -69,10 +65,12 @@
 		EE139CCF1A15ED3000546945 /* myModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = myModel.m; sourceTree = "<group>"; };
 		EE139CD81A15ED5100546945 /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
 		EE139CD91A15ED5100546945 /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestView.m; sourceTree = "<group>"; };
+		EE139CDE1A164CF100546945 /* AppKitNibTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTest-Info.plist"; sourceTree = "<group>"; };
+		EE139CDF1A164CF100546945 /* AppKitNibTestX11-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTestX11-Info.plist"; sourceTree = "<group>"; };
 		EE29CD6E0586566F0035639B /* myTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = myTest.icns; sourceTree = "<group>"; };
 		EE9A3D100581E60A0084D0C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		EEBFB2E705E89C97002B59FD /* Default.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Default.tiff; sourceTree = "<group>"; };
-		EEE41516058CDB65004BBB40 /* myTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEE41516058CDB65004BBB40 /* AppKitNibTestX11.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTestX11.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,9 +78,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE139AD11A15D94000546945 /* Cocoa.framework in Frameworks */,
 				EE139AD21A15D94000546945 /* Foundation.framework in Frameworks */,
 				EE139AD31A15D94000546945 /* AppKit.framework in Frameworks */,
+				EE139AD11A15D94000546945 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,8 +89,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE9A3D0C0581E60A0084D0C7 /* Foundation.framework in Frameworks */,
-				EE139ADD1A15D97700546945 /* AppKit.framework in Frameworks */,
-				EE9A3D0B0581E60A0084D0C7 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,6 +160,8 @@
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				EEBFB2E705E89C97002B59FD /* Default.tiff */,
 				EE29CD6E0586566F0035639B /* myTest.icns */,
+				EE139CDE1A164CF100546945 /* AppKitNibTest-Info.plist */,
+				EE139CDF1A164CF100546945 /* AppKitNibTestX11-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -181,7 +179,7 @@
 		EEE41517058CDB65004BBB40 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EEE41516058CDB65004BBB40 /* myTest.app */,
+				EEE41516058CDB65004BBB40 /* AppKitNibTestX11.app */,
 				EE139ADA1A15D94000546945 /* AppKitNibTest.app */,
 			);
 			name = Products;
@@ -217,9 +215,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		EE139AC01A15D94000546945 /* AppKitNibTest Cocoa */ = {
+		EE139AC01A15D94000546945 /* AppKitNibTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest Cocoa" */;
+			buildConfigurationList = EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest" */;
 			buildPhases = (
 				EE139AC11A15D94000546945 /* Headers */,
 				EE139AC41A15D94000546945 /* Resources */,
@@ -232,15 +230,15 @@
 			);
 			dependencies = (
 			);
-			name = "AppKitNibTest Cocoa";
+			name = AppKitNibTest;
 			productInstallPath = "$(USER_APPS_DIR)";
 			productName = myFinder;
 			productReference = EE139ADA1A15D94000546945 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EE9A3D010581E60A0084D0C7 /* AppKitNibTest mySTEP */ = {
+		EE9A3D010581E60A0084D0C7 /* AppKitNibTest X11 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest mySTEP" */;
+			buildConfigurationList = EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest X11" */;
 			buildPhases = (
 				EE9A3D020581E60A0084D0C7 /* Headers */,
 				EE9A3D040581E60A0084D0C7 /* Resources */,
@@ -253,10 +251,10 @@
 			);
 			dependencies = (
 			);
-			name = "AppKitNibTest mySTEP";
+			name = "AppKitNibTest X11";
 			productInstallPath = "$(USER_APPS_DIR)";
 			productName = myFinder;
-			productReference = EEE41516058CDB65004BBB40 /* myTest.app */;
+			productReference = EEE41516058CDB65004BBB40 /* AppKitNibTestX11.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -282,8 +280,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE9A3D010581E60A0084D0C7 /* AppKitNibTest mySTEP */,
-				EE139AC01A15D94000546945 /* AppKitNibTest Cocoa */,
+				EE9A3D010581E60A0084D0C7 /* AppKitNibTest X11 */,
+				EE139AC01A15D94000546945 /* AppKitNibTest */,
 			);
 		};
 /* End PBXProject section */
@@ -297,7 +295,6 @@
 				EE139AC61A15D94000546945 /* InfoPlist.strings in Resources */,
 				EE139AC71A15D94000546945 /* myTest.icns in Resources */,
 				EE139AC91A15D94000546945 /* Default.tiff in Resources */,
-				EE139ACB1A15D94000546945 /* mySTEP.make in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,7 +306,6 @@
 				EE9A3D060581E60A0084D0C7 /* InfoPlist.strings in Resources */,
 				EE29CD6F0586566F0035639B /* myTest.icns in Resources */,
 				EEBFB2E805E89C97002B59FD /* Default.tiff in Resources */,
-				EE139ABB1A15D7DA00546945 /* mySTEP.make in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +418,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
 				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -444,6 +441,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
 				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -464,6 +462,7 @@
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
 				INFOPLIST_FILE = "AppKitNibTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -499,22 +498,24 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "AppKitNibTestX11-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = myTest;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
@@ -528,19 +529,21 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "AppKitNibTestX11-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = myTest;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
@@ -553,18 +556,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks,
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "AppKitNibTestX11-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = myTest;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
@@ -575,7 +580,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest Cocoa" */ = {
+		EE139AD61A15D94000546945 /* Build configuration list for PBXNativeTarget "AppKitNibTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE139AD71A15D94000546945 /* Development */,
@@ -595,7 +600,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest mySTEP" */ = {
+		EECC15341A15D7A500F7625A /* Build configuration list for PBXNativeTarget "AppKitNibTest X11" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EECC15301A15D7A500F7625A /* Development */,
