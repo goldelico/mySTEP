@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EE9A3D010581E60A0084D0C7"
-               BuildableName = "AppKitNibTest.app"
+               BuildableName = "AppKitNibTestX11.app"
                BlueprintName = "AppKitNibTest X11"
                ReferencedContainer = "container:myTest.xcodeproj">
             </BuildableReference>
@@ -33,7 +33,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EE9A3D010581E60A0084D0C7"
-            BuildableName = "AppKitNibTest.app"
+            BuildableName = "AppKitNibTestX11.app"
             BlueprintName = "AppKitNibTest X11"
             ReferencedContainer = "container:myTest.xcodeproj">
          </BuildableReference>
@@ -52,7 +52,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EE9A3D010581E60A0084D0C7"
-            BuildableName = "AppKitNibTest.app"
+            BuildableName = "AppKitNibTestX11.app"
             BlueprintName = "AppKitNibTest X11"
             ReferencedContainer = "container:myTest.xcodeproj">
          </BuildableReference>
@@ -70,7 +70,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EE9A3D010581E60A0084D0C7"
-            BuildableName = "AppKitNibTest.app"
+            BuildableName = "AppKitNibTestX11.app"
             BlueprintName = "AppKitNibTest X11"
             ReferencedContainer = "container:myTest.xcodeproj">
          </BuildableReference>
