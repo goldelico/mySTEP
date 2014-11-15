@@ -7,7 +7,6 @@ build
 .svn
 *.o
 objc2pp/test
-project.xcworkspace/
 xcuserdata/
 # hide other subprojects
 CoreData/
