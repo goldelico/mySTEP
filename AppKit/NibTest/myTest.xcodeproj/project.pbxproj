@@ -353,7 +353,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./AppKitNibTest.qcodeproj\n";
+			shellScript = "./AppKitNibTestX11.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

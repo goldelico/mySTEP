@@ -58,12 +58,14 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 @implementation NSColor
 
+// FIXME: we should have a system color list that we simply load
+
 + (NSColor*) _systemColorWithName:(NSString*)name
 {
 	NSColor	*color = nil;
 	NSString *rep;
 	int cnt=10;	// break recursion if someone did make an error
-#if 0
+#if 1
 	NSLog(@"NSColor _systemColorWithName:%@", name);
 #endif
 	rep = [_colorStrings objectForKey: name];
@@ -148,7 +150,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		_colorStrings=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSSystemColorList"] retain];
 		if(!_colorStrings)
 			NSLog(@"can't initialize system color list");
-#if 0
+#if 1
 		NSLog(@"NSColor initialize 0: %@", _colorStrings);
 #endif
 		_systemColors = [[NSColorList alloc] initWithName: @"System"];

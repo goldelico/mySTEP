@@ -107,7 +107,6 @@ return c; \
  backgroundColorHint:(NSColor *) bg
 			 hotSpot:(NSPoint) spot;	// y axis is negative
 {
-	// FIXME: should be exception - not assertion
 	NSAssert(image, @"image for NSCursor");
 	if((self=[super init]))
 		{
