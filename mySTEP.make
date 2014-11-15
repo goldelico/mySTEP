@@ -501,7 +501,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_PACKAGE_NAME WRAPPER_EXTENSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
+		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
