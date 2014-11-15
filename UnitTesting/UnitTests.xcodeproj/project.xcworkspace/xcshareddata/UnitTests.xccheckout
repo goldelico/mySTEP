@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>518C862F-8FE4-4A3C-9FF3-E1BDCDFC3A04</string>
+	<key>IDESourceControlProjectName</key>
+	<string>UnitTests</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>01FBECC9-619E-4A8C-AC3D-46762EC57995</key>
+		<string>ssh://git.goldelico.com/swk.git</string>
+		<key>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</key>
+		<string>ssh://git.goldelico.com/quantumstep.git</string>
+		<key>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</key>
+		<string>ssh://git.goldelico.com/mySTEP.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>UnitTesting/UnitTests.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>01FBECC9-619E-4A8C-AC3D-46762EC57995</key>
+		<string>../../../SimpleWebKit</string>
+		<key>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</key>
+		<string>../../../../../..</string>
+		<key>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://git.goldelico.com/mySTEP.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>..</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Frameworks</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>01FBECC9-619E-4A8C-AC3D-46762EC57995</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SimpleWebKit</string>
+		</dict>
+	</array>
+</dict>
+</plist>
