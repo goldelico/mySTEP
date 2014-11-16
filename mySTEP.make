@@ -791,8 +791,9 @@ endif
 deploy_remote:
 ifeq ($(DEPLOY),true)
     # DEPLOY: $(DEPLOY)
-	# depoly remote
+	# deploy remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	# FIXME: does not copy $(DATA) and $(FILES)
 	- $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
@@ -835,9 +836,9 @@ endif
 # link headers of framework
 
 bundle:
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/
 ifeq ($(WRAPPER_EXTENSION),framework)
-# - (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/A" && ln -sf A "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current")	# link to headers to find <Framework/File.h>
+	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf A "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
 endif
 
 headers:
