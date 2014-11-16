@@ -68,9 +68,9 @@
 		EE139CDE1A164CF100546945 /* AppKitNibTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTest-Info.plist"; sourceTree = "<group>"; };
 		EE139CDF1A164CF100546945 /* AppKitNibTestX11-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTestX11-Info.plist"; sourceTree = "<group>"; };
 		EE29CD6E0586566F0035639B /* myTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = myTest.icns; sourceTree = "<group>"; };
-		EE9A3D100581E60A0084D0C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		EEBFB2E705E89C97002B59FD /* Default.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Default.tiff; sourceTree = "<group>"; };
 		EEE41516058CDB65004BBB40 /* AppKitNibTestX11.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTestX11.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEF4A5E1A176D5000791D3D /* AppKitNibTestX11.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitNibTestX11.qcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,12 +134,12 @@
 			children = (
 				EE139ABA1A15D7DA00546945 /* mySTEP.make */,
 				EE139ABC1A15D82500546945 /* AppKitNibTest.qcodeproj */,
+				EEEF4A5E1A176D5000791D3D /* AppKitNibTestX11.qcodeproj */,
 				EE139ABD1A15D82500546945 /* AppKitViewTest.qcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				EE9A3D100581E60A0084D0C7 /* Info.plist */,
 				EEE41517058CDB65004BBB40 /* Products */,
 			);
 			name = BrowserTester;

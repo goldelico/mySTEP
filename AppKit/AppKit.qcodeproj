@@ -381,6 +381,8 @@ export SOURCES+=" Images/rtf.tiff"
 export SOURCES+=" Images/rtfd.tiff"
 export SOURCES+=" Images/text.tiff"
 export SOURCES+=" Images/URL.tiff"
+export SOURCES+=" Sources/NSNibControlConnector.h"
+export SOURCES+=" Sources/NSNibOutletConnector.h"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"

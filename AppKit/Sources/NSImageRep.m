@@ -106,13 +106,13 @@ static NSCountedSet *__pb;
 
 + (void) registerImageRepClass:(Class)imageRepClass
 {
-#if 0
+#if 1
 	NSLog(@" register %@", [imageRepClass description]);
 #endif
 	NSDebugLog(@" register %@", [imageRepClass description]);
 	if (![imageRepClass respondsToSelector: @selector(imageFileTypes)])
 		[NSException raise: NSInvalidArgumentException
-					format: @"imageRep does not respond to imageFileTypes"];
+					format: @"imageRep %@ does not respond to imageFileTypes", NSStringFromClass(imageRepClass)];
 	
 	[__imageRepClasses addObject: imageRepClass];
 	[__img addObjectsFromArray: [imageRepClass imageUnfilteredFileTypes]];

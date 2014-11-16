@@ -15,12 +15,12 @@
    under the terms of the GNU Library General Public License.
 */
 
-/* on a Mac, use Darwinports to install the following libraries to /opt/local/:
-libjpeg-6b
-libz-1.2.3
-libtiff-3.7.3
-libungif-4.1.3
-libpng-1.2.8
+/* on a Mac, use MacPorts to install the following libraries to /opt/local/:
+libjpeg
+libz
+libtiff
+libungif
+libpng
 */
 
 #include <png.h>	// must come first before Foundation headers (issue with setjmp macros)
@@ -885,9 +885,7 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 //
 //*****************************************************************************
 
-// don't use 'icns' etc.
-
-// does this need to depend on endianness?
+// don't use 'icns' etc. but REG('i', 'c', 'n', 's')
 
 #define RES(A, B, C, D) (((A)<<24)+((B)<<16)+((C)<<8)+(D))
 
