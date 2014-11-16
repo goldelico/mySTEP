@@ -694,7 +694,7 @@ static NSFileManager *__fm = nil;
     if (![self fileExistsAtPath:path isDirectory:&isDir] || !isDir)
 		return nil;
 	
-	de = [[NSDirectoryEnumerator alloc] initWithPath:path];
+	de = [[NSDirectoryEnumerator alloc] _initWithPath:path];
 	// sys dir enumerator onto enumPath
 	//
 	// FIXME: handle virtual home /Users/*
@@ -890,7 +890,7 @@ static NSFileManager *__fm = nil;
 			*error=[NSError errorWithDomain:@"NSFileManager" code:0 userInfo:[NSDictionary dictionaryWithObject:path forKey:@"path"]];
 		return nil;		
 		}
-	[de setShallow:YES];
+	[de _setShallow:YES];
 	c = [NSMutableArray arrayWithCapacity:25];	// guess for average sized directories
     while((path = [de nextObject]))
 		{

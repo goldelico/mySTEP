@@ -377,10 +377,25 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
 	if(!aSelector) return NO;
+#if 0
+	NSLog(@"respondsToSelector %@", NSStringFromSelector(aSelector));
+#endif
 #ifndef __APPLE__
-	if (CLS_ISCLASS(((Class)self)->class_pointer))
-		return (class_get_instance_method([self class], aSelector) != METHOD_NULL);
-	return (class_get_class_method([self class], aSelector) != METHOD_NULL);
+	if (object_is_instance(self))
+		return (class_get_instance_method(object_get_class(self), aSelector) != METHOD_NULL);
+#if 0
+	NSLog(@"respondsToSelector +%@", NSStringFromSelector(aSelector));
+	NSLog(@"self: %@", self);
+	NSLog(@"class: %@", object_get_class(self));	// is the same
+//	NSLog(@"meta: %@", object_get_meta_class((Class) self));	// is the same
+	NSLog(@"-method: %p", class_get_instance_method(object_get_class(self), aSelector));
+	NSLog(@"+method: %p", class_get_class_method((Class)self, aSelector));
+	NSLog(@"+method: %p", class_get_class_method(object_get_meta_class((Class) self), aSelector));
+	NSLog(@"-hasAlpha: %p", class_get_instance_method(object_get_class(self), @selector(hasAlpha)));
+	NSLog(@"+hasAlpha: %p", class_get_class_method((Class)self, @selector(hasAlpha)));
+	NSLog(@"+hasAlpha: %p", class_get_class_method(object_get_meta_class((Class) self), @selector(hasAlpha)));
+#endif
+	return (class_get_class_method(object_get_meta_class((Class) self), aSelector) != METHOD_NULL);
 #else
 	return NULL;
 #endif
