@@ -25,7 +25,7 @@
 							// A simple array for caching standard bitmap sets 
 static NSCharacterSet *cache_set[12];
 static NSLock *__cacheLock = nil;
-static NSString *__charSetPath /*= @"CS"*/;
+static NSString *__charSetPath = @"CharacterSets";
 
 @interface NSBitmapCharSet : NSCharacterSet
 {
