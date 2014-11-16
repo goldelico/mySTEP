@@ -694,7 +694,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	
 	i=_count;
 	_count=0;	// don't copy current path but current _capacity
-	path = [[self copyWithZone:NSDefaultMallocZone()] retain];
+	path = [[self copyWithZone:NSDefaultMallocZone()] autorelease];
 	_count=i;
 
 	for(i = _count - 1; i >= 0; i--) 
@@ -754,7 +754,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	if (closed)
 		[path closePath];
 	
-	return self;
+	return path;
 }
 
 - (void) transformUsingAffineTransform:(NSAffineTransform *)transform
