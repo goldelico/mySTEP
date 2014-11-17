@@ -280,8 +280,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE9A3D010581E60A0084D0C7 /* AppKitNibTest X11 */,
 				EE139AC01A15D94000546945 /* AppKitNibTest */,
+				EE9A3D010581E60A0084D0C7 /* AppKitNibTest X11 */,
 			);
 		};
 /* End PBXProject section */
@@ -422,13 +422,11 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
@@ -445,13 +443,11 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -466,7 +462,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -514,13 +509,11 @@
 					/usr/share/QuantumSTEP/System/Library/Frameworks,
 					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Development;
 		};
@@ -542,13 +535,11 @@
 					/usr/share/QuantumSTEP/System/Library/Frameworks,
 					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost";
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -568,7 +559,6 @@
 					/usr/share/QuantumSTEP/System/Library/Frameworks,
 					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
