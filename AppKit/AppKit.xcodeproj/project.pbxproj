@@ -328,6 +328,7 @@
 		EE31972409AB7F290089A9A2 /* myView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31971209AB7E8B0089A9A2 /* myView.m */; };
 		EE31972509AB7F2D0089A9A2 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EE3197C209AB7FC00089A9A2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
+		EE3C1BCB1A21D4E40027A064 /* NSBitmapImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F509540272001244CF /* NSBitmapImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
@@ -559,7 +560,6 @@
 		EE3196E309AB7E8A0089A9A2 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		EE31970509AB7E8B0089A9A2 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EE31970709AB7E8B0089A9A2 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
-		EE31970B09AB7E8B0089A9A2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE31970C09AB7E8B0089A9A2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE31971109AB7E8B0089A9A2 /* myView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = myView.h; sourceTree = "<group>"; };
 		EE31971209AB7E8B0089A9A2 /* myView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = myView.m; sourceTree = "<group>"; };
@@ -600,6 +600,11 @@
 		EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTokenFieldCell.h; sourceTree = "<group>"; };
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
+		EE3C1BCC1A21D7600027A064 /* AppKitNibTest.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitNibTest.qcodeproj; sourceTree = "<group>"; };
+		EE3C1BCD1A21D7600027A064 /* AppKitNibTestX11.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitNibTestX11.qcodeproj; sourceTree = "<group>"; };
+		EE3C1BCE1A21D7600027A064 /* AppKitViewTest.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitViewTest.qcodeproj; sourceTree = "<group>"; };
+		EE3C1BCF1A21D7760027A064 /* AppKitNibTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTest-Info.plist"; sourceTree = "<group>"; };
+		EE3C1BD01A21D7760027A064 /* AppKitNibTestX11-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AppKitNibTestX11-Info.plist"; sourceTree = "<group>"; };
 		EE3E75490D294E8400B28288 /* NSTextList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextList.m; sourceTree = "<group>"; };
 		EE419D720E463B02005B7EF0 /* NSToolbarCustomize.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = NSToolbarCustomize.icns; sourceTree = "<group>"; };
 		EE419D730E463B02005B7EF0 /* NSToolbarPrint.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = NSToolbarPrint.icns; sourceTree = "<group>"; };
@@ -1141,6 +1146,9 @@
 		EE3196E109AB7E8A0089A9A2 /* NibTest */ = {
 			isa = PBXGroup;
 			children = (
+				EE3C1BCC1A21D7600027A064 /* AppKitNibTest.qcodeproj */,
+				EE3C1BCD1A21D7600027A064 /* AppKitNibTestX11.qcodeproj */,
+				EE3C1BCE1A21D7600027A064 /* AppKitViewTest.qcodeproj */,
 				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
 				EE3196E309AB7E8A0089A9A2 /* AppController.m */,
 				EECD83FC0A089F8000EF3E30 /* myModel.h */,
@@ -1692,8 +1700,9 @@
 				EE31970409AB7E8B0089A9A2 /* InfoPlist.strings */,
 				EE31970609AB7E8B0089A9A2 /* MainMenu.nib */,
 				EE93C7A20B901E5700FBD885 /* MainMenu ViewTest.nib */,
-				EE31970B09AB7E8B0089A9A2 /* Info.plist */,
 				EE294C310E458C3700F2D481 /* Info.cocoa.plist */,
+				EE3C1BCF1A21D7760027A064 /* AppKitNibTest-Info.plist */,
+				EE3C1BD01A21D7760027A064 /* AppKitNibTestX11-Info.plist */,
 				EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */,
 			);
 			name = Resources;
@@ -1735,6 +1744,7 @@
 				EE139AE81A15E3DF00546945 /* NSErrors.h in Headers */,
 				EE139AE91A15E3DF00546945 /* NSHelpManager.h in Headers */,
 				EE139AEA1A15E3DF00546945 /* NSAffineTransform.h in Headers */,
+				EE3C1BCB1A21D4E40027A064 /* NSBitmapImageRep.h in Headers */,
 				EE139AEC1A15E3DF00546945 /* NSAttributedString.h in Headers */,
 				EE139AEE1A15E3DF00546945 /* NSFileWrapper.h in Headers */,
 				EE139AF01A15E3DF00546945 /* NSParagraphStyle.h in Headers */,
@@ -1962,9 +1972,9 @@
 			productReference = EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8033909AE4EB6006EEB03 /* NIB Test Mixed on X11 */ = {
+		EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test Mixed on X11" */;
+			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test AppKit X11" */;
 			buildPhases = (
 				EE5EBBEC0A19138A0045B88D /* ShellScript */,
 				EEC8033C09AE4EB6006EEB03 /* Resources */,
@@ -1976,14 +1986,14 @@
 			dependencies = (
 				EE139AB91A15279E00546945 /* PBXTargetDependency */,
 			);
-			name = "NIB Test Mixed on X11";
+			name = "NIB Test AppKit X11";
 			productName = myTest;
 			productReference = EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP */ = {
+		EEC8035209AE4EBF006EEB03 /* NIB Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP" */;
+			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test" */;
 			buildPhases = (
 				EEC8035509AE4EBF006EEB03 /* Resources */,
 				EEC8035709AE4EBF006EEB03 /* Sources */,
@@ -1994,7 +2004,7 @@
 			);
 			dependencies = (
 			);
-			name = "NIB Test mySTEP";
+			name = "NIB Test";
 			productName = myTest;
 			productReference = EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */;
 			productType = "com.apple.product-type.application";
@@ -2033,8 +2043,8 @@
 				EEA3715E095400C3001244CF /* AppKit */,
 				EE1399A91A14EF9B00546945 /* AppKit.framework */,
 				EE31971A09AB7EC60089A9A2 /* NIB Test plain Cocoa */,
-				EEC8033909AE4EB6006EEB03 /* NIB Test Mixed on X11 */,
-				EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP */,
+				EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */,
+				EEC8035209AE4EBF006EEB03 /* NIB Test */,
 				EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
 			);
@@ -2704,7 +2714,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
+				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -2732,7 +2742,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
+				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -2757,7 +2767,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "$(SRCROOT)/NibTest/Info.cocoa.plist";
+				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -2946,8 +2956,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
 					"CGFloat=float",
@@ -2956,7 +2966,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/X11R6/lib,
@@ -2983,8 +2993,8 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
 					"CGFloat=float",
@@ -2993,7 +3003,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"../macports-dylibs/lib",
@@ -3018,8 +3028,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NibTest/AppKitMixed-Prefix.h";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
 					"CGFloat=float",
@@ -3028,7 +3038,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"../macports-dylibs/lib",
@@ -3057,12 +3067,12 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -3083,11 +3093,11 @@
 				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -3106,11 +3116,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = NibTest/Info.plist;
+				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -3185,7 +3195,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test Mixed on X11" */ = {
+		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test AppKit X11" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8034609AE4EB6006EEB03 /* Development */,
@@ -3195,7 +3205,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP" */ = {
+		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8035F09AE4EBF006EEB03 /* Development */,
