@@ -387,12 +387,19 @@
 			remoteGlobalIDString = EE1399A91A14EF9B00546945;
 			remoteInfo = AppKit.framework;
 		};
-		EE139AB81A15279E00546945 /* PBXContainerItemProxy */ = {
+		EE3C1BD11A21FED40027A064 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EEA3715E095400C3001244CF;
-			remoteInfo = AppKit;
+			remoteGlobalIDString = EE1399A91A14EF9B00546945;
+			remoteInfo = AppKit.framework;
+		};
+		EE3C1BD31A21FEE10027A064 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE1399A91A14EF9B00546945;
+			remoteInfo = AppKit.framework;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -563,7 +570,7 @@
 		EE31970C09AB7E8B0089A9A2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE31971109AB7E8B0089A9A2 /* myView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = myView.h; sourceTree = "<group>"; };
 		EE31971209AB7E8B0089A9A2 /* myView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = myView.m; sourceTree = "<group>"; };
-		EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.cocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE349C39097027D500CBF42C /* NSAlert.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAlert.h; sourceTree = "<group>"; };
 		EE349C3A097027D500CBF42C /* NSAnimation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAnimation.h; sourceTree = "<group>"; };
 		EE349C3B097027D500CBF42C /* NSAppAccessibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAppAccessibility.h; sourceTree = "<group>"; };
@@ -856,8 +863,8 @@
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTestX11.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
 		EECD835B0A07956E00EF3E30 /* NSStepper.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSStepper.m; sourceTree = "<group>"; };
@@ -1134,9 +1141,9 @@
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */,
-				EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */,
-				EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */,
+				EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */,
+				EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */,
+				EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */,
 				EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */,
 				EE1399AA1A14EF9B00546945 /* AppKit.framework */,
 			);
@@ -1951,7 +1958,7 @@
 			);
 			name = "NIB Test plain Cocoa";
 			productName = myTest;
-			productReference = EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */;
+			productReference = EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */ = {
@@ -1976,19 +1983,19 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test AppKit X11" */;
 			buildPhases = (
-				EE5EBBEC0A19138A0045B88D /* ShellScript */,
 				EEC8033C09AE4EB6006EEB03 /* Resources */,
 				EEC8033E09AE4EB6006EEB03 /* Sources */,
 				EEC8034209AE4EB6006EEB03 /* Frameworks */,
+				EE5EBBEC0A19138A0045B88D /* Run Script */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EE139AB91A15279E00546945 /* PBXTargetDependency */,
+				EE3C1BD21A21FED40027A064 /* PBXTargetDependency */,
 			);
 			name = "NIB Test AppKit X11";
 			productName = myTest;
-			productReference = EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */;
+			productReference = EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EEC8035209AE4EBF006EEB03 /* NIB Test */ = {
@@ -2003,10 +2010,11 @@
 			buildRules = (
 			);
 			dependencies = (
+				EE3C1BD41A21FEE10027A064 /* PBXTargetDependency */,
 			);
 			name = "NIB Test";
 			productName = myTest;
-			productReference = EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */;
+			productReference = EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2043,8 +2051,8 @@
 				EEA3715E095400C3001244CF /* AppKit */,
 				EE1399A91A14EF9B00546945 /* AppKit.framework */,
 				EE31971A09AB7EC60089A9A2 /* NIB Test plain Cocoa */,
-				EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */,
 				EEC8035209AE4EBF006EEB03 /* NIB Test */,
+				EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */,
 				EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
 			);
@@ -2139,13 +2147,14 @@
 			shellPath = /bin/sh;
 			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./AppKit.qcodeproj\n";
 		};
-		EE5EBBEC0A19138A0045B88D /* ShellScript */ = {
+		EE5EBBEC0A19138A0045B88D /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2190,7 +2199,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./AppKitNibTest.qcodeproj\n";
+			shellScript = "NibTest/AppKitNibTest.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2366,10 +2375,15 @@
 			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
 			targetProxy = EE139AB61A15276B00546945 /* PBXContainerItemProxy */;
 		};
-		EE139AB91A15279E00546945 /* PBXTargetDependency */ = {
+		EE3C1BD21A21FED40027A064 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EEA3715E095400C3001244CF /* AppKit */;
-			targetProxy = EE139AB81A15279E00546945 /* PBXContainerItemProxy */;
+			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			targetProxy = EE3C1BD11A21FED40027A064 /* PBXContainerItemProxy */;
+		};
+		EE3C1BD41A21FEE10027A064 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			targetProxy = EE3C1BD31A21FEE10027A064 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2720,7 +2734,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.cocoa;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
@@ -2748,7 +2762,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.cocoa;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/NibTest;
@@ -2773,7 +2787,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.cocoa;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/NibTest;
@@ -2958,12 +2972,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"CGFloat=float",
-					"NSInteger=int",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
@@ -2974,10 +2983,14 @@
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mixed;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 				WRAPPER_EXTENSION = app;
@@ -2995,12 +3008,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"CGFloat=float",
-					"NSInteger=int",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
@@ -3011,10 +3019,14 @@
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mixed;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
@@ -3030,12 +3042,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
-					"CGFloat=float",
-					"NSInteger=int",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
@@ -3046,10 +3053,14 @@
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mixed;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-rpath",
+					/usr/share/QuantumSTEP/System/Library/Frameworks,
+					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
@@ -3062,7 +3073,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3075,10 +3086,10 @@
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = myTest.mySTEP;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3090,7 +3101,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -3100,10 +3111,10 @@
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mySTEP;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3114,7 +3125,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -3123,10 +3134,10 @@
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
 				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mySTEP;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
