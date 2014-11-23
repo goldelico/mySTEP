@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D17FA864-BC3D-4DB9-B166-FC6FE93ABE75</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CoreFoundation</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</key>
+		<string>ssh://git.goldelico.com/quantumstep.git</string>
+		<key>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</key>
+		<string>ssh://git.goldelico.com/mySTEP.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CoreFoundation/CoreFoundation.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</key>
+		<string>../../../../../..</string>
+		<key>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://git.goldelico.com/mySTEP.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>..</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>3995B24ABE26FF0FFBA4F7E95B6A2E6159658D9E</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Frameworks</string>
+		</dict>
+	</array>
+</dict>
+</plist>
