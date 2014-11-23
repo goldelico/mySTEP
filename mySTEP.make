@@ -54,6 +54,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   * PROJECT_NAME
 #   PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
 #   * WRAPPER_EXTENSION
+#   (FRAMEWORK_VERSION)
 #   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
 #   - ARCHITECTURE - the architecture triple to use
 #   * DEBIAN_ARCHITECTURES - default
@@ -188,7 +189,11 @@ ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(AR
 endif
 else
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
-	CONTENTS=Versions/Current
+ifeq ($(FRAMEWORK_VERSION),)	# empty
+	# default
+	FRAMEWORK_VERSION=A
+endif
+CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 ifeq ($(ARCHITECTURE),i386-apple-darwin)
@@ -501,7 +506,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
+		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -837,8 +842,8 @@ endif
 
 bundle:
 ifeq ($(WRAPPER_EXTENSION),framework)
-	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf A "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
+	 rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
+	 (mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
 endif
 
 headers:
