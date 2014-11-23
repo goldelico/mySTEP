@@ -1,6 +1,7 @@
-build
+build/
 *.pbxuser
 *.mode1v3
+*.mode2v3
 *.mode1
 *.perspectivev3
 .DS_Store
@@ -8,6 +9,12 @@ build
 *.o
 objc2pp/test
 xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
 # hide other subprojects
 CoreData/
 GNUstep/
