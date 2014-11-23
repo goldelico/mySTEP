@@ -1944,9 +1944,9 @@
 			productReference = EE1399AA1A14EF9B00546945 /* AppKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		EE31971A09AB7EC60089A9A2 /* NIB Test plain Cocoa */ = {
+		EE31971A09AB7EC60089A9A2 /* Cocoa NIB Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "NIB Test plain Cocoa" */;
+			buildConfigurationList = EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "Cocoa NIB Test" */;
 			buildPhases = (
 				EE31971709AB7EC60089A9A2 /* Resources */,
 				EE31971809AB7EC60089A9A2 /* Sources */,
@@ -1956,7 +1956,7 @@
 			);
 			dependencies = (
 			);
-			name = "NIB Test plain Cocoa";
+			name = "Cocoa NIB Test";
 			productName = myTest;
 			productReference = EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
@@ -1979,9 +1979,9 @@
 			productReference = EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */ = {
+		EEC8033909AE4EB6006EEB03 /* mySTEP NIB Test X11 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test AppKit X11" */;
+			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "mySTEP NIB Test X11" */;
 			buildPhases = (
 				EEC8033C09AE4EB6006EEB03 /* Resources */,
 				EEC8033E09AE4EB6006EEB03 /* Sources */,
@@ -1993,14 +1993,14 @@
 			dependencies = (
 				EE3C1BD21A21FED40027A064 /* PBXTargetDependency */,
 			);
-			name = "NIB Test AppKit X11";
+			name = "mySTEP NIB Test X11";
 			productName = myTest;
 			productReference = EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8035209AE4EBF006EEB03 /* NIB Test */ = {
+		EEC8035209AE4EBF006EEB03 /* mySTEP NIB Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test" */;
+			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "mySTEP NIB Test" */;
 			buildPhases = (
 				EEC8035509AE4EBF006EEB03 /* Resources */,
 				EEC8035709AE4EBF006EEB03 /* Sources */,
@@ -2012,7 +2012,7 @@
 			dependencies = (
 				EE3C1BD41A21FEE10027A064 /* PBXTargetDependency */,
 			);
-			name = "NIB Test";
+			name = "mySTEP NIB Test";
 			productName = myTest;
 			productReference = EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
@@ -2050,9 +2050,9 @@
 			targets = (
 				EEA3715E095400C3001244CF /* AppKit */,
 				EE1399A91A14EF9B00546945 /* AppKit.framework */,
-				EE31971A09AB7EC60089A9A2 /* NIB Test plain Cocoa */,
-				EEC8035209AE4EBF006EEB03 /* NIB Test */,
-				EEC8033909AE4EB6006EEB03 /* NIB Test AppKit X11 */,
+				EE31971A09AB7EC60089A9A2 /* Cocoa NIB Test */,
+				EEC8035209AE4EBF006EEB03 /* mySTEP NIB Test */,
+				EEC8033909AE4EB6006EEB03 /* mySTEP NIB Test X11 */,
 				EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
 			);
@@ -3156,7 +3156,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "NIB Test plain Cocoa" */ = {
+		EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "Cocoa NIB Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE31971F09AB7ECB0089A9A2 /* Development */,
@@ -3206,7 +3206,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test AppKit X11" */ = {
+		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "mySTEP NIB Test X11" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8034609AE4EB6006EEB03 /* Development */,
@@ -3216,7 +3216,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test" */ = {
+		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "mySTEP NIB Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8035F09AE4EBF006EEB03 /* Development */,

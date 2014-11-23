@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EEC8033909AE4EB6006EEB03"
-               BuildableName = "AppKitNibTestX11.app"
-               BlueprintName = "NIB Test AppKit X11"
+               BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+               BuildableName = "AppKitNibTest.app"
+               BlueprintName = "mySTEP NIB Test"
                ReferencedContainer = "container:AppKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EEC8033909AE4EB6006EEB03"
-            BuildableName = "AppKitNibTestX11.app"
-            BlueprintName = "NIB Test AppKit X11"
+            BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+            BuildableName = "AppKitNibTest.app"
+            BlueprintName = "mySTEP NIB Test"
             ReferencedContainer = "container:AppKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -51,9 +51,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EEC8033909AE4EB6006EEB03"
-            BuildableName = "AppKitNibTestX11.app"
-            BlueprintName = "NIB Test AppKit X11"
+            BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+            BuildableName = "AppKitNibTest.app"
+            BlueprintName = "mySTEP NIB Test"
             ReferencedContainer = "container:AppKit.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -69,9 +69,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EEC8033909AE4EB6006EEB03"
-            BuildableName = "AppKitNibTestX11.app"
-            BlueprintName = "NIB Test AppKit X11"
+            BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+            BuildableName = "AppKitNibTest.app"
+            BlueprintName = "mySTEP NIB Test"
             ReferencedContainer = "container:AppKit.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
