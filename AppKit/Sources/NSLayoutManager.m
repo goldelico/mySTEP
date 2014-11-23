@@ -47,6 +47,7 @@
 			NSRange attribRange;	// range of same attributes
 			NSDictionary *attribs=[astr attributesAtIndex:*index effectiveRange:&attribRange];
 			NSFont *font=[attribs objectForKey:NSFontAttributeName];
+			NSAssert(attribRange.length > 0, @"should never be empty");
 			attribRange.length-=(*index)-attribRange.location;	// characters with same attributes before we start
 			font=[(NSLayoutManager *) storage substituteFontForFont:font];
 			if(!font) font=[[[(NSLayoutManager *) storage firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes

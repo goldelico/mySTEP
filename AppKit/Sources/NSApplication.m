@@ -196,15 +196,16 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //			exit(1);
 			class=self;
 			}
-#if 0
+#if 1
 		NSLog(@"class = %@", NSStringFromClass(class));
 #endif
 		if(![class isKindOfClass:[self class]])
-		   NSLog(@"principal class (%@) of main bundle is not subclass of %@", NSStringFromClass(class), NSStringFromClass([self class]));
+		   NSLog(@"Warning: Principal class (%@ %p) of main bundle is not subclass of %@ (%p)", NSStringFromClass(class), class, NSStringFromClass([self class]), [self class]);
 		[class new];	// create instance -init will set NSApp
+		NSAssert(class && NSApp, @"initialization error");
 		[arp release];
 		}
-#if 0
+#if 1
 	NSLog(@"NSApp = %@", NSApp);
 #endif
 	return NSApp;

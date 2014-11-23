@@ -40,9 +40,19 @@
 #import <AppKit/NSFont.h>
 #import <AppKit/NSWorkspace.h>
 
-@implementation NSFileWrapper
+#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
 
-#ifndef __APPLE__
+#import <Foundation/NSFileWrapper.h>	// has been moved to Foundation
+
+// but we have to implement it here as well - or we get linker errors
+// but then we get a double definition by runtime-linker...
+
+@implementation NSFileWrapper
+@end
+
+#else
+
+@implementation NSFileWrapper
 
 //
 // Initialization 
@@ -321,23 +331,6 @@
 	else
 		{
 		return NO;
-		}
-}
-
-- (void) setIcon: (NSImage*)icon
-{
-	ASSIGN(_iconImage, icon);
-}
-
-- (NSImage*) icon
-{
-	if (_iconImage == nil)
-		{
-		return [[NSWorkspace sharedWorkspace] iconForFile: [self filename]];
-		}
-	else
-		{
-		return _iconImage;
 		}
 }
 
@@ -630,7 +623,45 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 		}
 	return self;
 }
-#endif
 
 @end
 
+#endif
+
+@implementation NSFileWrapper (Additions)
+
+#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
+
+// we can't access the iVars of the Foundation implementation
+
+- (void) setIcon: (NSImage*)icon
+{
+}
+
+- (NSImage*) icon
+{
+	return nil;
+}
+
+#else
+
+- (void) setIcon: (NSImage*)icon
+{
+	ASSIGN(_iconImage, icon);
+}
+
+- (NSImage*) icon
+{
+	if (_iconImage == nil)
+		{
+		return [[NSWorkspace sharedWorkspace] iconForFile: [self filename]];
+		}
+	else
+		{
+		return _iconImage;
+		}
+}
+
+#endif
+
+@end

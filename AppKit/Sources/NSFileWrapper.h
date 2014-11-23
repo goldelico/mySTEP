@@ -41,7 +41,11 @@
 @class NSImage;
 @class NSString;
 
-#ifndef __APPLE__	// since 10.7 this is moved to Foundation
+#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
+
+#import <Foundation/NSFileWrapper.h>	// has been moved to Foundation
+
+#else
 
 typedef enum
 {

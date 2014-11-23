@@ -2159,7 +2159,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "open /Applications/Utilities/XQuartz.app\nrm -f ~/Library/Caches/com.quantum-step.mySTEP.NSFonts.plist";
+			shellScript = "open /Applications/Utilities/XQuartz.app\nrm -f ~/Library/Caches/com.quantum-step.mySTEP.NSFonts.plist\nNibTest/AppKitNibTestX11.qcodeproj\n";
 		};
 		EE8D72140EF6C71000A9C09B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2982,7 +2982,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
@@ -3018,7 +3018,7 @@
 					/opt/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
@@ -3052,7 +3052,7 @@
 					/opt/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
