@@ -47,15 +47,15 @@
 
 void printWindowList()
 {
-	int list[100];
-	int n;
+	NSInteger list[100];
+	NSInteger n;
 	int i;
 	NSCountWindows(&n);
 	NSWindowList(sizeof(list)/sizeof(list[0]), list);
 	for(i=0; i<n; i++)
 			{
 				NSWindow *win=[NSApp windowWithWindowNumber:list[i]];
-				NSLog(@"[%02d]: %d %ld %@ %@", i, list[i], (long)[win level], [win title], win);
+				NSLog(@"[%02d]: %ld %ld %@ %@", i, (long)list[i], (long)[win level], [win title], win);
 			}
 }
 
@@ -158,33 +158,33 @@ void printWindowList()
 #endif
 //	NSLog(@"PATH_MAX=%d", PATH_MAX);
 	w=nil;
-	NSLog(@"before alloc %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"before alloc %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	w=[NSWindow alloc];
-	NSLog(@"after alloc %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after alloc %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	w=[w initWithContentRect:NSMakeRect(10.0, 10.0, 50.0, 50.0) styleMask:0 backing:0 defer:NO];
 	NSLog(@"after init %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w orderFront:self];
-	NSLog(@"after orderFront %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after orderFront %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w orderBack:self];
-	NSLog(@"after orderBack %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after orderBack %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w orderOut:self];
-	NSLog(@"after orderOut %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after orderOut %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w setReleasedWhenClosed:NO];
 	[w close];  // might (auto)release
-	NSLog(@"after close %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after close %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	printWindowList();
 	[w retain];
-	NSLog(@"after retain %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after retain %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	[w release];
 	NSLog(@"after release %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 	[w release];
-	NSLog(@"after 2nd release %d, %@", [w retainCount], [NSApp windows]);
+	NSLog(@"after 2nd release %lu, %@", (unsigned long)[w retainCount], [NSApp windows]);
 #if 1
 	{ // check that Foundation is working properly
 		NSAffineTransform *atm, *atm2;
@@ -411,14 +411,14 @@ void printWindowList()
 	[o runModal];
 }
 
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
 	if(aTableView == buttonTable)
 		return 8*(NSRoundedDisclosureBezelStyle+5);
 	return 100;
 }
 
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
 	NSString *ident=[aTableColumn identifier];
 #if 0
@@ -427,9 +427,9 @@ void printWindowList()
 	if(aTableView == buttonTable)
 		{
 		if([ident isEqualToString:@"bezel"])
-			return [NSString stringWithFormat:@"%d", rowIndex/8];
+			return [NSString stringWithFormat:@"%ld", rowIndex/8];
 		if([ident isEqualToString:@"type"])
-			return [NSString stringWithFormat:@"%d", rowIndex%8];
+			return [NSString stringWithFormat:@"%ld", rowIndex%8];
 		return @"";
 		}
 	else
@@ -439,10 +439,10 @@ void printWindowList()
 		if([ident isEqualToString:@"icon"])
 			return [NSImage imageNamed:@"1bK Copy.png"];
 		}
-	return [NSString stringWithFormat:@"%d: %@", rowIndex, ident];
+	return [NSString stringWithFormat:@"%ld: %@", (long)rowIndex, ident];
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
 	NSString *ident=[aTableColumn identifier];
 	if(aTableView == buttonTable)
@@ -465,9 +465,9 @@ void printWindowList()
 		}
 }
 
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id) val forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+- (void)tableView:(NSTableView *)aTableView setObjectValue:(id) val forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-	NSLog(@"setObjectValue [%d, %@] := %@", rowIndex, [aTableColumn identifier], val);
+	NSLog(@"setObjectValue [%ld, %@] := %@", (long)rowIndex, [aTableColumn identifier], val);
 }
 
 - (IBAction) horizClipView:(id) Sender;

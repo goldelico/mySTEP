@@ -11,7 +11,7 @@
 
 @interface myView : NSView
 {
-	float angle;	// rotation angle
+	CGFloat angle;	// rotation angle
 	IBOutlet NSView  *boundsRotationView;
 	IBOutlet NSView  *frameRotationView;
 	IBOutlet NSView  *boundsChangeView;
