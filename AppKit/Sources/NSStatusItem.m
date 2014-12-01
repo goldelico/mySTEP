@@ -14,7 +14,7 @@
 
 - (NSMenuItem *) _menuItem; { return menuItem; }
 
-- (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
+- (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(CGFloat) len;
 {
 	if((self=[super init]))
 		{
@@ -41,7 +41,7 @@
 - (NSImage *) image; { return [menuItem image]; }
 
 - (BOOL) isEnabled; { return [menuItem isEnabled]; }
-- (float) length; { return length; }
+- (CGFloat) length; { return length; }
 - (NSMenu *) menu; { return [menuItem submenu]; }
 - (void) sendActionOn:(int) mask; { NIMP }
 - (void) setAction:(SEL) action; { [menuItem setAction:action]; }
@@ -49,7 +49,7 @@
 - (void) setEnabled:(BOOL) flag;  { [menuItem setEnabled:flag]; }
 - (void) setHighlightMode:(BOOL) highlightMode; { NIMP }
 - (void) setImage:(NSImage *) image; { [menuItem setImage:image]; }
-- (void) setLength:(float) l; { length=l; [menuItem _changed]; }
+- (void) setLength:(CGFloat) l; { length=l; [menuItem _changed]; }
 
 - (void) setMenu:(NSMenu *) menu;
 {

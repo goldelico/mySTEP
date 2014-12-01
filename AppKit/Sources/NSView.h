@@ -76,8 +76,8 @@ typedef NSInteger NSTrackingRectTag;
 	NSRect *_invalidRects;		// invalid rectangle list
 	NSView *_nextKeyView;
     NSArray *_dragTypes;
-	float _frameRotation;
-	float _boundsRotation;
+	CGFloat _frameRotation;
+	CGFloat _boundsRotation;
 	unsigned int _nInvalidRects;	// number of invalid rects
 	unsigned int _cInvalidRects;	// capacity of invalidRects array
 	int _gState;

@@ -684,22 +684,22 @@ int ch, cNibble = 2, b = 0;
 
 // some useful unit converters
 
-+ (float) _pt2mm:(float) val
++ (CGFloat) _pt2mm:(CGFloat) val
 {
 	return val*(POINTperMETER/1000.0);
 }
 
-+ (float) _mm2pt:(float) val
++ (CGFloat) _mm2pt:(CGFloat) val
 { // 1pt = 1m/2660
 	return val*(1000.0/POINTperMETER);
 }
 
-+ (float) _twips2mm:(int) twips
++ (CGFloat) _twips2mm:(int) twips
 { // convert twips to mm
 	return twips*(POINTperMETER/(1000.0*TWIPSperPOINT));
 }
 
-+ (int) _mm2twips:(float) mm
++ (int) _mm2twips:(CGFloat) mm
 { // convert mm to twips
 	return mm*(1000.0/POINTperMETER*TWIPSperPOINT);
 }

@@ -57,9 +57,9 @@ typedef enum _NSTextBlockVerticalAlignment
 @interface NSTextBlock : NSObject <NSCoding, NSCopying>
 {
 	// CHECKME: are the arrays dimensioned correctly?
-	float _width[NSTextBlockMargin-NSTextBlockPadding+1][NSMaxYEdge+1];
-	float _value[NSTextBlockMaximumHeight+1];
-	float _contentWidth;
+	CGFloat _width[NSTextBlockMargin-NSTextBlockPadding+1][NSMaxYEdge+1];
+	CGFloat _value[NSTextBlockMaximumHeight+1];
+	CGFloat _contentWidth;
 	NSColor *_backgroundColor;
 	NSColor *_borderColorForEdge[NSMaxYEdge+1];
 	NSTextBlockValueType _widthType[NSTextBlockMargin-NSTextBlockPadding+1][NSMaxYEdge+1];

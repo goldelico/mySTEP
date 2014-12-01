@@ -74,8 +74,8 @@
 /* NOT IN API */
 
 - (void) splitView:(NSSplitView *) sender 
-	constrainMinCoordinate:(float *) min 
-	 maxCoordinate:(float *) max 
+	constrainMinCoordinate:(CGFloat *) min
+	 maxCoordinate:(CGFloat *) max 
 	   ofSubviewAt:(int) offset;
 
 @end

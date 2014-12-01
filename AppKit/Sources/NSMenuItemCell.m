@@ -261,7 +261,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	
 	NSAttributedString *as;
 	BOOL isHorizontal;
-	float horizontalEdgePadding;
+	CGFloat horizontalEdgePadding;
 #if 0
 	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 #endif
@@ -382,7 +382,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		size.width+=horizontalEdgePadding+keyEquivalentWidth;
 	if(isHorizontal && [[menuItem representedObject] respondsToSelector:@selector(length)])
 		{ // may be a status item - override width if it is specified
-		float len=[((NSStatusItem *) [menuItem representedObject]) length];	// get length
+		CGFloat len=[((NSStatusItem *) [menuItem representedObject]) length];	// get length
 #if 0
 		NSLog(@"NSMenuItemCell %@ representedObject %@ length=%f", menuItem, [menuItem representedObject], len);
 #endif
@@ -551,7 +551,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	return frame;
 }
 
-- (float) imageWidth;
+- (CGFloat) imageWidth;
 {
 	if(needsSizing)
 		[self calcSize];
@@ -569,7 +569,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	return frame;
 }
 
-- (float) keyEquivalentWidth;
+- (CGFloat) keyEquivalentWidth;
 {
 	if(needsSizing)
 		[self calcSize];
@@ -637,7 +637,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	return frame;
 }
 
-- (float) stateImageWidth;
+- (CGFloat) stateImageWidth;
 {
 	if(needsSizing)
 		[self calcSize];
@@ -660,7 +660,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	return frame;
 }
 
-- (float) titleWidth;
+- (CGFloat) titleWidth;
 {
 	if(needsSizing)
 		[self calcSize];

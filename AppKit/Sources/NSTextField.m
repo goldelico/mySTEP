@@ -167,7 +167,7 @@
 			}
 		else
 			{
-			float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
+			CGFloat grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
 				NSLightGray, NSLightGray, NSBlack, NSBlack };
 			NSRectEdge *edges = BEZEL_EDGES_NORMAL;
 			if(_c.drawsBackground)

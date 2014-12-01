@@ -79,7 +79,7 @@ typedef struct _PathElement
 		NSPoint points[3];
 	} PathElement;
 
-+ (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius;		// box with rounded corners
++ (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(CGFloat) radius;		// box with rounded corners
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
 
 typedef enum _NSRoundedBezelSegments
@@ -90,7 +90,7 @@ typedef enum _NSRoundedBezelSegments
 	NSRoundedBezelBothSegment=NSRoundedBezelLeftSegment | NSRoundedBezelRightSegment
 } NSRoundedBezelSegments;
 
-+ (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(float) radius;
++ (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(CGFloat) radius;
 
 @end
 
@@ -348,7 +348,7 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 @interface NSFont (NSPrivate)
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc;	// look up in system
-- (id) _initWithName:(NSString *) postscriptName size:(float) size useDefault:(NSString *) defaultFont;
+- (id) _initWithName:(NSString *) postscriptName size:(CGFloat) size useDefault:(NSString *) defaultFont;
 
 @end
 

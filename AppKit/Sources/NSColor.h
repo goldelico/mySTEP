@@ -40,28 +40,28 @@
 	
 	struct RGB_Color
 		{
-		float red;
-		float green;
-		float blue;
+		CGFloat red;
+		CGFloat green;
+		CGFloat blue;
 		} _rgb;
 	
 	struct CMYK_Color
 		{
-		float cyan;
-		float magenta;
-		float yellow;
-		float black;
+		CGFloat cyan;
+		CGFloat magenta;
+		CGFloat yellow;
+		CGFloat black;
 		} _cmyk;
 	
 	struct HSB_Color
 		{
-		float hue;
-		float saturation;
-		float brightness;
+		CGFloat hue;
+		CGFloat saturation;
+		CGFloat brightness;
 		} _hsb;
 
-	float _white;
-	float _alpha;
+	CGFloat _white;
+	CGFloat _alpha;
 	
 	struct __ColorFlags {
 		unsigned int rgb:1;			// if rgb data is valid

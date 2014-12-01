@@ -38,10 +38,10 @@
 	NSRulerView *_vertRuler;
 	NSView *_cornerView;			// peeked from document view
 	NSClipView *_headerContentView;	// peeked from document view
-	float _horizontalLineScroll;
-	float _horizontalPageScroll;
-	float _verticalLineScroll;
-	float _verticalPageScroll;
+	CGFloat _horizontalLineScroll;
+	CGFloat _horizontalPageScroll;
+	CGFloat _verticalLineScroll;
+	CGFloat _verticalPageScroll;
 	CGFloat _magnification;
 	CGFloat _minMagnification;
 	CGFloat _maxMagnification;

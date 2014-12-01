@@ -24,10 +24,10 @@
     @protected
 	NSMenuItem	*menuItem;				// the menuItem we will view
     NSSize		size;					// total size
-    float		stateImageWidth;
-    float		imageWidth;
-    float		titleWidth;
-    float		keyEquivalentWidth;
+    CGFloat		stateImageWidth;
+    CGFloat		imageWidth;
+    CGFloat		titleWidth;
+    CGFloat		keyEquivalentWidth;
     int			keyEquivGlyphWidth;
 	BOOL		needsSizing;			// recalculate size if needed
 	BOOL		needsDisplay;

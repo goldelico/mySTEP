@@ -69,11 +69,11 @@
 
 - (void) _setTextPosition:(NSPoint) pos;	// PDF: x y Td
 - (void) _setTM:(NSAffineTransform *) tm;	// PDF: a b c d e f Tm
-- (void) _setLeading:(float) val;			// PDF: v TL
-- (void) _setCharSpace:(float) val;			// PDF: v Tc
-- (void) _setHorizontalScale:(float) val;	// PDF: v Tz
-- (void) _setWordSpace:(float) val;			// PDF: v Tw
-- (void) _setBaseline:(float) val;			// PDF: v Ts
+- (void) _setLeading:(CGFloat) val;			// PDF: v TL
+- (void) _setCharSpace:(CGFloat) val;		// PDF: v Tc
+- (void) _setHorizontalScale:(CGFloat) val;	// PDF: v Tz
+- (void) _setWordSpace:(CGFloat) val;		// PDF: v Tw
+- (void) _setBaseline:(CGFloat) val;		// PDF: v Ts
 - (void) _newLine:(NSPoint) pos;			// PDF: x y TD
 - (void) _newLine;							// PDF: T*
 
@@ -83,7 +83,7 @@
 
 // compositing bitmap images
 
-- (void) _setFraction:(float) fraction;		// compositing fraction
+- (void) _setFraction:(CGFloat) fraction;		// compositing fraction
 
 - (BOOL) _draw:(NSImageRep *) rep;	// composite into unit square using current CTM, current compositingOp & fraction etc.
 
@@ -153,7 +153,7 @@
 @interface NSFont (NSBackend)
 - (NSGlyph) _glyphForCharacter:(unichar) c;
 - (NSSize) _kerningBetweenGlyph:(NSGlyph) left andGlyph:(NSGlyph) right;
-- (float) _widthOfAntialisedString:(NSString *) string;	// deprecated!
+- (CGFloat) _widthOfAntialisedString:(NSString *) string;	// deprecated!
 @end
 
 @interface NSFontDescriptor (NSBackend)

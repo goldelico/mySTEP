@@ -168,10 +168,10 @@
 
 static struct _NSTabViewSizing
 {
-	float hspacing;		// horizontal spacing
-	float baseline;		// baseline
-	float tabheight;	// height of a tab
-	float voffset;		// vertical offset for contentRect
+	CGFloat hspacing;		// horizontal spacing
+	CGFloat baseline;		// baseline
+	CGFloat tabheight;	// height of a tab
+	CGFloat voffset;		// vertical offset for contentRect
 	NSSize adjust;		// adjustment (inset) for contentRect
 } tsz[]={
 	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
@@ -447,7 +447,7 @@ static struct _NSTabViewSizing
 				unsigned i, numberOfTabs = [tab_items count];
 				float hspacing;
 				NSRect tabRect=[self bounds];
-				float width=0.0;
+				CGFloat width=0.0;
 				hspacing=tsz[_controlSize].hspacing;
 				tabRect.origin.y+=tsz[_controlSize].baseline;
 				tabRect.size.height=tsz[_controlSize].tabheight;
@@ -509,11 +509,11 @@ static struct _NSTabViewSizing
 - (void) drawRect:(NSRect)rect
 {
 	unsigned i, numberOfTabs = [tab_items count];
-	float width=0.0;
-	float hspacing;
+	CGFloat width=0.0;
+	CGFloat hspacing;
 	NSRect tabRect=[self bounds];
 	NSRect borderRect;
-	float delta;
+	CGFloat delta;
 	// FIXME: can we skip/optimize this if we have NSNoTabs*Border?
 	hspacing=tsz[_controlSize].hspacing;
 	tabRect.origin.y+=tsz[_controlSize].baseline;

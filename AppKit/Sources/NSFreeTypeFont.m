@@ -53,13 +53,13 @@
  * https://developer.apple.com/legacy/mac/library/#documentation/Cocoa/Conceptual/FontHandling/Tasks/GettingFontMetrics.html
  */
 
-static float scale;		// cache for screen scale
-static float rscale;	// cache for 1/screen scale
-static float rscale64;	// cache for 1/(64.0*screen scale)
+static CGFloat scale;		// cache for screen scale
+static CGFloat rscale;		// cache for 1/screen scale
+static CGFloat rscale64;	// cache for 1/(64.0*screen scale)
 
 #define Free2Pt(VAL) ((VAL)*rscale64)
 
-- (float) ascender;
+- (CGFloat) ascender;
 {
 //	FT_Face f=_faceStruct;
 	if(!FT_IS_SCALABLE(_faceStruct))
@@ -74,7 +74,7 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 	return NSMakeRect(Free2Pt(bbox.xMin), Free2Pt(bbox.yMin), Free2Pt(bbox.xMax-bbox.xMin), Free2Pt(bbox.yMax-bbox.yMin));
 }
 
-- (float) capHeight;
+- (CGFloat) capHeight;
 {
 	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'X'), FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 	return Free2Pt(_faceStruct->glyph->metrics.horiBearingY);
@@ -96,7 +96,7 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 	return cs;
 }
 
-- (float) descender; { return Free2Pt(_faceStruct->size->metrics.descender); }
+- (CGFloat) descender; { return Free2Pt(_faceStruct->size->metrics.descender); }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
@@ -148,11 +148,11 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 
 - (BOOL) isFixedPitch;	{ return FT_IS_FIXED_WIDTH(_faceStruct) != 0; }
 
-- (float) italicAngle; { return 0.0; }	// FIXME
+- (CGFloat) italicAngle; { return 0.0; }	// FIXME
 
-- (float) leading; { return Free2Pt(_faceStruct->size->metrics.height-(_faceStruct->size->metrics.ascender-_faceStruct->size->metrics.descender)); }
+- (CGFloat) leading; { return Free2Pt(_faceStruct->size->metrics.height-(_faceStruct->size->metrics.ascender-_faceStruct->size->metrics.descender)); }
 
-- (float) defaultLineHeightForFont; { return Free2Pt(_faceStruct->size->metrics.height); }
+- (CGFloat) defaultLineHeightForFont; { return Free2Pt(_faceStruct->size->metrics.height); }
 
 - (NSSize) maximumAdvancement; { return NSMakeSize(Free2Pt(_faceStruct->max_advance_width), Free2Pt(_faceStruct->max_advance_height)); }
 
@@ -179,11 +179,11 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 
 - (unsigned) numberOfGlyphs; { return _faceStruct->num_glyphs; }
 
-- (float) underlinePosition; { return Free2Pt(_faceStruct->underline_position); }
+- (CGFloat) underlinePosition; { return Free2Pt(_faceStruct->underline_position); }
 
-- (float) underlineThickness; { return Free2Pt(_faceStruct->underline_thickness); }
+- (CGFloat) underlineThickness; { return Free2Pt(_faceStruct->underline_thickness); }
 
-- (float) xHeight;
+- (CGFloat) xHeight;
 {
 	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'x'), FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 	return Free2Pt(_faceStruct->glyph->metrics.horiBearingY);
@@ -277,7 +277,7 @@ FT_Library _ftLibrary(void)
 	return NSMakeSize(Free2Pt(delta.x), Free2Pt(delta.y));
 }
 
-- (float) _widthOfAntialisedString:(NSString *) string;
+- (CGFloat) _widthOfAntialisedString:(NSString *) string;
 { // deprecated...
 	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
 	FT_Vector delta = { 0, 0 };
@@ -491,7 +491,7 @@ FT_Library _ftLibrary(void)
 		NSFontTraitMask traits=0;
 		int cnt;
 		unsigned long lweight;
-		float weight=0.0;
+		CGFloat weight=0.0;
 		const char *psname;
 #if 0
 		NSLog(@"try face #%lu num faces=%lu", faceIndex, numFaces);
@@ -552,7 +552,7 @@ FT_Library _ftLibrary(void)
 			lweight=0;
 			while(cnt-- > 0)
 				lweight+=face->glyph->bitmap.buffer[cnt];	// sum up all shaded values
-			weight=(float)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
+			weight=(CGFloat)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
 			}
 		else
 			weight=0.0;

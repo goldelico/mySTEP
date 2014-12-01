@@ -116,7 +116,7 @@ id __imageCellClass = nil;
 			break;
 		case NSImageFramePhoto:
 			{
-			float grays[] = {NSDarkGray,NSDarkGray,NSDarkGray,NSDarkGray,NSBlack,NSBlack};
+			CGFloat grays[] = {NSDarkGray,NSDarkGray,NSDarkGray,NSDarkGray,NSBlack,NSBlack};
 			NSRect rect = NSDrawTiledRects(cellFrame, cellFrame, BUTTON_EDGES_NORMAL, grays, 6);
 			NSRectFill(rect);	// prefill interior
 			break;
@@ -167,7 +167,7 @@ id __imageCellClass = nil;
 	switch (_d.imageScaling) {
 		case NSScaleProportionally:
 			{
-				float d;
+				CGFloat d;
 				is = [_contents size];
 				d = MIN(NSWidth(rect) / is.width, NSHeight(rect) / is.height);
 				is.width *= d;

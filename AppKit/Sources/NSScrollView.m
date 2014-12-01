@@ -221,7 +221,7 @@ static Class __rulerViewClass = nil;
 
 - (void) _doScroller:(NSScroller *)scroller	// may be decoded as the NSScroller action from a NIB file - so, don't rename
 { // action method of NSScroller
-	float amount=0.0;
+	CGFloat amount=0.0;
 	BOOL _knobMoved=NO;
 	NSRect clipBounds = [_contentView bounds];
 	NSScrollerPart hitPart = [scroller hitPart];
@@ -272,7 +272,7 @@ static Class __rulerViewClass = nil;
   		}
   	else
 		{ // knob scolling
-		float floatValue = [scroller floatValue];
+		CGFloat floatValue = [scroller floatValue];
     	if (scroller == _horizScroller) 				
 			{
      		p.x = floatValue * (NSWidth(documentRect) - NSWidth(clipBounds));
@@ -300,8 +300,8 @@ static Class __rulerViewClass = nil;
 {
 	NSRect documentFrame = NSZeroRect;
 	NSRect clipViewBounds;
-	float floatValue;
-	float knobProportion;
+	CGFloat floatValue;
+	CGFloat knobProportion;
 	id documentView;
 	BOOL hide;
 	if(_sv.autohidingScrollers)
@@ -336,8 +336,8 @@ static Class __rulerViewClass = nil;
 			floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
 //			if ([self isFlipped] != [_contentView isFlipped])
 //				floatValue = 1 - floatValue;
-			[_vertScroller setFloatValue:floatValue 
-						   knobProportion:knobProportion];
+				[_vertScroller setFloatValue:floatValue];
+				[_vertScroller setKnobProportion:knobProportion];
 			}
 		}
 	if(_sv.hasHorizScroller) 
@@ -356,8 +356,8 @@ static Class __rulerViewClass = nil;
 			{ // update scroller size
       		knobProportion = NSWidth(clipViewBounds) / NSWidth(documentFrame);
       		floatValue = clipViewBounds.origin.x / (NSWidth(documentFrame) - NSWidth(clipViewBounds));
-      		[_horizScroller setFloatValue:floatValue 
-							knobProportion:knobProportion];
+			[_horizScroller setFloatValue:floatValue];
+			[_horizScroller setKnobProportion:knobProportion];
 			}
 		}
 	_sv.autohidingScrollers=NO;
@@ -396,7 +396,7 @@ static Class __rulerViewClass = nil;
 - (void) tile
 { // calculate layout: scrollers on right or bottom - headerView on top of contentView - note that we have flipped coordinates!
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
-	float borderThickness=0;
+	CGFloat borderThickness=0;
 	if(!_contentView || !_window || !_superview)
 		{ // no need to tile now
 #if 0
@@ -423,7 +423,7 @@ static Class __rulerViewClass = nil;
 										 borderType:_sv.borderType];	// default size without any scrollers
 	if(_sv.hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
-		float height=[_horizScroller frame].size.height;
+		CGFloat height=[_horizScroller frame].size.height;
 		if(height < 1.0)
 			height=[NSScroller scrollerWidthForControlSize:[_horizScroller controlSize]];
 		horizScrollerRect.size.height = height;	// adjust for scroller height
@@ -434,7 +434,7 @@ static Class __rulerViewClass = nil;
 	if(_sv.hasVertScroller && _vertScroller && ![_vertScroller isHidden])
 		{ // make room on the right or left side
 		BOOL scrollerLeftPosition=[[[NSUserDefaults standardUserDefaults] stringForKey:@"NSScrollerPosition"] isEqualToString:@"left"];
-		float width=[_vertScroller frame].size.width;
+		CGFloat width=[_vertScroller frame].size.width;
 		if(width < 1.0)
 			width=[NSScroller scrollerWidthForControlSize:[_vertScroller controlSize]];
 		contentRect.size.width -= width;	// adjust for scroller width
@@ -461,7 +461,7 @@ static Class __rulerViewClass = nil;
 	
 	if(_headerContentView)
 		{ // make as wide as the content view - shrink content view and vertical scroller to make room for the corner view
-		float h = NSHeight([_headerContentView frame]);
+		CGFloat h = NSHeight([_headerContentView frame]);
 		NSRect headerRect, cornerRect;
 		contentRect.size.height -= h;	// reduce height
 		vertScrollerRect.size.height -= h;	// reduce height
@@ -502,7 +502,7 @@ static Class __rulerViewClass = nil;
 
 - (void) drawRect:(NSRect)rect
 {
-	float borderThickness = 0;
+	CGFloat borderThickness = 0;
 #if 0
 	NSLog(@"NSScrollView drawRect: %@", NSStringFromRect(rect));
 #endif
@@ -517,7 +517,7 @@ static Class __rulerViewClass = nil;
 			}
 		case NSBezelBorder:
 			{
-				float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
+				CGFloat grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
 					NSLightGray, NSLightGray, NSBlack, NSBlack };
 				
 				NSDrawTiledRects(rect, rect, BEZEL_EDGES_NORMAL, grays, 8);
@@ -529,7 +529,7 @@ static Class __rulerViewClass = nil;
 			{
 				NSRectEdge edges[] = {NSMinXEdge,NSMaxYEdge,NSMinXEdge,NSMaxYEdge, 
 					NSMaxXEdge,NSMinYEdge,NSMaxXEdge,NSMinYEdge};
-				float grays[] = { NSDarkGray, NSDarkGray, NSWhite, NSWhite,
+				CGFloat grays[] = { NSDarkGray, NSDarkGray, NSWhite, NSWhite,
 					NSWhite, NSWhite, NSDarkGray, NSDarkGray };
 				
 				NSDrawTiledRects(rect, rect, edges, grays, 8);
@@ -712,18 +712,18 @@ static Class __rulerViewClass = nil;
 - (BOOL) rulersVisible								{ return _horizRuler && ![_horizRuler isHidden]; }
 - (NSRulerView*) horizontalRulerView				{ return _horizRuler; }
 - (NSRulerView*) verticalRulerView					{ return _vertRuler; }
-- (void) setHorizontalLineScroll:(float)aFloat		{ _horizontalLineScroll = aFloat; }
-- (void) setHorizontalPageScroll:(float)aFloat		{ _horizontalPageScroll = aFloat; }
-- (void) setVerticalLineScroll:(float)aFloat		{ _verticalLineScroll = aFloat; }
-- (void) setVerticalPageScroll:(float)aFloat		{ _verticalPageScroll = aFloat; }
-- (void) setLineScroll:(float)aFloat				{ [self setHorizontalLineScroll:aFloat]; [self setVerticalLineScroll:aFloat]; }	// doc says we call these methods
-- (void) setPageScroll:(float)aFloat				{ [self setHorizontalPageScroll:aFloat]; [self setVerticalPageScroll:aFloat]; }
-- (float) horizontalPageScroll						{ return _horizontalPageScroll; }
-- (float) horizontalLineScroll						{ return _horizontalLineScroll; }
-- (float) verticalPageScroll						{ return _verticalPageScroll; }
-- (float) verticalLineScroll						{ return _verticalLineScroll; }
-- (float) pageScroll								{ return [self verticalPageScroll]; }
-- (float) lineScroll								{ return [self verticalLineScroll]; }
+- (void) setHorizontalLineScroll:(CGFloat)aFloat	{ _horizontalLineScroll = aFloat; }
+- (void) setHorizontalPageScroll:(CGFloat)aFloat	{ _horizontalPageScroll = aFloat; }
+- (void) setVerticalLineScroll:(CGFloat)aFloat		{ _verticalLineScroll = aFloat; }
+- (void) setVerticalPageScroll:(CGFloat)aFloat		{ _verticalPageScroll = aFloat; }
+- (void) setLineScroll:(CGFloat)aFloat				{ [self setHorizontalLineScroll:aFloat]; [self setVerticalLineScroll:aFloat]; }	// doc says we call these methods
+- (void) setPageScroll:(CGFloat)aFloat				{ [self setHorizontalPageScroll:aFloat]; [self setVerticalPageScroll:aFloat]; }
+- (CGFloat) horizontalPageScroll					{ return _horizontalPageScroll; }
+- (CGFloat) horizontalLineScroll					{ return _horizontalLineScroll; }
+- (CGFloat) verticalPageScroll						{ return _verticalPageScroll; }
+- (CGFloat) verticalLineScroll						{ return _verticalLineScroll; }
+- (CGFloat) pageScroll								{ return [self verticalPageScroll]; }
+- (CGFloat) lineScroll								{ return [self verticalLineScroll]; }
 - (void) setScrollsDynamically:(BOOL)flag			{ _sv.scrollsDynamically = flag; }
 - (BOOL) scrollsDynamically							{ return _sv.scrollsDynamically; }
 - (BOOL) isOpaque									{ return YES; }

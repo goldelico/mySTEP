@@ -87,21 +87,21 @@ static Class __formCellClass = Nil;
 }
 
 - (void) setTitleFont:(NSFont*)fontObject	{ [_titleCell setFont:fontObject];}
-- (void) setTitleWidth:(float)width			{ _titleWidth = width; }
+- (void) setTitleWidth:(CGFloat)width			{ _titleWidth = width; }
 - (NSString*) title							{ return [_titleCell stringValue];}
 - (NSTextAlignment) titleAlignment			{ return [_titleCell alignment]; }
 - (NSFont*) titleFont						{ return [_titleCell font]; }
 
-- (float) titleWidth
+- (CGFloat) titleWidth
 {
 	if (_titleWidth < 0)
 		return [[self title] sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[_titleCell font], NSFontAttributeName, nil]].width;
 	return _titleWidth;
 }
 
-- (float) titleWidth:(NSSize)aSize
+- (CGFloat) titleWidth:(NSSize)aSize
 {
-	float w=[self titleWidth];
+	CGFloat w=[self titleWidth];
 	if(aSize.width < w)
 		return aSize.width;
 	return w;
@@ -239,14 +239,14 @@ int i, count = [self numberOfRows];
 		[[self cellAtRow:i column:0] setBordered:flag];
 }
 
-- (void) setEntryWidth:(float)width
+- (void) setEntryWidth:(CGFloat)width
 {
 	NSSize size = {width, [self cellSize].height};
 	[self setCellSize:size];
 	[self sizeToCells];	
 }
 
-- (void) setInterlineSpacing:(float)spacing
+- (void) setInterlineSpacing:(CGFloat)spacing
 {
 	[self setIntercellSpacing:NSMakeSize(0, spacing)];
 }

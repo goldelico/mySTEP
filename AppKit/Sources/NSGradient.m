@@ -95,8 +95,8 @@
 	NSGraphicsContext *currentContext = [NSGraphicsContext currentContext];
 	NSPoint startPoint;
 	NSPoint endPoint;
-	float rad;
-	float length;
+	CGFloat rad;
+	CGFloat length;
 	
 	// Normalize to 0.0 <= angle <= 360.0
 	while (angle < 0.0)
@@ -137,12 +137,12 @@
 	[currentContext restoreGraphicsState];
 }
 
-static inline float sqr(float a)
+static inline CGFloat sqr(CGFloat a)
 {
 	return a * a;
 }
 
-static inline float euclidian_distance(NSPoint start, NSPoint end)
+static inline CGFloat euclidian_distance(NSPoint start, NSPoint end)
 {
 	return sqrt(sqr(end.x - start.x) + sqr(end.y - start.y));
 }
@@ -233,7 +233,7 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 					
 					// evenly spaced
 					for (i = 0; i < _numberOfColorStops; i++)
-						_locations[i] = (float)i / (_numberOfColorStops - 1);
+						_locations[i] = (CGFloat)i / (_numberOfColorStops - 1);
 				}
 		}
 	return self;
@@ -305,7 +305,7 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 				{
 					NSColor *c1 = [_colors objectAtIndex: i - 1];
 					NSColor *c2 = [_colors objectAtIndex: i];
-					float fraction = (_locations[i] - location) / (_locations[i] - _locations[i - 1]);
+					CGFloat fraction = (_locations[i] - location) / (_locations[i] - _locations[i - 1]);
 					
 					// FIXME: Works only for RGB colours and does not respect the colour space
 					return [c1 blendedColorWithFraction: fraction

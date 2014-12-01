@@ -154,9 +154,9 @@ static Class __qtmovie;		// runtime link to QTMovie framework
 - (BOOL) isMuted;		{ return _isMuted; }
 - (BOOL) isPlaying;		{ return _isPlaying; }
 - (NSMovie *) movie;	{ return _movie; }
-- (float) rate;			{ return _rate; }
+- (CGFloat) rate;			{ return _rate; }
 - (void) setMovie:(NSMovie *) movie;	{ ASSIGN(_movie, movie); }
-- (void) setRate:(float) rate;	{ _rate=rate; }	// should call [[_movie QTMovie] setRate:] 
+- (void) setRate:(CGFloat) rate;	{ _rate=rate; }	// should call [[_movie QTMovie] setRate:] 
 
 /*
  

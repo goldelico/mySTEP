@@ -41,7 +41,7 @@
 
 - (id) initWithFrame:(NSRect)rect
 {
-	float sw = [NSScroller scrollerWidth];
+	CGFloat sw = [NSScroller scrollerWidth];
 	if((self=[super initWithFrame: rect]))
 		{
 		[self setCell:[[NSTextFieldCell new] autorelease]];	// (re)define title cell
@@ -102,7 +102,7 @@
 - (NSString*) pathSeparator				{ return _pathSeparator; }
 - (int) numberOfVisibleColumns			{ return _numberOfVisibleColumns; }
 - (int) lastVisibleColumn				{ return LAST_VISIBLE_COLUMN; }
-- (float) minColumnWidth				{ return _minColumnWidth; }
+- (CGFloat) minColumnWidth				{ return _minColumnWidth; }
 - (int) firstVisibleColumn				{ return _firstVisibleColumn; }
 - (int) maxVisibleColumns				{ return _maxVisibleColumns; }
 - (BOOL) isTitled						{ return _br.isTitled; }
@@ -224,7 +224,7 @@
 		}
 }
 
-- (float) titleHeight
+- (CGFloat) titleHeight
 {
 //	return [_cell cellSize].height;
 
@@ -275,10 +275,10 @@ int i = [_columns count] - 1;
 	[self tile];
 }
 
-- (void) setMinColumnWidth:(float)columnWidth
+- (void) setMinColumnWidth:(CGFloat)columnWidth
 {
-float sw = [NSScroller scrollerWidth];
-float bw = 4;									// assume bezeled border width
+	CGFloat sw = [NSScroller scrollerWidth];
+	CGFloat bw = 4;									// assume bezeled border width
 
 	if (_br.separatesColumns)					// Take the border into account
 		sw += bw;
@@ -489,9 +489,9 @@ int i;
 
 - (NSRect) titleFrameOfColumn:(int)column
 {
-float titleHeight = [self titleHeight];
-NSRect r;
-int n;
+	CGFloat titleHeight = [self titleHeight];
+	NSRect r;
+	int n;
 
 	if (!_br.isTitled)								// Not titled then no frame
 		return NSZeroRect;
@@ -603,10 +603,10 @@ int lastColumnLoaded = [self lastColumn];
 		}
 	else
 		{
-		float p = (float)((float)_numberOfVisibleColumns 
-							/ (float)(lastColumnLoaded + 1));
-		float i = (lastColumnLoaded + 1) - _numberOfVisibleColumns;
-		float f = 1 + ((LAST_VISIBLE_COLUMN - lastColumnLoaded) / i);
+		CGFloat p = (float)((CGFloat)_numberOfVisibleColumns
+							/ (CGFloat)(lastColumnLoaded + 1));
+		CGFloat i = (lastColumnLoaded + 1) - _numberOfVisibleColumns;
+		CGFloat f = 1 + ((LAST_VISIBLE_COLUMN - lastColumnLoaded) / i);
 
 		[_scroller setFloatValue: f knobProportion: p];
 		[_scroller setEnabled: YES];

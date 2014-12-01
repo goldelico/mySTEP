@@ -309,13 +309,13 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Managing the Printing Rectangle 
 //
-- (float) bottomMargin
+- (CGFloat) bottomMargin
 {
 	NSNumber *val=[info objectForKey:NSPrintLeftMargin];
 	return val?[val floatValue]:0.0;
 }
 
-- (float) leftMargin
+- (CGFloat) leftMargin
 {
  	NSNumber *val=[info objectForKey:NSPrintLeftMargin];
 	return val?[val floatValue]:0.0;
@@ -337,18 +337,18 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	return val?[val sizeValue]:NSZeroSize;
 }
 
-- (float) rightMargin
+- (CGFloat) rightMargin
 {
  	NSNumber *val=[info objectForKey:NSPrintRightMargin];
 	return val?[val floatValue]:0.0;
 }
 
-- (void) setBottomMargin:(float)value
+- (void) setBottomMargin:(CGFloat)value
 {
 	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintLeftMargin];
 }
 
-- (void) setLeftMargin:(float)value
+- (void) setLeftMargin:(CGFloat)value
 {
 	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintLeftMargin];
 }
@@ -368,17 +368,17 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[info setObject:[NSValue valueWithSize:size] forKey:NSPrintPaperSize];
 }
 
-- (void) setRightMargin:(float)value
+- (void) setRightMargin:(CGFloat)value
 {
 	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintRightMargin];
 }
 
-- (void) setTopMargin:(float)value
+- (void) setTopMargin:(CGFloat)value
 {
 	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintTopMargin];
 }
 
-- (float) topMargin
+- (CGFloat) topMargin
 {
   return [(NSNumber *)[info objectForKey:NSPrintTopMargin] floatValue];
 }
@@ -603,8 +603,8 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Updating the Panel's Display 
 //
-- (void)convertOldFactor:(float *)old
-			   newFactor:(float *)new		{}
+- (void)convertOldFactor:(CGFloat *)old
+			   newFactor:(CGFloat *)new		{}
 - (void)pickedButton:(id)sender				{}
 - (void)pickedOrientation:(id)sender		{}
 - (void)pickedPaperSize:(id)sender			{}
@@ -955,7 +955,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[_pdf appendFormat:@" %f %f %f %f %f %f cm", ts.m11, ts.m12, ts.m21, ts.m22, ts.tX, ts.tY];
 }
 
-- (void) _setFraction:(float) fraction;
+- (void) _setFraction:(CGFloat) fraction;
 { // compositing fraction
 	return;	// we can't do that in PDF
 }
@@ -1023,7 +1023,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[_pdf appendString:@") Tj"];
 }
 
-- (void) _setBaseline:(float) shift
+- (void) _setBaseline:(CGFloat) shift
 {
 	[_pdf appendFormat:@" %f Ts", shift];
 }

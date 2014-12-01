@@ -24,7 +24,7 @@
 
 /* this function is optimized so that the compiler can highly optimize if layer and edge are constants */
  
-static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEdge edge, NSSize size)
+static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEdge edge, NSSize size)
 {
 	if(self->_widthType[layer-NSTextBlockPadding][edge] == NSTextBlockPercentageValueType)
 		{ // relative to size
@@ -44,7 +44,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 					  textContainer:(NSTextContainer *) container
 					 characterRange:(NSRange) range;
 { // called once per layout action (after rectForLayoutAtPoint:) by -[NSTypeSetter layoutCharactersInRange:forLayoutManager:maximumNumberOfLineFragments:]
-	float d;	// delta
+	CGFloat d;	// delta
 	d	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// defines space between border and content
 		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)	// defines border width
 		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);	// inset where border starts
@@ -64,7 +64,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	return cont;
 }
 
-- (float) contentWidth; { return _contentWidth; }
+- (CGFloat) contentWidth; { return _contentWidth; }
 - (NSTextBlockValueType) contentWidthValueType; { return _contentWidthValueType; }
 
 - (void) drawBackgroundWithFrame:(NSRect) rect
@@ -74,7 +74,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 { // called from -[NSLayoutManager drawBackgroundForGlyphRange:atPoint:]
 	NSBezierPath *p;
 	NSColor *color;
-	float width;
+	CGFloat width;
 	NSRect outer, inner;	// outer box and inner box of border
 	outer=rect;
 	width=getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size);
@@ -167,7 +167,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	NSAttributedString *contents = [ts attributedSubstringFromRange:range];
 	NSRect r;
 
-	float li, ri, ti, bi;	// inset from bounds to content
+	CGFloat li, ri, ti, bi;	// inset from bounds to content
 	li	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// space between cells
 		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)		// border width
 		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);		// space (inset) between border and text
@@ -191,7 +191,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	r=[contents boundingRectWithSize:(NSSize) {	rect.size.width-li-ri, rect.size.height-ti-bi } options:0];
 /// TEST: r.size.width=20;
 	/// FIXME: contentWidth is 0.0 !?!
-	float wmax=_contentWidthValueType == NSTextBlockPercentageValueType?_contentWidth*rect.size.width:_contentWidth;
+	CGFloat wmax=_contentWidthValueType == NSTextBlockPercentageValueType?_contentWidth*rect.size.width:_contentWidth;
 //	if(r.size.width > wmax)
 //		r.size.width=wmax;	// limit to content width
 	r.origin.x+=rect.origin.x+point.x+li;
@@ -202,15 +202,15 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 - (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); }
 - (void) setBorderColor:(NSColor *) color; { int i; for(i=0; i<=NSMaxYEdge; i++) ASSIGN(_borderColorForEdge[i], color); }
 - (void) setBorderColor:(NSColor *) color forEdge:(NSRectEdge) edge; { NSAssert(edge <= NSMaxYEdge, @"invalid edge"); ASSIGN(_borderColorForEdge[edge], color); }
-- (void) setContentWidth:(float) val type:(NSTextBlockValueType) type; { _contentWidth=val; _contentWidthValueType=type; }
-- (void) setValue:(float) val type:(NSTextBlockValueType) type forDimension:(NSTextBlockDimension) dimension;
+- (void) setContentWidth:(CGFloat) val type:(NSTextBlockValueType) type; { _contentWidth=val; _contentWidthValueType=type; }
+- (void) setValue:(CGFloat) val type:(NSTextBlockValueType) type forDimension:(NSTextBlockDimension) dimension;
 {
 	NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension");
 	_value[dimension]=val;
 	_valueType[dimension]=type;
 }
 - (void) setVerticalAlignment:(NSTextBlockVerticalAlignment) alignment; { _verticalAlignment=alignment; }
-- (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
+- (void) setWidth:(CGFloat) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
 { // set width for all edges
 	int i;
 	// FIXME: don't use NSAssert but raise NSException!
@@ -221,17 +221,17 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 		_widthType[layer-NSTextBlockPadding][i]=type;
 		}
 }
-- (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
+- (void) setWidth:(CGFloat) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 {
 	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	NSAssert(edge <= NSMaxYEdge, @"invalid edge");
 	_width[layer-NSTextBlockPadding][edge]=val;
 	_widthType[layer-NSTextBlockPadding][edge]=type;
 }
-- (float) valueForDimension:(NSTextBlockDimension) dimension; { NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension"); return _value[dimension]; }
+- (CGFloat) valueForDimension:(NSTextBlockDimension) dimension; { NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension"); return _value[dimension]; }
 - (NSTextBlockValueType) valueTypeForDimension:(NSTextBlockDimension) dimension; { NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension"); return _valueType[dimension]; }
 - (NSTextBlockVerticalAlignment) verticalAlignment; { return _verticalAlignment; }
-- (float) widthForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
+- (CGFloat) widthForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 {
 	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	NSAssert(edge <= NSMaxYEdge, @"invalid edge");

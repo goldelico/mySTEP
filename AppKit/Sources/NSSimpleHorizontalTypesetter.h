@@ -46,9 +46,9 @@ typedef struct _NSTypesetterGlyphInfo
 	NSPoint			curLocation;	// location of glyph (relative to line fragment origin)
 	NSSize			attachmentSize;
 	NSFont			*font;
-	float			extent;			// width of glyph
-	float			belowBaseLine;	// cumulated baseline needs
-	float			aboveBaseline;	// cumulated above needs
+	CGFloat			extent;			// width of glyph
+	CGFloat			belowBaseLine;	// cumulated baseline needs
+	CGFloat			aboveBaseline;	// cumulated above needs
 	unsigned		glyphCharacterIndex;
 	struct {
 		unsigned int defaultPositioning:1;
@@ -59,7 +59,7 @@ typedef struct _NSTypesetterGlyphInfo
 } NSTypesetterGlyphInfo;
 
 @interface NSSimpleHorizontalTypesetter : NSTypesetter
-{ /* structure comes from http://lightchaos.blog10.fc2.com/blog-entry-111.html */
+{ /* structure comes from http://lightchaos.blog10.fc2.com/blog-entry-111.html - except for upgrade to CGFloat */
 
 	// the following iVars are defined in NSTypesetter
 	// NSLayoutManager *layoutManager;	// => _layoutManager
@@ -76,17 +76,17 @@ typedef struct _NSTypesetterGlyphInfo
 	NSSize curContainerSize;		// [curContainer containerSize]; .width is used to know when to break a line
 	NSRect curFontBoundingBox;
 	NSSize curFontAdvancement;
-	float curGlyphOffset;			// glyph layout cursor (x of next glyph)
-	float curMaxGlyphLocation;		// max width of line fragment (i.e. mixed from indentation and container width)
-	float curContainerLineFragmentPadding;	// [curContainer lineFragmentPadding]
-	float curSpaceAfter;			// cached [attrs objectForKey:NSKernAttributeName]
-	float curBaselineOffset;		// cached [attrs objectForKey:NSBaselineOffsetAttributeName] 
-	float curMinLineHeight;			// cached [curParaStyle minLineHeight]
-	float curMaxLineHeight;			// cached [curParaStyle maxLineHeight]
-	float curMinBaselineDistance;		// accumulated during layout of a single horizontal line
-	float curMaxBaselineDistance;
-	float curGlyphExtentAboveLocation;	// ascender/descender of current glyph
-	float curGlyphExtentBelowLocation;
+	CGFloat curGlyphOffset;			// glyph layout cursor (x of next glyph)
+	CGFloat curMaxGlyphLocation;		// max width of line fragment (i.e. mixed from indentation and container width)
+	CGFloat curContainerLineFragmentPadding;	// [curContainer lineFragmentPadding]
+	CGFloat curSpaceAfter;			// cached [attrs objectForKey:NSKernAttributeName]
+	CGFloat curBaselineOffset;		// cached [attrs objectForKey:NSBaselineOffsetAttributeName]
+	CGFloat curMinLineHeight;			// cached [curParaStyle minLineHeight]
+	CGFloat curMaxLineHeight;			// cached [curParaStyle maxLineHeight]
+	CGFloat curMinBaselineDistance;		// accumulated during layout of a single horizontal line
+	CGFloat curMaxBaselineDistance;
+	CGFloat curGlyphExtentAboveLocation;	// ascender/descender of current glyph
+	CGFloat curGlyphExtentBelowLocation;
 	NSGlyph previousGlyph;
 	NSGlyph curGlyph;
 	unsigned firstGlyphIndex;		// relative index of first glyph in glyphs array
@@ -119,7 +119,7 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
 	BOOL curGlyphOffsetOutOfDate;
-	float previousSpaceAfter;
+	CGFloat previousSpaceAfter;
 	void *curFontPositionOfGlyphMethod;
 	struct {
 		unsigned int _glyphPostLay:1;
@@ -159,7 +159,7 @@ typedef struct _NSTypesetterGlyphInfo
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;	// keeps _glyphInfo in sync
 - (NSLayoutStatus) layoutControlGlyphForLineFragment:(NSRect) lineFrag;
 - (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect
-											   baseline:(float *) baseline;
+											   baseline:(CGFloat *) baseline;
 - (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) layoutManager
 				startingAtGlyphIndex:(unsigned) startGlyphIndex
 			maxNumberOfLineFragments:(unsigned) maxNumLines
@@ -175,7 +175,7 @@ typedef struct _NSTypesetterGlyphInfo
 - (void) getAttributesForCharacterIndex:(unsigned int) fp8;
 - (NSRect) normalizedRect:(NSRect) fp8;
 - (void) _setupBoundsForLineFragment:(NSRect *) fp8;
-- (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
+- (CGFloat) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
 - (void) _layoutGlyphsInLayoutManager:(NSLayoutManager *) fp8
 				 startingAtGlyphIndex:(unsigned int) fp12
 			 maxNumberOfLineFragments:(unsigned int) fp16

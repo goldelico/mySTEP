@@ -56,7 +56,7 @@ typedef struct _NSX11GraphicsState
 	_NSX11Color *_strokeColor;
 	// NSShadow *_shadow;			// current shadow
 	// rendering intent;
-	// float _globalAlpha;
+	// CGFloat _globalAlpha;
 	// ?image interpolation quality
 	// ?antialiasing
 	// ?compositing operation
@@ -69,18 +69,18 @@ typedef struct _NSX11GraphicsState
 	_NSX11Screen *_nsscreen;			// cached pointer from NSWindow
 	NSAffineTransform *_textMatrix;
 	NSAffineTransform *_textLineMatrix;
-	float _characterSpace;				// PDF text parameters
-	float _wordSpace;
-	float _horizontalScale;
-	float _leading;
-	float _rise;						// current baseline
+	CGFloat _characterSpace;				// PDF text parameters
+	CGFloat _wordSpace;
+	CGFloat _horizontalScale;
+	CGFloat _leading;
+	CGFloat _rise;						// current baseline
 	int _textRenderMode;
  @public
 	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
 	XRectangle _xRect;					// X11 rectangle of the window
 #define _state ((_NSX11GraphicsState *) _graphicsState)		// our graphics state
-	float _scale;						// our scaling factor
-	float _fraction;					// compositing fraction
+	CGFloat _scale;						// our scaling factor
+	CGFloat _fraction;					// compositing fraction
 	Picture _picture;					// window supports render extension
 }
 
@@ -127,10 +127,10 @@ typedef struct _CachedGlyph
 //	GlyphSet _glyphSet;					// associated glyph set
 	// GlyphCache should be a global cache based on [font name], [font size] or matrix
 	NSMapTable *_glyphCache;			// maps NSGlyph to struct _CachedGlyph
-	float _fontScale;					// scaling factor used
+	CGFloat _fontScale;					// scaling factor used
 }
 
-- (void) _setScale:(float) scale;		// set font scaling factor
+- (void) _setScale:(CGFloat) scale;		// set font scaling factor
 - (XFontStruct *) _font;				// X11 bitmap font
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;

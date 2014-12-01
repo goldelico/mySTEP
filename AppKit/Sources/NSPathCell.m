@@ -187,7 +187,7 @@
 		}
 		if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
 		{ // total width of cells is wider than our cell frame
-			float oversize=NSMaxX(_rects[cnt-1]) - NSMaxX(rect);
+			CGFloat oversize=NSMaxX(_rects[cnt-1]) - NSMaxX(rect);
 			if(cnt > 1 && _dontTruncateCell)
 				oversize /= (cnt-2);	// how much we have to reduce each cell except the cell where the mouse is currently over
 			else

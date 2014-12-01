@@ -758,14 +758,14 @@ name: NSOutlineView##notif_name##Notification object: self]
 	[super encodeWithCoder: aCoder];
 	if ([aCoder allowsKeyedCoding] == NO)
 		{
-		float indentation = _indentationPerLevel;
+		CGFloat indentation = _indentationPerLevel;
 		[aCoder encodeValueOfObjCType: @encode(BOOL)
 								   at: &_autoResizesOutlineColumn];
 		[aCoder encodeValueOfObjCType: @encode(BOOL)
 								   at: &_indentationMarkerFollowsCell];
 		[aCoder encodeValueOfObjCType: @encode(BOOL)
 								   at: &_autosaveExpandedItems];
-		[aCoder encodeValueOfObjCType: @encode(float)
+		[aCoder encodeValueOfObjCType: @encode(CGFloat)
 								   at: &indentation];
 		[aCoder encodeConditionalObject: _outlineTableColumn];
 		}
@@ -790,7 +790,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 		}
 	else
 		{
-		float indentation;
+		CGFloat indentation;
 		// overrides outline defaults with archived values
 		[aDecoder decodeValueOfObjCType: @encode(BOOL)
 									 at: &_autoResizesOutlineColumn];
@@ -798,7 +798,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 									 at: &_indentationMarkerFollowsCell];
 		[aDecoder decodeValueOfObjCType: @encode(BOOL)
 									 at: &_autosaveExpandedItems];
-		[aDecoder decodeValueOfObjCType: @encode(float)
+		[aDecoder decodeValueOfObjCType: @encode(CGFloat)
 									 at: &indentation];
 		_indentationPerLevel = indentation;
 		_outlineTableColumn = [aDecoder decodeObject];
@@ -918,7 +918,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 	NSRect imageRect;
 	int i;
 	unsigned _numberOfColumns=[self numberOfColumns];
-	float x_pos;
+	CGFloat x_pos;
 	
 	if (_dataSource == nil)
 		{
@@ -982,7 +982,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 			NSImage *image = nil;
 			NSInteger level = 0;
 			CGFloat indentationFactor = 0.0;
-			// float originalWidth = drawingRect.size.width;
+			// CGFloat originalWidth = drawingRect.size.width;
 			
 			// display the correct arrow...
 			if ([self isItemExpanded: item])
@@ -1044,14 +1044,14 @@ name: NSOutlineView##notif_name##Notification object: self]
 	
 	if (_autoResizesOutlineColumn)
 		{
-		float widest = 0;
+		CGFloat widest = 0;
 		for (index = 0; index < _numberOfRows; index++)
 			{
-			float offset = [self levelForRow: index] *
+			CGFloat offset = [self levelForRow: index] *
             [self indentationPerLevel];
 			NSRect drawingRect = [self frameOfCellAtColumn: 0
 													   row: index];
-			float length = drawingRect.size.width + offset;
+			CGFloat length = drawingRect.size.width + offset;
 			if (widest < length) widest = length;
 			}
 		// [_outlineTableColumn setWidth: widest];
@@ -1544,7 +1544,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	NSRect drawingRect;
 	unsigned length = 0;
 	int level = 0;
-	float indentationFactor = 0.0;
+	CGFloat indentationFactor = 0.0;
 	
 	// We refuse to edit cells if the delegate can not accept results
 	// of editing.
@@ -1737,7 +1737,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 							   nil]];
 }
 
-- (void) _postColumnDidResizeNotificationWithOldWidth: (float) oldWidth
+- (void) _postColumnDidResizeNotificationWithOldWidth: (CGFloat) oldWidth
 {
 	[nc postNotificationName:
 	 NSOutlineViewColumnDidResizeNotification

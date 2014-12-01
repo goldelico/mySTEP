@@ -33,7 +33,7 @@
 
 // common methods
 
-- (float) userSpaceScaleFactor;
+- (CGFloat) userSpaceScaleFactor;
 { // get dots per point
 	return 1.0;
 #if 0	
@@ -81,7 +81,7 @@
 - (NSRect) _statusBarFrame;
 { // the system status menu bar (accessed by NSStatusBar)
 	NSRect r;
-	float h;
+	CGFloat h;
 	r=[self frame];	// screen frame
 	h=[NSMenuView menuBarHeight];
 	r.origin.y=r.size.height-h;

@@ -66,7 +66,7 @@
 
 	/* system wide inking service */
 
-- (oneway void) startInkingAtScreenPosition:(NSPoint) point pressure:(float) pressure;	// calls back [app postEvent:] with keyboard events
+- (oneway void) startInkingAtScreenPosition:(NSPoint) point pressure:(CGFloat) pressure;	// calls back [app postEvent:] with keyboard events
 
 	/* input methods */
 

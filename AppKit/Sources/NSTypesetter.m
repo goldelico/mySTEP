@@ -212,12 +212,12 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	return [layoutManager glyphRangeForCharacterRange:range actualCharacterRange:rangePt];
 }
 
-- (float) hyphenationFactor;
+- (CGFloat) hyphenationFactor;
 {
 	return [layoutManager hyphenationFactor];
 }
 
-- (float) hyphenationFactorForGlyphAtIndex:(NSUInteger) index;
+- (CGFloat) hyphenationFactorForGlyphAtIndex:(NSUInteger) index;
 { // can be overridden in subclasses
 	return [self hyphenationFactor];
 }
@@ -365,7 +365,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 						unichar c=[str characterAtIndex:attribRange.location];
 						NSGlyph glyph=[layoutManager glyphAtIndex:startIndex];
 						NSTypesetterControlCharacterAction a=0;
-						float baseLineOffset;
+						CGFloat baseLineOffset;
 						if(glyph == NSControlGlyph)
 							a=[self actionForControlCharacterAtIndex:attribRange.location];
 						if(a&NSTypesetterZeroAdvancementAction)
@@ -551,7 +551,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	NIMP;
 }
 
-- (void) setHyphenationFactor:(float) value;
+- (void) setHyphenationFactor:(CGFloat) value;
 {
 	[layoutManager setHyphenationFactor:value];
 }
@@ -707,7 +707,7 @@ forStartOfGlyphRange:(NSRange) range;
 	[super dealloc];
 }
 
-//- (float) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
+//- (CGFloat) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 {
@@ -855,7 +855,7 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
 {
-	float factor=[curParaStyle hyphenationFactor];
+	CGFloat factor=[curParaStyle hyphenationFactor];
 	if(factor <= 0.0) factor=[layoutManager hyphenationFactor];
 	if(factor <= 0.0)
 		; // no hyphenation
@@ -967,7 +967,7 @@ NSLayoutOutOfGlyphs
  // if we reach the end of the textstorage
 */
 
-- (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect baseline:(float *) baseline;
+- (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect baseline:(CGFloat *) baseline;
 {  /* this is the core layout method doing one line (fragment)
 	* it simply fills until the given width of the lineFragmentRect is reached
 	* or the paragraph range or the character storage is exhausted.
@@ -1000,7 +1000,7 @@ NSLayoutOutOfGlyphs
 	
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
-	float lineHeight;
+	CGFloat lineHeight;
 #if 0
 	NSLog(@"layoutGlyphsInHorizontalLineFragment: %@", NSStringFromRect(*lineFragmentRect));
 	NSLog(@"baseline=%f", *baseline);
@@ -1230,7 +1230,7 @@ NSLayoutOutOfGlyphs
 	while(numLines < maxNumLines)
 		{ // try to fill the next line
 			NSRange glyphRange;
-			float baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
+			CGFloat baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
 			NSRect lineFragmentRect;
 			NSRect usedRect;
 			int i;
@@ -1450,7 +1450,7 @@ NSLayoutOutOfGlyphs
 	_tsFlags._useItal=flag;
 }
 
-- (float) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
+- (CGFloat) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
 {
 	return 0.0;
 }

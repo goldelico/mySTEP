@@ -96,8 +96,8 @@ static NSString *__fontCollections = nil;
 {
 	NSFont *newFont = fontObject;
 	unsigned int i;
-	float size;
-	float sizes[] = { 4.0, 6.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 16.0, 18.0, 24.0, 36.0, 48.0, 64.0 };
+	CGFloat size;
+	CGFloat sizes[] = { 4.0, 6.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 16.0, 18.0, 24.0, 36.0, 48.0, 64.0 };
 	if (!fontObject)
 		return nil;
 	switch (_storedTag)
@@ -116,7 +116,7 @@ static NSString *__fontCollections = nil;
 			break;
 		case NSSizeUpFontAction: 
 			size = [fontObject pointSize];
-			for (i = 0; i < sizeof(sizes)/sizeof(float); i++)
+			for (i = 0; i < sizeof(sizes)/sizeof(sizes[0]); i++)
 				{
 				if (sizes[i] > size)
 					{
@@ -128,7 +128,7 @@ static NSString *__fontCollections = nil;
 			break;
 		case NSSizeDownFontAction: 
 			size = [fontObject pointSize];
-			for (i = sizeof(sizes)/sizeof(float); i > 0; i--)
+			for (i = sizeof(sizes)/sizeof(sizes[0]); i > 0; i--)
 				{
 				if (sizes[i-1] < size)
 					{
@@ -157,7 +157,7 @@ static NSString *__fontCollections = nil;
 		NSFont *newFont;
 		NSFontTraitMask trait = [self traitsOfFont: fontObject];
 		int weight = [self weightOfFont: fontObject];
-		float size = [fontObject pointSize];
+		CGFloat size = [fontObject pointSize];
 		
 		newFont = [self fontWithFamily: family traits: trait weight: weight size: size];
 		if (newFont == nil)
@@ -193,7 +193,7 @@ static NSString *__fontCollections = nil;
 		{ // Else convert it
 		NSFont *newFont;
 		int weight = [self weightOfFont: fontObject];
-		float size = [fontObject pointSize];
+		CGFloat size = [fontObject pointSize];
 		NSString *family = [fontObject familyName];
 		// We cannot reuse the weight in a bold
 		if (trait == NSBoldFontMask)
@@ -225,7 +225,7 @@ static NSString *__fontCollections = nil;
 		// Else convert it
 		NSFont *newFont;		
 		int weight = [self weightOfFont: fontObject];
-		float size = [fontObject pointSize];
+		CGFloat size = [fontObject pointSize];
 		NSString *family = [fontObject familyName];
 		// We cannot reuse the weight in an unbold
 		if (trait & NSBoldFontMask)
@@ -263,7 +263,7 @@ static NSString *__fontCollections = nil;
 	NSFont *newFont = nil;
 	NSString *fontName = nil;
 	NSFontTraitMask trait = [self traitsOfFont: fontObject];
-	float size = [fontObject pointSize];
+	CGFloat size = [fontObject pointSize];
 	NSString *family = [fontObject familyName];
 	int w = [self weightOfFont: fontObject];
 	// We check what weights we have for this family. We must

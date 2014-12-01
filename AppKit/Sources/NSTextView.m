@@ -367,9 +367,9 @@ static NSCursor *__textCursor = nil;
 { NIMP; return NO;
 }
 
-- (float) rulerView:(NSRulerView *)ruler 
+- (CGFloat) rulerView:(NSRulerView *)ruler
 	 willMoveMarker:(NSRulerMarker *)marker 
-		 toLocation:(float)location
+		 toLocation:(CGFloat)location
 { NIMP; return 0.0;
 }
 
@@ -378,9 +378,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 { NIMP; return NO;
 }
 
-- (float) rulerView:(NSRulerView *)ruler 
+- (CGFloat) rulerView:(NSRulerView *)ruler
 	  willAddMarker:(NSRulerMarker *)marker 
-		 atLocation:(float)location
+		 atLocation:(CGFloat)location
 { NIMP; return 0.0;
 }
 
@@ -927,7 +927,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (unsigned int) characterIndexForPoint:(NSPoint) pnt;
 {
-	float fraction;
+	CGFloat fraction;
 	unsigned int gindex=[layoutManager glyphIndexForPoint:pnt inTextContainer:textContainer fractionOfDistanceThroughGlyph:&fraction];
 	if(fraction > 0.5)
 		gindex++;
@@ -1124,7 +1124,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		[super moveUp:sender];	// specific handling defined there (???)
 	else
 		{
-		float cx=_stableCursorColumn;	// save for cursor stability
+		CGFloat cx=_stableCursorColumn;	// save for cursor stability
 		// [layoutManager lineFragmentRectForGlyph: effectiveRange
 		// go one back from effective range and get lfr again (if possible)
 		// take NSMidY(lfr)
@@ -1143,7 +1143,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		[super moveUp:sender];	// specific handling defined there
 	else
 		{
-		float cx=_stableCursorColumn;	// save for cursor stability
+		CGFloat cx=_stableCursorColumn;	// save for cursor stability
 		// [layoutManager lineFragmentRectForGlyph: effectiveRange
 		// go to glyph after effective range and get lfr again (if possible)
 		// take NSMidY(lfr)

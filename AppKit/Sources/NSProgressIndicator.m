@@ -244,7 +244,7 @@ NSColor *fillColour = nil;
 			}
 	if (_isIndeterminate)
 			{ // Draw indeterminate
-				float phi=(_count*2*M_PI)/maxCount;
+				CGFloat phi=(_count*2*M_PI)/maxCount;
 				if(_isRunning)
 					[[NSColor colorWithCalibratedRed:0.5+0.5*sin(phi) green:0.5+0.5*sin(phi+2*M_PI/3) blue:0.5+0.5*sin(phi+4*M_PI/3) alpha:1.0] set];
 				else

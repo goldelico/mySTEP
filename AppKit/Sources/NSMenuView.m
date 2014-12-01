@@ -54,7 +54,7 @@
 
 // standard extensions
 
-+ (float) menuBarHeight;
++ (CGFloat) menuBarHeight;
 {
 #if 1
 	return 26.0;
@@ -74,7 +74,7 @@
 		if(h > 24)
 			h=24;	// for large screens
 		}
-	return (float) h;
+	return (CGFloat) h;
 #endif
 }
 
@@ -160,11 +160,11 @@
 
 - (int) highlightedItemIndex; { return _highlightedItemIndex; }
 
-- (float) horizontalEdgePadding; { return _horizontalEdgePadding; }
+- (CGFloat) horizontalEdgePadding; { return _horizontalEdgePadding; }
 
-- (float) imageAndTitleOffset; { if(_needsSizing) [self sizeToFit]; return _imageAndTitleOffset; }
+- (CGFloat) imageAndTitleOffset; { if(_needsSizing) [self sizeToFit]; return _imageAndTitleOffset; }
 
-- (float) imageAndTitleWidth; { if(_needsSizing) [self sizeToFit]; return _imageAndTitleWidth; }
+- (CGFloat) imageAndTitleWidth; { if(_needsSizing) [self sizeToFit]; return _imageAndTitleWidth; }
 
 - (int) indexOfItemAtPoint:(NSPoint) point
 {
@@ -265,9 +265,9 @@
 	[self setNeedsDisplay:YES];
 }
 
-- (float) keyEquivalentOffset; { if(_needsSizing) [self sizeToFit]; return _keyEquivalentOffset; }
+- (CGFloat) keyEquivalentOffset; { if(_needsSizing) [self sizeToFit]; return _keyEquivalentOffset; }
 
-- (float) keyEquivalentWidth; { if(_needsSizing) [self sizeToFit]; return _keyEquivalentWidth; }
+- (CGFloat) keyEquivalentWidth; { if(_needsSizing) [self sizeToFit]; return _keyEquivalentWidth; }
 
 - (NSPoint) locationForSubmenu:(NSMenu *) submenu;
 {
@@ -386,7 +386,7 @@
 	_needsSizing=YES;	// resize and rearrange
 }
 
-- (void) setHorizontalEdgePadding:(float) pad; { _horizontalEdgePadding=pad; _needsSizing=YES; }
+- (void) setHorizontalEdgePadding:(CGFloat) pad; { _horizontalEdgePadding=pad; _needsSizing=YES; }
 
 - (void) setMenu:(NSMenu *) m;
 {
@@ -558,7 +558,7 @@
 	for(i=0, nc=[_cells count]; i<nc; i++)
 		{ // get element widths and determine their maximum
 		NSMenuItemCell *c=[_cells objectAtIndex:i];
-		float iw, tw, iatw;
+		CGFloat iw, tw, iatw;
 		[c setNeedsSizing:YES];		// get latest values
 		if((iw=[c stateImageWidth]) > _stateImageWidth)
 			_stateImageWidth=iw;		// new maximum
@@ -574,9 +574,9 @@
 		}
 }
 
-- (float) _calcHorizontalPositionOfCellComponents;
+- (CGFloat) _calcHorizontalPositionOfCellComponents;
 {
-	float x=_horizontalEdgePadding;	// x: layout position - start with left-hand padding
+	CGFloat x=_horizontalEdgePadding;	// x: layout position - start with left-hand padding
 	_stateImageOffset=x;				// state image starts here
 	if(_stateImageWidth > 0)
 		x+=_stateImageWidth+_horizontalEdgePadding;	// include space between state image/title
@@ -689,9 +689,9 @@
 	if(_needsSizing)	NSLog(@"NSMenuView sizeToFit: internal inconsistency - did set needsSizing");
 }
 
-- (float) stateImageOffset; { if(_needsSizing) [self sizeToFit]; return _stateImageOffset; }
+- (CGFloat) stateImageOffset; { if(_needsSizing) [self sizeToFit]; return _stateImageOffset; }
 
-- (float) stateImageWidth; { if(_needsSizing) [self sizeToFit]; return _stateImageWidth; }
+- (CGFloat) stateImageWidth; { if(_needsSizing) [self sizeToFit]; return _stateImageWidth; }
 
 - (void) update;
 { // update autoenabling status and sizes - called once per runloop

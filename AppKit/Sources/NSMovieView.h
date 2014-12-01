@@ -22,7 +22,7 @@ typedef enum
 @interface NSMovieView : NSView
 {
 	NSMovie *_movie;
-	float _rate;
+	CGFloat _rate;
 	BOOL _isPlaying;
 	BOOL _isMuted;
 }
@@ -44,8 +44,8 @@ typedef enum
 - (IBAction) stepBack:(id) sender;
 - (IBAction) stepForward:(id) sender;
 - (BOOL) isMuted;
-- (float) rate;
-- (void) setRate:(float) rate;
+- (CGFloat) rate;
+- (void) setRate:(CGFloat) rate;
 - (IBAction) fastForward:(id) sender;
 - (IBAction) fastBackward:(id) sender;
 

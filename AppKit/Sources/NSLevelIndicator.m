@@ -68,9 +68,9 @@
 		fillColor=[NSColor greenColor];
 	if(_numberOfTickMarks != 0)
 		{
-		float x;
-		float y0, y1;
-		float step=_numberOfTickMarks > 1?(cellFrame.size.width-1.0)/(_numberOfTickMarks-1):1.0;
+		CGFloat x;
+		CGFloat y0, y1;
+		CGFloat step=_numberOfTickMarks > 1?(cellFrame.size.width-1.0)/(_numberOfTickMarks-1):1.0;
 		int tick;
 		if(_tickMarkPosition == NSTickMarkBelow)
 			{
@@ -97,7 +97,7 @@
 		case NSDiscreteCapacityLevelIndicatorStyle:
 			{
 				int segments=(int) (_maxValue-_minValue);
-				float step=(segments > 0?((vertical?cellFrame.size.height:cellFrame.size.width)/segments):10.0);	// width of one segment
+				CGFloat step=(segments > 0?((vertical?cellFrame.size.height:cellFrame.size.width)/segments):10.0);	// width of one segment
 				int i;
 				int ifill=val*segments+0.5;
 				for(i=0; i<segments; i++)
@@ -147,15 +147,15 @@
 				[[NSColor darkGrayColor] set];
 				if(vertical)
 					{
-					float y;
-					float yfill=val*cellFrame.size.height+0.5;
+					CGFloat y;
+					CGFloat yfill=val*cellFrame.size.height+0.5;
 					for(y=0.0; y<yfill; y+=2.0)
 						[NSBezierPath strokeLineFromPoint:NSMakePoint(0.0, y) toPoint:NSMakePoint(cellFrame.size.width, y)];
 					}
 				else
 					{
-					float x;
-					float xfill=val*cellFrame.size.width+0.5;
+					CGFloat x;
+					CGFloat xfill=val*cellFrame.size.width+0.5;
 					for(x=0.0; x<xfill; x+=2.0)
 						[NSBezierPath strokeLineFromPoint:NSMakePoint(x, 0.0) toPoint:NSMakePoint(x, cellFrame.size.height)];
 					}

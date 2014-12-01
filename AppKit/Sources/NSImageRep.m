@@ -1239,7 +1239,7 @@ static NSArray *__pbBitmapImageReps;
 		return;	// outside
 	if([_colorSpace isEqualToString:NSCalibratedRGBColorSpace])
 		{
-		float red, green, blue, alpha;
+		CGFloat red, green, blue, alpha;
 		[color getRed:&red green:&green blue:&blue alpha:&alpha];
 		pixelData[0]=255*red;
 		pixelData[1]=255*green;
@@ -1249,7 +1249,7 @@ static NSArray *__pbBitmapImageReps;
 		}
 	else if([_colorSpace isEqualToString:NSDeviceRGBColorSpace])
 		{
-		float red, green, blue, alpha;
+		CGFloat red, green, blue, alpha;
 		[color getRed:&red green:&green blue:&blue alpha:&alpha];
 		pixelData[0]=255*red;
 		pixelData[1]=255*green;
@@ -1364,7 +1364,7 @@ static NSArray *__pbBitmapImageReps;
 	_factor=factor;
 }
 
-- (void) colorizeByMappingGray:(float) midPoint
+- (void) colorizeByMappingGray:(CGFloat) midPoint
 					   toColor:(NSColor *) midPointColor
 				  blackMapping:(NSColor *) shadowColor
 				  whiteMapping:(NSColor *) lightColor;

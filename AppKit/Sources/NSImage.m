@@ -459,7 +459,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) drawAtPoint:(NSPoint)point
 		    fromRect:(NSRect)src
 		   operation:(NSCompositingOperation)op
-		    fraction:(float)fraction;
+		    fraction:(CGFloat)fraction;
 {
 	[self drawInRect:(NSRect){point, src.size}	// not scaled
 			fromRect:src
@@ -470,7 +470,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) drawInRect:(NSRect)dest
 		   fromRect:(NSRect)src
 		  operation:(NSCompositingOperation)op
-		   fraction:(float)fraction;
+		   fraction:(CGFloat)fraction;
 { // contrary to composite: we don't ignore rotation here!
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
@@ -504,12 +504,12 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx restoreGraphicsState];
 }
 
-- (void) dissolveToPoint:(NSPoint)p fraction:(float)f
+- (void) dissolveToPoint:(NSPoint)p fraction:(CGFloat)f
 {
 	[self compositeToPoint:p fromRect:(NSRect){{0,0},_size} operation:NSCompositeSourceOver fraction:f];
 }
 
-- (void) dissolveToPoint:(NSPoint)p fromRect:(NSRect)s fraction:(float)f
+- (void) dissolveToPoint:(NSPoint)p fromRect:(NSRect)s fraction:(CGFloat)f
 {
 	[self compositeToPoint:p fromRect:s operation:NSCompositeSourceOver fraction:f];
 }
@@ -522,7 +522,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) compositeToPoint:(NSPoint)pnt					// Draw the Image
 				operation:(NSCompositingOperation)op
-				 fraction:(float)fraction;
+				 fraction:(CGFloat)fraction;
 {
 	[self compositeToPoint:pnt fromRect:(NSRect){{0,0},_size} operation:op fraction:fraction];
 }
@@ -538,7 +538,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) compositeToPoint:(NSPoint)pnt 
 				 fromRect:(NSRect)src
 				operation:(NSCompositingOperation)op
-				 fraction:(float)fraction
+				 fraction:(CGFloat)fraction
 { // this is the most generic composite/dissolve method - modify CTM before calling this method to translate to point
 	// for maximum compatibility, this function has to ignore rotation and scaling of the CTM!
 	// see e.g.: http://www.stone.com/The_Cocoa_Files/Cocoamotion.html
@@ -763,7 +763,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 }
 
 - (NSData *) TIFFRepresentationUsingCompression:(NSTIFFCompression)comp
-										factor:(float)aFloat
+										factor:(CGFloat)aFloat
 {
 	// forward to best rep?
 	

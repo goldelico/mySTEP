@@ -162,7 +162,7 @@
 	NSRect rect;		// rect of selected cell
 	NSDate *limitDate;
 	NSWindow *dragWindow=nil;
-	float oldWidth=0.0;
+	CGFloat oldWidth=0.0;
 //	int mouseDownFlags = [event modifierFlags];
 	location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
 	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
@@ -329,8 +329,8 @@
 	NSTableColumn *hlcol=[_tableView highlightedTableColumn];
 	int i=0;
 	NSRect h = [self bounds];
-	float max_X = NSMaxX(rect);
-	float intercellWidth = [_tableView intercellSpacing].width;
+	CGFloat max_X = NSMaxX(rect);
+	CGFloat intercellWidth = [_tableView intercellSpacing].width;
 	
 	[[_tableView backgroundColor] set];
 	NSRectFill(rect);
@@ -384,7 +384,7 @@
 	NSArray *tableColumns = [_tableView tableColumns];
 	int i, count;
 	NSCursor *resize = [NSCursor resizeLeftRightCursor];
-	float intercellWidth = [_tableView intercellSpacing].width;
+	CGFloat intercellWidth = [_tableView intercellSpacing].width;
 	NSRect r = {{-GRAB_ZONE_MARGIN, 0}, { intercellWidth+2*GRAB_ZONE_MARGIN, NSHeight(_frame)}};
 	count = NSMaxRange(columnRange);
 	for (i = 0; i < count; i++)
@@ -405,7 +405,7 @@
 
 - (void) setTableView:(NSTableView*)tview	{ _tableView=tview; }	// not retained!
 - (NSTableView*) tableView					{ return _tableView; }
-- (float) draggedDistance					{ return _draggedDistance; }
+- (CGFloat) draggedDistance					{ return _draggedDistance; }
 - (int) draggedColumn						{ return _draggedColumn; }
 - (int) resizedColumn						{ return _resizedColumn; }
 - (BOOL) isFlipped							{ return YES; }
@@ -489,7 +489,7 @@
 	[super dealloc];
 }
 
-- (void) setWidth:(float)width
+- (void) setWidth:(CGFloat)width
 {
 	if(_width == width)
 		return;	// unchanged
@@ -509,11 +509,11 @@
 - (void) setIdentifier:(id)identifier		 { ASSIGN(_identifier, identifier); }
 - (void) setTableView:(NSTableView*)table	 { _tableView=table; }	// not retained!
 - (NSTableView*) tableView					 { return _tableView; }
-- (void) setMinWidth:(float)minWidth 		 { _minWidth = minWidth; }
-- (void) setMaxWidth:(float)maxWidth 		 { _maxWidth = maxWidth; }
-- (float) minWidth							 { return _minWidth; }
-- (float) maxWidth							 { return _maxWidth; }
-- (float) width								 { return _width; }
+- (void) setMinWidth:(CGFloat)minWidth 		 { _minWidth = minWidth; }
+- (void) setMaxWidth:(CGFloat)maxWidth 		 { _maxWidth = maxWidth; }
+- (CGFloat) minWidth						 { return _minWidth; }
+- (CGFloat) maxWidth						 { return _maxWidth; }
+- (CGFloat) width							 { return _width; }
 - (void) setHeaderCell:(NSCell *)cell		 { ASSIGN(_headerCell, cell); }
 - (void) setDataCell:(NSCell *)cell			 { ASSIGN(_dataCell, cell); }
 - (id) headerCell							 { return _headerCell; }
@@ -530,7 +530,7 @@
 
 - (void) sizeToFit					
 {
-	float w=[_headerCell cellSize].width;
+	CGFloat w=[_headerCell cellSize].width;
 	if(w < _minWidth)
 		_minWidth=w;	// reduce if needed
 	if(w > _maxWidth)
@@ -706,8 +706,8 @@
 - (void) setGridColor:(NSColor*)color		{ ASSIGN(_gridColor, color); }
 - (NSColor*) backgroundColor				{ return _backgroundColor; }
 - (NSColor*) gridColor						{ return _gridColor; }
-- (float) rowHeight							{ return _rowHeight; }
-- (void) setRowHeight:(float)rowHeight		{ _rowHeight = rowHeight; }
+- (CGFloat) rowHeight						{ return _rowHeight; }
+- (void) setRowHeight:(CGFloat)rowHeight	{ _rowHeight = rowHeight; }
 - (void) setIntercellSpacing:(NSSize)aSize	{ _intercellSpacing = aSize; }
 - (NSSize) intercellSpacing					{ return _intercellSpacing; }
 - (NSArray*) tableColumns					{ return _tableColumns; }
@@ -1121,7 +1121,7 @@ int index = [self columnWithIdentifier:identifier];
 	int i;
 	NSEnumerator *e;
 	NSTableColumn *col;
-	float x = 0;
+	CGFloat x = 0;
 
 	if(column < 0 || column >= [_tableColumns count])
 		return NSZeroRect;
@@ -1137,10 +1137,10 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSRect) rectOfRow:(int) row 
 { // FIXME: there should be a cache if we have millions of rows...!
-	float y;
+	CGFloat y;
 	if(_tv.delegateProvidesHeightOfRow)
 		{
-		float rowHeight=[_delegate tableView:self heightOfRow:row];
+		CGFloat rowHeight=[_delegate tableView:self heightOfRow:row];
 		// FIXME: we must sum up all rows up to the one asked for...
 		// or use some tree data structure to rapidly find the row
 		}
@@ -1153,7 +1153,7 @@ int index = [self columnWithIdentifier:identifier];
 	int i=0;
 	NSTableColumn *col;
 	NSEnumerator *e=[_tableColumns objectEnumerator];
-	float x = 0;
+	CGFloat x = 0;
 	while((col=[e nextObject]))
 		{
 		if(point.x >= x && point.x < (x + col->_width + _intercellSpacing.width))
@@ -1176,7 +1176,7 @@ int index = [self columnWithIdentifier:identifier];
 		NSTableColumn *col;
 		NSRect h = _bounds;
 		NSRect intersection;
-		float max_X = NSMaxX(rect);
+		CGFloat max_X = NSMaxX(rect);
 
 		while((col=[e nextObject]))
 			{
@@ -1632,9 +1632,9 @@ int index = [self columnWithIdentifier:identifier];
 			// FIXME: handle resizing policy - if resize last column to fit and minsize allows, use [[sv contentView] documentVisibleRect] as the reference
 			NSScrollView *sv=[self enclosingScrollView];
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
-			float minH = _superview?[_superview bounds].size.height:10;
+			CGFloat minH = _superview?[_superview bounds].size.height:10;
 			NSRect r;
-			float lheight;
+			CGFloat lheight;
 			if(!sv)
 				{
 				NSLog(@"not enclosed in scrollview %@", self);
@@ -1869,7 +1869,7 @@ int index = [self columnWithIdentifier:identifier];
 		{ // draw column separators
 		int col=[self columnAtPoint:rect.origin];	// determine first row
 		int maxcol=[_tableColumns count];
-		float right=NSMaxX(rect);
+		CGFloat right=NSMaxX(rect);
 		while(col < maxcol)
 			{
 			NSRect colRect=[self rectOfColumn:col];
@@ -1883,7 +1883,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(horz)
 		{ // draw row separators
 		int row=[self _rowAtPoint:rect.origin];	// determine first row
-		float bottom=NSMaxY(rect);
+		CGFloat bottom=NSMaxY(rect);
 		while(YES)
 			{
 			NSRect rowRect=[self rectOfRow:row];
@@ -1905,7 +1905,7 @@ int index = [self columnWithIdentifier:identifier];
 		if(ncolors > 0)
 			{
 			int row=[self _rowAtPoint:rect.origin];	// determine first row
-			float bottom=NSMaxY(rect);
+			CGFloat bottom=NSMaxY(rect);
 			while(YES)
 				{
 				NSRect rowRect=[self rectOfRow:row];
@@ -1941,7 +1941,7 @@ int index = [self columnWithIdentifier:identifier];
 		while(changed && NSMaxX([self rectOfColumn:cnt-1]) > NSWidth(bounds))
 			{ // last column is completely outside - try to reduce all others by an evenly distributed value
 			int i;
-			float oversize=NSWidth(bounds)/NSMaxX([self rectOfColumn:cnt-1]);	// oversize factor
+			CGFloat oversize=NSWidth(bounds)/NSMaxX([self rectOfColumn:cnt-1]);	// oversize factor
 #if 0
 			NSLog(@"oversize=%f", oversize);
 #endif
@@ -1951,7 +1951,7 @@ int index = [self columnWithIdentifier:identifier];
 				NSTableColumn *tc=[_tableColumns objectAtIndex:i];
 				if([tc isResizable])
 					{
-					float width=[tc width];
+					CGFloat width=[tc width];
 					[tc setWidth:width*oversize];	// set new width (limited to minimum)
 					if([tc width] != width)
 						changed=YES;	// there was a real change

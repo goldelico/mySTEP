@@ -70,7 +70,7 @@
 
 - (BOOL) isSimpleRectangularTextContainer; { return YES; }
 - (NSLayoutManager *) layoutManager; { return layoutManager; }
-- (float) lineFragmentPadding; { return lineFragmentPadding; }
+- (CGFloat) lineFragmentPadding; { return lineFragmentPadding; }
 
 - (NSRect) lineFragmentRectForProposedRect:(NSRect) proposedRect
 							sweepDirection:(NSLineSweepDirection) sweepDirection
@@ -132,7 +132,7 @@
 
 - (void) setHeightTracksTextView:(BOOL) flag; { heightTracksTextView=flag; }
 - (void) setLayoutManager:(NSLayoutManager *) lm; { layoutManager=lm; }
-- (void) setLineFragmentPadding:(float) pad;
+- (void) setLineFragmentPadding:(CGFloat) pad;
 {
 	lineFragmentPadding=pad;
 	[layoutManager textContainerChangedGeometry:self];

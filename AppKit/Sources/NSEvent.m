@@ -316,7 +316,21 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.mouse.event_num;
 }
 
-- (float) deltaX
+- (CGFloat) deltaX
+{
+	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
+		return 0;
+	return event_data.mouse.pressure;	// FIXME: ????
+}
+
+- (CGFloat) deltaY
+{
+	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
+		return 0;
+	return event_data.mouse.pressure;	// FIXME: ????
+}
+
+- (CGFloat) deltaZ
 {
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
 		return 0;

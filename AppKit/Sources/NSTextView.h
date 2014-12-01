@@ -92,7 +92,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 	NSRange _markedRange;
 	NSSize textContainerInset;
 	NSPoint textContainerOrigin;
-	float _stableCursorColumn;			// current cursor x positon (used for moveDown: and moveUp:)
+	CGFloat _stableCursorColumn;			// current cursor x positon (used for moveDown: and moveUp:)
 
 //	int spellCheckerDocumentTag;
 	// the following should be a bitfield struct - but that saves only approx. 10 bytes per NSTextView...
@@ -198,8 +198,8 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 - (BOOL) rulerView:(NSRulerView *) ruler shouldAddMarker:(NSRulerMarker *) marker;
 - (BOOL) rulerView:(NSRulerView *) ruler shouldMoveMarker:(NSRulerMarker *) marker;
 - (BOOL) rulerView:(NSRulerView *) ruler shouldRemoveMarker:(NSRulerMarker *) marker;
-- (float) rulerView:(NSRulerView *) ruler willAddMarker:(NSRulerMarker *) marker atLocation:(float) location;
-- (float) rulerView:(NSRulerView *) ruler willMoveMarker:(NSRulerMarker *) marker toLocation:(float) location;
+- (CGFloat) rulerView:(NSRulerView *) ruler willAddMarker:(NSRulerMarker *) marker atLocation:(CGFloat) location;
+- (CGFloat) rulerView:(NSRulerView *) ruler willMoveMarker:(NSRulerMarker *) marker toLocation:(CGFloat) location;
 - (NSArray *) selectedRanges;
 - (NSDictionary *) selectedTextAttributes;
 - (NSSelectionAffinity) selectionAffinity;

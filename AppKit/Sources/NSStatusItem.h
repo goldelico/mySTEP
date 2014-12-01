@@ -21,7 +21,7 @@
 	NSStatusBar *statusBar;
 	NSAttributedString *attributedTitle;
 	NSView *view;
-	float length;
+	CGFloat length;
 	BOOL highlightedMode;
 }
 

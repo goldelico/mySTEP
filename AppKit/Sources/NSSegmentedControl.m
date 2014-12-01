@@ -29,7 +29,7 @@
 	NSString *_tooltip;
 	NSImage *_image;
 	NSMenu *_menu;
-	float _width;
+	CGFloat _width;
 	int _tag;
 	BOOL _enabled;
 	BOOL _highlighted;
@@ -39,8 +39,8 @@
 - (NSString *) tooltip;
 - (NSImage *) image;
 - (NSMenu *) menu;
-- (float) width;
-- (float) autoWidth;
+- (CGFloat) width;
+- (CGFloat) autoWidth;
 - (int) tag;
 - (BOOL) enabled;
 - (BOOL) highlighted;
@@ -49,7 +49,7 @@
 - (void) setTooltip:(NSString *) tooltip;
 - (void) setImage:(NSImage *) image;
 - (void) setMenu:(NSMenu *) menu;
-- (void) setWidth:(float) width;		// 0.0 = autosize
+- (void) setWidth:(CGFloat) width;		// 0.0 = autosize
 - (void) setTag:(int) tag;
 - (void) setEnabled:(BOOL) enabled;
 - (void) setHighlighted:(BOOL) selected;
@@ -93,13 +93,13 @@
 - (NSString *) tooltip; { return _tooltip; }
 - (NSImage *) image; { return _image; }
 - (NSMenu *) menu; { return _menu; }
-- (float) width; { return _width; }
+- (CGFloat) width; { return _width; }
 - (int) tag; { return _tag; }
 - (BOOL) enabled; { return _enabled; }
 - (BOOL) highlighted; { return _highlighted; }
 - (BOOL) selected; { return _selected; }
 
-- (float) autoWidth;
+- (CGFloat) autoWidth;
 {
 	if(_width == 0.0 && _label)
 		return [_label sizeWithAttributes:nil].width+4.0;
@@ -110,7 +110,7 @@
 - (void) setTooltip:(NSString *) tooltip; { ASSIGN(_tooltip, tooltip); }
 - (void) setImage:(NSImage *) image; { ASSIGN(_image, image); }
 - (void) setMenu:(NSMenu *) menu; { ASSIGN(_menu, menu); }
-- (void) setWidth:(float) width; { _width=width; }
+- (void) setWidth:(CGFloat) width; { _width=width; }
 - (void) setTag:(int) tag; { _tag=tag; }
 - (void) setEnabled:(BOOL) enabled; { _enabled=enabled; }
 - (void) setHighlighted:(BOOL) flag; { _highlighted=flag; }
@@ -336,11 +336,11 @@
 - (void) setTag:(int) t forSegment:(int) segment; { [[_segments objectAtIndex:segment] setTag:t]; }
 - (void) setToolTip:(NSString *) tooltip forSegment:(int) segment; { [[_segments objectAtIndex:segment] setTooltip:tooltip]; }
 - (void) setTrackingMode:(NSSegmentSwitchTracking) mode; { _mode=mode; }
-- (void) setWidth:(float) width forSegment:(int) segment; { [[_segments objectAtIndex:segment] setWidth:width]; }
+- (void) setWidth:(CGFloat) width forSegment:(int) segment; { [[_segments objectAtIndex:segment] setWidth:width]; }
 - (int) tagForSegment:(int) segment; { return [[_segments objectAtIndex:segment] tag]; }
 - (NSString *) toolTipForSegment:(int) segment; { return [[_segments objectAtIndex:segment] tooltip]; }
 - (NSSegmentSwitchTracking) trackingMode; { return _mode; }
-- (float) widthForSegment:(int) segment; { return [[_segments objectAtIndex:segment] width]; }
+- (CGFloat) widthForSegment:(int) segment; { return [[_segments objectAtIndex:segment] width]; }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {
@@ -380,8 +380,8 @@
 - (void) setSegmentCount:(int) count; { return [_cell setSegmentCount:count]; }
 - (void) setSelected:(BOOL) flag forSegment:(int) segment; { return [_cell setSelected:flag forSegment:segment]; }
 - (void) setSelectedSegment:(int) selectedSegment; { return [_cell setSelectedSegment:selectedSegment]; }
-- (void) setWidth:(float) width forSegment:(int) segment; { return [_cell setWidth:width forSegment:segment]; }
-- (float) widthForSegment:(int) segment; { return [_cell widthForSegment:segment]; }
+- (void) setWidth:(CGFloat) width forSegment:(int) segment; { return [_cell setWidth:width forSegment:segment]; }
+- (CGFloat) widthForSegment:(int) segment; { return [_cell widthForSegment:segment]; }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {

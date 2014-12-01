@@ -39,8 +39,8 @@ enum
 @interface NSTableColumn : NSObject
 {
     id _identifier;
-    float _minWidth;
-    float _maxWidth;
+    CGFloat _minWidth;
+    CGFloat _maxWidth;
     NSTableView *_tableView;
     NSTableHeaderCell *_headerCell;
     NSCell *_dataCell;
@@ -52,7 +52,7 @@ enum
     } _cFlags;
 
 @public
-    float _width;
+    CGFloat _width;
 }
 
 - (id) dataCell;

@@ -69,7 +69,7 @@
 	[[self _statusMenu] removeItem:[item _menuItem]];
 }
 
-- (NSStatusItem *) statusItemWithLength:(float) length;
+- (NSStatusItem *) statusItemWithLength:(CGFloat) length;
 {
 	NSMenuItem *menuItem=[[[NSMenuItem alloc] initWithTitle:@"?" action:NULL keyEquivalent:@""] autorelease];
 	id item=[[[NSStatusItem alloc] _initForStatusBar:(NSStatusBar *) self andMenuItem:menuItem withLength:length] autorelease];
@@ -80,7 +80,7 @@
 	return item;
 }
 
-- (float) thickness;
+- (CGFloat) thickness;
 { // should be 22 according to documentation
 	[menuView sizeToFit];
 	return [menuView frame].size.height;

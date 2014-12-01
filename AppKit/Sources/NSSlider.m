@@ -81,8 +81,8 @@ static Class _sliderCellClass;
 {
 	// FIXME: can we cache the path?
 	NSBezierPath *p=[NSBezierPath bezierPath];
-	float w2=2.5;
-	float w=5.0;
+	CGFloat w2=2.5;
+	CGFloat w=5.0;
 	int i;
 	[[NSColor blackColor] set];
 	for(i=0; i<_numberOfTickMarks; i++)
@@ -90,13 +90,13 @@ static Class _sliderCellClass;
 	[p setLineWidth:w];
 	if(_isVertical)
 		{
-		float x=rect.origin.x+rect.size.width/2.0-w2;
+		CGFloat x=rect.origin.x+rect.size.width/2.0-w2;
 		[p moveToPoint:NSMakePoint(x, rect.origin.y+w)];
 		[p lineToPoint:NSMakePoint(x, rect.origin.y+rect.size.height-w)];
 		}
 	else
 		{
-		float y=rect.origin.y+rect.size.height/2.0+(flipped?-w2:w2);
+		CGFloat y=rect.origin.y+rect.size.height/2.0+(flipped?-w2:w2);
 		[p moveToPoint:NSMakePoint(rect.origin.x+w, y)];
 		[p lineToPoint:NSMakePoint(rect.origin.x+rect.size.width-w, y)];
 		}
@@ -110,7 +110,7 @@ static Class _sliderCellClass;
 	NSImage *image = [_knobCell image];
 	NSSize size;
 	NSPoint origin;
-	float floatValue;
+	CGFloat floatValue;
 
 	if(!_controlView || fabs(_maxValue - _minValue) < 1e-6)
 		return NSZeroRect;	// can't determine properly
@@ -170,7 +170,7 @@ static Class _sliderCellClass;
 	if(_initializedVertical != _isVertical)
 		{ // needs to adjust
 		NSImage *image;
-		float size;
+		CGFloat size;
 		if((_initializedVertical = _isVertical))
 			{
 			image = [NSImage imageNamed:@"GSSliderVert"];
@@ -211,13 +211,13 @@ static Class _sliderCellClass;
 	[self drawKnob:kr];
 }
 
-- (float) knobThickness
+- (CGFloat) knobThickness
 {
 	NSSize size = [[_knobCell image] size];
 	return _isVertical ? size.height : size.width;
 }
 
-- (void) setKnobThickness:(float)thickness
+- (void) setKnobThickness:(CGFloat)thickness
 {
 	NSImage* image = [_knobCell image];
 	NSSize size = [image size];
@@ -265,8 +265,8 @@ static Class _sliderCellClass;
 - (NSRect) rectOfTickMarkAtIndex:(int) index;
 {
 	NSRect r=NSZeroRect;
-	float w=2.0+16.0;	// knob size
-	float w2=0.5*w;
+	CGFloat w=2.0+16.0;	// knob size
+	CGFloat w2=0.5*w;
 	if(_isVertical)
 		{
 		r.origin.x=5.0;	// FIXME: make dependent on left/right
@@ -337,6 +337,7 @@ static Class _sliderCellClass;
 
 - (int) indexOfTickMarkAtPoint:(NSPoint) point;
 {
+	NIMP;
 	return NSNotFound;
 }
 
@@ -347,14 +348,14 @@ static Class _sliderCellClass;
 - (void) setSliderType:(NSSliderType) sliderType;	{ _sliderType=sliderType; }
 - (NSSliderType) sliderType;						{ return _sliderType; }
 
-- (float) _floatValueForMousePoint:(NSPoint)point knobRect:(NSRect)knobRect flipped:(BOOL) isFlipped;
+- (CGFloat) _floatValueForMousePoint:(NSPoint)point knobRect:(NSRect)knobRect flipped:(BOOL) isFlipped;
 {
 	NSRect slotRect = [self trackRect];
 	BOOL isVertical = [self isVertical];
-	float minValue = [self minValue];
-	float maxValue = [self maxValue];
-	float floatValue = 0;
-	float position;
+	CGFloat minValue = [self minValue];
+	CGFloat maxValue = [self maxValue];
+	CGFloat floatValue = 0;
+	CGFloat position;
 	// Adjust the point to lie inside the knob slot. We don't have to worry whether the view is flipped or not.
 	if (isVertical)
 		{
@@ -387,7 +388,7 @@ static Class _sliderCellClass;
 				  inView:(NSView*)control
 { // we want to know tracking positions and have the knob follow where we are
 	BOOL isFlipped=[control isFlipped];
-	float v = [self _floatValueForMousePoint:startPoint knobRect:[self knobRectFlipped:isFlipped] flipped:isFlipped];
+	CGFloat v = [self _floatValueForMousePoint:startPoint knobRect:[self knobRectFlipped:isFlipped] flipped:isFlipped];
 	if([self allowsTickMarkValuesOnly])
 		v=[self closestTickMarkValueToValue:v]; // round to nearest tick mark
 	[self setFloatValue:v];	// calls updateCell:
@@ -440,9 +441,9 @@ static Class _sliderCellClass;
 - (NSImage *) image							{ return [_cell image]; }
 - (int) isVertical							{ return [_cell isVertical]; }
 // NOT TESTED: - (BOOL) isFlipped							{ return YES; }
-- (float) knobThickness						{ return [_cell knobThickness]; }
+- (CGFloat) knobThickness					{ return [_cell knobThickness]; }
 - (void) setImage:(NSImage*)backgroundImg	{ [_cell setImage:backgroundImg]; }
-- (void) setKnobThickness:(float)aFloat		{ [_cell setKnobThickness:aFloat];}
+- (void) setKnobThickness:(CGFloat)aFloat	{ [_cell setKnobThickness:aFloat];}
 - (void) setTitle:(NSString *)aString		{ [_cell setTitle:aString]; }
 - (void) setTitleCell:(NSCell *)aCell		{ [_cell setTitleCell:aCell]; }
 - (void) setTitleColor:(NSColor *)aColor	{ [_cell setTitleColor:aColor]; }

@@ -64,12 +64,12 @@ static NSButtonCell *__knobCell = nil;
 
 @implementation NSScroller
 
-+ (float) scrollerWidth
++ (CGFloat) scrollerWidth
 {
 	return 18.0;	// system constant
 }
 
-+ (float) scrollerWidthForControlSize:(NSControlSize) size;
++ (CGFloat) scrollerWidthForControlSize:(NSControlSize) size;
 {
 	switch(size)
 		{
@@ -102,8 +102,9 @@ static NSButtonCell *__knobCell = nil;
 
 - (NSScrollArrowPosition) arrowsPosition	{ return _arrowsPosition; }
 - (NSUsableScrollerParts) usableParts		{ return _usableParts; }
-- (float) knobProportion					{ return _knobProportion; }
+- (CGFloat) knobProportion					{ return _knobProportion; }
 - (float) floatValue						{ return _floatValue; }
+- (double) doubleValue						{ return _floatValue; }
 - (NSScrollerPart) hitPart					{ return _hitPart; }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder				{ NIMP }
@@ -190,8 +191,8 @@ static NSButtonCell *__knobCell = nil;
 - (void) checkSpaceForParts
 {
 	NSSize frameSize = [self frame].size;
-	float size = (_isHorizontal ? frameSize.width : frameSize.height);
-	float scrollerWidth = (_isHorizontal ? frameSize.height : frameSize.width);
+	CGFloat size = (_isHorizontal ? frameSize.width : frameSize.height);
+	CGFloat scrollerWidth = (_isHorizontal ? frameSize.height : frameSize.width);
 
 	if(size > 3 * scrollerWidth + 2)
 		_usableParts = NSAllScrollerParts;
@@ -225,7 +226,7 @@ static NSButtonCell *__knobCell = nil;
 	[self setNeedsDisplay:YES];
 }
 
-- (void) setFloatValue:(float)aFloat
+- (void) setDoubleValue:(double)aFloat
 {
 	aFloat = MIN(MAX(aFloat, 0), 1);
 	if(_floatValue == aFloat)
@@ -238,7 +239,12 @@ static NSButtonCell *__knobCell = nil;
 	[self setNeedsDisplayInRect:[self rectForPart:NSScrollerKnobSlot]];
 }
 
-- (void) setFloatValue:(float)aFloat knobProportion:(float)ratio
+- (void) setFloatValue:(float)aFloat
+{
+	[self setDoubleValue:aFloat];
+}
+
+- (void) setKnobProportion:(CGFloat)ratio;
 {
 	ratio=MIN(MAX(ratio, 0), 1);
 	if(_knobProportion != ratio)
@@ -246,6 +252,11 @@ static NSButtonCell *__knobCell = nil;
 		_knobProportion = ratio;
 		[self setNeedsDisplayInRect:[self rectForPart:NSScrollerKnobSlot]];
 		}
+}
+
+- (void) setFloatValue:(float)aFloat knobProportion:(float)ratio
+{
+	[self setKnobProportion:ratio];
 	[self setFloatValue:aFloat];
 }
 
@@ -391,7 +402,7 @@ static NSButtonCell *__knobCell = nil;
 					{ // make scroller jump and then track
 					NSRect knobRect = [self rectForPart: NSScrollerKnob];
 					NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
-					float v;
+					CGFloat v;
 					if(_isHorizontal)
 						v=(p.x-knobRect.size.width/2.0-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
 					else
@@ -428,7 +439,7 @@ static NSButtonCell *__knobCell = nil;
 		{ // user is moving scroller
 		if (type == NSLeftMouseDragged) 
 			{ // mouse has moved
-			float v;
+			CGFloat v;
 			NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
 			[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 			if(_isHorizontal)
@@ -577,7 +588,7 @@ static NSButtonCell *__knobCell = nil;
 - (NSRect) rectForPart:(NSScrollerPart)partCode
 { // FIXME: we should cache these values
 	NSRect scrollerFrame = _frame;
-	float x = 1, y = 1, width = 0, height = 0;
+	CGFloat x = 1, y = 1, width = 0, height = 0;
 	NSUsableScrollerParts usableParts;
 	// If the scroller is disabled then
 	if (!_isEnabled)						// the scroller buttons and the 
@@ -601,7 +612,7 @@ static NSButtonCell *__knobCell = nil;
 		{ 	// The x, y, width and height values are computed below for the vertical scroller.  The height of the scroll buttons is assumed to be equal to the width.
     	case NSScrollerKnob:
 			{
-				float knobHeight, knobPosition, slotHeight;
+				CGFloat knobHeight, knobPosition, slotHeight;
 				if (usableParts == NSNoScrollerParts || usableParts == NSOnlyScrollerArrows)
 					return NSZeroRect;		// If the scroller does not have parts or a knob return a zero rect. 
 				slotHeight = height - (_arrowsPosition == NSScrollerArrowsNone ? 0 : 2 * width);	// calc the slot Height
@@ -609,10 +620,10 @@ static NSButtonCell *__knobCell = nil;
 				if (knobHeight < width)			// adjust knob height and proportion if necessary
 					{ // make it at least square
 					knobHeight = width; 
-					_knobProportion = (float)(knobHeight / slotHeight);
+					_knobProportion = (CGFloat)(knobHeight / slotHeight);
 					}
 				knobPosition = _floatValue * (slotHeight - knobHeight);	// calc knob's position (left/top end)
-//			knobPosition = (float)floorf(knobPosition);	// avoid (why?) rounding error
+//			knobPosition = (CGFloat)floor(knobPosition);	// avoid (why?) rounding error
 				
 				y += knobPosition;	// move knob
 				if(_arrowsPosition == NSScrollerArrowsMinEnd)

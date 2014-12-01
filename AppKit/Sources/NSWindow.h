@@ -169,7 +169,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSWindow *_attachedSheet;
 	NSNotification *autoDisplayNotification;
 
-	float _userSpaceScaleFactor;
+	CGFloat _userSpaceScaleFactor;
 
 	int _disableFlushWindow;
 	int _level;

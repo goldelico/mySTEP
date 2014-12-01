@@ -44,10 +44,10 @@ typedef enum _NSTickMarkPosition
 {
 	id _knobCell;
 	//	id _titleCell;	// deprecated
-	float _minValue;	// we store only a float although external access is double!
-	float _maxValue;
+	CGFloat _minValue;	// we store only a float although external access is double!
+	CGFloat _maxValue;
 	//	float _floatValue;	// NSNumber in _contents
-	float _altIncrementValue;
+	CGFloat _altIncrementValue;
 	int _numberOfTickMarks;
 	NSRect _trackRect;
 	NSSliderType _sliderType;

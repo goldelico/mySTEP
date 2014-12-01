@@ -21,8 +21,8 @@
 }
 
 #ifndef NSSquareStatusItemLength
-#define NSSquareStatusItemLength ((float) -2.0)		// length == thickness
-#define NSVariableStatusItemLength ((float) -1.0)	// variable
+#define NSSquareStatusItemLength ((CGFloat) -2.0)		// length == thickness
+#define NSVariableStatusItemLength ((CGFloat) -1.0)	// variable
 #endif
 
 + (NSStatusBar *) systemStatusBar;

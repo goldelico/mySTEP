@@ -53,8 +53,8 @@ enum {
 						delegate:(id) delegate 
 				  didEndSelector:(SEL) sel 
 					 contextInfo:(void *) context;
-- (void) convertOldFactor:(float *) old /* DEPRECATED */
-				newFactor:(float *) new;
+- (void) convertOldFactor:(CGFloat *) old /* DEPRECATED */
+				newFactor:(CGFloat *) new;
 - (void) pickedButton:(id) sender; /* DEPRECATED */
 - (void) pickedOrientation:(id) sender; /* DEPRECATED */
 - (void) pickedPaperSize:(id) sender; /* DEPRECATED */

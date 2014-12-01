@@ -29,11 +29,11 @@
 #define PMAX  10000
 #define KAPPA 0.5522847498				// magic number = 4 *(sqrt(2) -1)/3	
 
-static void flatten(NSPoint coeff[], float flatness, NSBezierPath *path);
+static void flatten(NSPoint coeff[], CGFloat flatness, NSBezierPath *path);
 
-static float __defaultLineWidth = 1.0;
-static float __defaultFlatness = 1.0;
-static float __defaultMiterLimit = 10.0;
+static CGFloat __defaultLineWidth = 1.0;
+static CGFloat __defaultFlatness = 1.0;
+static CGFloat __defaultMiterLimit = 10.0;
 static NSLineJoinStyle __defaultLineJoinStyle = NSMiterLineJoinStyle;
 static NSLineCapStyle __defaultLineCapStyle = NSButtLineCapStyle;
 static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
@@ -180,7 +180,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 // this is a special case of _drawRoundedBezel:
 
-+ (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius
++ (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(CGFloat) radius
 {
 	NSBezierPath *b=[self new];
 	borderRect.size.width-=1.0;
@@ -253,7 +253,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 // add backgroundColor parameter (for the default if not enabled)
 // add radius parameter - then we can also use it to draw the standard round button
 
-+ (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(float) radius;
++ (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(CGFloat) radius;
 {
 	NSColor *background;
 	NSBezierPath *b=[self new];
@@ -550,9 +550,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		 controlPoint2: controlPoint2];
 }
 
-- (float) lineWidth								{ return _lineWidth; }
+- (CGFloat) lineWidth								{ return _lineWidth; }
 - (CGFloat) flatness							{ return _flatness; }
-- (float) miterLimit							{ return _miterLimit; }
+- (CGFloat) miterLimit							{ return _miterLimit; }
 - (NSLineJoinStyle) lineJoinStyle				{ return _bz.lineJoinStyle; }
 - (NSLineCapStyle) lineCapStyle					{ return _bz.lineCapStyle; }
 - (NSWindingRule) windingRule					{ return _bz.windingRule; }
@@ -578,7 +578,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	if (phase != NULL)
 		*phase = _dashPhase;
 	
-	memcpy(pattern, _dashPattern, _dashCount * sizeof(float));
+	memcpy(pattern, _dashPattern, _dashCount * sizeof(*pattern));
 }
 
 - (void) setLineDash:(const CGFloat *)pattern count:(int)count phase:(CGFloat)phase
@@ -601,7 +601,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	
 	_dashCount = count;
 	_dashPhase = phase;
-	memcpy(_dashPattern, pattern, _dashCount * sizeof(float));
+	memcpy(_dashPattern, pattern, _dashCount * sizeof(*pattern));
 }
 
 - (void) stroke
@@ -832,8 +832,8 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		NSPoint pts[3];
 		// This will compute three intermediate points per curve
 		double x, y, t, k = 0.25;
-		float maxx, minx, maxy, miny;
-		float cpmaxx, cpminx, cpmaxy, cpminy;	
+		CGFloat maxx, minx, maxy, miny;
+		CGFloat cpmaxx, cpminx, cpmaxy, cpminy;
 		int i;
 		BOOL first = YES;
 		
@@ -1060,7 +1060,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 								  endAngle:(CGFloat)endAngle
 								 clockwise:(BOOL)clockwise
 {											// startAngle and endAngle are in 
-	float startAngle_rad, endAngle_rad, diff;	// degrees, counterclockwise, from 
+	CGFloat startAngle_rad, endAngle_rad, diff;	// degrees, counterclockwise, from
 	NSPoint p0, p1, p2, p3;						// the x axis
 #if 0
 	NSLog(@"appendBezierPathWithArcWithCenter:%@ radius:%f startAngle:%f endAngle:%f %@",
@@ -1118,9 +1118,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		if ((clockwise) ? (startAngle_rad + diff >= endAngle_rad) 
 						: (startAngle_rad + diff <= endAngle_rad))
 			{
-			float sin_start = sin (startAngle_rad);
-			float cos_start = cos (startAngle_rad);
-			float sign = (clockwise) ? -1.0 : 1.0;
+			CGFloat sin_start = sin (startAngle_rad);
+			CGFloat cos_start = cos (startAngle_rad);
+			CGFloat sign = (clockwise) ? -1.0 : 1.0;
 #if 0
 				NSLog(@"start=%f end=%f sign=%f", startAngle_rad, endAngle_rad, sign);
 				NSLog(@"sin=%f cos=%f", sin_start, cos_start);
@@ -1157,16 +1157,16 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 			*/
 			NSPoint ps = [self currentPoint];
 			/* tangent is the tangent of half the angle */
-			float tangent = tan ((endAngle_rad - startAngle_rad) / 2);
+			CGFloat tangent = tan ((endAngle_rad - startAngle_rad) / 2);
 			/* trad is the distance from either tangent point to the
 				intersection of the tangents */
-			float trad = radius * tangent;
+			CGFloat trad = radius * tangent;
 			/* pt is the intersection of the tangents */
 			NSPoint pt = NSMakePoint (ps.x - trad * sin (startAngle_rad),
 									  ps.y + trad * cos (startAngle_rad));
 			/* This is F - in this expression we need to compute 
 				(trad/radius)^2, which is simply tangent^2 */
-			float f = (4.0 / 3.0) / (1.0 + sqrt (1.0 +  (tangent * tangent)));
+			CGFloat f = (4.0 / 3.0) / (1.0 + sqrt (1.0 +  (tangent * tangent)));
 			
 #if 0
 				NSLog(@"ps=%@ tan=%f trad=%f pt=%@ f=%f", NSStringFromPoint(ps), tangent, trad, NSStringFromPoint(pt), f);
@@ -1200,10 +1200,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 								  toPoint:(NSPoint)point2
 								   radius:(CGFloat)radius
 {
-	float x1 = point1.x;
-	float y1 = point1.y;
-	float dx1, dy1, dx2, dy2;
-	float l, a1, a2;
+	CGFloat x1 = point1.x;
+	CGFloat y1 = point1.y;
+	CGFloat dx1, dy1, dx2, dy2;
+	CGFloat l, a1, a2;
 	NSPoint p;
 	if (_count == 0)
 		[NSException raise:NSGenericException format:@"trying to append arc to empty path"];
@@ -1312,9 +1312,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	NSBezierPathElement type;
 	NSPoint pts[3];
 	int i, count;
-	float f = [self lineWidth];
+	CGFloat f = [self lineWidth];
 	
-	[aCoder encodeValueOfObjCType: @encode(float) at: &f];
+	[aCoder encodeValueOfObjCType: @encode(CGFloat) at: &f];
 	[aCoder encodeValueOfObjCType: @encode(unsigned int) at: &_bz];
 	
 	count = [self elementCount];
@@ -1362,7 +1362,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		return NIMP;
 		}
 
-	[aCoder decodeValueOfObjCType: @encode(float) at: &f];
+	[aCoder decodeValueOfObjCType: @encode(CGFloat) at: &f];
 	[self setLineWidth: f];
 	[aCoder decodeValueOfObjCType: @encode(unsigned int) at: &_bz];
 	_bz.shouldRecalculateBounds = YES;
@@ -1533,7 +1533,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 @end  /* NSBezierPath */
 
 static void
-flatten(NSPoint coeff[], float flatness, NSBezierPath *path)
+flatten(NSPoint coeff[], CGFloat flatness, NSBezierPath *path)
 {
 	// Check if the Bezier path defined by the four points has the given flatness.
 	// If not split it up in the middle and recurse. 

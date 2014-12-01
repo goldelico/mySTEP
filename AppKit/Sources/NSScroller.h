@@ -57,8 +57,8 @@ typedef enum _NSScrollerArrow {
 
 @interface NSScroller : NSControl  <NSCoding>
 {
-	float _floatValue;
-	float _knobProportion;
+	CGFloat _floatValue;
+	CGFloat _knobProportion;
 	id _target;
 	SEL _action;
 	NSScrollerPart _hitPart;
@@ -89,6 +89,8 @@ typedef enum _NSScrollerArrow {
 - (void) setControlTint:(NSControlTint) tint;
 - (void) setEnabled:(BOOL) flag;
 - (void) setFloatValue:(float) aFloat knobProportion:(CGFloat) ratio;
+- (void) setDoubleValue:(double) aDouble;
+- (void) setKnobProportion:(CGFloat) ratio;
 - (NSScrollerPart) testPart:(NSPoint) thePoint;
 - (void) trackKnob:(NSEvent *) event;
 - (void) trackScrollButtons:(NSEvent *) event;

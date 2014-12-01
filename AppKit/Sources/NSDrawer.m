@@ -49,7 +49,7 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 	[super dealloc];
 }
 
-- (float) leadingOffset; { return _leadingOffset; }
+- (CGFloat) leadingOffset; { return _leadingOffset; }
 - (NSSize) maxContentSize; { return _maxContentSize; }
 - (NSSize) minContentSize; { return _minContentSize; }
 
@@ -88,12 +88,12 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 //	[super setDelegate:delegate];
 }
 
-- (void) setLeadingOffset:(float) offset; { _leadingOffset=offset; }
+- (void) setLeadingOffset:(CGFloat) offset; { _leadingOffset=offset; }
 - (void) setMaxContentSize:(NSSize) size; { _maxContentSize=size; }
 - (void) setMinContentSize:(NSSize) size; { _minContentSize=size; }
 - (void) setParentWindow:(NSWindow *) parent; { ASSIGN(_parentWindow, parent); }
 - (void) setPreferredEdge:(NSRectEdge) edge; { _edge=edge; }
-- (void) setTrailingOffset:(float) offset; { _trailingOffset=offset; }
+- (void) setTrailingOffset:(CGFloat) offset; { _trailingOffset=offset; }
 - (int) state; { return _state; }
 
 - (void) toggle:(id) sender;
@@ -104,6 +104,6 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 		[self open];
 }
 
-- (float) trailingOffset; { return _trailingOffset; }
+- (CGFloat) trailingOffset; { return _trailingOffset; }
 
 @end

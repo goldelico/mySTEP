@@ -230,10 +230,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return -[font descender];
 }
 
-- (float) defaultLineHeightForFont:(NSFont *) font;
+- (CGFloat) defaultLineHeightForFont:(NSFont *) font;
 { // may differ from [font defaultLineHeightForFont]
-	float leading=[font leading];
-	float height;
+	CGFloat leading=[font leading];
+	CGFloat height;
 	height=floorf([font ascender]+0.5)+floorf(0.5-[font descender]);
 	if(leading > 0)
 		height += leading + floorf(0.2*height + 0.5);
@@ -354,7 +354,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		if(_NSShowGlyphBoxes)
 			{ // draw bounding boxes of glyphs
 				unsigned int g;
-				float advance=0.0;
+				CGFloat advance=0.0;
 				for(g=glyphsToShow.location; g < NSMaxRange(glyphsToShow); g++)
 					{
 					NSGlyph glyph=[self glyphAtIndex:g];
@@ -515,7 +515,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) drawStrikethroughForGlyphRange:(NSRange)glyphRange
 					  strikethroughType:(int)strikethroughVal
-						 baselineOffset:(float)baselineOffset
+						 baselineOffset:(CGFloat)baselineOffset
 					   lineFragmentRect:(NSRect)lineRect
 				 lineFragmentGlyphRange:(NSRange)lineGlyphRange
 						containerOrigin:(NSPoint)containerOrigin;
@@ -523,7 +523,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// use [font xHeight]
 	NIMP;
 #if 0
-	float posy=pos.y+[font ascender]+baselineOffset-[font xHeight]/2.0;
+	CGFloat posy=pos.y+[font ascender]+baselineOffset-[font xHeight]/2.0;
 #if 0
 	NSLog(@"strike through %x", style);
 #endif
@@ -535,7 +535,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) drawUnderlineForGlyphRange:(NSRange)glyphRange 
 					  underlineType:(int)underlineVal 
-					 baselineOffset:(float)baselineOffset 
+					 baselineOffset:(CGFloat)baselineOffset
 				   lineFragmentRect:(NSRect)lineRect 
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 					containerOrigin:(NSPoint)containerOrigin;
@@ -544,7 +544,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NIMP;
 #if 0
 	// how do we get to the font? - in the same loop over attributeRanges as for drawGlyphs
-	float posy=pos.y+[font defaultLineHeightForFont]+baselineOffset+[font underlinePosition];
+	CGFloat posy=pos.y+[font defaultLineHeightForFont]+baselineOffset+[font underlinePosition];
 #if 0
 	NSLog(@"underline %x", style);
 #endif
@@ -662,9 +662,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _firstUnlaidGlyphIndex;
 }
 
-- (float) fractionOfDistanceThroughGlyphForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
+- (CGFloat) fractionOfDistanceThroughGlyphForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
 {
-	float f;
+	CGFloat f;
 	[self glyphIndexForPoint:aPoint inTextContainer:aTextContainer fractionOfDistanceThroughGlyph:&f];	// ignore index
 	return f;
 }
@@ -784,11 +784,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (unsigned int) glyphIndexForPoint:(NSPoint)aPoint
 					inTextContainer:(NSTextContainer *)textContainer
-	 fractionOfDistanceThroughGlyph:(float *)partialFraction;
+	 fractionOfDistanceThroughGlyph:(CGFloat *)partialFraction;
 {
 	NSRange cRange=[self glyphRangeForTextContainer:textContainer];
 	NSRange lfrRange={ cRange.location, 0 };
-	float fraction=0.0;
+	CGFloat fraction=0.0;
 #if 1
 	NSLog(@"crange %@", NSStringFromRange(cRange));
 #endif
@@ -811,7 +811,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				break;	// is to the left of this line (e.g. at the end of a previous column)
 			if(NSPointInRect(aPoint, lfrRect) )
 				{ // inside this line fragment
-					float prevx=0;
+					CGFloat prevx=0;
 #if 1
 					NSLog(@"inside");
 #endif

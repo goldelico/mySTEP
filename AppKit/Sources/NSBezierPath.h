@@ -143,13 +143,13 @@ typedef enum NSBezierPathElement
 - (NSInteger) elementCount;
 - (void) fill;
 - (CGFloat) flatness;
-- (void) getLineDash:(float *) patternValue count:(NSInteger *) count phase:(CGFloat *) phaseValue;
+- (void) getLineDash:(CGFloat *) patternValue count:(NSInteger *) count phase:(CGFloat *) phaseValue;
 - (BOOL) isEmpty;
 - (NSLineCapStyle) lineCapStyle;
 - (NSLineJoinStyle) lineJoinStyle;
 - (void) lineToPoint:(NSPoint) pt;
-- (float) lineWidth;
-- (float) miterLimit;
+- (CGFloat) lineWidth;
+- (CGFloat) miterLimit;
 - (void) moveToPoint:(NSPoint) pt;
 - (void) relativeCurveToPoint:(NSPoint) pt controlPoint1:(NSPoint) controlPt1 controlPoint2:(NSPoint) controlPt2;
 - (void) relativeLineToPoint:(NSPoint) pt;

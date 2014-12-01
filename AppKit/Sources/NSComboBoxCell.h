@@ -41,7 +41,7 @@
 	NSPanel *_popUpWindow;
     NSMutableArray *_popUpList;
     NSSize _intercellSpacing;
-	float _itemHeight;
+	CGFloat _itemHeight;
 	int _visibleItems;
 
     struct __comboBoxCellFlags {

@@ -24,7 +24,7 @@
 @interface NSFormCell : NSActionCell
 {
 	NSCell *_titleCell;
-	float _titleWidth;
+	CGFloat _titleWidth;
 }
 
 - (NSAttributedString *) attributedTitle;

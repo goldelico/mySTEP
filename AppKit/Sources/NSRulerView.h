@@ -26,7 +26,7 @@ typedef enum {
 
 + (void) registerUnitWithName:(NSString *) unitName
 				 abbreviation:(NSString *) abbreviation
- unitToPointsConversionFactor:(float) conversionFactor
+ unitToPointsConversionFactor:(CGFloat) conversionFactor
 				  stepUpCycle:(NSArray *) stepUpCycle
 				stepDownCycle:(NSArray *) stepDownCycle;
 
@@ -81,10 +81,10 @@ typedef enum {
   shouldMoveMarker:(NSRulerMarker *) aMarker; 
 - (BOOL) rulerView:(NSRulerView *) aRulerView 
 shouldRemoveMarker:(NSRulerMarker *) aMarker;
-- (float) rulerView:(NSRulerView *) aRulerView
+- (CGFloat) rulerView:(NSRulerView *) aRulerView
 	  willAddMarker:(NSRulerMarker *) aMarker
 		 atLocation:(CGFloat) location; 
-- (float) rulerView:(NSRulerView *) aRulerView
+- (CGFloat) rulerView:(NSRulerView *) aRulerView
 	 willMoveMarker:(NSRulerMarker *) aMarker
 		 toLocation:(CGFloat) location; 
 - (void) rulerView:(NSRulerView *) aRulerView

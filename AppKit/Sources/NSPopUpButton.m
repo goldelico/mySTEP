@@ -584,8 +584,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotification";
 
 - (BOOL) isHorizontal; { return NO; }	// behaves like a vertical menu (NSPopUpButtonCell assumes we are a NSMenuView)
-- (float) horizontalEdgePadding; { return 0.0; }
-- (float) imageAndTitleOffset; { return 0.0; }
+- (CGFloat) horizontalEdgePadding; { return 0.0; }
+- (CGFloat) imageAndTitleOffset; { return 0.0; }
 
 - (id) init
 {

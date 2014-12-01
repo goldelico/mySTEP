@@ -231,10 +231,10 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 	NSPoint p2=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))];
 	NSPoint p3=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))];
 	NSPoint p4=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))];	
-	float minx=p1.x;
-	float miny=p1.y;
-	float maxx=p1.x;
-	float maxy=p1.y;
+	CGFloat minx=p1.x;
+	CGFloat miny=p1.y;
+	CGFloat maxx=p1.x;
+	CGFloat maxy=p1.y;
 	if(p2.x < minx) minx=p2.x;
 	if(p3.x < minx) minx=p3.x;
 	if(p4.x < minx) minx=p4.x;
@@ -889,7 +889,7 @@ printing
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
 
-- (void) setFrameRotation:(float)angle
+- (void) setFrameRotation:(CGFloat)angle
 {
 	if(_frameRotation != angle)
 		{
@@ -918,7 +918,7 @@ printing
 }
 
 - (NSRect) frame					{ return _frame; }
-- (float) frameRotation				{ return _frameRotation; }
+- (CGFloat) frameRotation				{ return _frameRotation; }
 
 - (NSRect) centerScanRect:(NSRect)aRect
 {
@@ -1046,14 +1046,15 @@ printing
 
 - (void) setBounds:(NSRect) b
 {
+	// FIXME: needs some work to be 100% compatible to Cocoa
 	NSLog(@"2 setBounds:%@", NSStringFromRect(b));
 	NSRect frame=[self frame];
 	NSAffineTransformStruct t;
-	float sx=b.size.width/frame.size.width;
-	float sy=b.size.height/frame.size.height;
-	float s=sin(deg2rad(boundsRotation));
-	float c=cos(deg2rad(boundsRotation));
-	static float special;
+	CGFloat sx=b.size.width/frame.size.width;
+	CGFloat sy=b.size.height/frame.size.height;
+	CGFloat s=sin(deg2rad(boundsRotation));
+	CGFloat c=cos(deg2rad(boundsRotation));
+	static CGFloat special;	// non zero value
 	//	NSLog(@"%30.30f", 2*asin(1)/180.0);
 	//	NSLog(@"%g", sinf(deg2rad(180.0)));
 	if(boundsRotation == 180.0)
@@ -1128,12 +1129,12 @@ printing
 	// can be skipped if never rotated or scaled:
 	double D=t.m11*t.m22 - t.m12*t.m21;
 	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale
-	float sx=newSize.width/frame.size.width;
-	float sy=newSize.height/frame.size.height;
+	CGFloat sx=newSize.width/frame.size.width;
+	CGFloat sy=newSize.height/frame.size.height;
 	if(boundsRotation == 180.0)
 		NSLog(@"now 180");
-	float s=sin(deg2rad(boundsRotation));
-	float c=cos(deg2rad(boundsRotation));
+	CGFloat s=sin(deg2rad(boundsRotation));
+	CGFloat c=cos(deg2rad(boundsRotation));
 	// t.m?? increasingly differs from Cocoa after translateOriginToPoint
 	// especially we find differences in the matrix that we reconstruct here directly from boundsRotation, newSize and frame.size
 	// the only explanation is that Cocoa dynamically calculates s/c from the old t.m?? values - i.e. ignores sin(rotation)/cos(rotation)
@@ -1160,14 +1161,14 @@ printing
 	NSLog(@"2 setBoundsRotation:%g", a);
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
-	float c=cos(deg2rad(a));
-	float s=sin(deg2rad(a));
-	float Q = t.m11*t.m11+t.m12*t.m12+t.m21*t.m21+t.m22*t.m22;
-	float D = t.m11*t.m22-t.m12*t.m21;	// invariants (don't change for rotations)
+	CGFloat c=cos(deg2rad(a));
+	CGFloat s=sin(deg2rad(a));
+	CGFloat Q = t.m11*t.m11+t.m12*t.m12+t.m21*t.m21+t.m22*t.m22;
+	CGFloat D = t.m11*t.m22-t.m12*t.m21;	// invariants (don't change for rotations)
 	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale from origin
 	// FIXME: when do we use -sqrt and when +sqrt???
-	float sx = sqrt(0.5*(Q + sqrt(Q*Q - 4*D*D)));
-	float sy = D / sx;	// = sqrt(0.5*(Q - sqrt(Q*Q - 4*D*D))); but a division is cheaper than sqrt
+	CGFloat sx = sqrt(0.5*(Q + sqrt(Q*Q - 4*D*D)));
+	CGFloat sy = D / sx;	// = sqrt(0.5*(Q - sqrt(Q*Q - 4*D*D))); but a division is cheaper than sqrt
 	t.m11 = c * sx;
 	t.m12 = -s * sx;
 	t.m21 = s * sy;
@@ -1192,8 +1193,8 @@ printing
 {
 	NSLog(@"2 rotateByAngle:%g", a);
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
-	float c=cos(deg2rad(a));
-	float s=sin(deg2rad(a));
+	CGFloat c=cos(deg2rad(a));
+	CGFloat s=sin(deg2rad(a));
 	NSAffineTransformStruct n;
 	n.m11=c*t.m11+s*t.m12;
 	n.m12=-s*t.m11+c*t.m12;
@@ -1310,7 +1311,7 @@ printing
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
-- (void) setBoundsRotation:(float)angle
+- (void) setBoundsRotation:(CGFloat)angle
 {
 	if(_boundsRotation != angle)
 		{
@@ -1328,7 +1329,7 @@ printing
 	[self setBoundsOrigin:NSMakePoint(_bounds.origin.x-point.x, _bounds.origin.y-point.y)];
 }
 
-- (void) rotateByAngle:(float)angle
+- (void) rotateByAngle:(CGFloat)angle
 {
 	// FIXME: this also changes the bounds rect!
 	_boundsRotation+=angle;
@@ -1339,7 +1340,7 @@ printing
 }
 
 - (NSRect) bounds					{ return _bounds; }
-- (float) boundsRotation			{ return _boundsRotation; }
+- (CGFloat) boundsRotation			{ return _boundsRotation; }
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
@@ -1686,7 +1687,7 @@ printing
 
 - (void) resizeWithOldSuperviewSize:(NSSize)oldSize		
 { // does not call setFrame: or setFrameSize:!
-	float change, changePerOption;
+	CGFloat change, changePerOption;
 	NSSize old_size = _frame.size;
 	NSSize superViewFrameSize;	// super_view should not be nil!
 	BOOL changedOrigin = NO;
@@ -1720,7 +1721,7 @@ printing
 			
 			if(_v.autoresizingMask & NSViewWidthSizable)		
 				{		
-				float oldFrameWidth = _frame.size.width;
+				CGFloat oldFrameWidth = _frame.size.width;
 				
 				_frame.size.width += changePerOption;
 				// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
@@ -1764,7 +1765,7 @@ printing
 			
 			if(_v.autoresizingMask & NSViewHeightSizable)		
 				{											
-				float oldFrameHeight = _frame.size.height;
+				CGFloat oldFrameHeight = _frame.size.height;
 				
 				_frame.size.height += changePerOption;
 				if(NSHeight(_frame) < 0)
@@ -1809,8 +1810,8 @@ printing
 		[self _invalidateCTM];	// update when needed
 		if(_v.isRotatedFromBase)	
 			{
-			float sx = _frame.size.width / _bounds.size.width;
-			float sy = _frame.size.height / _bounds.size.height;
+			CGFloat sx = _frame.size.width / _bounds.size.width;
+			CGFloat sy = _frame.size.height / _bounds.size.height;
 			// FIXME: should we scale old_size?
 			NSLog(@"and now? %@", self);
 			}

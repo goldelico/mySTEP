@@ -320,7 +320,7 @@ typedef struct {
 - (BOOL) getRow:(int*)row column:(int*)column forPoint:(NSPoint)point
 {
 	BOOL betweenRows, betweenCols;
-	float h, w, approxRowsHeight, approxColsWidth;
+	CGFloat h, w, approxRowsHeight, approxColsWidth;
 	int approxRow, approxCol;
 	// First test limit cases
 	if ((point.x < NSMinX(_bounds)) || (point.y < NSMinY(_bounds))

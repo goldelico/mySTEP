@@ -277,7 +277,7 @@ enum
 - (BOOL) isGesture;				// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (unsigned short) keyCode;
 - (NSPoint) locationInWindow;
-- (float) magnification;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+- (CGFloat) magnification;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (NSUInteger) modifierFlags;
 - (NSUInteger) pointingDeviceID;
 - (NSUInteger) pointingDeviceSerialNumber;

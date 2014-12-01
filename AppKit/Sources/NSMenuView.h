@@ -31,14 +31,14 @@
 	NSMutableArray *_cells;	// all cells
 	NSRect *_rectOfCells;	// sized using realloc()
     int _highlightedItemIndex;
-    float _horizontalEdgePadding;
-    float _imageAndTitleOffset;
-    float _imageAndTitleWidth;
-    float _keyEquivalentOffset;
-    float _keyEquivalentWidth;
-    float _stateImageOffset;
-    float _stateImageWidth;
-	float _neededSize;
+    CGFloat _horizontalEdgePadding;
+    CGFloat _imageAndTitleOffset;
+    CGFloat _imageAndTitleWidth;
+    CGFloat _keyEquivalentOffset;
+    CGFloat _keyEquivalentWidth;
+    CGFloat _stateImageOffset;
+    CGFloat _stateImageWidth;
+	CGFloat _neededSize;
     BOOL _needsSizing;
     BOOL _isHorizontal;
     BOOL _isResizingHorizontally;

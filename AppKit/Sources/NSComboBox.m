@@ -86,7 +86,7 @@
 
 - (void) setHasVerticalScroller:(BOOL)flag	{ _cbc.hasVerticalScroller = flag;}
 - (void) setIntercellSpacing:(NSSize)aSize	{ _intercellSpacing = aSize; }
-- (void) setItemHeight:(float)itemHeight	{ _itemHeight = itemHeight; }
+- (void) setItemHeight:(CGFloat)itemHeight	{ _itemHeight = itemHeight; }
 - (void) setNumberOfVisibleItems:(int)v		{ _visibleItems = v; }
 - (void) setUsesDataSource:(BOOL)flag		{ _cbc.usesDataSource = flag; }
 - (BOOL) usesDataSource						{ return _cbc.usesDataSource; }
@@ -142,7 +142,7 @@
 - (int) numberOfVisibleItems			{ return _visibleItems; }
 - (BOOL) hasVerticalScroller			{ return YES; }
 - (NSSize) intercellSpacing				{ return _intercellSpacing; }
-- (float) itemHeight					{ return _itemHeight; }
+- (CGFloat) itemHeight					{ return _itemHeight; }
 
 - (void) addItemWithObjectValue:(id)object
 {
@@ -233,7 +233,7 @@
 {
 	NSPoint o = [view convertPoint:cellFrame.origin toView:nil];	// convert to window coordinates
 	NSPoint l = [[view window] convertBaseToScreen:o];				// location on screen
-	float height = _itemHeight*_visibleItems;
+	CGFloat height = _itemHeight*_visibleItems;
 	NSRect f = { { l.x, l.y - height + 2.0 }, { NSWidth(cellFrame) - 1.0, height } };	// list frame
     NSScrollView *scrollView;
 #if 1
@@ -492,11 +492,11 @@ static Class __comboBoxCellClass = Nil;
 
 - (void) setHasVerticalScroller:(BOOL)f	{ [_cell setHasVerticalScroller:f]; }
 - (void) setIntercellSpacing:(NSSize)s	{ [_cell setIntercellSpacing:s]; }
-- (void) setItemHeight:(float)h			{ [_cell setItemHeight:h]; }
+- (void) setItemHeight:(CGFloat)h			{ [_cell setItemHeight:h]; }
 - (void) setNumberOfVisibleItems:(int)v	{ [_cell setNumberOfVisibleItems:v]; }
 - (BOOL) hasVerticalScroller			{ return [_cell hasVerticalScroller]; }
 - (NSSize) intercellSpacing				{ return [_cell intercellSpacing]; }
-- (float) itemHeight					{ return [_cell itemHeight]; }
+- (CGFloat) itemHeight					{ return [_cell itemHeight]; }
 - (int) numberOfVisibleItems			{ return [_cell numberOfVisibleItems];}
 - (void) reloadData						{ [_cell reloadData]; }
 - (void) noteNumberOfItemsChanged		{ [_cell noteNumberOfItemsChanged]; }

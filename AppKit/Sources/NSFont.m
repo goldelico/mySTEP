@@ -80,7 +80,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 
 + (NSFont *) menuFontOfSize:(CGFloat)fontSize
 {
-	static float size= -1.0;	// cache for default font size
+	static CGFloat size= -1.0;	// cache for default font size
 	if(size < 0.0)
 		size=floorf([NSMenuView menuBarHeight]*0.58+0.75);	// 16 -> 10; 20 -> 12; 24 -> 14;
 	return _getNSFont(@"NSMenuFont", @"Helvetica", fontSize, size);
@@ -88,7 +88,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 
 + (NSFont *) menuBarFontOfSize:(CGFloat)fontSize
 {
-	static float size= -1.0;	// cache for default font size
+	static CGFloat size= -1.0;	// cache for default font size
 	if(size <= 0.0)
 		size=floorf([NSMenuView menuBarHeight]*0.625+0.25);	// 16 -> 10; 24 -> 15;
 	return _getNSFont(@"NSMenuBarFont", @"Helvetica", fontSize, size);
@@ -241,7 +241,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 #define IS_SCREEN_FONT (((fFlags>>0)&1)!=0)
 #define MATRIX_IS_IDENTITY (((fFlags>>13)&1)!=0)
 #define RENDERING_MODE ((fFlags>>14)&0x07)
-		float size=[aDecoder decodeFloatForKey:@"NSSize"];
+		CGFloat size=[aDecoder decodeFloatForKey:@"NSSize"];
 		NSString *postscriptName=[aDecoder decodeObjectForKey:@"NSName"];
 #if 0
 		NSLog(@"%@ NSfFlags=%08x", self, [aDecoder decodeIntForKey:@"NSfFlags"]);
@@ -258,7 +258,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 	return NIMP;
 }
 
-- (id) _initWithName:(NSString *) postscriptName size:(float) size useDefault:(NSString *) defaultFont
+- (id) _initWithName:(NSString *) postscriptName size:(CGFloat) size useDefault:(NSString *) defaultFont
 {
 	static NSMutableDictionary *fcache;	// one more font cache
 	NSString *key;
@@ -401,7 +401,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 		matrix=[m transformStruct];
 	else
 		{ // get transformation
-		float size=[self pointSize];
+		CGFloat size=[self pointSize];
 		matrix.m11=size;
 		matrix.m22=size;
 		}
@@ -476,7 +476,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 }
 
 - (NSDictionary *) afmDictionary;	{ DEPRECATED; return nil; }
-- (float) defaultLineHeightForFont;	{ DEPRECATED; return [self ascender]-[self descender]+[self leading]; }
+- (CGFloat) defaultLineHeightForFont;	{ DEPRECATED; return [self ascender]-[self descender]+[self leading]; }
 - (NSString *) encodingScheme;	{ DEPRECATED; return @"FontSpecificEncoding"; }
 - (BOOL) glyphIsEncoded:(NSGlyph)aGlyph;	{ DEPRECATED; return NO; }
 - (NSMultibyteGlyphPacking) glyphPacking;	{ DEPRECATED; return NSNativeShortGlyphPacking; }
@@ -488,7 +488,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 - (NSPoint) positionOfGlyph:(NSGlyph)curGlyph withRelation:(NSGlyphRelation)relation toBaseGlyph:(NSGlyph)otherGlyph totalAdvancement:(NSSizePointer)offset metricExists:(BOOL *)flag;  { DEPRECATED; return NSZeroPoint; }
 - (int) positionsForCompositeSequence:(NSGlyph *) glyphs numberOfGlyphs:(int) number pointArray:(NSPointArray) points; { DEPRECATED; return 0; }
 
-- (float) widthOfString:(NSString *) string
+- (CGFloat) widthOfString:(NSString *) string
 { // calc the size of string in this font
 	BACKEND;
 	return 0.0;

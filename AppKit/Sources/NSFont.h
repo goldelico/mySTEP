@@ -126,7 +126,7 @@ extern NSString *NSFontSetChangedNotification;
 - (NSRect) boundingRectForGlyph:(NSGlyph) aGlyph;
 - (CGFloat) capHeight;
 - (NSCharacterSet *) coveredCharacterSet;
-- (float) defaultLineHeightForFont;	// deprecated
+- (CGFloat) defaultLineHeightForFont;	// deprecated
 - (CGFloat) descender;
 - (NSString *) displayName;
 - (NSString *) encodingScheme;	// deprecated
@@ -184,7 +184,7 @@ extern NSString *NSFontSetChangedNotification;
 - (NSAffineTransform *) textTransform;
 - (CGFloat) underlinePosition;
 - (CGFloat) underlineThickness;
-- (float) widthOfString:(NSString *) string;	// deprecated
+- (CGFloat) widthOfString:(NSString *) string;	// deprecated
 - (CGFloat) xHeight;
 
 @end

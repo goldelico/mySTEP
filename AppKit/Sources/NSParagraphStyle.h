@@ -47,7 +47,7 @@ extern NSString *NSTabColumnTerminatorsAttributeName;
 	NSDictionary *options;
 	NSTextTabType tabStopType;
 	NSTextAlignment alignment;
-	float location;
+	CGFloat location;
 }
 
 - (NSTextAlignment) alignment;
@@ -65,17 +65,17 @@ extern NSString *NSTabColumnTerminatorsAttributeName;
     NSMutableArray *tabStops;
 	NSArray *textBlocks;
 	NSArray *textLists;
-	float lineSpacing;
-	float paragraphSpacing;
-	float paragraphSpacingBefore;
-	float headIndent;
-	float tailIndent;
-	float firstLineHeadIndent;
-	float defaultTabInterval;
+	CGFloat lineSpacing;
+	CGFloat paragraphSpacing;
+	CGFloat paragraphSpacingBefore;
+	CGFloat headIndent;
+	CGFloat tailIndent;
+	CGFloat firstLineHeadIndent;
+	CGFloat defaultTabInterval;
+	CGFloat lineHeightMultiple;
+	CGFloat minimumLineHeight, maximumLineHeight;
+	CGFloat tighteningFactorForTruncation;
 	float hyphenationFactor;
-	float lineHeightMultiple;
-	float minimumLineHeight, maximumLineHeight;
-	float tighteningFactorForTruncation;
 	NSTextAlignment alignment;
 	NSLineBreakMode lineBreakMode;
 	NSWritingDirection writingDirection;
@@ -91,7 +91,7 @@ extern NSString *NSTabColumnTerminatorsAttributeName;
 - (CGFloat) firstLineHeadIndent;	/* Distance from margin to edge appropriate for text direction */
 - (NSInteger) headerLevel;
 - (CGFloat) headIndent;		/* Distance from margin to front edge of paragraph */
-- (CGFloat) hyphenationFactor;
+- (float) hyphenationFactor;
 - (NSLineBreakMode) lineBreakMode;
 - (CGFloat) lineHeightMultiple;
 - (CGFloat) lineSpacing;		/* "Leading": distance between the bottom of one line fragment and top of next (applied between lines in the same container). Can't be negative. This value is included in the line fragment heights in layout manager. */

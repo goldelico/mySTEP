@@ -93,7 +93,7 @@ static BOOL __cursorHidden = NO;
 	NSButton *_resizeButton;	// really here?
 	NSToolbar *_toolbar;
 	NSColor *_backgroundColor;	// window background color
-	float _height;	// title bar height (w/o ToolbarView!)
+	CGFloat _height;	// title bar height (w/o ToolbarView!)
 	unsigned int _style;
 	BOOL _inLiveResize;
 	BOOL _didSetShape;
@@ -140,7 +140,7 @@ static BOOL __cursorHidden = NO;
 {
 	NSToolbar *_toolbar;
 	NSRect *_itemRects;
-	float _toolbarHeight;
+	CGFloat _toolbarHeight;
 	int _itemRectCount;
 	int _itemRectCapacity;
 	int _clickedCell;			// used internally when clicked
@@ -151,7 +151,7 @@ static BOOL __cursorHidden = NO;
 - (void) setToolbar:(NSToolbar *) _toolbar;
 - (NSToolbar *) toolbar;
 - (BOOL) popUpMode;	// run in popup mode
-- (float) height;
+- (CGFloat) height;
 - (NSRect) rectForToolbarItem:(int) idx;
 - (int) itemIndexForPoint:(NSPoint) pnt;
 - (IBAction) popUpOverflowMenu:(id) sender;
@@ -237,7 +237,7 @@ static BOOL __cursorHidden = NO;
 		if((_style&NSUtilityWindowMask) == 0)
 			{ // make title bar with rounded corners
 				NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-				float radius=9.0;
+				CGFloat radius=9.0;
 				NSBezierPath *b=[NSBezierPath new];
 				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
 											  radius:radius
@@ -370,7 +370,7 @@ static BOOL __cursorHidden = NO;
 	if([_window canBecomeMainWindow] && [self menu])
 		{ // has a window menu
 			NSMenuView *mv=[self windowMenuView];
-			float height=[mv frame].size.height;
+			CGFloat height=[mv frame].size.height;
 			NSRect tf=f;
 			f.origin.y+=height;
 			f.size.height-=height;	// make room for menu
@@ -381,7 +381,7 @@ static BOOL __cursorHidden = NO;
 	if([_subviews count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
-			float height=[tv height];
+			CGFloat height=[tv height];
 			NSRect tf=f;
 			f.origin.y+=height;
 			f.size.height-=height;	// make room for toolbar
@@ -558,7 +558,7 @@ static BOOL __cursorHidden = NO;
 				}
 				case NSLeftMouseUp:			// update to final location
 				case NSLeftMouseDragged: {
-					float deltax, deltay;
+					CGFloat deltax, deltay;
 					NSRect wframe=initialFrame;
 #if OLDMOVE
 					// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
@@ -854,7 +854,7 @@ static NSButtonCell *sharedCell;
 				_needsOverflowMenu=YES;
 			else
 				{ // we have a large screen, so we can really layout a toolbar
-					float border=3.0;
+					CGFloat border=3.0;
 					NSRect rect={ { border, border }, { 0, 0 } };
 					_needsOverflowMenu=NO;
 					_toolbarHeight=12.0;	// minimum height
@@ -867,7 +867,7 @@ static NSButtonCell *sharedCell;
 							[sharedCell setTitle:[item label]];
 							if(iv)
 								{ // item has its own view - use min/max algorithm
-									float labelheight;
+									CGFloat labelheight;
 									[sharedCell setImage:nil];	// no image
 									if([iv respondsToSelector:@selector(cell)])
 										[[(NSControl *) iv cell] setControlSize:csize];	// try to adjust size of cell - this should also adjust font to systemFontSizeForControlSize:
@@ -889,7 +889,7 @@ static NSButtonCell *sharedCell;
 							// how much space do we want or have left over to distribute
 							while((rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width)) < min.width)
 								{ // is not enough
-									float squeeze=min.width-rect.size.width;	// how much room we need
+									CGFloat squeeze=min.width-rect.size.width;	// how much room we need
 									int j;
 									NSToolbarItem *other;
 									for(j=0; j<i; j++)
@@ -978,7 +978,7 @@ static NSButtonCell *sharedCell;
 - (int) itemIndexForPoint:(NSPoint) pnt;
 {
 	int i;
-	float border = -3.0;	// don't leave an unresponsive space between items
+	CGFloat border = -3.0;	// don't leave an unresponsive space between items
 	for(i=0; i<_itemRectCount; i++)
 		{
 		if(NSMouseInRect(pnt, NSInsetRect(_itemRects[i], border, border), [self isFlipped]))	// include border
@@ -987,7 +987,7 @@ static NSButtonCell *sharedCell;
 	return -1;	// not found
 }
 
-- (float) height;
+- (CGFloat) height;
 {
 	if(![_toolbar isVisible] || [self popUpMode])
 		return 0.0;	// if space limited, use popup menu
@@ -1258,13 +1258,13 @@ static NSButtonCell *sharedCell;
 	return aRect;
 }
 
-+ (float) minFrameWidthWithTitle:(NSString *)aTitle
++ (CGFloat) minFrameWidthWithTitle:(NSString *)aTitle
 					   styleMask:(unsigned int)aStyle
 {
 	return 0.0;
 }
 
-+ (float) _titleBarHeightForStyleMask:(unsigned int) mask
++ (CGFloat) _titleBarHeightForStyleMask:(unsigned int) mask
 { // make dependent on total window height (i.e. smaller title bar on a QVGA PDA screen)
 	if((mask&GSAllWindowMask) == NSBorderlessWindowMask && [[NSScreen screens] count] > 0)
 		return 0.0;	// no title bar
@@ -1397,10 +1397,12 @@ static NSButtonCell *sharedCell;
 		_screen=aScreen;	// screens are never released
 		_w.menuExclude = [self isKindOfClass:[NSPanel class]];
 		_level=NSNormalWindowLevel;	// default for NSWindows
+#if 1
 		if(aStyle&NSUnscaledWindowMask)
 			_userSpaceScaleFactor=1.0;
 		else
 			_userSpaceScaleFactor=[_screen userSpaceScaleFactor];	// ask the screen
+#endif
 		_w.backingType = bufferingType;
 		_w.styleMask = aStyle;
 		_w.viewsNeedDisplay = NO;	// will be set by first expose
@@ -2981,7 +2983,7 @@ object:self]
 { // caller is responsible for setting the target
 	NSButton *b=nil;
 	static NSSize smallImage={ 15.0, 15.0 };
-	float button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
+	CGFloat button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
 	// set style dependent windget cell, i.e. brushed metal
 	switch(type) {
 		case NSWindowCloseButton:
@@ -3053,9 +3055,9 @@ object:self]
 	return [b autorelease];
 }
 
-- (float) userSpaceScaleFactor;
+- (CGFloat) userSpaceScaleFactor;
 { // value defined in NSScreen profile
-	return [_screen userSpaceScaleFactor];
+	return _userSpaceScaleFactor;
 }
 
 - (void) setShowsResizeIndicator:(BOOL) flag;
@@ -3156,14 +3158,14 @@ object:self]
 	[_cachedRep draw];
 }
 
-- (void) setAlphaValue:(float) alpha;
+- (void) setAlphaValue:(CGFloat) alpha;
 {
 	if(alpha != 1.0)
 		_w.isOpaque=NO;
 	//
 }
 
-- (float) alphaValue;
+- (CGFloat) alphaValue;
 {
 	return 1.0;
 }

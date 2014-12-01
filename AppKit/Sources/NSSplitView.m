@@ -53,9 +53,9 @@ NSSplitView.h
 	NSEvent *e;
 	NSRect r, r1, bigRect, vr;
 	NSView *v=nil, *prev = nil;
-	float minCoord = -1, maxCoord = -1;
+	CGFloat minCoord = -1, maxCoord = -1;
 	int offset = 0, i, count;
-	float divVertical, divHorizontal;
+	CGFloat divVertical, divHorizontal;
 	NSDate *distantFuture;
 	
 	if((count = [_subviews count]) < 2)		// if there are less than two  
@@ -117,7 +117,7 @@ NSSplitView.h
 		{	
 		if(!_isVertical)
         	{
-			float delMinY = minCoord, delMaxY = maxCoord;
+			CGFloat delMinY = minCoord, delMaxY = maxCoord;
 			
 			[_delegate splitView:self
 		  constrainMinCoordinate:&delMinY
@@ -130,7 +130,7 @@ NSSplitView.h
 			}
 		else
 			{
-			float delMinX = minCoord, delMaxX = maxCoord;
+			CGFloat delMinX = minCoord, delMaxX = maxCoord;
 			
 			[_delegate splitView:self
 		  constrainMinCoordinate:&delMinX
@@ -260,7 +260,7 @@ NSSplitView.h
 		int i, count = [_subviews count];
 		int div = (int)(_dividerThickness * (count - 1));
 		int w = (int)ceilf((NSWidth(_bounds) - div) / count);
-		float total = 0, maxSize, divRemainder;
+		CGFloat total = 0, maxSize, divRemainder;
 		
 		for(i = 0; i < count; i++)
         	{	
@@ -320,7 +320,7 @@ NSSplitView.h
 - (void) setIsPaneSplitter:(BOOL) flag;		{ _isPaneSplitter=flag; }
 - (BOOL) isVertical							{ return _isVertical; }
 - (void) setVertical:(BOOL)flag				{ _isVertical = flag; }
-- (float) dividerThickness 					{ return _dividerThickness; }
+- (CGFloat) dividerThickness 				{ return _dividerThickness; }
 
 - (void) drawDividerInRect:(NSRect)aRect
 {
@@ -481,9 +481,9 @@ NSSplitView.h
 			}
 }
 
-- (void) setDividerThickNess:(float)newWidth{ _dividerThickness = newWidth; }
+- (void) setDividerThickNess:(CGFloat)newWidth{ _dividerThickness = newWidth; }
 - (float) draggedBarWidth 					{ return _draggedBarWidth; }
-- (void) setDraggedBarWidth:(float)newWidth	{ _draggedBarWidth = newWidth; }
+- (void) setDraggedBarWidth:(CGFloat)newWidth	{ _draggedBarWidth = newWidth; }
 - (void) setDividerColor:(NSColor *)aColor	{ ASSIGN(dividerColor, aColor); }
 - (void) setBackgroundColor:(NSColor*)aColor{ ASSIGN(backgroundColor,aColor); }
 - (NSColor *) dividerColor					{ return dividerColor; }

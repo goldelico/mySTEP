@@ -89,7 +89,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	else if(rep)
 		{ // look up
 		const char *str = [rep cString];
-		float r, g, b, a=1.0;
+		CGFloat r, g, b, a=1.0;
 		int args=sscanf(str, "%f %f %f %f", &r, &g, &b, &a);
 		if(!(args == 3 || args == 4))
 			NSLog(@"System color '%@' has bad string rep: '%@'", name, rep);
@@ -176,10 +176,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 #endif
 }
 													// create an NSColor from
-+ (NSColor*) colorWithCalibratedHue:(float)hue		// component values
-						 saturation:(float)saturation	
-						 brightness:(float)brightness
-						 alpha:(float)alpha
++ (NSColor*) colorWithCalibratedHue:(CGFloat)hue		// component values
+						 saturation:(CGFloat)saturation
+						 brightness:(CGFloat)brightness
+						 alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -194,10 +194,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithCalibratedRed:(float)red
-			      			  green:(float)green
-			       			  blue:(float)blue
-			      			  alpha:(float)alpha
++ (NSColor*) colorWithCalibratedRed:(CGFloat)red
+			      			  green:(CGFloat)green
+			       			  blue:(CGFloat)blue
+			      			  alpha:(CGFloat)alpha
 {
 	NSColor *c;
 #if 0
@@ -219,8 +219,8 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithCalibratedWhite:(float)white 
-								alpha:(float)alpha
++ (NSColor*) colorWithCalibratedWhite:(CGFloat)white
+								alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -249,11 +249,11 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithDeviceCyan:(float)cyan
-						 magenta:(float)magenta
-						 yellow:(float)yellow
-						 black:(float)black
-						 alpha:(float)alpha
++ (NSColor*) colorWithDeviceCyan:(CGFloat)cyan
+						 magenta:(CGFloat)magenta
+						 yellow:(CGFloat)yellow
+						 black:(CGFloat)black
+						 alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -268,10 +268,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithDeviceHue:(float)hue
-		     		 saturation:(float)saturation
-		     		 brightness:(float)brightness
-			  		 alpha:(float)alpha
++ (NSColor*) colorWithDeviceHue:(CGFloat)hue
+		     		 saturation:(CGFloat)saturation
+		     		 brightness:(CGFloat)brightness
+			  		 alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -286,10 +286,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithDeviceRed:(float)red
-			  			  green:(float)green
-			   			  blue:(float)blue
-			  			  alpha:(float)alpha
++ (NSColor*) colorWithDeviceRed:(CGFloat)red
+			  			  green:(CGFloat)green
+			   			  blue:(CGFloat)blue
+			  			  alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -304,7 +304,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return c;
 }
 
-+ (NSColor*) colorWithDeviceWhite:(float)white alpha:(float)alpha
++ (NSColor*) colorWithDeviceWhite:(CGFloat)white alpha:(CGFloat)alpha
 {
 	NSColor *c = [[[NSColor alloc] init] autorelease];
 	if(c)
@@ -464,7 +464,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 - (void) drawSwatchInRect:(NSRect)rect	
 {
 	// we should override for a pattern color
-	float alpha;
+	CGFloat alpha;
 	alpha=[self alphaComponent];
 	if(alpha != 1.0)
 		{ // is not completely opaque
@@ -545,11 +545,11 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return desc;
 }
 
-- (void) getCyan:(float*)cyan					// Access components as a set
-		 magenta:(float*)magenta
-	 	 yellow:(float*)yellow					// If ptr is NULL value is not
-	  	 black:(float*)black					// set.  Asking for values not
-	  	 alpha:(float*)alpha					// in current colorspace gets
+- (void) getCyan:(CGFloat*)cyan					// Access components as a set
+		 magenta:(CGFloat*)magenta
+	 	 yellow:(CGFloat*)yellow					// If ptr is NULL value is not
+	  	 black:(CGFloat*)black					// set.  Asking for values not
+	  	 alpha:(CGFloat*)alpha					// in current colorspace gets
 {												// bogus values
 	NEEDCMYK();
 	if (cyan)
@@ -564,10 +564,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		*alpha = _alpha;
 }
 
-- (void) getHue:(float*)hue
-		 saturation:(float*)saturation
-		 brightness:(float*)brightness
-		 alpha:(float*)alpha
+- (void) getHue:(CGFloat*)hue
+		 saturation:(CGFloat*)saturation
+		 brightness:(CGFloat*)brightness
+		 alpha:(CGFloat*)alpha
 {
 	NEEDHSB();
 	if (hue)
@@ -580,10 +580,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		*alpha = _alpha;
 }
 
-- (void) getRed:(float*)red 
-		 green:(float*)green 
-		 blue:(float*)blue
-		 alpha:(float*)alpha
+- (void) getRed:(CGFloat*)red
+		 green:(CGFloat*)green
+		 blue:(CGFloat*)blue
+		 alpha:(CGFloat*)alpha
 {
 	NEEDRGB();
 	if (red)
@@ -596,7 +596,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		*alpha = _alpha;
 }
 
-- (void) getWhite:(float*)white alpha:(float*)alpha
+- (void) getWhite:(CGFloat*)white alpha:(CGFloat*)alpha
 {
 	NEEDWHITE();
 	if (white)
@@ -605,18 +605,18 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		*alpha = _alpha;
 }
 														// Access Components
-- (float) alphaComponent				{ return _alpha; }
-- (float) blackComponent				{ NEEDCMYK(); return _cmyk.black; }
-- (float) blueComponent					{ NEEDRGB(); return _rgb.blue; }
-- (float) brightnessComponent			{ NEEDHSB(); return _hsb.brightness; }
-- (float) cyanComponent					{ NEEDCMYK(); return _cmyk.cyan; }
-- (float) greenComponent				{ NEEDRGB(); return _rgb.green; }
-- (float) hueComponent					{ NEEDHSB(); return _hsb.hue; }
-- (float) magentaComponent				{ NEEDCMYK(); return _cmyk.magenta; }
-- (float) redComponent					{ NEEDRGB(); return _rgb.red; }
-- (float) saturationComponent			{ NEEDHSB(); return _hsb.saturation; }
-- (float) whiteComponent				{ NEEDWHITE(); return _white; }
-- (float) yellowComponent				{ NEEDCMYK(); return _cmyk.yellow; }
+- (CGFloat) alphaComponent				{ return _alpha; }
+- (CGFloat) blackComponent				{ NEEDCMYK(); return _cmyk.black; }
+- (CGFloat) blueComponent				{ NEEDRGB(); return _rgb.blue; }
+- (CGFloat) brightnessComponent			{ NEEDHSB(); return _hsb.brightness; }
+- (CGFloat) cyanComponent				{ NEEDCMYK(); return _cmyk.cyan; }
+- (CGFloat) greenComponent				{ NEEDRGB(); return _rgb.green; }
+- (CGFloat) hueComponent				{ NEEDHSB(); return _hsb.hue; }
+- (CGFloat) magentaComponent			{ NEEDCMYK(); return _cmyk.magenta; }
+- (CGFloat) redComponent				{ NEEDRGB(); return _rgb.red; }
+- (CGFloat) saturationComponent			{ NEEDHSB(); return _hsb.saturation; }
+- (CGFloat) whiteComponent				{ NEEDWHITE(); return _white; }
+- (CGFloat) yellowComponent				{ NEEDCMYK(); return _cmyk.yellow; }
 - (NSString*) catalogNameComponent		{ return _catalogName; }
 - (NSString*) colorNameComponent		{ return _colorName; }
 - (NSString*) colorSpaceName			{ return _colorspaceName; }
@@ -755,12 +755,12 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return [self colorUsingColorSpaceName:colorSpace];
 }
 
-- (NSColor*) blendedColorWithFraction:(float)fraction 
+- (NSColor*) blendedColorWithFraction:(CGFloat)fraction
 							  ofColor:(NSColor*)aColor
 {
 	NSColor	*color = self;									// Blending the Color
 	NSColor	*other = aColor;
-	float mr, mg, mb, or, og, ob, r, g, b;
+	CGFloat mr, mg, mb, or, og, ob, r, g, b;
 
 	if ((_colorspaceName != NSCalibratedRGBColorSpace)
 			&& (_colorspaceName != NSDeviceRGBColorSpace))
@@ -782,7 +782,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return [NSColor colorWithCalibratedRed: r green: g blue: b alpha: 1.0];
 }
 
-- (NSColor*) colorWithAlphaComponent:(float)alpha
+- (NSColor*) colorWithAlphaComponent:(CGFloat)alpha
 {
 	NSColor *c=[[self class] alloc];	// make a copy
 	if(c)
@@ -790,6 +790,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		c->_colorspaceName=[_colorspaceName retain];
 		c->_catalogName=[_catalogName retain];
 		c->_colorName=[_catalogName retain];
+			// FIXME:
 		c->_colorPatternImage=[_catalogName retain];
 		c->_rgb=_rgb;
 		c->_cmyk=_cmyk;
@@ -806,13 +807,13 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return [c autorelease];
 }
 
-- (NSColor*) highlightWithLevel:(float)level
+- (NSColor*) highlightWithLevel:(CGFloat)level
 {
 	return [self blendedColorWithFraction: level 
 				 ofColor: [NSColor highlightColor]];
 }
 
-- (NSColor*) shadowWithLevel:(float)level
+- (NSColor*) shadowWithLevel:(CGFloat)level
 {
 	return [self blendedColorWithFraction:level ofColor:[NSColor shadowColor]];
 }
@@ -942,7 +943,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return [[self colorSpace] numberOfColorComponents];
 }
 
-- (void) getComponents:(float *) components;
+- (void) getComponents:(CGFloat *) components;
 {
 	NIMP;
 }
@@ -1188,16 +1189,16 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb)
 
 void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb)
 {
-	float min = MIN(MIN(rgb.red, rgb.green), rgb.blue);
-	float max = MAX(MAX(rgb.red, rgb.green), rgb.blue);
-	float diff= max - min;
+	CGFloat min = MIN(MIN(rgb.red, rgb.green), rgb.blue);
+	CGFloat max = MAX(MAX(rgb.red, rgb.green), rgb.blue);
+	CGFloat diff= max - min;
 	if(diff < 0.003)
 		hsb->hue=0.0;	// undefined;
 	else
 		{
-		float r = (max - rgb.red)/diff;
-		float g = (max - rgb.green)/diff;
-		float b = (max - rgb.blue)/diff;
+		CGFloat r = (max - rgb.red)/diff;
+		CGFloat g = (max - rgb.green)/diff;
+		CGFloat b = (max - rgb.blue)/diff;
 		if(r == max)
 			hsb->hue = (60.0/360.0)*(b - g);
 		else if(g == max)

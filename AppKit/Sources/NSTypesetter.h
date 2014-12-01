@@ -92,8 +92,8 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 	   paragraphSpacingAfter:(CGFloat) paragSpacAfter; 
 - (NSRange) glyphRangeForCharacterRange:(NSRange) range 
 				   actualCharacterRange:(NSRangePointer) rangePt; 
-- (float) hyphenationFactor; 
-- (float) hyphenationFactorForGlyphAtIndex:(NSUInteger) index; 
+- (CGFloat) hyphenationFactor;
+- (CGFloat) hyphenationFactorForGlyphAtIndex:(NSUInteger) index;
 - (UTF32Char) hyphenCharacterForGlyphAtIndex:(NSUInteger) index; 
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(NSUInteger) index characterIndex:(NSUInteger) charIdx; 
 - (NSRange) layoutCharactersInRange:(NSRange) range
@@ -119,7 +119,7 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 - (void) setBidiProcessingEnabled:(BOOL) enabled; 
 - (void) setDrawsOutsideLineFragment:(BOOL) flag forGlyphRange:(NSRange) range; 
 - (void) setHardInvalidation:(BOOL) flag forGlyphRange:(NSRange) range; 
-- (void) setHyphenationFactor:(float) value; 
+- (void) setHyphenationFactor:(CGFloat) value; 
 - (void) setLineFragmentPadding:(CGFloat) value; 
 - (void) setLineFragmentRect:(NSRect) fragRect 
 			   forGlyphRange:(NSRange) range 

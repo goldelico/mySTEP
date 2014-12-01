@@ -39,14 +39,14 @@
 
 - (void) drawRect:(NSRect)rect
 {
-	float inset = 3;
+	CGFloat inset = 3;
 	NSRect r;
 
 	// 	if(![super isEnabled])
 
 	if (_cw.isBordered)
 		{
-		float grays[] = { NSBlack, NSBlack, NSWhite,	// Draw outer frame
+		CGFloat grays[] = { NSBlack, NSBlack, NSWhite,	// Draw outer frame
 						  NSWhite, NSDarkGray, NSDarkGray };
 
 		r = NSDrawTiledRects(_bounds, rect, BUTTON_EDGES_NORMAL, grays, 6);

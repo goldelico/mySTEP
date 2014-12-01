@@ -46,7 +46,7 @@
 	NSMutableArray *_expandedItems;
 	NSMapTable *_levelOfItems;
 	NSTableColumn *_outlineTableColumn;
-	float _indentationPerLevel;
+	CGFloat _indentationPerLevel;
 	/*
 	id _outlineDataSource;	// data source that understands the NSOutlinView datasource protocol
 	id _outlineDelegate;

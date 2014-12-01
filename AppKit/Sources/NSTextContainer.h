@@ -55,7 +55,7 @@ typedef enum _NSLineMovementDirection
 	NSLayoutManager	*layoutManager;
     NSTextView		*textView;
     NSSize 			size;
-    float			lineFragmentPadding;
+    CGFloat			lineFragmentPadding;
 	BOOL			widthTracksTextView;
 	BOOL			heightTracksTextView;
 //	BOOL			observingFrameChanges;

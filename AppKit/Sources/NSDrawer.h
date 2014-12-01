@@ -38,8 +38,8 @@ typedef enum _NSDrawerState {
 	NSWindow *_parentWindow;
 	NSWindow *_drawerWindow;
 	id _delegate;
-	float _leadingOffset;
-	float _trailingOffset;
+	CGFloat _leadingOffset;
+	CGFloat _trailingOffset;
 	int _state;
 	NSRectEdge _edge;
 }
@@ -67,7 +67,7 @@ typedef enum _NSDrawerState {
 - (void) setMinContentSize:(NSSize) size;
 - (void) setParentWindow:(NSWindow *) parent;
 - (void) setPreferredEdge:(NSRectEdge) edge;
-- (void) setTrailingOffset:(float) offset;
+- (void) setTrailingOffset:(CGFloat) offset;
 - (NSInteger) state;
 - (void) toggle:(id) sender;
 - (CGFloat) trailingOffset;

@@ -1142,7 +1142,7 @@ static NSOpenPanel *__openPanel;
 - (void) drawRect:(NSRect) rect;
 {
 	NSColor *c=[_colorPanel color];
-	float brightness=[c brightnessComponent];
+	CGFloat brightness=[c brightnessComponent];
 	// make us handle use brightness by dimming the image
 	[super drawRect:rect];
 	[[NSColor whiteColor] set];
@@ -1236,7 +1236,7 @@ static NSColorPanel *__colorPanel;
 	if(sender)
 		{
 		NSColor *c=[_colorWell color];
-		float r, g, b, a;
+		CGFloat r, g, b, a;
 #if 0
 		NSLog(@"NSColorPanel _notify: %@", sender);
 		NSLog(@"fltvalue=%lf", [sender floatValue]);
@@ -1244,7 +1244,7 @@ static NSColorPanel *__colorPanel;
 #endif
 		if(sender == _brightness || sender == _brightnessSlider)
 			{ // Color Wheel
-				float h, s, b;
+				CGFloat h, s, b;
 				[c getHue:&h saturation:&s brightness:&b alpha:&a];
 				if(sender == _brightness)
 					b=[sender floatValue];
@@ -1288,7 +1288,7 @@ static NSColorPanel *__colorPanel;
 - (void) _update;
 { // update sliders etc.
 	BOOL hideAlpha=!(![NSColor ignoresAlpha] && _showsAlpha);
-	float red, green, blue, alpha, brightness;
+	CGFloat red, green, blue, alpha, brightness;
 	[[_colorWell color] getRed:&red green:&green blue:&blue alpha:&alpha];
 	[_alpha setHidden:hideAlpha];
 	[_alphaSlider setHidden:hideAlpha];
@@ -1331,7 +1331,7 @@ static NSColorPanel *__colorPanel;
 - (BOOL) isContinuous						{ return _isContinuous; }
 - (BOOL) showsAlpha							{ return _showsAlpha; }
 - (int) mode								{ return _mode; }
-- (float) alpha								{ return [_alphaSlider isHidden]?1.0:[[_colorWell color] alphaComponent]; }
+- (CGFloat) alpha								{ return [_alphaSlider isHidden]?1.0:[[_colorWell color] alphaComponent]; }
 - (NSColor *) color							{ return [_colorWell color]; }
 
 - (void) setAction:(SEL)aSelector			{ _action=aSelector; }

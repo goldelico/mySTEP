@@ -26,7 +26,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 @implementation NSTextTab
 
-- (id) initWithTextAlignment:(NSTextAlignment) align location:(float) loc options:(NSDictionary *) opts;
+- (id) initWithTextAlignment:(NSTextAlignment) align location:(CGFloat) loc options:(NSDictionary *) opts;
 {
 	NSTextTabType type;
 	switch(align)
@@ -46,7 +46,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 	return self;
 }
 
-- (id) initWithType:(NSTextTabType)type location:(float)loc
+- (id) initWithType:(NSTextTabType)type location:(CGFloat)loc
 {	
 	if((self = [super init]))
 		{
@@ -63,7 +63,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 }
 
 - (NSTextAlignment) alignment;			{ return alignment; }
-- (float) location						{ return location; }
+- (CGFloat) location						{ return location; }
 - (NSTextTabType) tabStopType			{ return tabStopType; }
 - (NSDictionary *) options				{ return options; }
 
@@ -155,44 +155,44 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 }
 
 /* "Leading": distance between the bottom of one line fragment and top of next (applied between lines in the same container). Can't be negative. This value is included in the line fragment heights in layout manager. */
-- (float) lineSpacing {	return lineSpacing; }
+- (CGFloat) lineSpacing {	return lineSpacing; }
 
 /* Distance between the bottom of this paragraph and top of next. */
-- (float) paragraphSpacing { return paragraphSpacing; }
+- (CGFloat) paragraphSpacing { return paragraphSpacing; }
 
 - (NSTextAlignment) alignment { return alignment; }
 
 /* The following values are relative to the appropriate margin (depending on the paragraph direction) */
 
 /* Distance from margin to front edge of paragraph */
-- (float) headIndent { return headIndent; }
+- (CGFloat) headIndent { return headIndent; }
 
 /* Distance from margin to back edge of paragraph; if negative or 0, from other margin */
-- (float) tailIndent { return tailIndent; }
+- (CGFloat) tailIndent { return tailIndent; }
 
 /* Distance from margin to edge appropriate for text direction */
-- (float) firstLineHeadIndent { return firstLineHeadIndent; }
+- (CGFloat) firstLineHeadIndent { return firstLineHeadIndent; }
 
 /* Distance from margin to tab stops */
 - (NSArray *) tabStops { return tabStops; }
 
 /* Line height is the distance from bottom of descenders to top of ascenders; basically the line fragment height. Does not include lineSpacing (which is added after this computation). */
-- (float) minimumLineHeight { return minimumLineHeight; }
+- (CGFloat) minimumLineHeight { return minimumLineHeight; }
 
 /* 0 implies no maximum. */
-- (float) maximumLineHeight { return maximumLineHeight; }
+- (CGFloat) maximumLineHeight { return maximumLineHeight; }
 
 - (NSLineBreakMode) lineBreakMode { return lineBreakMode; }
 
 - (NSWritingDirection) baseWritingDirection; { return writingDirection; }
-- (float) defaultTabInterval; { return defaultTabInterval; }	// after the last defined tab stop
+- (CGFloat) defaultTabInterval; { return defaultTabInterval; }	// after the last defined tab stop
 - (int) headerLevel; { return headerLevel; }
 - (float) hyphenationFactor; { return hyphenationFactor; }
-- (float) lineHeightMultiple; { return lineHeightMultiple; }
-- (float) paragraphSpacingBefore; { return paragraphSpacingBefore; }
+- (CGFloat) lineHeightMultiple; { return lineHeightMultiple; }
+- (CGFloat) paragraphSpacingBefore; { return paragraphSpacingBefore; }
 - (NSArray *) textBlocks; { return textBlocks; }
 - (NSArray *) textLists; { return textLists; }
-- (float) tighteningFactorForTruncation; { return tighteningFactorForTruncation; }
+- (CGFloat) tighteningFactorForTruncation; { return tighteningFactorForTruncation; }
 
 - (id) copyWithZone:(NSZone *) zone { return [self retain]; }
 
@@ -250,15 +250,15 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 	return [self retain];
 }
 
-- (void) setLineSpacing:(float)aFloat							{ lineSpacing=aFloat; }
-- (void) setParagraphSpacing:(float)aFloat						{ paragraphSpacing=aFloat; }
+- (void) setLineSpacing:(CGFloat)aFloat							{ lineSpacing=aFloat; }
+- (void) setParagraphSpacing:(CGFloat)aFloat						{ paragraphSpacing=aFloat; }
 - (void) setAlignment:(NSTextAlignment)align					{ alignment=align; }
-- (void) setFirstLineHeadIndent:(float)aFloat					{ firstLineHeadIndent=aFloat; }
-- (void) setHeadIndent:(float)aFloat							{ headIndent=aFloat; }
-- (void) setTailIndent:(float)aFloat							{ tailIndent=aFloat; }
+- (void) setFirstLineHeadIndent:(CGFloat)aFloat					{ firstLineHeadIndent=aFloat; }
+- (void) setHeadIndent:(CGFloat)aFloat							{ headIndent=aFloat; }
+- (void) setTailIndent:(CGFloat)aFloat							{ tailIndent=aFloat; }
 - (void) setLineBreakMode:(NSLineBreakMode)mode					{ lineBreakMode=mode; }
-- (void) setMinimumLineHeight:(float)aFloat						{ minimumLineHeight=aFloat; }
-- (void) setMaximumLineHeight:(float)aFloat						{ maximumLineHeight=aFloat; }
+- (void) setMinimumLineHeight:(CGFloat)aFloat						{ minimumLineHeight=aFloat; }
+- (void) setMaximumLineHeight:(CGFloat)aFloat						{ maximumLineHeight=aFloat; }
 // FIXME: we should insert-sort tabs at the correct position!!!
 - (void) addTabStop:(NSTextTab *)anObject						{ [(NSMutableArray *)tabStops addObject:anObject]; }
 - (void) removeTabStop:(NSTextTab *)anObject					{ [(NSMutableArray *)tabStops removeObject:anObject]; }
@@ -267,11 +267,11 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 - (void) setParagraphStyle:(NSParagraphStyle *)obj				{ NIMP; }
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direct;	{ writingDirection=direct; }
-- (void) setDefaultTabInterval:(float) interval;				{ defaultTabInterval=interval; }
+- (void) setDefaultTabInterval:(CGFloat) interval;				{ defaultTabInterval=interval; }
 - (void) setHeaderLevel:(int) level;							{ headerLevel=level; }
 - (void) setHyphenationFactor:(float) factor;					{ hyphenationFactor=factor; }
-- (void) setLineHeightMultiple:(float) factor;					{ lineHeightMultiple=factor; }
-- (void) setParagraphSpacingBefore:(float) spacing;				{ paragraphSpacingBefore=spacing; }
+- (void) setLineHeightMultiple:(CGFloat) factor;					{ lineHeightMultiple=factor; }
+- (void) setParagraphSpacingBefore:(CGFloat) spacing;				{ paragraphSpacingBefore=spacing; }
 - (void) setTextBlocks:(NSArray *) blocks;						{ ASSIGN(textBlocks, blocks); }
 - (void) setTextLists:(NSArray *) lists;						{ ASSIGN(textLists, lists); }
 - (void) setTighteningFactorForTruncation:(float) factor;		{ tighteningFactorForTruncation=factor; }
