@@ -96,7 +96,7 @@ INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote
+.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote bundle headers
 
 # configure Embedded System if undefined
 
@@ -240,7 +240,7 @@ endif
 
 # this is the default/main target on the outer level
 
-build:	build_subprojects build_doxy make_php build_architectures install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy build_architectures make_php install_local deploy_remote launch_remote
 	date
 
 clean:	# also clean for subprojects???
@@ -525,7 +525,7 @@ make_binary:
 	# no sources - no binary
 endif
 
-make_php:
+make_php: bundle
 # make PHP
 	for PHP in *.php Sources/?*.php; do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
@@ -787,7 +787,7 @@ ifeq ($(INSTALL),true)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
 	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
 	# therefore the rm is disabled (which may leave files if we remove them from the sources/resources)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; $(TAR) xpvf -))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; $(TAR) xpvf - -U --recursive-unlink))
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
 	# don't install locally
@@ -842,8 +842,8 @@ endif
 
 bundle:
 ifeq ($(WRAPPER_EXTENSION),framework)
-	 rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
-	 (mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
+	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
+	(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
 endif
 
 headers:
