@@ -345,7 +345,7 @@ static void GSRouteParsedRTFChar(int ch)			// Route the character to the
 		{
 		case rdsNorm:	// Output char. Properties are valid at this point.
 			{
-			int len = strlen(__buf);
+			NSUInteger len = strlen(__buf);
 			__buf[len++] = ch;
 			__buf[len] = '\0';
 			}
@@ -858,7 +858,7 @@ static BOOL done;
 {
 	NSMutableString *rtf=[NSMutableString stringWithCapacity:[self length]+100];
 	id o;
-	unsigned i, cnt=[self length];
+	NSUInteger i, cnt=[self length];
 	NSMutableArray *fonts=[NSMutableArray array];	// font table
 	NSMutableArray *colors=[NSMutableArray array];	// color table
 	NSArray *colorAttributes=[NSArray arrayWithObjects:
@@ -1055,12 +1055,12 @@ static BOOL done;
 
 // FIXME: this and e.g. nextWordFromIndex: should be used in the string drawing algorithm to determine line breaks and wrapping!
 
-- (unsigned) lineBreakBeforeIndex:(unsigned)location
+- (NSUInteger) lineBreakBeforeIndex:(NSUInteger)location
 					  withinRange:(NSRange)aRange
 {
 	// return first char to go on the next line or NSNotFound
 	// if the speciefied range does not contain a line break	
-	unsigned len=[self length];
+	NSUInteger len=[self length];
 	NSString *s=[self string];
 	static NSCharacterSet *c;
 	if(!c)
@@ -1076,14 +1076,14 @@ static BOOL done;
 	return NSNotFound;
 }
 
-- (unsigned) lineBreakByHyphenatingBeforeIndex:(unsigned)location
+- (NSUInteger) lineBreakByHyphenatingBeforeIndex:(NSUInteger)location
 											withinRange:(NSRange)aRange
 {
 	// we should know about hyphenation rules and a language attribute
 	return [self lineBreakBeforeIndex:location withinRange:aRange];
 }
 
-- (NSRange) doubleClickAtIndex:(unsigned)location
+- (NSRange) doubleClickAtIndex:(NSUInteger)location
 { // FIXME: should be linguistically correct
 	NSRange rng;
 	rng.location=[self nextWordFromIndex:location forward:NO];
@@ -1094,9 +1094,9 @@ static BOOL done;
 	return rng;
 }
 
-- (unsigned) nextWordFromIndex:(unsigned)location forward:(BOOL)flag
+- (NSUInteger) nextWordFromIndex:(NSUInteger)location forward:(BOOL)flag
 {
-	unsigned len=[self length];
+	NSUInteger len=[self length];
 	NSString *s=[self string];
 	static NSCharacterSet *c;
 	NSRange r;
@@ -1126,7 +1126,7 @@ static BOOL done;
 	return NIMP;
 }
 
-- (NSRange) itemNumberInTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+- (NSRange) itemNumberInTextList:(NSTextList *) textList atIndex:(NSUInteger) loc;
 {
 	NSRange rng;
 	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
@@ -1134,7 +1134,7 @@ static BOOL done;
 	return rng;
 }
 
-- (NSRange) rangeOfTextBlock:(NSTextBlock *) textBlock atIndex:(unsigned) loc;
+- (NSRange) rangeOfTextBlock:(NSTextBlock *) textBlock atIndex:(NSUInteger) loc;
 {
 	NSRange rng;
 	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
@@ -1142,7 +1142,7 @@ static BOOL done;
 	return rng;
 }
 
-- (NSRange) rangeOfTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+- (NSRange) rangeOfTextList:(NSTextList *) textList atIndex:(NSUInteger) loc;
 {
 	NSRange rng;
 	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
@@ -1150,7 +1150,7 @@ static BOOL done;
 	return rng;
 }
 
-- (NSRange) rangeOfTextTable:(NSTextTable *) textTable atIndex:(unsigned) loc;
+- (NSRange) rangeOfTextTable:(NSTextTable *) textTable atIndex:(NSUInteger) loc;
 {
 	NSRange rng;
 	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
@@ -1258,8 +1258,7 @@ static BOOL done;
 
 - (void) fixFontAttributeInRange:(NSRange)range
 {
-	unsigned i;
-	unsigned cnt=[self length];
+	NSUInteger i, cnt=[self length];
 	for(i=0; i<cnt; i++)
 		{
 		// substitute illegal or missing fonts
@@ -1270,7 +1269,7 @@ static BOOL done;
 - (void) fixParagraphStyleAttributeInRange:(NSRange)range
 {
 	NSRange lineRange=range;
-	unsigned end=NSMaxRange(range);
+	NSUInteger end=NSMaxRange(range);
 	NSString *str=[self string];
 //	NSLog(@"0 %@", NSStringFromRange(range));
 	if(end > [self length])
@@ -1303,7 +1302,7 @@ static BOOL done;
 
 - (void) fixAttachmentAttributeInRange:(NSRange)range
 {
-	unsigned end=NSMaxRange(range);
+	NSUInteger end=NSMaxRange(range);
 	NSString *str=[self string];
 	if(end > [self length])
 		[NSException raise:NSRangeException format:@"range too long"];
@@ -1314,7 +1313,7 @@ static BOOL done;
 //		NSLog(@"a %@", NSStringFromRange(aRange));
 		if(a)
 			{ // this range has an attachment attribute - remove at locations without attachment Character
-				unsigned e=NSMaxRange(aRange);
+				NSUInteger e=NSMaxRange(aRange);
 				e=MIN(e, end);
 				while(range.location < e)
 					{

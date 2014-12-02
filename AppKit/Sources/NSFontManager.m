@@ -95,7 +95,7 @@ static NSString *__fontCollections = nil;
 - (NSFont*) convertFont: (NSFont*)fontObject
 {
 	NSFont *newFont = fontObject;
-	unsigned int i;
+	NSUInteger i;
 	CGFloat size;
 	CGFloat sizes[] = { 4.0, 6.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 16.0, 18.0, 24.0, 36.0, 48.0, 64.0 };
 	if (!fontObject)
@@ -271,7 +271,7 @@ static NSString *__fontCollections = nil;
 	NSArray *fontDefs = [self availableMembersOfFontFamily: family];	
 	if (upFlag)
 		{
-		unsigned int i;
+		NSUInteger i;
 		// The documentation is a bit unclear about the range of weights
 		// sometimes it says 0 to 9 and sometimes 0 to 15
 		int next_w = 15;		
@@ -305,7 +305,7 @@ static NSString *__fontCollections = nil;
 		}
 	else
 		{
-		unsigned int i;
+		NSUInteger i;
 		int next_w = 0;
 		for (i = 0; i < [fontDefs count]; i++)
 			{
@@ -362,7 +362,7 @@ static NSString *__fontCollections = nil;
 					   size:(CGFloat)size
 {
 	NSArray *fontDefs = [self availableMembersOfFontFamily: family];
-	unsigned int i;	
+	NSUInteger i;
 	//NSLog(@"Searching font %@: %i: %i size %.0f", family, weight, traits, size);
 	// First do an exact match search
 	for (i = 0; i < [fontDefs count]; i++)
@@ -665,7 +665,7 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) availableFontNamesWithTraits:(NSFontTraitMask) mask;
 {
-	unsigned int i, j;
+	NSUInteger i, j;
 	NSArray *fontFamilies = [self availableFontFamilies];
 	NSMutableArray *fontNames = [NSMutableArray array];
 	NSFontTraitMask traits;
@@ -688,7 +688,7 @@ static NSString *__fontCollections = nil;
 {
 	// TODO: This method is implemented very slow, but I dont 
 	// see any use for it, so why change it?
-	unsigned int i, j;
+	NSUInteger i, j;
 	NSArray *fontFamilies = [self availableFontFamilies];
 	NSFontTraitMask traits;  
 	for (i = 0; i < [fontFamilies count]; i++)
@@ -966,7 +966,7 @@ static NSString *__fontCollections = nil;
 
 - (void) setPanelFont:(NSFont *) fontObject isMultiple:(BOOL) multiple	
 {
-	unsigned int mask=NSFontPanelStandardModesMask;
+	NSUInteger mask=NSFontPanelStandardModesMask;
 	id target=[NSApp targetForAction:@selector(validModesForFontPanel:)];
 	if(target)
 		mask=[target validModesForFontPanel:self];

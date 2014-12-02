@@ -200,8 +200,8 @@ static Class __controlCellClass = Nil;
 }
 
 - (void) setFloatingPointFormat:(BOOL)autoRange
-						   left:(unsigned)leftDigits
-						   right:(unsigned)rightDigits
+						   left:(NSUInteger)leftDigits
+						   right:(NSUInteger)rightDigits
 {
 	[[self selectedCell] setFloatingPointFormat:autoRange left:leftDigits right:rightDigits];
 }

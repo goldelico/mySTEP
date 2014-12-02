@@ -254,7 +254,7 @@
 - (id) initWithCoder:(NSCoder *) aDecoder
 {
 	const unsigned char *sfFlags;
-	unsigned int len;
+	NSUInteger len;
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
 			{ [self release]; return nil; }

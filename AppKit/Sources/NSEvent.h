@@ -68,7 +68,7 @@ typedef enum _NSEventType
 	NSSwipe						= 31
 } NSEventType;
 
-enum
+typedef enum _NSEventMask
 {
 	NSLeftMouseDownMask			= 1<<NSLeftMouseDown,		// t m
 	NSLeftMouseUpMask			= 1<<NSLeftMouseUp,			// t m
@@ -108,9 +108,9 @@ enum
 	GSMouseEventMask			= (NSLeftMouseDownMask|NSLeftMouseUpMask|NSRightMouseDownMask|NSRightMouseUpMask|NSMouseMovedMask|
 								   NSLeftMouseDraggedMask|NSRightMouseDraggedMask|NSOtherMouseDownMask|NSOtherMouseUpMask|NSOtherMouseDraggedMask|NSScrollWheelMask),	// mouse events, m's above 
 	GSOtherEventMask			= (NSFlagsChangedMask|NSAppKitDefinedMask|NSSystemDefinedMask|NSApplicationDefinedMask|NSPeriodicMask)	// other events, o's above 
-};
+} NSEventMask;
 
-enum
+typedef enum _NSEventModifierFlags
 {
 	NSAlphaShiftKeyMask = 1*65536,
 	NSShiftKeyMask		= 2*65536,
@@ -121,9 +121,9 @@ enum
 	NSHelpKeyMask		= 64*65536,
 	NSFunctionKeyMask	= 128*65536,
 	NSDeviceIndependentModifierFlagsMask = 0xffff0000U
-};
+} NSEventModifierFlags;
 
-typedef enum
+typedef enum _NSPointingDeviceType
 {
 	NSUnknownPointingDevice=-1,
 	NSPenPointingDevice,
@@ -169,9 +169,9 @@ enum
 {
 	NSEventType event_type;
 	NSPoint location_point;
-	unsigned int modifier_flags;
+	NSUInteger modifier_flags;
 	NSTimeInterval event_time;
-	int _windowNum;
+	NSInteger _windowNum;
 	NSGraphicsContext *event_context;
 	union _MB_event_data
 		{
@@ -389,6 +389,6 @@ enum {
 
 // Event mask to event type
 
-extern unsigned int NSEventMaskFromType(NSEventType type);
+extern NSEventMask NSEventMaskFromType(NSEventType type);
 
 #endif /* _mySTEP_H_NSEvent */

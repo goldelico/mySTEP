@@ -78,8 +78,8 @@ typedef NSInteger NSTrackingRectTag;
     NSArray *_dragTypes;
 	CGFloat _frameRotation;
 	CGFloat _boundsRotation;
-	unsigned int _nInvalidRects;	// number of invalid rects
-	unsigned int _cInvalidRects;	// capacity of invalidRects array
+	NSUInteger _nInvalidRects;	// number of invalid rects
+	NSUInteger _cInvalidRects;	// capacity of invalidRects array
 	int _gState;
     struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;

@@ -758,7 +758,7 @@ object:self]
 	[self setSelectedRange:rng];
 }
 
-- (unsigned int) characterIndexForPoint:(NSPoint) pnt;
+- (NSUInteger) characterIndexForPoint:(NSPoint) pnt;
 {
 	return NSNotFound;	// i.e. outside of all characters
 }
@@ -780,14 +780,14 @@ object:self]
 	if([event clickCount] > 1)
 		{ // depending on click count, extend selection at this position and then do standard tracking
 			NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-			unsigned int pos=[self characterIndexForPoint:p];
+			NSUInteger pos=[self characterIndexForPoint:p];
 			// FIXME
 		}
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 		{
 		NSPoint p;
-		// unsigned int pos=[self characterIndexForPoint:p];
-		unsigned int pos=0;
+		// NSUInteger pos=[self characterIndexForPoint:p];
+		NSUInteger pos=0;
 #if 0
 		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
@@ -1005,7 +1005,7 @@ object:self]
 - (void) moveRightAndModifySelection:(id) sender
 {
 #if 1
-	unsigned int anchor;
+	NSUInteger anchor;
 	if(_anchor == NSNotFound) _anchor=_selectedRange.location;	// initialize anchor
 	anchor=_anchor;	// save
 	[self moveRight:nil];
@@ -1062,7 +1062,7 @@ object:self]
 - (void) moveLeftAndModifySelection:(id) sender
 {
 #if 1
-	unsigned int anchor;
+	NSUInteger anchor;
 	if(_anchor == NSNotFound) _anchor=NSMaxRange(_selectedRange);	// initialize anchor
 	anchor=_anchor;	// save
 	[self moveLeft:nil];
@@ -1097,7 +1097,7 @@ object:self]
 - (void) moveDownAndModifySelection:(id) sender
 {
 #if 1
-	unsigned int anchor;
+	NSUInteger anchor;
 	if(_anchor == NSNotFound) _anchor=_selectedRange.location;	// initialize anchor
 	anchor=_anchor;	// save
 	[self moveDown:nil];
@@ -1121,7 +1121,7 @@ object:self]
 - (void) moveUpAndModifySelection:(id) sender
 {
 #if 1
-	unsigned int anchor;
+	NSUInteger anchor;
 	if(_anchor == NSNotFound) _anchor=NSMaxRange(_selectedRange);	// initialize anchor
 	anchor=_anchor;	// save
 	[self moveUp:nil];

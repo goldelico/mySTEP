@@ -550,8 +550,8 @@
 
 - (void) _calcMaxWidthOfCellComponents;
 { // get maximum width of all cell components
-	unsigned int i;
-	unsigned int nc;
+	NSUInteger i;
+	NSUInteger nc;
 	_imageAndTitleWidth=0.0;
 	_keyEquivalentWidth=0.0;
 	_stateImageWidth=0.0;

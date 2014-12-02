@@ -46,7 +46,7 @@
 - (BOOL) isBordered;									// Graphic attributes
 - (BOOL) isTransparent;
 - (NSString *) keyEquivalent;							// Key equivalent
-- (unsigned int) keyEquivalentModifierMask;
+- (NSUInteger) keyEquivalentModifierMask;
 - (BOOL) performKeyEquivalent:(NSEvent *) event;
 - (void) setAllowsMixedState:(BOOL) flag;
 - (void) setAlternateImage:(NSImage *) anImage;			// Images
@@ -59,7 +59,7 @@
 - (void) setImage:(NSImage *) anImage;
 - (void) setImagePosition:(NSCellImagePosition) aPosition;
 - (void) setKeyEquivalent:(NSString *) aKeyEquivalent;
-- (void) setKeyEquivalentModifierMask:(unsigned int) mask;
+- (void) setKeyEquivalentModifierMask:(NSUInteger) mask;
 - (void) setNextState;
 - (void) setPeriodicDelay:(float) delay interval:(float) interval;
 - (void) setShowsBorderOnlyWhileMouseInside:(BOOL) flag;

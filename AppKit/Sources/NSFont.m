@@ -432,15 +432,15 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
-				   count:(unsigned) count; { BACKEND; }
+				   count:(NSUInteger) count; { BACKEND; }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 		 forPackedGlyphs:(const void *) glyphs
-				   count:(unsigned) count; { BACKEND; }
+				   count:(NSUInteger) count; { BACKEND; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
 				forGlyphs:(const NSGlyph *) glyphs
-					count:(unsigned) count; { BACKEND; }
+					count:(NSUInteger) count; { BACKEND; }
 
 - (NSGlyph) _glyphForCharacter:(unichar) c; { return c; }
 
@@ -456,7 +456,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size
 
 - (NSStringEncoding) mostCompatibleStringEncoding; { BACKEND; return 0; }
 
-- (unsigned) numberOfGlyphs; { BACKEND; return 0; }
+- (NSUInteger) numberOfGlyphs; { BACKEND; return 0; }
 
 - (CGFloat) underlinePosition; { BACKEND; return 0.0; }
 
@@ -662,7 +662,7 @@ static BOOL changed;
 	return !key;	// matches if we have exhausted all keys
 }
 
-+ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit;
++ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(NSUInteger) limit;
 { // this is the core font search engine that knows about font directories
 	NSMutableArray *a=[[NSMutableArray alloc] initWithCapacity:10];
 	NSString *postscriptName=[attributes objectForKey:NSFontNameAttribute];	// match by name

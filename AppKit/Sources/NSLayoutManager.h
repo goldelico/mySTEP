@@ -280,7 +280,7 @@ typedef NSInteger NSTypesetterBehavior;
 - (void) setExtraLineFragmentRect:(NSRect) fragmentRect usedRect:(NSRect) usedRect textContainer:(NSTextContainer *) container;
 - (void) setGlyphGenerator:(NSGlyphGenerator *) glyphGenerator;
 - (void) setHyphenationFactor:(float) factor;
-- (void) setIntAttribute:(int) attributeTag value:(int) val forGlyphAtIndex:(unsigned) glyphIndex;
+- (void) setIntAttribute:(NSInteger) attributeTag value:(NSInteger) val forGlyphAtIndex:(NSUInteger) glyphIndex;
 - (void) setLayoutRect:(NSRect) rect forTextBlock:(NSTextBlock *) block glyphRange:(NSRange) range; 
 - (void) setLineFragmentRect:(NSRect) fragmentRect forGlyphRange:(NSRange) glyphRange usedRect:(NSRect) usedRect;
 - (void) setLocation:(NSPoint) location forStartOfGlyphRange:(NSRange) glyphRange;
@@ -333,7 +333,8 @@ typedef NSInteger NSTypesetterBehavior;
 						   withoutAdditionalLayout:(BOOL) layoutFlag; 
 - (NSArray *) textContainers;
 - (NSTextStorage *) textStorage;
-- (void) textStorage:(NSTextStorage *) str 
+- (void) textStorage:(NSTextStorage *) str
+/* FIXME: should use NSTextStorageEditedOptions typedef */
 			  edited:(unsigned) editedMask 
 			   range:(NSRange) newCharRange 
 	  changeInLength:(NSInteger) delta 

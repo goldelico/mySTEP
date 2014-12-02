@@ -83,7 +83,7 @@ NSString *NSGraphicsContextPSFormat=@"ps";
 
 static NSMapTable *_gState2struct;		// map unique ID to gStates
 
-static unsigned int disableCount;	// NSDisableScreenUpdates() - not implemented!
+static NSUInteger disableCount;	// NSDisableScreenUpdates() - not implemented!
 
 NSGraphicsContext *GSCurrentContext(void)
 { // Function for rapid access to current graphics context

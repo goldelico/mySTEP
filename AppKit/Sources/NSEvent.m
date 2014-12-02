@@ -34,12 +34,12 @@ static NSString	*__timers = @"NSEventTimersKey";
 
 + (NSEvent *) enterExitEventWithType:(NSEventType)t	
 							location:(NSPoint)location
-							modifierFlags:(unsigned int)flags
+							modifierFlags:(NSUInteger)flags
 							timestamp:(NSTimeInterval)time
-							windowNumber:(int)windowNum
+							windowNumber:(NSInteger)windowNum
 							context:(NSGraphicsContext *)context	
-							eventNumber:(int)eventNum
-							trackingNumber:(int)trackingNum
+							eventNumber:(NSInteger)eventNum
+							trackingNumber:(NSInteger)trackingNum
 							userData:(void *)userData
 {
 NSEvent *e = [[NSEvent new] autorelease];
@@ -63,9 +63,9 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) keyEventWithType:(NSEventType)type
 					  location:(NSPoint)location
-					  modifierFlags:(unsigned int)flags
+					  modifierFlags:(NSUInteger)flags
 					  timestamp:(NSTimeInterval)time
-					  windowNumber:(int)windowNum
+					  windowNumber:(NSInteger)windowNum
 					  context:(NSGraphicsContext *)context	
 					  characters:(NSString *)keys	
 					  charactersIgnoringModifiers:(NSString *)ukeys
@@ -100,12 +100,12 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) mouseEventWithType:(NSEventType)t	
 						location:(NSPoint)location
-						modifierFlags:(unsigned int)flags
+						modifierFlags:(NSUInteger)flags
 						timestamp:(NSTimeInterval)time
-						windowNumber:(int)windowNum 
+						windowNumber:(NSInteger)windowNum
 						context:(NSGraphicsContext *)context 
-						eventNumber:(int)eventNum	
-						clickCount:(int)clickNum	
+						eventNumber:(NSInteger)eventNum
+						clickCount:(NSInteger)clickNum
 						pressure:(float)pressureValue
 {
 	NSEvent *e = [[NSEvent new] autorelease];
@@ -129,13 +129,13 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) otherEventWithType:(NSEventType)t	
 						location:(NSPoint)location
-						modifierFlags:(unsigned int)flags
+						modifierFlags:(NSUInteger)flags
 						timestamp:(NSTimeInterval)time
-						windowNumber:(int)windowNum 
+						windowNumber:(NSInteger)windowNum
 						context:(NSGraphicsContext *)context 
 						subtype:(short)subType	
-						data1:(int)data1	
-						data2:(int)data2
+						data1:(NSInteger)data1
+						data2:(NSInteger)data2
 {
 	NSEvent *e = [[NSEvent new] autorelease];
 
@@ -262,7 +262,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 - (NSGraphicsContext *) context			{ return event_context; }
 - (NSPoint) locationInWindow	{ return location_point; }
-- (unsigned int) modifierFlags	{ return modifier_flags; }
+- (NSEventModifierFlags) modifierFlags	{ return modifier_flags; }
 - (NSTimeInterval) timestamp	{ return event_time; }
 - (NSEventType) type			{ return event_type; }
 - (int) windowNumber			{ return _windowNum; }
@@ -403,7 +403,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.misc.sub_type;
 }
 
-- (void) _setLocation:(NSPoint) location modifierFlags:(unsigned int) flags eventTime:(NSTimeInterval) timestamp number:(int) number;
+- (void) _setLocation:(NSPoint) location modifierFlags:(NSUInteger) flags eventTime:(NSTimeInterval) timestamp number:(int) number;
 {
 	location_point=location;
 	modifier_flags=flags;
@@ -683,8 +683,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 @end
 
-unsigned int 
-NSEventMaskFromType(NSEventType type)			// Convert an NSEvent Type to 
+NSEventMask NSEventMaskFromType(NSEventType type)			// Convert an NSEvent Type to
 {												// it's respective Event Mask	
 	switch(type)										
 		{												

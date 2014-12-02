@@ -50,7 +50,7 @@
 	/*
 	id _outlineDataSource;	// data source that understands the NSOutlinView datasource protocol
 	id _outlineDelegate;
-	//	unsigned _numberOfRows;
+	//	NSUInteger _numberOfRows;
 	BOOL _selectingColumns;
 	 */
 	BOOL _drawsGrid;

@@ -386,8 +386,8 @@ static NSColor *__borderedBackgroundColor = nil;
 
 // Text Attributes 
 - (void) setFloatingPointFormat:(BOOL)autoRange
-						   left:(unsigned int)leftDigits
-						  right:(unsigned int)rightDigits
+						   left:(NSUInteger)leftDigits
+						  right:(NSUInteger)rightDigits
 {
 	_c.floatAutorange = autoRange;					// FIX ME create formatter 
 }													// if needed and set format
@@ -783,8 +783,8 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) setHighlighted:(BOOL)flag				{ _c.highlighted = flag; /* force redraw - if changed??? */ }
 - (BOOL) isContinuous							{ return _c.continuous; }
 - (void) setContinuous:(BOOL)flag				{ _c.continuous = flag; }
-- (void) setTag:(int)anInt						{ SUBCLASS; }
-- (int) tag										{ return -1; }
+- (void) setTag:(NSInteger)anInt						{ SUBCLASS; }
+- (NSInteger) tag										{ return -1; }
 - (void) setTarget:(id)anObject					{ SUBCLASS; }
 - (id) target									{ return nil; }
 - (SEL) action									{ return NULL; }
@@ -796,9 +796,9 @@ static NSColor *__borderedBackgroundColor = nil;
 - (NSFocusRingType) focusRingType;				{ return _d.focusRingType; }
 - (void) setFocusRingType:(NSFocusRingType) type; { _d.focusRingType = type; }
 
-- (int) sendActionOn:(int)mask
+- (NSInteger) sendActionOn:(NSInteger)mask
 {
-	unsigned int previousMask = 0;
+	NSInteger previousMask = 0;
 	
 	previousMask |= _c.continuous ? NSPeriodicMask : 0;
 	previousMask |= _c.actOnMouseDown ? NSLeftMouseDownMask : 0;
@@ -866,7 +866,7 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 }
 
-- (unsigned int) keyEquivalentModifierMask;
+- (NSUInteger) keyEquivalentModifierMask;
 {
 	return 0; // default implementation - should not match any key
 }
@@ -876,7 +876,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	return @""; // default implementation - should not match any key
 }
 
-- (int) mouseDownFlags
+- (NSInteger) mouseDownFlags
 {
 	return 0;
 }
@@ -947,7 +947,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	// FIXME: shouldn't we use [controlView menuForEvent:event]; and have that overriden in NSControl/NSMatrix (but not NSTableView!)
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
-	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
+	NSUInteger mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
 	BOOL mouseWentUp = NO;
 	NSEvent *mouseDownEvent=event;
 	BOOL tracking;

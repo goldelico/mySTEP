@@ -64,8 +64,8 @@ static NSTrackingRectTag _trackRectTag = 0;
 static NSMutableDictionary *_toolTipsDict = nil;
 static NSText *__toolTipText = nil;
 static NSPanel *__toolTipWindow = nil;
-static unsigned int __mouseMovedEventCounter = 0;
-static unsigned int __toolTipSequenceCounter = 0;
+static NSUInteger __mouseMovedEventCounter = 0;
+static NSUInteger __toolTipSequenceCounter = 0;
 
 //*****************************************************************************
 //
@@ -2349,7 +2349,7 @@ printing
 
 - (BOOL) performMnemonic:(NSString *)string;
 {
-	int i=0, cnt = [_subviews count];
+	NSUInteger i=0, cnt = [_subviews count];
 	while(i<cnt)	// Check our sub_views
 		{
 		if([[_subviews objectAtIndex:i] performMnemonic:string])
@@ -2364,7 +2364,7 @@ printing
 	[_window concludeDragOperation:sender];
 }
 
-- (unsigned int) draggingEntered:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingEntered:(id <NSDraggingInfo>)sender
 {
 	return [_window draggingEntered:sender];
 }
@@ -2374,7 +2374,7 @@ printing
 	[_window draggingExited:sender];
 }
 
-- (unsigned int) draggingUpdated:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingUpdated:(id <NSDraggingInfo>)sender
 {
 	return [_window draggingUpdated:sender];
 }
@@ -2389,7 +2389,7 @@ printing
 	return [_window prepareForDragOperation:sender];
 }
 
-- (unsigned int) draggingSourceOperationMaskForLocal:(BOOL)isLocal
+- (NSUInteger) draggingSourceOperationMaskForLocal:(BOOL)isLocal
 {
 	// FIXME: override for reasonable defaults!
 	return isLocal?0x0000:0x0000;
@@ -2428,9 +2428,9 @@ NSView *p = nil;
 - (NSView *) superview							{ return _superview; }
 - (NSWindow *) window							{ return _window; }
 - (NSMutableArray *) subviews					{ return _subviews; }
-- (unsigned int) autoresizingMask				{ return _v.autoresizingMask; }
+- (NSUInteger) autoresizingMask				{ return _v.autoresizingMask; }
 - (void) setAutoresizesSubviews:(BOOL)flag		{ _v.autoSizeSubviews = flag; }
-- (void) setAutoresizingMask:(unsigned int)mask	{ _v.autoresizingMask = mask; }
+- (void) setAutoresizingMask:(NSUInteger)mask	{ _v.autoresizingMask = mask; }
 
 - (void) setHidden:(BOOL)flag
 {

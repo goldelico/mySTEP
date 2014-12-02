@@ -84,9 +84,9 @@ enum {
 	NSColor *_backgroundColor;
 	NSImage *_image;	// image that is currently drawn (FIXME: should not be an iVar)
 	NSString *_title;
-	unsigned int _keyEquivalentModifierMask;
-	unsigned int _highlightMask;
-	unsigned int _stateMask;
+	NSUInteger _keyEquivalentModifierMask;
+	NSUInteger _highlightMask;
+	NSUInteger _stateMask;
     float _periodicDelay;
     float _periodicInterval;
 	NSButtonType _buttonType;	// saved internally
@@ -122,7 +122,7 @@ enum {
 - (void) mouseExited:(NSEvent *) event;
 // inherited - (void) performClick:(id)sender;						// -> NSCell
 - (void) setAlternateImage:(NSImage *) anImage;
-- (void) setAlternateMnemonicLocation:(unsigned) location;
+- (void) setAlternateMnemonicLocation:(NSUInteger) location;
 - (void) setAlternateTitle:(NSString *) aString;
 - (void) setAlternateTitleWithMnemonic:(NSString *) aString;
 - (void) setAttributedAlternateTitle:(NSAttributedString *) aString;

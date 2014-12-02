@@ -14,7 +14,7 @@
 
 @implementation NSTextList
 
-- (id) initWithMarkerFormat:(NSString *) format options:(unsigned) mask;
+- (id) initWithMarkerFormat:(NSString *) format options:(NSUInteger) mask;
 {
 	if((self=[super init]))
 		{
@@ -30,12 +30,12 @@
 	[super dealloc];
 }
 
-- (unsigned) listOptions; { return _listOptions; }
+- (NSUInteger) listOptions; { return _listOptions; }
 - (NSString *) markerFormat; { return _markerFormat; }
 
 // NOTE: this function is not intended to automatically handle the NSTextListPrependEnclosingMarker option!
 
-- (NSString *) markerForItemNumber:(int) item;
+- (NSString *) markerForItemNumber:(NSInteger) item;
 { // decode marker format string e.g. {decimal} according to CSS3 spec
 	NSMutableString *s=[_markerFormat mutableCopy];
 	[s replaceOccurrencesOfString:@"{box}" withString:[NSString stringWithFormat:@"%C", 0x2022] options:0 range:NSMakeRange(0, [s length])];

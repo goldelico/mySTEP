@@ -157,7 +157,7 @@
 @end
 
 @interface NSFontDescriptor (NSBackend)
-+ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit; // this is the core font search engine that knows about font directories
++ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(NSUInteger) limit; // this is the core font search engine that knows about font directories
 + (NSDictionary *) _fonts;									// read font cache from disk
 + (void) _writeFonts;										// write font cache to disk
 + (void) _addFontWithAttributes:(NSDictionary *) record;	// add a font attributes record to the font cache

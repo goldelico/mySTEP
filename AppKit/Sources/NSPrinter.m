@@ -636,8 +636,8 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 @interface _NSPDFReference : NSObject
 {
 	id _object;
-	unsigned int _index;
-	unsigned int _position;
+	NSUInteger _index;
+	NSUInteger _position;
 }
 + (_NSPDFReference *) referenceWithObject:(id) object;
 @end
@@ -822,12 +822,13 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) dealloc;
 {
-	unsigned pos=[[_pdf propertyForKey:NSStreamFileCurrentOffsetKey] unsignedIntValue];
+	// can we save some steps if we are the last owner of _pfd?
+	NSUInteger pos=[[_pdf propertyForKey:NSStreamFileCurrentOffsetKey] unsignedIntValue];
 	[_pdf appendString:@"\nxref\n"];
 	// write _references table
 	[_pdf appendString:@"\ntrailer\n"];
 	[[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInt:[_references count]], @"Size",
+		[NSNumber numberWithUnsignedInteger:[_references count]], @"Size",
 		// optional, @"Prev",
 		_catalog, @"Root",
 		// optional, @"Encrypt",
@@ -887,7 +888,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 {
 	NSPoint points[3];
 	NSPoint current={ -999.4, -3.141592 };	// highly improbable - and 'good' code will start with a move element
-	unsigned int i, count=[path elementCount];
+	NSUInteger i, count=[path elementCount];
 	for(i=0; i<count; i++)
 		{
 		switch([path elementAtIndex:i associatedPoints:points])
@@ -962,7 +963,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (BOOL) _draw:(NSImageRep *) rep;
 { // draw into unit square using current CTM, current compositingOp & fraction etc.
-	unsigned idx=[_xobjects indexOfObject:rep];
+	NSUInteger idx=[_xobjects indexOfObject:rep];
 	if(idx == NSNotFound)
 		{
 		idx=[_xobjects count];
@@ -982,7 +983,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) _setFont:(NSFont *) font;
 {
-	unsigned idx=[_fonts indexOfObject:font];
+	NSUInteger idx=[_fonts indexOfObject:font];
 	if(idx == NSNotFound)
 		{ // not yet found
 		idx=[_fonts count];
@@ -1010,7 +1011,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[_pdf appendFormat:@" T*"];
 }
 
-- (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
+- (void) _drawGlyphs:(NSGlyph *)glyphs count:(NSUInteger)cnt;	// (string) Tj
 {
 	[_pdf appendString:@" ("];
 	// convert glyphs to bytes according to encoding of this font (incl. multibyte)
@@ -1042,7 +1043,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 		_pdf, @"Contexts",	// content stream for this page
 		nil];
 	[_pages addObject:page];	// add node to page tree
-	[_parent setObject:[NSNumber numberWithInt:[_pages count]] forKey:@"Count"];	// update page tree node
+	[_parent setObject:[NSNumber numberWithUnsignedInteger:[_pages count]] forKey:@"Count"];	// update page tree node
 }
 
 - (void) _endPage;
@@ -1151,7 +1152,7 @@ static NSPrintOperation *_currentOperation;
 	_context=nil;
 }
 
-- (int) currentPage		{ return _currentPage; }
+- (NSInteger) currentPage		{ return _currentPage; }
 
 - (void) cleanUpOperation
 {

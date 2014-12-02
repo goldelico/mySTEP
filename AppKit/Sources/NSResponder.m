@@ -93,7 +93,7 @@
 	// FIXME: if userDefaults "NSQuotedKeystrokeBinding" found (default = ctl-q) -> pass next character unbound
 	while((event=[e nextObject]))
 		{
-			unsigned int flags=[event modifierFlags];
+			NSUInteger flags=[event modifierFlags];
 			NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",	// the order of these flags appears to be required: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
 										 flags&NSControlKeyMask?@"^":@"",
 										 flags&NSShiftKeyMask?@"$":@"",

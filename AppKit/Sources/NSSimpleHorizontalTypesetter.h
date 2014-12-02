@@ -49,7 +49,7 @@ typedef struct _NSTypesetterGlyphInfo
 	CGFloat			extent;			// width of glyph
 	CGFloat			belowBaseLine;	// cumulated baseline needs
 	CGFloat			aboveBaseline;	// cumulated above needs
-	unsigned		glyphCharacterIndex;
+	NSUInteger		glyphCharacterIndex;
 	struct {
 		unsigned int defaultPositioning:1;
 		unsigned int dontShow:1;
@@ -89,17 +89,17 @@ typedef struct _NSTypesetterGlyphInfo
 	CGFloat curGlyphExtentBelowLocation;
 	NSGlyph previousGlyph;
 	NSGlyph curGlyph;
-	unsigned firstGlyphIndex;		// relative index of first glyph in glyphs array
-	unsigned curGlyphIndex;			// current glyph being processed (relative index in glyphs[])
-	unsigned firstInvalidGlyphIndex;	// first invalid index in glyphs[] - i.e. number of used entries
-	unsigned capacityGlyphInfo;		// capacity of glyph[] cache
-	unsigned sizeOfGlyphInfo;		// sizeof(NSTypesetterGlyphInfo)
-	unsigned curCharacterIndex;		// current character index (absolute) being processed
-	unsigned curContainerIndex;		// index into [layoutManager textContainers]
-	unsigned firstIndexOfCurrentLineFragment;	// absolute glyph index where current line fragment starts
+	NSUInteger firstGlyphIndex;		// relative index of first glyph in glyphs array
+	NSUInteger curGlyphIndex;			// current glyph being processed (relative index in glyphs[])
+	NSUInteger firstInvalidGlyphIndex;	// first invalid index in glyphs[] - i.e. number of used entries
+	NSUInteger capacityGlyphInfo;		// capacity of glyph[] cache
+	NSUInteger sizeOfGlyphInfo;		// sizeof(NSTypesetterGlyphInfo)
+	NSUInteger curCharacterIndex;		// current character index (absolute) being processed
+	NSUInteger curContainerIndex;		// index into [layoutManager textContainers]
+	NSUInteger firstIndexOfCurrentLineFragment;	// absolute glyph index where current line fragment starts
 	NSLayoutDirection curLayoutDirection;		// [curParaStyle baseWritingDirection]
 	NSTextAlignment curTextAlignment;			// [curParaStyle alignment]
-	int curSuperscript;				// [attrs objectForKey:NSSuperscriptAttributeName]
+	NSInteger curSuperscript;				// [attrs objectForKey:NSSuperscriptAttributeName]
 	BOOL curFontIsFixedPitch;		// [curFont isFixedPitch]
 	BOOL curContainerIsSimpleRectangular;	// [curContainer isSimpleRectangularTextContainer]
 	BOOL curGlyphIsAControlGlyph;
@@ -108,16 +108,16 @@ typedef struct _NSTypesetterGlyphInfo
 	BOOL busy;						// busy doing layout (can detect recursions)
 
 	/* unknown what it is good for */
-	unsigned int *glyphCache;
-	int *glyphInscriptionCache;
+	NSUInteger *glyphCache;
+	NSInteger *glyphInscriptionCache;
 	NSGlyphLayoutMode glyphLayoutMode;
-	unsigned int *glyphCharacterIndexCache;	// local mapping from glyph index to character index?
+	NSUInteger *glyphCharacterIndexCache;	// local mapping from glyph index to character index?
 	char *glyphElasticCache;
 	NSSize glyphLocationOffset;		// is this the accumulation of glyph location, baseline, kerning etc. before typesetterLaidOneGlyph is called?
-	unsigned int lastFixedGlyphIndex;
-	int curGlyphInscription;
-	unsigned int previousBaseGlyphIndex;
-	unsigned int previousBaseGlyph;
+	NSUInteger lastFixedGlyphIndex;
+	NSInteger curGlyphInscription;
+	NSUInteger previousBaseGlyphIndex;
+	NSUInteger previousBaseGlyph;
 	BOOL curGlyphOffsetOutOfDate;
 	CGFloat previousSpaceAfter;
 	void *curFontPositionOfGlyphMethod;
@@ -143,7 +143,7 @@ typedef struct _NSTypesetterGlyphInfo
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 #define NSGlyphInfoAtIndex(IDX) (&glyphs[IDX])
 - (void) breakLineAtIndex:(unsigned) location;
-- (unsigned) capacityOfTypesetterGlyphInfo;
+- (NSUInteger) capacityOfTypesetterGlyphInfo;
 - (void) clearAttributesCache;
 - (void) clearGlyphCache;
 - (NSTextContainer *) currentContainer;	// [super currentTextContainer]
@@ -151,41 +151,41 @@ typedef struct _NSTypesetterGlyphInfo
 - (NSParagraphStyle *) currentParagraphStyle;	// inherited from superclass
 - (NSTextStorage *) currentTextStorage;	// [super attributedString]
 - (void) fillAttributesCache;
-- (unsigned) firstGlyphIndexOfCurrentLineFragment;
-- (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
-- (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
-- (unsigned) glyphIndexToBreakLineByWordWrappingAtIndex:(unsigned) charIndex;
-- (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
-- (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;	// keeps _glyphInfo in sync
+- (NSUInteger) firstGlyphIndexOfCurrentLineFragment;
+- (void) fullJustifyLineAtGlyphIndex:(NSUInteger) glyphIndexForLineBreak;
+- (NSUInteger) glyphIndexToBreakLineByHyphenatingWordAtIndex:(NSUInteger) charIndex;
+- (NSUInteger) glyphIndexToBreakLineByWordWrappingAtIndex:(NSUInteger) charIndex;
+- (NSUInteger) growGlyphCaches:(NSUInteger) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
+- (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(NSUInteger) glyphIndex characterIndex:(NSUInteger) charIndex;	// keeps _glyphInfo in sync
 - (NSLayoutStatus) layoutControlGlyphForLineFragment:(NSRect) lineFrag;
 - (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect
 											   baseline:(CGFloat *) baseline;
 - (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) layoutManager
-				startingAtGlyphIndex:(unsigned) startGlyphIndex
-			maxNumberOfLineFragments:(unsigned) maxNumLines
-					  nextGlyphIndex:(unsigned *) nextGlyph;
+				startingAtGlyphIndex:(NSUInteger) startGlyphIndex
+			maxNumberOfLineFragments:(NSUInteger) maxNumLines
+					  nextGlyphIndex:(NSUInteger *) nextGlyph;
 - (void) layoutTab;
-- (unsigned) sizeOfTypesetterGlyphInfo;
+- (NSUInteger) sizeOfTypesetterGlyphInfo;
 - (void) typesetterLaidOneGlyph:(NSTypesetterGlyphInfo *) gl;	// called after each glyph
 - (void) updateCurGlyphOffset;
 - (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;	// inherited from superclass
 
 /* undocumented methods */
-- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) fp8;
-- (void) getAttributesForCharacterIndex:(unsigned int) fp8;
+- (NSUInteger) glyphIndexToBreakLineByClippingAtIndex:(NSUInteger) fp8;
+- (void) getAttributesForCharacterIndex:(NSUInteger) fp8;
 - (NSRect) normalizedRect:(NSRect) fp8;
 - (void) _setupBoundsForLineFragment:(NSRect *) fp8;
 - (CGFloat) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
 - (void) _layoutGlyphsInLayoutManager:(NSLayoutManager *) fp8
-				 startingAtGlyphIndex:(unsigned int) fp12
-			 maxNumberOfLineFragments:(unsigned int) fp16
+				 startingAtGlyphIndex:(NSUInteger) fp12
+			 maxNumberOfLineFragments:(NSUInteger) fp16
 				 currentTextContainer:(NSTextContainer **) fp20
 						 proposedRect:(NSRect *) fp24
-					   nextGlyphIndex:(unsigned int *) fp28;
+					   nextGlyphIndex:(NSUInteger *) fp28;
 - (BOOL) followsItalicAngle;
 - (void) setFollowsItalicAngle:(BOOL) fp8;
 - (BOOL) _typesetterIsBusy;
-- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) fp8;
+- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(NSUInteger) fp8;
 
 @end
 

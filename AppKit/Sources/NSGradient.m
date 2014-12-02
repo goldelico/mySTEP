@@ -229,7 +229,7 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 				}
 			else
 				{
-					unsigned int i;
+					NSUInteger i;
 					
 					// evenly spaced
 					for (i = 0; i < _numberOfColorStops; i++)
@@ -242,8 +242,8 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 - (id) initWithColorsAndLocations: (NSColor *)color, ...
 {
 	va_list ap;
-	unsigned int max = 128;
-	unsigned int count = 0;
+	NSUInteger max = 128;
+	NSUInteger count = 0;
 	CGFloat *locations = objc_malloc(max * sizeof(*locations));
 	NSMutableArray *colorArray = [[NSMutableArray alloc] init];
 	
@@ -287,7 +287,7 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 
 - (NSColor *) interpolatedColorAtLocation: (CGFloat)location
 {
-	unsigned int i;
+	NSUInteger i;
 	
 	if (location <= _locations[0])
 		{

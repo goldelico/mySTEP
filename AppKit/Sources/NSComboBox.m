@@ -615,21 +615,21 @@ NSNotificationCenter *n;
 	return uncompletedString;
 }
 
-- (unsigned int)comboBoxCell:(NSComboBoxCell *)aComboBoxCell indexOfItemWithStringValue:(NSString *)aString
+- (NSUInteger)comboBoxCell:(NSComboBoxCell *)aComboBoxCell indexOfItemWithStringValue:(NSString *)aString
 {
 	if(aComboBoxCell == _cell)
 		return [_dataSource comboBox:self indexOfItemWithStringValue:aString];
 	return NSNotFound;
 }
 
-- (id)comboBoxCell:(NSComboBoxCell *)aComboBoxCell objectValueForItemAtIndex:(int)index
+- (id)comboBoxCell:(NSComboBoxCell *)aComboBoxCell objectValueForItemAtIndex:(NSInteger)index
 {
 	if(aComboBoxCell == _cell)
 		return [_dataSource comboBox:self objectValueForItemAtIndex:index];
 	return nil;
 }
 
-- (int)numberOfItemsInComboBoxCell:(NSComboBoxCell *)aComboBoxCell
+- (NSInteger)numberOfItemsInComboBoxCell:(NSComboBoxCell *)aComboBoxCell
 {
 	if(aComboBoxCell == _cell)
 		return [_dataSource numberOfItemsInComboBox:self];

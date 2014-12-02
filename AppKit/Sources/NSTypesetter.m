@@ -276,7 +276,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	
 	
 	NSString *str=[textStorage string];
-	unsigned int options=[manager layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
+	NSUInteger options=[manager layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
 	NSGlyph previous=0;
 	NSTextContainer *container;
 	NSPoint location;	// relative location within line fragment rect
@@ -707,14 +707,14 @@ forStartOfGlyphRange:(NSRange) range;
 	[super dealloc];
 }
 
-//- (CGFloat) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
+//- (CGFloat) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(NSUInteger) idx;
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 {
 	return glyphs;
 }
 
-- (void) breakLineAtIndex:(unsigned) location;
+- (void) breakLineAtIndex:(NSUInteger) location;
 {
 	//	NSTypesetterGlyphInfo *glyphInfo=[self _glyphInfoAtIndex:curGlyphIndex];
 	// index appears to be a glyphInfo index!
@@ -744,7 +744,7 @@ forStartOfGlyphRange:(NSRange) range;
 	wrapAfterCurGlyph=YES;
 }
 
-- (unsigned) capacityOfTypesetterGlyphInfo;
+- (NSUInteger) capacityOfTypesetterGlyphInfo;
 {
 	return capacityGlyphInfo;
 }
@@ -832,18 +832,18 @@ forStartOfGlyphRange:(NSRange) range;
 	/* NSGlyphInfo *gi=[attrs objectForKey:NSGlyphInfoAttributeName] */
 }
 
-- (unsigned) firstGlyphIndexOfCurrentLineFragment;
+- (NSUInteger) firstGlyphIndexOfCurrentLineFragment;
 {
 	return firstIndexOfCurrentLineFragment;
 }
 
-- (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
+- (void) fullJustifyLineAtGlyphIndex:(NSUInteger) glyphIndexForLineBreak;
 { // insert flexible space (kerning) between index 0 and glyphIndexForLineBreak-1
 	// unless we need too much flexible space
 	;
 }
 
-- (void) getAttributesForCharacterIndex:(unsigned int) idx;
+- (void) getAttributesForCharacterIndex:(NSUInteger) idx;
 {
 	attrs=[textStorage attributesAtIndex:idx effectiveRange:&attrsRange];
 #if 0
@@ -853,7 +853,7 @@ forStartOfGlyphRange:(NSRange) range;
 #endif
 }
 
-- (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
+- (NSUInteger) glyphIndexToBreakLineByHyphenatingWordAtIndex:(NSUInteger) charIndex;
 {
 	CGFloat factor=[curParaStyle hyphenationFactor];
 	if(factor <= 0.0) factor=[layoutManager hyphenationFactor];
@@ -865,7 +865,7 @@ forStartOfGlyphRange:(NSRange) range;
 	return charIndex;
 }
 
-- (unsigned) glyphIndexToBreakLineByWordWrappingAtIndex:(unsigned) charIndex;
+- (NSUInteger) glyphIndexToBreakLineByWordWrappingAtIndex:(NSUInteger) charIndex;
 {
 	// charIndex is IMHO indexing the textStorage
 	// and the return value is an index into the Glyph cache?
@@ -875,15 +875,15 @@ forStartOfGlyphRange:(NSRange) range;
 	return [self glyphIndexToBreakLineByHyphenatingWordAtIndex:charIndex];
 }
 
-- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) idx;
+- (NSUInteger) glyphIndexToBreakLineByClippingAtIndex:(NSUInteger) idx;
 {
 	// clipping means deleting glyphs to end of line
 	return idx;
 }
 
-- (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
+- (NSUInteger) growGlyphCaches:(NSUInteger) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
 {
-	unsigned count=0;
+	NSUInteger count=0;
 	if(desiredCapacity > capacityGlyphInfo)
 		{ // really needs to grow the cache
 			glyphs=(NSTypesetterGlyphInfo *) objc_realloc(glyphs, desiredCapacity*sizeof(glyphs[0]));
@@ -907,7 +907,7 @@ forStartOfGlyphRange:(NSRange) range;
 	return count;
 }
 
-- (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;
+- (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(NSUInteger) glyphIndex characterIndex:(NSUInteger) charIndex;
 {
 	NIMP;
 	// sync with _glyphInfo cache
@@ -1208,13 +1208,13 @@ NSLayoutOutOfGlyphs
  */
 
 - (void) _layoutGlyphsInLayoutManager:(NSLayoutManager *) lm
-				 startingAtGlyphIndex:(unsigned int) startGlyphIndex
-			 maxNumberOfLineFragments:(unsigned int) maxNumLines
+				 startingAtGlyphIndex:(NSUInteger) startGlyphIndex
+			 maxNumberOfLineFragments:(NSUInteger) maxNumLines
 				 currentTextContainer:(NSTextContainer **) currentTextContainer
 						 proposedRect:(NSRect *) proposedRect
-					   nextGlyphIndex:(unsigned int *) nextGlyph;
+					   nextGlyphIndex:(NSUInteger *) nextGlyph;
 { // internal method
-	unsigned numLines = 0;
+	NSUInteger numLines = 0;
 	NSLayoutStatus status=NSLayoutNotDone;
 	NSRect remainingRect = NSZeroRect;
 	
@@ -1233,7 +1233,7 @@ NSLayoutOutOfGlyphs
 			CGFloat baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
 			NSRect lineFragmentRect;
 			NSRect usedRect;
-			int i;
+			NSUInteger i;
 			// check for table layout
 			// i.e. if [[textStorage attribute:NSParagraphStyleAttributeName AtIndex:curCharacterIndex] textBlocks]
 			// is not empty count
@@ -1366,9 +1366,9 @@ NSLayoutOutOfGlyphs
 }
 
 - (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) lm
-				startingAtGlyphIndex:(unsigned) startGlyphIndex
-			maxNumberOfLineFragments:(unsigned) maxNumLines
-					  nextGlyphIndex:(unsigned *) nextGlyph;
+				startingAtGlyphIndex:(NSUInteger) startGlyphIndex
+			maxNumberOfLineFragments:(NSUInteger) maxNumLines
+					  nextGlyphIndex:(NSUInteger *) nextGlyph;
 { // core layout method
 	NSRect proposedRect=NSZeroRect;
 	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");

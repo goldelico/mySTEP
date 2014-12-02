@@ -444,7 +444,7 @@ static struct _NSTabViewSizing
 		case NSBottomTabsBezelBorder:
 		case NSRightTabsBezelBorder:
 			{
-				unsigned i, numberOfTabs = [tab_items count];
+				NSUInteger i, numberOfTabs = [tab_items count];
 				float hspacing;
 				NSRect tabRect=[self bounds];
 				CGFloat width=0.0;
@@ -499,7 +499,7 @@ static struct _NSTabViewSizing
 - (void) _drawItem:(NSTabViewItem *) anItem;
 {
 	NSRect tabRect=[anItem _tabRect];
-	unsigned i=[tab_items indexOfObjectIdenticalTo:anItem];
+	NSUInteger i=[tab_items indexOfObjectIdenticalTo:anItem];
 	int border=(i==0?1:0)+(i==[tab_items count]-1?2:0);	// handle rounded corners
 	NSTabState itemState = [anItem tabState];
 	[NSBezierPath _drawRoundedBezel:border inFrame:tabRect enabled:YES selected:(itemState == NSSelectedTab) highlighted:(itemState == NSPressedTab) radius:5.0];
@@ -508,7 +508,7 @@ static struct _NSTabViewSizing
 
 - (void) drawRect:(NSRect)rect
 {
-	unsigned i, numberOfTabs = [tab_items count];
+	NSUInteger i, numberOfTabs = [tab_items count];
 	CGFloat width=0.0;
 	CGFloat hspacing;
 	NSRect tabRect=[self bounds];

@@ -81,8 +81,8 @@ typedef enum NSBezierPathElement
 	NSRect _controlPointBounds;
 	
 	void **_bPath;
-	unsigned int _count;
-	unsigned int _capacity;
+	NSUInteger _count;
+	NSUInteger _capacity;
 	
     struct __BezierFlags {
 		TYPEDBITFIELD(NSWindingRule, windingRule, 2);

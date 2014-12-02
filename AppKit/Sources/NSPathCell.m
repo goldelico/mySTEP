@@ -168,13 +168,12 @@
 
 - (NSRect) rectOfPathComponentCell:(NSPathComponentCell *) c withFrame:(NSRect) rect inView:(NSView *) view;
 {
-	unsigned idx=[_pathComponentCells indexOfObjectIdenticalTo:c];
+	NSUInteger idx=[_pathComponentCells indexOfObjectIdenticalTo:c];
 	if(idx == NSNotFound)
 		return NSZeroRect;
 	if(_needsSizing)
 	{ // (re)calculate cell positions
-		unsigned int i;
-		unsigned int cnt=[_pathComponentCells count];
+		NSUInteger i, cnt=[_pathComponentCells count];
 		NSRect r=rect;
 		_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
 		for(i=0; i<cnt; i++)
@@ -249,11 +248,11 @@
 
 - (void) setURL:(NSURL *) url;
 {
-	int i;
+	NSUInteger i;
 	if (url != nil) {
 		BOOL isFile=[url isFileURL];
 		NSArray *pathComponents = [[url path] pathComponents]; // get Array of Path parts
-		unsigned cnt = [pathComponents count];
+		NSUInteger cnt = [pathComponents count];
 		NSMutableArray *cells=[NSMutableArray arrayWithCapacity:cnt];
 		NSString *partialURLString=@"/";
 		for(i=0; i<cnt; i++)

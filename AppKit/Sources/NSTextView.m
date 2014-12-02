@@ -560,7 +560,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) _updateTypingAttributes;
 {
 	NSDictionary *attribs;
-	unsigned int length=[textStorage length];
+	NSUInteger length=[textStorage length];
 	if(_selectedRange.location < length)
 		attribs=[textStorage attributesAtIndex:_selectedRange.location effectiveRange:NULL];
 	else
@@ -635,12 +635,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	[textStorage setBaseWritingDirection:direction range:range];
 }
 
-- (unsigned int) draggingEntered:(id <NSDraggingInfo>)sender		// Dragging
+- (NSUInteger) draggingEntered:(id <NSDraggingInfo>)sender		// Dragging
 {	
 	return NSDragOperationGeneric;
 }
 
-- (unsigned int) draggingUpdated:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingUpdated:(id <NSDraggingInfo>)sender
 {	
 	return NSDragOperationGeneric;
 }
@@ -925,10 +925,10 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 // FIXME: this method should expect SCREEN coordinates!!!
 // FIXME: handle multiple text containers?
 
-- (unsigned int) characterIndexForPoint:(NSPoint) pnt;
+- (NSUInteger) characterIndexForPoint:(NSPoint) pnt;
 {
 	CGFloat fraction;
-	unsigned int gindex=[layoutManager glyphIndexForPoint:pnt inTextContainer:textContainer fractionOfDistanceThroughGlyph:&fraction];
+	NSUInteger gindex=[layoutManager glyphIndexForPoint:pnt inTextContainer:textContainer fractionOfDistanceThroughGlyph:&fraction];
 	if(fraction > 0.5)
 		gindex++;
 	return [layoutManager characterIndexForGlyphAtIndex:gindex];	// convert to character index
@@ -967,7 +967,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 { // run a text selection tracking loop
 	NSRange initialRange=_selectedRange;	// initial range (for extending selection)
 	NSRange rng;					// current selected range
-	unsigned int modifiers=[event modifierFlags];
+	NSUInteger modifiers=[event modifierFlags];
 	NSEvent *lastMouseEvent=nil;
 	if(!_tx.selectable)
 		return;	// ignore
@@ -980,7 +980,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	while(YES)	// loop outside until mouse goes up 
 		{
 		NSPoint p;
-		unsigned int pos;
+		NSUInteger pos;
 		if([event type] == NSPeriodic)
 			{
 			event=lastMouseEvent;	// repeat
@@ -1008,7 +1008,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 							// get effectiveRange of lineFragmentRect
 						case 4:	{ // select full paragraph
 //							NSString *str=[textStorage string];
-//							unsigned length=[str length];
+//							NSUInteger length=[str length];
 							
 							// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
 							
@@ -1130,7 +1130,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
 		// FIXME: this method expects SCREEN coordinates!
-		unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
+		NSUInteger pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
 		if(pos != NSNotFound)
 			[self setSelectedRange:NSMakeRange(pos, 0)];
 		_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
@@ -1149,7 +1149,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
 		// FIXME: this method expects SCREEN coordinates!
-		unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
+		NSUInteger pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
 		if(pos != NSNotFound)
 			[self setSelectedRange:NSMakeRange(pos, 0)];
 		_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
@@ -1185,7 +1185,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (NSRect) firstRectForCharacterRange:(NSRange) range actualRange:(NSRangePointer) actual
 {
-	unsigned cnt;
+	NSUInteger cnt;
 	NSRectArray	r;
 	// FIXME: we must return the rect of the first line unless length is 0
 	range.length=0;	// this should avoid calculting *all* rects
@@ -1217,7 +1217,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		}
 	else
 		{
-		unsigned int gindex=[layoutManager glyphIndexForCharacterAtIndex:range.location];
+		NSUInteger gindex=[layoutManager glyphIndexForCharacterAtIndex:range.location];
 		lfur=[layoutManager lineFragmentUsedRectForGlyphAtIndex:gindex effectiveRange:act];
 		pos=[layoutManager locationForGlyphAtIndex:gindex];
 		lfur.size.width=NSMaxX(lfr)-pos.x;	// start at given glyph

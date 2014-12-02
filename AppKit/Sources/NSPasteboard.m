@@ -279,7 +279,7 @@ NSArray *
 NSGetFileTypes(NSArray *pboardTypes)
 {
 	NSMutableArray *a = [NSMutableArray arrayWithCapacity: [pboardTypes count]];
-	unsigned int i;
+	NSUInteger i;
 
 	for (i = 0; i < [pboardTypes count]; i++) 
 		{

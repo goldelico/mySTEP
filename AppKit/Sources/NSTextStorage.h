@@ -64,7 +64,7 @@ enum
 - (void) addLayoutManager:(NSLayoutManager *) obj;
 - (NSInteger) changeInLength;
 - (id) delegate;
-- (void) edited:(unsigned) editedMask 
+- (void) edited:(NSUInteger) editedMask 
 		  range:(NSRange) range 
  changeInLength:(NSInteger) delta;
 - (NSUInteger) editedMask;

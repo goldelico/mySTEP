@@ -234,7 +234,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSNibConnector *c;
 	id owner=[table objectForKey:NSNibOwner];
 #if 0
-	unsigned idx=[objects indexOfObject:rootObject];
+	NSUInteger idx=[objects indexOfObject:rootObject];
 	NSLog(@"loaded %ld connections", [connections count]);
 	NSLog(@"rootObject=%@ idx=%u", rootObject, idx);
 	NSLog(@"owner=%@", owner);

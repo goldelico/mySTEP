@@ -109,7 +109,7 @@ typedef enum _NSRoundedBezelSegments
 @interface NSApplication (NSPrivate)
 - (IBAction) _orderOutCharacterPalette:(id)sender;
 - (BOOL) _eventIsQueued:(NSEvent *) event;
-- (NSEvent *) _eventMatchingMask:(unsigned int) mask dequeue:(BOOL)dequeue;
+- (NSEvent *) _eventMatchingMask:(NSUInteger) mask dequeue:(BOOL)dequeue;
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
 - (void) _setAppleMenu:(NSMenu *) menu;
 - (void) _setMenuBarVisible:(BOOL) flag;
@@ -170,7 +170,7 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSWindow (NSPrivate)
-+ (float) _titleBarHeightForStyleMask:(unsigned int) mask /* forScreen:(NSScreen *) screen */;
++ (float) _titleBarHeightForStyleMask:(NSUInteger) mask /* forScreen:(NSScreen *) screen */;
 - (NSAffineTransform *) _base2screen;
 - (void) _screenParametersNotification:(NSNotification *) notification;
 - (void) _setIsVisible:(BOOL) flag;
@@ -414,5 +414,5 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 @end
 
 @interface NSEvent (NSPrivate)
-- (void) _setLocation:(NSPoint) location modifierFlags:(unsigned int) flags eventTime:(NSTimeInterval) timestamp number:(int) xnumber;
+- (void) _setLocation:(NSPoint) location modifierFlags:(NSUInteger) flags eventTime:(NSTimeInterval) timestamp number:(int) xnumber;
 @end

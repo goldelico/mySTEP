@@ -897,7 +897,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			case 3:	// Gray
 				{
 					NSColor *c;
-					unsigned int len;
+					NSUInteger len;
 					float white=0.0, alpha=1.0;
 					char *s=(char *)[aDecoder decodeBytesForKey:@"NSWhite" returnedLength:&len];
 					if(s)
@@ -915,7 +915,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			case 1:	// RGB
 				{
 					NSColor *c;
-					unsigned int len;
+					NSUInteger len;
 					float red=0.0, green=0.0, blue=0.0, alpha=1.0;
 					char *s=(char *)[aDecoder decodeBytesForKey:@"NSRGB" returnedLength:&len];
 					if(s)
@@ -1084,7 +1084,7 @@ NSColor *color = [color_list objectForKey: key];
 
 - (void) insertColor:(NSColor*)color
 				 key:(NSString*)key
-				 atIndex:(unsigned)location
+				 atIndex:(NSUInteger)location
 {
 	if (!is_editable)								// Are we even editable?
 		[NSException raise: NSColorListIOException

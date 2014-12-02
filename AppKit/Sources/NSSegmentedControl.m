@@ -186,7 +186,7 @@
 
 - (void) drawWithFrame:(NSRect) cellFrame inView:(NSView*) controlView
 {
-	unsigned int i=0, count=[_segments count];
+	NSUInteger i=0, count=[_segments count];
 	NSRect frame=cellFrame;
 	// should we set any clipping?
 	while(i < count && frame.origin.x < cellFrame.size.width)
@@ -221,7 +221,7 @@
 { // check to which subcell we have to forward tracking
 	NSPoint loc=[event locationInWindow];
 	NSRect frame=cellFrame;
-	unsigned int count=[_segments count];
+	NSUInteger count=[_segments count];
 	loc = [controlView convertPoint:loc fromView:nil];
 #if 1
 	NSLog(@"NSSegmentedCell trackMouse:%@ inRect:%@", NSStringFromPoint(loc), NSStringFromRect(cellFrame));
@@ -279,7 +279,7 @@
 - (int) segmentCount; { return [_segments count]; }
 - (int) selectedSegment;
 {
-	unsigned int i, count=[_segments count];
+	NSUInteger i, count=[_segments count];
 	for(i=0; i<count; i++)
 		if([self isSelectedForSegment:i])
 			return i;
@@ -288,7 +288,7 @@
 
 - (BOOL) selectSegmentWithTag:(int) t;
 {
-	unsigned int i, count=[_segments count];
+	NSUInteger i, count=[_segments count];
 	for(i=0; i<count; i++)
 		{
 		if([[_segments objectAtIndex:i] tag] == t)
@@ -350,7 +350,7 @@
 
 - (id) initWithCoder:(NSCoder *) aDecoder
 {
-	unsigned int count;
+	NSUInteger count;
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
 		{ [self release]; return nil; }

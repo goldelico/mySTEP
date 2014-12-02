@@ -58,13 +58,13 @@
 - (BOOL) canSelectNext; { NIMP; return NO; }
 - (BOOL) canSelectPrevious; { NIMP; return NO;}
 - (void) insert:(id) Sender; { NIMP; }
-- (void) insertObject:(id) obj atArrangedObjectIndex:(unsigned int) idx; { NIMP; }
+- (void) insertObject:(id) obj atArrangedObjectIndex:(NSUInteger) idx; { NIMP; }
 - (void) insertObjects:(NSArray *) obj atArrangedObjectIndexes:(NSIndexSet *) idx; { NIMP; }
 - (BOOL) preservesSelection; { NIMP; return NO;}
 - (void) rearrangeObjects; { NIMP; }
 - (void) remove:(id) Sender; { NIMP; }
 - (void) removeObject:(id) obj; { NIMP; }
-- (void) removeObjectAtArrangedObjectIndex:(unsigned int) idx; { NIMP; }
+- (void) removeObjectAtArrangedObjectIndex:(NSUInteger) idx; { NIMP; }
 - (void) removeObjects:(NSArray *) obj; { NIMP; }
 - (void) removeObjectsAtArrangedObjectIndexes:(NSIndexSet *) idx; { NIMP; }
 - (BOOL) removeSelectedObjects:(NSArray *) obj; { NIMP; return NO;}
@@ -72,13 +72,13 @@
 - (void) selectNext:(id) Sender; { NIMP; }
 - (void) selectPrevious:(id) Sender; { NIMP; }
 - (NSArray *) selectedObjects; { return NIMP; }
-- (unsigned int) selectionIndex; { NIMP; return 0; }
+- (NSUInteger) selectionIndex; { NIMP; return 0; }
 - (NSIndexSet *) selectionIndexes; { return NIMP; }
 - (BOOL) selectsInsertedObjects; { NIMP; return NO;}
 - (void) setAvoidsEmptySelection:(BOOL) flag; { NIMP; }
 - (void) setPreservesSelection:(BOOL) flag; { NIMP; }
 - (BOOL) setSelectedObjects:(NSArray *) obj; { NIMP; return NO; }
-- (BOOL) setSelectionIndex:(unsigned int) idx; { NIMP; return NO; }
+- (BOOL) setSelectionIndex:(NSUInteger) idx; { NIMP; return NO; }
 - (BOOL) setSelectionIndexes:(NSIndexSet *) idx; { NIMP; return NO; }
 - (void) setSelectsInsertedObjects:(BOOL) flag; { NIMP; }
 - (void) setSortDescriptors:(NSArray *) desc; { NIMP; }

@@ -143,7 +143,7 @@ extern id NSApp;					// NSApp global var
 - (NSEvent*) currentEvent;									// Events
 - (void) deactivate;
 - (id) delegate;
-- (void) discardEventsMatchingMask:(unsigned int) matchingMask beforeEvent:(NSEvent *) event;
+- (void) discardEventsMatchingMask:(NSUInteger) matchingMask beforeEvent:(NSEvent *) event;
 - (void) endModalSession:(NSModalSession) aSession;
 - (void) endSheet:(NSWindow *) aSheet;
 - (void) endSheet:(NSWindow *) aSheet returnCode:(int) ret;
@@ -159,7 +159,7 @@ extern id NSApp;					// NSApp global var
 - (NSWindow *) makeWindowsPerform:(SEL) sel inOrder:(BOOL) flag;
 - (void) miniaturizeAll:(id) sender;
 - (NSWindow *) modalWindow;
-- (NSEvent *) nextEventMatchingMask:(unsigned int) matchingMask untilDate:(NSDate *) expirationDate inMode:(NSString *) mode dequeue:(BOOL) flag;
+- (NSEvent *) nextEventMatchingMask:(NSUInteger) matchingMask untilDate:(NSDate *) expirationDate inMode:(NSString *) mode dequeue:(BOOL) flag;
 - (NSArray *) orderedDocuments;
 - (NSArray *) orderedWindows;
 - (void) orderFrontCharacterPalette:(id) sender;					// Show std Panels

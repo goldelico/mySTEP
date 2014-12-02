@@ -266,7 +266,7 @@
 
 - (id) delegate; { return _delegate; }
 
-- (void) edited:(unsigned)editedMask 
+- (void) edited:(NSUInteger)editedMask
 		  range:(NSRange)range 
  changeInLength:(int)delta;
 {
@@ -614,7 +614,7 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 - (NSRect) cellFrameForTextContainer:(NSTextContainer *) container
 								proposedLineFragment:(NSRect) fragment
 											 glyphPosition:(NSPoint) pos
-											characterIndex:(unsigned) index;
+											characterIndex:(NSUInteger) index;
 {
 	return (NSRect){ NSZeroPoint, [self cellSize] };
 }
@@ -628,13 +628,13 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 
 - (void) drawWithFrame:(NSRect)cellFrame
 								inView:(NSView *)controlView
-				characterIndex:(unsigned) index;
+				characterIndex:(NSUInteger) index;
 {
 }
 
 - (void) drawWithFrame:(NSRect)cellFrame
 								inView:(NSView *)controlView
-				characterIndex:(unsigned) index
+				characterIndex:(NSUInteger) index
 				 layoutManager:(NSLayoutManager *) manager;
 {
 }

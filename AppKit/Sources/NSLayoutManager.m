@@ -257,7 +257,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) deleteGlyphsInRange:(NSRange)glyphRange;
 {
 	// FIXME: how does this invalidate the layout for the given glyphs???
-	unsigned int i;
+	NSUInteger i;
 	NSTextContainer *lcontainer=nil;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
@@ -690,7 +690,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSUInteger) getGlyphs:(NSGlyph *)glyphArray range:(NSRange)glyphRange;
 {
-	unsigned int idx=0;
+	NSUInteger idx=0;
 	[self ensureGlyphsForGlyphRange:glyphRange];
 	NSAssert(NSMaxRange(glyphRange) <= _numberOfGlyphs, @"invalid glyph range");
 	while(glyphRange.length-- > 0)
@@ -1194,7 +1194,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _glyphs[index].location;
 }
 
-- (BOOL) notShownAttributeForGlyphAtIndex:(unsigned) index;
+- (BOOL) notShownAttributeForGlyphAtIndex:(NSUInteger) index;
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
@@ -1202,7 +1202,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _glyphs[index].notShownAttribute;
 }
 
-- (unsigned) numberOfGlyphs;
+- (NSUInteger) numberOfGlyphs;
 {
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForCharacterRange:NSMakeRange(0, [_textStorage length])]; // generate all glyphs so that we can count them
