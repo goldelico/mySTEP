@@ -470,7 +470,7 @@ static NSButtonCell *__knobCell = nil;
 - (void) trackScrollButtons:(NSEvent*)event
 {
 	NSDate *distantFuture = [NSDate distantFuture];
-	unsigned int mask = NSLeftMouseDownMask | NSLeftMouseUpMask 
+	NSUInteger mask = NSLeftMouseDownMask | NSLeftMouseUpMask 
 				  | NSLeftMouseDraggedMask | NSMouseMovedMask;
 
 	do	{

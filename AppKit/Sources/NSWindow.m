@@ -72,7 +72,7 @@ static BOOL __cursorHidden = NO;
 @end
 
 @interface _NSThemeWidget : NSButton
-- (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
+- (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle;
 @end
 
 @interface _NSThemeCloseWidget : _NSThemeWidget
@@ -102,8 +102,8 @@ static BOOL __cursorHidden = NO;
 
 // handle active/inactive by dimming out everything
 
-- (id) initWithFrame:(NSRect) frame forStyleMask:(unsigned int) aStyle forScreen:(NSScreen *) screen;
-- (unsigned int) style;
+- (id) initWithFrame:(NSRect) frame forStyleMask:(NSUInteger) aStyle forScreen:(NSScreen *) screen;
+- (NSUInteger) style;
 
 - (NSString *) title;
 - (void) setTitle:(NSString *) title;
@@ -163,7 +163,7 @@ static BOOL __cursorHidden = NO;
 - (BOOL) isOpaque;	{ return YES; }	// only if background color has alpha==1.0
 - (BOOL) isFlipped;	{ return YES; }	// to simplify coordinate calculations: titlebar is at (0,0)
 
-- (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle forScreen:(NSScreen *) screen;
+- (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle forScreen:(NSScreen *) screen;
 {
 #if 0
 	NSLog(@"init theme frame 1: subviews=%@", _subviews);
@@ -312,7 +312,7 @@ static BOOL __cursorHidden = NO;
 	[super unlockFocus];
 }
 
-- (unsigned int) style; { return _style; }
+- (NSUInteger) style; { return _style; }
 
 - (void) _setTexturedBackground:(BOOL)flag;
 {
@@ -704,7 +704,7 @@ static BOOL __cursorHidden = NO;
 	[super drawRect:rect];
 }
 
-- (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
+- (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle;
 {
 	if((self=[super initWithFrame:f]))
 		{ // set some defaults
@@ -821,8 +821,7 @@ static NSButtonCell *sharedCell;
 	if(_itemRectCount < 0 && [_toolbar isVisible])
 		{ // recache
 			NSArray *items=[_toolbar _activeItems];
-			unsigned cnt=[items count];
-			int i;
+			NSUInteger i, cnt=[items count];
 			NSToolbarItem *item;
 			NSControlSize csize=([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize;
 			if(!sharedCell)
@@ -1245,26 +1244,26 @@ static NSButtonCell *sharedCell;
 + (NSWindowDepth) defaultDepthLimit							{ return 32; }
 
 + (NSRect) contentRectForFrameRect:(NSRect)aRect
-						 styleMask:(unsigned int)aStyle
+						 styleMask:(NSUInteger)aStyle
 {
 	aRect.size.height-=[self _titleBarHeightForStyleMask:aStyle];  // remove space for title bar
 	return aRect;
 }
 
 + (NSRect) frameRectForContentRect:(NSRect)aRect
-						 styleMask:(unsigned int)aStyle
+						 styleMask:(NSUInteger)aStyle
 {
 	aRect.size.height+=[self _titleBarHeightForStyleMask:aStyle];  // make space for title bar
 	return aRect;
 }
 
 + (CGFloat) minFrameWidthWithTitle:(NSString *)aTitle
-					   styleMask:(unsigned int)aStyle
+					   styleMask:(NSUInteger)aStyle
 {
 	return 0.0;
 }
 
-+ (CGFloat) _titleBarHeightForStyleMask:(unsigned int) mask
++ (CGFloat) _titleBarHeightForStyleMask:(NSUInteger) mask
 { // make dependent on total window height (i.e. smaller title bar on a QVGA PDA screen)
 	if((mask&GSAllWindowMask) == NSBorderlessWindowMask && [[NSScreen screens] count] > 0)
 		return 0.0;	// no title bar
@@ -1365,7 +1364,7 @@ static NSButtonCell *sharedCell;
 }
 
 - (id) initWithContentRect:(NSRect)cRect
-				 styleMask:(unsigned int)aStyle
+				 styleMask:(NSUInteger)aStyle
 				   backing:(NSBackingStoreType)bufferingType
 					 defer:(BOOL)flag
 {
@@ -1377,7 +1376,7 @@ static NSButtonCell *sharedCell;
 }
 
 - (id) initWithContentRect:(NSRect)cRect
-				 styleMask:(unsigned int)aStyle
+				 styleMask:(NSUInteger)aStyle
 				   backing:(NSBackingStoreType)bufferingType
 					 defer:(BOOL)defer
 					screen:(NSScreen *)aScreen
@@ -1450,13 +1449,13 @@ static NSButtonCell *sharedCell;
 - (NSString *) miniwindowTitle				{ return _miniWindowTitle; }
 - (NSString *) representedFilename			{ return _representedFilename; }
 - (NSImage *) miniwindowImage				{ return _miniWindowImage; }
-- (unsigned int) styleMask					{ return _w.styleMask; }
+- (NSUInteger) styleMask					{ return _w.styleMask; }
 - (void)setBackingType:(NSBackingStoreType)t{ _w.backingType = t; }	// FIXME: should be reflected in the backend!
 - (NSBackingStoreType) backingType			{ return _w.backingType; }
 - (NSDictionary *) deviceDescription		{ return [_screen deviceDescription]; }
 - (NSGraphicsContext*) graphicsContext		{ return _context; }
-- (int) gState								{ return _gState; }
-- (int) windowNumber						{ return [_context _windowNumber]; }
+- (NSInteger) gState								{ return _gState; }
+- (NSInteger) windowNumber						{ return [_context _windowNumber]; }
 - (void *) windowRef						{ return [_context graphicsPort]; }
 - (NSColor *) backgroundColor				{ return [(NSThemeFrame *) _themeFrame backgroundColor]; }
 - (void) setBackgroundColor:(NSColor*)color	{ [(NSThemeFrame *) _themeFrame setBackgroundColor:color]; }
@@ -2387,7 +2386,7 @@ object:self]
 	[[self standardWindowButton:NSWindowZoomButton] performClick:sender];
 }
 
-- (void) discardEventsMatchingMask:(unsigned int)mask
+- (void) discardEventsMatchingMask:(NSUInteger)mask
 					   beforeEvent:(NSEvent *)lastEvent
 {
 	[NSApp discardEventsMatchingMask:mask beforeEvent:lastEvent];
@@ -2464,7 +2463,7 @@ object:self]
 	return NO;
 }
 
-- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
+- (NSEvent *) nextEventMatchingMask:(NSUInteger)mask
 {
 	return [NSApp nextEventMatchingMask:mask 
 							  untilDate:[NSDate distantFuture]
@@ -2472,7 +2471,7 @@ object:self]
 								dequeue:YES];
 }
 
-- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
+- (NSEvent *) nextEventMatchingMask:(NSUInteger)mask
 						  untilDate:(NSDate *)expiration
 							 inMode:(NSString *)mode
 							dequeue:(BOOL)deqFlag
@@ -2732,7 +2731,7 @@ object:self]
 			[_delegate concludeDragOperation:sender];
 }
 
-- (unsigned int) draggingEntered:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingEntered:(id <NSDraggingInfo>)sender
 {
 	if(_delegate && [_delegate respondsToSelector:@selector(draggingEntered:)])
 		return [_delegate draggingEntered:sender];
@@ -2746,7 +2745,7 @@ object:self]
 		[_delegate draggingExited:sender];
 }
 
-- (unsigned int) draggingUpdated:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingUpdated:(id <NSDraggingInfo>)sender
 {
 	if(_delegate && [_delegate respondsToSelector:@selector(draggingUpdated:)])
 		return [_delegate draggingUpdated:sender];
@@ -2979,7 +2978,7 @@ object:self]
 // FIXME: buttons should be returned with (0,0) origin!
 // must call [button setFrameOrigin] to place it in its superview
 
-+ (NSButton *) standardWindowButton:(NSWindowButton) type forStyleMask:(unsigned int) aStyle;
++ (NSButton *) standardWindowButton:(NSWindowButton) type forStyleMask:(NSUInteger) aStyle;
 { // caller is responsible for setting the target
 	NSButton *b=nil;
 	static NSSize smallImage={ 15.0, 15.0 };

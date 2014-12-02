@@ -864,14 +864,14 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (BOOL) _eventIsQueued:(NSEvent *) event; { return [_eventQueue indexOfObjectIdenticalTo:event] != NSNotFound; }
 
-- (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
+- (NSEvent*) _eventMatchingMask:(NSUInteger)mask dequeue:(BOOL)dequeue
 {
 #if OLD
 	[_mainWindow flushWindow];	// this will enqueue any pending events from the X server
 #endif
 	if(mask)
 		{
-		int i, cnt;
+		NSUInteger i, cnt;
 		cnt=[_eventQueue count];
 		for (i = 0; i < cnt; i++) 
 			{ // return next event in the queue which matches mask
@@ -898,7 +898,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	return nil;		// no event in the queue matches mask
 }
 
-- (void) discardEventsMatchingMask:(unsigned int)mask
+- (void) discardEventsMatchingMask:(NSUInteger)mask
 					   beforeEvent:(NSEvent *)lastEvent
 {
 	int i = 0, loop;
@@ -929,7 +929,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 // CHECKME: do we still need this if runMode:beforeDate: is working correctly?
 // we also must install the update-notification in the NSNotificationQueue to run when idle
 
-- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
+- (NSEvent *) nextEventMatchingMask:(NSUInteger)mask
 						  untilDate:(NSDate *)expiration
 							 inMode:(NSString *)mode
 							dequeue:(BOOL)fl
@@ -1822,7 +1822,7 @@ NSWindow *w;
 	if (_windowsMenu)
 		{
 		NSArray *itemArray = [_windowsMenu itemArray];
-		unsigned i, count = [itemArray count];
+		NSUInteger i, count = [itemArray count];
 
 		for (i = 0; i < count; i++)
 			{
@@ -1944,7 +1944,7 @@ NSWindow *w;
 
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
 { // generic application open handler
-	unsigned int i, uc=[urls count];
+	NSUInteger i, uc=[urls count];
 	NSDocumentController *d=[NSDocumentController sharedDocumentController];
 	NSMutableArray *files;
 	NSEnumerator *e;

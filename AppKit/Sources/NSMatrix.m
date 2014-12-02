@@ -1245,7 +1245,7 @@ This method is used for selecting cells in list mode with selection by
 					
 				case NSListModeMatrix:
 					{ // List mode allows multiple cells to be selected/deselected (as used in NSBrowser)
-						unsigned modifiers = [event modifierFlags];
+						NSUInteger modifiers = [event modifierFlags];
 						int state=NSOnState;	// default
 						// FIXME:
 						// wenn schon selektiert (ohne Shift) dann passiert gar nichts, v.a. wird nicht state=highlighted
@@ -1254,7 +1254,7 @@ This method is used for selecting cells in list mode with selection by
 							{ // initial click
 							if([aCell state] == NSOffState && !(modifiers & (NSShiftKeyMask | NSAlternateKeyMask)))
 								{ // initially selecting a non-selected cell with no modifiers deselects all others
-								int count = [_cells count];
+								NSUInteger count = [_cells count];
 								while(count--)
 									{
 									NSCell *cell;
@@ -1362,7 +1362,7 @@ This method is used for selecting cells in list mode with selection by
 { // find a cell that responds to this key event
 	int i, j;
 	NSString *key = [event charactersIgnoringModifiers];
-	unsigned int modifiers=[event modifierFlags] & (NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask | NSShiftKeyMask);
+	NSUInteger modifiers=[event modifierFlags] & (NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask | NSShiftKeyMask);
 	for (i = 0; i < _numRows; i++) 
 		for (j = 0; j < _numCols; j++) 
 			{

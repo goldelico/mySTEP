@@ -518,7 +518,7 @@
 - (void) setDataCell:(NSCell *)cell			 { ASSIGN(_dataCell, cell); }
 - (id) headerCell							 { return _headerCell; }
 - (id) dataCell								 { return _dataCell; }
-- (id) dataCellForRow:(int)row;				 { return [self dataCell]; }
+- (id) dataCellForRow:(NSInteger)row;				 { return [self dataCell]; }
 - (NSSortDescriptor *) sortDescriptorPrototype; { return _sortDescriptor; }
 - (void) setSortDescriptorPrototype:(NSSortDescriptor *) desc; { ASSIGN(_sortDescriptor, desc); }
 - (void) setResizingMask:(unsigned)mask;	 { _cFlags.resizingMask = mask; }
@@ -734,7 +734,7 @@
 {
 	if(_tv.delegateProvidesHeightOfRow)
 		{
-		unsigned first=[idx firstIndex];
+		NSUInteger first=[idx firstIndex];
 		while(first != NSNotFound)
 			{
 			// do something, i.e. update row position tree
@@ -1835,7 +1835,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) drawRow:(int)row clipRect:(NSRect)rect
 { // draws no cells if row is not inside table (but updates caches etc.)
-	unsigned int i, cnt=[self numberOfColumns];
+	NSUInteger i, cnt=[self numberOfColumns];
 #if 0
 	NSLog(@"drawRow:%d", row);
 #endif
@@ -1901,7 +1901,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(_tv.usesAlternatingRowBackgroundColors)
 		{ // we ignore background color
 		NSArray *colors=[NSColor controlAlternatingRowBackgroundColors];
-		unsigned int ncolors=[colors count];
+		NSUInteger ncolors=[colors count];
 		if(ncolors > 0)
 			{
 			int row=[self _rowAtPoint:rect.origin];	// determine first row
@@ -1924,7 +1924,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) sizeToFit;
 {
-	unsigned cnt=[_tableColumns count];
+	NSUInteger cnt=[_tableColumns count];
 	NSTableColumn *last=[_tableColumns lastObject];
 	if(_superview && cnt > 0 && [last isResizable])
 		{
@@ -1965,7 +1965,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) sizeLastColumnToFit 
 { // resize last column to fit for scrollview's width
-	unsigned cnt=[_tableColumns count];
+	NSUInteger cnt=[_tableColumns count];
 	NSTableColumn *last=[_tableColumns lastObject];
 	if(_superview && cnt > 0 && [last isResizable])
 		{
@@ -1994,7 +1994,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) setIndicatorImage:(NSImage *) img inTableColumn:(NSTableColumn *) col;
 {
-	int i=[_tableColumns indexOfObjectIdenticalTo:col];
+	NSUInteger i=[_tableColumns indexOfObjectIdenticalTo:col];
 	if(i != NSNotFound)
 		{
 		if(!img) img=(NSImage *) [NSNull null];
@@ -2002,12 +2002,12 @@ int index = [self columnWithIdentifier:identifier];
 		}
 }
 
-- (unsigned int) draggingSourceOperationMaskForLocal:(BOOL) isLocal;
+- (NSUInteger) draggingSourceOperationMaskForLocal:(BOOL) isLocal;
 {
 	return isLocal?_draggingSourceOperationMaskForLocal:_draggingSourceOperationMaskForRemote;
 }
 
-- (void) setDraggingSourceOperationMask:(unsigned int) mask forLocal:(BOOL) isLocal;
+- (void) setDraggingSourceOperationMask:(NSDragOperation) mask forLocal:(BOOL) isLocal;
 {
 	if(isLocal)
 		_draggingSourceOperationMaskForLocal=mask;

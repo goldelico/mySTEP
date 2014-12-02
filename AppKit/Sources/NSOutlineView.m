@@ -917,7 +917,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 	NSCell *imageCell = nil;
 	NSRect imageRect;
 	int i;
-	unsigned _numberOfColumns=[self numberOfColumns];
+	NSInteger _numberOfColumns=[self numberOfColumns];
 	CGFloat x_pos;
 	
 	if (_dataSource == nil)
@@ -1542,7 +1542,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	NSText *t;
 	NSTableColumn *tb;
 	NSRect drawingRect;
-	unsigned length = 0;
+	NSUInteger length = 0;
 	int level = 0;
 	CGFloat indentationFactor = 0.0;
 	

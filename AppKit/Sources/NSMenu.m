@@ -69,7 +69,7 @@ static BOOL __userKeyEquivalents = YES;
 	NSImage *_mixedStateImage;
 	NSAttributedString *_attributedTitle;
 	NSString *_toolTip;
-	unsigned _mnemonicLocation;
+	NSUInteger _mnemonicLocation;
 	BOOL _isAlternate;
 }
 
@@ -225,9 +225,9 @@ static BOOL __userKeyEquivalents = YES;
 - (void) setImage:(NSImage *) i;	{ [super setImage:i]; [self _changed]; }
 // setIndentationLevel
 // setKeyEquivalent
-// - (void) setKeyEquivalentModifierMask:(unsigned int) mask
+// - (void) setKeyEquivalentModifierMask:(NSUInteger) mask
 - (void) setMixedStateImage:(NSImage *) image;  { ASSIGN(_mixedStateImage, image); [self _changed]; }
-// - (void) setMnemonicLocation:(unsigned) location
+// - (void) setMnemonicLocation:(NSUInteger) location
 - (void) setOffStateImage:(NSImage *) image;	{ ASSIGN(_offStateImage, image); [self _changed]; }
 - (void) setOnStateImage:(NSImage *) image;		{ ASSIGN(_onStateImage, image); [self _changed]; }
 - (void) setRepresentedObject:(id) o;			{ [super setRepresentedObject:o]; [self _changed]; }
@@ -450,7 +450,7 @@ static BOOL __userKeyEquivalents = YES;
 		[[NSNotificationCenter defaultCenter]
 				postNotificationName:NSMenuDidAddItemNotification
 							  object:self
-							userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:[_menuItems count]-1]   // has already been added to itemArray
+							userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedInteger:[_menuItems count]-1]   // has already been added to itemArray
 																 forKey:@"NSMenuItemIndex"]];
 #if 0
 	NSLog(@"b addItem %@ - count %d", item, [item retainCount]);
@@ -468,7 +468,7 @@ static BOOL __userKeyEquivalents = YES;
 	return m;
 }
 
-- (void) insertItem:(NSMenuItem *) item atIndex:(int) index;
+- (void) insertItem:(NSMenuItem *) item atIndex:(NSInteger) index;
 {
 	_mn.menuHasChanged = YES;							// menu needs update
 	[_menuItems insertObject:item atIndex:index];
@@ -485,7 +485,7 @@ static BOOL __userKeyEquivalents = YES;
 - (NSMenuItem *) insertItemWithTitle:(NSString*)aString
 								 action:(SEL)aSelector
 			 					 keyEquivalent:(NSString*)charCode
-			       				 atIndex:(int)index
+			       				 atIndex:(NSInteger)index
 {
 	id m = [NSMenuItem _menuItemWithTitle:aString
 								   action:aSelector
@@ -496,13 +496,13 @@ static BOOL __userKeyEquivalents = YES;
 
 - (void) removeItem:(NSMenuItem *)item;
 {
-	int row = [_menuItems indexOfObject:item];
+	NSUInteger row = [_menuItems indexOfObject:item];
 	if (row == NSNotFound)
 		return; // not part of this menu
 	[self removeItemAtIndex:row];
 }
 
-- (void) removeItemAtIndex:(int) index;
+- (void) removeItemAtIndex:(NSInteger) index;
 {
 	NSMenuItem *item=[self itemAtIndex:index];
 #if 0
@@ -530,7 +530,7 @@ static BOOL __userKeyEquivalents = YES;
 { // we are notified by the NSMenuItem
 	if(_mn.menuChangedMessagesEnabled)
 		{
-		int row=[_menuItems indexOfObject:anItem];
+		NSUInteger row=[_menuItems indexOfObject:anItem];
 		if(row == NSNotFound)
 			return; // not part of this menu
 #if 0
@@ -543,7 +543,7 @@ static BOOL __userKeyEquivalents = YES;
 	_mn.menuHasChanged = YES;	// menu needs update (maybe later)
 }
 
-- (NSMenuItem *) itemWithTag:(int)aTag
+- (NSMenuItem *) itemWithTag:(NSInteger)aTag
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *m;
@@ -563,52 +563,52 @@ static BOOL __userKeyEquivalents = YES;
 	return nil;
 }
 
-- (int) indexOfItem:(NSMenuItem *) item;
+- (NSInteger) indexOfItem:(NSMenuItem *) item;
 {
-	unsigned int idx=[_menuItems indexOfObject:item];
+	NSUInteger idx=[_menuItems indexOfObject:item];
 	if(idx != NSNotFound)
 		return idx;
 	return -1;
 }
 
-- (int) indexOfItemWithRepresentedObject:(id) object;
+- (NSInteger) indexOfItemWithRepresentedObject:(id) object;
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *m;
-	int i=0;
+	NSUInteger i=0;
 	for(; (m = [e nextObject]); i++)
 		if([m representedObject] == object)
 			return i;
 	return -1;  // not found
 }
 
-- (int) indexOfItemWithSubmenu:(NSMenu *) submenu;
+- (NSInteger) indexOfItemWithSubmenu:(NSMenu *) submenu;
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *m;
-	int i=0;
+	NSUInteger i=0;
 	for(; (m = [e nextObject]); i++)
 		if([m submenu] == submenu)
 			return i;
 	return -1;  // not found
 }
 
-- (int) indexOfItemWithTag:(int) tag;
+- (NSInteger) indexOfItemWithTag:(NSInteger) tag;
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *m;
-	int i=0;
+	NSUInteger i=0;
 	for(; (m = [e nextObject]); i++)
 		if([m tag] == tag)
 			return i;
 	return -1;  // not found
 }
 
-- (int) indexOfItemWithTarget:(id) target andAction:(SEL) action;
+- (NSInteger) indexOfItemWithTarget:(id) target andAction:(SEL) action;
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *item;
-	int i=0;
+	NSUInteger i=0;
 	for(; (item = [e nextObject]); i++)
 		{
 #if 0
@@ -626,11 +626,11 @@ static BOOL __userKeyEquivalents = YES;
 	return -1;  // not found
 }
 
-- (int) indexOfItemWithTitle:(NSString *) title;
+- (NSInteger) indexOfItemWithTitle:(NSString *) title;
 {
 	NSEnumerator *e = [_menuItems objectEnumerator];
 	NSMenuItem *m;
-	int i=0;
+	NSUInteger i=0;
 	for(; (m = [e nextObject]); i++)
 		if([[m title] isEqualToString:title])
 			return i;
@@ -642,8 +642,8 @@ static BOOL __userKeyEquivalents = YES;
 
 - (void) submenuAction:(id)sender			{ NIMP }		// item's that open submenu
 - (NSArray *) itemArray						{ return _menuItems; }
-- (int) numberOfItems;						{ return [[self itemArray] count]; }
-- (NSMenuItem *) itemAtIndex:(int) index;	{ return [[self itemArray] objectAtIndex:index]; }
+- (NSInteger) numberOfItems;						{ return [[self itemArray] count]; }
+- (NSMenuItem *) itemAtIndex:(NSInteger) index;	{ return [[self itemArray] objectAtIndex:index]; }
 - (NSMenu *) attachedMenu;					{ return _attachedMenu; }
 - (NSMenu *) supermenu;						{ return _supermenu; }
 - (void) setSupermenu:(NSMenu *) menu;		{ _supermenu=menu; }	// does not retain!!!
@@ -768,7 +768,7 @@ static BOOL __userKeyEquivalents = YES;
 		[self sizeToFit];
 }
 
-- (void) performActionForItemAtIndex:(int)index;
+- (void) performActionForItemAtIndex:(NSInteger)index;
 {
 	SEL action;
 	id target;
@@ -796,12 +796,12 @@ static BOOL __userKeyEquivalents = YES;
 
 - (BOOL) performKeyEquivalent:(NSEvent*)event
 {
-	int i, count = [_menuItems count];
+	NSUInteger i, count = [_menuItems count];
 	for(i = 0; i < count; i++)
 		{
 		NSMenuItem *item = [_menuItems objectAtIndex:i];
 		NSString *key;
-		unsigned int modifiers;
+		NSUInteger modifiers;
 		if([item hasSubmenu])
 			return [[item submenu] performKeyEquivalent:event]; // event should been handled by a cell in submenu	
 		if(![item isEnabled])

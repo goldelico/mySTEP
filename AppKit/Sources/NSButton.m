@@ -281,7 +281,7 @@ id __buttonCellClass = nil;
 															// Key Equivalent 
 - (NSFont*) keyEquivalentFont			{ return _keyEquivalentFont; }
 
-- (unsigned int) keyEquivalentModifierMask 	
+- (NSUInteger) keyEquivalentModifierMask
 { 
 	return _keyEquivalentModifierMask;
 }
@@ -295,7 +295,7 @@ id __buttonCellClass = nil;
 		ASSIGN(_keyEquivalent, [[key copy] autorelease]);
 }
 
-- (void) setKeyEquivalentModifierMask:(unsigned int)mask
+- (void) setKeyEquivalentModifierMask:(NSUInteger)mask
 {
 	_keyEquivalentModifierMask = mask;
 }
@@ -1010,8 +1010,8 @@ id __buttonCellClass = nil;
 	self=[super initWithCoder:aDecoder];	// NSCell
 	if([aDecoder allowsKeyedCoding])
 		{
-		unsigned int buttonflags=[aDecoder decodeIntForKey:@"NSButtonFlags"];
-		unsigned int buttonflags2=[aDecoder decodeIntForKey:@"NSButtonFlags2"];
+		NSUInteger buttonflags=[aDecoder decodeIntForKey:@"NSButtonFlags"];
+		NSUInteger buttonflags2=[aDecoder decodeIntForKey:@"NSButtonFlags2"];
 		_buttonType=-1;	// we don't know
 #if 0
 		NSLog(@"%@ controlSize=%d", self, [self controlSize]);
@@ -1289,12 +1289,12 @@ id __buttonCellClass = nil;
 	[_cell setKeyEquivalent: aKeyEquivalent];
 }
 
-- (unsigned int) keyEquivalentModifierMask
+- (NSUInteger) keyEquivalentModifierMask
 {
 	return [_cell keyEquivalentModifierMask];
 }
 
-- (void) setKeyEquivalentModifierMask:(unsigned int)mask
+- (void) setKeyEquivalentModifierMask:(NSUInteger)mask
 {
 	[_cell setKeyEquivalentModifierMask: mask];
 }
@@ -1327,7 +1327,7 @@ id __buttonCellClass = nil;
 	if([self isEnabled])
 		{
 		NSString *key = [self keyEquivalent];
-		unsigned int modifiers=[anEvent modifierFlags] & (NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask | NSShiftKeyMask);
+		NSUInteger modifiers=[anEvent modifierFlags] & (NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask | NSShiftKeyMask);
 
 		if([anEvent modifierFlags] == modifiers && [key isEqualToString: [anEvent charactersIgnoringModifiers]])
 			{

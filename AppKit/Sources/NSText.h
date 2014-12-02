@@ -92,17 +92,18 @@ enum _NSCommonlyUsedUnicodeCharacters
 	NSColor *_backgroundColor;
 	NSFont *_font;	// insertion cursor font
 	NSRange _selectedRange;		// current selection
-	unsigned int _anchor;		// for adding/removing selections
+	NSUInteger _anchor;		// for adding/removing selections
 	NSTextStorage *textStorage;	// note: we don't provide direct accessors
 //	NSMutableArray *lineLayoutInformation;	// one record for each line
 //	NSMutableDictionary *typingAttributes; 
 	int spellCheckerDocumentTag;
-	unsigned int modifySelection[2];
+	NSUInteger modifySelection[2];
 	
 	NSSize _minSize;
 	NSSize _maxSize;
 	NSWritingDirection _baseWritingDirection;
-	
+
+	// FIXME: why twice???
 	int _spellCheckerDocumentTag;
 
 	struct __TextFlags {

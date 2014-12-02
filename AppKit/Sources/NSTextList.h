@@ -25,7 +25,7 @@ enum _NSTextListOptions
 @interface NSTextList : NSObject <NSCoding>
 {
 	NSString *_markerFormat;
-	unsigned _listOptions;
+	NSUInteger _listOptions;
 	int _startingItemNumber;
 }
 

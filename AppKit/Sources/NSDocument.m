@@ -320,7 +320,7 @@ If not, write to the Free Software Foundation,
 
 - (NSString *) displayName
 {
-	static unsigned int untitledCount = 1;
+	static NSUInteger untitledCount = 1;
 	if ([self fileName] != nil)
 		return [[[self fileName] lastPathComponent] stringByDeletingPathExtension];
 	if(!_documentIndex)

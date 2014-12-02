@@ -53,7 +53,7 @@
 }
 
 - (id) initWithContentRect:(NSRect)contRect
-				 styleMask:(unsigned int)aStyle
+				 styleMask:(NSUInteger)aStyle
 				   backing:(NSBackingStoreType)bufferingType
 					 defer:(BOOL)flag
 					screen:aScreen
@@ -583,7 +583,7 @@ static NSSavePanel *__savePanel;
 	return YES;
 }
 
-- (unsigned int) draggingUpdated:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingUpdated:(id <NSDraggingInfo>)sender
 {
 	return NSDragOperationGeneric;
 }
@@ -594,7 +594,7 @@ static NSSavePanel *__savePanel;
 	return YES;
 }
 
-- (unsigned int) draggingEntered:(id <NSDraggingInfo>)sender
+- (NSUInteger) draggingEntered:(id <NSDraggingInfo>)sender
 {
 	NSLog(@"NSSavePanel draggingEntered\n");
 	return NSDragOperationGeneric;
@@ -1222,7 +1222,7 @@ static NSColorPanel *__colorPanel;
 }
 
 + (void) setPickerMask:(unsigned int)mask			{ NIMP }
-+ (void) setPickerMode:(int)mode			{ NIMP }
++ (void) setPickerMode:(NSColorPanelMode)mode			{ NIMP }
 
 + (BOOL) dragColor:(NSColor *)aColor
 		 withEvent:(NSEvent *)anEvent
@@ -1395,7 +1395,7 @@ static NSColorPanel *__colorPanel;
 
 @implementation NSColorPicker
 
-- (id) initWithPickerMask:(unsigned int)aMask colorPanel:(NSColorPanel *)colorPanel
+- (id) initWithPickerMask:(NSUInteger)aMask colorPanel:(NSColorPanel *)colorPanel
 {
 	if((self=[super init]))
 		{
@@ -1409,7 +1409,7 @@ static NSColorPanel *__colorPanel;
 - (void) insertNewButtonImage:(NSImage *)newImage in:(NSButtonCell *)newButtonCell	{ SUBCLASS; }
 
 - (NSImage *) provideNewButtonImage					{ return nil; }
-- (void) setMode:(int)mode							{ SUBCLASS; }
+- (void) setMode:(NSColorPanelMode)mode							{ SUBCLASS; }
 - (void) attachColorList:(NSColorList *)colorList	{ SUBCLASS; }
 - (void) detachColorList:(NSColorList *)colorList	{ SUBCLASS; }
 - (void) alphaControlAddedOrRemoved:(id)sender		{ SUBCLASS; }

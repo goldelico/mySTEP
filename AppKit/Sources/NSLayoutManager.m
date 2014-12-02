@@ -9,6 +9,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <AppKit/NSGlyphGenerator.h>
 #import <AppKit/NSLayoutManager.h>
 #import <AppKit/NSTextContainer.h>
 #import <AppKit/NSTextView.h>
@@ -32,22 +33,33 @@
 }
 
 - (void) generateGlyphsForGlyphStorage:(id <NSGlyphStorage>) storage
-			 desiredNumberOfCharacters:(unsigned int) num
-							glyphIndex:(unsigned int *) glyphIndex
-						characterIndex:(unsigned int *) index;
+			 desiredNumberOfCharacters:(NSUInteger) num
+							glyphIndex:(NSUInteger *) glyphIndex
+						characterIndex:(NSUInteger *) index;
 {
 	if(num > 0)
 		{
 		NSAttributedString *astr=[storage attributedString];	// get string to layout
 		NSString *str=[astr string];
-		unsigned int length=[str length];
+		NSUInteger length=[str length];
 		// could be optimized a little by getting and consuming the effective range of attributes
 		while(num > 0 && *index < length)
 			{
-			NSRange attribRange;	// range of same attributes
+			NSRange attribRange=NSMakeRange(1,1);	// range of same attributes
+			NSLog(@"attribRange = %@", NSStringFromRange(attribRange));
+			NSLog(@"attribRange = %@", NSStringFromRange(NSMakeRange(3, 4)));
+
 			NSDictionary *attribs=[astr attributesAtIndex:*index effectiveRange:&attribRange];
 			NSFont *font=[attribs objectForKey:NSFontAttributeName];
-			NSAssert(attribRange.length > 0, @"should never be empty");
+			if(attribRange.length == 0)
+				{
+				NSLog(@"num = %d", num);
+				NSLog(@"astr = %@", astr);
+				NSLog(@"index = %d", *index);
+				NSLog(@"attribRange = %@", NSStringFromRange(attribRange));
+				NSLog(@"attribs = %@", attribs);
+				NSAssert(attribRange.length > 0, @"should never be empty");
+				}
 			attribRange.length-=(*index)-attribRange.location;	// characters with same attributes before we start
 			font=[(NSLayoutManager *) storage substituteFontForFont:font];
 			if(!font) font=[[[(NSLayoutManager *) storage firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
@@ -117,7 +129,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (BOOL) allowsNonContiguousLayout; { return _allowsNonContiguousLayout; }
 
-- (NSSize) attachmentSizeForGlyphAtIndex:(unsigned)index;
+- (NSSize) attachmentSizeForGlyphAtIndex:(NSUInteger)index;
 {
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
@@ -147,7 +159,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 // i.e. it should suffice to have a NSMapTable from blocks to effectiveRanges and boundsRect
 // that is updated by setBoundsRect:forTextBlock:glyphRange:
 
-- (NSRect) boundsRectForTextBlock:(NSTextBlock *)block atIndex:(unsigned)index effectiveRange:(NSRangePointer)range;
+- (NSRect) boundsRectForTextBlock:(NSTextBlock *)block atIndex:(NSUInteger)index effectiveRange:(NSRangePointer)range;
 {
 	[self ensureGlyphsForGlyphRange:NSMakeRange(0, index+1)];
 	// if never set:
@@ -160,7 +172,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return [self boundsRectForTextBlock:block atIndex:range.location effectiveRange:NULL];
 }
 
-- (unsigned) characterIndexForGlyphAtIndex:(unsigned) glyphIndex;
+- (NSUInteger) characterIndexForGlyphAtIndex:(NSUInteger) glyphIndex;
 {
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];	// generate glyphs up to and including the given index
@@ -245,7 +257,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) deleteGlyphsInRange:(NSRange)glyphRange;
 {
 	// FIXME: how does this invalidate the layout for the given glyphs???
-	unsigned int i;
+	NSUInteger i;
 	NSTextContainer *lcontainer=nil;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
@@ -253,7 +265,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		return;	// nothing to delete
 	for(i=0; i<glyphRange.length; i++)
 		{ // release extra records
-			unsigned int idx=glyphRange.location+i;
+			NSUInteger idx=glyphRange.location+i;
 			if(_glyphs[idx].extra)
 				{
 				objc_free(_glyphs[idx].extra);
@@ -261,7 +273,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				}
 			if(_glyphs[idx].textContainer != lcontainer)
 				{ // invalidate/reduce glyph ranges of container(s)
-					unsigned int tcidx=[_textContainers indexOfObjectIdenticalTo:(lcontainer=_glyphs[idx].textContainer)];
+					NSUInteger tcidx=[_textContainers indexOfObjectIdenticalTo:(lcontainer=_glyphs[idx].textContainer)];
 //					NSLog(@"reduce container glyph range %u", tcidx);
 					NSAssert(idx != NSNotFound, @"");
 					_textContainerInfo[tcidx].glyphRange=NSIntersectionRange(_textContainerInfo[tcidx].glyphRange, NSMakeRange(0, glyphRange.location));
@@ -290,7 +302,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSTextContainer *textContainer;
 		NSRange range=glyphsToShow;
 		NSRectArray r;
-		unsigned int cnt, i;
+		NSUInteger cnt, i;
 		NSColor *color;
 		// draw table cells background first, then background by attribute, then selection and finally characters boxes for debugging
 		while((range.location < NSMaxRange(glyphsToShow)))
@@ -353,7 +365,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			}
 		if(_NSShowGlyphBoxes)
 			{ // draw bounding boxes of glyphs
-				unsigned int g;
+				NSUInteger g;
 				CGFloat advance=0.0;
 				for(g=glyphsToShow.location; g < NSMaxRange(glyphsToShow); g++)
 					{
@@ -398,7 +410,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSRect lfr;
 	NSRect newLfr;
 	NSRange lfrRange={ 0, 0 };	// range of same lfr
-	int count=0;
+	NSInteger count=0;
 	[ctxt _beginText];
 	while(glyphsToShow.length > 0)
 		{
@@ -417,7 +429,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			{ // get visible glyph range with uniform attributes and same lfr
 				if(glyphsToShow.location+count >= NSMaxRange(attribRange))
 					{ // update attributes
-						unsigned int cindex;
+						NSUInteger cindex;
 						cindex=[self characterIndexForGlyphAtIndex:glyphsToShow.location+count];
 						newAttribs=[_textStorage attributesAtIndex:cindex effectiveRange:&attribRange];
 						break;
@@ -505,7 +517,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[ctxt _endText];
 }
 
-- (BOOL) drawsOutsideLineFragmentForGlyphAtIndex:(unsigned)index;
+- (BOOL) drawsOutsideLineFragmentForGlyphAtIndex:(NSUInteger)index;
 { // happens if we use fixed line height
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
@@ -514,7 +526,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (void) drawStrikethroughForGlyphRange:(NSRange)glyphRange
-					  strikethroughType:(int)strikethroughVal
+					  strikethroughType:(NSInteger)strikethroughVal
 						 baselineOffset:(CGFloat)baselineOffset
 					   lineFragmentRect:(NSRect)lineRect
 				 lineFragmentGlyphRange:(NSRange)lineGlyphRange
@@ -534,7 +546,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (void) drawUnderlineForGlyphRange:(NSRange)glyphRange 
-					  underlineType:(int)underlineVal 
+					  underlineType:(NSInteger)underlineVal
 					 baselineOffset:(CGFloat)baselineOffset
 				   lineFragmentRect:(NSRect)lineRect 
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
@@ -558,7 +570,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 { // this will also define the mapping between glyph to character indices in this range
 	if(_nextCharacterIndex < NSMaxRange(range))
 		{
-		unsigned glyphIndex=_numberOfGlyphs;
+		NSUInteger glyphIndex=_numberOfGlyphs;
 		[_glyphGenerator generateGlyphsForGlyphStorage:self
 							 desiredNumberOfCharacters:NSMaxRange(range)-_nextCharacterIndex	// we know exactly how much to do
 											glyphIndex:&glyphIndex
@@ -568,13 +580,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) ensureGlyphsForGlyphRange:(NSRange) range;
 { // this will also define the mapping from glyph to character indices
-	unsigned int cnt;
+	NSUInteger cnt;
 #if 0
 	NSLog(@"ensureGlyphsForGlyphRange: %@ numberOfGlyphs=%u", NSStringFromRange(range), _numberOfGlyphs);
 #endif
 	while(_numberOfGlyphs < NSMaxRange(range) && _nextCharacterIndex < (cnt=[_textStorage length]))
 		{ // do some more characters/glyphs
-			unsigned glyphIndex=_numberOfGlyphs;
+			NSUInteger glyphIndex=_numberOfGlyphs;
 			[_glyphGenerator generateGlyphsForGlyphStorage:self
 								 desiredNumberOfCharacters:MAX(cnt/20+1, NSMaxRange(range)-_numberOfGlyphs)
 												glyphIndex:&glyphIndex
@@ -587,7 +599,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) ensureLayoutForBoundingRect:(NSRect) rect inTextContainer:(NSTextContainer *) textContainer;
 {
-	unsigned int idx=[_textContainers indexOfObjectIdenticalTo:textContainer];
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:textContainer];
 	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
 	// FIXME: we should do layout one line after the other until 
 	//    _firstUnlaidGlyphIndex is outside the container (either from usedRect or different container)
@@ -598,13 +610,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) ensureLayoutForCharacterRange:(NSRange) range;
 {
-	unsigned int cnt=[_textStorage length];
+	NSUInteger cnt=[_textStorage length];
 #if 0
 	NSLog(@"ensureLayoutForCharacterRange %@ strlen=%u", NSStringFromRange(range), cnt);
 #endif
 	while(_firstUnlaidCharacterIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
 		{ // not yet at end or range or text
-			int fragments=INT_MAX;
+			NSInteger fragments=INT_MAX;
 			NSRange r;
 			r=[_typesetter layoutCharactersInRange:NSMakeRange(_firstUnlaidCharacterIndex, NSMaxRange(range)-_firstUnlaidCharacterIndex) forLayoutManager:self maximumNumberOfLineFragments:fragments];
 			_firstUnlaidCharacterIndex=NSMaxRange(r);
@@ -615,13 +627,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) ensureLayoutForGlyphRange:(NSRange) range;
 { // layout is ensured if we know a text container for all glyphs
-	unsigned int cnt=[_textStorage length];
+	NSUInteger cnt=[_textStorage length];
 #if 0
 	NSLog(@"ensureLayoutForGlyphRange %@ strlen=%u", NSStringFromRange(range), cnt);
 #endif
 	while(_firstUnlaidGlyphIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
 		{ // not yet at end or range or text
-			int fragments=INT_MAX;
+			NSInteger fragments=INT_MAX;
 			NSRange r;
 			r=[_typesetter layoutCharactersInRange:NSMakeRange(_firstUnlaidCharacterIndex, NSMaxRange(range)-_firstUnlaidCharacterIndex) forLayoutManager:self maximumNumberOfLineFragments:fragments];
 			_firstUnlaidCharacterIndex=NSMaxRange(r);
@@ -652,12 +664,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _firstTextView;
 }
 
-- (unsigned) firstUnlaidCharacterIndex;
+- (NSUInteger) firstUnlaidCharacterIndex;
 { // this is how far layout has progressed (not Glyph generation!)
 	return _firstUnlaidCharacterIndex;
 }
 
-- (unsigned) firstUnlaidGlyphIndex;
+- (NSUInteger) firstUnlaidGlyphIndex;
 { // this is how far layout has progressed (not Glyph generation!)
 	return _firstUnlaidGlyphIndex;
 }
@@ -669,16 +681,16 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return f;
 }
 
-- (void) getFirstUnlaidCharacterIndex:(unsigned *)charIndex 
-						   glyphIndex:(unsigned *)glyphIndex;
+- (void) getFirstUnlaidCharacterIndex:(NSUInteger *)charIndex
+						   glyphIndex:(NSUInteger *)glyphIndex;
 { // this is how far layout has progressed
 	*charIndex=_firstUnlaidCharacterIndex;
 	*glyphIndex=_firstUnlaidGlyphIndex;
 }
 
-- (unsigned) getGlyphs:(NSGlyph *)glyphArray range:(NSRange)glyphRange;
+- (NSUInteger) getGlyphs:(NSGlyph *)glyphArray range:(NSRange)glyphRange;
 {
-	unsigned int idx=0;
+	NSUInteger idx=0;
 	[self ensureGlyphsForGlyphRange:glyphRange];
 	NSAssert(NSMaxRange(glyphRange) <= _numberOfGlyphs, @"invalid glyph range");
 	while(glyphRange.length-- > 0)
@@ -691,9 +703,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return idx;
 }
 
-- (unsigned) getGlyphsInRange:(NSRange)glyphsRange
+- (NSUInteger) getGlyphsInRange:(NSRange)glyphsRange
 					   glyphs:(NSGlyph *)glyphBuffer
-			 characterIndexes:(unsigned *)charIndexBuffer
+			 characterIndexes:(NSUInteger *)charIndexBuffer
 			glyphInscriptions:(NSGlyphInscription *)inscribeBuffer
 				  elasticBits:(BOOL *)elasticBuffer;
 {
@@ -702,14 +714,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					  elasticBits:elasticBuffer bidiLevels:NULL];
 }
 
-- (unsigned) getGlyphsInRange:(NSRange)glyphsRange
+- (NSUInteger) getGlyphsInRange:(NSRange)glyphsRange
 					   glyphs:(NSGlyph *)glyphBuffer
-			 characterIndexes:(unsigned *)charIndexBuffer
+			 characterIndexes:(NSUInteger *)charIndexBuffer
 			glyphInscriptions:(NSGlyphInscription *)inscribeBuffer
 				  elasticBits:(BOOL *)elasticBuffer
 				   bidiLevels:(unsigned char *)bidiLevelBuffer;
 {
-	unsigned cnt=glyphsRange.length;
+	NSUInteger cnt=glyphsRange.length;
 	NSAssert(NSMaxRange(glyphsRange) <= _numberOfGlyphs, @"invalid glyph range");
 	while(cnt-- > 0)
 		{ // extract from internal data structure
@@ -735,7 +747,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return 0;
 }
 
-- (NSGlyph) glyphAtIndex:(unsigned)glyphIndex;
+- (NSGlyph) glyphAtIndex:(NSUInteger)glyphIndex;
 {
 	if(glyphIndex >= _numberOfGlyphs)
 		{
@@ -746,7 +758,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _glyphs[glyphIndex].glyph;
 }
 
-- (NSGlyph) glyphAtIndex:(unsigned)glyphIndex isValidIndex:(BOOL *)isValidIndex;
+- (NSGlyph) glyphAtIndex:(NSUInteger)glyphIndex isValidIndex:(BOOL *)isValidIndex;
 {
 	if(glyphIndex >= _numberOfGlyphs)
 		{
@@ -777,12 +789,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return i;
 }
 
-- (unsigned int) glyphIndexForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
+- (NSUInteger) glyphIndexForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
 {
 	return [self glyphIndexForPoint:aPoint inTextContainer:aTextContainer fractionOfDistanceThroughGlyph:NULL];
 }
 
-- (unsigned int) glyphIndexForPoint:(NSPoint)aPoint
+- (NSUInteger) glyphIndexForPoint:(NSPoint)aPoint
 					inTextContainer:(NSTextContainer *)textContainer
 	 fractionOfDistanceThroughGlyph:(CGFloat *)partialFraction;
 {
@@ -915,7 +927,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *)textContainer;
 {
-	unsigned int idx=[_textContainers indexOfObjectIdenticalTo:textContainer];
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:textContainer];
 	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
 	[self ensureLayoutForTextContainer:textContainer];
 	return _textContainerInfo[idx].glyphRange;
@@ -936,12 +948,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return self;
 }
 
-- (void) insertGlyph:(NSGlyph)glyph atGlyphIndex:(unsigned)glyphIndex characterIndex:(unsigned)charIndex;
+- (void) insertGlyph:(NSGlyph)glyph atGlyphIndex:(NSUInteger)glyphIndex characterIndex:(NSUInteger)charIndex;
 { // insert a single glyph without attributes
 	[self insertGlyphs:&glyph length:1 forStartingGlyphAtIndex:glyphIndex characterIndex:charIndex];
 }
 
-- (void) insertTextContainer:(NSTextContainer *)container atIndex:(unsigned)index;
+- (void) insertTextContainer:(NSTextContainer *)container atIndex:(NSUInteger)index;
 {
 	NSUInteger cnt=[_textContainers count];	// before insertion
 	[_textContainers insertObject:container atIndex:index];
@@ -958,7 +970,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSLog(@"*** NSLayoutManager: more than 1 NSTextContainer not yet correctly supported ***");
 }
 
-- (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;
+- (NSInteger) intAttribute:(NSInteger)attributeTag forGlyphAtIndex:(NSUInteger)glyphIndex;
 {
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
@@ -992,7 +1004,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	NSRect rect=NSZeroRect;
 	NSTextContainer *lastContainer=nil;
-	unsigned int idx=0;
+	NSUInteger idx=0;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	NSAssert(_glyphs == NULL || _glyphs[0].notShownAttribute <= 1, @"_glyphs damaged");
@@ -1014,7 +1026,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[[lastContainer textView] setNeedsDisplayInRect:rect];	// final rect
 }
 
-- (void) invalidateGlyphsForCharacterRange:(NSRange) range changeInLength:(int) delta actualCharacterRange:(NSRange *) actual;
+- (void) invalidateGlyphsForCharacterRange:(NSRange) range changeInLength:(NSInteger) delta actualCharacterRange:(NSRange *) actual;
 {
 	NSRange glyphRange;
 	if(range.location >= [_textStorage length])
@@ -1059,7 +1071,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				_firstUnlaidGlyphIndex--;
 				if(_glyphs[_firstUnlaidGlyphIndex].textContainer)
 					{
-					unsigned idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[_firstUnlaidGlyphIndex].textContainer];
+					NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[_firstUnlaidGlyphIndex].textContainer];
 					_textContainerInfo[idx].glyphRange=NSIntersectionRange(_textContainerInfo[idx].glyphRange, NSMakeRange(0, _firstUnlaidGlyphIndex));
 					}
 #if FIXME
@@ -1076,7 +1088,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[_delegate layoutManagerDidInvalidateLayout:self];	// inform delegate
 }
 
-- (BOOL) isValidGlyphIndex:(unsigned)glyphIndex;
+- (BOOL) isValidGlyphIndex:(NSUInteger)glyphIndex;
 {
 	BOOL flag;
 	[self glyphAtIndex:glyphIndex isValidIndex:&flag];	// this implicitly generates glyphs up to including glyphIndex!
@@ -1092,7 +1104,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (NSRect) layoutRectForTextBlock:(NSTextBlock *)block
-						  atIndex:(unsigned)glyphIndex
+						  atIndex:(NSUInteger)glyphIndex
 				   effectiveRange:(NSRangePointer)effectiveGlyphRange;
 {
 	[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
@@ -1108,7 +1120,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return NSZeroRect;
 }
 
-- (NSRect) lineFragmentRectForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
+- (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
 {
 	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
 }
@@ -1141,7 +1153,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return lfr;
 }
 
-- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(unsigned) index effectiveRange:(NSRange *) range;
+- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRange *) range;
 {
 	return [self lineFragmentUsedRectForGlyphAtIndex:index effectiveRange:range withoutAdditionalLayout:NO];
 }
@@ -1174,7 +1186,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return lfur;
 }
 
-- (NSPoint) locationForGlyphAtIndex:(unsigned) index;
+- (NSPoint) locationForGlyphAtIndex:(NSUInteger) index;
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
@@ -1182,7 +1194,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _glyphs[index].location;
 }
 
-- (BOOL) notShownAttributeForGlyphAtIndex:(unsigned) index;
+- (BOOL) notShownAttributeForGlyphAtIndex:(NSUInteger) index;
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
@@ -1190,14 +1202,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return _glyphs[index].notShownAttribute;
 }
 
-- (unsigned) numberOfGlyphs;
+- (NSUInteger) numberOfGlyphs;
 {
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForCharacterRange:NSMakeRange(0, [_textStorage length])]; // generate all glyphs so that we can count them
 	return _numberOfGlyphs;
 }
 
-- (NSRange) rangeOfNominallySpacedGlyphsContainingIndex:(unsigned)glyphIndex;
+- (NSRange) rangeOfNominallySpacedGlyphsContainingIndex:(NSUInteger)glyphIndex;
 { // return a glpyh range with no kerning
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 	if(glyphIndex >= _numberOfGlyphs)
@@ -1211,7 +1223,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect *) rectArrayForCharacterRange:(NSRange) charRange 
 		   withinSelectedCharacterRange:(NSRange) selCharRange 
 						inTextContainer:(NSTextContainer *) container 
-							  rectCount:(unsigned *) rectCount;
+							  rectCount:(NSUInteger *) rectCount;
 {
 	charRange=[self glyphRangeForCharacterRange:charRange actualCharacterRange:NULL];
 	if(selCharRange.location != NSNotFound)
@@ -1230,9 +1242,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect *) rectArrayForGlyphRange:(NSRange) glyphRange 
 		   withinSelectedGlyphRange:(NSRange) selGlyphRange		// { NSNotFound, 0 } defines a different algorithm!
 					inTextContainer:(NSTextContainer *) container 
-						  rectCount:(unsigned *) rectCount;
+						  rectCount:(NSUInteger *) rectCount;
 {
-	unsigned int glyphIndex;
+	NSUInteger glyphIndex;
 	BOOL enclosing=selGlyphRange.location == NSNotFound;
 	if(glyphRange.length > 0)
 		{
@@ -1247,7 +1259,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		{
 		NSRect lfr;
 		NSRange lfrRange;
-		unsigned int i;
+		NSUInteger i;
 		if(glyphIndex >= _numberOfGlyphs)
 			{ // at end of glyphs
 			if(!_extraLineFragmentContainer)
@@ -1283,7 +1295,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				}
 			if(NSMaxRange(lfrRange) > NSMaxRange(glyphRange))
 				{ // not to end of LFR
-					unsigned int g=NSMaxRange(glyphRange);
+					NSUInteger g=NSMaxRange(glyphRange);
 					NSPoint pos=[self locationForGlyphAtIndex:g];
 					lfr.size.width=pos.x-lfr.origin.x;	// end at that glyph position
 				}
@@ -1321,7 +1333,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NIMP;
 }
 
-- (void) removeTextContainerAtIndex:(unsigned)index;
+- (void) removeTextContainerAtIndex:(NSUInteger)index;
 {
 	NSUInteger cnt=[_textContainers count];	// before removing
 	if(index == 0)
@@ -1333,7 +1345,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(_textContainerInfo[0])*(cnt-index-1));	// make room for new slot
 }
 
-- (void) replaceGlyphAtIndex:(unsigned)glyphIndex withGlyph:(NSGlyph)newGlyph;
+- (void) replaceGlyphAtIndex:(NSUInteger)glyphIndex withGlyph:(NSGlyph)newGlyph;
 {
 	// FIXME: locate glyph run
 	if(glyphIndex >= _numberOfGlyphs)
@@ -1401,7 +1413,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NIMP;
 }
 
-- (void) setCharacterIndex:(unsigned) charIndex forGlyphAtIndex:(unsigned) index;
+- (void) setCharacterIndex:(NSUInteger) charIndex forGlyphAtIndex:(NSUInteger) index;
 { // character indices should be ascending with glyphIndex... so be careful what you do by calling this method!
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
@@ -1412,7 +1424,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setDelegate:(id) obj; { _delegate=obj; }
 
-- (void) setDrawsOutsideLineFragment:(BOOL) flag forGlyphAtIndex:(unsigned) index;
+- (void) setDrawsOutsideLineFragment:(BOOL) flag forGlyphAtIndex:(NSUInteger) index;
 {
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
@@ -1421,7 +1433,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setExtraLineFragmentRect:(NSRect) fragmentRect usedRect:(NSRect) usedRect textContainer:(NSTextContainer *) container;
 { // used to define a virtual extra line to display the insertion point if there is no content or the last character is a hard break
-	unsigned int idx;
+	NSUInteger idx;
 	_extraLineFragmentRect=fragmentRect;
 	_extraLineFragmentUsedRect=usedRect;
 	[_extraLineFragmentContainer autorelease];
@@ -1447,7 +1459,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setLineFragmentRect:(NSRect) fragmentRect forGlyphRange:(NSRange) glyphRange usedRect:(NSRect) usedRect;
 {
-	unsigned int idx;
+	NSUInteger idx;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[glyphRange.location].textContainer];
@@ -1490,7 +1502,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		}
 }
 
-- (void) setNotShownAttribute:(BOOL) flag forGlyphAtIndex:(unsigned) index;
+- (void) setNotShownAttribute:(BOOL) flag forGlyphAtIndex:(NSUInteger) index;
 {
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
@@ -1543,7 +1555,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setUsesFontLeading:(BOOL) flag; { _usesFontLeading=flag; }
 - (void) setUsesScreenFonts:(BOOL) flag; { _usesScreenFonts=flag; }
 
-- (void) showAttachmentCell:(NSCell *) cell inRect:(NSRect) rect characterIndex:(unsigned) attachmentIndex;
+- (void) showAttachmentCell:(NSCell *) cell inRect:(NSRect) rect characterIndex:(NSUInteger) attachmentIndex;
 {
 	if([cell isKindOfClass:[NSTextAttachmentCell class]])
 		[(NSTextAttachmentCell *) cell drawWithFrame:rect
@@ -1560,7 +1572,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 // while here we end at length and can pass NULL glyphs down to the backend
 
 - (void) showPackedGlyphs:(char *) glyphs
-				   length:(unsigned) glyphLen	// number of bytes = 2* number of glyphs
+				   length:(NSUInteger) glyphLen	// number of bytes = 2* number of glyphs
 			   glyphRange:(NSRange) glyphRange
 				  atPoint:(NSPoint) point
 					 font:(NSFont *) font
@@ -1582,7 +1594,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (BOOL) showsInvisibleCharacters; { return (_layoutOptions&NSShowInvisibleGlyphs) != 0; }
 
 - (void) strikethroughGlyphRange:(NSRange)glyphRange
-			   strikethroughType:(int)strikethroughVal
+			   strikethroughType:(NSInteger)strikethroughVal
 				lineFragmentRect:(NSRect)lineRect
 		  lineFragmentGlyphRange:(NSRange)lineGlyphRange
 				 containerOrigin:(NSPoint)containerOrigin;
@@ -1672,12 +1684,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
 }
 
-- (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
+- (NSTextContainer *) textContainerForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
 {
 	return [self textContainerForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
 }
 
-- (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned) glyphIndex effectiveRange:(NSRangePointer) effectiveGlyphRange withoutAdditionalLayout:(BOOL) flag
+- (NSTextContainer *) textContainerForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRangePointer) effectiveGlyphRange withoutAdditionalLayout:(BOOL) flag
 {
 	NSTextContainer *tc;
 	NSUInteger idx;
@@ -1713,7 +1725,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 /* this is called by -[NSTextStorage processEditing] if the NSTextStorage has been changed */
 
-- (void) textStorage:(NSTextStorage *) str edited:(unsigned) editedMask range:(NSRange) newCharRange changeInLength:(int) delta invalidatedRange:(NSRange) invalidatedCharRange;
+- (void) textStorage:(NSTextStorage *) str edited:(unsigned) editedMask range:(NSRange) newCharRange changeInLength:(NSInteger) delta invalidatedRange:(NSRange) invalidatedCharRange;
 {
 	// this may be used to move around glyphs and separate between glyph generation (i.e.
 	// translation of character codes to glyph codes through NSFont
@@ -1768,7 +1780,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSTypesetterBehavior) typesetterBehavior; { return [_typesetter typesetterBehavior]; }
 
 - (void) underlineGlyphRange:(NSRange)glyphRange 
-			   underlineType:(int)underlineVal 
+			   underlineType:(NSInteger)underlineVal
 			lineFragmentRect:(NSRect)lineRect 
 	  lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 			 containerOrigin:(NSPoint)containerOrigin;
@@ -1822,12 +1834,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSAttributedString *) attributedString; { return _textStorage; }
 
-- (unsigned int) layoutOptions; { return _layoutOptions; }
+- (NSUInteger) layoutOptions; { return _layoutOptions; }
 
 - (void ) insertGlyphs:(const NSGlyph *) glyphs
-				length:(unsigned int) length
-forStartingGlyphAtIndex:(unsigned int) glyph
-		characterIndex:(unsigned int) index;
+				length:(NSUInteger) length
+forStartingGlyphAtIndex:(NSUInteger) glyph
+		characterIndex:(NSUInteger) index;
 {
 	// FIXME: here we must be able to handle non-contiguous glyph ranges
 	if(glyph > _numberOfGlyphs)
@@ -1850,7 +1862,7 @@ forStartingGlyphAtIndex:(unsigned int) glyph
 		}
 }
 
-- (void) setIntAttribute:(int) attributeTag value:(int) val forGlyphAtIndex:(unsigned) glyphIndex;
+- (void) setIntAttribute:(NSInteger) attributeTag value:(NSInteger) val forGlyphAtIndex:(NSUInteger) glyphIndex;
 { // subclasses must provide storage for additional attributeTag values and call this for the "old" ones
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];

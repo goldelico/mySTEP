@@ -30,7 +30,7 @@
 @class NSURL;
 @class NSNumber;
 
-typedef unsigned int NSWorkspaceLaunchOptions;
+typedef NSUInteger NSWorkspaceLaunchOptions;
 
 enum {
 	NSWorkspaceLaunchAndPrint = 0x0001,
@@ -50,7 +50,8 @@ enum {
 	NSExcludeQuickDrawElementsIconCreationOption    = 1 << 1,
 	NSExclude10_4ElementsIconCreationOption        = 1 << 2
 };
-typedef unsigned int NSWorkspaceIconCreationOptions;
+
+typedef NSUInteger NSWorkspaceIconCreationOptions;
 
 @interface NSWorkspace : NSObject
 

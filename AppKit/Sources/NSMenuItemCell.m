@@ -187,7 +187,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 - (NSMutableAttributedString *) _keyEquivalentAttributedString;
 { // get attributed string
 	NSString *e;
-	unsigned int m;
+	NSUInteger m;
 	NSMutableAttributedString *s;
 	NSString *key=[menuItem keyEquivalent];
 	NSString *lcKey=[key lowercaseString];

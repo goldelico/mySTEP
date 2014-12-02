@@ -878,7 +878,7 @@ the user's home directory if no document has been opened before.
 
 - (void) noteNewRecentDocumentURL: (NSURL *)anURL
 {
-	unsigned index = [_recentDocuments indexOfObject: anURL];
+	NSUInteger index = [_recentDocuments indexOfObject: anURL];
 	NSMutableArray *a;
 	NSLog(@"noteNewRecentDocumentURL:%@", anURL);
 	if (index != NSNotFound)
@@ -903,7 +903,7 @@ the user's home directory if no document has been opened before.
 	return _recentDocuments;
 }
 
-- (unsigned int) maximumRecentDocumentCount;
+- (NSUInteger) maximumRecentDocumentCount;
 {
 	return 10;	// default
 }

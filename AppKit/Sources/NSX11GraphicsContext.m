@@ -40,6 +40,7 @@
 // load full headers (to expand @class forward references)
 
 #import "NSAppKitPrivate.h"
+#import "NSBackendPrivate.h"
 #import "NSApplication.h"
 #import "NSAttributedString.h"
 #import "NSBezierPath.h"

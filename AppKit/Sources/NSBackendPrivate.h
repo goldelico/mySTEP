@@ -77,7 +77,7 @@
 - (void) _newLine:(NSPoint) pos;			// PDF: x y TD
 - (void) _newLine;							// PDF: T*
 
-- (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
+- (void) _drawGlyphs:(NSGlyph *) glyphs count:(NSUInteger) cnt;	// (string) Tj
 
 - (void) _endText;							// PDF: ET
 
@@ -98,8 +98,8 @@
 
 // managing the window
 
-- (int) _windowNumber;		// get the window number
-- (int) _windowTitleHeight;	// amount added by window manager for window title
+- (NSInteger) _windowNumber;		// get the window number
+- (NSInteger) _windowTitleHeight;	// amount added by window manager for window title
 - (void) _setBackingType:(NSBackingStoreType) type;
 - (void) _map;		// map the window
 - (void) _unmap;	// unmap the window
@@ -110,7 +110,7 @@
 - (BOOL) _isKeyWindow;		// if we have keyboard focus
 - (NSRect) _frame;			// get current frame as on screen (might have been moved by window manager)
 - (NSRect) _clipBox;		// get current clipbox
-- (void) _setLevel:(int) level andStyle:(int) mask;				// set window level and style mask property
+- (void) _setLevel:(NSInteger) level andStyle:(NSInteger) mask;				// set window level and style mask property
 - (void) _setOrigin:(NSPoint) point;		// just move
 - (void) _setOriginAndSize:(NSRect) frame;	// usually, this means moving and resizing
 - (void) _setTitle:(NSString *) string;		// same as _beginPage???
@@ -128,21 +128,21 @@
 @end
 
 @interface NSScreen (NSBackend)
-+ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
++ (NSInteger) _systemWindowListForContext:(NSInteger) context size:(NSInteger) size list:(NSInteger *) list;	// list may be NULL, return # of entries copied
 - (BOOL) _hasWindowManager;	// there is a window manager...
-- (int) _windowTitleHeight;
+- (NSInteger) _windowTitleHeight;
 - (void) _sendEvent:(NSEvent *) event;
-- (void) _grabKey:(int) keycode;
-- (int) _keyWindowNumber;
+- (void) _grabKey:(NSInteger) keycode;
+- (NSInteger) _keyWindowNumber;
 - (NSPoint) _mouseLocation;
 @end
 
 @interface NSWindow (NSBackend)
-+ (int) _getLevelOfWindowNumber:(int) windowNum;
++ (NSInteger) _getLevelOfWindowNumber:(NSInteger) windowNum;
 @end
 
 @interface NSApplication (NSBackend)
-- (NSWindow*) windowWithWindowNumber:(int)num;
+- (NSWindow*) windowWithWindowNumber:(NSInteger)num;
 - (NSArray *) windows;
 @end
 
@@ -157,7 +157,7 @@
 @end
 
 @interface NSFontDescriptor (NSBackend)
-+ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit; // this is the core font search engine that knows about font directories
++ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(NSUInteger) limit; // this is the core font search engine that knows about font directories
 + (NSDictionary *) _fonts;									// read font cache from disk
 + (void) _writeFonts;										// write font cache to disk
 + (void) _addFontWithAttributes:(NSDictionary *) record;	// add a font attributes record to the font cache

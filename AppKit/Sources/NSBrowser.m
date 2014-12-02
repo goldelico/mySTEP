@@ -355,7 +355,7 @@ int i, count = [_columns count];
 	[self tile];
 }
 
-- (void) reloadColumn:(int)column
+- (void) reloadColumn:(NSInteger)column
 { // Make sure the column exists
 int i, rows = 0, cols = 0;
 NSMatrix *m = nil;

@@ -103,7 +103,7 @@
 - (void) replaceLayoutManager:(NSLayoutManager *) newLayoutManager;
 {
 	NSArray *textContainers=[layoutManager textContainers];
-	unsigned int i, cnt=[textContainers count];
+	NSUInteger i, cnt=[textContainers count];
 	NSTextContainer *c;
 	NSLayoutManager *oldLayoutManager=layoutManager;
 	if(newLayoutManager == layoutManager)
@@ -266,7 +266,7 @@
 
 - (id) delegate; { return _delegate; }
 
-- (void) edited:(unsigned)editedMask 
+- (void) edited:(NSUInteger)editedMask
 		  range:(NSRange)range 
  changeInLength:(int)delta;
 {
@@ -312,7 +312,7 @@
 		}
 }
 
-- (unsigned int) editedMask; { return _editedMask; }
+- (NSUInteger) editedMask; { return _editedMask; }
 
 - (NSRange) editedRange; { return _editedRange; }
 
@@ -439,7 +439,7 @@
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
-- (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
+- (NSDictionary *) attributesAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range
 {
 	NSDictionary *d;
 	if(_fixesAttributesLazily)
@@ -460,7 +460,7 @@
 	return d;
 }
 
-- (NSDictionary *) attributesAtIndex:(unsigned) index longestEffectiveRange:(NSRangePointer) longest inRange:(NSRange) range
+- (NSDictionary *) attributesAtIndex:(NSUInteger) index longestEffectiveRange:(NSRangePointer) longest inRange:(NSRange) range
 {
 	NSDictionary *d;
 	if(_fixesAttributesLazily)
@@ -522,7 +522,7 @@
 
 - (void) setAttributedString:(NSAttributedString *) str;
 {
-	unsigned prevLen=[self length];
+	NSUInteger prevLen=[self length];
 #if __APPLE__
 	if(_concreteString == str)
 		return;	// no change
@@ -614,7 +614,7 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 - (NSRect) cellFrameForTextContainer:(NSTextContainer *) container
 								proposedLineFragment:(NSRect) fragment
 											 glyphPosition:(NSPoint) pos
-											characterIndex:(unsigned) index;
+											characterIndex:(NSUInteger) index;
 {
 	return (NSRect){ NSZeroPoint, [self cellSize] };
 }
@@ -628,13 +628,13 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 
 - (void) drawWithFrame:(NSRect)cellFrame
 								inView:(NSView *)controlView
-				characterIndex:(unsigned) index;
+				characterIndex:(NSUInteger) index;
 {
 }
 
 - (void) drawWithFrame:(NSRect)cellFrame
 								inView:(NSView *)controlView
-				characterIndex:(unsigned) index
+				characterIndex:(NSUInteger) index
 				 layoutManager:(NSLayoutManager *) manager;
 {
 }
@@ -653,7 +653,7 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 - (BOOL) trackMouse:(NSEvent *)event 
 						 inRect:(NSRect)cellFrame 
 						 ofView:(NSView *)controlTextView 
-   atCharacterIndex:(unsigned) index
+   atCharacterIndex:(NSUInteger) index
 			 untilMouseUp:(BOOL)flag;
 {
 	/*
@@ -682,7 +682,7 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 - (BOOL) wantsToTrackMouseForEvent:(NSEvent *) event
 														inRect:(NSRect) rect
 														ofView:(NSView *) controlView
-									atCharacterIndex:(unsigned) index;
+									atCharacterIndex:(NSUInteger) index;
 {
 	return YES;
 }

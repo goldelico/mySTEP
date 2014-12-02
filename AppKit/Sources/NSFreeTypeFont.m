@@ -100,7 +100,7 @@ static CGFloat rscale64;	// cache for 1/(64.0*screen scale)
 
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
-				   count:(unsigned) count;
+				   count:(NSUInteger) count;
 {
 	while(count-- > 0)
 		{
@@ -122,11 +122,11 @@ static CGFloat rscale64;	// cache for 1/(64.0*screen scale)
 
 - (void) getAdvancements:(NSSizeArray) advancements
 		 forPackedGlyphs:(const void *) glyphs
-				   count:(unsigned) count; { NIMP; }
+				   count:(NSUInteger) count; { NIMP; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
 				forGlyphs:(const NSGlyph *) glyphs
-					count:(unsigned) count;
+					count:(NSUInteger) count;
 {
 	while(count-- > 0)
 		{
@@ -177,7 +177,7 @@ static CGFloat rscale64;	// cache for 1/(64.0*screen scale)
 	return enc;
 }
 
-- (unsigned) numberOfGlyphs; { return _faceStruct->num_glyphs; }
+- (NSUInteger) numberOfGlyphs; { return _faceStruct->num_glyphs; }
 
 - (CGFloat) underlinePosition; { return Free2Pt(_faceStruct->underline_position); }
 
@@ -282,7 +282,7 @@ FT_Library _ftLibrary(void)
 	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
 	FT_Vector delta = { 0, 0 };
 	FT_GlyphSlot slot = _faceStruct->glyph;
-	unsigned long i, cnt=[string length];
+	NSUInteger i, cnt=[string length];
 	// we could sum up the integer widths/heights and convert to float only once
 	for(i = 0; i < cnt; i++)
 		{ // load glyphs but don't transform
@@ -301,7 +301,7 @@ FT_Library _ftLibrary(void)
 
 // this is used for freetype with our non-XRender based drawing
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(NSUInteger) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 { // render the string
 	FT_GlyphSlot slot = _faceStruct->glyph;
 	NSPoint pen = [ctm transformPoint:NSZeroPoint];
@@ -424,7 +424,7 @@ FT_Library _ftLibrary(void)
 
 #define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.sqlite"]
 
-+ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit;
++ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(NSUInteger) limit;
 { // this is the core font search engine that knows about font directories
 	NSString *query=@"SELECT * FROM fonts";
 	NSString *delim=@"WHERE";
@@ -587,7 +587,7 @@ FT_Library _ftLibrary(void)
 @implementation NSBezierPath (Backend)
 
 - (void) appendBezierPathWithGlyphs:(NSGlyph *)glyphs 
-							  count:(int)count
+							  count:(NSInteger)count
 							 inFont:(NSFont *)font
 {
 	FT_Face face=[(_NSX11Font *) font _face];
@@ -599,7 +599,7 @@ FT_Library _ftLibrary(void)
 	pen.y=(face->ascender+face->descender)>>6;
 	while(count-- > 0)
 		{ // render glyphs
-		unsigned int i;
+		NSUInteger i;
 		FT_Error error = FT_Load_Glyph(face, *glyphs++, FT_LOAD_RENDER);	// CHECKME - do we really need to LOAD_RENDER?
 		if(error)
 			continue;

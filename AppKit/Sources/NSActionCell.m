@@ -65,8 +65,8 @@ static Class __controlClass;
 }
 
 - (void) setFloatingPointFormat:(BOOL)autoRange
-						   left:(unsigned int)leftDigits
-						   right:(unsigned int)rightDigits
+						   left:(NSUInteger)leftDigits
+						   right:(NSUInteger)rightDigits
 {
 	[super setFloatingPointFormat:autoRange left:leftDigits right:rightDigits];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))

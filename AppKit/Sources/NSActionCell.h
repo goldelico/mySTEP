@@ -45,7 +45,7 @@
 - (void) setBordered:(BOOL) flag;
 - (void) setControlView:(NSView*) controlView;
 - (void) setEnabled:(BOOL) flag;
-- (void) setFloatingPointFormat:(BOOL) range left:(unsigned int) left right:(unsigned int) right;
+- (void) setFloatingPointFormat:(BOOL) range left:(NSUInteger) left right:(NSUInteger) right;
 - (void) setFont:(NSFont *) font;				// -> NSCell
 - (void) setImage:(NSImage *) image;
 - (void) setObjectValue:(id <NSCopying>) object;

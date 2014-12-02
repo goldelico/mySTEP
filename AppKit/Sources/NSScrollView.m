@@ -768,7 +768,7 @@ static Class __rulerViewClass = nil;
 		if([aDecoder containsValueForKey:@"NSScrollAmts"])
 			{
 			struct _AMTS { NSSwappedFloat hline, vline, hpage, vpage; } *amts;
-			unsigned len=0;
+			NSUInteger len=0;
 			amts=(struct _AMTS *) [aDecoder decodeBytesForKey:@"NSScrollAmts" returnedLength:&len];
 			if(len != sizeof(*amts))
 				NSLog(@"scroll amts=%p[%u]", amts, len);

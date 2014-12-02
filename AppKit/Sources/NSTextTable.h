@@ -111,7 +111,7 @@ typedef NSUInteger NSTextTableLayoutAlgorithm;
 @interface NSTextTable : NSTextBlock
 {
 	NSTextTableLayoutAlgorithm _layoutAlgorithm;
-	unsigned _numberOfColumns;
+	NSUInteger _numberOfColumns;
 	BOOL _collapsesBorders;
 	BOOL _hidesEmptyCells;
 }

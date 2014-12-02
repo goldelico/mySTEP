@@ -84,15 +84,15 @@ typedef NSUInteger NSTableViewDropOperation;
     NSSize _intercellSpacing;
 	NSRect _clickedCellFrame;
     float _rowHeight;
-	unsigned int _draggingSourceOperationMaskForLocal;		// we have a dynamic mask
-	unsigned int _draggingSourceOperationMaskForRemote;
-    int _lastSelectedColumn;
-    int _lastSelectedRow;
-    int _editingColumn;
-    int _editingRow;
-    int _clickedColumn;
-    int _clickedRow;
-	int _numberOfRows;	// cached value
+	NSUInteger _draggingSourceOperationMaskForLocal;		// we have a dynamic mask
+	NSUInteger _draggingSourceOperationMaskForRemote;
+    NSInteger _lastSelectedColumn;
+    NSInteger _lastSelectedRow;
+    NSInteger _editingColumn;
+    NSInteger _editingRow;
+    NSInteger _clickedColumn;
+    NSInteger _clickedRow;
+	NSInteger _numberOfRows;	// cached value
 
 	struct __TableViewFlags {
 		TYPEDBITFIELD(NSTableViewColumnAutoresizingStyle, autoResizingStyle, 3);

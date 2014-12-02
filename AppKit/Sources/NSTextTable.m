@@ -289,7 +289,7 @@ static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRect
 				  layoutManager:(NSLayoutManager *) manager; { NIMP }
 - (BOOL) hidesEmptyCells; { return _hidesEmptyCells; }
 - (NSTextTableLayoutAlgorithm) layoutAlgorithm; { return _layoutAlgorithm; }
-- (unsigned) numberOfColumns; { return _numberOfColumns; }
+- (NSUInteger) numberOfColumns; { return _numberOfColumns; }
 - (NSRect) rectForBlock:(NSTextTableBlock *) block
 		  layoutAtPoint:(NSPoint) start
 				 inRect:(NSRect) rect
@@ -298,7 +298,7 @@ static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRect
 - (void) setCollapsesBorders:(BOOL) flag; { _collapsesBorders=flag; }
 - (void) setHidesEmptyCells:(BOOL) flag; { _hidesEmptyCells=flag; }
 - (void) setLayoutAlgorithm:(NSTextTableLayoutAlgorithm) algorithm; { _layoutAlgorithm=algorithm; }
-- (void) setNumberOfColumns:(unsigned) n; { _numberOfColumns=n; }
+- (void) setNumberOfColumns:(NSUInteger) n; { _numberOfColumns=n; }
 
 @end
 

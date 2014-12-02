@@ -1054,7 +1054,7 @@ static NSArray *__pbBitmapImageReps;
 			pixelBits = bitsPerSample * ((_brep.isPlanar) ? 1 : samplesPerPixel);
 		_brep.bitsPerPixel = pixelBits;
 		if(!rowBytes) 
-			bytesPerRow = ((unsigned long) width * _brep.bitsPerPixel + 7)/8;
+			bytesPerRow = ((NSUInteger) width * _brep.bitsPerPixel + 7)/8;
 		else
 			bytesPerRow = rowBytes;
 		if(planes) 
@@ -1144,7 +1144,7 @@ static NSArray *__pbBitmapImageReps;
 	if (!_imagePlanes || !_imagePlanes[0])
 		{ // allocate data planes
 		int i, planeSize = (bytesPerRow * _pixelsHigh);
-		long length = _brep.numColors * planeSize * sizeof(unsigned char);
+		NSUInteger length = _brep.numColors * planeSize * sizeof(unsigned char);
 		
 		_imagePlanes = objc_calloc(MAX_PLANES, sizeof(_imagePlanes[0]));
 		_imageData = [[NSMutableData dataWithLength: length] retain];
@@ -1172,10 +1172,10 @@ static NSArray *__pbBitmapImageReps;
 			data[i] = _imagePlanes[i];
 }
 
-- (void) getPixel:(unsigned int[]) pixelData atX:(int) x y:(int) y;
+- (void) getPixel:(NSUInteger[]) pixelData atX:(NSInteger) x y:(NSInteger) y;
 {
-	int i;
-	int offset;
+	NSUInteger i;
+	NSInteger offset;
 	if(_brep.isPlanar)
 		{ // planar
 		offset=x + bytesPerRow*(_pixelsHigh-1-y);
@@ -1190,10 +1190,10 @@ static NSArray *__pbBitmapImageReps;
 		}
 }
 
-- (void) setPixel:(unsigned int[]) pixelData atX:(int) x y:(int) y;
+- (void) setPixel:(NSUInteger[]) pixelData atX:(NSInteger) x y:(NSInteger) y;
 {
-	int i;
-	int offset;
+	NSUInteger i;
+	NSInteger offset;
 	if (!_imagePlanes || !_imagePlanes[0])
 		[self bitmapData];	// allocate plane memory
 	if(_brep.isPlanar)
@@ -1210,9 +1210,9 @@ static NSArray *__pbBitmapImageReps;
 		}
 }
 
-- (NSColor *) colorAtX:(int) x y:(int) y;
+- (NSColor *) colorAtX:(NSInteger) x y:(NSInteger) y;
 {
-	unsigned int pixelData[5];
+	NSUInteger pixelData[5];
 	if(x < 0 || y < 0 || x >= _pixelsWide || y >= _pixelsHigh)
 		return nil;	// outside
 	[self getPixel:pixelData atX:x y:y];
@@ -1232,9 +1232,9 @@ static NSArray *__pbBitmapImageReps;
 	return nil;
 }
 
-- (void) setColor:(NSColor *)color atX:(int) x y:(int) y;
+- (void) setColor:(NSColor *)color atX:(NSInteger) x y:(NSInteger) y;
 {
-	unsigned int pixelData[5];
+	NSUInteger pixelData[5];
 	if(x < 0 || y < 0 || x >= _pixelsWide || y >= _pixelsHigh)
 		return;	// outside
 	if([_colorSpace isEqualToString:NSCalibratedRGBColorSpace])
@@ -1286,7 +1286,7 @@ static NSArray *__pbBitmapImageReps;
 }
 
 + (void) getTIFFCompressionTypes:(const NSTIFFCompression **)list
-						   count:(int *)numTypes
+						   count:(NSInteger *)numTypes
 {
 	NIMP;
 }
