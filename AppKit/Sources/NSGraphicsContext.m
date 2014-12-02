@@ -350,12 +350,12 @@ NSWindowDepth NSBestDepth(NSString *colorSpace,
 	return 0;
 }
 
-int NSBitsPerPixelFromDepth(NSWindowDepth depth)
+NSInteger NSBitsPerPixelFromDepth(NSWindowDepth depth)
 {
 	return (depth&63);	// 0..63
 }
 
-int NSBitsPerSampleFromDepth(NSWindowDepth depth)
+NSInteger NSBitsPerSampleFromDepth(NSWindowDepth depth)
 {
 	return ((depth>>6)&15);	// 0..15
 }
@@ -366,7 +366,7 @@ NSString *NSColorSpaceFromDepth(NSWindowDepth depth)
 	return [csp localizedName];
 }
 
-void NSCopyBits(int srcGstate, NSRect srcRect, NSPoint destPoint)
+void NSCopyBits(NSInteger srcGstate, NSRect srcRect, NSPoint destPoint)
 {
 	_NSGraphicsState *state;
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
@@ -383,12 +383,12 @@ void NSCopyBits(int srcGstate, NSRect srcRect, NSPoint destPoint)
 	[ctxt _copyBits:state fromRect:srcRect toPoint:destPoint];
 }
 
-void NSCountWindows(int *count)
+void NSCountWindows(NSInteger *count)
 {
 	return NSCountWindowsForContext(0, count);
 }
 
-void NSCountWindowsForContext(int context, int *count)
+void NSCountWindowsForContext(NSInteger context, NSInteger *count)
 { // for a specific application
 	*count=[NSScreen _systemWindowListForContext:context size:999999 list:NULL];
 }
@@ -399,12 +399,12 @@ void NSDisableScreenUpdates(void)
 }
 
 void NSDrawBitmap(NSRect rect,							// Bitmap Images
-                  int pixelsWide,
-                  int pixelsHigh,
-                  int bitsPerSample,
-                  int samplesPerPixel,
-                  int bitsPerPixel,
-                  int bytesPerRow, 
+                  NSInteger pixelsWide,
+                  NSInteger pixelsHigh,
+                  NSInteger bitsPerSample,
+                  NSInteger samplesPerPixel,
+                  NSInteger bitsPerPixel,
+                  NSInteger bytesPerRow,
                   BOOL isPlanar,
                   BOOL hasAlpha, 
                   NSString *colorSpaceName, 
@@ -437,11 +437,11 @@ NSRect NSDrawColorTiledRects( NSRect boundsRect,
 							  NSRect clipRect,
 							  const NSRectEdge *sides,
 							  NSColor **colors,
-							  int count)
+							  NSInteger count)
 {
 	NSRect slice, remainder = boundsRect;
 	NSRect rects[count];
-	int i;
+	NSInteger i;
 	if(!NSIntersectsRect(boundsRect, clipRect))
 		return NSZeroRect;
 	for(i = 0; i < count; i++)
@@ -481,11 +481,11 @@ NSDrawTiledRects( NSRect boundsRect,
 				  NSRect clipRect,
 				  const NSRectEdge *sides,
 				  const CGFloat *grays,
-				  int count)
+				  NSInteger count)
 {
 	NSRect slice, remainder = boundsRect;
 	NSRect rects[count];	// FIXME - stack overflow!!!
-	int i;
+	NSInteger i;
 	if (!NSIntersectsRect(boundsRect, clipRect))
 		return NSZeroRect;
 	for (i = 0; i < count; i++)
@@ -554,9 +554,9 @@ void NSFrameRectWithWidthUsingOperation(NSRect r,
 	[ctx restoreGraphicsState];
 }
 
-int NSGetWindowServerMemory(int context,
-							int *virtualMemory,
-							int *windowBackingMemory,
+NSInteger NSGetWindowServerMemory(NSInteger context,
+							NSInteger *virtualMemory,
+							NSInteger *windowBackingMemory,
 							NSString **windowDumpStream)
 {
 	if(!context)
@@ -570,7 +570,7 @@ void NSHighlightRect(NSRect aRect)
 	NSRectFillUsingOperation(aRect, NSCompositeHighlight);
 }
 
-int NSNumberOfColorComponents(NSString *colorSpaceName)
+NSInteger NSNumberOfColorComponents(NSString *colorSpaceName)
 {
 	return [[NSColorSpace _colorSpaceWithName:colorSpaceName] numberOfColorComponents];
 }
@@ -590,9 +590,9 @@ void NSRectClip(NSRect aRect)
 	[NSBezierPath clipRect:aRect];
 }
 
-void NSRectClipList(const NSRect *rects, int count)
+void NSRectClipList(const NSRect *rects, NSInteger count)
 { // intersect with all rects
-	int i;
+	NSInteger i;
     for (i = 0; i < count; i++)
 		NSRectClip(rects[i]);
 }
@@ -604,28 +604,28 @@ void NSRectFill(NSRect aRect)
 	[NSBezierPath fillRect:aRect];
 }
 
-void NSRectFillList(const NSRect *rects, int count)
+void NSRectFillList(const NSRect *rects, NSInteger count)
 { // Fill an array of rects with the current color.
-	int i;
+	NSInteger i;
     for(i = 0; i < count; i++)
 		NSRectFill(rects[i]);
 }
 
 void NSRectFillListUsingOperation(const NSRect *rects,
-							 int count,
+							 NSInteger count,
 							 NSCompositingOperation op)
 {
-	int i;	
+	NSInteger i;
 	for (i = 0; i < count; i++)
 		NSRectFillUsingOperation(rects[i], op);
 }
 
 void NSRectFillListWithColorsUsingOperation(const NSRect *rects,
 									   NSColor **colors,
-									   int num,
+									   NSInteger num,
 									   NSCompositingOperation op)
 {
-	int i;	
+	NSInteger i;
 	for (i = 0; i < num; i++)
 		{
 		[colors[i] set];
@@ -633,9 +633,9 @@ void NSRectFillListWithColorsUsingOperation(const NSRect *rects,
 		}
 }
 
-void NSRectFillListWithGrays(const NSRect *rects, const CGFloat *grays, int count)
+void NSRectFillListWithGrays(const NSRect *rects, const CGFloat *grays, NSInteger count)
 {
-	int i;	
+	NSInteger i;
 	for (i = 0; i < count; i++)					// Fills each rectangle in the 
 		{										// array rects[] with the gray 
 		[[NSColor colorWithCalibratedWhite:grays[i] alpha:1.0] set];
@@ -644,9 +644,9 @@ void NSRectFillListWithGrays(const NSRect *rects, const CGFloat *grays, int coun
 }
 
 void
-NSRectFillListWithColors(const NSRect *rects, NSColor **colors, int count)
+NSRectFillListWithColors(const NSRect *rects, NSColor **colors, NSInteger count)
 {
-	int i;	
+	NSInteger i;
 	for (i = 0; i < count; i++)
 		{
 		[colors[i] set];
@@ -702,12 +702,12 @@ const NSWindowDepth *NSAvailableWindowDepths(void)
 	return [[NSScreen deepestScreen] supportedWindowDepths];
 }
 
-void NSWindowList(int size, int list[])
+void NSWindowList(NSInteger size, NSInteger list[])
 {
 	NSWindowListForContext(0, size, list);
 }
 
-void NSWindowListForContext(int context, int size, int list[])
+void NSWindowListForContext(NSInteger context, NSInteger size, NSInteger list[])
 { // for a specific context (application id) - ask BACKEND
 	[NSScreen _systemWindowListForContext:context size:size list:list];
 }

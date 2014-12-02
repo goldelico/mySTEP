@@ -123,16 +123,16 @@ typedef NSInteger NSTypesetterBehavior;
 	} *_textContainerInfo; // there is one slot for each text container
 	
 	NSRectArray _rectArray;	// rectangle array (malloc)
-	unsigned int _rectArrayCapacity;
+	NSUInteger _rectArrayCapacity;
 
-	unsigned int _numberOfGlyphs;	// number of currently known glyphs (in relation to the characters)
-	unsigned int _nextCharacterIndex;	// next index for glyph generation
-	unsigned int _glyphBufferCapacity;
+	NSUInteger _numberOfGlyphs;	// number of currently known glyphs (in relation to the characters)
+	NSUInteger _nextCharacterIndex;	// next index for glyph generation
+	NSUInteger _glyphBufferCapacity;
 
-	unsigned int _firstUnlaidGlyphIndex;	// next glyph to be laid out
-	unsigned int _firstUnlaidCharacterIndex;
+	NSUInteger _firstUnlaidGlyphIndex;	// next glyph to be laid out
+	NSUInteger _firstUnlaidCharacterIndex;
 
-	unsigned int _layoutOptions;
+	NSUInteger _layoutOptions;
 	
 	BOOL _backgroundLayoutEnabled;
 	BOOL _usesScreenFonts;
