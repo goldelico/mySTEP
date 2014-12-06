@@ -528,7 +528,7 @@ endif
 make_php: bundle
 # make PHP
 	for PHP in *.php Sources/?*.php; do \
-		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
+		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
@@ -842,6 +842,7 @@ endif
 
 bundle:
 ifeq ($(WRAPPER_EXTENSION),framework)
+	- [ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove directory
 	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
 	(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
 endif

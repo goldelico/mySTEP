@@ -384,6 +384,7 @@ export SOURCES+=" Images/text.tiff"
 export SOURCES+=" Images/URL.tiff"
 export SOURCES+=" Sources/NSNibControlConnector.h"
 export SOURCES+=" Sources/NSNibOutletConnector.h"
+export SOURCES+=" Sources/AppKit.php"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
