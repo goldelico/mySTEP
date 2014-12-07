@@ -467,6 +467,7 @@ class NSUserDefaults extends NSObject
 	public function setFloatForKey($key, $val) { $this->setObjectForKey($key, $val); }
 	public function setIntegerForKey($key, $val) { $this->setObjectForKey($key, $val); }
 	public function setStringForKey($key, $val) { $this->setObjectForKey($key, $val); }
+	public function user() { return $this->user; }
 }
 
 class NSFileManager extends NSObject
