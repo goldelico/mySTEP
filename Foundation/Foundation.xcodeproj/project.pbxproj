@@ -269,7 +269,7 @@
 		EEAA86E70A148ED200F2E5B5 /* NSSpellServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1DF4E0098ECB8C00DDE5E0 /* NSSpellServer.m */; };
 		EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */; };
-		EECAD4340B9D772A00F37A98 /* HTMLEntities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */; };
+		EEBFF0201A34B74B004ABB30 /* HTMLEntities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -518,6 +518,7 @@
 		EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSPointerFunctions.h; path = Sources/NSPointerFunctions.h; sourceTree = "<group>"; };
 		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
+		EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -941,6 +942,7 @@
 			isa = PBXGroup;
 			children = (
 				EEA32EDE09537D0C001244CF /* CharacterSets */,
+				EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */,
 				EEA3309109537E40001244CF /* Foundation-Info.plist */,
 			);
 			name = Resources;
@@ -1180,7 +1182,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EECAD4340B9D772A00F37A98 /* HTMLEntities.strings in Resources */,
+				EEBFF0201A34B74B004ABB30 /* HTMLEntities.strings in Resources */,
 				EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */,
 				EEA925870C0B004500A846D2 /* control.charSet in Resources */,
 				EEA925880C0B004500A846D2 /* decimal.charSet in Resources */,
