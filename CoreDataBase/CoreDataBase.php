@@ -210,4 +210,66 @@ class ManagedObject extends NSObject
 
 }
 
+class SQL extends NSObject
+{
+	protected $filename;
+	protected $delegate;
+	protected $db;					// SQLite access handle
+	protected $tables;
+
+	public function open($error)
+	{ // YES=ok
+	}
+
+	public function setDelegate($d)
+	{
+	$this->delegate=$d;
+	}
+
+	public function delegate
+	{
+	return $this->delegate;
+	}
+
+	public function query($sql, $error)	// YES=ok
+	{
+	mysql_query($this->db, $query);
+	// fetch array entries
+	// call $this->delegate->sql($this, $row)
+	// break loop if it returns true
+	}
+
+	private function sql($sqlobject, $record)
+	{ // we are (temporarily) our own delegate
+		$this->tables[]=$record["name"];	// collect table names
+		return false;	// don't abort
+	}
+
+	public function tables($error)
+	{
+		$saved=$this->delegate;
+		$this->delegate=$this;	// make us collect results in tables
+		$this->tables=array();	// we collect here
+		if(!$this->query("SELECT name,sql FROM sqlite_master WHERE type='table'", $error))
+			{
+			$this->delegate=$saved;
+			return null;
+			}
+		$this->delegate=$saved;
+		return $this->tables;
+	}
+
+	public function __construct($url)
+	{
+	parent::__construct();
+	// check for mysql: scheme
+	$this->filename=$url;
+	}
+
+	public function __destruct()
+	{
+	$this->flush();
+	}
+}
+
 ?>
