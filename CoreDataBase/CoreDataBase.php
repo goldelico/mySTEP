@@ -219,6 +219,27 @@ class SQL extends NSObject
 
 	public function open($error)
 	{ // YES=ok
+
+		// FIXME: we can select only different databases within a single server!
+		// so we must check that multiple instances refer to the same host/user/password
+
+		$c=parse_url($this->filename);
+		if($c === false)
+			return false;	// invalid
+		if($c['scheme'] != "mysql")
+			return false;	// we speak only MySQL
+
+		// use $c['port'] to select MySQL socket file?
+		@mysql_pconnect($c['host'], $c['user'], $c['pass']);
+
+		$db=$c['path'];		// to select a specific database
+
+		if(mysql_error())
+			{
+			// set error
+			return false;
+			}
+		return true;
 	}
 
 	public function setDelegate($d)
@@ -226,17 +247,33 @@ class SQL extends NSObject
 	$this->delegate=$d;
 	}
 
-	public function delegate
+	public function delegate()
 	{
 	return $this->delegate;
 	}
 
 	public function query($sql, $error)	// YES=ok
 	{
-	mysql_query($this->db, $query);
-	// fetch array entries
-	// call $this->delegate->sql($this, $row)
-	// break loop if it returns true
+	mysql_select_db($this->db);
+	if(mysql_error())
+		{
+		return false;
+		}
+	$result=mysql_query($query);
+	if(mysql_error())
+		{
+		return false;
+		}
+	if(isset($this->delegate))
+		{
+		while($row=mysql_fetch_array($result))
+			{
+			if($this->delegate->sql($this, $row))
+				break;	// delegate did request to abort
+			}
+		}
+	mysql_free_result($result);
+	return true;	// ok
 	}
 
 	private function sql($sqlobject, $record)
