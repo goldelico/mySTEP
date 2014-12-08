@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE19360C1A3447A500E4D4BA /* CoreDataBase.h in Headers */ = {isa = PBXBuildFile; fileRef = EE19360B1A3447A500E4D4BA /* CoreDataBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE19360F1A34494300E4D4BA /* SQLite.h in Headers */ = {isa = PBXBuildFile; fileRef = EE19360D1A34494300E4D4BA /* SQLite.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE1936101A34494300E4D4BA /* SQLite.m in Sources */ = {isa = PBXBuildFile; fileRef = EE19360E1A34494300E4D4BA /* SQLite.m */; };
+		EE19360F1A34494300E4D4BA /* SQL.h in Headers */ = {isa = PBXBuildFile; fileRef = EE19360D1A34494300E4D4BA /* SQL.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE1936101A34494300E4D4BA /* SQL.m in Sources */ = {isa = PBXBuildFile; fileRef = EE19360E1A34494300E4D4BA /* SQL.m */; };
 		EEBBBA0317341EF5009A2072 /* CoreDataBase.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEBBBA0217341EF5009A2072 /* CoreDataBase.qcodeproj */; };
 		EEBBBA2D17341F46009A2072 /* ManagedObjectContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBBBA2B17341F46009A2072 /* ManagedObjectContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEBBBA2E17341F46009A2072 /* ManagedObjectContext.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBBA2C17341F46009A2072 /* ManagedObjectContext.m */; };
@@ -26,8 +26,8 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE19360B1A3447A500E4D4BA /* CoreDataBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataBase.h; sourceTree = "<group>"; };
-		EE19360D1A34494300E4D4BA /* SQLite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLite.h; sourceTree = "<group>"; };
-		EE19360E1A34494300E4D4BA /* SQLite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQLite.m; sourceTree = "<group>"; };
+		EE19360D1A34494300E4D4BA /* SQL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQL.h; sourceTree = "<group>"; };
+		EE19360E1A34494300E4D4BA /* SQL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQL.m; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEBBBA0217341EF5009A2072 /* CoreDataBase.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreDataBase.qcodeproj; sourceTree = "<group>"; };
 		EEBBBA2A17341F16009A2072 /* CoreDataBase.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = CoreDataBase.php; sourceTree = "<group>"; };
@@ -102,8 +102,8 @@
 				EEBBBA3117341F56009A2072 /* ManagedObjectEntity.m */,
 				EEBBBA3417341F67009A2072 /* ManagedObject.h */,
 				EEBBBA3517341F67009A2072 /* ManagedObject.m */,
-				EE19360D1A34494300E4D4BA /* SQLite.h */,
-				EE19360E1A34494300E4D4BA /* SQLite.m */,
+				EE19360D1A34494300E4D4BA /* SQL.h */,
+				EE19360E1A34494300E4D4BA /* SQL.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -142,7 +142,7 @@
 				EEBBBA2D17341F46009A2072 /* ManagedObjectContext.h in Headers */,
 				EEBBBA3217341F56009A2072 /* ManagedObjectEntity.h in Headers */,
 				EEBBBA3617341F67009A2072 /* ManagedObject.h in Headers */,
-				EE19360F1A34494300E4D4BA /* SQLite.h in Headers */,
+				EE19360F1A34494300E4D4BA /* SQL.h in Headers */,
 				EE19360C1A3447A500E4D4BA /* CoreDataBase.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -231,7 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEBBBA2E17341F46009A2072 /* ManagedObjectContext.m in Sources */,
-				EE1936101A34494300E4D4BA /* SQLite.m in Sources */,
+				EE1936101A34494300E4D4BA /* SQL.m in Sources */,
 				EEBBBA3317341F56009A2072 /* ManagedObjectEntity.m in Sources */,
 				EEBBBA3717341F67009A2072 /* ManagedObject.m in Sources */,
 			);

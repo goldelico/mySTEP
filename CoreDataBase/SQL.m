@@ -7,17 +7,27 @@
 //  COMPANY CONFIDENTIAL.
 //
 
-#import "SQLite.h"
+#import "SQL.h"
 #include "sqlite3.h"
 
-@implementation SQLite
+@implementation SQL
 
-- (id) initWithFileName:(NSString *) name
+- (id) initWithDatabase:(NSURL *) url
 {
     self = [super init];
     if (self)
 		{ // If an error occurs here, send a [self release] message and return nil.
-			filename=[name retain];
+			if([url isFileURL])
+				filename=[[url path] retain];	// file:/path -> assume sqlite
+			else
+				{
+				if([[url scheme] isEqualToString:@"mysql"])
+					{
+					// open mysql://username:password@host/socket
+					}
+				[self release];
+				return nil;
+				}
 		}
     return self;
 }
@@ -37,9 +47,9 @@
 
 static int sql_progress(void *context)	// context should be self
 {
-	SQLite *self = (SQLite *) context;
+	SQL *this = (SQL *) context;
 	NSLog(@"sql_progress");
-	[[self delegate] sqlite:self progress:0];
+	[[this delegate] sql:this progress:0];
 	return 0;
 }
 
@@ -69,7 +79,7 @@ static int sql_progress(void *context)	// context should be self
 
 static int sql_callback(void *context, int columns, char **values, char **names)	// context=self
 {
-	SQLite *self = (SQLite *) context;
+	SQL *self = (SQL *) context;
 	NSMutableDictionary *record=[NSMutableDictionary dictionaryWithCapacity:columns];
 	int i;
 	for(i=0; i<columns; i++)
@@ -80,10 +90,10 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 		else
 			[record setObject:[NSNull null] forKey:key];
 		}
-	return [[self delegate] sqlite:self record:record];
+	return [[self delegate] sql:self record:record];
 }
 
-- (BOOL) sql:(NSString *) cmd error:(NSString **) error;
+- (BOOL) query:(NSString *) cmd error:(NSString **) error;
 { // execute SQL command for current database
 	char *error_msg;
 	int result=sqlite3_exec(
@@ -100,7 +110,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 // higher level functions
 
-- (BOOL) sqlite:(SQLite *) this record:(NSDictionary *) record;
+- (BOOL) sql:(SQL *) this record:(NSDictionary *) record;
 { // we are (temporarily) our own delegate
 	[tables addObject:[record objectForKey:@"name"]];
 	return NO;	// don't abort
@@ -111,7 +121,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	id saved=delegate;
 	delegate=self;	// make us collect results in tables
 	tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
-	if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
+	if(![self query:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
 		{
 		delegate=saved;
 		return nil;
@@ -128,7 +138,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (int) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 {
-	return [self sql:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
+	return [self query:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
 }
 
 - (int) deleteTable:(NSString *) name error:(NSString **) error;
@@ -141,7 +151,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (int) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
 {
 	// ALTER TABLE x CREATE COLUMN (x int);
-	return [self sql:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
+	return [self query:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
 }
 
 - (int) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
@@ -152,7 +162,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (int) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
 {
-	return [self sql:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
+	return [self query:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
 }
 
 - (int) deleteRow:(int) row error:(NSString **) error;
@@ -165,11 +175,11 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 @end
 
 @implementation NSObject (SQLite)
-- (void) sqlite:(SQLite *) this progress:(int) progress;
+- (void) sql:(SQL *) this progress:(int) progress;
 {
 	return;	// ignore
 }
-- (BOOL) sqlite:(SQLite *) this record:(NSDictionary *) record;
+- (BOOL) sql:(SQL *) this record:(NSDictionary *) record;
 {
 	return YES;	// abort
 }

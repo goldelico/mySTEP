@@ -9,9 +9,8 @@
 
 
 #import <Cocoa/Cocoa.h>
-#import <CoreDataBase/CoreDataBase.h>
 
-@interface SQLite : NSObject
+@interface SQL : NSObject
 {
 	NSString *filename;
 	id delegate;
@@ -19,10 +18,13 @@
 	NSMutableArray *tables;
 }
 
-- (id) initWithFileName:(NSString *) name;
+- (id) initWithDatabase:(NSURL *) url;
 - (BOOL) open:(NSString **) error;	// YES=ok
 
-- (BOOL) sql:(NSString *) cmd error:(NSString **) error;	// YES=ok
+- (void) setDelegate:(id) d;
+- (id) delegate;
+
+- (BOOL) query:(NSString *) cmd error:(NSString **) error;	// YES=ok
 
 - (BOOL) importSQLFromFile:(NSString *) path;
 - (BOOL) exportSQLToFile:(NSString *) path;
@@ -42,6 +44,6 @@
 // delegate methods
 
 @interface NSObject (SQLite)
-- (void) sqlite:(SQLite *) this progress:(int) progress;
-- (BOOL) sqlite:(SQLite *) this record:(NSDictionary *) record;	// return YES to abort
+- (void) sql:(SQL *) this progress:(int) progress;
+- (BOOL) sql:(SQL *) this record:(NSDictionary *) record;	// return YES to abort
 @end
