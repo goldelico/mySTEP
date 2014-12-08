@@ -65,6 +65,14 @@ $old_error_handler = set_error_handler("myErrorHandler");
 
 class NSObject /* root class */
 	{
+	public function __construct()
+		{
+		}
+
+	public function __destruct()
+		{
+		}
+
 	public function forwardInvocation(NSInvocation $invocation)
 		{
 		// default error handling
