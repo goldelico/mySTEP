@@ -18,7 +18,7 @@
 
 // global $ROOT must be set by some application
 
-// echo "loading Foundation<br>";
+// echo "<h1>Shop.framework</h1>";
 
 function NSLog($format)
 	{

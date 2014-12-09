@@ -10,8 +10,6 @@
  * hitTest, sendEvent and mouseDown are called when button is clicked or something modified
  */
 
-// echo "loading AppKit<br>";
-
 	// FIXME: make this configurabe (how?)
 // through User-Defaults? Or should the web site be configured???
 
@@ -26,6 +24,8 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
+
+// echo "<h1>AppKit.framework</h1>";
 
 // replace by NSGraphicsContext::currentContext->method
 
