@@ -212,6 +212,7 @@ class ManagedObject extends NSObject
 
 class SQL extends NSObject
 {
+	protected $type;
 	protected $filename;
 	protected $delegate;
 	protected $db;					// SQLite access handle
@@ -223,22 +224,25 @@ class SQL extends NSObject
 		// FIXME: we can select only different databases within a single server!
 		// so we must check that multiple instances refer to the same host/user/password
 
+		NSLog($this->filename);
 		$c=parse_url($this->filename);
 		if($c === false)
 			return false;	// invalid
 		if($c['scheme'] != "mysql")
 			return false;	// we speak only MySQL
-
-		// use $c['port'] to select MySQL socket file?
+		$this->type=$c['scheme'];
+		if($c['host'] == "localhost")
+			$c['host']=":/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
+		NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
 		@mysql_pconnect($c['host'], $c['user'], $c['pass']);
-
-		$db=$c['path'];		// to select a specific database
-
+		NSLog("database: ".$this->db);
 		if(mysql_error())
 			{
+			NSLog(mysql_error());
 			// set error
 			return false;
 			}
+		$this->db=basename($c['path']);		// to select a specific database
 		return true;
 	}
 
@@ -254,26 +258,43 @@ class SQL extends NSObject
 
 	public function query($sql, $error)	// YES=ok
 	{
-	mysql_select_db($this->db);
+	NSLog("SQL: ".$sql);
+	mysql_select_db($this->db /* , $link? */);
+	NSLog("select_db ".$this->db." done");
 	if(mysql_error())
 		{
+		NSLog(mysql_error());
 		return false;
 		}
 	$result=mysql_query($query);
+	NSLog("query done $result");
 	if(mysql_error())
 		{
+		NSLog(mysql_error());
 		return false;
 		}
+	NSLog("query ok");
 	if(isset($this->delegate))
 		{
 		while($row=mysql_fetch_array($result))
 			{
+			NSLog("call delegate with $row");
 			if($this->delegate->sql($this, $row))
 				break;	// delegate did request to abort
 			}
 		}
 	mysql_free_result($result);
 	return true;	// ok
+	}
+
+	public function quote($str)
+	{ // quote argument string
+		return "'".addslashes($str)."'";
+	}
+
+	public function quoteIdent($identifier)
+	{ // quote table/column name
+		return "`".$identifier."`";
 	}
 
 	private function sql($sqlobject, $record)
@@ -287,7 +308,11 @@ class SQL extends NSObject
 		$saved=$this->delegate;
 		$this->delegate=$this;	// make us collect results in tables
 		$this->tables=array();	// we collect here
-		if(!$this->query("SELECT name,sql FROM sqlite_master WHERE type='table'", $error))
+		if($this->type == "mysql")
+			$query="SELECT table_name AS name FROM information_schema.tables";	// MySQL
+		else
+			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
+		if(!$this->query($query, $error))
 			{
 			$this->delegate=$saved;
 			return null;
