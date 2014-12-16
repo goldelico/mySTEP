@@ -215,13 +215,13 @@ class SQL extends NSObject
 	protected $type;
 	protected $filename;
 	protected $delegate;
-	protected $db;					// SQLite access handle
+	protected $db;		// SQLite access handle - MySQL database name
 	protected $tables;
 
 	public function open($error)
 	{ // YES=ok
 
-		// FIXME: we can select only different databases within a single server!
+		// FIXME: MySQL we can select only different databases within a single server!
 		// so we must check that multiple instances refer to the same host/user/password
 
 		NSLog($this->filename);
@@ -266,7 +266,7 @@ class SQL extends NSObject
 		NSLog(mysql_error());
 		return false;
 		}
-	$result=mysql_query($query);
+	$result=mysql_query($sql);
 	NSLog("query done $result");
 	if(mysql_error())
 		{
@@ -278,7 +278,7 @@ class SQL extends NSObject
 		{
 		while($row=mysql_fetch_array($result))
 			{
-			NSLog("call delegate with $row");
+			NSLog("call delegate with row");
 			if($this->delegate->sql($this, $row))
 				break;	// delegate did request to abort
 			}
@@ -309,7 +309,7 @@ class SQL extends NSObject
 		$this->delegate=$this;	// make us collect results in tables
 		$this->tables=array();	// we collect here
 		if($this->type == "mysql")
-			$query="SELECT table_name AS name FROM information_schema.tables";	// MySQL
+			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->db);	// MySQL
 		else
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
 		if(!$this->query($query, $error))
