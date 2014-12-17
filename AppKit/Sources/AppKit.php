@@ -25,7 +25,7 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
-// echo "<h1>AppKit.framework</h1>";
+if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
 // replace by NSGraphicsContext::currentContext->method
 
@@ -286,6 +286,7 @@ function NSApplicationMain($name)
 		echo '$ROOT is not set globally!';
 		exit;
 		}
+	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
 	$NSApp->setDelegate(new AppController);	// this should come from the NIB file!
 	// FIXME: shouldn't we better implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
