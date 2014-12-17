@@ -12,25 +12,32 @@
 
 @interface SQL : NSObject
 {
-	NSString *filename;
+	NSString *type;
+	void *db;					// SQLite access handle
+	NSString *dbname;
 	id delegate;
-	void *sqlite;					// SQLite access handle
-	NSMutableArray *tables;
+	NSMutableArray *tables;		// for collecting of internal query results
 }
 
-- (id) initWithDatabase:(NSURL *) url;
-- (BOOL) open:(NSString **) error;	// YES=ok
+- (id) init;
+- (BOOL) open:(NSURL *) url error:(NSString **) error;	// YES=ok
 
+- (void) setDatabase:(NSString *) name;	// choose one database from list of databases
 - (void) setDelegate:(id) d;
 - (id) delegate;
 
-- (BOOL) query:(NSString *) cmd error:(NSString **) error;	// YES=ok
+- (BOOL) sql:(NSString *) cmd error:(NSString **) error;	// YES=ok
+
+- (NSString *) quote:(NSString *) str;	// quote parameter
+- (NSString *) quoteIdent:(NSString *) str;	// quote identifier (to distinguish from SQL keywords)
+
+- (NSArray *) tables:(NSString **) error;
+- (NSArray *) databases:(NSString **) error;
+
+- (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
 
 - (BOOL) importSQLFromFile:(NSString *) path;
 - (BOOL) exportSQLToFile:(NSString *) path;
-
-- (NSArray *) tables:(NSString **) error;
-- (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
 
 - (int) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 - (int) deleteTable:(NSString *) name error:(NSString **) error;
@@ -46,4 +53,11 @@
 @interface NSObject (SQLite)
 - (void) sql:(SQL *) this progress:(int) progress;
 - (BOOL) sql:(SQL *) this record:(NSDictionary *) record;	// return YES to abort
+@end
+
+// NSString convenience
+
+@interface NSString (SQLite)
+- (NSString *) _quote;
+- (NSString *) _quoteIdent;
 @end

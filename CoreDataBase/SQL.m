@@ -12,36 +12,22 @@
 
 @implementation SQL
 
-- (id) initWithDatabase:(NSURL *) url
+- (id) init
 {
     self = [super init];
-    if (self)
-		{ // If an error occurs here, send a [self release] message and return nil.
-			if([url isFileURL])
-				filename=[[url path] retain];	// file:/path -> assume sqlite
-			else
-				{
-				if([[url scheme] isEqualToString:@"mysql"])
-					{
-					// open mysql://username:password@host/socket
-					}
-				[self release];
-				return nil;
-				}
-		}
     return self;
 }
 
 - (void) dealloc;
 {
 	// cancel any pending actions 
-	if(sqlite)
+	if(db)
 		{
-		int err=sqlite3_close((sqlite3 *) sqlite);
+		int err=sqlite3_close((sqlite3 *) db);
 		if(err != SQLITE_OK)
 			NSLog(@"-dealloc: sqlite3_close() returns %d", err);
 		}
-	[filename release];
+	[dbname release];
 	[super dealloc];
 }
 
@@ -51,6 +37,12 @@ static int sql_progress(void *context)	// context should be self
 	NSLog(@"sql_progress");
 	[[this delegate] sql:this progress:0];
 	return 0;
+}
+
+- (void) setDatabase:(NSString *) name;	// choose one database from list of databases
+{
+	// not supported for sqlite
+	// formally it is closing the curend file and opening a new one
 }
 
 - (void) setDelegate:(id) d
@@ -63,17 +55,26 @@ static int sql_progress(void *context)	// context should be self
 	return delegate;
 }
 
-- (BOOL) open:(NSString **) error;
+- (BOOL) open:(NSURL *) url error:(NSString **) error;
 {
-	if(sqlite3_open([filename fileSystemRepresentation],	/* Database filename (UTF-8) */
-					 (sqlite3 **)&sqlite					/* OUT: SQLite db handle */
+	if([url isFileURL])
+		dbname=[[url path] retain];	// file:/path -> assume sqlite
+	else if([[url scheme] isEqualToString:@"mysql"])
+		{
+		if(error)
+			*error=@"MySQL is not supported yet";
+			// open mysql://username:password@host/database
+		return NO;
+		}
+	if(sqlite3_open([dbname fileSystemRepresentation],	/* Database filename (UTF-8) */
+					 (sqlite3 **)&db					/* OUT: SQLite db handle */
 					 ) != SQLITE_OK)
 		{
 		if(error)
-			*error=[NSString stringWithUTF8String:sqlite3_errmsg(((sqlite3 *)sqlite))];
+			*error=[NSString stringWithUTF8String:sqlite3_errmsg(((sqlite3 *)db))];
 		return NO;
 		}
-	sqlite3_progress_handler((sqlite3 *)sqlite, 20, sql_progress, (void *) self);
+	sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
 	return YES;
 }
 
@@ -93,11 +94,11 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return [[self delegate] sql:self record:record];
 }
 
-- (BOOL) query:(NSString *) cmd error:(NSString **) error;
+- (BOOL) sql:(NSString *) cmd error:(NSString **) error;
 { // execute SQL command for current database
 	char *error_msg;
 	int result=sqlite3_exec(
-					 (sqlite3 *) sqlite,           /* An open database */
+					 (sqlite3 *) db,           /* An open database */
 					 [cmd UTF8String],             /* SQL to be executed */
 					 sql_callback,                 /* Callback function */
 					 (void *) self,                /* 1st argument to callback function */
@@ -106,6 +107,16 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	if(error && result != SQLITE_OK)
 		*error=[NSString stringWithUTF8String:error_msg];
 	return result == SQLITE_OK;
+}
+
+- (NSString *) quote:(NSString *) str;
+{ // quote parameter
+	return [str _quote];
+}
+
+- (NSString *) quoteIdent:(NSString *) str;
+{ // quote identifier (to distinguish from SQL keywords)
+	return [str _quoteIdent];
 }
 
 // higher level functions
@@ -121,13 +132,18 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	id saved=delegate;
 	delegate=self;	// make us collect results in tables
 	tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
-	if(![self query:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
+	if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
 		{
 		delegate=saved;
 		return nil;
 		}
 	delegate=saved;
 	return tables;
+}
+
+- (NSArray *) databases:(NSString **) error;
+{ // return list of table names
+	return [NSArray arrayWithObject:dbname];
 }
 
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
@@ -138,7 +154,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (int) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 {
-	return [self query:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
+	return [self sql:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
 }
 
 - (int) deleteTable:(NSString *) name error:(NSString **) error;
@@ -151,7 +167,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (int) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
 {
 	// ALTER TABLE x CREATE COLUMN (x int);
-	return [self query:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
+	return [self sql:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
 }
 
 - (int) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
@@ -162,7 +178,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (int) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
 {
-	return [self query:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
+	return [self sql:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
 }
 
 - (int) deleteRow:(int) row error:(NSString **) error;
@@ -183,4 +199,9 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 {
 	return YES;	// abort
 }
+@end
+
+@implementation NSString (SQLite)
+- (NSString *) _quote; { return self; }
+- (NSString *) _quoteIdent; { return self; }
 @end
