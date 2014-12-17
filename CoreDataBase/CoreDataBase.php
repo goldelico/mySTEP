@@ -9,57 +9,10 @@
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
-echo "<h1>CoreDataBase.framework</h1>";
+if($GLOBALS['debug']) echo "<h1>CoreDataBase.framework</h1>";
 
 class ManagedObjectContext extends NSObject
 { // represents a data storage
-	// can we manage different hosts and databases?
-	// if we have a "database-handle"
-
-	public function constructor($host, $user, $password, $database)
-		{
-echo "open $host - $user<p>";
-		@mysql_pconnect($host, $user, $password);
-		if(mysql_error())
-			{
-			echo "can't open connection to $host<p>";
-			}
-echo "select $database<p>";
-		@mysql_select_db($database);
-		if(mysql_error())
-			{
-			echo "can't select database $database<p>";
-			}
-		}
-
-	public function addslashes($str)
-		{ // add slashes for sql queries
-		return addslashes($str);
-		}
-
-	public function quote($str)
-		{ // quote argument for sql queries 
-		return "'".($this->addslashes($str))."'"; 
-		}
-
-	public function query($query)
-		{ // run query and report errors
-
-		echo "query ".htmlentities($query)."<p>";
-
-		$result=mysql_query($query);
-		if(mysql_errno() != 0)
-			{
-			echo mysql_errno()." ".mysql_error()."<br>";
-			echo $query."<br>";
-			}
-		return $result;
-		}
-
-	public function entity($table, $primarykey)
-		{
-		return new ManagedObjectEntity($this, $table, $primarykey);
-		}
 }
 
 class ManagedObjectEntity extends NSObject
@@ -102,20 +55,6 @@ echo "new<p>";
 	public function getBySQL($where=NULL, $order=NULL, $group=NULL, $limit=0)
 		{
 		$query="select * from `$this->_table`";
-		if($where != NULL)
-			$query .= " where $where";
-		if($group != NULL)
-			$query .= " group by $group";
-		// having?
-		if($order != NULL)
-			$query .= " order by $order";
-		if($limit > 0)
-			$query .= " limit ".$context->quote($limit);
-		$result=$_context->query($query);
-		$mo=array();
-		while($row=mysql_fetch_array($result))
-			$mo[$row[$this->primarykey]]=new ManagedObject($this, $row);	// did already load - we should not be able to set values through such an object!!!
-		mysql_free_result($result); 
 		return $mo;
 		}
 
@@ -213,37 +152,49 @@ class ManagedObject extends NSObject
 class SQL extends NSObject
 {
 	protected $type;
-	protected $filename;
-	protected $delegate;
-	protected $db;		// SQLite access handle - MySQL database name
-	protected $tables;
+	protected $db;		// SQLite/MySQL access handle
+	protected $dbname;	// current database name/file
+	protected $delegate;	// the delegate (may be temporarily $this)
+	protected $tables;	// collecting internal information
 
-	public function open($error)
+	public function open($url, &$error)
 	{ // YES=ok
-
-		// FIXME: MySQL we can select only different databases within a single server!
-		// so we must check that multiple instances refer to the same host/user/password
-
-		NSLog($this->filename);
-		$c=parse_url($this->filename);
+		NSLog($url);
+		$c=parse_url($url);
 		if($c === false)
 			return false;	// invalid
-		if($c['scheme'] != "mysql")
-			return false;	// we speak only MySQL
-		$this->type=$c['scheme'];
-		if($c['host'] == "localhost")
-			$c['host']=":/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
-		NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
-		@mysql_pconnect($c['host'], $c['user'], $c['pass']);
-		NSLog("database: ".$this->db);
-		if(mysql_error())
+		if($c['scheme'] == "mysql")
 			{
-			NSLog(mysql_error());
-			// set error
-			return false;
+			$this->type=$c['scheme'];
+			$socket="/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
+			NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
+			// FIXME: should only remove the /
+			$this->dbname=basename($c['path']);
+			$this->db=mysqli_connect("p:".$c['host'], $c['user'], $c['pass'], $this->dbname, ini_get("mysqli.default_port"), $socket);
+			if(mysqli_connect_errno())
+				{
+				NSLog(mysqli_connect_error());
+				// set error
+				return false;
+				}
+			return true;
 			}
-		$this->db=basename($c['path']);		// to select a specific database
-		return true;
+		if($c['scheme'] == "sqlite" || $c['scheme'] == "file")
+			{
+			// must be localhost, no user/password
+			$this->dbname=$c['path'];	// file name
+			}
+		return false;	// we speak only MySQL
+	}
+
+	public function setDatabase($name)
+	{ // change database (MySQL) or file (SQLite)
+		if(mysqli_select_db($this->db, $name))
+			{
+			$this->dbname=$name;
+			return true;
+			}
+		return false;
 	}
 
 	public function setDelegate($d)
@@ -256,34 +207,32 @@ class SQL extends NSObject
 	return $this->delegate;
 	}
 
-	public function query($sql, $error)	// YES=ok
+	public function query($sql, &$error)	// YES=ok
 	{
 	NSLog("SQL: ".$sql);
-	mysql_select_db($this->db /* , $link? */);
-	NSLog("select_db ".$this->db." done");
-	if(mysql_error())
+	if(mysqli_error($this->db))
 		{
-		NSLog(mysql_error());
+		NSLog(mysqli_error($this->db));
 		return false;
 		}
-	$result=mysql_query($sql);
+	$result=mysqli_query($this->db, $sql);
 	NSLog("query done $result");
-	if(mysql_error())
+	if(mysqli_error($this->db))
 		{
-		NSLog(mysql_error());
+		NSLog(mysqli_error($this->db));
 		return false;
 		}
 	NSLog("query ok");
 	if(isset($this->delegate))
 		{
-		while($row=mysql_fetch_array($result))
+		while($row=mysqli_fetch_array($result))
 			{
 			NSLog("call delegate with row");
 			if($this->delegate->sql($this, $row))
 				break;	// delegate did request to abort
 			}
 		}
-	mysql_free_result($result);
+	mysqli_free_result($result);
 	return true;	// ok
 	}
 
@@ -303,13 +252,15 @@ class SQL extends NSObject
 		return false;	// don't abort
 	}
 
-	public function tables($error)
+	public function tables(&$error)
 	{
 		$saved=$this->delegate;
 		$this->delegate=$this;	// make us collect results in tables
 		$this->tables=array();	// we collect here
+
 		if($this->type == "mysql")
-			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->db);	// MySQL
+
+			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->dbname);	// MySQL
 		else
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
 		if(!$this->query($query, $error))
@@ -321,11 +272,30 @@ class SQL extends NSObject
 		return $this->tables;
 	}
 
-	public function __construct($url)
+	public function databases(&$error)
+	{ // ask for list of known databases
+		if($this->type == "mysql")
+			{
+			$saved=$this->delegate;
+			$this->delegate=$this;	// make us collect results in tables
+			$this->tables=array();	// we collect here
+			$query="SELECT DISTINCT table_schema AS name FROM information_schema.tables";	// MySQL
+			if(!$this->query($query, $error))
+				{
+				$this->delegate=$saved;
+				return null;
+				}
+			$this->delegate=$saved;
+			return $this->tables;
+			}
+		if($this->type == "sqlite")
+			return array($this->dbname);	// database file name/path
+		return null;
+	}
+
+	public function __construct()
 	{
 	parent::__construct();
-	// check for mysql: scheme
-	$this->filename=$url;
 	}
 
 	public function __destruct()
