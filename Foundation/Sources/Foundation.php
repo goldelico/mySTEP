@@ -27,6 +27,8 @@ function NSLog($format)
 	echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
 	}
 
+if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
+
 // error handler function
 function myErrorHandler($errno, $errstr, $errfile, $errline)
 {
