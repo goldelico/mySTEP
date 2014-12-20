@@ -149,13 +149,82 @@ class ManagedObject extends NSObject
 
 }
 
+class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
+{
+	protected $result;
+
+// FIXME: handle http://php.net/manual/de/class.sqlite3result.php
+// by inspecting the class of $r
+// we could also subclass SQLRowEnumerator into _MySQLRowEnumerator and _SQLiteRowEnumerator
+
+	public function __construct($r)
+	{
+		parent::__construct();
+		$this->result=$r;
+	}
+
+	public function __destruct()
+	{
+		mysqli_free_result($this->result);
+	}
+
+/*
+ * use as
+ * $row=$db->query(...)->nextObject() -- get single (first) row
+ * $rows=$db->query(...)->allObjects() -- get all rows (you should use SELECT ... LIMIT)
+ * $enum=$db->query(); while($row=$enum->nextObject()) body(); -- loop over all rows
+ */
+
+	public function nextObject()
+	{ // fetch next row
+		return mysqli_fetch_array($this->result);
+	}
+
+	public function allObjects()
+	{ // fetch all (remaining) rows
+		$result=array();
+		while($row=$this->nextObject())
+			$result[]=$row;
+		return $result;
+	}
+
+	public function allObjectsKorKey($column)
+	{ // fetch all (remaining) rows and extract key
+		$result=array();
+		while($row=$this->nextObject())
+			$result[]=$row[$column];
+		return $result;
+	}
+}
+
+class _SQLiteRowEnumerator extends SQLRowEnumerator
+{
+	public function __destruct()
+	{
+		// nothing to destruct explicitly
+	}
+
+	public function nextObject()
+	{ // fetch next row
+		return $result->fetchArray();
+	}
+}
+
+function quote($str)
+	{ // quote argument string
+		return "'".addslashes($str)."'";
+	}
+
+function quoteIdent($identifier)
+	{ // quote table/column name
+		return "`".$identifier."`";
+	}
+
 class SQL extends NSObject
 {
 	protected $type;
-	protected $db;		// SQLite/MySQL access handle
+	protected $db;	// SQLite/MySQL access handle
 	protected $dbname;	// current database name/file
-	protected $delegate;	// the delegate (may be temporarily $this)
-	protected $tables;	// collecting internal information
 
 	public function open($url, &$error)
 	{ // YES=ok
@@ -163,9 +232,9 @@ class SQL extends NSObject
 		$c=parse_url($url);
 		if($c === false)
 			return false;	// invalid
-		if($c['scheme'] == "mysql")
+		$this->type=$c['scheme'];
+		if($this->type == "mysql")
 			{
-			$this->type=$c['scheme'];
 			$socket="/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
 			NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
 			// FIXME: should only remove the /
@@ -179,10 +248,12 @@ class SQL extends NSObject
 				}
 			return true;
 			}
-		if($c['scheme'] == "sqlite" || $c['scheme'] == "file")
+		if($this->type == "sqlite" || $c['scheme'] == "file")
 			{
 			// must be localhost, no user/password
 			$this->dbname=$c['path'];	// file name
+			$this->db=new SQLite($this->dbname);
+			return isset($this->db);
 			}
 		return false;	// we speak only MySQL
 	}
@@ -197,96 +268,63 @@ class SQL extends NSObject
 		return false;
 	}
 
-	public function setDelegate($d)
-	{
-	$this->delegate=$d;
-	}
-
-	public function delegate()
-	{
-	return $this->delegate;
-	}
-
-	public function query($sql, &$error)	// YES=ok
+	public function query($sql, &$error)
 	{
 	NSLog("SQL: ".$sql);
-	if(mysqli_error($this->db))
+	if($this->type == "mysql")
 		{
-		NSLog(mysqli_error($this->db));
-		return false;
-		}
-	$result=mysqli_query($this->db, $sql);
-	NSLog("query done $result");
-	if(mysqli_error($this->db))
-		{
-		NSLog(mysqli_error($this->db));
-		return false;
-		}
-	NSLog("query ok");
-	if(isset($this->delegate))
-		{
-		while($row=mysqli_fetch_array($result))
+		if(mysqli_error($this->db))
 			{
-			NSLog("call delegate with row");
-			if($this->delegate->sql($this, $row))
-				break;	// delegate did request to abort
+			NSLog(mysqli_error($this->db));
+			return null;
 			}
+		$result=mysqli_query($this->db, $sql);
+		NSLog("MySQL query done");
+		if(mysqli_error($this->db))
+			{
+			NSLog(mysqli_error($this->db));
+			return null;
+			}
+		NSLog("query ok");
+		return new SQLRowEnumerator($result);
 		}
-	mysqli_free_result($result);
-	return true;	// ok
+	else
+		{
+		$result=$this->db->query($sql);
+		if(!$result)
+			{
+			return null;
+			}
+		NSLog("MySQL query done");
+		return new _SQLiteRowEnumerator($result);
+		}
 	}
 
 	public function quote($str)
 	{ // quote argument string
-		return "'".addslashes($str)."'";
+		return quote($str);
 	}
 
 	public function quoteIdent($identifier)
 	{ // quote table/column name
-		return "`".$identifier."`";
-	}
-
-	private function sql($sqlobject, $record)
-	{ // we are (temporarily) our own delegate
-		$this->tables[]=$record["name"];	// collect table names
-		return false;	// don't abort
+		return quoteIdent($str);
 	}
 
 	public function tables(&$error)
 	{
-		$saved=$this->delegate;
-		$this->delegate=$this;	// make us collect results in tables
-		$this->tables=array();	// we collect here
-
 		if($this->type == "mysql")
-
 			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->dbname);	// MySQL
 		else
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
-		if(!$this->query($query, $error))
-			{
-			$this->delegate=$saved;
-			return null;
-			}
-		$this->delegate=$saved;
-		return $this->tables;
+		return $this->query($query, $error)->allObjectsForKey("name");
 	}
 
 	public function databases(&$error)
 	{ // ask for list of known databases
 		if($this->type == "mysql")
 			{
-			$saved=$this->delegate;
-			$this->delegate=$this;	// make us collect results in tables
-			$this->tables=array();	// we collect here
-			$query="SELECT DISTINCT table_schema AS name FROM information_schema.tables";	// MySQL
-			if(!$this->query($query, $error))
-				{
-				$this->delegate=$saved;
-				return null;
-				}
-			$this->delegate=$saved;
-			return $this->tables;
+			$query="SELECT DISTINCT table_schema FROM information_schema.tables";	// MySQL
+			return $this->query($query, $error)->allObjectsForKey("table_schema");
 			}
 		if($this->type == "sqlite")
 			return array($this->dbname);	// database file name/path
@@ -300,7 +338,6 @@ class SQL extends NSObject
 
 	public function __destruct()
 	{
-	$this->flush();
 	}
 }
 
