@@ -18,8 +18,6 @@
 
 // global $ROOT must be set by some application
 
-// echo "<h1>Shop.framework</h1>";
-
 function NSLog($format)
 	{
 	// append \n only if not yet appended
