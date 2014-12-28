@@ -45,15 +45,15 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         break;
 
     case E_USER_WARNING:
-        NSLog("<b>My WARNING</b> [$errno] $errstr");
+        NSLog("<b>My WARNING</b> [$errno] $errstr on line $errline in file $errfile");
         break;
 
     case E_USER_NOTICE:
-        NSLog("<b>My NOTICE</b> [$errno] $errstr");
+        NSLog("<b>My NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
         break;
 
     default:
-        NSLog("Unknown error type: [$errno] $errstr");
+        NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
         break;
     }
 
@@ -393,13 +393,17 @@ class NSUserDefaults extends NSObject
 { // persistent values (user settings)
 	protected static $standardUserDefaults;
 	protected $user="";
-	protected $defaults;
+	protected $defaults=array();
 	protected $registeredDefaults=array();
 	public static function standardUserDefaults()
 	{
-	if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
-		{ // read and check for proper login
-			//			echo "read and check for proper login ";
+	if(isset(self::$standardUserDefaults))
+		return self::$standardUserDefaults;
+	$defaults=new NSUserDefaults();	// create empty defaults
+	self::$standardUserDefaults=$defaults;
+	if(self::$standardUserDefaults->user == "")
+		{ // check for proper login and read real defaults
+			// echo "read and check for proper login ";
 
 			/*
 			if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
@@ -417,13 +421,9 @@ class NSUserDefaults extends NSObject
 			// FIXME: should be some site specific setting?
 			$checkPassword=true;
 
-			$defaults=new NSUserDefaults();
-			self::$standardUserDefaults=$defaults;
 			// FIXME: check if this is really best in class passwort handling for web/php
 			if(!$checkPassword)
 				{ // dummy initialization
-					$defaults->user="N.N.";
-					$defaults->defaults=array();
 				}
 			else if($defaults->user != "" && isset($_COOKIE['passcode']))
 				{ // check passcode
@@ -442,6 +442,9 @@ class NSUserDefaults extends NSObject
 	}
 	public function registerDefaults($dict)
 	{
+/*echo "RegisterDefaults\n<pre>";
+print_r($dict);
+echo "</pre>";*/
 		$this->registeredDefaults=$dict;
 	}
 	public function dictionaryRepresentation()
@@ -451,16 +454,18 @@ class NSUserDefaults extends NSObject
 	}
 	public function objectForKey($key)
 	{ // go through the domains
-//		print_r($this->defaults);
-//		print_r($key);
-		$val=$this->defaults[$key];
-//		print_r($val);
-		if(isset($val))
-			return $val;
-		$val=$this->registeredDefaults[$key];
-//		print_r($this->registeredDefaults);
-//		print_r($val);
-		return $val;
+/*echo "<pre>1.\n";
+		print_r($this->defaults);
+		print_r($key);
+echo "</pre>";*/
+		if(isset($this->defaults[$key]))
+			return $this->defaults[$key];
+/*echo "<pre>2.\n";
+		print_r($this->registeredDefaults);
+echo "</pre>";*/
+		if(isset($this->registeredDefaults[$key]))
+			return $this->registeredDefaults[$key];
+		return null;
 	}
 	public function setObjectForKey($key, $val)
 	{
