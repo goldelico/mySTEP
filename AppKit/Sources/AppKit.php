@@ -311,22 +311,36 @@ class NSColor extends NSObject
 class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $elementName;
-	protected $subviews = array();
+	protected $subviews=array();
 	protected $autoResizing;
-	public function subviews() { return $this->subviews; }
-	public function addSubview($view) { $this->subviews[]=$view; }
+	protected $needsDisplay;
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
 		parent::__construct();
 		$this->elementName="NSView-".(++$elementNumber);
 		}
-	public function draw()
+	public function subviews() { return $this->subviews; }
+	public function addSubview($view) { $this->subviews[]=$view; }
+	public function setNeedsDisplay()
 		{
+		$this->needsDisplay=true;
+		}
+	public function needsDisplay()
+		{
+		return $this->needsDisplay;
+		}
+	public function display()
+		{ // draw subviews first
 //		echo "<!-- ".$this->elementName." -->\n";
 		foreach($this->subviews as $view)
-			$view->draw();
+			$view->display();
+		$this->draw();
 		}
+	public function draw()
+		{ // draw our own contents
+		}
+	// this differes a little from AppKit
 	public function sendEvent($event)
 		{
 		foreach($this->subviews as $view)
@@ -561,8 +575,6 @@ class NSComboBox extends NSControl
 	// use <select size > 1>
 	}
 
-// FIXME: shouldn't we separate between NSImage and NSImageView?
-
 class NSImage extends NSObject
 {
 	protected static $images=array();
@@ -572,18 +584,32 @@ class NSImage extends NSObject
 	protected $height=32;
 	public function size()
 		{
-		return array($width, $height);
+		// load and analyse if needed
+		return array('width' => $width, 'height' => $height);
 		}
 	public static function imageNamed($name)
 		{
-		$img=self::$images[$name];
-		if(isset($img))
-			return $img;	// known
-		return new NSImage($name);	// create
+		if(isset(self::$images[$name]))
+			return self::$images[$name];	// known
+		$image=new NSImage();	// create
+		$image->setName($name);
+		return $image;
 		}
 	public function __construct()
 		{
 		parent::__construct();
+		}
+	public function name()
+		{
+		return $this->name;
+		}
+	public function composite()
+		{
+		echo "<img";
+		parameter("src", _htmlentities($this->url));
+		parameter("name", _htmlentities($this->name));
+		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
+		echo ">\n";
 		}
 	public function setName($name)
 		{
@@ -591,25 +617,27 @@ class NSImage extends NSObject
 			unset(self::$images[$this->name]);
 		if($name != "")
 			{
-			self::$images[$name]=$this;
 			$this->name=$name;
+			self::$images[$this->name]=$this;
 			if(!isset($this->url))
 				{
 				// search in main bundle
-				$this->setFilePath("images/".$name.".png");	// set default name				
+				// or in AppKit bundle
+				$this->url="images/".$name.".png";	// set default name
 				}
 			}
 		}
 	public function initByReferencingURL($url)
 		{
 		$this->url=$url;
-		// $this->setName(basename($path)) - ohne Suffix
+		$this->name=basename($path); // should remove file suffix
+		self::$images[$this->name]=$this;
 		}
 	public function initByReferencingFile($path)
 		{
 		NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 		$this->initByReferencingURL($url);
-//		$this->seinitByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
+//		$this->initByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
 }
 
@@ -622,21 +650,17 @@ class NSImageView extends NSControl
 		}
 	public function image()
 		{
-		return $image;
+		return $this->image;
 		}
 	public function setImage($img)
 		{
-		$image=$img;
+		$this->image=$img;
 		$this->setNeedsDisplay();
 		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<img";
-		parameter("src", _htmlentities($image->url));
-		parameter("name", _htmlentities($image->name));
-		parameter("style", "{ width:"._htmlentities($image->width).", height:"._htmlentities($image->height)."}");
-		echo ">\n";
+		$this->image->composite();
 		}
 }
 
@@ -670,8 +694,11 @@ class NSCollectionView extends NSControl
 		}
 	public function draw()
 		{
+// FIXME: this is not yet very systematic...
+// we call display from draw which should itself be called from display only
 		parent::draw();
 		echo "<table";
+		parameter("class", "NSCollectionView");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
 		echo "\">\n";
@@ -680,8 +707,13 @@ class NSCollectionView extends NSControl
 			{
 			if($col == 1)
 				echo "<tr>";
-			echo "<td>\n";
-			$item->draw();
+			echo "<td";
+			parameter("class", "NSCollectionViewItem");
+			echo "\">\n";
+//echo "<pre>";
+//print_r($item);
+//echo "</pre>";
+			$item->display();
 			echo "</td>";
 			$col++;
 			if($col > $this->columns)
@@ -1070,9 +1102,9 @@ class NSWindow extends NSResponder
 		echo ">\n";
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
-			$mm->draw();	// draw main menu before content view
+			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
-		$this->contentView->draw();
+		$this->contentView->display();
 		// add footer (Impressum, Version etc.)
 		echo "</form>\n";
 		echo "</body>\n";
@@ -1140,7 +1172,7 @@ class NSWorkspace
 		}
 	public function iconForFile($path)
 		{
-		return NSImageView::imageNamed("NSApplication");	// default
+		return NSImage::imageNamed("NSApplication");	// default
 		// check if that is a bundle -> get through Info.plist / bundle
 		// $bundle->objectForInfoDictionaryKey('CFBundleIconFile');
 		// else find application by suffix
