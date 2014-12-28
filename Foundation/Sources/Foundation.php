@@ -20,9 +20,18 @@
 
 function NSLog($format)
 	{
-	// append \n only if not yet appended
+	if(!is_scalar($format))
+		{
+		echo "<pre>";
+		print_r($format);
+		echo "</pre>";
+		}
+	else
+		{
 	// NSDate::date()->description()
-	echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
+		// append \n only if not yet appended
+		echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
+		}
 	}
 
 if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
@@ -442,9 +451,7 @@ class NSUserDefaults extends NSObject
 	}
 	public function registerDefaults($dict)
 	{
-/*echo "RegisterDefaults\n<pre>";
-print_r($dict);
-echo "</pre>";*/
+/*echo "RegisterDefaults";NSLog($dict);*/
 		$this->registeredDefaults=$dict;
 	}
 	public function dictionaryRepresentation()
@@ -454,15 +461,15 @@ echo "</pre>";*/
 	}
 	public function objectForKey($key)
 	{ // go through the domains
-/*echo "<pre>1.\n";
-		print_r($this->defaults);
-		print_r($key);
-echo "</pre>";*/
+/*echo "1.";
+		NSLog($this->defaults);
+		NSLog($key);
+*/
 		if(isset($this->defaults[$key]))
 			return $this->defaults[$key];
-/*echo "<pre>2.\n";
-		print_r($this->registeredDefaults);
-echo "</pre>";*/
+/*echo "2.";
+		NSLog($this->registeredDefaults);
+*/
 		if(isset($this->registeredDefaults[$key]))
 			return $this->registeredDefaults[$key];
 		return null;

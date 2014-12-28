@@ -710,9 +710,7 @@ class NSCollectionView extends NSControl
 			echo "<td";
 			parameter("class", "NSCollectionViewItem");
 			echo "\">\n";
-//echo "<pre>";
-//print_r($item);
-//echo "</pre>";
+//NSLog($item);
 			$item->display();
 			echo "</td>";
 			$col++;
