@@ -188,7 +188,7 @@ class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
 		return $result;
 	}
 
-	public function allObjectsKorKey($column)
+	public function allObjectsForKey($column)
 	{ // fetch all (remaining) rows and extract key
 		$result=array();
 		while($row=$this->nextObject())
@@ -238,7 +238,8 @@ class SQL extends NSObject
 			$socket="/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
 			NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
 			// FIXME: should only remove the /
-			$this->dbname=basename($c['path']);
+			if(isset($c['path']))
+				$this->dbname=basename($c['path']);
 			$this->db=mysqli_connect("p:".$c['host'], $c['user'], $c['pass'], $this->dbname, ini_get("mysqli.default_port"), $socket);
 			if(mysqli_connect_errno())
 				{
@@ -307,7 +308,7 @@ class SQL extends NSObject
 
 	public function quoteIdent($identifier)
 	{ // quote table/column name
-		return quoteIdent($str);
+		return quoteIdent($identifier);
 	}
 
 	public function tables(&$error)
@@ -327,7 +328,7 @@ class SQL extends NSObject
 			return $this->query($query, $error)->allObjectsForKey("table_schema");
 			}
 		if($this->type == "sqlite")
-			return array($this->dbname);	// database file name/path
+			return array($this->dbname);	// SQLite: database file name/path
 		return null;
 	}
 
