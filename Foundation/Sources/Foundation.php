@@ -22,6 +22,7 @@ function NSLog($format)
 	{
 	if(!is_scalar($format))
 		{
+		// check if a description method exists
 		echo "<pre>";
 		print_r($format);
 		echo "</pre>";
@@ -99,9 +100,15 @@ class NSObject /* root class */
 		{
 		return $this;
 		}
+
 	public function class_()
 		{ // returns class name
 		return get_class($this);
+		}
+
+	public function description()
+		{ // simple description is class name
+		return $this->class_();
 		}
 	}
 
