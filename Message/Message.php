@@ -1,6 +1,6 @@
 <?php
 	/*
-	 * PDFKit.framework
+	 * Message.framework
 	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012
 	 * All rights reserved.
 	 */
@@ -8,61 +8,19 @@
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
-if($GLOBALS['debug']) echo "<h1>PDFKit.framework</h1>";
+if($GLOBALS['debug']) echo "<h1>Message.framework</h1>";
 
-// how can we draw into a PDFPage?
-
-class PDFPage extends NSObject
+class NSMailDelivery extends NSObject
 {
-	private $document;	// reference to owning document
-
-	public function dataRepresentation()
+	public static function deliverMessageSubjectDestination($body, $subject, $email)
 	{
-		return "data";
+	// wrapper for sendmail()
 	}
 
-}
-
-class PDFDocument extends NSObject
-{
-	private $pages;
-
-	// constructor/destructor($document)
-
-	public function dataRepresentation()
+	public static function deliverMessageHeadersFormatProtocol($body, array $headers, $format, $protocol)
 	{
-		// collect from all pages
-		return "data";
-	}
-
-	public function exchangePageAtIndexWithPageAtIndex($i1, $i2)
-	{
-		$temp=$this->pages[$i1];
-		$this->pages[$i1]=$this->pages[$i2];
-		$this->pages[$i2]=$temp;
-	}
-
-	public function indexForPage($page)
-	{
-		// search
-	}
-
-	public function insertPageAtIndex:($page, $index)
-	{
-	}
-
-	public function pageAtIndex($index)
-	{
-		return $this->pages[$index];
-	}
-
-	public function pageCount()
-	{
-		return count($this->pages);
-	}
-
-	function removePageAtIndex($index)
-	{
+		// depending on Format the body may be HTML
+		// how to get the subject? the email?
 	}
 
 }
