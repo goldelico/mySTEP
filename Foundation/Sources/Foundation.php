@@ -85,15 +85,19 @@ class NSObject /* root class */
 
 	public function forwardInvocation(NSInvocation $invocation)
 		{
-		// default error handling
+		$selector=$invocation->selector();
+		$target=$invocation->target();
+		$class=$target->class_();
+		$arguments=$invocation->arguments();
+		NSLog("called unimplemented method '$class->$selector()'");
 		}
 	
 	public function __call($name, $arguments)
     		{
-			$inv = new NSInvocation($name, $arguments);
-        	// Note: value of $name is case sensitive.
-        	echo "Calling object method '$name' "
-             		. implode(', ', $arguments). "\n";
+		$inv = NSInvocation::invocationWithSelector($name);
+		$inv->setTarget($this);
+		$inv->setArguments($arguments);
+		$this->forwardInvocation($inv);
     		}
 
 	public function self()
@@ -121,7 +125,7 @@ class NSInvocation extends NSObject
 	{
 	protected $target;
 	protected $selector;
-	protected $args=array();
+	protected $arguments=array();
 
 	public function invoke()
 		{
@@ -134,11 +138,36 @@ class NSInvocation extends NSObject
 		return $this->invoke();
 		}
 
+	public function setArguments(array $arguments)
+		{
+		$this->arguments=$arguments;
+		}
+
+	public function arguments()
+		{
+		return $this->arguments;
+		}
+
+	public function setTarget($target)
+		{
+		$this->target=$target;
+		}
+
+	public function target()
+		{
+		return $this->target;
+		}
+
+	public function selector()
+		{
+		return $this->selector;
+		}
+
 	public static function invocationWithSelector($selector)
 		{
 		$r=new NSInvocation;
 		$r->selector=$selector;
-		return r;
+		return $r;
 		}
 	}
 
