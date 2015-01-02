@@ -392,7 +392,6 @@ class NSButton extends NSControl
 	}
 	public function draw()
 		{
-		parent::draw();
 		// checkbox, radiobutton
 		echo "<input";
 		parameter("class", "NSButton");
@@ -663,7 +662,6 @@ class NSImageView extends NSControl
 		}
 	public function draw()
 		{
-		parent::draw();
 //		NSLog($this->image);
 		if(isset($this->image))
 			$this->image->composite();
@@ -702,7 +700,6 @@ class NSCollectionView extends NSControl
 		{
 // FIXME: this is not yet very systematic...
 // we call display from draw which should itself be called from display only
-		parent::draw();
 		echo "<table";
 		parameter("class", "NSCollectionView");
 		parameter("border", $this->border);
@@ -815,7 +812,6 @@ class NSTabView extends NSControl
 		}
 	public function draw()
 		{
-		parent::draw();
 		echo "<input";
 		parameter("type", "hidden");
 		parameter("name", $this->elementName."-selectedIndex");
@@ -903,7 +899,6 @@ class NSTableView extends NSControl
 		}
 	public function draw()
 		{
-		parent::draw();
 		echo "<input";
 		parameter("type", "hidden");
 		parameter("name", $this->elementName."-selectedRow");
@@ -957,13 +952,18 @@ class NSTableView extends NSControl
 	
 class NSTextField extends NSControl
 {
-// FIXME: should we use cookies to store values when switching apps???
-	protected $stringValue;
+	protected $stringValue;	// should this be a property of NSControl?
 	protected $backgroundColor;
 	protected $align;
 	protected $type="text";
 	protected $width;
+	protected $isEditable=true;
+	protected $textColor;
+	protected $wraps=true;
 	public function stringValue() { return $this->stringValue; }
+	public function setStringValue($str) { $this->stringValue=$str; }
+	public function isEditable() { return $this->isEditable; }
+	public function setEditable($flag) { $this->isEditable=$flag; }
 	public function __construct($width=30, $stringValue = "")
 	{
        		parent::__construct();
@@ -972,19 +972,28 @@ class NSTextField extends NSControl
 	}
 	public function sendEvent($event)
 		{ // some button has been pressed
-		if(isset($event[$this->elementName]))
+		if($this->isEditable && isset($event[$this->elementName]))
 			$this->stringValue=$event[$this->elementName];	// get our value when posted
 		}
 	public function draw()
 		{
-		parent::draw();
-		echo "<input";
-		parameter("class", "NSTextField");
-		parameter("type", $this->type);
-		parameter("size", $this->width);
-		parameter("name", $this->elementName);
-		parameter("value", _htmlentities($this->stringValue));
-		echo "\"/>\n";
+		if($this->isEditable)
+			{
+			echo "<input";
+			parameter("class", "NSTextField");
+			parameter("type", $this->type);
+			parameter("size", $this->width);
+			parameter("name", $this->elementName);
+			parameter("value", _htmlentities($this->stringValue));
+			echo "\"/>\n";
+			}
+		else
+			{
+			if($this->wraps)
+				echo nl2br(_htmlentities($this->stringValue));
+			else
+				echo _htmlentities($this->stringValue);
+			}
 		}
 }
 
@@ -997,21 +1006,6 @@ class NSSecureTextField extends NSTextField
 		$this->type="password";
 	}
 
-}
-
-class NSStaticTextField extends NSControl
-{
-	protected $stringValue;
-	public function __construct($stringValue = "")
-	{
-       		parent::__construct();
-		$this->stringValue=$stringValue;
-	}
-	public function draw()
-		{
-		parent::draw();
-		echo _htmlentities($this->stringValue);
-		}
 }
 
 class NSTextView extends NSControl
@@ -1032,7 +1026,6 @@ class NSTextView extends NSControl
 		}
 	public function draw()
 		{
-		parent::draw();
 		echo "<textarea";
 		parameter("width", $this->width);
 		parameter("height", $this->height);
