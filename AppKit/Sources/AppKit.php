@@ -366,7 +366,11 @@ class NSButton extends NSControl
 	protected $buttonType;
 	public function isSelected()
 		{
-		return true;
+		return $this->state;
+		}
+	public function setSelected($value)
+		{
+		$this->state=$value;
 		}
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
@@ -392,7 +396,7 @@ class NSButton extends NSControl
 		// checkbox, radiobutton
 		echo "<input";
 		parameter("class", "NSButton");
-		switch($buttonType)
+		switch($this->buttonType)
 			{
 				case "CheckBox":
 					parameter("type", "checkbox");
@@ -406,7 +410,7 @@ class NSButton extends NSControl
 		parameter("type", "submit");
 		parameter("name", $this->elementName);
 		parameter("value", _htmlentities($this->title));
-		if($item == $this->isSelected())
+		if($this->isSelected())
 			{
 			parameter("checked", "checked");
 			parameter("style", "color=green;");
@@ -660,7 +664,9 @@ class NSImageView extends NSControl
 	public function draw()
 		{
 		parent::draw();
-		$this->image->composite();
+//		NSLog($this->image);
+		if(isset($this->image))
+			$this->image->composite();
 		}
 }
 
