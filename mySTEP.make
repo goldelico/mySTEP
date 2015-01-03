@@ -527,7 +527,7 @@ endif
 
 make_php: bundle
 # make PHP
-	for PHP in *.php Sources/?*.php; do \
+	for PHP in $(PHPSRCS); do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
