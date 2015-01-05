@@ -314,14 +314,26 @@ class NSView extends NSResponder
 	protected $subviews=array();
 	protected $autoResizing;
 	protected $needsDisplay;
+	protected $window;
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
 		parent::__construct();
 		$this->elementName="NSView-".(++$elementNumber);
 		}
+	public function window() { return $this->window; }
+	public function setWindow($window)
+		{
+		$this->window=$window;
+		foreach($this->subviews as $view)
+			$view->setWindow($window);
+		}
 	public function subviews() { return $this->subviews; }
-	public function addSubview($view) { $this->subviews[]=$view; }
+	public function addSubview($view)
+		{
+		$this->subviews[]=$view;
+		$view->setWindow($this->window);
+		}
 	public function setNeedsDisplay()
 		{
 		$this->needsDisplay=true;
@@ -1046,13 +1058,14 @@ class NSWindow extends NSResponder
 	protected $title;
 	protected $contentView;
 	public function contentView() { return $this->contentView; }
-	public function setContentView($view) { $this->contentView=$view; }
-	public function __construct($newtitle = "QuantumSTEP Cloud")
+	public function setContentView($view) { $this->contentView=$view; $view->setWindow($this); }
+	public function title() { return $this->title; }
+	public function setTitle($title) { $this->title=$title; }
+
+	public function __construct()
 		{
 		global $NSApp;
 		parent::__construct();
-// echo "NSWindow $newtitle<br>";
-		$this->title=$newtitle;
 		$this->setContentView(new NSView());
 		if($NSApp->mainWindow() == NULL)
 			$NSApp->setMainWindow($this);
@@ -1074,6 +1087,10 @@ class NSWindow extends NSResponder
 		parameter("http-equiv", "content-type");
 		parameter("content", "text/html; charset=".NSHTMLGraphicsContext::encoding);
 		echo ">\n";
+		echo "<meta";
+		parameter("name", "mySTEP.php");
+		parameter("content", "");
+		echo ">\n";
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 		   {
@@ -1093,7 +1110,8 @@ class NSWindow extends NSResponder
 		   echo "</script>\n";
 		   echo "<noscript>Your browser does not support JavaScript!</noscript>\n";
 		   }
-		echo "<title>"._htmlentities($this->title)."</title>\n";
+		if(isset($this->title))
+			echo "<title>"._htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
 		echo "<body>\n";
 		echo "<form";
@@ -1107,7 +1125,6 @@ class NSWindow extends NSResponder
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->display();
-		// add footer (Impressum, Version etc.)
 		echo "</form>\n";
 		echo "</body>\n";
 		echo "</html>\n";
