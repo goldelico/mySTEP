@@ -513,12 +513,12 @@ class NSUserDefaults extends NSObject
 		/* registered defaults are initial values set by the application */
 		if(isset($this->registeredDefaults[$key]))
 			return $this->registeredDefaults[$key];
-		return null;
+		return null;	// undefined
 	}
 	public function setObjectForKey($key, $val)
 	{
 		$this->defaults[$key]=$val;
-		// write to file system
+		// write to cookie or file system
 	}
 	public function boolForKey($key) { $val=$this->objectForKey($key); return $val=="1" || $val == "true" || $val == "YES"; }
 	public function floatForKey($key) { return (float) $this->objectForKey($key); }
