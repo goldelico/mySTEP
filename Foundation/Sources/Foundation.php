@@ -497,15 +497,20 @@ class NSUserDefaults extends NSObject
 	}
 	public function objectForKey($key)
 	{ // go through the domains
+		// NSArgumentDomain overrides stored defaults
+		if(isset($_GET[$key]))
+			return $_GET[$key];
 /*echo "1.";
 		NSLog($this->defaults);
 		NSLog($key);
 */
+		/* defaults stored somewhere (cookies?) */
 		if(isset($this->defaults[$key]))
 			return $this->defaults[$key];
 /*echo "2.";
 		NSLog($this->registeredDefaults);
 */
+		/* registered defaults are initial values set by the application */
 		if(isset($this->registeredDefaults[$key]))
 			return $this->registeredDefaults[$key];
 		return null;
