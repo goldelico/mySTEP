@@ -633,8 +633,13 @@ class NSImage extends NSObject
 	public function initByReferencingURL($url)
 		{
 		$this->url=$url;
-		$this->name=basename($path); // should remove file suffix
-		self::$images[$this->name]=$this;
+		$c=parse_url($url);
+		if(isset($c['path']))
+			{ // use filename (without extension)
+			$parts=pathinfo($c['path']);
+			$this->name=$parts['filename'];
+			self::$images[$this->name]=$this;
+			}
 		}
 	public function initByReferencingFile($path)
 		{
