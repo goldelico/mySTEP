@@ -1088,8 +1088,8 @@ class NSWindow extends NSResponder
 		parameter("content", "text/html; charset=".NSHTMLGraphicsContext::encoding);
 		echo ">\n";
 		echo "<meta";
-		parameter("name", "mySTEP.php");
-		parameter("content", "");
+		parameter("name", "generator");
+		parameter("content", "mySTEP.php");
 		echo ">\n";
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
