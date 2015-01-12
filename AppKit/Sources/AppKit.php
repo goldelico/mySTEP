@@ -118,7 +118,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		$path="http://localhost".$path;
 		// strip off: /Users/hns/Documents/Projects
 //		NSLog("__FILE__: ".$__FILE__);
-//		print_r($_SERVER);
+//		NSLog($_SERVER);
 		
 		// NSLog("URL: $path");
 		return $path;
@@ -234,7 +234,7 @@ class NSApplication extends NSResponder
 	public function open($app)
 		{ // switch to a different app
 		$bundle=NSWorkspace::fullPathForApplication($app);
-//			print_r($bundle);
+//			NSLog($bundle);
 		if(isset($bundle))
 			{
 // ask $bundle->executablePath;
@@ -255,9 +255,8 @@ class NSApplication extends NSResponder
 	public function sendActionToTarget($from, $action, $target)
 		{
 /*
-echo "sendAction $action to";
-print_r($target);
-echo "<br>";
+NSLog("sendAction $action to");
+NSLog($target);
 */
 		if(!isset($target))
 			return;	// it $target does not exist -> take first responder
@@ -344,7 +343,7 @@ class NSView extends NSResponder
 		}
 	public function display()
 		{ // draw subviews first
-//		echo "<!-- ".$this->elementName." -->\n";
+//		NSLog("<!-- ".$this->elementName." -->");
 		foreach($this->subviews as $view)
 			$view->display();
 		$this->draw();
@@ -387,7 +386,7 @@ class NSButton extends NSControl
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
-		// echo "NSButton $newtitle<br>";
+		// NSLog("NSButton $newtitle");
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		}
@@ -397,8 +396,8 @@ class NSButton extends NSControl
 	public function setState($s) { $this->state=$s; }
 	public function sendEvent($event)
 	{ // this button may have been pressed
-		// print_r($event);
-		// print_r($this);
+		// NSLog($event);
+		// NSLog($this);
 		if(isset($event[$this->elementName]) && $event[$this->elementName] == $this->title)
 			$this->sendAction($this->action, $this->target);
 	}
@@ -511,7 +510,7 @@ class NSMenuView extends NSControl
 		{
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
-//		echo $this->isHorizontal?"horizontal":"vertical";
+//		NSLog($this->isHorizontal?"horizontal":"vertical");
 		$menuItems=array();
 		}
 	public function menuItems() { return $this->menuItems; }
@@ -706,7 +705,7 @@ class NSCollectionView extends NSControl
 		parent::__construct();
 		$this->columns=$cols;
 		$this->content=$items;
-// echo "NSCollectionView $cols<br>";
+// NSLog("NSCollectionView $cols");
 		}
 	public function sendEvent($event)
 		{
@@ -809,17 +808,17 @@ class NSTabView extends NSControl
 		{
        		parent::__construct();
 			$this->tabViewItems=$items;
-		// echo "NSTabView $cols<br>";
+		NSLog("NSTabView $cols");
 		}
 	public function sendEvent($event)
 		{ // forward to selected item
 		if(isset($event[$this->elementName."-selectedIndex"]))
 			$this->selectedIndex=$event[$this->elementName."-selectedIndex"];	// get default
-// print_r($selectedIndex);
+// NSLog($selectedIndex);
 		for($index=0; $index < count($this->tabViewItems); $index++)
 			{
 			$element=$this->elementName."-".$index;
-// print_r($element);
+// NSLog($element);
 			if(isset($event[$element]) && $event[$element] != "")
 				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
 			}
@@ -908,7 +907,7 @@ class NSTableView extends NSControl
 		for($index=0; $index < count($this->tabViewItems); $index++)
 			{
 			$element=$this->elementName."-".$index;
-// print_r($element);
+// NSLog($element);
 			if(isset($event[$element]) && $event[$element] != "")
 				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
 			}
@@ -1069,11 +1068,11 @@ class NSWindow extends NSResponder
 		$this->setContentView(new NSView());
 		if($NSApp->mainWindow() == NULL)
 			$NSApp->setMainWindow($this);
-// print_r($NSApp);
+// NSLog($NSApp);
 		}
 	public function sendEvent($event)
 		{
-// print_r($event);
+// NSLog($event);
 		$this->contentView->sendEvent($event);
 		}
 	public function display() 
@@ -1150,14 +1149,13 @@ class NSWorkspace
 		foreach($appdirs as $dir)
 			{
 			global $ROOT;
-//			echo "$ROOT/$dir<br>";
+//			NSLog("$ROOT/$dir");
 			$f=opendir("$ROOT/$dir");
 			if($f)
 				{
 				while($bundle=readdir($f))
 					{
-					#
-//					echo "$dir/$bundle<br>";
+//					NSLog("$dir/$bundle");
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
 							// checks that the PHP executable exists
@@ -1175,18 +1173,18 @@ class NSWorkspace
 				closedir($f);
 				}
 			}
-//		print_r($knownApplications);
+//		NSLog($knownApplications);
 		return self::$knownApplications;
 		}
 	public function fullPathForApplication($name)
 		{
 		NSWorkspace::knownApplications();	// update list
-//		echo "$name<br>";
+//		NSLog("$name)";
 		$app=self::$knownApplications[$name];
 		if(isset($app))
 			return $app["NSApplicationPath"];
-		echo "fullPathForApplication:$app not found<br>";
-		print_r(self::$knownApplications);
+		NSLog("fullPathForApplication:$app not found");
+		NSLog(self::$knownApplications);
 		return $app;
 		}
 	public function iconForFile($path)
