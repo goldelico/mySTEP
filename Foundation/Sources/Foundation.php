@@ -369,51 +369,6 @@ class NSBundle extends NSObject
 	}
 }
 	
-	/* set new passcode
-	 *
-	 * $passcode=md5($login.$password);
-	 * $defaults->setStringForKey("NSUserPassword", md5($passcode.$login))
-	 * setcookie("passcode", $passcode, 24*3600);
-	 * $_COOKIE['passcode']=$passcode;
-	 * NSUserDefaults::resetStandardUserDefaults();
-	 *
-	 * was bedeutet das für den aktuellen login?
-	 * vermutlich, dass man sich in der aktuellen App noch bewegen kann
-	 *
-	 * best in class:
-	 *   modify:
-	 *   $salt = random $salt (may include/depend on $user)
-	 *   $store [$user] = $salt . hash($algo, $salt . $password, false);
-	 *
-	 *   check:
-	 *   $salt = substring($store [$user], len);
-	 *   if ( $store [$user] == $salt . hash($algo, $salt . $password, false) ) then ok
-	 *
-	 * oder wenn man "login" in cookie speichert:
-	 *   cookie['user'] = $user
-	 *   cookie['password'] = hash($algo, $salt . $password, false)
-	 * 
-	 *   check:
-	 *   $salt = substring($store [cookie['user']], len);
-	 *   if ( $store [$user] == $salt . cookie['password'] ) then ok
-	 *
-	 * wobei das dann einfach ein "token" wird... Sobald jemand das kennt kann er sich immer einloggen.
-	 *
-	 * noch besser: Eigenschaft eines NSSecureTextFields machen - so dass das nie den Text als Klartext ausspuckt!
-	 * und noch besser: schon auf dem Client (JavaScript) hashen - dann kann das Formular sogar in http: übertragen werden
-	 * aber: wie handhabt man dann das "salt"??? Das wäre dann jedesmal anders :(
-	 * oder man trennt zwischen Password-Check-Field und Password-Eingabefeld
-	 * beim Check-Field kommt das $salt aus der Datenbank (sobald man einen User-Namen gewählt hat)
-	 * beim Eingabefeld wird es neu erzeugt
-	 *
-	 * see: http://programmers.stackexchange.com/questions/76939/why-almost-no-webpages-hash-passwords-in-the-client-before-submitting-and-hashi
-	 * and although people recommend to use TLS or SSH, we know that those might not be secure as well
-	 * so we never transport the password - and users who use the same password for different systems have less trouble
-	 *
-	 * aber es gibt Leute die das ganze Verfahren für unsicher halten...
-	 *
-	 */
-
 // FIXME: chmod("/einverzeichnis/einedatei", 0750);	auf /Users/<username>
 // Problem: wenn php drankommt, dann kommt auch der WebServer dran!?!
 
@@ -432,93 +387,143 @@ function NSHomeDirectory()
 		return @"/";
 	return NSHomeDirectoryForUser($ud->user());
 	}
-	
+
+const NSGlobalDomain = "NSGlobalDomain";
+const NSRegistrationDomain = "NSRegistrationDomain";
+const NSArgumentDomain = "NSArgumentDomain";
+
 class NSUserDefaults extends NSObject
-{ // persistent values (user settings)
+{ // persistent values (user settings) - made persistent in browser cookies
 	protected static $standardUserDefaults;
-	protected $user="";
-	protected $defaults=array();
-	protected $registeredDefaults=array();
+	protected $searchList=array();
+	protected $volatileDomains=array();
+
 	public static function standardUserDefaults()
 	{
-	if(isset(self::$standardUserDefaults))
-		return self::$standardUserDefaults;
-	$defaults=new NSUserDefaults();	// create empty defaults
-	self::$standardUserDefaults=$defaults;
-	if(self::$standardUserDefaults->user == "")
-		{ // check for proper login and read real defaults
-			// echo "read and check for proper login ";
-
-			/*
-			if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
-				{
-				$this->user=$_COOKIE['login'];
-				$plist=NSHomeDirectoryForUser($this->user)."/Library/Preferences/NSGlobalDomain.plist";
-				$this->defaults=NSPropertyListSerialization::propertyListFromPath($plist);
-				if(!isset($this->defaults))
-					$this->user="";
-				}
-			else
-				$this->user="";
-			 */
-
-			// FIXME: should be some site specific setting?
-			$checkPassword=true;
-
-			// FIXME: check if this is really best in class passwort handling for web/php
-			if(!$checkPassword)
-				{ // dummy initialization
-				}
-			else if($defaults->user != "" && isset($_COOKIE['passcode']))
-				{ // check passcode
-					$doublehash=md5($_COOKIE['passcode'].$defaults->user);	// 2nd hash so that the passcode can't be determined from the file system
-					$stored=$defaults->stringForKey("NSUserPassword");
-					NSLog("check $doublehash with $stored");
-					if($doublehash != $stored)
-						$this->resetStandardUserDefaults();	// does not match
-				}
+	if(!isset(self::$standardUserDefaults))
+		{
+		$defaults=new NSUserDefaults();	// create empty defaults
+		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
+		$defaults->setVolatileDomainForName($_GET, NSArgumentDomain);
+		$defaults->setVolatileDomainForName(array(), NSRegistrationDomain);
+		$defaults->setSearchList(array(NSArgumentDomain, $NSApplicationDomain, NSGlobalDomain, /* languages, */ NSRegistrationDomain));
+		self::$standardUserDefaults=$defaults;
 		}
 	return self::$standardUserDefaults;
 	}
+
 	public static function resetStandardUserDefaults()
-	{ // force re-read
+	{ // force re-build
 		unset(self::$standardUserDefaults);
 	}
+
+	function setSearchList($list)
+	{
+		$this->searchList=$list;
+	}
+
+	public function addSuiteNamed($domain)
+	{
+		$this->searchList[]=$domain;
+	}
+
+	public function removeSuiteNamed($domain)
+	{
+		unset($this->searchList[array_search($domain, $this->searchList)]);
+	}
+
+	public function persistentDomainForName($domain)
+	{
+		if(!isset($_COOKIES[$domain])) return null;
+		return json_decode($_COOKIES[$domain], true);
+	}
+
+	public function removePersistentDomainForName($domain)
+	{
+		$this->setPersistentDomainForName(null, $domain, -3600);
+	}
+
+	public function setPersistentDomainForName($dict, $domain, $duration=0)
+	{
+		NSLog("setPersistentDomainForName($domain) duration:$duration)");
+		NSLog($dict);
+		if($duration == 0)
+			$time=(2038-1970)*365*24*3600;	// almost for ever...
+		else
+			$time=time()+$duration;
+		if($duration < 0)
+			{ // unset
+			setcookie($domain, "", $time);
+			unset($_COOKIE[$domain]);
+			}
+		else
+			{
+			setcookie($domain, json_encode($dict), $time, "/", ".");	// set cookie for all domains and subpaths
+			$_COOKIE[$domain]=$dict;	// replace
+			}
+	}
+
+	public function persistentDomainNames()
+	{
+		// FIXME: don't return numeric indexes!
+		return array_keys($_COOKIES);
+	}
+
+	public function volatileDomainForName($domain)
+	{
+		if(isset($this->voltaileDomains[$domain]))
+			return $this->voltaileDomains[$domain];
+		return null;
+	}
+
+	public function removeVolatileDomainForName($domain)
+	{
+		if(isset($this->voltaileDomains[$domain]))
+			unset($this->voltaileDomains[$domain]);
+	}
+
+	public function setVolatileDomainForName($dict, $domain)
+	{
+		$this->voltaileDomains[$domain]=$dict;
+	}
+
+	public function volatileDomainNames()
+	{
+		// FIXME: don't return numeric indexes!
+		return array_keys($this->volatileDomains);
+	}
+
 	public function registerDefaults($dict)
 	{
-/*echo "RegisterDefaults";NSLog($dict);*/
-		$this->registeredDefaults=$dict;
+		$this->setVolatileDomainForName($dict, NSRegistrationDomain);
 	}
-	public function dictionaryRepresentation()
-	{
-		// combine values into single return dictionary
-		return $this->defaults;
-	}
+
 	public function objectForKey($key)
 	{ // go through the domains
-		// NSArgumentDomain overrides stored defaults
-		if(isset($_GET[$key]))
-			return $_GET[$key];
-/*echo "1.";
-		NSLog($this->defaults);
-		NSLog($key);
-*/
-		/* defaults stored somewhere (cookies?) */
-		if(isset($this->defaults[$key]))
-			return $this->defaults[$key];
-/*echo "2.";
-		NSLog($this->registeredDefaults);
-*/
-		/* registered defaults are initial values set by the application */
-		if(isset($this->registeredDefaults[$key]))
-			return $this->registeredDefaults[$key];
-		return null;	// undefined
+		foreach($this->searchList as $domain)
+			{ // try all domains
+			$r=$this->volatileDomainForName($domain);
+			if(isset($r[$key])) return $r[$key];
+			$r=$this->persistentDomainForName($domain);
+			if(isset($r[$key])) return $r[$key];
+			}
+		return null;	// still undefined
 	}
-	public function setObjectForKey($key, $val)
+
+	public function dictionaryRepresentation()
 	{
-		$this->defaults[$key]=$val;
-		// write to cookie or file system
+		// merge all values with highest precedence into single dictionary
+		return $array();
 	}
+
+	public function setObjectForKey($key, $val)
+	{ // write to persistent domain of bundle
+		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
+		$r=$this->persistentDomainForName($NSApplicationDomain);
+		$r[$key]=$val;	// change
+		$r=$this->setPersistentDomainForName($r, $NSApplicationDomain);
+	}
+
 	public function boolForKey($key) { $val=$this->objectForKey($key); return $val=="1" || $val == "true" || $val == "YES"; }
 	public function floatForKey($key) { return (float) $this->objectForKey($key); }
 	public function integerForKey($key) { return (int) $this->objectForKey($key); }
