@@ -231,7 +231,7 @@ class NSPropertyListSerialization extends NSObject
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::fileSystemRepresentationWithPath($path);
-//		echo "$filename =><br>";
+//		NSLog("$filename =>");
 		$f=fopen($filename, "r");	// open for reading
 		if($f)
 			{ // file exists and can be read
@@ -253,8 +253,7 @@ class NSPropertyListSerialization extends NSObject
 					}
 				fclose($f);
 			}
-//		print_r($plist);
-//		echo "<br>";
+//		NSLog($plist);
 		return $plist;
 		}
 	private static function writePropertyListElementToFile($element, $file)
@@ -273,7 +272,7 @@ class NSPropertyListSerialization extends NSObject
 
 function __load($path)
    {
-//   echo "load bundle from $path<br>";
+//   NSLog("load bundle from $path");
    return include($path);
    }
 
@@ -564,7 +563,7 @@ class NSFileManager extends NSObject
 	public function attributesOfItemAtPath($path)
 		{
 		$f=$this->fileSystemRepresentationWithPath($path);
-//		echo "attributesOfItemAtPath($path) -> $f ";
+//		NSLog("attributesOfItemAtPath($path) -> $f ");
 		if(!file_exists($f))
 			return NULL;	// does not exist
 		$a=stat($f);
@@ -620,7 +619,7 @@ class NSFileManager extends NSObject
 		}
 	public function contentsOfDirectoryAtPath($path)
 		{ // return directory contents as array
-//			echo "contentsOfDirectoryAtPath($path) ";
+//			NSLog("contentsOfDirectoryAtPath($path)";
 		$dir=opendir($this->fileSystemRepresentation($path));
 		if(!$dir)
 			return NULL;
