@@ -40,6 +40,14 @@ function _htmlentities($string)
 	return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
 }
 
+/*
+ * persistence is achieved by posting object->value relations through hidden <input> fields
+ * so that they are available on next refresh of the page through $_POST;
+ * a variable should be persisted
+ * - if it belongs to the view state of the current window (model state should be persisted through CoreDataBase and NSUserDefaults)
+ * - if it needs to survive the display (run) loop
+*/
+
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
@@ -314,18 +322,42 @@ class NSView extends NSResponder
 	protected $autoResizing;
 	protected $needsDisplay;
 	protected $window;
+	protected $persist;	// collect persistence requests while we have no window
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
 		parent::__construct();
 		$this->elementName="NSView-".(++$elementNumber);
 		}
+	public function persist($object, $value=null)
+		{
+		$object=$this->elementName."-".$object;
+		if(!isset($this->window))
+			{ // window not yet set
+			NSLog(@"delay persistance of $object");
+			if($value == null)
+				return $_POST[$object];
+			if(!isset($this->persist))
+				$this->persist=array();
+			return $this->persist[$object]=$value;	// store locally
+			}
+		return $this->window->persist($object, $value);
+		}
 	public function window() { return $this->window; }
 	public function setWindow($window)
 		{
+		NSLog("setWindow");
+		NSLog($this->persist);
 		$this->window=$window;
 		foreach($this->subviews as $view)
 			$view->setWindow($window);
+		if($window != null && isset($this->persist))
+			{ // forward all pending persistances
+			NSLog(@"forward delayed persistance of $object");
+			foreach($this->persist as $key => $value)
+				$window->persist($key, $value);
+			$this->persist=null;
+			}
 		}
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view)
@@ -381,7 +413,7 @@ class NSButton extends NSControl
 		}
 	public function setSelected($value)
 		{
-		$this->state=$value;
+		$this->state=$this->persist("selected", $value);
 		}
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
@@ -389,6 +421,7 @@ class NSButton extends NSControl
 		// NSLog("NSButton $newtitle");
 		$this->title=$newtitle;
 		$this->buttonType=$type;
+		$this->state=$this->persist("selected");
 		}
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
@@ -398,7 +431,8 @@ class NSButton extends NSControl
 	{ // this button may have been pressed
 		// NSLog($event);
 		// NSLog($this);
-		if(isset($event[$this->elementName]) && $event[$this->elementName] == $this->title)
+		if(isset($event[$this->elementName]) &&
+			 $event[$this->elementName] == $this->title)
 			$this->sendAction($this->action, $this->target);
 	}
 	public function draw()
@@ -442,10 +476,11 @@ class NSMenuItemView extends NSButton
 		protected $target;
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
-		public function setSelected($sel) { $this->isSelected=$sel; }
+		public function setSelected($sel) { $this->isSelected=$this->persist("isSelected", $sel); }
 		public function __construct($label)
 			{
 			parent::__construct($label);
+			$this->isSelected=$this->persist("isSelected");
 			}
 		public function setActionAndTarget($action, $target)
 			{
@@ -511,6 +546,7 @@ class NSMenuView extends NSControl
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
+		$this->selectedItem=$this->persist("selectedIndex");
 		$menuItems=array();
 		}
 	public function menuItems() { return $this->menuItems; }
@@ -532,11 +568,7 @@ class NSMenuView extends NSControl
 		{
 		if(0)
 			{ // show menu as buttons
-			echo "<input";
-			parameter("type", "hidden");
-			parameter("name", $this->elementName."-selectedIndex");
-			parameter("value", $this->selectedItem);
-			echo ">\n";
+			$this->persist("-selectedIndex", $this->selectedItem);
 			echo "<table";
 			parameter("border", $this->border);
 			if($this->isHorizontal)
@@ -799,7 +831,7 @@ class NSTabView extends NSControl
 				return;	// don't select
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
-		$this->selectedIndex=$index;
+		$this->selectedIndex=$this->persist("selectedIndex", $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		}
@@ -807,32 +839,19 @@ class NSTabView extends NSControl
 	public function __construct($items=array())
 		{
        		parent::__construct();
-			$this->tabViewItems=$items;
+		$this->tabViewItems=$items;
+		$this->selectTabViewItemAtIndex($this->persist("selectedIndex"));
 		NSLog("NSTabView $cols");
 		}
 	public function sendEvent($event)
 		{ // forward to selected item
-		if(isset($event[$this->elementName."-selectedIndex"]))
-			$this->selectedIndex=$event[$this->elementName."-selectedIndex"];	// get default
-// NSLog($selectedIndex);
-		for($index=0; $index < count($this->tabViewItems); $index++)
-			{
-			$element=$this->elementName."-".$index;
-// NSLog($element);
-			if(isset($event[$element]) && $event[$element] != "")
-				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
-			}
 		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
-			$selectedItem->view()->sendEvent($event);
+			$selectedItem->view()->sendEvent($event);	// forward to tab view
 		}
 	public function draw()
 		{
-		echo "<input";
-		parameter("type", "hidden");
-		parameter("name", $this->elementName."-selectedIndex");
-		parameter("value", $this->selectedIndex);
-		echo ">\n";
+		$this->persist("selectedIndex", $this->selectedIndex);
 		echo "<table";
 		parameter("border", $this->border);
 		parameter("width", $this->width);
@@ -845,6 +864,9 @@ class NSTabView extends NSControl
 		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
+// FIXME: buttons must be able to change state!
+// i.e. these buttons should be made in a way that calling their action
+// will make selectTabViewItemAtIndex being called
 			echo "<input";
 			parameter("class", "NSTabViewItemsButton");
 			parameter("type", "submit");
@@ -897,29 +919,20 @@ class NSTableView extends NSControl
 		{
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
+		$this->selectedRow=$this->persist("selectedRow");
 		$this->headers=$headers;
+		}
+	public function selectedRow() { return $this->selectedRow; }
+	public function selectRow($row)
+		{
+		$this->selectedRow=$this->persist("selectedRow", $row);
 		}
 	public function sendEvent($event)
 		{
-		if(isset($event[$this->elementName."-selectedRow"]))
-			$this->selectedRow=$event[$this->elementName."-selectedRow"];	// get default
-/* handle row selection
-		for($index=0; $index < count($this->tabViewItems); $index++)
-			{
-			$element=$this->elementName."-".$index;
-// NSLog($element);
-			if(isset($event[$element]) && $event[$element] != "")
-				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
-			}
-*/
+		// change selection based on row number
 		}
 	public function draw()
 		{
-		echo "<input";
-		parameter("type", "hidden");
-		parameter("name", $this->elementName."-selectedRow");
-		parameter("value", $this->selectedRow);
-		echo ">\n";
 		echo "<table";
 		parameter("border", $this->border);
 		parameter("width", $this->width);
@@ -977,13 +990,15 @@ class NSTextField extends NSControl
 	protected $textColor;
 	protected $wraps=true;
 	public function stringValue() { return $this->stringValue; }
-	public function setStringValue($str) { $this->stringValue=$str; }
+	public function setStringValue($str) { $this->stringValue=$this->persist("stringValue", $string); }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
 	public function __construct($width=30, $stringValue = "")
 	{
        		parent::__construct();
-		$this->stringValue=$stringValue;
+		$this->stringValue=$this->persist("stringValue");
+		if($stringValue)
+			$this->stringValue=$stringValue;
 		$this->width=$width;
 	}
 	public function sendEvent($event)
@@ -1034,6 +1049,11 @@ class NSTextView extends NSControl
        		parent::__construct();
 		$this->width=$width;
 		$this->height=$height;
+		$this->string=persist("stringValue");
+		}
+	public function setStringValue($string)
+		{
+		$this->stringValue=$this->persist("stringValue", $string);
 		}
 	public function sendEvent($event)
 		{ // some button has been pressed
@@ -1056,6 +1076,7 @@ class NSWindow extends NSResponder
 {
 	protected $title;
 	protected $contentView;
+	protected $persist=array();
 	public function contentView() { return $this->contentView; }
 	public function setContentView($view) { $this->contentView=$view; $view->setWindow($this); }
 	public function title() { return $this->title; }
@@ -1069,6 +1090,17 @@ class NSWindow extends NSResponder
 		if($NSApp->mainWindow() == NULL)
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
+		}
+
+// FIXME: should we have third argument with a default?
+// so that we don't generate code if the value is the default?
+	public function persist($objectname, $value=null)
+		{
+		if($value == null)
+			// JSON decode?
+			return $_POST[$objectname];	// get persisted value
+		$persist[$objectname]=$value;	// record for being persisted
+		return $value;
 		}
 	public function sendEvent($event)
 		{
@@ -1117,13 +1149,23 @@ class NSWindow extends NSResponder
 		parameter("name", "NSWindow");
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
-		parameter("method", "POST");	// a window is a big form to handle all input/output through POST (and GET)
+		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST (and some through GET)
 		echo ">\n";
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->display();
+		// append all values we want to see if someone presses a send button in the form
+		foreach($this->persist as $object => $value)
+			{
+			echo "<input";
+			parameter("type", "hidden");
+			parameter("name", $object);
+			// JSON-Encode?
+			parameter("value", $value);
+			echo ">\n";
+			}
 		echo "</form>\n";
 		echo "</body>\n";
 		echo "</html>\n";
