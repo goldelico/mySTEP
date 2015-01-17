@@ -17,9 +17,12 @@
 	 */
 
 // global $ROOT must be set by some application
+// global $debug can be set to enable/disable debugging messages
 
 function NSLog($format)
 	{
+	if(!isset($GLOBALS['debug']) || !$GLOBALS['debug'])
+		return;	// disable
 	if(!is_scalar($format))
 		{
 		// check if a description method exists
