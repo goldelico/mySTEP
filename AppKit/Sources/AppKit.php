@@ -7,7 +7,7 @@
  * defines (simple) classes for NSWindow, NSView, NSButton, NSTextField, NSSecureTextField, NSForm, NSImage, NSTable, NSPopUpButton
  * draw method generates HTML and CSS output
  *
- * hitTest, sendEvent and mouseDown are called when button is clicked or something modified
+ * sendEvent and mouseDown are called when button is clicked or something modified
  */
 
 	// FIXME: make this configurabe (how?)
@@ -33,7 +33,6 @@ function parameter($name, $value)
 {
 	echo " $name=\"".$value."\"";
 }
-// check if login is required to run the App
 
 function _htmlentities($string)
 {
@@ -134,13 +133,28 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	
 	}
 
+class NSEvent extends NSObject
+{
+	protected $target;
+	protected $type;
+	public function __construct(NSResponder $target, $type)
+	{
+		parent::__construct();
+		$this->type=$type;
+		$this->target=$target;
+	}
+	public function description() { return "NSEvent: ".$this->type." ".$this->target->description(); }
+	public function type() { return $this->type; }
+	public function target() { return $this->target; }
+}
+
 global $NSApp;
 
 class NSResponder extends NSObject
 {
 	public function __construct()
 	{
-		// parent::__construct();
+		parent::__construct();
 	}
 }
 
@@ -152,6 +166,7 @@ class NSApplication extends NSResponder
 	protected $delegate;
 	protected $mainWindow;
 	protected $mainMenu;
+	protected $queuedEvent;
 
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
@@ -159,12 +174,9 @@ class NSApplication extends NSResponder
 	public function setMainWindow($w) { $this->mainWindow=$w; }
 	public function mainMenu() { return $this->mainMenu; }
 	public function setMainMenu($m) { $this->mainMenu=$m; }
-	function logout($sender)
-	{
-		setcookie("login", "", 24*3600);
-		setcookie("passcode", "", 24*3600);
-		$this->open("loginwindow.app");
-	}
+
+	public function queueEvent(NSEvent $target) { $this->queuedEvent=$target; }
+
 	public function openSettings($sender)
 	{
 		$this->open("settings.app");
@@ -173,7 +185,7 @@ class NSApplication extends NSResponder
 	public function __construct($name)
 		{
 		global $NSApp;
-		// parent::__construct();
+		parent::__construct();
 		if(isset($NSApp))
 			{
 			NSLog("NSApplication is already defined (".($NSApp->name).")");
@@ -242,7 +254,7 @@ class NSApplication extends NSResponder
 	public function open($app)
 		{ // switch to a different app
 		$bundle=NSWorkspace::fullPathForApplication($app);
-//			NSLog($bundle);
+//		NSLog("open: ".$bundle->description());
 		if(isset($bundle))
 			{
 // ask $bundle->executablePath;
@@ -263,24 +275,22 @@ class NSApplication extends NSResponder
 	public function sendActionToTarget($from, $action, $target)
 		{
 /*
-NSLog("sendAction $action to");
-NSLog($target);
+NSLog("sendAction $action to ".$target->description());
 */
 		if(!isset($target))
 			return;	// it $target does not exist -> take first responder
-		// if method does not exist -> ignore
+		// if method does not exist -> ignore or warn
 		$target->$action($from);
 		}
 	public function run()
 		{
-
-// FIXME: wir müssen die View-Hierarchie zweimal durchlaufen!
-// zuerst die neuen $_POST-Werte in die NSTextFields übernehmen
-// und dann erst den NSButton-action aufrufen
-// sonst hängt es davon ab wo der NSButton in der Hierarchie steht ob die Felder Werte haben oder nicht
-		
-		$this->mainWindow->sendEvent($_POST);
-		$this->mainWindow->display();
+		do
+			{
+			if(isset($this->queuedEvent))
+				$this->mainWindow->sendEvent($this->queuedEvent);
+			$this->mainWindow->display();
+			// could we run an AJAX loop here?
+			} while(false);
 		}
 }
 	
@@ -322,42 +332,29 @@ class NSView extends NSResponder
 	protected $autoResizing;
 	protected $needsDisplay;
 	protected $window;
-	protected $persist;	// collect persistence requests while we have no window
+	protected $persist=array();
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
 		parent::__construct();
 		$this->elementName="NSView-".(++$elementNumber);
 		}
-	public function persist($object, $value=null)
+	public function persist($object, $default, $value=null)
 		{
-		$object=$this->elementName."-".$object;
-		if(!isset($this->window))
-			{ // window not yet set
-			NSLog(@"delay persistance of $object");
-			if($value == null)
-				return $_POST[$object];
-			if(!isset($this->persist))
-				$this->persist=array();
-			return $this->persist[$object]=$value;	// store locally
-			}
-		return $this->window->persist($object, $value);
+		if($value == $default)
+			return $value;	// no need to persist
+		if($value == null)	// query
+			return isset($_POST[$object])?$_POST[$object]:$default;
+		$this->persist[$object]=$value;	// store until we draw
+		return $value;
 		}
 	public function window() { return $this->window; }
 	public function setWindow($window)
 		{
-		NSLog("setWindow");
-		NSLog($this->persist);
+//		NSLog("setWindow ".$window->description()." for ".$this->description());
 		$this->window=$window;
 		foreach($this->subviews as $view)
 			$view->setWindow($window);
-		if($window != null && isset($this->persist))
-			{ // forward all pending persistances
-			NSLog(@"forward delayed persistance of $object");
-			foreach($this->persist as $key => $value)
-				$window->persist($key, $value);
-			$this->persist=null;
-			}
 		}
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view)
@@ -379,15 +376,23 @@ class NSView extends NSResponder
 		foreach($this->subviews as $view)
 			$view->display();
 		$this->draw();
+		// append all values we want to see persisted if someone presses a send button in the form
+		foreach($this->persist as $object => $value)
+			{
+			NSLog(@"persist $object $value");
+			echo "<input";
+			parameter("type", "hidden");
+			parameter("name", $this->elementName."-".$object);
+			// JSON-Encode?
+			parameter("value", $value);
+			echo ">\n";
+			}
 		}
 	public function draw()
 		{ // draw our own contents
 		}
-	// this differes a little from AppKit
-	public function sendEvent($event)
-		{
-		foreach($this->subviews as $view)
-			$view->sendEvent($event);
+	public function mouseDown(NSEvent $event)
+		{ // nothing by default
 		}
 }
 
@@ -417,23 +422,27 @@ class NSButton extends NSControl
 		}
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
+		global $NSApp;
 		parent::__construct();
 		// NSLog("NSButton $newtitle");
 		$this->title=$newtitle;
 		$this->buttonType=$type;
-		$this->state=$this->persist("selected");
+		$this->state=$this->persist("selected", 0);
+		if(isset($_POST[$this->elementName]))
+			{
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			}
 		}
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function state() { return $this->state; }
 	public function setState($s) { $this->state=$s; }
-	public function sendEvent($event)
+	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
 		// NSLog($event);
 		// NSLog($this);
-		if(isset($event[$this->elementName]) &&
-			 $event[$this->elementName] == $this->title)
-			$this->sendAction($this->action, $this->target);
+		// if radio button or checkbox, watch for value
+		$this->sendAction($this->action, $this->target);
 	}
 	public function draw()
 		{
@@ -476,11 +485,11 @@ class NSMenuItemView extends NSButton
 		protected $target;
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
-		public function setSelected($sel) { $this->isSelected=$this->persist("isSelected", $sel); }
+		public function setSelected($sel) { $this->isSelected=$this->persist("isSelected", 0, $sel); }
 		public function __construct($label)
 			{
 			parent::__construct($label);
-			$this->isSelected=$this->persist("isSelected");
+			$this->isSelected=$this->persist("isSelected", 0);
 			}
 		public function setActionAndTarget($action, $target)
 			{
@@ -546,7 +555,7 @@ class NSMenuView extends NSControl
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
-		$this->selectedItem=$this->persist("selectedIndex");
+		$this->selectedItem=$this->persist("selectedIndex", -1);
 		$menuItems=array();
 		}
 	public function menuItems() { return $this->menuItems; }
@@ -568,7 +577,7 @@ class NSMenuView extends NSControl
 		{
 		if(0)
 			{ // show menu as buttons
-			$this->persist("-selectedIndex", $this->selectedItem);
+			$this->persist("-selectedIndex", -1, $this->selectedItem);
 			echo "<table";
 			parameter("border", $this->border);
 			if($this->isHorizontal)
@@ -739,10 +748,8 @@ class NSCollectionView extends NSControl
 		$this->content=$items;
 // NSLog("NSCollectionView $cols");
 		}
-	public function sendEvent($event)
+	public function mouseDown(NSEvent $event)
 		{
-		foreach($this->content as $item)
-			$item->sendEvent($event);
 		}
 	public function draw()
 		{
@@ -805,13 +812,28 @@ class NSTabView extends NSControl
 	protected $width="100%";
 	protected $tabViewItems;
 	protected $selectedIndex=0;
+	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
-	public function addTabViewItem($item) { $this->tabViewItems[]=$item; }
-	public function selectedTabViewItem() {	return $this->tabViewItems[$this->selectedIndex]; }
+	public function addTabViewItem($item)
+		{
+		if(isset($_POST[$this->elementName."-".count($this->tabViewItems)]))
+			{ // this index was clicked
+			global $NSApp;
+			$this->clickedItemIndex=count($this->tabViewItems);
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			}
+		$this->tabViewItems[]=$item;
+		}
+	public function selectedTabViewItem()
+		{
+		if(isset($this->tabViewItems[$this->selectedIndex]))
+			return $this->tabViewItems[$this->selectedIndex];
+		return null;
+		}
 	public function indexOfTabViewItem($item)
 		{
 		$index=0;
@@ -831,7 +853,7 @@ class NSTabView extends NSControl
 				return;	// don't select
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
-		$this->selectedIndex=$this->persist("selectedIndex", $index);
+		$this->selectedIndex=$this->persist("selectedIndex", -1, $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		}
@@ -840,18 +862,16 @@ class NSTabView extends NSControl
 		{
        		parent::__construct();
 		$this->tabViewItems=$items;
-		$this->selectTabViewItemAtIndex($this->persist("selectedIndex"));
-		NSLog("NSTabView $cols");
+		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", -1));
 		}
-	public function sendEvent($event)
-		{ // forward to selected item
-		$selectedItem=$this->selectedTabViewItem();
-		if(isset($selectedItem))
-			$selectedItem->view()->sendEvent($event);	// forward to tab view
+	public function mouseDown(NSEvent $event)
+		{
+		NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
+		$this->selectTabViewItemAtIndex($this->clickedItemIndex);
 		}
 	public function draw()
 		{
-		$this->persist("selectedIndex", $this->selectedIndex);
+		$this->persist("selectedIndex", -1, $this->selectedIndex);
 		echo "<table";
 		parameter("border", $this->border);
 		parameter("width", $this->width);
@@ -902,7 +922,8 @@ class NSTableView extends NSControl
 	protected $width="100%";
 	protected $delegate;
 	protected $dataSource;
-	protected $visibleRows=20;
+	protected $visibleRows=0;	// 0 = infinite
+	protected $firstVisibleRow=0;
 	protected $selectedRow=-1;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
@@ -915,19 +936,19 @@ class NSTableView extends NSControl
 	// allow to define colspan and rowspan objects
 	// allow to modify alignment
 	
-	public function __construct($headers=array("Column1"), $visibleRows=20)
+	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
-		$this->selectedRow=$this->persist("selectedRow");
+		$this->selectedRow=$this->persist("selectedRow", -1);
 		$this->headers=$headers;
 		}
 	public function selectedRow() { return $this->selectedRow; }
 	public function selectRow($row)
 		{
-		$this->selectedRow=$this->persist("selectedRow", $row);
+		$this->selectedRow=$this->persist("selectedRow", -1, $row);
 		}
-	public function sendEvent($event)
+	public function mouseDown(NSEvent $event)
 		{
 		// change selection based on row number
 		}
@@ -953,7 +974,7 @@ class NSTableView extends NSControl
 			}
 		echo "</tr>\n";
 		$rows=$this->numberOfRows();
-		for($row=0; $row<$this->visibleRows; $row++)
+		for($row=$this->firstVisibleRow; $row<$this->firstVisibleRow+$this->visibleRows; $row++)
 			{
 			echo "<tr>";
 			foreach($this->headers as $column)
@@ -981,7 +1002,7 @@ class NSTableView extends NSControl
 	
 class NSTextField extends NSControl
 {
-	protected $stringValue;	// should this be a property of NSControl?
+	protected $stringValue="";	// should this be a property of NSControl?
 	protected $backgroundColor;
 	protected $align;
 	protected $type="text";
@@ -990,21 +1011,20 @@ class NSTextField extends NSControl
 	protected $textColor;
 	protected $wraps=true;
 	public function stringValue() { return $this->stringValue; }
-	public function setStringValue($str) { $this->stringValue=$this->persist("stringValue", $string); }
+	public function setStringValue($str) { $this->stringValue=$str; }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
 	public function __construct($width=30, $stringValue = "")
 	{
        		parent::__construct();
-		$this->stringValue=$this->persist("stringValue");
+		if(isset($_POST[$this->elementName."-stringValue"]))
+			$this->stringValue=$_POST[$this->elementName."-stringValue"];
 		if($stringValue)
 			$this->stringValue=$stringValue;
 		$this->width=$width;
 	}
-	public function sendEvent($event)
+	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
-		if($this->isEditable && isset($event[$this->elementName]))
-			$this->stringValue=$event[$this->elementName];	// get our value when posted
 		}
 	public function draw()
 		{
@@ -1014,7 +1034,7 @@ class NSTextField extends NSControl
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
-			parameter("name", $this->elementName);
+			parameter("name", $this->elementName."-stringValue");
 			parameter("value", _htmlentities($this->stringValue));
 			echo "\"/>\n";
 			}
@@ -1049,23 +1069,22 @@ class NSTextView extends NSControl
        		parent::__construct();
 		$this->width=$width;
 		$this->height=$height;
-		$this->string=persist("stringValue");
+		if(isset($_POST[$this->elementName."-stringValue"]))
+			$this->string=$_POST[$this->elementName."-stringValue"];
 		}
 	public function setStringValue($string)
 		{
-		$this->stringValue=$this->persist("stringValue", $string);
+		$this->stringValue=$this->persist("stringValue", "", $string);
 		}
-	public function sendEvent($event)
+	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
-		if(isset($event[$this->elementName]))
-			$this->stringValue=$event[$this->elementName];	// get our value when posted
 		}
 	public function draw()
 		{
 		echo "<textarea";
 		parameter("width", $this->width);
 		parameter("height", $this->height);
-		parameter("name", $this->elementName);
+		parameter("name", $this->elementName."-stringValue");
 		echo "\">";
 		echo _htmlentities($this->stringValue);
 		echo "</textarea>\n";
@@ -1076,7 +1095,6 @@ class NSWindow extends NSResponder
 {
 	protected $title;
 	protected $contentView;
-	protected $persist=array();
 	public function contentView() { return $this->contentView; }
 	public function setContentView($view) { $this->contentView=$view; $view->setWindow($this); }
 	public function title() { return $this->title; }
@@ -1091,21 +1109,13 @@ class NSWindow extends NSResponder
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
 		}
-
-// FIXME: should we have third argument with a default?
-// so that we don't generate code if the value is the default?
-	public function persist($objectname, $value=null)
+	public function sendEvent(NSEvent $event)
 		{
-		if($value == null)
-			// JSON decode?
-			return $_POST[$objectname];	// get persisted value
-		$persist[$objectname]=$value;	// record for being persisted
-		return $value;
-		}
-	public function sendEvent($event)
-		{
-// NSLog($event);
-		$this->contentView->sendEvent($event);
+		NSLog("sendEvent: ".$event->description());
+		// here we would run hitTest - but we know the target object already
+		// $target=$event->window->hitTest($event);
+		$target=$event->target();
+		$target->mouseDown($event);
 		}
 	public function display() 
 		{
@@ -1149,23 +1159,13 @@ class NSWindow extends NSResponder
 		parameter("name", "NSWindow");
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
-		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST (and some through GET)
+		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
 		echo ">\n";
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->display();
-		// append all values we want to see if someone presses a send button in the form
-		foreach($this->persist as $object => $value)
-			{
-			echo "<input";
-			parameter("type", "hidden");
-			parameter("name", $object);
-			// JSON-Encode?
-			parameter("value", $value);
-			echo ">\n";
-			}
 		echo "</form>\n";
 		echo "</body>\n";
 		echo "</html>\n";
@@ -1197,7 +1197,7 @@ class NSWorkspace
 				{
 				while($bundle=readdir($f))
 					{
-//					NSLog("$dir/$bundle");
+//					NSLog("knownApps check: $dir/$bundle");
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
 							// checks that the PHP executable exists
@@ -1221,7 +1221,7 @@ class NSWorkspace
 	public function fullPathForApplication($name)
 		{
 		NSWorkspace::knownApplications();	// update list
-//		NSLog("$name)";
+//		NSLog("fullPathForApplication: $name)";
 		$app=self::$knownApplications[$name];
 		if(isset($app))
 			return $app["NSApplicationPath"];
