@@ -236,7 +236,8 @@ class SQL extends NSObject
 		if($this->type == "mysql")
 			{
 			$socket="/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
-			NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
+			// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is reveilled to the Web
+			// NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
 			// FIXME: should only remove the /
 			if(isset($c['path']))
 				$this->dbname=basename($c['path']);
