@@ -228,7 +228,8 @@ class SQL extends NSObject
 
 	public function open($url, &$error)
 	{ // YES=ok
-		NSLog($url);
+		// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is reveilled to the Web
+		// NSLog($url);
 		$c=parse_url($url);
 		if($c === false)
 			return false;	// invalid
@@ -257,6 +258,7 @@ class SQL extends NSObject
 			$this->db=new SQLite($this->dbname);
 			return isset($this->db);
 			}
+		// ADDME: abstract csv/tsv (specify directory where file.csv or file.tsv are treated as individual tables)
 		return false;	// we speak only MySQL
 	}
 
