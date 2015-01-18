@@ -27,11 +27,14 @@ require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Curr
 
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
-// replace by NSGraphicsContext::currentContext->method
-
 function parameter($name, $value)
 {
-	echo " $name=\"".$value."\"";
+	NSGraphicsContext::currentContext()->html(" $name=\"".$value."\"");
+}
+
+function html($html)
+{
+	NSGraphicsContext::currentContext()->html($html);
 }
 
 function _htmlentities($string)
@@ -50,6 +53,7 @@ function _htmlentities($string)
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
+	public static function setCurrentContext($context) { self::$currentContext=$context; }
 	public static function currentContext()
 		{
 		if(!isset(self::$currentContext))
@@ -61,8 +65,10 @@ class NSGraphicsContext extends NSObject
 class NSHTMLGraphicsContext extends NSGraphicsContext
 	{
 	const encoding='UTF-8';
-	// FIXME: make more useful commands that allow to flush
-	// html primitives
+	public function html($html)
+		{
+			echo $html;
+		}
 	public function flushGraphics()
 		{
 			flush();
@@ -86,7 +92,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	// write output objects
 	public function header()
 		{
-		echo _tag("html");
+		$this->html(_tag("html"));
 		}
 	public function footer()
 		{
@@ -94,23 +100,23 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		}
 	public function text($contents)
 		{
-		echo htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
+		$this->html(htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding));
 		}
 	public function link($url, $contents)
 		{
-		echo $this->_tag("a", $contents, $this->_linkval("src", $url));
+		$this->html($this->_tag("a", $contents, $this->_linkval("src", $url)));
 		}
 	public function img($url)
 		{
-		echo $this->_tag("img", "", $this->_linkval("src", $url));
+		$this->html($this->_tag("img", "", $this->_linkval("src", $url)));
 		}
 	public function input($size, $value)
 		{
-		echo $this->_tag("input", "", $this->_value("size", $size).$this->_value("value", $value));
+		$this->html($this->_tag("input", "", $this->_value("size", $size).$this->_value("value", $value)));
 		}
 	public function textarea($size, $value)
 		{
-		echo $this->_tag("textarea", $value, $this->_value("size", $size));
+		$this->html($this->_tag("textarea", $value, $this->_value("size", $size)));
 		}
 	/* we need this to convert file system paths into an external URL */
 	/* hm, here we have a fundamental problem:
@@ -132,6 +138,13 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		}
 	
 	}
+
+class _NSHTMLGraphicsContextStore extends NSGraphicsContext
+{ // collect html in a string
+	protected $string="";
+	public function string() { return $this->string; }
+	public function html($html) { $string.=$html; }
+}
 
 class NSEvent extends NSObject
 {
@@ -380,12 +393,12 @@ class NSView extends NSResponder
 		foreach($this->persist as $object => $value)
 			{
 			NSLog(@"persist $object $value");
-			echo "<input";
+			html("<input");
 			parameter("type", "hidden");
 			parameter("name", $this->elementName."-".$object);
 			// JSON-Encode?
 			parameter("value", $value);
-			echo ">\n";
+			html(">\n");
 			}
 		}
 	public function draw()
@@ -447,7 +460,7 @@ class NSButton extends NSControl
 	public function draw()
 		{
 		// checkbox, radiobutton
-		echo "<input";
+		html("<input");
 		parameter("class", "NSButton");
 		switch($this->buttonType)
 			{
@@ -470,7 +483,7 @@ class NSButton extends NSControl
 			}
 		else
 			parameter("style", "color=red;");
-		echo "\"/>\n";
+		html("\"/>\n");
 		}
 	}
 
@@ -504,30 +517,30 @@ class NSMenuItemView extends NSButton
 			{
 			// FXIME: use <style>
 			// if no action -> grey out
-			echo _htmlentities($this->title);
+			NSGraphicsContext::currentContext()->text($this->title);
 			if(isset($this->subMenuView))
 				{
-				echo "<select";
+				html("<select");
 				parameter("class", "NSMenuItemView");
 				parameter("name", $this->elementName);
 				parameter("size", 1);	// make a popup not a combo-box
-				echo ">\n";
+				html(">\n");
 				$index=0;
 				foreach($this->subMenuView->menuItems() as $item)
 				{ // add menu buttons and switching logic
-					echo "<option";
+					html("<option");
 					parameter("class", "NSMenuItem");
 					if($this->selectedItem == $index)
 						parameter("selected", "selected");	// mark menu title as selected
-					echo ">";
+					html(">");
 					$item->draw();	// draws the title
-					echo "</option>\n";
+					html("</option>\n");
 					$index++;
 				}
-				echo "</select>\n";
+				html("</select>\n");
 				}
 			else if(isset($this->shortcut))
-				echo _htmlentities(" ".$this->shortcut);
+				html(_htmlentities(" ".$this->shortcut));
 			}
 	}
 
@@ -539,7 +552,7 @@ class NSMenuItemSeparator extends NSMenuItemView
 		}
 		public function draw()
 		{
-			echo "<hr>\n";
+			html("<hr>\n");
 		}
 	}
 
@@ -578,47 +591,47 @@ class NSMenuView extends NSControl
 		if(0)
 			{ // show menu as buttons
 			$this->persist("-selectedIndex", -1, $this->selectedItem);
-			echo "<table";
+			html("<table");
 			parameter("border", $this->border);
 			if($this->isHorizontal)
 				parameter("width", $this->width);
-			echo "\">\n";
-			echo "<tr";
+			html("\">\n");
+			html("<tr");
 			parameter("class", "NSMenuItemView");
 			//		parameter("bgcolor", "LightSteelBlue");
-			echo ">\n";
+			html(">\n");
 			$index=0;
 			foreach($this->menuItems as $item)
 			{ // add menu buttons and switching logic
-				echo "<td";
+				html("<td");
 				parameter("class", "NSMenuItem");
 				parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
-				echo ">\n";
+				html(">\n");
 				$item->setSelected($this->selectedItem == $index);
 				$item->draw();
-				echo "</td>\n";
+				html("</td>\n");
 				$index++;
 			}
-			echo "</tr>\n";
-			echo "</table>\n";
+			html("</tr>\n");
+			html("</table>\n");
 			}
 		else
 			{ // show menu as popup items
 				// HTML5 hat <menu> und <menuitem> tags!
 				if($this->isHorizontal)
 					{ // draw all submenus because we are top-level
-						echo "<div";
+						html("<div");
 						parameter("class", "NSMenuView");
-						echo ">\n";
+						html(">\n");
 						foreach($this->menuItems as $item)
 						{ // add menu buttons and switching logic
 							$item->draw();
 						}
-						echo "</div>\n";
+						html("</div>\n");
 					}
 				else
 					{
-					echo "vertical menu on top level";
+					html("vertical menu on top level");
 					// will be drawn by NSMenuItemView
 					}
 			}
@@ -660,11 +673,11 @@ class NSImage extends NSObject
 		}
 	public function composite()
 		{
-		echo "<img";
+		html("<img");
 		parameter("src", _htmlentities($this->url));
 		parameter("name", _htmlentities($this->name));
 		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
-		echo ">\n";
+		html(">\n");
 		}
 	public function setName($name)
 		{
@@ -755,34 +768,34 @@ class NSCollectionView extends NSControl
 		{
 // FIXME: this is not yet very systematic...
 // we call display from draw which should itself be called from display only
-		echo "<table";
+		html("<table");
 		parameter("class", "NSCollectionView");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		echo "\">\n";
+		html("\">\n");
 		$col=1;
 		foreach($this->content as $item)
 			{
 			if($col == 1)
-				echo "<tr>";
-			echo "<td";
+				html("<tr>");
+			html("<td");
 			parameter("class", "NSCollectionViewItem");
-			echo "\">\n";
+			html("\">\n");
 //NSLog($item);
 			$item->display();
-			echo "</td>";
+			html("</td>");
 			$col++;
 			if($col > $this->columns)
 				{
-				echo "</tr>\n";
+				html("</tr>\n");
 				$col=1;
 				}
 			}
 		if($col > 1)
 			{ // handle missing colums
-				echo "</tr>\n";
+				html("</tr>\n");
 			}
-		echo "</table>\n";
+		html("</table>\n");
 		}
 }
 
@@ -872,22 +885,22 @@ class NSTabView extends NSControl
 	public function draw()
 		{
 		$this->persist("selectedIndex", -1, $this->selectedIndex);
-		echo "<table";
+		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		echo "\">\n";
-		echo "<tr>";
-		echo "<td";
+		html("\">\n");
+		html("<tr>");
+		html("<td");
 		parameter("class", "NSTabViewItemsBar");
 		parameter("bgcolor", "LightSteelBlue");
-		echo ">\n";
+		html(">\n");
 		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
 // FIXME: buttons must be able to change state!
 // i.e. these buttons should be made in a way that calling their action
 // will make selectTabViewItemAtIndex being called
-			echo "<input";
+			html("<input");
 			parameter("class", "NSTabViewItemsButton");
 			parameter("type", "submit");
 			parameter("name", $this->elementName."-".$index++);
@@ -896,22 +909,22 @@ class NSTabView extends NSControl
 				parameter("style", "color=green;");
 			else
 				parameter("style", "color=red;");
-			echo ">\n";
+			html(">\n");
 			}
-		echo "</td>";
-		echo "</tr>\n";
-		echo "<tr>";
-		echo "<td";
+		html("</td>");
+		html("</tr>\n");
+		html("<tr>");
+		html("<td");
 		parameter("align", "center");
-		echo ">\n";
+		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
 			$selectedItem->view()->draw();	// draw current tab
 		else
-			echo _htmlentities("No tab for index ".$this->selectedIndex);
-		echo "</td>";
-		echo "</tr>\n";
-		echo "</table>\n";
+			html(_htmlentities("No tab for index ".$this->selectedIndex));
+		html("</td>");
+		html("</tr>\n");
+		html("</table>\n");
 		}
 	}
 	
@@ -954,49 +967,49 @@ class NSTableView extends NSControl
 		}
 	public function draw()
 		{
-		echo "<table";
+		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		echo "\">\n";
-		echo "<tr";
+		html("\">\n");
+		html("<tr");
 		parameter("class", "NSHeaderView");
 		parameter("bgcolor", "LightSteelBlue");
-		echo ">\n";
+		html(">\n");
 		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
 		foreach($this->headers as $header)
 			{
-			echo "<th";
+			html("<th");
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
-			echo ">\n";
-			echo _htmlentities($header);
-			echo "</th>\n";
+			html(">\n");
+			html(_htmlentities($header));
+			html("</th>\n");
 			}
-		echo "</tr>\n";
+		html("</tr>\n");
 		$rows=$this->numberOfRows();
 		for($row=$this->firstVisibleRow; $row<$this->firstVisibleRow+$this->visibleRows; $row++)
 			{
-			echo "<tr>";
+			html("<tr>");
 			foreach($this->headers as $column)
 				{
-				echo "<td";
+				html("<td");
 				parameter("class", "NSTableCell");
 				parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
-				echo ">\n";
+				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the item to draw
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					// we should insert that into the $column->cell
 				//	$item->draw();					
-					echo _htmlentities($item);
+					html(_htmlentities($item));
 					}
 				else
-					echo "&nbsp;";	// add empty rows
-				echo "</td>";
+					html("&nbsp;");	// add empty rows
+				html("</td>");
 				}
-			echo "</tr>\n";
+			html("</tr>\n");
 			}
-		echo "</table>\n";
+		html("</table>\n");
 		}
 	}
 	
@@ -1030,20 +1043,20 @@ class NSTextField extends NSControl
 		{
 		if($this->isEditable)
 			{
-			echo "<input";
+			html("<input");
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
 			parameter("name", $this->elementName."-stringValue");
 			parameter("value", _htmlentities($this->stringValue));
-			echo "\"/>\n";
+			html("\"/>\n");
 			}
 		else
 			{
 			if($this->wraps)
-				echo nl2br(_htmlentities($this->stringValue));
+				html(nl2br(_htmlentities($this->stringValue)));
 			else
-				echo _htmlentities($this->stringValue);
+				html(_htmlentities($this->stringValue));
 			}
 		}
 }
@@ -1081,13 +1094,13 @@ class NSTextView extends NSControl
 		}
 	public function draw()
 		{
-		echo "<textarea";
+		html("<textarea");
 		parameter("width", $this->width);
 		parameter("height", $this->height);
 		parameter("name", $this->elementName."-stringValue");
-		echo "\">";
-		echo _htmlentities($this->stringValue);
-		echo "</textarea>\n";
+		html("\">");
+		html(_htmlentities($this->stringValue));
+		html("</textarea>\n");
 		}
 }
 
@@ -1121,54 +1134,55 @@ class NSWindow extends NSResponder
 		{
 		// FIXME: use HTML class and CSS
 		global $NSApp;
-		echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
-		echo "<html>\n";
-		echo "<head>\n";
-		echo "<meta";
+		html("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
+		html("<html>\n");
+		html("<head>\n");
+		html("<meta");
 		parameter("http-equiv", "content-type");
 		parameter("content", "text/html; charset=".NSHTMLGraphicsContext::encoding);
-		echo ">\n";
-		echo "<meta";
+		html(">\n");
+		html("<meta");
 		parameter("name", "generator");
 		parameter("content", "mySTEP.php");
-		echo ">\n";
+		html(">\n");
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 		   {
-		   echo "<link";
+		   html("<link");
 		   parameter("rel", "stylesheet");
 		   parameter("href", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
 		   parameter("type", "text/css");
-		   echo ">\n";
+		   html(">\n");
 		   }
 		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 		   {
-		   echo "<script";
+		   html("<script");
 		   parameter("src", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
 		   parameter("type", "text/javascript");
-		   echo ">\n";
-		   echo "</script>\n";
-		   echo "<noscript>Your browser does not support JavaScript!</noscript>\n";
+		   html(">\n");
+		   html("</script>\n");
+		   html("<noscript>Your browser does not support JavaScript!</noscript>\n");
 		   }
 		if(isset($this->title))
-			echo "<title>"._htmlentities($this->title)."</title>\n";
-		echo "</head>\n";
-		echo "<body>\n";
-		echo "<form";
+			html("<title>"._htmlentities($this->title)."</title>\n");
+		html("</head>\n");
+		html("<body>\n");
+		html("<form");
 		parameter("name", "NSWindow");
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
-		echo ">\n";
+		html(">\n");
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->display();
-		echo "</form>\n";
-		echo "</body>\n";
-		echo "</html>\n";
+		html("</form>\n");
+		html("</body>\n");
+		html("</html>\n");
+		NSGraphicsContext::currentContext()->flushGraphics();
 	}
 }
 
