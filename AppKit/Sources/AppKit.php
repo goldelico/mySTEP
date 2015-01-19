@@ -100,7 +100,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		}
 	public function text($contents)
 		{
-		$this->html(htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding));
+		$this->html(htmlentities($contents, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding));
 		}
 	public function link($url, $contents)
 		{
@@ -156,7 +156,7 @@ class NSEvent extends NSObject
 		$this->type=$type;
 		$this->target=$target;
 	}
-	public function description() { return "NSEvent: ".$this->type." ".$this->target->description(); }
+	public function description() { return "NSEvent: ".$this->type." -> ".$this->target->description(); }
 	public function type() { return $this->type; }
 	public function target() { return $this->target; }
 }
@@ -188,7 +188,11 @@ class NSApplication extends NSResponder
 	public function mainMenu() { return $this->mainMenu; }
 	public function setMainMenu($m) { $this->mainMenu=$m; }
 
-	public function queueEvent(NSEvent $target) { $this->queuedEvent=$target; }
+	public function queueEvent(NSEvent $event)
+		{
+		NSLog("queueEvent: ".$event->description());
+		$this->queuedEvent=$event;
+		}
 
 	public function openSettings($sender)
 	{
@@ -316,6 +320,8 @@ function NSApplicationMain($name)
 		echo '$ROOT is not set globally!';
 		exit;
 		}
+NSLog("_POST:");
+NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
 	$NSApp->setDelegate(new AppController);	// this should come from the NIB file!
@@ -342,6 +348,7 @@ class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $elementName;
 	protected $subviews=array();
+	protected $superview;
 	protected $autoResizing;
 	protected $needsDisplay;
 	protected $window;
@@ -369,11 +376,28 @@ class NSView extends NSResponder
 		foreach($this->subviews as $view)
 			$view->setWindow($window);
 		}
+	public function superview() { return $this->superview; }
+	public function _setSuperView($superview)
+		{
+		$this->superview=$superview;
+		}
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view)
 		{
 		$this->subviews[]=$view;
+		$view->_setSuperView($this);
 		$view->setWindow($this->window);
+		}
+	public function _removeSubView($view)
+		{
+		$view->setWindow(null);
+		$view->_setSuperView(null);
+		if(($key = array_search($view, $this->subviews, true)) !== false)
+			$this->subviews($array[$key]);
+		}
+	public function removeFromSuperview()
+		{
+		$this->superview()->_removeSubView($this);
 		}
 	public function setNeedsDisplay()
 		{
@@ -437,12 +461,14 @@ class NSButton extends NSControl
 		{
 		global $NSApp;
 		parent::__construct();
-		// NSLog("NSButton $newtitle");
+		NSLog("NSButton $newtitle ".$this->elementName);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		$this->state=$this->persist("selected", 0);
 		if(isset($_POST[$this->elementName]))
 			{
+			global $NSApp;
+			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		}
@@ -523,6 +549,7 @@ class NSMenuItemView extends NSButton
 				html("<select");
 				parameter("class", "NSMenuItemView");
 				parameter("name", $this->elementName);
+				parameter("onclick", "document.forms[0].submit();");
 				parameter("size", 1);	// make a popup not a combo-box
 				html(">\n");
 				$index=0;
@@ -530,7 +557,7 @@ class NSMenuItemView extends NSButton
 				{ // add menu buttons and switching logic
 					html("<option");
 					parameter("class", "NSMenuItem");
-					if($this->selectedItem == $index)
+					if($item->isSelected())
 						parameter("selected", "selected");	// mark menu title as selected
 					html(">");
 					$item->draw();	// draws the title
@@ -837,6 +864,7 @@ class NSTabView extends NSControl
 			{ // this index was clicked
 			global $NSApp;
 			$this->clickedItemIndex=count($this->tabViewItems);
+			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		$this->tabViewItems[]=$item;
@@ -866,7 +894,7 @@ class NSTabView extends NSControl
 				return;	// don't select
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
-		$this->selectedIndex=$this->persist("selectedIndex", -1, $index);
+		$this->selectedIndex=$this->persist("selectedIndex", 0, $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		}
@@ -875,7 +903,7 @@ class NSTabView extends NSControl
 		{
        		parent::__construct();
 		$this->tabViewItems=$items;
-		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", -1));
+		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
 		}
 	public function mouseDown(NSEvent $event)
 		{
@@ -927,7 +955,10 @@ class NSTabView extends NSControl
 		html("</table>\n");
 		}
 	}
-	
+
+// should we embed that into a NSClipView which provides the $visibleRows and $firstVisibleRow?
+// should we embed the NSClipView into a NSScrollView which can somehow (JavaScript? CSS?) show a scroller?
+
 class NSTableView extends NSControl
 	{
 	protected $headers;
@@ -938,6 +969,8 @@ class NSTableView extends NSControl
 	protected $visibleRows=0;	// 0 = infinite
 	protected $firstVisibleRow=0;
 	protected $selectedRow=-1;
+	protected $clickedRow;
+	protected $clickedColumn;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
 	public function setDataSource($source) { $this->dataSource=$source; }
@@ -955,15 +988,24 @@ class NSTableView extends NSControl
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->persist("selectedRow", -1);
 		$this->headers=$headers;
+		if(isset($_POST[$this->elementName]))
+			{
+			global $NSApp;
+			// $this->clickedRow=
+			// $this->clickedColumn=
+			NSLog($this->classString());
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			}
 		}
 	public function selectedRow() { return $this->selectedRow; }
-	public function selectRow($row)
+	public function selectRow($row, $extend=false)
 		{
+		// if ! extend -> delete previous otherwise merge into set
 		$this->selectedRow=$this->persist("selectedRow", -1, $row);
 		}
 	public function mouseDown(NSEvent $event)
 		{
-		// change selection based on row number
+		$this->selectRow($this->clickedRow);
 		}
 	public function draw()
 		{
@@ -981,26 +1023,35 @@ class NSTableView extends NSControl
 			html("<th");
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
+			// if column selection/header selection add onclick handler
 			html(">\n");
 			html(_htmlentities($header));
 			html("</th>\n");
 			}
 		html("</tr>\n");
 		$rows=$this->numberOfRows();
-		for($row=$this->firstVisibleRow; $row<$this->firstVisibleRow+$this->visibleRows; $row++)
+		NSLog("numberOfRows: $rows");
+		$row=$this->firstVisibleRow;
+		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
+// Make Row clickable => make it come back as MouseDownEvent
 			html("<tr>");
 			foreach($this->headers as $column)
 				{
 				html("<td");
 				parameter("class", "NSTableCell");
-				parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
+				if($row == $this->selectedRow)
+					parameter("bgcolor", "blue");	// selected
+				else
+					parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
+				parameter("name", "x-y");
+				parameter("onclick", "document.forms[0].submit();");
 				html(">\n");
 				if($row < $rows)
-					{ // ask delegate for the item to draw
+					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					// we should insert that into the $column->cell
-				//	$item->draw();					
+					// $item->draw();
 					html(_htmlentities($item));
 					}
 				else
@@ -1008,6 +1059,7 @@ class NSTableView extends NSControl
 				html("</td>");
 				}
 			html("</tr>\n");
+			$row++;
 			}
 		html("</table>\n");
 		}
@@ -1145,7 +1197,7 @@ class NSWindow extends NSResponder
 		parameter("name", "generator");
 		parameter("content", "mySTEP.php");
 		html(">\n");
-		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "css");
+		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 		   {
 		   html("<link");
@@ -1154,7 +1206,7 @@ class NSWindow extends NSResponder
 		   parameter("type", "text/css");
 		   html(">\n");
 		   }
-		$r=NSBundle::bundleForClass($this->class_())->pathForResourceOfType("AppKit", "js");
+		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 		   {
 		   html("<script");
@@ -1261,6 +1313,28 @@ class NSWorkspace
 		   return true;
 		return false;
 		}
+}
+
+class WebView extends NSView
+{ // allows to embed foreign content in this page
+	protected $url;
+	protected $width="90%";
+	protected $height="90%";
+	public function setMainFrameUrl($urlString)
+		{
+		$this->url=$urlString;
+		}
+	public function draw()
+		{
+		html("<iframe");
+		parameter("width", $this->width);
+		parameter("height", $this->height);
+		parameter("src", $this->url);
+		html("\">");
+		NSGraphicsContext::currentContext()->text("your browser does not support iframes. Please use this link".$this->url);
+		html("</iframe>");
+		}
+
 }
 
 // EOF
