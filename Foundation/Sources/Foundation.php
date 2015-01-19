@@ -36,6 +36,7 @@ function NSLog($format)
 		// append \n only if not yet appended
 		echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
 		}
+	flush();
 	}
 
 if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
@@ -43,6 +44,7 @@ if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
 // error handler function
 function myErrorHandler($errno, $errstr, $errfile, $errline)
 {
+// FIXME: should we raise an ErrorException?
     if (!(error_reporting() & $errno)) {
         // This error code is not included in error_reporting
         return;
@@ -90,7 +92,7 @@ class NSObject /* root class */
 		{
 		$selector=$invocation->selector();
 		$target=$invocation->target();
-		$class=$target->class_();
+		$class=$target->classString();
 		$arguments=$invocation->arguments();
 		NSLog("called unimplemented method '$class->$selector()'");
 		}
@@ -108,14 +110,14 @@ class NSObject /* root class */
 		return $this;
 		}
 
-	public function class_()
+	public function classString()
 		{ // returns class name
 		return get_class($this);
 		}
 
 	public function description()
 		{ // simple description is class name
-		return $this->class_();
+		return $this->classString();
 		}
 	}
 
@@ -307,12 +309,20 @@ class NSBundle extends NSObject
 		global $NSApp;
 		NSLog("mainBundle");
 		if(isset($NSApp))
-			return NSBundle::bundleForClass($NSApp->class_);	// assume that some NSApp object exists
+			return NSBundle::bundleForClass($NSApp->classString());	// assume that some NSApp object exists
 		return NULL;	// unknown
 		}
 	public static function bundleForClass($class)
 		{
-		$reflector = new ReflectionClass($class);
+		try
+			{
+			$reflector = new ReflectionClass($class);
+			}
+		catch (Exception $e)
+			{
+			NSLog("I don't know class $class");
+			return null;
+			}
 //		NSLog("bundleForClass: $class");
 		$path=$reflector->getFileName();	// path for .php file of given class
 //		NSLog(" path $path");
