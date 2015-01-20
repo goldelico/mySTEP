@@ -264,7 +264,7 @@ class SQL extends NSObject
 
 	public function setDatabase($name)
 	{ // change database (MySQL) or file (SQLite)
-		if(mysqli_select_db($this->db, $name))
+		if($this->type == "mysql" && mysqli_select_db($this->db, $name))
 			{
 			$this->dbname=$name;
 			return true;
