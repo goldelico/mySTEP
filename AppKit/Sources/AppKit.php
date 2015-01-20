@@ -549,7 +549,7 @@ class NSMenuItemView extends NSButton
 				html("<select");
 				parameter("class", "NSMenuItemView");
 				parameter("name", $this->elementName);
-				parameter("onclick", "document.forms[0].submit();");
+				parameter("onclick", "e('".$this->elementName."');s()");
 				parameter("size", 1);	// make a popup not a combo-box
 				html(">\n");
 				$index=0;
@@ -988,11 +988,11 @@ class NSTableView extends NSControl
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->persist("selectedRow", -1);
 		$this->headers=$headers;
-		if(isset($_POST[$this->elementName]))
-			{
+		if(isset($_POST['NSEvent']) && $_POST['NSEvent'] == $this->elementName)
+			{ // click into table
 			global $NSApp;
-			// $this->clickedRow=
-			// $this->clickedColumn=
+			$this->clickedRow=$_POST['clickedRow'];
+			$this->clickedColumn=$_POST['clickedColumn'];
 			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
@@ -1005,6 +1005,8 @@ class NSTableView extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{
+		if(false && $this->clickedRow == -1)
+			; // select column
 		$this->selectRow($this->clickedRow);
 		}
 	public function draw()
@@ -1023,7 +1025,8 @@ class NSTableView extends NSControl
 			html("<th");
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
-			// if column selection/header selection add onclick handler
+			$index=key($this->headers);
+			parameter("onclick", "e('".$this->elementName."');"."r(-1);"."c($index)".";s()");
 			html(">\n");
 			html(_htmlentities($header));
 			html("</th>\n");
@@ -1038,14 +1041,15 @@ class NSTableView extends NSControl
 			html("<tr>");
 			foreach($this->headers as $column)
 				{
+				$index=key($this->headers);
 				html("<td");
 				parameter("class", "NSTableCell");
 				if($row == $this->selectedRow)
 					parameter("bgcolor", "blue");	// selected
 				else
 					parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
-				parameter("name", "x-y");
-				parameter("onclick", "document.forms[0].submit();");
+				parameter("name", $this->elementName."-".$row."-".$index);
+				parameter("onclick", "e('".$this->elementName."');"."r($row);"."c($index)".";s()");
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
@@ -1199,23 +1203,30 @@ class NSWindow extends NSResponder
 		html(">\n");
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
-		   {
-		   html("<link");
-		   parameter("rel", "stylesheet");
-		   parameter("href", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
-		   parameter("type", "text/css");
-		   html(">\n");
-		   }
+			{
+			html("<link");
+			parameter("rel", "stylesheet");
+			parameter("href", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
+			parameter("type", "text/css");
+			html(">\n");
+			}
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
+		// onlclick handlers should only be used if necessary since they require JavaScript enabled
+		html("<script>");
+		html("function e(v){document.forms[0].NSEvent.value=v;};");
+		html("function r(v){document.forms[0].clickedRow.value=v;};");
+		html("function c(v){document.forms[0].clickedColumn.value=v;}");
+		html("function s(){document.forms[0].submit();}");
+		html("</script>");
 		if(isset($r))
-		   {
-		   html("<script");
-		   parameter("src", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
-		   parameter("type", "text/javascript");
-		   html(">\n");
-		   html("</script>\n");
-		   html("<noscript>Your browser does not support JavaScript!</noscript>\n");
-		   }
+			{
+			html("<script");
+			parameter("src", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
+			parameter("type", "text/javascript");
+			html(">\n");
+			html("</script>\n");
+			}
+		html("<noscript>Your browser does not support JavaScript!</noscript>\n");
 		if(isset($this->title))
 			html("<title>"._htmlentities($this->title)."</title>\n");
 		html("</head>\n");
@@ -1225,6 +1236,21 @@ class NSWindow extends NSResponder
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
+		html(">\n");
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", "NSEvent");
+		parameter("value", "");	// can be set by the e(e) function in JavaScript
+		html(">\n");
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", "clickedRow");
+		parameter("value", "");	// can be set by the r(n) function in JavaScript
+		html(">\n");
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", "clickedColumn");
+		parameter("value", "");	// can be set by the c(n) function in JavaScript
 		html(">\n");
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
