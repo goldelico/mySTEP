@@ -50,6 +50,8 @@ function _htmlentities($string)
  * - if it needs to survive the display (run) loop
 */
 
+$persist=array();
+
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
@@ -352,20 +354,38 @@ class NSView extends NSResponder
 	protected $autoResizing;
 	protected $needsDisplay;
 	protected $window;
-	protected $persist=array();
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
 		parent::__construct();
+		// if we ever get problems with this numbering, we should derive the name from
+		// the subview tree index, e.g. 0-2-3
 		$this->elementName="NSView-".(++$elementNumber);
 		}
 	public function persist($object, $default, $value=null)
 		{
-		if($value == $default)
-			return $value;	// no need to persist
-		if($value == null)	// query
-			return isset($_POST[$object])?$_POST[$object]:$default;
-		$this->persist[$object]=$value;	// store until we draw
+		global $persist;	// will come back as $_POST[] next time (+ values from <input>)
+		$object=$this->elementName."-".$object;	// add namespace for this view
+		if(is_null($value))
+			{ // query
+NSLog("query persist $object");
+			if(isset($_POST[$object]))
+				$value=$_POST[$object];
+			else
+				$value=$default;
+			}
+		if($value === $default)
+			{
+NSLog("unset persist $object");
+			unset($persist[$object]);	// default values need not waste http bandwidth
+			unset($_POST[$object]);		// if we want to read back again this will return $default
+			}
+		else
+			{
+NSLog("set persist $object = $value");
+			$persist[$object]=$value;	// store (new/non-default value) until we draw
+			$_POST[$object]=$value;		// store if we overwrite and want to read back again
+			}
 		return $value;
 		}
 	public function window() { return $this->window; }
@@ -413,17 +433,6 @@ class NSView extends NSResponder
 		foreach($this->subviews as $view)
 			$view->display();
 		$this->draw();
-		// append all values we want to see persisted if someone presses a send button in the form
-		foreach($this->persist as $object => $value)
-			{
-			NSLog(@"persist $object $value");
-			html("<input");
-			parameter("type", "hidden");
-			parameter("name", $this->elementName."-".$object);
-			// JSON-Encode?
-			parameter("value", $value);
-			html(">\n");
-			}
 		}
 	public function draw()
 		{ // draw our own contents
@@ -855,6 +864,13 @@ class NSTabView extends NSControl
 	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
+	public function __construct($items=array())
+		{
+		parent::__construct();
+		foreach($items as $item)
+			$this->addTabViewItem($item);	// may have been clicked
+		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
+		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate($d) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
@@ -864,11 +880,12 @@ class NSTabView extends NSControl
 			{ // this index was clicked
 			global $NSApp;
 			$this->clickedItemIndex=count($this->tabViewItems);
-			NSLog($this->classString());
+			NSLog($this->classString()." index ".$this->clickedItemIndex);
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		$this->tabViewItems[]=$item;
 		}
+	public function indexOfSelectedTabViewItem() { return $this->selectedIndex; }
 	public function selectedTabViewItem()
 		{
 		if(isset($this->tabViewItems[$this->selectedIndex]))
@@ -886,9 +903,9 @@ class NSTabView extends NSControl
 			}
 		return -1;
 		}
-	public function indexOfSelectedTabViewItem() { return $this->selectedIndex; }
 	public function selectTabViewItemAtIndex($index)
 		{
+		NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
 			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[index]))
 				return;	// don't select
@@ -897,14 +914,9 @@ class NSTabView extends NSControl
 		$this->selectedIndex=$this->persist("selectedIndex", 0, $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
+		NSLog("selectTabViewItemAtIndex $index done");
 		}
 	public function setBorder($border) { $this->border=0+$border; }
-	public function __construct($items=array())
-		{
-       		parent::__construct();
-		$this->tabViewItems=$items;
-		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
-		}
 	public function mouseDown(NSEvent $event)
 		{
 		NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
@@ -912,10 +924,10 @@ class NSTabView extends NSControl
 		}
 	public function draw()
 		{
-		$this->persist("selectedIndex", -1, $this->selectedIndex);
 		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
+		parameter("name", $this->elementName);
 		html("\">\n");
 		html("<tr>");
 		html("<td");
@@ -934,9 +946,9 @@ class NSTabView extends NSControl
 			parameter("name", $this->elementName."-".$index++);
 			parameter("value", _htmlentities($item->label()));
 			if($item == $this->selectedTabViewItem())
-				parameter("style", "color=green;");
+				parameter("style", "color:green;");
 			else
-				parameter("style", "color=red;");
+				parameter("style", "color:red;");
 			html(">\n");
 			}
 		html("</td>");
@@ -997,9 +1009,13 @@ class NSTableView extends NSControl
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		}
-	public function selectedRow() { return $this->selectedRow; }
+	public function selectedRow()
+		{
+		return ($this->selectedRow<$this->numberOfRows())?$this->selectedRow:-1;
+		}
 	public function selectRow($row, $extend=false)
 		{
+		NSLog("selectRow $row extend ".($extend?"yes":"no"));
 		// if ! extend -> delete previous otherwise merge into set
 		$this->selectedRow=$this->persist("selectedRow", -1, $row);
 		}
@@ -1022,10 +1038,11 @@ class NSTableView extends NSControl
 		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
 		foreach($this->headers as $header)
 			{
+			$index=key($this->headers);
 			html("<th");
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
-			$index=key($this->headers);
+			parameter("name", $this->elementName."-".$index);
 			parameter("onclick", "e('".$this->elementName."');"."r(-1);"."c($index)".";s()");
 			html(">\n");
 			html(_htmlentities($header));
@@ -1037,15 +1054,18 @@ class NSTableView extends NSControl
 		$row=$this->firstVisibleRow;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
-// Make Row clickable => make it come back as MouseDownEvent
-			html("<tr>");
+			html("<tr");
+			parameter("class", "NSTableRow");
+			// add id="even"/"odd" so that we can define bgcolor by CSS?
+			parameter("name", $this->elementName."-".$row);
+			html(">\n");
 			foreach($this->headers as $column)
 				{
 				$index=key($this->headers);
 				html("<td");
 				parameter("class", "NSTableCell");
 				if($row == $this->selectedRow)
-					parameter("bgcolor", "blue");	// selected
+					parameter("bgcolor", "LightSteelBlue");	// selected
 				else
 					parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
 				parameter("name", $this->elementName."-".$row."-".$index);
@@ -1257,6 +1277,18 @@ class NSWindow extends NSResponder
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->contentView->display();
+		// append all values we want (still) to see persisted if someone presses a send button in the form
+		global $persist;
+		foreach($persist as $object => $value)
+			{
+			NSLog(@"persist $object $value");
+			html("<input");
+			parameter("type", "hidden");
+			parameter("name", $object);
+			// JSON-Encode values?
+			parameter("value", $value);
+			html(">\n");
+			}
 		html("</form>\n");
 		html("</body>\n");
 		html("</html>\n");
