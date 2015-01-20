@@ -314,8 +314,18 @@ class SQL extends NSObject
 		return quoteIdent($identifier);
 	}
 
+	public function columns($table, &$error)
+	{ // get list of columns for table
+		if($this->type == "mysql")
+			$query="SELECT column_name AS name FROM information_schema.columns WHERE table_schema = ".$this->quote($this->dbname)." AND table_name = ".$this->quote($table);	// MySQL
+		else
+// FIXME:
+			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
+		return $this->query($query, $error)->allObjectsForKey("name");
+	}
+
 	public function tables(&$error)
-	{
+	{ // get all tables in current database
 		if($this->type == "mysql")
 			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->dbname);	// MySQL
 		else
