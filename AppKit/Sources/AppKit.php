@@ -971,6 +971,18 @@ class NSTabView extends NSControl
 // should we embed that into a NSClipView which provides the $visibleRows and $firstVisibleRow?
 // should we embed the NSClipView into a NSScrollView which can somehow (JavaScript? CSS?) show a scroller?
 
+class NSTableColumn extends NSObject
+{
+	protected $title;
+	protected $identifier;
+	protected $width="*";
+	protected $isEditable=false;
+	// allow to define colspan and rowspan values
+	// allow to modify alignment
+	public function identifier() { return $this->identifier; }
+	public function setIdentifier($identifier) { $this->identifier=$identifier; }
+}
+
 class NSTableView extends NSControl
 	{
 	protected $headers;
@@ -990,15 +1002,12 @@ class NSTableView extends NSControl
 	public function setBorder($border) { $this->border=0+$border; }
 	public function numberOfRows() { return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
-	
-	// allow to define colspan and rowspan objects
-	// allow to modify alignment
-	
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->persist("selectedRow", -1);
+		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
 		$this->headers=$headers;
 		if(isset($_POST['NSEvent']) && $_POST['NSEvent'] == $this->elementName)
 			{ // click into table
@@ -1008,6 +1017,18 @@ class NSTableView extends NSControl
 			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
+		}
+	public function reloadData() { $this->setNeedsDisplay(); }
+	public function columns()
+		{
+		return $this->headers;	// headers should be the headers of the columns...
+		}
+	public function setColumns($array)
+		{
+		NSLog("set columns");
+		NSLog($array);
+		$this->headers=$array;
+		$this->reloadData();
 		}
 	public function selectedRow()
 		{
@@ -1027,6 +1048,8 @@ class NSTableView extends NSControl
 		}
 	public function draw()
 		{
+		$rows=$this->numberOfRows();	// may trigger a callback that changes something
+		NSLog("numberOfRows: $rows");
 		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
@@ -1049,8 +1072,6 @@ class NSTableView extends NSControl
 			html("</th>\n");
 			}
 		html("</tr>\n");
-		$rows=$this->numberOfRows();
-		NSLog("numberOfRows: $rows");
 		$row=$this->firstVisibleRow;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
