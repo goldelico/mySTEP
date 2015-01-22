@@ -47,7 +47,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 // FIXME: should we raise an ErrorException?
     if (!(error_reporting() & $errno)) {
         // This error code is not included in error_reporting
-        return;
+        return false;
     }
 
     switch ($errno) {
@@ -68,7 +68,10 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
         break;
 
     default:
+	$debug=$GLOBALS['debug'];
+	$GLOBALS['debug']=true;
         NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
+	$GLOBALS['debug']=$debug;
         break;
     }
 
