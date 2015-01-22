@@ -75,6 +75,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 			flush();
 		}
+// do we still need this?
 	public function _value($name, $value)
 		{
 		return " $name=\"".htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding)."\"";
@@ -368,7 +369,7 @@ class NSView extends NSResponder
 		$object=$this->elementName."-".$object;	// add namespace for this view
 		if(is_null($value))
 			{ // query
-NSLog("query persist $object");
+//NSLog("query persist $object");
 			if(isset($_POST[$object]))
 				$value=$_POST[$object];
 			else
@@ -376,13 +377,13 @@ NSLog("query persist $object");
 			}
 		if($value === $default)
 			{
-NSLog("unset persist $object");
+//NSLog("unset persist $object");
 			unset($persist[$object]);	// default values need not waste http bandwidth
 			unset($_POST[$object]);		// if we want to read back again this will return $default
 			}
 		else
 			{
-NSLog("set persist $object = $value");
+//NSLog("set persist $object = $value");
 			$persist[$object]=$value;	// store (new/non-default value) until we draw
 			$_POST[$object]=$value;		// store if we overwrite and want to read back again
 			}
@@ -1113,28 +1114,32 @@ class NSTableView extends NSControl
 class NSTextField extends NSControl
 {
 	protected $stringValue="";	// should this be a property of NSControl?
+	protected $htmlValue="";
 	protected $backgroundColor;
 	protected $align;
 	protected $type="text";
 	protected $width;
 	protected $isEditable=true;
 	protected $textColor;
-	protected $wraps=true;
+	protected $wraps=false;
 	public function stringValue() { return $this->stringValue; }
-	public function setStringValue($str) { $this->stringValue=$str; }
+	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=_htmlentities($str); }
+	// should be used for static text fields
+	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
-	public function __construct($width=30, $stringValue = "")
+	public function __construct($width=30, $stringValue = null)
 	{
        		parent::__construct();
 		if(isset($_POST[$this->elementName."-stringValue"]))
-			$this->stringValue=$_POST[$this->elementName."-stringValue"];
-		if($stringValue)
-			$this->stringValue=$stringValue;
+			$this->setStringValue($_POST[$this->elementName."-stringValue"]);
+		if(!is_null($stringValue))
+			$this->setStringValue($stringValue);
 		$this->width=$width;
 	}
 	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
+
 		}
 	public function draw()
 		{
@@ -1151,9 +1156,9 @@ class NSTextField extends NSControl
 		else
 			{
 			if($this->wraps)
-				html(nl2br(_htmlentities($this->stringValue)));
+				html(nl2br($this->htmlValue));
 			else
-				html(_htmlentities($this->stringValue));
+				html($this->htmlValue);
 			}
 		}
 }
