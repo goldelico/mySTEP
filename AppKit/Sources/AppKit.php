@@ -143,9 +143,9 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	}
 
 class _NSHTMLGraphicsContextStore extends NSGraphicsContext
-{ // collect html in a string
+{ // collect html in an attributed string
 	protected $string="";
-	public function string() { return $this->string; }
+	public function attributedString() { return $this->string; }
 	public function html($html) { $string.=$html; }
 }
 
@@ -1256,7 +1256,8 @@ class NSWindow extends NSResponder
 			parameter("type", "text/css");
 			html(">\n");
 			}
-		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
+// allow to add app specific CSS (by WikiView.php)
+
 		// onlclick handlers should only be used if necessary since they require JavaScript enabled
 		html("<script>");
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
@@ -1264,6 +1265,7 @@ class NSWindow extends NSResponder
 		html("function c(v){document.forms[0].clickedColumn.value=v;}");
 		html("function s(){document.forms[0].submit();}");
 		html("</script>");
+		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 			{
 			html("<script");
