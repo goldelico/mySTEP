@@ -689,13 +689,19 @@ class NSImage extends NSObject
 		// load and analyse if needed
 		return array('width' => $width, 'height' => $height);
 		}
+	public function setSize($array)
+		{
+		$width=$array['width'];
+		$height=$array['height'];
+		}
 	public static function imageNamed($name)
 		{
 		if(isset(self::$images[$name]))
 			return self::$images[$name];	// known
 		$image=new NSImage();	// create
-		$image->setName($name);
-		return $image;
+		if($image->setName($name))
+			return $image;
+		return null;	// was not found
 		}
 	public function __construct()
 		{
@@ -716,18 +722,23 @@ class NSImage extends NSObject
 	public function setName($name)
 		{
 		if($this->name != "")
-			unset(self::$images[$this->name]);
-		if($name != "")
+			unset(self::$images[$this->name]);	// delete current name
+		if(!is_null($name) && $name != "")
 			{
-			$this->name=$name;
-			self::$images[$this->name]=$this;
 			if(!isset($this->url))
-				{
+				{ // not initialized by referencing file/url
+				$bundle=NSBundle::mainBundle();
 				// search in main bundle
 				// or in AppKit bundle
+				// can we ask the NSBundle for its external URL/Resources?
+				return false;
+				// if found, return true
 				$this->url="images/".$name.".png";	// set default name
 				}
+			$this->name=$name;
+			self::$images[$name]=$this;	// store in list of known images
 			}
+		return true;
 		}
 	public function initByReferencingURL($url)
 		{
