@@ -29,7 +29,7 @@ if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
 function parameter($name, $value)
 {
-	NSGraphicsContext::currentContext()->html(" $name=\"".$value."\"");
+	NSGraphicsContext::currentContext()->parameter($name, $value);
 }
 
 function html($html)
@@ -39,7 +39,7 @@ function html($html)
 
 function _htmlentities($string)
 {
-	return htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
+	return NSGraphicsContext::currentContext()->text($string);
 }
 
 /*
@@ -69,12 +69,17 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	const encoding='UTF-8';
 	public function html($html)
 		{
-			echo $html;
+		echo $html;
 		}
 	public function flushGraphics()
 		{
-			flush();
+		flush();
 		}
+	public function parameter($name, $value)
+		{
+		$this->html(" $name=\"".$value."\"");
+		}
+
 // do we still need this?
 	public function _value($name, $value)
 		{
@@ -93,14 +98,6 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		return _tag("b", $contents);
 		}
 	// write output objects
-	public function header()
-		{
-		$this->html(_tag("html"));
-		}
-	public function footer()
-		{
-		
-		}
 	public function text($contents)
 		{
 		$this->html(htmlentities($contents, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding));
