@@ -27,9 +27,11 @@ require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Curr
 
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
-function parameter($name, $value)
+// these functions should be used internally only!
+
+function _htmlentities($string)
 {
-	NSGraphicsContext::currentContext()->parameter($name, $value);
+	return NSGraphicsContext::currentContext()->_htmlentities($string);
 }
 
 function html($html)
@@ -37,9 +39,14 @@ function html($html)
 	NSGraphicsContext::currentContext()->html($html);
 }
 
-function _htmlentities($string)
+function parameter($name, $value)
 {
-	return NSGraphicsContext::currentContext()->text($string);
+	NSGraphicsContext::currentContext()->parameter($name, $value);
+}
+
+function text($html)
+{
+	NSGraphicsContext::currentContext()->text($html);
 }
 
 /*
@@ -71,19 +78,27 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 		echo $html;
 		}
-	public function flushGraphics()
+	public function _htmlentities($value)
 		{
-		flush();
+		return htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
 		}
 	public function parameter($name, $value)
 		{
 		$this->html(" $name=\"".$value."\"");
 		}
+	public function text($contents)
+		{
+		$this->html($this->_htmlentities($contents));
+		}
+	public function flushGraphics()
+		{
+		flush();
+		}
 
 // do we still need this?
 	public function _value($name, $value)
 		{
-		return " $name=\"".htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding)."\"";
+		return " $name=\"".$this->_htmlentities($value)."\"";
 		}
 	public function _linkval($name, $url)
 		{
@@ -98,10 +113,6 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		return _tag("b", $contents);
 		}
 	// write output objects
-	public function text($contents)
-		{
-		$this->html(htmlentities($contents, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding));
-		}
 	public function link($url, $contents)
 		{
 		$this->html($this->_tag("a", $contents, $this->_linkval("src", $url)));
@@ -1131,7 +1142,7 @@ class NSTextField extends NSControl
 	protected $textColor;
 	protected $wraps=false;
 	public function stringValue() { return $this->stringValue; }
-	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=_htmlentities($str); }
+	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); }
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; }
 	public function isEditable() { return $this->isEditable; }
