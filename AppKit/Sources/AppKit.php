@@ -1227,10 +1227,12 @@ class NSWindow extends NSResponder
 {
 	protected $title;
 	protected $contentView;
+	protected $heads="";
 	public function contentView() { return $this->contentView; }
 	public function setContentView($view) { $this->contentView=$view; $view->setWindow($this); }
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
+	public function _addToHead($line) { $this->heads.=$line."\n"; }
 
 	public function __construct()
 		{
@@ -1294,6 +1296,7 @@ class NSWindow extends NSResponder
 		html("<noscript>Your browser does not support JavaScript!</noscript>\n");
 		if(isset($this->title))
 			html("<title>"._htmlentities($this->title)."</title>\n");
+		html($this->heads);	// additional tags
 		html("</head>\n");
 		html("<body>\n");
 		html("<form");
