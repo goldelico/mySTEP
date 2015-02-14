@@ -1176,8 +1176,17 @@ class NSSecureTextField extends NSTextField
 	public function __construct($width=30)
 	{
        		parent::__construct($width);
-	//	parent::NSTextField($width);
 		$this->type="password";
+	}
+
+}
+
+class NSSearchField extends NSTextField
+{
+	public function __construct($width=30)
+	{
+		parent::__construct($width);
+		$this->type="search";
 	}
 
 }
