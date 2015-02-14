@@ -312,7 +312,7 @@ class NSBundle extends NSObject
 		global $NSApp;
 		NSLog("mainBundle");
 		if(isset($NSApp))
-			return NSBundle::bundleForClass($NSApp->classString());	// assume that some NSApp object exists
+			return NSBundle::bundleForClass($NSApp->classString());	// assumes that some NSApp object exists
 		return NULL;	// unknown
 		}
 	public static function bundleForClass($class)
