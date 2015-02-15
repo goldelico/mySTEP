@@ -150,11 +150,11 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	
 	}
 
-class _NSHTMLGraphicsContextStore extends NSGraphicsContext
+class _NSHTMLGraphicsContextStore extends NSHTMLGraphicsContext
 { // collect html in an attributed string
 	protected $string="";
 	public function attributedString() { return $this->string; }
-	public function html($html) { $string.=$html; }
+	public function html($html) { $this->string.=$html; }
 }
 
 class NSEvent extends NSObject
@@ -302,9 +302,7 @@ class NSApplication extends NSResponder
 		}
 	public function sendActionToTarget($from, $action, $target)
 		{
-/*
 NSLog("sendAction $action to ".$target->description());
-*/
 		if(!isset($target))
 			return;	// it $target does not exist -> take first responder
 		// if method does not exist -> ignore or warn
@@ -453,6 +451,10 @@ class NSView extends NSResponder
 
 class NSControl extends NSView
 	{
+	public function __construct()
+		{ // must explicitly call!
+		parent::__construct();
+		}
 	public function sendAction($action, $target)
 		{
 		global $NSApp;
@@ -463,23 +465,14 @@ class NSControl extends NSView
 class NSButton extends NSControl
 	{
 	protected $title;
-	protected $target;	// object
 	protected $action;	// function name
+	protected $target;	// object
 	protected $state;
 	protected $buttonType;
-	public function isSelected()
-		{
-		return $this->state;
-		}
-	public function setSelected($value)
-		{
-		$this->state=$this->persist("selected", $value);
-		}
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
-		global $NSApp;
 		parent::__construct();
-		NSLog("NSButton $newtitle ".$this->elementName);
+//		NSLog("NSButton $newtitle ".$this->elementName);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		$this->state=$this->persist("selected", 0);
@@ -489,6 +482,20 @@ class NSButton extends NSControl
 			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
+		}
+	public function isSelected()
+		{
+		return $this->state;
+		}
+	public function setSelected($value)
+		{
+		$this->state=$this->persist("selected", $value);
+		}
+	public function description() { return parent::description()." ".$this->title; }
+	public function setActionAndTarget($action, $target)
+		{
+		$this->action=$action;
+		$this->target=$target;
 		}
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
@@ -503,7 +510,6 @@ class NSButton extends NSControl
 	}
 	public function draw()
 		{
-		// checkbox, radiobutton
 		html("<input");
 		parameter("class", "NSButton");
 		switch($this->buttonType)
@@ -527,7 +533,7 @@ class NSButton extends NSControl
 			}
 		else
 			parameter("style", "color=red;");
-		html("\"/>\n");
+		html("/>\n");
 		}
 	}
 
@@ -547,11 +553,6 @@ class NSMenuItemView extends NSButton
 			{
 			parent::__construct($label);
 			$this->isSelected=$this->persist("isSelected", 0);
-			}
-		public function setActionAndTarget($action, $target)
-			{
-			$this->action=$action;
-			$this->target=$target;
 			}
 		public function setSubmenu($submenu)
 			{
@@ -640,7 +641,7 @@ class NSMenuView extends NSControl
 			parameter("border", $this->border);
 			if($this->isHorizontal)
 				parameter("width", $this->width);
-			html("\">\n");
+			html(">\n");
 			html("<tr");
 			parameter("class", "NSMenuItemView");
 			//		parameter("bgcolor", "LightSteelBlue");
@@ -799,12 +800,14 @@ class NSCollectionView extends NSControl
 	protected $colums=5;
 	protected $border=0;
 	protected $width="100%";
-	protected $content;
-	public function content() { return $this->content; }
-	public function setContent($array) { $this->content=$array; }
-	// FIXME: we should decide which method we prefer!
-	public function addSubview($item) { $this->addCollectionViewItem($item); }
-	public function addCollectionViewItem($item) { $this->content[]=$item; }
+	public function content() { return $this->subviews(); }
+	public function setContent($items)
+		{
+		foreach($this->subviews() as $item)
+			$item->removeFromSuperview();	// remove from hierarchy
+		foreach($items as $item)
+			$this->addSubview($item);
+		}
 	public function setBorder($border) { $this->border=0+$border; }
 
 // allow to define colspan and rowspan objects
@@ -814,30 +817,27 @@ class NSCollectionView extends NSControl
 		{
 		parent::__construct();
 		$this->columns=$cols;
-		$this->content=$items;
-// NSLog("NSCollectionView $cols");
+		$this->setContent($items);
+// NSLog("NSCollectionView cols=$cols rows=".(count($item)+$cols-1)/$cols);
 		}
 	public function mouseDown(NSEvent $event)
 		{
 		}
-	public function draw()
+	public function display()
 		{
-// FIXME: this is not yet very systematic...
-// we call display from draw which should itself be called from display only
 		html("<table");
 		parameter("class", "NSCollectionView");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		html("\">\n");
+		html(">\n");
 		$col=1;
-		foreach($this->content as $item)
+		foreach($this->subviews as $item)
 			{
 			if($col == 1)
 				html("<tr>");
 			html("<td");
 			parameter("class", "NSCollectionViewItem");
-			html("\">\n");
-//NSLog($item);
+			html(">\n");
 			$item->display();
 			html("</td>");
 			$col++;
@@ -942,13 +942,13 @@ class NSTabView extends NSControl
 		NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
 		$this->selectTabViewItemAtIndex($this->clickedItemIndex);
 		}
-	public function draw()
+	public function display()
 		{
 		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
 		parameter("name", $this->elementName);
-		html("\">\n");
+		html(">\n");
 		html("<tr>");
 		html("<td");
 		parameter("class", "NSTabViewItemsBar");
@@ -979,7 +979,7 @@ class NSTabView extends NSControl
 		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
-			$selectedItem->view()->draw();	// draw current tab
+			$selectedItem->view()->display();	// draw current tab
 		else
 			html(_htmlentities("No tab for index ".$this->selectedIndex));
 		html("</td>");
@@ -1066,14 +1066,14 @@ class NSTableView extends NSControl
 			; // select column
 		$this->selectRow($this->clickedRow);
 		}
-	public function draw()
+	public function display()
 		{
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
 		NSLog("numberOfRows: $rows");
 		html("<table");
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		html("\">\n");
+		html(">\n");
 		html("<tr");
 		parameter("class", "NSHeaderView");
 		parameter("bgcolor", "LightSteelBlue");
@@ -1169,8 +1169,9 @@ class NSTextField extends NSControl
 			parameter("type", $this->type);
 			parameter("size", $this->width);
 			parameter("name", $this->elementName."-stringValue");
-			parameter("value", _htmlentities($this->stringValue));
-			html("\"/>\n");
+			if($this->type != "password")
+				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
+			html("/>\n");
 			}
 		else
 			{
@@ -1228,7 +1229,7 @@ class NSTextView extends NSControl
 		parameter("width", $this->width);
 		parameter("height", $this->height);
 		parameter("name", $this->elementName."-stringValue");
-		html("\">");
+		html(">");
 		html(_htmlentities($this->stringValue));
 		html("</textarea>\n");
 		}
@@ -1447,7 +1448,7 @@ class WebView extends NSView
 		parameter("width", $this->width);
 		parameter("height", $this->height);
 		parameter("src", $this->url);
-		html("\">");
+		html(">");
 		NSGraphicsContext::currentContext()->text("your browser does not support iframes. Please use this link".$this->url);
 		html("</iframe>");
 		}
