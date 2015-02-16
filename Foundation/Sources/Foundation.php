@@ -698,5 +698,30 @@ class NSDate extends NSObject
 		}
 	}
 
+// until we do better, we use a html string to represent attributes
+
+class NSAttributedString extends NSObject
+	{
+		protected $html;
+		public function setString($string) { $this->html=nl2br(htmlentities($string)); }
+		public function string() { /* decode <br>, htmlentities and remove tags */ return $this->html; }
+		public function setHtmlString($string) { $this->html=$html; }
+		public function htmlString() { return $this->html; }
+	}
+
+function astr($string)
+	{
+	$a=new NSAttributedString();
+	$a->setString($string);
+	return $a;
+	}
+
+function htmlstr($string)
+	{
+	$a=new NSAttributedString();
+	$a->setHtmlString($string);
+	return $a;
+	}
+
 // EOF
 ?>
