@@ -45,38 +45,38 @@ if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
 function myErrorHandler($errno, $errstr, $errfile, $errline)
 {
 // FIXME: should we raise an ErrorException?
-    if (!(error_reporting() & $errno)) {
-        // This error code is not included in error_reporting
-        return false;
-    }
+	if (!(error_reporting() & $errno)) {
+		// This error code is not included in error_reporting
+		return false;
+		}
 
-    switch ($errno) {
-    case E_USER_ERROR:
-        echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
-        echo "  Fatal error on line $errline in file $errfile";
-        echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-        echo "Aborting...<br />\n";
-        exit(1);
-        break;
+	switch ($errno) {
+	case E_USER_ERROR:
+		echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+		echo "  Fatal error on line $errline in file $errfile";
+		echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+		echo "Aborting...<br />\n";
+		exit(1);
+		break;
 
-    case E_USER_WARNING:
-        NSLog("<b>My WARNING</b> [$errno] $errstr on line $errline in file $errfile");
-        break;
+	case E_USER_WARNING:
+		NSLog("<b>My WARNING</b> [$errno] $errstr on line $errline in file $errfile");
+		break;
 
-    case E_USER_NOTICE:
-        NSLog("<b>My NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
-        break;
+	case E_USER_NOTICE:
+		NSLog("<b>My NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
+		break;
 
-    default:
-	$debug=$GLOBALS['debug'];
-	$GLOBALS['debug']=true;
-        NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
-	$GLOBALS['debug']=$debug;
-        break;
-    }
+	default:
+		$debug=$GLOBALS['debug'];
+		$GLOBALS['debug']=true;
+		NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
+		$GLOBALS['debug']=$debug;
+		break;
+	}
 
-    /* Don't execute PHP internal error handler */
-    return true;
+	/* Don't execute PHP internal error handler */
+	return true;
 }
 
 $old_error_handler = set_error_handler("myErrorHandler");
