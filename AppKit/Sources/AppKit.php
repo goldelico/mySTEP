@@ -520,6 +520,7 @@ class NSButton extends NSControl
 		parameter("type", "submit");
 		parameter("name", $this->elementName);
 		parameter("value", _htmlentities($this->title));
+// FIXME: if default button (\r): make it blue
 		if($this->isSelected())
 			{
 			parameter("checked", "checked");
