@@ -96,13 +96,16 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		}
 
 // do we still need this?
+// at least partially: we use link() which uses _tag(), _linkval(), _value()
+// but all this is not good enough
+// we need to replace it by a better abstraction, especially to hide when we must use rawurlencode() and when htmlentities()
 	public function _value($name, $value)
 		{
 		return " $name=\"".$this->_htmlentities($value)."\"";
 		}
 	public function _linkval($name, $url)
 		{
-		return " $name=\"".rawurlencode($url)."\"";
+		return " $name=\"".$url."\"";
 		}
 	public function _tag($tag, $contents, $args="")
 		{
@@ -115,7 +118,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	// write output objects
 	public function link($url, $contents)
 		{
-		$this->html($this->_tag("a", $contents, $this->_linkval("src", $url)));
+		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
 		}
 	public function img($url)
 		{
@@ -129,10 +132,12 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 		$this->html($this->_tag("textarea", $value, $this->_value("size", $size)));
 		}
+
 	/* we need this to convert file system paths into an external URL */
 	/* hm, here we have a fundamental problem:
-	 * we don't know where the framework/bundle requesting the path can be accessed from extern!
-	 * because that is very very installation dependent (mapping from external URLs through links to local file paths)
+	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
+	 * because that is very very installation dependent (e.g. mapping from external URLs through links to local file paths)
+	 * we could try to deduce from $_SERVER values
 	 */
 	public function externalURLforPath($path)
 		{
@@ -559,7 +564,7 @@ class NSMenuItemView extends NSButton
 			{
 			$this->subMenuView=$submenu;
 			}
-		public function draw($superview="")
+		public function draw()
 			{
 			// FXIME: use <style>
 			// if no action -> grey out
