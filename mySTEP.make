@@ -36,7 +36,6 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) QuantumSTEP - root of QuantumSTEP
 #  sources (input)
 #   * SOURCES
-#   (+) RECURSIVE
 #   (*) INCLUDES
 #   (*) CFLAGS
 #   PROFILING
@@ -45,8 +44,10 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #  compile control
 #   () BUILT_PRODUCTS_DIR - default: build/Deployment
 #   () TARGET_BUILD_DIR - default: build/Deployment
-#   BUILD_FOR_DEPLOYMENT
-#   OPTIMIZE
+#   (+) PHPONLY
+#   (+) RECURSIVE
+#   (+) BUILD_FOR_DEPLOYMENT
+#   (+) OPTIMIZE
 #   BUILD_STYLE
 #   GCC_OPTIMIZATION_LEVEL
 #   () BUILD_DOCUMENTATION
@@ -517,12 +518,17 @@ make_bundle:
 make_exec: "$(EXEC)"
 # make exec
 
+ifneq ($(PHPONLY),true)
 ifneq ($(strip $(SRCOBJECTS)),)
 make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
 else
 make_binary:
 	# no sources - no binary
+endif
+else
+make_binary:
+	# make PHP only
 endif
 
 make_php: bundle

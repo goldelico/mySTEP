@@ -228,7 +228,7 @@ class SQL extends NSObject
 
 	public function open($url, &$error)
 	{ // YES=ok
-		// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is reveilled to the Web
+		// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is revealed to the Web
 		// NSLog($url);
 		$c=parse_url($url);
 		if($c === false)
