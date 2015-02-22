@@ -19,9 +19,11 @@
 // global $ROOT must be set by some application
 // global $debug can be set to enable/disable debugging messages
 
+if(!isset($GLOBALS['debug'])) $GLOBALS['debug']=false;	// disable by default
+
 function NSLog($format)
 	{
-	if(!isset($GLOBALS['debug']) || !$GLOBALS['debug'])
+	if(!$GLOBALS['debug'])
 		return;	// disable
 	if(!is_scalar($format))
 		{
@@ -37,6 +39,10 @@ function NSLog($format)
 		echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
 		}
 	flush();
+	}
+
+function NSSevereError($format)
+	{ // send as e-mail to developer
 	}
 
 if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
@@ -659,6 +665,9 @@ createDirectoryAtPath:withIntermediateDirectories:attributes:error:
 createFileAtPath:contents:attributes:
 */
 	}
+
+// should we implement NSTimeZone - and initialize from NSUserDefaults?
+date_default_timezone_set("Europe/Berlin");
 
 class NSDate extends NSObject
 	{
