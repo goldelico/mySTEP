@@ -534,7 +534,7 @@ endif
 make_php: bundle
 # make PHP
 	for PHP in $(PHPSRCS); do \
-		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
+		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
