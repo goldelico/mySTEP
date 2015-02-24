@@ -366,6 +366,7 @@ class NSView extends NSResponder
 	protected $autoResizing;
 	protected $needsDisplay;
 	protected $window;
+	protected $tooltip;
 	public function __construct()
 		{
 		static $elementNumber;	// unique number
@@ -442,10 +443,17 @@ class NSView extends NSResponder
 	public function display()
 		{ // draw subviews first
 //		NSLog("<!-- ".$this->elementName." -->");
+		if(is_set($this->tooltip) && $this->tooltip))
+			{
+			// wrap in <span title="$tooltip">
+			}
+		// if $this->class()-defaultMenu() exists -> add menu
 		foreach($this->subviews as $view)
 			$view->display();
 		$this->draw();
 		}
+	public function setToolTip($str) { $this->tooltip=$str; }
+	public function toolTip() { return $this->tooltip; }
 	public function draw()
 		{ // draw our own contents
 		}
