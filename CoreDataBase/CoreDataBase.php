@@ -11,6 +11,8 @@ require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Curr
 
 if($GLOBALS['debug']) echo "<h1>CoreDataBase.framework</h1>";
 
+/* OLD
+
 class ManagedObjectContext extends NSObject
 { // represents a data storage
 }
@@ -71,7 +73,7 @@ echo "new<p>";
 			$f=mysql_field_name($result, $i);
 			}
 		}
-*/
+* /
 
 	public function constructor($context, $table, $primarykey)
 		{
@@ -149,13 +151,117 @@ class ManagedObject extends NSObject
 
 }
 
+OLD */
+
+class _CSV
+{
+	protected $file;
+	protected $separator;
+	protected $enclosure;
+	protected $columns;
+	protected $rows;
+
+	public function open($directory, $table)
+	{
+		// find matching .*sv file in $directory
+		$this->file=$directory."/".$table.".tsv";
+		$this->separator=",";
+		$this->enclosure="\"";
+		if(substr($this->file, -4) == ".tsv")
+			{
+			$this->separator="\t";
+			$this->enclosure="\n";	// should never occur
+			}
+		if(!$handle = @fopen($this->file, "r"))
+			{
+			NSLog("could not read $this->file");
+			return false;
+			}
+		if(($this->columns = fgetcsv($handle, 0, $this->separator, $this->enclosure)) === false)
+			return false;
+		while(($values = fgetcsv($handle, 0, $this->separator, $this->enclosure)) !== false)
+			{
+			$row=array();
+			for($c=0; $c<count($this->columns); $c++)
+				{ // make $rows an array of arrays indexed by the column names
+				if($c<count($values)) $val=$values[$c];
+				else $val="";	// missing entry
+				$row[$this->columns[$c]]=$val;	// use column names as new index
+				}
+			$this->rows[]=$row;
+			}
+		fclose($handle);
+//		NSLog("opened $file ".count($this->rows)." rows ".count($this->columns)." cols");
+		return true;
+	}
+
+// for better transaction separation
+// we should open() + change + save()
+// and/or allow to lock a file
+// i.e. lock() + open() + change + save() + unlock()
+
+	public function save()
+	{ // save to file
+		// NSArray write?
+		if(!$handle = @fopen($this->file, "w"))
+			{
+			NSLog("could not write $this->file");
+			return false;
+			}
+		if(!fputcsv($handle, $this->columns, $this->separator, $this->enclosure))
+			return false;
+		foreach($this->rows as $record)
+			if(!fputcsv($handle, $record, $this->separator, $this->enclosure))
+				return false;
+		fclose($handle);
+		return true;	// OK
+	}
+
+	public function columns() { return $this->columns; }
+	public function rows() { return $this->rows; }
+	public function numberOfColumns() { return count($this->columns); }
+	public function numberOfRows() { return count($this->rows); }
+
+	public function selectFirstWhereColumnIsValue($column, $value)
+	{ // SELECT * WHERE column = value
+//		echo "SELECT * WHERE $column = $value\n";
+		foreach($this->rows as $row)
+			if($row[$column] == $value)
+				return $row;
+		return null;
+	}
+
+	public function selectColumn($column)
+	{ // SELECT column
+//		echo "SELECT $column\n";
+		foreach($this->rows as $row)
+			$r[]=$row[$column];
+		return $r;
+	}
+
+	public function create($directory, $table, $columns)
+	{
+		if(isset($this->columns))
+			return false;	// already opened!
+		// use csv or tsv by default?
+		// or how can we control that?
+		$file=$directory."/".$table.".csv";
+		if(file_exists($file))
+			return false;	// table already esists
+		$this->file=$file;
+		$this->separator=",";
+		$this->enclosure="\"";
+		$this->columns=$columns;
+		$this->rows=array();	// empty
+	}
+
+	// insert, update records
+
+}
+
 class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
 {
 	protected $result;
-
-// FIXME: handle http://php.net/manual/de/class.sqlite3result.php
-// by inspecting the class of $r
-// we could also subclass SQLRowEnumerator into _MySQLRowEnumerator and _SQLiteRowEnumerator
 
 	public function __construct($r)
 	{
@@ -210,6 +316,19 @@ class _SQLiteRowEnumerator extends SQLRowEnumerator
 	}
 }
 
+class _CSVRowEnumerator extends SQLRowEnumerator
+{
+	public function __destruct()
+	{
+		// nothing to destruct explicitly
+	}
+
+	public function nextObject()
+	{ // fetch next row
+		return next($this->result);	// use PHP enumertor
+	}
+}
+
 function quote($str)
 	{ // quote argument string
 		return "'".addslashes($str)."'";
@@ -251,12 +370,17 @@ class SQL extends NSObject
 				}
 			return true;
 			}
-		if($this->type == "sqlite" || $c['scheme'] == "file")
+		if($this->type == "sqlite")
 			{
 			// must be localhost, no user/password
 			$this->dbname=$c['path'];	// file name
 			$this->db=new SQLite($this->dbname);
 			return isset($this->db);
+			}
+		if($this->type == "file")
+			{
+			$this->dbname=$c['path'];	// directory name
+			return file_exists($c['path']);	// should we base on NSFileManager?
 			}
 		// ADDME: abstract csv/tsv (specify directory where file.csv or file.tsv are treated as individual tables)
 		return false;	// we speak only MySQL
@@ -264,12 +388,154 @@ class SQL extends NSObject
 
 	public function setDatabase($name)
 	{ // change database (MySQL) or file (SQLite)
-		if($this->type == "mysql" && mysqli_select_db($this->db, $name))
+		if($this->type == "mysql")
 			{
+			if(!mysqli_select_db($this->db, $name))
+				return false;	// can't select
 			$this->dbname=$name;
 			return true;
 			}
+		if($this->type == "sqlite")
+			return false;	// no database to select
+		if($this->type == "file")
+			return false;	// no database to select
 		return false;
+	}
+
+	/* this is our miniparser for SQL */
+	function eat($key, &$sql)
+	{
+		$len=strlen($key);
+		while(substr($sql, 0, 1) == " " || substr($sql, 0, 1) == "\n")
+			$sql=substr($sql, 1);	// eat whitespace
+		if($key == "")
+			return true;	// just called to skip whitespace
+		if(strcasecmp(substr($sql, 0, $len), $key) == 0)
+			{ // found
+			$sql=substr($sql, $len);	// eat keyword
+NSLog("sql: $key");
+			return true;
+			}
+		return false;
+	}
+
+	function sqlIdent(&$sql)
+	{ // get identifier - potentially quoted in ``
+		$this->eat("", $sql);	// skip any whitespace
+NSLog("try to get ident: $sql");
+		if(preg_match("|([a-zA-Z_][a-zA-Z_0-9]*)|", $sql, $match))
+			{
+			$ident=$match[1];
+			$sql=substr($sql, strlen($ident));	// remove ident
+			}
+		else if(preg_match("|`([a-zA-Z_][a-zA-Z_0-9]*)`|", $sql, $match))
+			{
+			$ident=$match[1];
+			$sql=substr($sql, strlen($ident)+2);	// remove ident and ``
+			}
+		else
+			$ident=null;
+NSLog("sql: $ident");
+		return $ident;
+	}
+
+	function sqlValue(&$sql, $row)
+	{ // get value
+		if($this->eat("NOT", $sql))
+			return !$this->sqlConditional($sql, $row);
+		if($this->eat("(", $sql))
+			{
+			$val=$this->sqlValue($sql, $row);
+			if(!$this->eat(")", $sql))
+				;	// syntax error
+			return $val;
+			}
+		if(($ident=$this->sqlIdent($sql)) != null)
+			{
+			if(!isset($row[$ident]))
+				return null;	// column does not exist
+			return $row[$ident];
+			}
+		if(preg_match("|'(.*)'|", $sql, $match))
+			{ // quoted string (does not handle escape sequences and embedded ' yet)
+			$str=$match[1];
+			$sql=substr($sql, strlen($str)+2);	// remove string
+			return $str;
+			}
+		if(preg_match("|'(-?[0-9][0-9]*)'|", $sql, $match))
+			{
+			$val=0+$match[1];	// convert to PHP number
+			NSLog("sql: $val");
+			return $val;
+			}
+		return null;
+	}
+
+	// there should be arithmetic in between
+
+	function sqlComparison(&$sql, $row)
+	{ // evaluate column = value
+		if($this->eat("(", $sql))
+			{
+			$val=$this->sqlConditional($sql, $row);
+			if(!$this->eat(")", $sql))
+				;	// syntax error
+			return $val;
+			}
+		$l=$this->sqlValue($sql, $row);
+		if($this->eat("="))
+			return 	$l === $this->sqlValue($sql, $row);
+		if($this->eat("<>"))
+			return 	$l !== $this->sqlValue($sql, $row);
+		if($this->eat("<"))
+			return 	$l < $this->sqlValue($sql, $row);
+		if($this->eat("<="))
+			return 	$l <= $this->sqlValue($sql, $row);
+		if($this->eat(">"))
+			return 	$l > $this->sqlValue($sql, $row);
+		if($this->eat(">="))
+			return 	$l >= $this->sqlValue($sql, $row);
+		return false;	// syntax error!
+	}
+
+	function sqlLogical(&$sql, $row)
+	{ // evaluate AND
+		if(!$this->sqlComparison($sql, $row))
+			return false;	// first non-match is sufficient
+		while($this->eat("AND"))
+			{
+			if(!$this->sqlComparison($sql, $row))
+				return false;	// any non-match is sufficient
+			}
+		return true;	// all conditions were true
+	}
+
+	function sqlConditional(&$sql, $row)
+	{ // evaluate OR
+		if($this->sqlLogical($sql, $row))
+			return true;	// first match is sufficient
+		while($this->eat("OR"))
+			{
+			if($this->sqlLogical($sql, $row))
+				return true;	// any match is sufficient
+			}
+		return false;	// no condition was true
+	}
+
+	function sqlColumns(&$sql)
+	{
+		if($this->eat("*", $sql))
+			return array("*");	// special case
+		$cols=array();
+		do
+			{
+			$ident=$this->sqlIdent($sql);
+			if(is_null($ident))
+				return null;	// syntax error
+			$cols[]=$ident;
+			}
+		while($this->eat(",", $sql));
+		return $cols;
 	}
 
 	public function query($sql, &$error)
@@ -292,7 +558,7 @@ class SQL extends NSObject
 		NSLog("query ok");
 		return new SQLRowEnumerator($result);
 		}
-	else
+	if($this->type == "sqlite")
 		{
 		$result=$this->db->query($sql);
 		if(!$result)
@@ -302,6 +568,72 @@ class SQL extends NSObject
 		NSLog("MySQL query done");
 		return new _SQLiteRowEnumerator($result);
 		}
+	if($this->type == "file")
+		{ // decode some very simple SQL commands and process on csv/.tsv files in given directory
+		if($this->eat("SELECT", $sql))
+			{
+			/* parse */
+			// $distinct=$this->eat("DISTINCT", $sql);	// hm. this requires filtering columns first and checking for duplicates on the where filter
+			$cols=$this->sqlColumns($sql);	// parse columns list
+			if(is_null($cols))
+				return null;
+			if(!$this->eat("FROM", $sql))
+				return null;	// syntax error
+			$table=$this->sqlIdent($sql);
+			if(is_null($table))
+				return null;
+			$hasWhere=$this->eat("WHERE", $sql);
+			$w=$sql;	// remember a copy of the WHERE clause for repeated evaluation
+			if($hasWhere)
+				$this->sqlConditional($sql, $row);	// process once
+			if($this->eat("LIMIT", $sql))
+				$limit=$this->sqlValue($sql, array());	// we don't know the columns yet
+			else
+				$limit=-1;	// never becomes 0 (unless we wrap around for integers)
+			/* open table and fetch/filter results */
+			$db=new _CSV();
+			if(!$db->open($this->dbname, $table))
+				return null;	// table does not exit
+			$where=array();
+			if($hasWhere || $limit >= 0)
+				{ // filter rows
+				foreach($db->rows() as $row)
+					{
+					if($limit-- == 0)
+						break;	// enough rows copied
+					$w=$sqlw;	// $w will be modified while parsing
+					if(!$hasWhere || $this->sqlConditional($w, $row))
+						$where[]=$row;	// include
+					}
+				}
+			else
+				$where=$db->rows();	// no WHERE or LIMIT clause
+			if($cols[0] != '*')
+				{ // filter columns
+				$result=array();
+				foreach($where as $row)
+					{
+					$r=array();
+					foreach($cols as $col)
+						// FIXME: what about case sensitivity of column names?
+						$r[$col]=$row[$col];	// only specified columns
+					$result[]=$r;
+					}
+				return new _CSVRowEnumerator($result);	// fetch and return all rows
+				}
+			return new _CSVRowEnumerator($where);	// fetch and return all rows
+			}
+		if($this->eat("CREATE", $sql))
+			;
+		if($this->eat("INSERT", $sql))
+			;
+		if($this->eat("UPDATE", $sql))
+			;
+		if($this->eat("DELETE", $sql))
+			;
+NSLog("can't process for CSV file: $sql");
+		}
+	return null;
 	}
 
 	public function quote($str)
@@ -318,9 +650,19 @@ class SQL extends NSObject
 	{ // get list of columns for table
 		if($this->type == "mysql")
 			$query="SELECT column_name AS name FROM information_schema.columns WHERE table_schema = ".$this->quote($this->dbname)." AND table_name = ".$this->quote($table);	// MySQL
-		else
+		else if($this->type == "sqlite")
+
 // FIXME:
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
+		else if($this->type == "file")
+			{
+			$db=new _CSV();
+			if(!$db->open($this->dbname, $table))
+				return null;	// table does not exit
+			return $db->columns();
+			}
+		else
+			return null;
 		return $this->query($query, $error)->allObjectsForKey("name");
 	}
 
@@ -328,8 +670,25 @@ class SQL extends NSObject
 	{ // get all tables in current database
 		if($this->type == "mysql")
 			$query="SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ".$this->quote($this->dbname);	// MySQL
-		else
+		else if($this->type == "sqlite")
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
+		else if($this->type == "file")
+			{ // return all files with .*sv suffix
+			$tables=array();
+			if($dh = opendir($this->dbname))
+				{
+				while (($file = readdir($dh)) !== false)
+					{
+					$c=pathinfo($file);
+					if(isset($c['extension']) && substr(['extension'], -2) == "sv")	// csv, tsv
+						$tables[]=$file;
+					}
+				}
+			closedir($dh);
+			return $tables;
+			}
+		else
+			return null;
 		return $this->query($query, $error)->allObjectsForKey("name");
 	}
 
@@ -341,6 +700,8 @@ class SQL extends NSObject
 			return $this->query($query, $error)->allObjectsForKey("table_schema");
 			}
 		if($this->type == "sqlite")
+			return array($this->dbname);	// SQLite: database file name/path
+		if($this->type == "file")
 			return array($this->dbname);	// SQLite: database file name/path
 		return null;
 	}
