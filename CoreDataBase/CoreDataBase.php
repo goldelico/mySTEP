@@ -161,10 +161,31 @@ class _CSV
 	protected $columns;
 	protected $rows;
 
+	public static function fileTest($file)
+	{ // check if we can process this file as a table name
+		$c=pathinfo($file);
+		if(!isset($c['extension']))
+			return false;	// file w/o extension
+		return $c['extension'] == "csv" || $c['extension'] == "tsv";
+	}
+
 	public function open($directory, $table)
 	{
-		// find matching .*sv file in $directory
-		$this->file=$directory."/".$table.".tsv";
+		if(($dh = opendir($directory)) === false)
+			return false;	// failed to open directory
+		while (($file = readdir($dh)) !== false)
+			{ // search for table name and .csv or .tsv extension
+			$c=pathinfo($file);
+			if(_CSV::fileTest($file))
+				{ // candidate
+				if($c['filename'] == $table)
+					break;	// found
+				}
+			}
+		closedir($dh);
+		if($file === false)
+			return null;	// not found
+		$this->file=$directory."/".$file;
 		$this->separator=",";
 		$this->enclosure="\"";
 		if(substr($this->file, -4) == ".tsv")
@@ -538,6 +559,62 @@ NSLog("sql: $ident");
 		return $cols;
 	}
 
+	// we could use this for simple subqueries e.g. WHERE value IN (SELECT something)
+
+	function sqlSelect(&$sql)
+	{ // SELECT columns, ... FROM table WHERE condition LIMIT n
+		/* parse */
+		// $distinct=$this->eat("DISTINCT", $sql);	// hm. this requires filtering columns first and checking for duplicates on the where filter
+		$cols=$this->sqlColumns($sql);	// parse columns list
+		if(is_null($cols))
+			return null;
+		if(!$this->eat("FROM", $sql))
+			return null;	// syntax error
+		$table=$this->sqlIdent($sql);
+		if(is_null($table))
+			return null;
+		$hasWhere=$this->eat("WHERE", $sql);
+		$w=$sql;	// remember a copy of the WHERE clause for repeated evaluation
+		if($hasWhere)
+			$this->sqlConditional($sql, $row);	// process once
+		if($this->eat("LIMIT", $sql))
+			$limit=$this->sqlValue($sql, array());	// we don't know the columns yet
+		else
+			$limit=-1;	// never becomes 0 (unless we wrap around for integers)
+		/* open table and fetch/filter results */
+		$db=new _CSV();
+		if(!$db->open($this->dbname, $table))
+			return null;	// table does not exit
+		if($hasWhere || $limit >= 0)
+			{ // filter rows
+			$where=array();
+			foreach($db->rows() as $row)
+				{
+				if($limit-- == 0)
+					break;	// enough rows copied
+				$w=$sqlw;	// $w will be modified while parsing
+				if(!$hasWhere || $this->sqlConditional($w, $row))
+					$where[]=$row;	// include
+				}
+			}
+		else
+			$where=$db->rows();	// no WHERE or LIMIT clause
+		if($cols[0] != '*')
+			{ // filter columns
+			$result=array();
+			foreach($where as $row)
+				{
+				$r=array();
+				foreach($cols as $col)
+					// FIXME: what about case sensitivity of column names?
+					$r[$col]=$row[$col];	// only specified columns
+				$result[]=$r;
+				}
+			return $result;	// fetch and return all rows
+			}
+		return $where;
+		}
+
 	public function query($sql, &$error)
 	{
 	NSLog("SQL: ".$sql);
@@ -572,56 +649,9 @@ NSLog("sql: $ident");
 		{ // decode some very simple SQL commands and process on csv/.tsv files in given directory
 		if($this->eat("SELECT", $sql))
 			{
-			/* parse */
-			// $distinct=$this->eat("DISTINCT", $sql);	// hm. this requires filtering columns first and checking for duplicates on the where filter
-			$cols=$this->sqlColumns($sql);	// parse columns list
-			if(is_null($cols))
-				return null;
-			if(!$this->eat("FROM", $sql))
-				return null;	// syntax error
-			$table=$this->sqlIdent($sql);
-			if(is_null($table))
-				return null;
-			$hasWhere=$this->eat("WHERE", $sql);
-			$w=$sql;	// remember a copy of the WHERE clause for repeated evaluation
-			if($hasWhere)
-				$this->sqlConditional($sql, $row);	// process once
-			if($this->eat("LIMIT", $sql))
-				$limit=$this->sqlValue($sql, array());	// we don't know the columns yet
-			else
-				$limit=-1;	// never becomes 0 (unless we wrap around for integers)
-			/* open table and fetch/filter results */
-			$db=new _CSV();
-			if(!$db->open($this->dbname, $table))
-				return null;	// table does not exit
-			$where=array();
-			if($hasWhere || $limit >= 0)
-				{ // filter rows
-				foreach($db->rows() as $row)
-					{
-					if($limit-- == 0)
-						break;	// enough rows copied
-					$w=$sqlw;	// $w will be modified while parsing
-					if(!$hasWhere || $this->sqlConditional($w, $row))
-						$where[]=$row;	// include
-					}
-				}
-			else
-				$where=$db->rows();	// no WHERE or LIMIT clause
-			if($cols[0] != '*')
-				{ // filter columns
-				$result=array();
-				foreach($where as $row)
-					{
-					$r=array();
-					foreach($cols as $col)
-						// FIXME: what about case sensitivity of column names?
-						$r[$col]=$row[$col];	// only specified columns
-					$result[]=$r;
-					}
-				return new _CSVRowEnumerator($result);	// fetch and return all rows
-				}
-			return new _CSVRowEnumerator($where);	// fetch and return all rows
+			$rows=$this->sqlSelect($sql);
+			if(is_null($rows)) return null;	// some error
+			return new _CSVRowEnumerator($rows);	// present as enumerator
 			}
 		if($this->eat("CREATE", $sql))
 			;
@@ -678,11 +708,8 @@ NSLog("can't process for CSV file: $sql");
 			if($dh = opendir($this->dbname))
 				{
 				while (($file = readdir($dh)) !== false)
-					{
-					$c=pathinfo($file);
-					if(isset($c['extension']) && substr(['extension'], -2) == "sv")	// csv, tsv
+					if(_CSV::fileTest($file))
 						$tables[]=$file;
-					}
 				}
 			closedir($dh);
 			return $tables;
