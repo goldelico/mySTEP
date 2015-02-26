@@ -307,10 +307,15 @@ class NSApplication extends NSResponder
 		}
 	public function sendActionToTarget($from, $action, $target)
 		{
-NSLog("sendAction $action to ".$target->description());
 		if(!isset($target))
-			return;	// it $target does not exist -> take first responder
-		// if method does not exist -> ignore or warn
+			{
+NSLog("sendAction $action to first responder");
+			$target=null;	// it $target does not exist -> take first responder
+			}
+echo "printr--";
+print_r($target); echo "--print_r"; flush();
+NSLog("sendAction $action to ".$target->description());
+		// FIXME: if method does not exist -> ignore or warn
 		$target->$action($from);
 		}
 	public function run()
@@ -443,7 +448,7 @@ class NSView extends NSResponder
 	public function display()
 		{ // draw subviews first
 //		NSLog("<!-- ".$this->elementName." -->");
-		if(is_set($this->tooltip) && $this->tooltip))
+		if(isset($this->tooltip) && $this->tooltip)
 			{
 			// wrap in <span title="$tooltip">
 			}
@@ -471,7 +476,13 @@ class NSControl extends NSView
 	public function sendAction($action, $target)
 		{
 		global $NSApp;
+NSLog($this->description()." sendAction $action");
 		$NSApp->sendActionToTarget($this, $action, $target);
+		}
+	public function setActionAndTarget($action, $target)
+		{
+		$this->action=$action;
+		$this->target=$target;
 		}
 	}
 
@@ -505,11 +516,6 @@ class NSButton extends NSControl
 		$this->state=$this->persist("selected", $value);
 		}
 	public function description() { return parent::description()." ".$this->title; }
-	public function setActionAndTarget($action, $target)
-		{
-		$this->action=$action;
-		$this->target=$target;
-		}
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function state() { return $this->state; }
@@ -1034,7 +1040,7 @@ class NSTableView extends NSControl
 	public function setDataSource($source) { $this->dataSource=$source; }
 	public function setHeaders($headers) { $this->headers=$headers; }
 	public function setBorder($border) { $this->border=0+$border; }
-	public function numberOfRows() { return $this->dataSource->numberOfRowsInTableView($this); }
+	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
@@ -1059,6 +1065,8 @@ class NSTableView extends NSControl
 		}
 	public function setColumns($array)
 		{
+		if(is_null($array))
+			return;
 		NSLog("set columns");
 		NSLog($array);
 		$this->headers=$array;
@@ -1083,6 +1091,12 @@ class NSTableView extends NSControl
 	public function display()
 		{
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
+		if(!isset($this->dataSource))
+			{
+			// NSFatalError("table has no dataSource");
+			html("table has no data source");
+			return;
+			}
 		NSLog("numberOfRows: $rows");
 		html("<table");
 		parameter("border", $this->border);
