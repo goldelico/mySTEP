@@ -3,14 +3,11 @@
 export INSTALL_PATH="/System/Library/Frameworks"
 export PRODUCT_NAME="PreferencePanes"
 export SOURCES="NSPreferencePane.m"
-export SOURCES+=" executable.php"
 export SOURCES+=" NSPreferencePane.h"
 export SOURCES+=" PreferencePanes.h"
 export SOURCES+=" PreferencePanes-Info.plist"
+export SOURCES+=" PreferencePanes.php"
 export WRAPPER_EXTENSION="framework"
 
-
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

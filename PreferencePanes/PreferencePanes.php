@@ -1,12 +1,9 @@
 <?php
 /*
  * PreferencePanes.framework
- * (C) Golden Delicious Computers GmbH&Co. KG, 2012
+ * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
  * All rights reserved.
  *
- * defines (simple) classes for NSWindow, NSView, NSButton, NSTextField, NSSecureTextField, NSForm, NSImage, NSTable, NSPopUpButton
- * draw method generates html output
- * hitTest, sendEvent and mouseDown called when button is clicked or something modified
  */
 
 // echo "loading PreferencePanes.framework<br>";
@@ -24,7 +21,8 @@ class NSPreferencePane
 		}
 	public function loadMainView()
 		{
-		$this->mainView=new NSStaticTextField("loadMainView not overwritten");
+		$this->mainView=new NSextField();
+		$this->mainView->setAttributedStringValue("loadMainView of ".$this->bundle->description()." is not overwritten");
 		}
 	public function mainView() { return $this->mainView; }
 	}
