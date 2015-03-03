@@ -248,7 +248,7 @@ class NSPropertyListSerialization extends NSObject
 		}
 	public static function propertyListFromPath($path)
 		{
-		$filename=NSFileManager::fileSystemRepresentationWithPath($path);
+		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 		NSLog("$filename =>");
 		$f=fopen($filename, "r");	// open for reading
 		if($f)
@@ -396,7 +396,7 @@ class NSBundle extends NSObject
 	public function load()
 	{ // dynamically load the bundle classes
 		if(!$this->loaded)
-			$this->loaded=__load(NSFileManager::fileSystemRepresentationWithPath($this->executablePath()));
+			$this->loaded=__load(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($this->executablePath()));
 		return $this->loaded;
 	}
 }
