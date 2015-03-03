@@ -62,7 +62,7 @@ $persist=array();
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
-	public static function setCurrentContext($context) { self::$currentContext=$context; }
+	public static function setCurrentContext(NSGraphicsContext $context) { self::$currentContext=$context; }
 	public static function currentContext()
 		{
 		if(!isset(self::$currentContext))
@@ -198,11 +198,11 @@ class NSApplication extends NSResponder
 	protected $queuedEvent;
 
 	public function delegate() { return $this->delegate; }
-	public function setDelegate($d) { $this->delegate=$d; }
+	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function mainWindow() { return $this->mainWindow; }
-	public function setMainWindow($w) { $this->mainWindow=$w; }
+	public function setMainWindow(NSWindow $w) { $this->mainWindow=$w; }
 	public function mainMenu() { return $this->mainMenu; }
-	public function setMainMenu($m) { $this->mainMenu=$m; }
+	public function setMainMenu(NSMenu $m=null) { $this->mainMenu=$m; }
 
 	public function queueEvent(NSEvent $event)
 		{
@@ -210,7 +210,7 @@ class NSApplication extends NSResponder
 		$this->queuedEvent=$event;
 		}
 
-	public function openSettings($sender)
+	public function openSettings(NSResponder $sender)
 	{
 		$this->open("settings.app");
 	}
@@ -305,7 +305,7 @@ class NSApplication extends NSResponder
 		else
 			$this->open("Palmtop.app");
 		}
-	public function sendActionToTarget($from, $action, $target)
+	public function sendActionToTarget(NSResponder $from, $action, $target)
 		{
 		if(!isset($target))
 			{
@@ -343,7 +343,7 @@ NSLog("_POST:");
 NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
-	$NSApp->setDelegate(new AppController);	// this should come from the NIB file!
+	$NSApp->setDelegate(new AppController);	// this should be the principalClass from the NIB file!
 	// FIXME: shouldn't we better implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
 	if(method_exists($NSApp->delegate(), "awakeFromNib"))
 		$NSApp->delegate()->awakeFromNib();
@@ -407,7 +407,7 @@ class NSView extends NSResponder
 		return $value;
 		}
 	public function window() { return $this->window; }
-	public function setWindow($window)
+	public function setWindow(NSWindow $window=null)
 		{
 //		NSLog("setWindow ".$window->description()." for ".$this->description());
 		$this->window=$window;
@@ -415,18 +415,18 @@ class NSView extends NSResponder
 			$view->setWindow($window);
 		}
 	public function superview() { return $this->superview; }
-	public function _setSuperView($superview)
+	public function _setSuperView(NSView $superview=null)
 		{
 		$this->superview=$superview;
 		}
 	public function subviews() { return $this->subviews; }
-	public function addSubview($view)
+	public function addSubview(NSView $view)
 		{
 		$this->subviews[]=$view;
 		$view->_setSuperView($this);
 		$view->setWindow($this->window);
 		}
-	public function _removeSubView($view)
+	public function _removeSubView(NSView $view)
 		{
 		$view->setWindow(null);
 		$view->_setSuperView(null);
@@ -457,7 +457,7 @@ class NSView extends NSResponder
 			$view->display();
 		$this->draw();
 		}
-	public function setToolTip($str) { $this->tooltip=$str; }
+	public function setToolTip($str=null) { $this->tooltip=$str; }
 	public function toolTip() { return $this->tooltip; }
 	public function draw()
 		{ // draw our own contents
@@ -473,13 +473,13 @@ class NSControl extends NSView
 		{ // must explicitly call!
 		parent::__construct();
 		}
-	public function sendAction($action, $target)
+	public function sendAction($action, NSObject $target=null)
 		{
 		global $NSApp;
 NSLog($this->description()." sendAction $action");
 		$NSApp->sendActionToTarget($this, $action, $target);
 		}
-	public function setActionAndTarget($action, $target)
+	public function setActionAndTarget($action, NSObject $target=null)
 		{
 		$this->action=$action;
 		$this->target=$target;
@@ -541,10 +541,9 @@ class NSButton extends NSControl
 				break;
 				default:
 					parameter("type", "submit");
+				parameter("value", _htmlentities($this->title));
 			}
-		parameter("type", "submit");
 		parameter("name", $this->elementName);
-		parameter("value", _htmlentities($this->title));
 // FIXME: if default button (\r): make it blue
 		if($this->isSelected())
 			{
@@ -553,7 +552,15 @@ class NSButton extends NSControl
 			}
 		else
 			parameter("style", "color=red;");
-		html("/>\n");
+		html("/>");
+		switch($this->buttonType)
+			{
+				case "CheckBox":
+				case "Radio":
+					html(_htmlentities($this->title));
+				break;
+			}
+		html("\n");
 		}
 	}
 
@@ -574,7 +581,7 @@ class NSMenuItemView extends NSButton
 			parent::__construct($label);
 			$this->isSelected=$this->persist("isSelected", 0);
 			}
-		public function setSubmenu($submenu)
+		public function setSubmenu(NSMenu $submenu)
 			{
 			$this->subMenuView=$submenu;
 			}
@@ -622,7 +629,15 @@ class NSMenuItemSeparator extends NSMenuItemView
 		}
 	}
 
-class NSMenuView extends NSControl
+class NSMenu extends NSControl
+{ // FIXME: NSMenu is not a view!
+	public function __construct()
+		{
+		parent::__construct();
+		}
+}
+
+class NSMenuView extends NSMenu
 	{
 	protected $border=1;
 	protected $width="100%";
@@ -639,7 +654,7 @@ class NSMenuView extends NSControl
 		}
 	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
-	public function addMenuItem($item) { $this->menuItems[]=$item; }
+	public function addMenuItem(NSMenuItemView $item) { $this->menuItems[]=$item; }
 	public function addMenuItemWithTitleAndAction($title, $action, $target)
 		{
 		$item=new NSMenuItemView($title);
@@ -802,7 +817,7 @@ class NSImageView extends NSControl
 		{
 		return $this->image;
 		}
-	public function setImage($img)
+	public function setImage(NSImage $img=null)
 		{
 		$this->image=$img;
 		$this->setNeedsDisplay();
@@ -887,7 +902,8 @@ class NSTabViewItem extends NSObject
 	protected $view;
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
-	public function __construct($label, $view)
+	public function setView(NSView $view) { $this->view=$view; }
+	public function __construct($label, NSView $view)
 		{
 //		parent::__construct();
 		$this->label=$label;
@@ -899,7 +915,7 @@ class NSTabView extends NSControl
 	{
 	protected $border=1;
 	protected $width="100%";
-	protected $tabViewItems;
+	protected $tabViewItems=array();
 	protected $selectedIndex=0;
 	protected $clickedItemIndex=-1;
 	protected $delegate;
@@ -912,9 +928,9 @@ class NSTabView extends NSControl
 		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
 		}
 	public function delegate() { return $this->delegate; }
-	public function setDelegate($d) { $this->delegate=$d; }
+	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
-	public function addTabViewItem($item)
+	public function addTabViewItem(NSTabViewItem $item)
 		{
 		if(isset($_POST[$this->elementName."-".count($this->tabViewItems)]))
 			{ // this index was clicked
@@ -932,7 +948,7 @@ class NSTabView extends NSControl
 			return $this->tabViewItems[$this->selectedIndex];
 		return null;
 		}
-	public function indexOfTabViewItem($item)
+	public function indexOfTabViewItem(NSTabViewItem $item)
 		{
 		$index=0;
 		foreach($this->tabViewItems as $i)
@@ -945,6 +961,8 @@ class NSTabView extends NSControl
 		}
 	public function selectTabViewItemAtIndex($index)
 		{
+		if($index < 0 || $index >= count($this->tabViewItems))
+			return;	// ignore (or could rise an exception)
 		NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
 			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[index]))
@@ -1036,8 +1054,8 @@ class NSTableView extends NSControl
 	protected $clickedRow;
 	protected $clickedColumn;
 	public function delegate() { return $this->delegate; }
-	public function setDelegate($d) { $this->delegate=$d; }
-	public function setDataSource($source) { $this->dataSource=$source; }
+	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
+	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; }
 	public function setHeaders($headers) { $this->headers=$headers; }
 	public function setBorder($border) { $this->border=0+$border; }
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
@@ -1269,7 +1287,7 @@ class NSWindow extends NSResponder
 	protected $contentView;
 	protected $heads="";
 	public function contentView() { return $this->contentView; }
-	public function setContentView($view) { $this->contentView=$view; $view->setWindow($this); }
+	public function setContentView(NSView $view) { $this->contentView=$view; $view->setWindow($this); }
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function _addToHead($line) { $this->heads.=$line."\n"; }
