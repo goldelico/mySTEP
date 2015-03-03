@@ -19,6 +19,10 @@
 // global $ROOT must be set by some application
 // global $debug can be set to enable/disable debugging messages
 
+const NO=false;
+const YES=true;
+const nil=null;
+
 if(!isset($GLOBALS['debug'])) $GLOBALS['debug']=false;	// disable by default
 
 function NSLog($format)
@@ -146,7 +150,7 @@ class NSInvocation extends NSObject
 		return $this->$target->$selector($args);
 		}
 
-	public function invokeWithTarget($target)
+	public function invokeWithTarget(NSObject $target)
 		{
 		$this->target=$target;
 		return $this->invoke();
@@ -162,7 +166,7 @@ class NSInvocation extends NSObject
 		return $this->arguments;
 		}
 
-	public function setTarget($target)
+	public function setTarget(NSObject $target)
 		{
 		$this->target=$target;
 		}
@@ -245,7 +249,7 @@ class NSPropertyListSerialization extends NSObject
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::fileSystemRepresentationWithPath($path);
-//		NSLog("$filename =>");
+		NSLog("$filename =>");
 		$f=fopen($filename, "r");	// open for reading
 		if($f)
 			{ // file exists and can be read
@@ -267,16 +271,16 @@ class NSPropertyListSerialization extends NSObject
 					}
 				fclose($f);
 			}
-//		NSLog($plist);
-		return $plist;
+		NSLog($plist);
+		return isset($plist)?$plist:null;
 		}
-	private static function writePropertyListElementToFile($element, $file)
+	private static function writePropertyListElementToFile(NSObject $element, $file)
 		{
 		NSLog("no idea yet how to writePropertyListElementToPath(..., $file)");
 		// detect element type
 		// write in XML string fromat
 		}
-	public static function writePropertyListToPath($plist, $path)
+	public static function writePropertyListToPath(NSObject $plist, $path)
 		{
 		// write header
 		writePropertyListElementToFile($plist, path);
@@ -285,26 +289,27 @@ class NSPropertyListSerialization extends NSObject
 	}
 
 function __load($path)
-   {
-//   NSLog("load bundle from $path");
-   return include($path);
-   }
+	{
+// NSLog("load bundle from $path");
+	if(file_exists($path))
+		return include($path);
+	return false;
+	}
 
 class NSBundle extends NSObject
 { // abstract superclass
 	protected $path;
-	protected static $mainBundle;
-	protected $allBundlesByPath;
+	protected static $allBundlesByPath;
 	protected $infoDictionary;
 	protected $loaded=false;
 	public static function bundleWithPath($path) 
 		{
 //		NSLog("bundleWithPath: $path");
-		if(isset($allBundlesByPath[$path]))
-			return $allBundlesByPath[$path];	// return bundle object we already know
+		if(isset(self::$allBundlesByPath[$path]))
+			return self::$allBundlesByPath[$path];	// return bundle object we already know
 		$r=new NSBundle($path);
 		$r->path=$path;
-		$allBundles[$path]=$r;
+		self::$allBundlesByPath[$path]=$r;
 //		NSLog("bundleWithPath stored");
 		return $r;
 		}
@@ -348,6 +353,7 @@ class NSBundle extends NSObject
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
 				$plistPath=$this->pathForResourceOfType("Info", "plist");
+				if(is_null($plistPath)) return null;	// there is no Info.plist
 //				NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
@@ -355,7 +361,11 @@ class NSBundle extends NSObject
 		}
 	public function executablePath()
 		{
-		return $this->path."/Contents/php/".($this->objectForInfoDictionaryKey('CFBundleExecutable')).".php";
+		$executable=$this->objectForInfoDictionaryKey('CFBundleExecutable');
+		if(is_null($executable)) return null;
+		$fm=NSFileManager::defaultManager();
+		if(!$fm->fileExistsAtPath($executable)) return null;	// there is no executable
+		return $this->path."/Contents/php/".$executable.".php";
 		}
 	public function pathForResourceOfType($name, $type)
 		{
@@ -363,12 +373,12 @@ class NSBundle extends NSObject
 		$p=$this->path."/Contents/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
 		$p=$this->path."/Contents/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
 		$p=$this->path."/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
-		return NULL;
+		return null;
 		}
 	public function objectForInfoDictionaryKey($key)
 		{
 		$dict=$this->infoDictionary();
-		return $dict[$key];
+		return isset($dict[$key])?$dict[$key]:null;
 		}
 	public function bundleIdentifier() { return $this->objectForInfoDictionaryKey('CFBundleIdentifier'); }
 	public static function bundleWithIdentifier($ident)
@@ -577,13 +587,15 @@ class NSFileManager extends NSObject
 	public function fileSystemRepresentationWithPath($path)
 		{
 		global $ROOT;
-		// check for absolute vs. relative paths???
+		if(substr($path, 0, 1) == '/')
+			return $ROOT.$path;	// absolute path
 		return $path;
 		}
 	public function stringWithFileSystemRepresentation($path)
 		{
 		global $ROOT;
-		// strip off $ROOT/ prefix
+		if(substr($path, 0, strlen($ROOT)) == $ROOT)
+			return substr($path, strlen($ROOT));	// strip off $ROOT/ prefix
 		return $path;
 		}
 	public function attributesOfItemAtPath($path)
@@ -591,10 +603,10 @@ class NSFileManager extends NSObject
 		$f=$this->fileSystemRepresentationWithPath($path);
 //		NSLog("attributesOfItemAtPath($path) -> $f ");
 		if(!file_exists($f))
-			return NULL;	// does not exist
+			return null;	// does not exist
 		$a=stat($f);
-		if($a === FALSE)
-			return NULL;
+		if($a === false)
+			return null;
 		$attribs=array();
 /*
  * collect real file access permissions as defined by file system, local and global .htaccess etc.
@@ -613,13 +625,13 @@ class NSFileManager extends NSObject
 	public function fileExistsAtPath($path)
 		{
 //		NSLog("fileExistsAtPath($path)");
-		return $this->attributesOfItemAtPath($path) != NULL;
+		return $this->attributesOfItemAtPath($path) != null;
 		}
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
 		{
 		$attr=$this->attributesOfItemAtPath($path);
-		if($attr == NULL)
-			return NO;
+		if($attr == null)
+			return false;
 		$isDir=$attr[NSFileManager::NSFileType] == NSFileManager::NSFileTypeDirectory;
 		return true;
 		}
