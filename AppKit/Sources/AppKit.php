@@ -292,19 +292,26 @@ class NSApplication extends NSResponder
 		$submenu->addMenuItemWithTitleAndAction("Help", "help", $NSApp);
 		
 		}
-	public function open($app)
+	public function open($app, $args=array())
 		{ // switch to a different app
 		$bundle=NSWorkspace::fullPathForApplication($app);
-//		NSLog("open: ".$bundle->description());
-		if(isset($bundle))
+		if(!is_null($bundle))
 			{
+			NSLog("open: ".$bundle->description());
 // ask $bundle->executablePath;
 			$executablePath=NSHTMLGraphicsContext::currentContext()->externalURLForPath($bundle->executablePath());
 //			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
+			$delim='?';
+			foreach($args as $key => $value)
+				{ // append arguments - if specified
+				$executablePath.=$delim.rawurlencode($key)."=".rawurlencode($value);
+				$delim='&';
+				}
 // how can we pass arbitrary parameters to their NSApplication $argv???
 			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
 			exit;
 			}
+		NSLog("$app not found");
 		}
 	public function terminate()
 		{
@@ -320,8 +327,8 @@ class NSApplication extends NSResponder
 NSLog("sendAction $action to first responder");
 			$target=null;	// it $target does not exist -> take first responder
 			}
-echo "printr--";
-print_r($target); echo "--print_r"; flush();
+// echo "printr--";
+// print_r($target); echo "--print_r"; flush();
 NSLog("sendAction $action to ".$target->description());
 		// FIXME: if method does not exist -> ignore or warn
 		$target->$action($from);
@@ -1458,12 +1465,11 @@ class NSWorkspace
 		{
 		NSWorkspace::knownApplications();	// update list
 //		NSLog("fullPathForApplication: $name)";
-		$app=self::$knownApplications[$name];
-		if(isset($app))
-			return $app["NSApplicationPath"];
-		NSLog("fullPathForApplication:$app not found");
+		if(isset(self::$knownApplications[$name]))
+			return self::$knownApplications[$name]["NSApplicationPath"];
+		NSLog("fullPathForApplication:$name not found");
 		NSLog(self::$knownApplications);
-		return $app;
+		return null;
 		}
 	public function iconForFile($path)
 		{
