@@ -138,7 +138,15 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
 	 * because that is very very installation dependent (e.g. mapping from external URLs through links to local file paths)
 	 * we could try to deduce from $_SERVER values
+	 *
+	 * or we return some ?RESOURCE=path URL
+	 * and detect this special $_GET['RESOURCE'] (in NSWindow display() or earlier)
+	 * and then read/echo the file's contents (potentially amended by the right headers)
+	 * but we must really really protect that it does not become possible to download
+	 * arbitrary files from the server!
+	 * mainly this goes around almost all security settings of httpd
 	 */
+
 	public function externalURLforPath($path)
 		{
 		// enable read (only) access to file (if not yet possible)
@@ -762,7 +770,8 @@ class NSImage extends NSObject
 		{
 		html("<img");
 		parameter("src", _htmlentities($this->url));
-		parameter("name", _htmlentities($this->name));
+		if(isset($this->name))
+			parameter("name", _htmlentities($this->name));
 		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
 		html(">\n");
 		}
@@ -775,12 +784,9 @@ class NSImage extends NSObject
 			if(!isset($this->url))
 				{ // not initialized by referencing file/url
 				$bundle=NSBundle::mainBundle();
-				// search in main bundle
-				// or in AppKit bundle
-				// can we ask the NSBundle for its external URL/Resources?
-				return false;
-				// if found, return true
-				$this->url="images/".$name.".png";	// set default name
+				$path=$bundle->_URLpathForResourceOfType($name, "png");
+				if(is_null($path)) return false;	// not found
+				$this->url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 				}
 			$this->name=$name;
 			self::$images[$name]=$this;	// store in list of known images
@@ -800,9 +806,9 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
-		NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
+		$url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 		$this->initByReferencingURL($url);
-//		$this->initByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
+//		$this->initByReferencingURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
 }
 
@@ -916,7 +922,7 @@ class NSTabView extends NSControl
 	protected $border=1;
 	protected $width="100%";
 	protected $tabViewItems=array();
-	protected $selectedIndex=0;
+	protected $selectedIndex;
 	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
@@ -924,8 +930,8 @@ class NSTabView extends NSControl
 		{
 		parent::__construct();
 		foreach($items as $item)
-			$this->addTabViewItem($item);	// may have been clicked
-		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
+			$this->addTabViewItem($item);
+		$this->selectedIndex=$this->persist("selectedIndex", 0);
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -1016,7 +1022,7 @@ class NSTabView extends NSControl
 		parameter("align", "center");
 		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
-		if(isset($selectedItem))
+		if(!is_null($selectedItem))
 			$selectedItem->view()->display();	// draw current tab
 		else
 			html(_htmlentities("No tab for index ".$this->selectedIndex));
