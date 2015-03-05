@@ -138,7 +138,15 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
 	 * because that is very very installation dependent (e.g. mapping from external URLs through links to local file paths)
 	 * we could try to deduce from $_SERVER values
+	 *
+	 * or we return some ?RESOURCE=path URL
+	 * and detect this special $_GET['RESOURCE'] (in NSWindow display() or earlier)
+	 * and then read/echo the file's contents (potentially amended by the right headers)
+	 * but we must really really protect that it does not become possible to download
+	 * arbitrary files from the server!
+	 * mainly this goes around almost all security settings of httpd
 	 */
+
 	public function externalURLforPath($path)
 		{
 		// enable read (only) access to file (if not yet possible)
@@ -284,19 +292,26 @@ class NSApplication extends NSResponder
 		$submenu->addMenuItemWithTitleAndAction("Help", "help", $NSApp);
 		
 		}
-	public function open($app)
+	public function open($app, $args=array())
 		{ // switch to a different app
 		$bundle=NSWorkspace::fullPathForApplication($app);
-//		NSLog("open: ".$bundle->description());
-		if(isset($bundle))
+		if(!is_null($bundle))
 			{
+			NSLog("open: ".$bundle->description());
 // ask $bundle->executablePath;
 			$executablePath=NSHTMLGraphicsContext::currentContext()->externalURLForPath($bundle->executablePath());
 //			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
+			$delim='?';
+			foreach($args as $key => $value)
+				{ // append arguments - if specified
+				$executablePath.=$delim.rawurlencode($key)."=".rawurlencode($value);
+				$delim='&';
+				}
 // how can we pass arbitrary parameters to their NSApplication $argv???
 			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
 			exit;
 			}
+		NSLog("$app not found");
 		}
 	public function terminate()
 		{
@@ -312,8 +327,8 @@ class NSApplication extends NSResponder
 NSLog("sendAction $action to first responder");
 			$target=null;	// it $target does not exist -> take first responder
 			}
-echo "printr--";
-print_r($target); echo "--print_r"; flush();
+// echo "printr--";
+// print_r($target); echo "--print_r"; flush();
 NSLog("sendAction $action to ".$target->description());
 		// FIXME: if method does not exist -> ignore or warn
 		$target->$action($from);
@@ -762,7 +777,8 @@ class NSImage extends NSObject
 		{
 		html("<img");
 		parameter("src", _htmlentities($this->url));
-		parameter("name", _htmlentities($this->name));
+		if(isset($this->name))
+			parameter("name", _htmlentities($this->name));
 		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
 		html(">\n");
 		}
@@ -775,12 +791,9 @@ class NSImage extends NSObject
 			if(!isset($this->url))
 				{ // not initialized by referencing file/url
 				$bundle=NSBundle::mainBundle();
-				// search in main bundle
-				// or in AppKit bundle
-				// can we ask the NSBundle for its external URL/Resources?
-				return false;
-				// if found, return true
-				$this->url="images/".$name.".png";	// set default name
+				$path=$bundle->_URLpathForResourceOfType($name, "png");
+				if(is_null($path)) return false;	// not found
+				$this->url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 				}
 			$this->name=$name;
 			self::$images[$name]=$this;	// store in list of known images
@@ -800,9 +813,9 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
-		NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
+		$url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
 		$this->initByReferencingURL($url);
-//		$this->initByReferencingURLURL("https://".$_SERVER['HTTP_HOST']."/$path");
+//		$this->initByReferencingURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
 }
 
@@ -916,7 +929,7 @@ class NSTabView extends NSControl
 	protected $border=1;
 	protected $width="100%";
 	protected $tabViewItems=array();
-	protected $selectedIndex=0;
+	protected $selectedIndex;
 	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
@@ -924,8 +937,8 @@ class NSTabView extends NSControl
 		{
 		parent::__construct();
 		foreach($items as $item)
-			$this->addTabViewItem($item);	// may have been clicked
-		$this->selectTabViewItemAtIndex($this->persist("selectedIndex", 0));
+			$this->addTabViewItem($item);
+		$this->selectedIndex=$this->persist("selectedIndex", 0);
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -1016,7 +1029,7 @@ class NSTabView extends NSControl
 		parameter("align", "center");
 		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
-		if(isset($selectedItem))
+		if(!is_null($selectedItem))
 			$selectedItem->view()->display();	// draw current tab
 		else
 			html(_htmlentities("No tab for index ".$this->selectedIndex));
@@ -1452,12 +1465,11 @@ class NSWorkspace
 		{
 		NSWorkspace::knownApplications();	// update list
 //		NSLog("fullPathForApplication: $name)";
-		$app=self::$knownApplications[$name];
-		if(isset($app))
-			return $app["NSApplicationPath"];
-		NSLog("fullPathForApplication:$app not found");
+		if(isset(self::$knownApplications[$name]))
+			return self::$knownApplications[$name]["NSApplicationPath"];
+		NSLog("fullPathForApplication:$name not found");
 		NSLog(self::$knownApplications);
-		return $app;
+		return null;
 		}
 	public function iconForFile($path)
 		{
