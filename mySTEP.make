@@ -120,7 +120,7 @@ ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
+ifeq ($(ARCHITECTURE),MacOS)
 TOOLCHAIN=/usr/bin
 CC := $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -197,16 +197,12 @@ endif
 CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)
-else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
-endif
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	LDFLAGS := -dynamiclib -dylib -undefined dynamic_lookup $(LDFLAGS)
+ifeq ($(ARCHITECTURE),MacOS)
+	LDFLAGS := -dynamiclib -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
@@ -214,16 +210,12 @@ else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS
-else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
-endif
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
+ifeq ($(ARCHITECTURE),MacOS)
 	LDFLAGS := -dylib -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
@@ -236,7 +228,7 @@ endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
 # try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-DEBIAN_ARCHITECTURES=armel armhf i386 # mipsel -ltiff is broken
+DEBIAN_ARCHITECTURES=macos armel armhf i386 # mipsel: -ltiff is broken
 endif
 
 # this is the default/main target on the outer level
@@ -265,12 +257,12 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			apple ) export ARCHITECTURE=i386-apple-darwin;; \
+			macos ) export ARCHITECTURE=MacOS;; \
 			all ) export ARCHITECTURE=all;; \
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
+		echo "*** building for $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
@@ -341,13 +333,19 @@ endif
 #		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
 # 		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
 
+### FIXME: how do we make it recognize #include <Foundation/something.h>???
+
+ifeq ($(ARCHITECTURE),MacOS)
+INCLUDES := $(INCLUDES) -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/
+endif
+
 INCLUDES := $(INCLUDES) \
 		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
-ifeq ($(ARCHITECTURE),i386-apple-darwin)
+ifeq ($(ARCHITECTURE),MacOS)
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2
 endif
 
@@ -363,10 +361,14 @@ DEFINES = -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
 # add -v to debug include search path issues
 
 CFLAGS := $(CFLAGS) \
-		-g -O$(OPTIMIZE) -fPIC -rdynamic \
+		-g -O$(OPTIMIZE) -fPIC \
 		$(WARNINGS) \
 		$(DEFINES) \
 		$(INCLUDES)
+
+ifneq ($(ARCHITECTURE),MacOS)
+CFLAGS := $(CFLAGS) -rdynamic
+endif
 
 ifeq ($(PROFILING),YES)
 CFLAGS := -pg $(CFLAGS)
@@ -411,7 +413,7 @@ INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
 SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
 
 # header files
-HEADERSRC := $(filter %.h,$(XSOURCES))
+HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
 
 # additional debian control files
 DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES))
@@ -429,7 +431,11 @@ ifeq ($(PRODUCT_NAME),AppKit)
 FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
 else
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
+ifneq ($(ARCHITECTURE),MacOS)
 FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
+else
+FMWKS := $(addprefix -l,$(FRAMEWORKS))
+endif
 endif
 endif
 endif
@@ -450,7 +456,7 @@ LIBRARIES := \
 		$(FMWKS) \
 		$(LIBS)
 
-ifneq ($(ARCHITECTURE),i386-apple-darwin)
+ifneq ($(ARCHITECTURE),MacOS)
 LIBRARIES := \
 		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
 		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
@@ -459,12 +465,12 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(LIBRARIES)
 else
-LIBRARIES := -L/opt/local/lib $(LIBRARIES) -L/Library/Frameworks/*.framework/Versions/Current -L/System/Library/Frameworks/*.framework/Versions/Current
+LIBRARIES := -L/opt/local/lib $(LIBRARIES) /System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation /System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
 LIBRARIES += -lobjc -lm
-ifneq ($(ARCHITECTURE),i386-apple-darwin)
+ifneq ($(ARCHITECTURE),MacOS)
 LIBRARIES += -lgcc_s
 endif
 endif
@@ -859,7 +865,14 @@ ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
 	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
 endif
-	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
+	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
+endif
+ifeq ($(ARCHITECTURE),MacOS)
+# always use system Foundation/AppKit (headers and frameworks)
+	mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
+	- rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/Foundation $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/AppKit
+	ln -sf /System/Library/Frameworks/Foundation.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/Foundation
+	ln -sf /System/Library/Frameworks/AppKit.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/AppKit
 endif
 
 resources:
@@ -884,10 +897,19 @@ endif
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
-	# compiled.
+	# linked.
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# link shared library for frameworks
+	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
+ifeq ($(ARCHITECTURE),MacOS)
+	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+else
+	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+endif
+endif
 
 "$(EXEC)":: bundle headers resources
-	# make directory for Linux executable
+	# make directory for executable
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
 	# OBJCSRCS: $(OBJCSRCS)
@@ -899,11 +921,5 @@ endif
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
 	mkdir -p "$(EXEC)"
-ifeq ($(WRAPPER_EXTENSION),framework)
-	# link shared library for frameworks
-	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
-	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
-	# we might ave to create symlinks on top level of bundle
-endif
 
 # EOF
