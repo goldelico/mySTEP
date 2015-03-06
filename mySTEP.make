@@ -202,7 +202,7 @@ CONTENTS=Versions/Current
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
 ifeq ($(ARCHITECTURE),MacOS)
-	LDFLAGS := -dynamiclib -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
@@ -216,7 +216,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
 ifeq ($(ARCHITECTURE),MacOS)
-	LDFLAGS := -dylib -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dylib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
 endif
@@ -303,6 +303,8 @@ OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
 endif
 endif
 
+# add architecture specific CFLAGS
+
 # workaround for bug in arm-linux-gnueabi toolchain
 ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
 OPTIMIZE := 3
@@ -315,9 +317,14 @@ OPTIMIZE := 3
 CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
+ifeq ($(ARCHITECTURE),MacOS)
+CFLAGS += -Wno-deprecated-declarations
+else
+CFLAGS += -rdynamic
+endif
+
 CFLAGS += -fsigned-char
 
-## FIXME: we need different prefix paths on compile host and embedded!
 HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
 ## prefix by $ROOT unless starting with //
 ifneq ($(findstring //,$(INSTALL_PATH)),//)
@@ -326,17 +333,9 @@ else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
 endif
 
-# could better check ifeq ($(PRODUCT_TYPE),com.apple.product-type.framework)
-
-# system includes&libraries and locate all standard frameworks
-
-#		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
-# 		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
-
-### FIXME: how do we make it recognize #include <Foundation/something.h>???
-
 ifeq ($(ARCHITECTURE),MacOS)
-INCLUDES := $(INCLUDES) -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/
+# handle #include <Foundation/Foundation.h>
+INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ $(INCLUDES)
 endif
 
 INCLUDES := $(INCLUDES) \
@@ -365,10 +364,6 @@ CFLAGS := $(CFLAGS) \
 		$(WARNINGS) \
 		$(DEFINES) \
 		$(INCLUDES)
-
-ifneq ($(ARCHITECTURE),MacOS)
-CFLAGS := $(CFLAGS) -rdynamic
-endif
 
 ifeq ($(PROFILING),YES)
 CFLAGS := -pg $(CFLAGS)
@@ -465,7 +460,19 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(LIBRARIES)
 else
-LIBRARIES := -L/opt/local/lib $(LIBRARIES) /System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation /System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit
+
+LIBRARIES := -L/opt/local/lib \
+		/System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation \
+		/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation \
+		/System/Library/Frameworks/Security.framework/Versions/Current/Security \
+		/System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit \
+		/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa \
+		-Wl,-rpath,$(QuantumSTEP)/usr/lib \
+		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		$(LIBRARIES)
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
@@ -665,19 +672,18 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 ifneq ($(FILES),)
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 endif
 ifneq ($(DATA),)
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
 	# strip all executables down to the minimum
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	# FIXME: prune .nib so that they still work
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# strip off MacOS X binary for frameworks
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -715,7 +721,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
@@ -758,7 +764,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
@@ -813,7 +819,7 @@ ifeq ($(DEPLOY),true)
 	# FIXME: does not copy $(DATA) and $(FILES)
 	- $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
-		$(TAR) cf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
+		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
 		&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
 	#done
@@ -870,9 +876,9 @@ endif
 ifeq ($(ARCHITECTURE),MacOS)
 # always use system Foundation/AppKit (headers and frameworks)
 	mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
-	- rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/Foundation $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/AppKit
-	ln -sf /System/Library/Frameworks/Foundation.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/Foundation
-	ln -sf /System/Library/Frameworks/AppKit.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/AppKit
+	- for i in Foundation CoreFoundation Security AppKit Cocoa \
+		; do rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$i; ln -sf /System/Library/Frameworks/$$i.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$i \
+	  ; done
 endif
 
 resources:
