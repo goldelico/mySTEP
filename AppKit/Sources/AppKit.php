@@ -1272,13 +1272,14 @@ class NSTextView extends NSControl
        		parent::__construct();
 		$this->width=$width;
 		$this->height=$height;
-		if(isset($_POST[$this->elementName."-stringValue"]))
-			$this->string=$_POST[$this->elementName."-stringValue"];
+		if(isset($_POST[$this->elementName."-string"]))
+			$this->string=$_POST[$this->elementName."-string"];
 		}
-	public function setStringValue($string)
+	public function setString($string)
 		{
-		$this->stringValue=$this->persist("stringValue", "", $string);
+		$this->string=$this->persist("string", "", $string);
 		}
+	public function string() { return $this->string; }
 	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
 		}
@@ -1287,9 +1288,9 @@ class NSTextView extends NSControl
 		html("<textarea");
 		parameter("width", $this->width);
 		parameter("height", $this->height);
-		parameter("name", $this->elementName."-stringValue");
+		parameter("name", $this->elementName."-string");
 		html(">");
-		html(_htmlentities($this->stringValue));
+		html(_htmlentities($this->string));
 		html("</textarea>\n");
 		}
 }
