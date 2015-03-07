@@ -47,17 +47,15 @@ NSString *NSSendmailDeliveryProtocol=@"NSSendmailDeliveryProtocol";
 
 + (BOOL) deliverMessage:(NSString *) theBody subject:(NSString *) theSubject to:(NSString *) theEmailDest;
 { // simple interface
-#ifdef __mySTEP__
 	NSDictionary *headers=[NSDictionary dictionaryWithObjectsAndKeys:
 		theSubject, "Subject",
 		theEmailDest, "To",
 		nil];
+	NSAttributedString *astr;
 	if([theBody isKindOfClass:[NSAttributedString class]])
 	   return [self deliverMessage:(NSAttributedString *) theBody headers:headers format:NSMIMEMailFormat protocol:NSSMTPDeliveryProtocol];
-	return [self deliverMessage:[NSAttributedString attributedStringWithString:theBody] headers:headers format:NSASCIIMailFormat protocol:NSSMTPDeliveryProtocol];
-#else
-	return NO;
-#endif
+	astr=[[[NSAttributedString alloc] initWithString:theBody] autorelease];
+	return [self deliverMessage:astr headers:headers format:NSASCIIMailFormat protocol:NSSMTPDeliveryProtocol];
 }
 
 + (BOOL) deliverMessage:(NSAttributedString *) messageBody headers:(NSDictionary *) messageHeaders format:(NSString *) fmt protocol:(NSString *) proto;
