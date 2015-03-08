@@ -902,7 +902,7 @@ endif
 "$(BINARY)":: bundle headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
-	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
+	MACOSX_DEPLOYMENT_TARGET=10.5 $(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
 	# linked.
 ifeq ($(WRAPPER_EXTENSION),framework)
