@@ -894,7 +894,8 @@ ifneq ($(strip $(RESOURCES)),)
 	do \
 	(cd $$(dirname "$$resource") && $(TAR) cf - --exclude .DS_Store --exclude .git --exclude .svn $$(basename "$$resource")) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && $(TAR) xvf - ); \
 	done
-
+# convert any xib to nib
+	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'ibtool --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
 
