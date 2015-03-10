@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * Foundation.framework
-	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012
+	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
 	 * All rights reserved.
 	 */
 
@@ -742,6 +742,22 @@ function htmlstr($string)
 	$a->setHtmlString($string);
 	return $a;
 	}
+
+function NSMakeRect($x, $y, $width, $height)
+	{
+	return array('x'=>$x, 'y'=>$y, 'width'=>$width, 'height'=>$height);
+	}
+
+function NSMinX($rect) { return $rect['x']; };
+function NSMinY($rect) { return $rect['y']; };
+function NSMidX($rect) { return $rect['x']+0.5*$rect['width']; };
+function NSMidY($rect) { return $rect['y']+0.5*$rect['height']; };
+function NSMaxX($rect) { return $rect['x']+$rect['width']; };
+function NSMaxY($rect) { return $rect['y']+$rect['height']; };
+function NSWidth($rect) { return $rect['width']; };
+function NSHeight($rect) { return $rect['height']; };
+function NSIsEmptyRect($rect) { return $rect['width'] == 0 || $rect['height'] == 0; };
+// function NSStringFromRect($rect)
 
 // EOF
 ?>
