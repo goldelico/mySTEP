@@ -73,6 +73,12 @@ class NSMailDelivery extends NSObject
 			}
 		if($format == self::NSASCIIMailFormat)
 			// FIXME: convert attributed string to ASCII
+/* FIXME:
+ * convert utf8 to 7-bit ascii
+ * and specify encoding in the headers
+ * reception on Apple Mail simply works because utf8 appears to be some default
+ * we must also translate the Subject!
+ */
 			$msg=$body;
 		else
 			{
