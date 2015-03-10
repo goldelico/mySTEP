@@ -1,7 +1,7 @@
 <?php
 /*
  * AppKit.framework
- * (C) Golden Delicious Computers GmbH&Co. KG, 2012
+ * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
  * All rights reserved.
  *
  * defines (simple) classes for NSWindow, NSView, NSButton, NSTextField, NSSecureTextField, NSForm, NSImage, NSTable, NSPopUpButton
@@ -111,28 +111,11 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 		return "<$tag$args>".$contents."</$tag>";
 		}
-	public function bold($contents)
-		{
-		return _tag("b", $contents);
-		}
 	// write output objects
 	public function link($url, $contents)
 		{
 		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
 		}
-	public function img($url)
-		{
-		$this->html($this->_tag("img", "", $this->_linkval("src", $url)));
-		}
-	public function input($size, $value)
-		{
-		$this->html($this->_tag("input", "", $this->_value("size", $size).$this->_value("value", $value)));
-		}
-	public function textarea($size, $value)
-		{
-		$this->html($this->_tag("textarea", $value, $this->_value("size", $size)));
-		}
-
 	/* we need this to convert file system paths into an external URL */
 	/* hm, here we have a fundamental problem:
 	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
@@ -380,7 +363,8 @@ class NSColor extends NSObject
 
 class NSView extends NSResponder
 { // semi-abstract superclass
-	protected $elementName;
+	protected $frame;
+	protected $elementId;
 	protected $subviews=array();
 	protected $superview;
 	protected $autoResizing;
@@ -393,12 +377,13 @@ class NSView extends NSResponder
 		parent::__construct();
 		// if we ever get problems with this numbering, we should derive the name from
 		// the subview tree index, e.g. 0-2-3
-		$this->elementName="NSView-".(++$elementNumber);
+		$this->elementId=++$elementNumber;
+		$this->frame=NSMakeRect(0, 0, 0, 0);
 		}
-	public function persist($object, $default, $value=null)
+	public function _persist($object, $default, $value=null)
 		{
 		global $persist;	// will come back as $_POST[] next time (+ values from <input>)
-		$object=$this->elementName."-".$object;	// add namespace for this view
+		$object=$this->elementId."-".$object;	// add namespace for this view
 		if(is_null($value))
 			{ // query
 //NSLog("query persist $object");
@@ -421,6 +406,8 @@ class NSView extends NSResponder
 			}
 		return $value;
 		}
+	public function frame() { return $this->frame; }
+	public function setFrame($frame) { $this->frame=$frame; }
 	public function window() { return $this->window; }
 	public function setWindow(NSWindow $window=null)
 		{
@@ -462,7 +449,7 @@ class NSView extends NSResponder
 		}
 	public function display()
 		{ // draw subviews first
-//		NSLog("<!-- ".$this->elementName." -->");
+//		NSLog("<!-- ".$this->elementId." -->");
 		if(isset($this->tooltip) && $this->tooltip)
 			{
 			// wrap in <span title="$tooltip">
@@ -511,11 +498,11 @@ class NSButton extends NSControl
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
-//		NSLog("NSButton $newtitle ".$this->elementName);
+//		NSLog("NSButton $newtitle ".$this->elementId);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
-		$this->state=$this->persist("selected", 0);
-		if(isset($_POST[$this->elementName]))
+		$this->state=$this->_persist("selected", 0);
+		if(isset($_POST[$this->elementId]))
 			{
 			global $NSApp;
 			NSLog($this->classString());
@@ -528,7 +515,7 @@ class NSButton extends NSControl
 		}
 	public function setSelected($value)
 		{
-		$this->state=$this->persist("selected", $value);
+		$this->state=$this->_persist("selected", $value);
 		}
 	public function description() { return parent::description()." ".$this->title; }
 	public function title() { return $this->title; }
@@ -545,6 +532,7 @@ class NSButton extends NSControl
 	public function draw()
 		{
 		html("<input");
+		parameter("id", $this->elementId);
 		parameter("class", "NSButton");
 		switch($this->buttonType)
 			{
@@ -558,15 +546,16 @@ class NSButton extends NSControl
 					parameter("type", "submit");
 				parameter("value", _htmlentities($this->title));
 			}
-		parameter("name", $this->elementName);
-// FIXME: if default button (\r): make it blue
+		// if Radio Button/Checkbox take elementId of parent!
+		parameter("name", $this->elementId);
+// FIXME: if default button (shortcut "\r"): make it blue
 		if($this->isSelected())
 			{
 			parameter("checked", "checked");
-			parameter("style", "color=green;");
+			parameter("style", "color:green;");
 			}
 		else
-			parameter("style", "color=red;");
+			parameter("style", "color:red;");
 		html("/>");
 		switch($this->buttonType)
 			{
@@ -590,11 +579,11 @@ class NSMenuItemView extends NSButton
 		protected $target;
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
-		public function setSelected($sel) { $this->isSelected=$this->persist("isSelected", 0, $sel); }
+		public function setSelected($sel) { $this->isSelected=$this->_persist("isSelected", 0, $sel); }
 		public function __construct($label)
 			{
 			parent::__construct($label);
-			$this->isSelected=$this->persist("isSelected", 0);
+			$this->isSelected=$this->_persist("isSelected", 0);
 			}
 		public function setSubmenu(NSMenu $submenu)
 			{
@@ -608,9 +597,10 @@ class NSMenuItemView extends NSButton
 			if(isset($this->subMenuView))
 				{
 				html("<select");
+				parameter("id", $this->elementId);
 				parameter("class", "NSMenuItemView");
-				parameter("name", $this->elementName);
-				parameter("onclick", "e('".$this->elementName."');s()");
+				parameter("name", $this->elementId);
+				parameter("onclick", "e('".$this->elementId."');s()");
 				parameter("size", 1);	// make a popup not a combo-box
 				html(">\n");
 				$index=0;
@@ -664,7 +654,7 @@ class NSMenuView extends NSMenu
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
-		$this->selectedItem=$this->persist("selectedIndex", -1);
+		$this->selectedItem=$this->_persist("selectedIndex", -1);
 		$menuItems=array();
 		}
 	public function menuItems() { return $this->menuItems; }
@@ -686,7 +676,7 @@ class NSMenuView extends NSMenu
 		{
 		if(0)
 			{ // show menu as buttons
-			$this->persist("-selectedIndex", -1, $this->selectedItem);
+			$this->_persist("-selectedIndex", -1, $this->selectedItem);
 			html("<table");
 			parameter("border", $this->border);
 			if($this->isHorizontal)
@@ -776,6 +766,7 @@ class NSImage extends NSObject
 	public function composite()
 		{
 		html("<img");
+		parameter("id", $this->elementId);
 		parameter("src", _htmlentities($this->url));
 		if(isset($this->name))
 			parameter("name", _htmlentities($this->name));
@@ -938,14 +929,14 @@ class NSTabView extends NSControl
 		parent::__construct();
 		foreach($items as $item)
 			$this->addTabViewItem($item);
-		$this->selectedIndex=$this->persist("selectedIndex", 0);
+		$this->selectedIndex=$this->_persist("selectedIndex", 0);
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
 	public function addTabViewItem(NSTabViewItem $item)
 		{
-		if(isset($_POST[$this->elementName."-".count($this->tabViewItems)]))
+		if(isset($_POST[$this->elementId."-".count($this->tabViewItems)]))
 			{ // this index was clicked
 			global $NSApp;
 			$this->clickedItemIndex=count($this->tabViewItems);
@@ -982,7 +973,7 @@ class NSTabView extends NSControl
 				return;	// don't select
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
-		$this->selectedIndex=$this->persist("selectedIndex", 0, $index);
+		$this->selectedIndex=$this->_persist("selectedIndex", 0, $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		NSLog("selectTabViewItemAtIndex $index done");
@@ -996,9 +987,9 @@ class NSTabView extends NSControl
 	public function display()
 		{
 		html("<table");
+		parameter("id", $this->elementId);
 		parameter("border", $this->border);
 		parameter("width", $this->width);
-		parameter("name", $this->elementName);
 		html(">\n");
 		html("<tr>");
 		html("<td");
@@ -1012,15 +1003,17 @@ class NSTabView extends NSControl
 // i.e. these buttons should be made in a way that calling their action
 // will make selectTabViewItemAtIndex being called
 			html("<input");
+			parameter("id", $this->elementId."-".$index);
 			parameter("class", "NSTabViewItemsButton");
 			parameter("type", "submit");
-			parameter("name", $this->elementName."-".$index++);
+			parameter("name", $this->elementId."-".$index);
 			parameter("value", _htmlentities($item->label()));
 			if($item == $this->selectedTabViewItem())
 				parameter("style", "color:green;");
 			else
 				parameter("style", "color:red;");
 			html(">\n");
+			$index++;
 			}
 		html("</td>");
 		html("</tr>\n");
@@ -1077,10 +1070,10 @@ class NSTableView extends NSControl
 		{
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
-		$this->selectedRow=$this->persist("selectedRow", -1);
+		$this->selectedRow=$this->_persist("selectedRow", -1);
 		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
 		$this->headers=$headers;
-		if(isset($_POST['NSEvent']) && $_POST['NSEvent'] == $this->elementName)
+		if(isset($_POST['NSEvent']) && $_POST['NSEvent'] == $this->elementId)
 			{ // click into table
 			global $NSApp;
 			$this->clickedRow=$_POST['clickedRow'];
@@ -1111,7 +1104,7 @@ class NSTableView extends NSControl
 		{
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
 		// if ! extend -> delete previous otherwise merge into set
-		$this->selectedRow=$this->persist("selectedRow", -1, $row);
+		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
 		}
 	public function mouseDown(NSEvent $event)
 		{
@@ -1130,6 +1123,7 @@ class NSTableView extends NSControl
 			}
 		NSLog("numberOfRows: $rows");
 		html("<table");
+		parameter("id", $this->elementId);
 		parameter("border", $this->border);
 		parameter("width", $this->width);
 		html(">\n");
@@ -1142,10 +1136,10 @@ class NSTableView extends NSControl
 			{
 			$index=key($this->headers);
 			html("<th");
+			parameter("id", $this->elementId."-".$index);
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
-			parameter("name", $this->elementName."-".$index);
-			parameter("onclick", "e('".$this->elementName."');"."r(-1);"."c($index)".";s()");
+			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
 			html(">\n");
 			html(_htmlentities($header));
 			html("</th>\n");
@@ -1155,21 +1149,21 @@ class NSTableView extends NSControl
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
 			html("<tr");
+			parameter("id", $this->elementId."-".$row);
 			parameter("class", "NSTableRow");
 			// add id="even"/"odd" so that we can define bgcolor by CSS?
-			parameter("name", $this->elementName."-".$row);
 			html(">\n");
 			foreach($this->headers as $column)
 				{
 				$index=key($this->headers);
 				html("<td");
+				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("class", "NSTableCell");
 				if($row == $this->selectedRow)
 					parameter("bgcolor", "LightSteelBlue");	// selected
 				else
 					parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
-				parameter("name", $this->elementName."-".$row."-".$index);
-				parameter("onclick", "e('".$this->elementName."');"."r($row);"."c($index)".";s()");
+				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
@@ -1209,8 +1203,8 @@ class NSTextField extends NSControl
 	public function __construct($width=30, $stringValue = null)
 	{
        		parent::__construct();
-		if(isset($_POST[$this->elementName."-stringValue"]))
-			$this->setStringValue($_POST[$this->elementName."-stringValue"]);
+		if(isset($_POST[$this->elementId."-text"]))
+			$this->setStringValue($_POST[$this->elementId."-string"]);
 		if(!is_null($stringValue))
 			$this->setStringValue($stringValue);
 		$this->width=$width;
@@ -1224,10 +1218,11 @@ class NSTextField extends NSControl
 		if($this->isEditable)
 			{
 			html("<input");
+			parameter("id", $this->elementId);
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
-			parameter("name", $this->elementName."-stringValue");
+			parameter("name", $this->elementId."-string");
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
 			html("/>\n");
@@ -1265,19 +1260,16 @@ class NSSearchField extends NSTextField
 class NSTextView extends NSControl
 {
 	protected $string="";
-	protected $width;
-	protected $height;
 	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
-		$this->width=$width;
-		$this->height=$height;
-		if(isset($_POST[$this->elementName."-string"]))
-			$this->string=$_POST[$this->elementName."-string"];
+		$this->frame=NSMakeRect(0, 0, $width, $height);
+		if(isset($_POST[$this->elementId."-string"]))
+			$this->string=$_POST[$this->elementId."-string"];
 		}
 	public function setString($string)
 		{
-		$this->string=$this->persist("string", "", $string);
+		$this->string=$this->_persist("string", "", $string);
 		}
 	public function string() { return $this->string; }
 	public function mouseDown(NSEvent $event)
@@ -1286,9 +1278,10 @@ class NSTextView extends NSControl
 	public function draw()
 		{
 		html("<textarea");
-		parameter("width", $this->width);
-		parameter("height", $this->height);
-		parameter("name", $this->elementName."-string");
+		parameter("id", $this->elementId);
+		parameter("width", NSWidth($this->frame));
+		parameter("height", NSHeight($this->frame));
+		parameter("name", $this->elementId."-string");
 		html(">");
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
@@ -1372,7 +1365,7 @@ class NSWindow extends NSResponder
 		html("</head>\n");
 		html("<body>\n");
 		html("<form");
-		parameter("name", "NSWindow");
+		parameter("id", "NSWindow");
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
