@@ -59,6 +59,36 @@ function text($html)
 
 $persist=array();
 
+// FIXME: make this a public function of NSWindow and $persist a local variable of it
+// because it is more or less persisting values through the server in a html-response + browser-reload sequence
+// the problem becomes that $view->_persist can only be called if it is attached to a NSWindow!
+
+function _persist($object, $default, $value=null)
+{
+	global $persist;	// will come back as $_POST[] next time (+ values from <input>)
+	if(is_null($value))
+		{ // query
+// _NSLog("query persist $object");
+		if(isset($_POST[$object]))
+			$value=$_POST[$object];
+		else
+			$value=$default;
+		}
+	if($value === $default)
+		{
+// _NSLog("unset persist $object");
+		unset($persist[$object]);	// default values need not waste http bandwidth
+		unset($_POST[$object]);		// if we want to read back again this will return $default
+		}
+	else
+		{
+// _NSLog("set persist $object = $value");
+		$persist[$object]=$value;	// store (new/non-default value) until we draw
+		$_POST[$object]=$value;		// store if we overwrite and want to read back again
+		}
+	return $value;
+}
+
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
@@ -337,8 +367,8 @@ function NSApplicationMain($name)
 		echo '$ROOT is not set globally!';
 		exit;
 		}
-NSLog("_POST:");
-NSLog($_POST);
+_NSLog("_POST:");
+_NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
 	$NSApp->setDelegate(new AppController);	// this should be the principalClass from the NIB file!
@@ -382,29 +412,7 @@ class NSView extends NSResponder
 		}
 	public function _persist($object, $default, $value=null)
 		{
-		global $persist;	// will come back as $_POST[] next time (+ values from <input>)
-		$object=$this->elementId."-".$object;	// add namespace for this view
-		if(is_null($value))
-			{ // query
-//NSLog("query persist $object");
-			if(isset($_POST[$object]))
-				$value=$_POST[$object];
-			else
-				$value=$default;
-			}
-		if($value === $default)
-			{
-//NSLog("unset persist $object");
-			unset($persist[$object]);	// default values need not waste http bandwidth
-			unset($_POST[$object]);		// if we want to read back again this will return $default
-			}
-		else
-			{
-//NSLog("set persist $object = $value");
-			$persist[$object]=$value;	// store (new/non-default value) until we draw
-			$_POST[$object]=$value;		// store if we overwrite and want to read back again
-			}
-		return $value;
+		return _persist($this->elementId."-".$object, $default, $value);	// add namespace for this view
 		}
 	public function frame() { return $this->frame; }
 	public function setFrame($frame) { $this->frame=$frame; }
@@ -488,6 +496,11 @@ NSLog($this->description()." sendAction $action");
 		}
 	}
 
+class NSMatrix extends NSControl
+	{ // matrix of several buttons - radio buttons are grouped
+	// make click on a radio button tribber our action+target
+	}
+
 class NSButton extends NSControl
 	{
 	protected $title;
@@ -502,9 +515,10 @@ class NSButton extends NSControl
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		$this->state=$this->_persist("selected", 0);
-		if(isset($_POST[$this->elementId]))
+		if(!is_null($this->_persist("ck", null)))
 			{
 			global $NSApp;
+			$this->_persist("ck", "", "");	// unset
 			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
@@ -547,7 +561,7 @@ class NSButton extends NSControl
 				parameter("value", _htmlentities($this->title));
 			}
 		// if Radio Button/Checkbox take elementId of parent!
-		parameter("name", $this->elementId);
+		parameter("name", $this->elementId."-ck");
 // FIXME: if default button (shortcut "\r"): make it blue
 		if($this->isSelected())
 			{
@@ -676,7 +690,7 @@ class NSMenuView extends NSMenu
 		{
 		if(0)
 			{ // show menu as buttons
-			$this->_persist("-selectedIndex", -1, $this->selectedItem);
+			$this->_persist("selectedIndex", -1, $this->selectedItem);
 			html("<table");
 			parameter("border", $this->border);
 			if($this->isHorizontal)
@@ -936,9 +950,10 @@ class NSTabView extends NSControl
 	public function tabViewItems() { return $this->tabViewItems; }
 	public function addTabViewItem(NSTabViewItem $item)
 		{
-		if(isset($_POST[$this->elementId."-".count($this->tabViewItems)]))
+		if(!is_null($this->_persist(count($this->tabViewItems), null)))
 			{ // this index was clicked
 			global $NSApp;
+			$this->_persist(count($this->tabViewItems), "", "");	// reset event
 			$this->clickedItemIndex=count($this->tabViewItems);
 			NSLog($this->classString()." index ".$this->clickedItemIndex);
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
@@ -1002,6 +1017,7 @@ class NSTabView extends NSControl
 // FIXME: buttons must be able to change state!
 // i.e. these buttons should be made in a way that calling their action
 // will make selectTabViewItemAtIndex being called
+// FIXME: use NSButton or NSMenuItem?
 			html("<input");
 			parameter("id", $this->elementId."-".$index);
 			parameter("class", "NSTabViewItemsButton");
@@ -1047,6 +1063,10 @@ class NSTableColumn extends NSObject
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
 }
 
+// IDEA:
+// we can implement some firstVisibleRow and scrollToVisible
+// through appending e.g. #31-5-0 to the URL (send modified "Location:" header instructing the browser to reload)
+
 class NSTableView extends NSControl
 	{
 	protected $headers;
@@ -1073,11 +1093,14 @@ class NSTableView extends NSControl
 		$this->selectedRow=$this->_persist("selectedRow", -1);
 		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
 		$this->headers=$headers;
-		if(isset($_POST['NSEvent']) && $_POST['NSEvent'] == $this->elementId)
+		if(_persist('NSEvent', null) == $this->elementId)
 			{ // click into table
 			global $NSApp;
-			$this->clickedRow=$_POST['clickedRow'];
-			$this->clickedColumn=$_POST['clickedColumn'];
+			_persist('NSEvent', "", "");	// reset
+			$this->clickedRow=_persist('clickedRow', null);
+			_persist('clickedRow', "", "");	// reset
+			$this->clickedColumn=_persist('clickedColumn', null);
+			_persist('clickedColumn', "", "");	// reset
 			NSLog($this->classString());
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
@@ -1132,9 +1155,8 @@ class NSTableView extends NSControl
 		parameter("bgcolor", "LightSteelBlue");
 		html(">\n");
 		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
-		foreach($this->headers as $header)
+		foreach($this->headers as $index => $header)
 			{
-			$index=key($this->headers);
 			html("<th");
 			parameter("id", $this->elementId."-".$index);
 			parameter("class", "NSTableHeaderCell");
@@ -1153,9 +1175,8 @@ class NSTableView extends NSControl
 			parameter("class", "NSTableRow");
 			// add id="even"/"odd" so that we can define bgcolor by CSS?
 			html(">\n");
-			foreach($this->headers as $column)
+			foreach($this->headers as $index => $column)
 				{
-				$index=key($this->headers);
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("class", "NSTableCell");
@@ -1185,8 +1206,8 @@ class NSTableView extends NSControl
 	
 class NSTextField extends NSControl
 {
-	protected $stringValue="";	// should this be a property of NSControl?
-	protected $htmlValue="";
+	protected $stringValue;	// should this be a property of NSControl?
+	protected $htmlValue;
 	protected $backgroundColor;
 	protected $align;
 	protected $type="text";
@@ -1203,10 +1224,12 @@ class NSTextField extends NSControl
 	public function __construct($width=30, $stringValue = null)
 	{
        		parent::__construct();
-		if(isset($_POST[$this->elementId."-text"]))
-			$this->setStringValue($_POST[$this->elementId."-string"]);
+// _NSLog("__contruct NSTextField ".$this->elementId);
+		$this->setStringValue($this->_persist("string", ""));
+		// should be depreacted and be replaced by SetStringValue() ...
 		if(!is_null($stringValue))
-			$this->setStringValue($stringValue);
+			$this->setStringValue($stringValue);	// overwrite
+		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
 	}
 	public function mouseDown(NSEvent $event)
@@ -1226,6 +1249,7 @@ class NSTextField extends NSControl
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
 			html("/>\n");
+			$this->_persist("string", "", "");	// remove from persistence store
 			}
 		else
 			{
@@ -1259,16 +1283,16 @@ class NSSearchField extends NSTextField
 
 class NSTextView extends NSControl
 {
-	protected $string="";
+	protected $string;
 	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, $width, $height);
-		if(isset($_POST[$this->elementId."-string"]))
-			$this->string=$_POST[$this->elementId."-string"];
+		$this->string=$this->_persist("string", "");
 		}
 	public function setString($string)
 		{
+		// FIXME: doesn't this conflict with posting a changed string?
 		$this->string=$this->_persist("string", "", $string);
 		}
 	public function string() { return $this->string; }
@@ -1285,6 +1309,7 @@ class NSTextView extends NSControl
 		html(">");
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
+		$this->_persist("string", "", "");	// remove from persistence store
 		}
 }
 
