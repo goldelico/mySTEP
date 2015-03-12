@@ -25,24 +25,32 @@ const nil=null;
 
 if(!isset($GLOBALS['debug'])) $GLOBALS['debug']=false;	// disable by default
 
-function NSLog($format)
-	{
-	if(!$GLOBALS['debug'])
-		return;	// disable
+function _NSLog($format)
+	{ // always logs - use with care!
 	if(!is_scalar($format))
 		{
-		// check if a description method exists
+		// check if a description() method exists
 		echo "<pre>";
 		print_r($format);
-		echo "</pre>";
+		echo "</pre>\n";
 		}
 	else
 		{
 	// NSDate::date()->description()
-		// append \n only if not yet appended
-		echo htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')."<br />\n";
+		// should append \n or <br> only if not yet appended
+		$str=$format;
+		if(substr($str, -1) != "\n")
+			$str.="\n";	// append \n
+		echo nl2br(htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8'))."\n";
 		}
 	flush();
+	}
+
+function NSLog($format)
+	{
+	if(!$GLOBALS['debug'])
+		return;	// disable
+	_NSLog($format);
 	}
 
 function NSSevereError($format)
@@ -723,7 +731,7 @@ class NSDate extends NSObject
 class NSAttributedString extends NSObject
 	{
 		protected $html;
-		public function setString($string) { $this->html=nl2br(htmlentities($string)); }
+		public function setString($string) { $this->html=nl2br(htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')); }
 		public function string() { /* decode <br>, htmlentities and remove tags */ return $this->html; }
 		public function setHtmlString($string) { $this->html=$html; }
 		public function htmlString() { return $this->html; }
