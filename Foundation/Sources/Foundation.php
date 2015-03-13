@@ -27,6 +27,9 @@ if(!isset($GLOBALS['debug'])) $GLOBALS['debug']=false;	// disable by default
 
 function _NSLog($format)
 	{ // always logs - use with care!
+	// loop through all arguments if multiple are given?
+	// and get description() if possible?
+	// use first as format string?
 	if(!is_scalar($format))
 		{
 		// check if a description() method exists
@@ -37,9 +40,8 @@ function _NSLog($format)
 	else
 		{
 	// NSDate::date()->description()
-		// should append \n or <br> only if not yet appended
 		$str=$format;
-		if(substr($str, -1) != "\n")
+		if(substr($str, -1) != '\n')
 			$str.="\n";	// append \n
 		echo nl2br(htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8'))."\n";
 		}
