@@ -620,16 +620,21 @@ NSLog("sql: $ident");
 	NSLog("SQL: ".$sql);
 	if($this->type == "mysql")
 		{
-		if(mysqli_error($this->db))
-			{
-			NSLog(mysqli_error($this->db));
-			return null;
-			}
 		$result=mysqli_query($this->db, $sql);
+		if($result === FALSE)
+			{ // failed
+			NSLog("MySQL query failed");
+			return false;
+			}
+		if($result === TRUE)
+			{ // not a SELECT succeeded
+			NSLog("MySQL query succeeded");
+			return true;
+			}
 		NSLog("MySQL query done");
 		if(mysqli_error($this->db))
 			{
-			NSLog(mysqli_error($this->db));
+			NSLog("MySQL query failed: ".mysqli_error($this->db));
 			return null;
 			}
 		NSLog("query ok");
