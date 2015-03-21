@@ -44,9 +44,9 @@ typedef enum _NSMatrixMode {
 	SEL _action;
 	SEL _doubleAction;
 	SEL _errorAction;
-	int _numRows;
-	int _numCols;
-	int _mouseDownFlags;
+	NSInteger _numRows;
+	NSInteger _numCols;
+	NSInteger _mouseDownFlags;
 
 	struct __MatrixFlags {
 		UIBITFIELD(unsigned int, allowsEmptySelect, 1);
@@ -160,7 +160,7 @@ typedef enum _NSMatrixMode {
 - (void) setToolTip:(NSString *) string forCell:(NSCell *) cell; 
 - (void) setValidateSize:(BOOL) flag;
 - (void) sizeToCells;
-- (void) sortUsingFunction:(int(*)(id element1, id element2, void *userData)) cp
+- (void) sortUsingFunction:(NSInteger(*)(id element1, id element2, void *userData)) cp
 				   context:(void *) context;
 - (void) sortUsingSelector:(SEL) comparator;
 - (BOOL) tabKeyTraversesCells; 

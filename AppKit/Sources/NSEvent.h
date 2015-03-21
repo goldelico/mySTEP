@@ -177,9 +177,9 @@ enum
 		{
 		struct
 			{
-			int event_num;
-			int click;
-			float pressure;
+			NSInteger event_num;
+			NSInteger click;
+			CGFloat pressure;
 			} mouse;
 		struct
 			{
@@ -190,22 +190,22 @@ enum
 			} key;
 		struct
 			{
-			int event_num;
-			int tracking_num;
+			NSInteger event_num;
+			NSInteger tracking_num;
 			void *user_data;
 			} tracking;
 		struct
 			{
 			short sub_type;
-			int data1;
-			int data2;
+			NSInteger data1;
+			NSInteger data2;
 			} misc;
 		} event_data;
 }
 
 + (NSEvent *) enterExitEventWithType:(NSEventType) type	
 							location:(NSPoint) location
-					   modifierFlags:(NSUInteger) flags
+					   modifierFlags:(NSEventModifierFlags) flags
 						   timestamp:(NSTimeInterval) time
 						windowNumber:(NSInteger) windowNum
 							 context:(NSGraphicsContext *) context	
@@ -218,7 +218,7 @@ enum
 
 + (NSEvent *) keyEventWithType:(NSEventType) type
 					  location:(NSPoint) location
-				 modifierFlags:(NSUInteger) flags
+				 modifierFlags:(NSEventModifierFlags) flags
 					 timestamp:(NSTimeInterval) time
 				  windowNumber:(NSInteger) windowNum
 					   context:(NSGraphicsContext *) context	
@@ -229,7 +229,7 @@ enum
 
 + (NSEvent *) mouseEventWithType:(NSEventType) type	
 						location:(NSPoint) location
-				   modifierFlags:(NSUInteger) flags
+				   modifierFlags:(NSEventModifierFlags) flags
 					   timestamp:(NSTimeInterval) time
 					windowNumber:(NSInteger) windowNum	
 					     context:(NSGraphicsContext *) context	
@@ -241,7 +241,7 @@ enum
 
 + (NSEvent *) otherEventWithType:(NSEventType) type	
 					    location:(NSPoint) location
-				   modifierFlags:(NSUInteger) flags
+				   modifierFlags:(NSEventModifierFlags) flags
 					   timestamp:(NSTimeInterval) time
 					windowNumber:(NSInteger) windowNum	
 					     context:(NSGraphicsContext *) context	
@@ -278,7 +278,7 @@ enum
 - (unsigned short) keyCode;
 - (NSPoint) locationInWindow;
 - (CGFloat) magnification;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
-- (NSUInteger) modifierFlags;
+- (NSEventModifierFlags) modifierFlags;
 - (NSUInteger) pointingDeviceID;
 - (NSUInteger) pointingDeviceSerialNumber;
 - (NSPointingDeviceType) pointingDeviceType;

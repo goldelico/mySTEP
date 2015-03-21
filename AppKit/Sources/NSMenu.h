@@ -132,7 +132,7 @@
 - (NSInteger) indexOfItem:(NSMenuItem *) item;
 - (NSInteger) indexOfItemWithRepresentedObject:(id) object;
 - (NSInteger) indexOfItemWithSubmenu:(NSMenu *) submenu;
-- (NSInteger) indexOfItemWithTag:(int) tag;
+- (NSInteger) indexOfItemWithTag:(NSInteger) tag;
 - (NSInteger) indexOfItemWithTarget:(id) target andAction:(SEL) action;
 - (NSInteger) indexOfItemWithTitle:(NSString *) title;
 - (id) initWithTitle:(NSString *) aTitle;

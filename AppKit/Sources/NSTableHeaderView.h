@@ -32,8 +32,8 @@
     NSTableView *_tableView;
     NSImage *_headerDragImage;
     CGFloat _draggedDistance;
-    int _resizedColumn;
-    int _draggedColumn;
+    NSInteger _resizedColumn;
+    NSInteger _draggedColumn;
 }
 
 - (NSInteger) columnAtPoint:(NSPoint) point;

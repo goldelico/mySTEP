@@ -98,8 +98,8 @@ struct _NSModalSession {
 	NSWindow *window;			// the modal window
 	NSModalSession previous;
 	NSMutableArray *nonModalEventsQueue;		// we collect events that are blocked from other windows
-	int runState;	// and return value
-	int windowTag;	// window ID
+	NSInteger runState;	// and return value
+	NSInteger windowTag;	// window ID
 	BOOL visible;	// window was (still) visible and now disappeared
 };
 
@@ -117,7 +117,7 @@ extern NSView *__toolTipOwnerView;
 //
 // Class variables
 //
-static id __listener = nil;
+// static id __listener = nil;
 static id __servicesProvider = nil;
 static id __registeredName = nil;
 static NSConnection	*__listenerConnection = nil;
@@ -365,21 +365,21 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
 #if 1
-	NSLog(@"writing %@", [NSWorkspace _activeApplicationPath:ident], ident);
+	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
 #endif
 	plist=[NSDictionary dictionaryWithObjectsAndKeys:
 				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
 				 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"], @"NSApplicationName",
 				 ident, @"NSApplicationBundleIdentifier",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
-				 [NSNumber numberWithInt:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
+				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
 				 nil];
 	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
-																					contents:[NSPropertyListSerialization dataFromPropertyList:plist
-																																															format:NSPropertyListXMLFormat_v1_0
-																																										errorDescription:&error]
-																				attributes:nil])	// let the world know that I am launching
+												contents:[NSPropertyListSerialization dataFromPropertyList:plist
+																									format:NSPropertyListXMLFormat_v1_0
+																						  errorDescription:&error]
+											  attributes:nil])	// let the world know that I am launching
 		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
 #if 1
 	NSLog(@"willFinishLaunching");
@@ -462,7 +462,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSEvent *e;
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NS_DURING // protect against exceptions
-		int windowitemsbefore=_windowItems;
+		NSInteger windowitemsbefore=_windowItems;
 #if 1
 		NS_TIME_START(sendEvent);
 		e=[self nextEventMatchingMask:NSAnyEventMask
@@ -488,7 +488,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(windowitemsbefore > 0 && _windowItems == 0)
 			{ // no window items (left over) after processing last event
 #if 1
-				NSLog(@"windowitems %d -> 0", windowitemsbefore);
+				NSLog(@"windowitems %ld -> 0", (long)windowitemsbefore);
 #endif
 				if(!_delegate && ![NSApp mainMenu])
 					{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
@@ -515,10 +515,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	[self terminate:self];
 }
 
-- (int) runModalForWindow:(NSWindow*)aWindow
+- (NSInteger) runModalForWindow:(NSWindow*)aWindow
 {
 	NSModalSession s = 0;
-	int r;	// Run a modal event loop
+	NSInteger r;	// Run a modal event loop
 #if 1
 	NSLog(@"runModalForWindow: %@", aWindow);
 #endif	
@@ -554,10 +554,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		 didEndSelector:(SEL) selector
 				contextInfo:(void *) context;
 {
-	int r;
+	NSInteger r;
 	NSModalSession s = 0;
-	void (*didend)(id, SEL, NSWindow *, int, void *);
-	didend = (void (*)(id, SEL, NSWindow *, int, void *))[delegate methodForSelector:selector];
+	void (*didend)(id, SEL, NSWindow *, NSInteger, void *);
+	didend = (void (*)(id, SEL, NSWindow *, NSInteger, void *))[delegate methodForSelector:selector];
 	[doc _attachSheet:sheet];
 	[sheet _becomeSheet];
 
@@ -592,7 +592,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
 }
 
-- (int) runModalSession:(NSModalSession)as
+- (NSInteger) runModalSession:(NSModalSession)as
 {
 	NSEvent *e;
 	if (as != _session)
@@ -602,7 +602,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	as->windowTag = [as->window windowNumber];	// should be assigned now
 #if 1
 		NSLog(@"new session: as->window %@", as->window);
-		NSLog(@"						 as->windowTag %d", as->windowTag);
+		NSLog(@"						 as->windowTag %ld", (long)as->windowTag);
 #endif
 		
 	while((e = [self _eventMatchingMask:NSAnyEventMask dequeue:YES])
@@ -667,7 +667,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 	NSAssert(_session == as, @"Session was changed while running");
 #if 1
-	NSLog(@"runModalSession: %d", as->runState);
+	NSLog(@"runModalSession: %ld", (long)as->runState);
 #endif
 
 	return as->runState;
@@ -695,7 +695,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	[self stopModalWithCode: NSRunStoppedResponse]; 
 }
 
-- (void) stopModalWithCode:(int)returnCode
+- (void) stopModalWithCode:(NSInteger)returnCode
 {
 #if 0
 	NSLog(@"stopModalWithCode: %d", returnCode);
@@ -795,9 +795,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (void) windowWillClose:(NSNotification *)aNotification 
 {
 	NSArray *_windowList=[self windows];
-	int i = [_windowList count];				// find a replacement
+	NSInteger i = [_windowList count];				// find a replacement
 #if 1
-	NSLog(@"NSApp: windowWillClose - %d open windows", i);
+	NSLog(@"NSApp: windowWillClose - %ld open windows", (long)i);
 #endif
 	if(!_app.isHidden && [aNotification object] == _keyWindow && [self isActive])
 		{ // the key window is being closed
@@ -901,8 +901,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (void) discardEventsMatchingMask:(NSUInteger)mask
 					   beforeEvent:(NSEvent *)lastEvent
 {
-	int i = 0, loop;
-	int count = [_eventQueue count];
+	NSInteger i = 0, loop;
+	NSInteger count = [_eventQueue count];
 	NSEvent *event;
 #if 0
 	NSLog(@"discardEventsMatchingMask %x", mask);
@@ -936,7 +936,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
 	NSAutoreleasePool *pool=[NSAutoreleasePool new];
-	NSDate *limit;
 #if 0
 	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
 #endif
@@ -1229,7 +1228,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (NSWindow*) keyWindow							{ return _keyWindow; }
 - (NSWindow*) mainWindow						{ return _mainWindow; }
 
-- (NSWindow*) windowWithWindowNumber:(int)num	{ return BACKEND; }
+- (NSWindow*) windowWithWindowNumber:(NSInteger)num	{ return BACKEND; }
 
 // FIXME: should we exclude menu windows???
 
@@ -1251,7 +1250,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if(flag)
 			{ // hide windows with hidesOnDeactivate flag
 				NSArray *_windowList = [self windows];
-				int i, count = [_windowList count];
+				NSInteger i, count = [_windowList count];
 				for(i = 0; i < count; i++)
 						{
 							NSWindow *w = [_windowList objectAtIndex:i];
@@ -1380,7 +1379,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	return [[NSWorkspace _loginWindowServer] requestUserAttention:requestType forApplication:self];
 }
 
-- (void) cancelUserAttentionRequest:(int) request;
+- (void) cancelUserAttentionRequest:(NSInteger) request;
 {
 	if(request != 0)
 		[[NSWorkspace _loginWindowServer] cancelUserAttentionRequest:request];
@@ -1511,7 +1510,7 @@ NSWindow *w;
 #endif
 #else
 	NSArray *_windowList = [self windows];
-	int i, count = [_windowList count];
+	NSInteger i, count = [_windowList count];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
 	if(_pendingWindow)
 		{
@@ -1723,7 +1722,7 @@ NSWindow *w;
 					 filename:(BOOL)isFilename
 {
 	NSArray *itemArray;
-	int idx;
+	NSInteger idx;
 	SEL winaction;
 	if (![aWindow isKindOfClass: __windowClass])
 		[NSException raise: NSInvalidArgumentException
@@ -1784,13 +1783,13 @@ NSWindow *w;
 - (void) removeWindowsItem:(NSWindow*)aWindow
 {
 #if 1
-	NSLog(@"NSApp: removeWindowsItem (total=%d) - %@", _windowItems, aWindow);
+	NSLog(@"NSApp: removeWindowsItem (total=%ld) - %@", (long)_windowItems, aWindow);
 #endif
 	if(_app.isDeallocating)		// If we are within our dealloc then don't remove the window. Most likely dealloc is removing windows from our window list and subsequently NSWindow is calling us to remove itself.
 		return;
 	if(_windowsMenu)
 		{
-		int idx=[_windowsMenu indexOfItemWithTarget:aWindow andAction:@selector(makeKeyAndOrderFront:)];
+		NSInteger idx=[_windowsMenu indexOfItemWithTarget:aWindow andAction:@selector(makeKeyAndOrderFront:)];
 		if(idx >= 0)
 			{ // remove from menu
 			[_windowsMenu removeItemAtIndex:idx];
@@ -1950,7 +1949,7 @@ NSWindow *w;
 	NSEnumerator *e;
 	NSURL *url;
 #if 1
-	NSLog(@"_application: %@ openURLs: %@ opts: %d", app, urls, opts); 
+	NSLog(@"_application: %@ openURLs: %@ opts: %lu", app, urls, (unsigned long)opts);
 #endif
 	if(_delegate && [_delegate respondsToSelector:_cmd] && [_delegate _application:app openURLs:urls withOptions:opts])
 		return YES;	// allow to implement in delegate

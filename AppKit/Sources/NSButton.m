@@ -125,14 +125,14 @@ id __buttonCellClass = nil;
 {
 	return [NSString stringWithFormat:@"%@\n"
 			@"title=%@\n"
-			@"stateMask=%02x\n"
-			@"highlightMask=%02x\n" 
+			@"stateMask=%02lx\n"
+			@"highlightMask=%02lx\n" 
 			@"buttonType=%d\n" 
 			@"bezelStyle=%d\n"
 			@"transparent=%d\n"
 			@"dimsWhenDisabled=%d\n" 
 			@"bgcolor=%@\n", 
-			[super description], _title, _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
+			[super description], _title, (unsigned long)_stateMask, (unsigned long)_highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
 			];
 }
 
@@ -157,7 +157,7 @@ id __buttonCellClass = nil;
 
 - (void) setImagePosition:(NSCellImagePosition)aPosition
 {
-	_c.imagePosition = aPosition;
+	_c.imagePosition = (unsigned int) aPosition;
 }
 
 - (void) setImageScaling:(NSImageScaling)scaling
@@ -165,7 +165,7 @@ id __buttonCellClass = nil;
 #if 0
 	NSLog(@"setImageScaling");
 #endif
-	_d.imageScaling = scaling;
+	_d.imageScaling = (unsigned int) scaling;
 //	[_normalImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
 //	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
 //	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
@@ -305,7 +305,7 @@ id __buttonCellClass = nil;
 	ASSIGN(_keyEquivalentFont, fontObj);
 }
 
-- (void) setKeyEquivalentFont:(NSString*)fontName size: (float)fontSize
+- (void) setKeyEquivalentFont:(NSString*)fontName size: (CGFloat)fontSize
 {
 	ASSIGN(_keyEquivalentFont, [NSFont fontWithName:fontName size:fontSize]);
 }
@@ -373,14 +373,14 @@ id __buttonCellClass = nil;
 		stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask));
 	}
 
-- (int) highlightsBy					{ return _highlightMask; }
-- (int) showsStateBy					{ return _stateMask; }
+- (NSInteger) highlightsBy					{ return _highlightMask; }
+- (NSInteger) showsStateBy					{ return _stateMask; }
 - (NSBezelStyle) bezelStyle;			{ return _bezelStyle; }
 - (BOOL) imageDimsWhenDisabled;			{ return _dimsWhenDisabled; }
 - (void) setTransparent:(BOOL)flag		{ _transparent = flag; }
 - (void) setImageDimsWhenDisabled:(BOOL)flag;	{ _dimsWhenDisabled = flag; }
-- (void) setHighlightsBy:(int)mask		{ _highlightMask = mask; }
-- (void) setShowsStateBy:(int)mask		{ _stateMask = mask; }
+- (void) setHighlightsBy:(NSInteger)mask		{ _highlightMask = mask; }
+- (void) setShowsStateBy:(NSInteger)mask		{ _stateMask = mask; }
 - (void) setBezelStyle:(NSBezelStyle) bezelStyle; { _bezelStyle=bezelStyle; }
 - (void) setIntValue:(int)anInt			{ [self setState:(anInt != 0)]; }
 - (void) setFloatValue:(float)aFloat	{ [self setState:(aFloat != 0)]; }
@@ -413,10 +413,10 @@ id __buttonCellClass = nil;
 
 // does never use _c.state to allow for subclasses to override -state
 
-- (int) intValue						{ return [self state]; }
+- (NSInteger) intValue					{ return [self state]; }
 - (float) floatValue					{ return [self state]; }
 - (double) doubleValue					{ return [self state]; }
-- (id) objectValue		{ return [NSNumber numberWithInt:[self state]]; }
+- (id) objectValue		{ return [NSNumber numberWithInteger:[self state]]; }
 
 // FIXME:
 // visual appearance (colors, shapes, icons) depends on:
@@ -669,7 +669,7 @@ id __buttonCellClass = nil;
 			}
 		case NSHelpButtonBezelStyle:
 			{
-				NSSize size;
+			//	NSSize size;
 				// FIXME: we should draw a HelpButton NSImage
 				ctxt=[NSGraphicsContext currentContext];
 				bezel=[NSBezierPath bezierPathWithOvalInRect:NSInsetRect(cellFrame, 2, 2)];	// make smaller so that it does not touch frame
@@ -744,7 +744,7 @@ id __buttonCellClass = nil;
 				// draw centered [NSImage imageNamed:@"GSArrowDown"]
 			}
 		case 15:
-			NSLog(@"NSButtonCell (%@) unknown bezelStyle:%d", _title, _bezelStyle);
+			NSLog(@"NSButtonCell (%@) unknown bezelStyle:%lu", _title, (unsigned long)_bezelStyle);
 			break;
 		}
 }
@@ -1179,13 +1179,13 @@ id __buttonCellClass = nil;
 	[self setNeedsDisplay:YES];
 }
 
-- (void) setState:(int)value			{ [_cell setState:value]; [self setNeedsDisplay:YES]; }
+- (void) setState:(NSInteger)value			{ [_cell setState:value]; [self setNeedsDisplay:YES]; }
 - (void) setNextState					{ [_cell setNextState]; [self setNeedsDisplay:YES]; }
 - (void) setIntValue:(int)anInt			{ [_cell setIntValue:anInt]; }
 - (void) setFloatValue:(float)aFloat	{ [_cell setFloatValue:aFloat]; }
 - (void) setDoubleValue:(double)aDouble	{ [_cell setDoubleValue:aDouble]; }
 - (void) setObjectValue:(id <NSCopying>)val	{ [_cell setObjectValue:val]; }
-- (int) state							{ return [_cell state]; }
+- (NSInteger) state							{ return [_cell state]; }
 - (NSString*) alternateTitle			{ return [_cell alternateTitle]; }
 - (NSAttributedString*) attributedAlternateTitle	{ return [_cell attributedAlternateTitle]; }
 - (NSAttributedString*) attributedTitle				{ return [_cell attributedTitle]; }

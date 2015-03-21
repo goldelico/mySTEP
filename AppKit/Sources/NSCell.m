@@ -219,7 +219,7 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	if(_c.type == aType)
 		return; // we already have that type
-	_c.type=aType;  // prevent recursion
+	_c.type=(unsigned int) aType;  // prevent recursion
 #if 0
 	NSLog(@"%@ setType %d", self, aType);
 #endif
@@ -238,14 +238,14 @@ static NSColor *__borderedBackgroundColor = nil;
 	}
 }
 
-- (void) setState:(int)value
+- (void) setState:(NSInteger)value
 {
 	_c.state = (value>0?NSOnState:((value<0 && _c.allowsMixed)?NSMixedState:NSOffState));
 }
 
 - (void) setNextState;						{ [self setState:[self nextState]]; }
-- (int) state								{ return _c.state; }
-- (int) nextState
+- (NSInteger) state								{ return _c.state; }
+- (NSInteger) nextState
 {
 	if(_c.state < 0)	return NSOnState;	// Mixed -> On
 	if(_c.state > 0)	return NSOffState;	// On -> Off
@@ -526,8 +526,8 @@ static NSColor *__borderedBackgroundColor = nil;
 				  inView:(NSView*)controlView	 		// Frame method but can
 				  editor:(NSText*)textObject	 		// be called from more
 				delegate:(id)anObject	 				// than just mouseDown
-				   start:(int)selStart	 
-				  length:(int)selLength
+				   start:(NSInteger)selStart
+				  length:(NSInteger)selLength
 {
 	if(controlView && textObject && _c.type == NSTextCellType)
 		{
@@ -620,7 +620,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	}
 }
 
-- (void) setCellAttribute:(NSCellAttribute)aParameter to:(int)value
+- (void) setCellAttribute:(NSCellAttribute)aParameter to:(NSInteger)value
 {
 	switch (aParameter)
 	{
@@ -676,7 +676,7 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (NSAttributedString *) _getFormattedStringIgnorePlaceholder:(BOOL) flag;	// whichever is more convenient
 { // get whatever you have
-	int length;
+	NSInteger length;
 	NSAttributedString *string=nil;
 #if 0
 	NSLog(@"_getFormattedString...");
@@ -698,7 +698,12 @@ static NSColor *__borderedBackgroundColor = nil;
 		if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
 			string=[_formatter attributedStringForObjectValue:_contents withDefaultAttributes:attribs];
 		if(string == nil)
-			string=[[[NSAttributedString alloc] initWithString:[_formatter stringForObjectValue:_contents] attributes:attribs] autorelease];
+			{
+			NSString *fstring=[_formatter stringForObjectValue:_contents];
+			if(!fstring)	// was't able to apply formatter
+				fstring=_contents;
+			string=[[[NSAttributedString alloc] initWithString:fstring attributes:attribs] autorelease];
+			}
 		}
 	else if([_contents isKindOfClass:[NSAttributedString class]])
 		string=_contents;   // is already an attributed string
@@ -790,9 +795,9 @@ static NSColor *__borderedBackgroundColor = nil;
 - (SEL) action									{ return NULL; }
 - (void) setAction:(SEL) selector;				{ SUBCLASS; }
 - (NSControlSize) controlSize					{ return _d.controlSize; }
-- (void) setControlSize:(NSControlSize)sz		{ _d.controlSize = sz; }
+- (void) setControlSize:(NSControlSize)sz		{ _d.controlSize = (unsigned int) sz; }
 - (NSControlTint) controlTint					{ return _d.controlTint; }
-- (void) setControlTint:(NSControlTint)ti		{ _d.controlTint = ti; }
+- (void) setControlTint:(NSControlTint)ti		{ _d.controlTint = (unsigned int) ti; }
 - (NSFocusRingType) focusRingType;				{ return _d.focusRingType; }
 - (void) setFocusRingType:(NSFocusRingType) type; { _d.focusRingType = type; }
 

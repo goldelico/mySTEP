@@ -231,7 +231,7 @@ static BOOL __userKeyEquivalents = YES;
 - (void) setOffStateImage:(NSImage *) image;	{ ASSIGN(_offStateImage, image); [self _changed]; }
 - (void) setOnStateImage:(NSImage *) image;		{ ASSIGN(_onStateImage, image); [self _changed]; }
 - (void) setRepresentedObject:(id) o;			{ [super setRepresentedObject:o]; [self _changed]; }
-- (void) setState:(int) val;		{ if(val == [self state]) return; [super setState:val]; [self _changed]; }
+- (void) setState:(NSInteger) val;		{ if(val == [self state]) return; [super setState:val]; [self _changed]; }
 - (void) setTitle:(NSString *) s;	{ if(s && [s isEqualToString:[self title]]) return; [super setTitle:s]; [self _changed]; }
 - (NSAttributedString *) attributedTitle	{ return _attributedTitle; }
 - (void) setAttributedTitle:(NSAttributedString *) s;	{ ASSIGN(_attributedTitle, s); [self _changed]; }
@@ -478,7 +478,7 @@ static BOOL __userKeyEquivalents = YES;
 		[[NSNotificationCenter defaultCenter]
 			postNotificationName:NSMenuDidAddItemNotification 
 						  object:self
-						userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:index]
+						userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:index]
 															 forKey:@"NSMenuItemIndex"]];
 }
 
@@ -521,7 +521,7 @@ static BOOL __userKeyEquivalents = YES;
 		[[NSNotificationCenter defaultCenter]
 				postNotificationName:NSMenuDidRemoveItemNotification
 							  object:self
-							userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:index]
+							userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:index]
 																 forKey:@"NSMenuItemIndex"]];
 	_mn.menuHasChanged = YES;							// menu needs update (maybe later)
 }
@@ -538,7 +538,7 @@ static BOOL __userKeyEquivalents = YES;
 #endif
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSMenuDidChangeItemNotification
 															object:self
-														  userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:row] forKey:@"NSMenuItemIndex"]];
+														  userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedInteger:row] forKey:@"NSMenuItemIndex"]];
 		}
 	_mn.menuHasChanged = YES;	// menu needs update (maybe later)
 }

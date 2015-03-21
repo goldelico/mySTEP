@@ -34,7 +34,7 @@
 #import "NSAppKitPrivate.h"
 
 @interface NSObject (NSTabView)
-- (int) indexOfSelectedItem;	// private informal protocol
+- (NSInteger) indexOfSelectedItem;	// private informal protocol
 @end
 
 //*****************************************************************************
@@ -372,7 +372,7 @@ static struct _NSTabViewSizing
 
 - (void) selectTabViewItemWithIdentifier:(id)identifier;
 {
-	int index=[tab_items count];
+	NSUInteger index=[tab_items count];
 	while(index-- > 0)
 		{
 		NSTabViewItem *i=[tab_items objectAtIndex:index];

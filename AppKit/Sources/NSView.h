@@ -80,7 +80,7 @@ typedef NSInteger NSTrackingRectTag;
 	CGFloat _boundsRotation;
 	NSUInteger _nInvalidRects;	// number of invalid rects
 	NSUInteger _cInvalidRects;	// capacity of invalidRects array
-	int _gState;
+	NSInteger _gState;
     struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;
 		unsigned int isRotatedOrScaledFromBase:1;

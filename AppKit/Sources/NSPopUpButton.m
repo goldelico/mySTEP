@@ -230,13 +230,13 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[_menu removeItemAtIndex:[self indexOfItemWithTitle:title]];
 }
 
-- (int) indexOfItem:(NSMenuItem *)item; { return [_menu indexOfItem:item]; }
-- (int) indexOfItemWithTitle:(NSString *)title { return [_menu indexOfItemWithTitle:title]; }
-- (int) indexOfItemWithTag:(int)t; { return [_menu indexOfItemWithTag:t]; }
-- (int) indexOfItemWithRepresentedObject:(id)obj; { return [_menu indexOfItemWithRepresentedObject:obj]; }
-- (int) indexOfItemWithTarget:(id)t andAction:(SEL)a; { return [_menu indexOfItemWithTarget:t andAction:a]; }
+- (NSInteger) indexOfItem:(NSMenuItem *)item; { return [_menu indexOfItem:item]; }
+- (NSInteger) indexOfItemWithTitle:(NSString *)title { return [_menu indexOfItemWithTitle:title]; }
+- (NSInteger) indexOfItemWithTag:(NSInteger)t; { return [_menu indexOfItemWithTag:t]; }
+- (NSInteger) indexOfItemWithRepresentedObject:(id)obj; { return [_menu indexOfItemWithRepresentedObject:obj]; }
+- (NSInteger) indexOfItemWithTarget:(id)t andAction:(SEL)a; { return [_menu indexOfItemWithTarget:t andAction:a]; }
 
-- (void) removeItemAtIndex:(int)index;
+- (void) removeItemAtIndex:(NSInteger)index;
 {
 	if(index < 0 || index >= [_menu numberOfItems])
 		[_menu removeItemAtIndex:index];
@@ -250,14 +250,14 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[self synchronizeTitleAndSelectedItem];
 }
 
-- (int) indexOfSelectedItem				{ return _selectedItem; }
-- (int) numberOfItems					{ return [_menu numberOfItems]; }
+- (NSInteger) indexOfSelectedItem				{ return _selectedItem; }
+- (NSInteger) numberOfItems					{ return [_menu numberOfItems]; }
 - (NSArray *) itemArray					{ return [_menu itemArray]; }
 
 	// - (NSMenu *) menu						{ return _menu; }
 - (void) setMenu:(NSMenu *) m
 {
-	int i, cnt=[m numberOfItems];
+	NSInteger i, cnt=[m numberOfItems];
 #if 0
 	NSLog(@"%@ setMenu %@", self, m);
 	//	if(!m)
@@ -626,21 +626,21 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (void) addItemWithTitle:(NSString *)title { [_cell addItemWithTitle:title]; }
 - (void) addItemsWithTitles:(NSArray *)itemTitles
 { [_cell addItemsWithTitles:itemTitles]; }
-- (void) insertItemWithTitle:(NSString *)title atIndex:(int)index
+- (void) insertItemWithTitle:(NSString *)title atIndex:(NSInteger)index
 {
 	[_cell insertItemWithTitle:title atIndex:index];
 }
 
 - (void) removeItemWithTitle:(NSString *)title { [_cell removeItemWithTitle:title]; }
-- (int) indexOfItem:(NSMenuItem *)item { return [_cell indexOfItem:item]; }
-- (int) indexOfItemWithTitle:(NSString *)title { return [_cell indexOfItemWithTitle:title]; }
-- (int) indexOfItemWithTag:(int)tag; { return [_cell indexOfItemWithTag:tag]; }
-- (int) indexOfItemWithRepresentedObject:(id)obj; { return [_cell indexOfItemWithRepresentedObject:obj]; }
-- (int) indexOfItemWithTarget:(id)target andAction:(SEL)action; { return [_cell indexOfItemWithTarget:target andAction:action]; }
-- (void) removeItemAtIndex:(int)index	{ [_cell removeItemAtIndex:index]; }
+- (NSInteger) indexOfItem:(NSMenuItem *)item { return [_cell indexOfItem:item]; }
+- (NSInteger) indexOfItemWithTitle:(NSString *)title { return [_cell indexOfItemWithTitle:title]; }
+- (NSInteger) indexOfItemWithTag:(NSInteger)tag; { return [_cell indexOfItemWithTag:tag]; }
+- (NSInteger) indexOfItemWithRepresentedObject:(id)obj; { return [_cell indexOfItemWithRepresentedObject:obj]; }
+- (NSInteger) indexOfItemWithTarget:(id)target andAction:(SEL)action; { return [_cell indexOfItemWithTarget:target andAction:action]; }
+- (void) removeItemAtIndex:(NSInteger)index	{ [_cell removeItemAtIndex:index]; }
 - (void) removeAllItems					{ [_cell removeAllItems]; }
-- (int) indexOfSelectedItem				{ return [_cell indexOfSelectedItem]; }
-- (int) numberOfItems					{ return [_cell numberOfItems]; }
+- (NSInteger) indexOfSelectedItem				{ return [_cell indexOfSelectedItem]; }
+- (NSInteger) numberOfItems					{ return [_cell numberOfItems]; }
 - (NSArray *) itemArray					{ return [_cell itemArray]; }
 - (NSMenu *) menu						{ return [_cell menu]; }
 - (void) setMenu:(NSMenu *) m		
@@ -650,16 +650,16 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 #endif
 	[_cell setMenu:m]; 
 }
-- (NSMenuItem *) itemAtIndex:(int)index				{ return [_cell itemAtIndex:index]; }
-- (NSString *) itemTitleAtIndex:(int)index			{ return [_cell itemTitleAtIndex:index]; }
+- (NSMenuItem *) itemAtIndex:(NSInteger)index				{ return [_cell itemAtIndex:index]; }
+- (NSString *) itemTitleAtIndex:(NSInteger)index			{ return [_cell itemTitleAtIndex:index]; }
 - (NSArray *) itemTitles							{ return [_cell itemTitles]; }
 - (NSMenuItem *) itemWithTitle:(NSString *)title	{ return [_cell itemWithTitle:title]; }
 - (NSMenuItem *) lastItem							{ return [_cell lastItem]; }
 - (NSMenuItem *) selectedItem						{ return [_cell selectedItem]; }
 - (NSString *) titleOfSelectedItem					{ return [_cell titleOfSelectedItem]; }
 - (void) selectItem:(NSMenuItem *)item				{ [_cell selectItem:item]; }
-- (void) selectItemAtIndex:(int)index				{ [_cell selectItemAtIndex:index]; }
-- (BOOL) selectItemWithTag:(int)tag					{ return [_cell selectItemWithTag:tag]; }
+- (void) selectItemAtIndex:(NSInteger)index				{ [_cell selectItemAtIndex:index]; }
+- (BOOL) selectItemWithTag:(NSInteger)tag					{ return [_cell selectItemWithTag:tag]; }
 - (void) selectItemWithTitle:(NSString *)title		{ [_cell selectItemWithTitle:title]; }
 - (void) setPullsDown:(BOOL)flag					{ [_cell setPullsDown:flag]; }
 - (void) setAutoenablesItems:(BOOL)flag				{ [_cell setAutoenablesItems:flag]; }

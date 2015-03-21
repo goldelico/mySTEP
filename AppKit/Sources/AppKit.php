@@ -29,6 +29,21 @@ if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
 // these functions should be used internally only!
 
+function _404()
+{
+	header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+	header("Status: 404 Not Found");
+	$_SERVER['REDIRECT_STATUS'] = 404;
+	echo "<h1>Not Found</h1>";
+	echo "<p>The requested URL ";
+	echo $_SERVER['PHP_SELF'];
+	if($_SERVER['QUERY_STRING'])
+		echo "?".$_SERVER['QUERY_STRING'];
+	echo " was not found on this server.</p>";
+// FIXME: optionally notify someone?
+	exit;
+}
+
 function _htmlentities($string)
 {
 	return NSGraphicsContext::currentContext()->_htmlentities($string);
@@ -146,6 +161,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
 		}
+
 	/* we need this to convert file system paths into an external URL */
 	/* hm, here we have a fundamental problem:
 	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
@@ -162,6 +178,11 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 
 	public function externalURLforPath($path)
 		{
+		// locate NSBundle the $path belongs to
+		// if none found, we could use data:
+		// if not mainBundle, add BUNDLE=identifier
+		return "?RESOURCE=".rawurlencode($path);
+
 		// enable read (only) access to file (if not yet possible)
 		// NSLog("path: $path");
 		$path=str_replace("/Users/hns/Documents/Projects", "", $path);
@@ -348,6 +369,41 @@ NSLog("sendAction $action to ".$target->description());
 		}
 	public function run()
 		{
+		if(isset($_GET['RESOURCE']))
+			{ // serve some resource file
+			if(isset($_GET['BUNDLE']))
+				$bundle=NSBundle::bundleWithIdentifier($_GET['BUNDLE']);
+			else
+				$bundle=NSBundle::mainBundle();
+NSLog($bundle);
+			$noopen= is_null($bundle);	// bundle not found
+NSLog("noopen: $noopen\n");
+			if(!$noopen)
+				$path=$bundle->resourcePath()."/".$_GET['RESOURCE'];	// relative to Resources
+			else
+				$path="?";
+NSLog("path: $path\n");
+			$noopen= $noopen || strpos("/".$path."/", "/../") !== FALSE;	// if someone tries ..
+NSLog("noopen: $noopen\n");
+			$noopen= $noopen || !NSFileManager::defaultManager()->fileExistsAtPath($path);
+NSLog("noopen: $noopen after fileExistsAtPath $path\n");
+			if(!$noopen)
+				{ // check if valid extension
+				$extensions=array("png", "jpg", "jpeg", "gif");
+				$pi=pathinfo($path);
+NSLog("extensions:");
+NSLog($extensions);
+NSLog($pi);
+				$noopen = !isset($pi['extension']) || !in_array($pi['extension'], $extensions);
+				}
+			if($noopen)
+				_404();	// simulate 404 error
+			header("Content-Type: image/".$pi['extension']);
+NSLog($path);
+			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
+			echo $file;	// provide requested contents to browser
+			exit;
+			}
 		do
 			{
 			if(isset($this->queuedEvent))
@@ -796,9 +852,16 @@ class NSImage extends NSObject
 			if(!isset($this->url))
 				{ // not initialized by referencing file/url
 				$bundle=NSBundle::mainBundle();
-				$path=$bundle->_URLpathForResourceOfType($name, "png");
-				if(is_null($path)) return false;	// not found
-				$this->url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
+				// alternatively look in AppKit.framework bundle
+_NSLog($bundle);
+				$path=$bundle->pathForResourceOfType($name, "");	// check w/o suffix (or suffix in $name)
+				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "png");
+				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpg");
+				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpeg");
+				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "gif");
+_NSLog($path);
+				if(is_null($path)) return false;	// still not found
+				$this->initByReferencingFile($path);
 				}
 			$this->name=$name;
 			self::$images[$name]=$this;	// store in list of known images
@@ -807,6 +870,7 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingURL($url)
 		{
+_NSLog($url);
 		$this->url=$url;
 		$c=parse_url($url);
 		if(isset($c['path']))
@@ -818,8 +882,22 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
+		$bundles=NSBundle::allBundles();
+		foreach($bundles as $bundle)
+			{
+			$res=$bundles->resourcePath();
+			if(substr($path, 0, strlen($res)) == $res)
+				{ // bundle where this file is a resource found!
+				$path=substr($path, strlen($res));	// strip off path prefix
+				$url="?RESOURCE=".rawurlencode($path);
+				if($bundle != NSBundle::mainBundle())
+					$url.="&BUNDLE=".rawurlencode($bundle->bundleIdentifier());
+				return $this->initByReferencingURL($url);
+				}
+			}
+		// FIXME: could try to use data: scheme
 		$url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
-		$this->initByReferencingURL($url);
+		return $this->initByReferencingURL($url);
 //		$this->initByReferencingURL("https://".$_SERVER['HTTP_HOST']."/$path");
 		}
 }

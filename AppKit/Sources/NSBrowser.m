@@ -100,11 +100,11 @@
 - (id) cellPrototype					{ return _cellPrototype; }
 - (Class) matrixClass					{ return _matrixClass; }
 - (NSString*) pathSeparator				{ return _pathSeparator; }
-- (int) numberOfVisibleColumns			{ return _numberOfVisibleColumns; }
-- (int) lastVisibleColumn				{ return LAST_VISIBLE_COLUMN; }
+- (NSInteger) numberOfVisibleColumns	{ return _numberOfVisibleColumns; }
+- (NSInteger) lastVisibleColumn			{ return LAST_VISIBLE_COLUMN; }
 - (CGFloat) minColumnWidth				{ return _minColumnWidth; }
-- (int) firstVisibleColumn				{ return _firstVisibleColumn; }
-- (int) maxVisibleColumns				{ return _maxVisibleColumns; }
+- (NSInteger) firstVisibleColumn		{ return _firstVisibleColumn; }
+- (NSInteger) maxVisibleColumns			{ return _maxVisibleColumns; }
 - (BOOL) isTitled						{ return _br.isTitled; }
 - (BOOL) separatesColumns				{ return _br.separatesColumns; }
 - (BOOL) isLoaded						{ return _isLoaded; }
@@ -202,7 +202,7 @@
 
 - (void) _updateColumnFrames
 {
-	int count = [_columns count];
+	NSInteger count = [_columns count];
 
 	while (count-- > 0)
 		{
@@ -231,9 +231,9 @@
 	return 24;
 }
 
-- (int) lastColumn
+- (NSInteger) lastColumn
 {
-int i, count = [_columns count];				// Find the last loaded column
+	NSInteger i, count = [_columns count];				// Find the last loaded column
 												// A column is loaded if it has
 	for (i = 0; i < count; ++i)					// a doc view matrix.
 		if (![[_columns objectAtIndex: i] documentView])
@@ -242,9 +242,9 @@ int i, count = [_columns count];				// Find the last loaded column
 	return MAX(0, i-1);
 }
 
-- (int) columnOfMatrix:(NSMatrix *)matrix
+- (NSInteger) columnOfMatrix:(NSMatrix *)matrix
 {												// Find the column that has
-	int i, count = [_columns count];				// matrix as it's doc view
+	NSInteger i, count = [_columns count];				// matrix as it's doc view
 
 	for (i = 0; i < count; ++i)
 		if (matrix == [[_columns objectAtIndex: i] documentView])
@@ -253,9 +253,9 @@ int i, count = [_columns count];				// Find the last loaded column
 	return NSNotFound;
 }
 
-- (int) selectedColumn
+- (NSInteger) selectedColumn
 {
-int i = [_columns count] - 1;
+	NSInteger i = [_columns count] - 1;
 
 	for (;(i >= 0); i--)
 		if ([[[_columns objectAtIndex:i] documentView] selectedCell])
@@ -264,9 +264,9 @@ int i = [_columns count] - 1;
 	return NSNotFound;
 }
 
-- (void) setMaxVisibleColumns:(int)columnCount
+- (void) setMaxVisibleColumns:(NSInteger)columnCount
 {
-	int i = [_columns count];
+	NSInteger i = [_columns count];
 	_maxVisibleColumns = columnCount;
 	if(i > _maxVisibleColumns)
 		NSLog(@"can't reduce numberOfVisibleColumns yet");  // FIX ME reduce numberOfVisible if > new max
@@ -290,7 +290,7 @@ int i = [_columns count] - 1;
 
 - (void) addColumn
 {
-	int c = [_columns count];
+	NSInteger c = [_columns count];
 	NSScrollView *sc;
 
 	sc = [[NSScrollView alloc] initWithFrame: [self frameOfInsideOfColumn: c]];
@@ -303,7 +303,7 @@ int i = [_columns count] - 1;
 
 - (void) displayAllColumns
 {
-int i, count = [_columns count];
+	NSInteger i, count = [_columns count];
 
 	for (i = 0; i < count; ++i)
 		[self setNeedsDisplayInRect: [self frameOfInsideOfColumn:i]];
@@ -312,7 +312,7 @@ int i, count = [_columns count];
 			[self setNeedsDisplayInRect: [self titleFrameOfColumn: i]];
 }
 
-- (void) displayColumn:(int)column			// FIX ME should display col not
+- (void) displayColumn:(NSInteger)column			// FIX ME should display col not
 {											// just the title
 	if (!(COLUMN_IS_VISIBLE(column)))
 		return;
@@ -357,11 +357,11 @@ int i, count = [_columns count];
 
 - (void) reloadColumn:(NSInteger)column
 { // Make sure the column exists
-int i, rows = 0, cols = 0;
+NSInteger i, rows = 0, cols = 0;
 NSMatrix *m = nil;
 NSScrollView *sc;
 #if 1
-	NSLog(@"reloadColumn:%d", column);
+	NSLog(@"reloadColumn:%ld", (long)column);
 #endif
 	if (column >= (int)[_columns count])
 		return;
@@ -419,16 +419,16 @@ NSScrollView *sc;
 		[[self matrixInColumn: [self lastVisibleColumn]] selectAll: sender];
 }
 
-- (void) setLastColumn:(int)column		
+- (void) setLastColumn:(NSInteger)column
 { 
 #if 1
-	NSLog(@"NSBrowser setLastColumn: %d  count: %d \n", column, [_columns count]);
+	NSLog(@"NSBrowser setLastColumn: %ld  count: %lu \n", (long)column, (unsigned long)[_columns count]);
 #endif
 	if (column >= (int)[_columns count])
 		return;
 	if (([[_columns objectAtIndex: column] documentView]))
 		{
-		int i, count = [_columns count];
+		NSInteger i, count = [_columns count];
 
 		for (i = (column + 1); i < count; ++i)
 			{
@@ -452,7 +452,7 @@ NSScrollView *sc;
 
 - (void) validateVisibleColumns
 {
-int i;
+	NSInteger i;
 										// xxx Should we trigger an exception?
 	if (![_delegate respondsToSelector:@selector(browser:isColumnValid:)])
 		return;	
@@ -468,7 +468,7 @@ int i;
 
 - (void) drawTitle:(NSString *)title 
 			inRect:(NSRect)aRect
-			ofColumn:(int)column
+			ofColumn:(NSInteger)column
 {
 	if (_br.isTitled && COLUMN_IS_VISIBLE(column))
 		{
@@ -477,7 +477,7 @@ int i;
 		}
 }
 
-- (void) setTitle:(NSString *)aString ofColumn:(int)column
+- (void) setTitle:(NSString *)aString ofColumn:(NSInteger)column
 {
 	if (column < [_titles count])
 		[_titles replaceObjectAtIndex:column withObject:aString];
@@ -487,11 +487,11 @@ int i;
 		[self setNeedsDisplayInRect: [self titleFrameOfColumn: column]];
 }
 
-- (NSRect) titleFrameOfColumn:(int)column
+- (NSRect) titleFrameOfColumn:(NSInteger)column
 {
 	CGFloat titleHeight = [self titleHeight];
 	NSRect r;
-	int n;
+	NSInteger n;
 
 	if (!_br.isTitled)								// Not titled then no frame
 		return NSZeroRect;
@@ -509,12 +509,12 @@ int i;
 	return r;
 }
 
-- (NSString*) titleOfColumn:(int)column
+- (NSString*) titleOfColumn:(NSInteger)column
 {
 	return [_titles objectAtIndex: column];
 }
 
-- (void) scrollColumnsLeftBy:(int)shiftAmount
+- (void) scrollColumnsLeftBy:(NSInteger)shiftAmount
 {													// Cannot shift past the
 	if ((_firstVisibleColumn - shiftAmount) < 0)	// zero column
 		shiftAmount = _firstVisibleColumn;
@@ -535,9 +535,9 @@ int i;
 	[self displayAllColumns];
 }
 
-- (void) scrollColumnsRightBy:(int)shiftAmount
+- (void) scrollColumnsRightBy:(NSInteger)shiftAmount
 {
-int lastColumnLoaded = [self lastColumn];			// Cannot shift past the
+NSInteger lastColumnLoaded = [self lastColumn];			// Cannot shift past the
 													// last loaded column
 	if ((shiftAmount + LAST_VISIBLE_COLUMN) > lastColumnLoaded)
 		shiftAmount = lastColumnLoaded - LAST_VISIBLE_COLUMN;
@@ -558,9 +558,9 @@ int lastColumnLoaded = [self lastColumn];			// Cannot shift past the
 	[self displayAllColumns];
 }
 
-- (void) scrollColumnToVisible:(int)column
+- (void) scrollColumnToVisible:(NSInteger)column
 {
-int i;										// If col is last visible or number
+	NSInteger i;										// If col is last visible or number
 											// of visible columns is greater 
 	if (LAST_VISIBLE_COLUMN == column)		// than number loaded do nothing
 		return;
@@ -594,7 +594,7 @@ int i;										// If col is last visible or number
 
 - (void) updateScroller			// If there are not enough columns to scroll
 {								// with then the column must be visible
-int lastColumnLoaded = [self lastColumn];
+	NSInteger lastColumnLoaded = [self lastColumn];
 
 	if((lastColumnLoaded == 0) || (lastColumnLoaded < _numberOfVisibleColumns))
 		{									// disable horiz scroller only if
@@ -617,7 +617,7 @@ int lastColumnLoaded = [self lastColumn];
 
 - (void) doClick:(id)sender					// handle a single click in a cell
 {
-	int column = [self columnOfMatrix: sender];
+	NSInteger column = [self columnOfMatrix: sender];
 	BOOL shouldSelect = YES;
 	NSArray *a;
 											// If the matrix isn't ours then 
@@ -655,7 +655,7 @@ int lastColumnLoaded = [self lastColumn];
 			[self setLastColumn: column];
 		else									// The cell is not a leaf so we 
 			{									// need to load a column.  If 
-			int next = column + 1;				// last column then add a col
+			NSInteger next = column + 1;				// last column then add a col
 
 			if (column == (int)([_columns count] - 1))
 				[self addColumn];
@@ -681,7 +681,7 @@ int lastColumnLoaded = [self lastColumn];
 	[self sendAction: _doubleAction to: [self target]];
 }
 
-- (id) loadedCellAtRow:(int)row column:(int)column		// FIX ME wrong
+- (id) loadedCellAtRow:(NSInteger)row column:(NSInteger)column		// FIX ME wrong
 {
 id c = nil;
 
@@ -704,44 +704,44 @@ id c = nil;
 	return c;
 }
 
-- (NSMatrix*) matrixInColumn:(int)column
+- (NSMatrix*) matrixInColumn:(NSInteger)column
 {
 	return [[_columns objectAtIndex: column] documentView];
 }
 
 - (id) selectedCell
 {
-int i = [self selectedColumn];
+	NSInteger i = [self selectedColumn];
 
 	return (i == NSNotFound) ? nil : [[self matrixInColumn: i] selectedCell];
 }
 
-- (id) selectedCellInColumn:(int)column
+- (id) selectedCellInColumn:(NSInteger)column
 {
 	return [[self matrixInColumn: column] selectedCell];
 }
 
-- (void) selectRow:(int)row inColumn:(int)column;
+- (void) selectRow:(NSInteger)row inColumn:(NSInteger)column;
 {
 	// CHECKME: are we really the same as a doClick or does doClick use us for all work besides sendAction?
 	[self doClick:[[self matrixInColumn: column] cellAtRow:row column:0]];
 }
 
-- (int) selectedRowInColumn:(int)column
+- (NSInteger) selectedRowInColumn:(NSInteger)column
 {
 	return [[self matrixInColumn: column] selectedRow];
 }
 
 - (NSArray*) selectedCells
 {
-int i = [self selectedColumn];
+	NSInteger i = [self selectedColumn];
 
 	return (i == NSNotFound) ? nil : [[self matrixInColumn: i] selectedCells];
 }
 
-- (NSRect) frameOfColumn:(int)column
+- (NSRect) frameOfColumn:(NSInteger)column
 {													// Number of columns over
-int n = column - _firstVisibleColumn;				// from the first 
+NSInteger n = column - _firstVisibleColumn;				// from the first
 NSRect r = {{n * _columnSize.width, 0}, _columnSize};
 
 	if (_br.separatesColumns)
@@ -753,7 +753,7 @@ NSRect r = {{n * _columnSize.width, 0}, _columnSize};
 	return r;
 }
 
-- (NSRect) frameOfInsideOfColumn:(int)column
+- (NSRect) frameOfInsideOfColumn:(NSInteger)column
 {
 NSRect r = [self frameOfColumn: column];
 
@@ -763,7 +763,7 @@ NSRect r = [self frameOfColumn: column];
 - (BOOL) setPath:(NSString *)path					
 { 
 	NSArray *subStrings = [path componentsSeparatedByString:_pathSeparator];
-	int numberOfSubStrings, i, count = [_columns count] - 1;
+	NSInteger numberOfSubStrings, i, count = [_columns count] - 1;
 #if 1
 	NSLog(@"NSBrowser setPath:%@ -> %@", path, subStrings);
 #endif
@@ -786,7 +786,7 @@ NSRect r = [self frameOfColumn: column];
 		{											// created from path
 		NSMatrix *matrix = [[_columns objectAtIndex: i-1] documentView];
 		NSArray *cells = [matrix cells];
-		int j, k, numOfRows, numOfCols;
+		NSInteger j, k, numOfRows, numOfCols;
 		NSBrowserCell *selectedCell, *matchingCell = nil;	
 		NSString *a = [subStrings objectAtIndex:i];
 
@@ -799,7 +799,7 @@ NSRect r = [self frameOfColumn: column];
 
 				if([[selectedCell stringValue] isEqualToString: a])
 					{
-					int r, c;
+					NSInteger r, c;
 	
 					k = numOfCols;
 					j = numOfRows;
@@ -836,10 +836,10 @@ NSRect r = [self frameOfColumn: column];
 	return [self pathToColumn: [_columns count]];
 }
 
-- (NSString*) pathToColumn:(int)column
+- (NSString*) pathToColumn:(NSInteger)column
 {
 NSMutableString *s = [_pathSeparator mutableCopy];
-int i, lastColumnLoaded = [self lastColumn];
+NSInteger i, lastColumnLoaded = [self lastColumn];
 id c;
 
 	if (column > lastColumnLoaded)
@@ -890,8 +890,8 @@ id c;
 
 - (void) tile									// assume that frame and bounds
 {												// have been set appropriately
-	int columnsPossible = (int)(NSWidth(_frame) / (_minColumnWidth + COLUMN_SEP));
-	int currentVisibleColumns = _numberOfVisibleColumns;
+	NSInteger columnsPossible = (int)(NSWidth(_frame) / (_minColumnWidth + COLUMN_SEP));
+	NSInteger currentVisibleColumns = _numberOfVisibleColumns;
 #if 1
 	NSLog (@"NSBrowser tile");
 #endif
@@ -920,8 +920,8 @@ id c;
 			{
 			if(_firstVisibleColumn > 0)
 				{
-				int c = _numberOfVisibleColumns - currentVisibleColumns;
-				int d = MAX([_columns count] - currentVisibleColumns, 1);
+				NSInteger c = _numberOfVisibleColumns - currentVisibleColumns;
+				NSInteger d = MAX([_columns count] - currentVisibleColumns, 1);
 
 				[self scrollColumnsLeftBy: MIN(d, c)];
 				}
@@ -930,7 +930,7 @@ id c;
 			}
 		else
 			{
-			int c = currentVisibleColumns - _numberOfVisibleColumns;
+			NSInteger c = currentVisibleColumns - _numberOfVisibleColumns;
 
 			if ([_columns count] > _numberOfVisibleColumns)
 				[self scrollColumnsRightBy: c];
@@ -942,7 +942,7 @@ id c;
 
 - (void) drawRect:(NSRect)rect
 {
-int i;
+	NSInteger i;
  
 	if (!_isLoaded)						// Load the first column if not already
 		{								// loaded

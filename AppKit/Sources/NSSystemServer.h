@@ -62,7 +62,7 @@
 	/* request&cancel user attention for a given application */
 
 - (int) requestUserAttention:(NSRequestUserAttentionType) requestType forApplication:(byref NSApplication *) app;
-- (oneway void) cancelUserAttentionRequest:(int) request;
+- (oneway void) cancelUserAttentionRequest:(NSInteger) request;
 
 	/* system wide inking service */
 

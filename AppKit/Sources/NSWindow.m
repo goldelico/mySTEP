@@ -184,7 +184,7 @@ static BOOL __cursorHidden = NO;
 #if 0
 		NSLog(@"init theme frame 2: subviews=%@", sub_views);
 #endif
-		_style=aStyle;
+		_style=(unsigned int) aStyle;
 		_drawsResizeIndicator=(_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle);
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
 		[self setAutoresizesSubviews:YES];
@@ -832,7 +832,7 @@ static NSButtonCell *sharedCell;
 				[sharedCell setImageScaling:NSImageScaleProportionallyUpOrDown];
 				[sharedCell setShowsFirstResponder:NO];
 				[sharedCell setImageDimsWhenDisabled:YES];
-				[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
+				[sharedCell setAction:@selector(self)];	// so that the cell calls our sendAction:to: method
 				}
 			switch([_toolbar displayMode]) {
 				case NSToolbarDisplayModeDefault:
@@ -904,7 +904,7 @@ static NSButtonCell *sharedCell;
 										}
 									if(j == i)
 										{ // if it does not suffice, kick out items with lower priority
-											int prio=[item visibilityPriority];
+											NSInteger prio=[item visibilityPriority];
 											for(j=0; j<i; j++)
 												{
 												other=[items objectAtIndex:j];
@@ -1293,7 +1293,7 @@ static NSButtonCell *sharedCell;
 - (void) dealloc
 {
 #if 1
-	NSLog(@"dealloc - rc=%d %p %@", [self retainCount], self, self);
+	NSLog(@"dealloc - rc=%lu %p %@", (unsigned long)[self retainCount], self, self);
 #endif
 	[self setDelegate:nil];	// release delegate
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:nil];	// remove us as observers
@@ -1403,7 +1403,7 @@ static NSButtonCell *sharedCell;
 			_userSpaceScaleFactor=[_screen userSpaceScaleFactor];	// ask the screen
 #endif
 		_w.backingType = bufferingType;
-		_w.styleMask = aStyle;
+		_w.styleMask = (unsigned int) aStyle;
 		_w.viewsNeedDisplay = NO;	// will be set by first expose
 		_w.autodisplay = YES;	// default is YES
 		_w.optimizeDrawing = YES;
@@ -1549,7 +1549,7 @@ static NSButtonCell *sharedCell;
 	return _fieldEditor;							
 }
 
-- (int) level								{ return _level; }
+- (NSInteger) level							{ return _level; }
 - (BOOL) canHide							{ return _w.canHide; }
 - (BOOL) hidesOnDeactivate					{ return _w.hidesOnDeactivate; }
 - (BOOL) isMiniaturized						{ return _w.miniaturized; }
@@ -1677,11 +1677,11 @@ static NSButtonCell *sharedCell;
 }
 
 - (void) orderWindow:(NSWindowOrderingMode) place 
-		  relativeTo:(int) otherWin
+		  relativeTo:(NSInteger) otherWin
 { // main interface call
 #if 1
 	NSString *str[]={ @"Below", @"Out", @"Above" };
-	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
+	NSLog(@"orderWindow:NSWindow%@ relativeTo:%ld - %@", str[place+1], (long)otherWin, self);
 #endif
 	if(place == NSWindowOut)
 		{ // close window
@@ -1701,9 +1701,9 @@ static NSButtonCell *sharedCell;
 		if(!otherWin)
 			{ // find first/last window on same level to place in front/behind
 				int i;
-				int thisWin=[self windowNumber];
-				int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
-				int *list=(int *) objc_malloc(n*sizeof(*list));	// allocate buffer
+				NSInteger thisWin=[self windowNumber];
+				NSInteger n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
+				NSInteger *list=(NSInteger *) objc_malloc(n*sizeof(*list));	// allocate buffer
 				[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order, i.e. highest to lowest levels)
 #if 0
 				{
@@ -1723,7 +1723,7 @@ static NSButtonCell *sharedCell;
 #endif
 				for(i=0; i<n; i++)
 					{ // go from front to back to find insertion position
-						int level;
+						NSInteger level;
 						if(list[i] == thisWin)
 							continue;	// skip ourselves in calculating new position
 						level=[NSWindow _getLevelOfWindowNumber:list[i]];	// BACKEND extension
@@ -1741,7 +1741,7 @@ static NSButtonCell *sharedCell;
 				if(i == n && place == NSWindowAbove)	// did not find an appropriate level (all others have higher level)
 					place=NSWindowBelow, otherWin=0;	// move behind all levels
 #if 1
-				NSLog(@"otherwin = %d", otherWin);
+				NSLog(@"otherwin = %ld", (long)otherWin);
 #endif
 				objc_free(list);
 			}
@@ -1778,7 +1778,7 @@ static NSButtonCell *sharedCell;
 - (void) orderOut:(id) Sender; { [self orderWindow:NSWindowOut relativeTo:0]; }
 - (void) orderFrontRegardless	{ [self orderFront:nil]; }
 
-- (void) setLevel:(int)newLevel
+- (void) setLevel:(NSInteger)newLevel
 {
 	if(_level == newLevel)
 		return;	// unchanged
@@ -2312,7 +2312,7 @@ object:self]
 {
 #if 1
 	NSLog(@"close %p %@", self, self);
-	NSLog(@"retain count %d", [self retainCount]);
+	NSLog(@"retain count %lu", (unsigned long)[self retainCount]);
 	if(_w.releasedWhenClosed)
 		NSLog(@"close %@: releasedWhenClosed", _windowTitle);
 #endif
@@ -2324,7 +2324,7 @@ object:self]
 		{
 #if 1
 		NSLog(@"close %@: releasedWhenClosed", _windowTitle);
-		NSLog(@"our retain count %d", [self retainCount]);
+		NSLog(@"our retain count %lu", (unsigned long)[self retainCount]);
 #endif
 		[self autorelease]; 
 		}
@@ -2881,9 +2881,9 @@ object:self]
 	NSLog(@" title %@", [self title]);
 	NSLog(@" frame %@", NSStringFromRect(frame));
 #endif
-	return [NSString stringWithFormat:@"%@ [%d]: title=%@ frame=%@",
+	return [NSString stringWithFormat:@"%@ [%ld]: title=%@ frame=%@",
 			NSStringFromClass([self class]),
-			[_context _windowNumber],
+			(long)[_context _windowNumber],
 			[self title],
 			NSStringFromRect(_frame)];
 }
@@ -2947,7 +2947,7 @@ object:self]
 
 - (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
 {
-	int _windowNum=[self windowNumber];
+	NSInteger _windowNum=[self windowNumber];
 	[super encodeWithCoder:aCoder];
 	
 	NSDebugLog(@"NSWindow: start encoding\n");

@@ -262,9 +262,9 @@
 
 // Disable rotation of clipview
 
-- (void) rotateByAngle:(float)angle				{ NIMP; }
-- (void) setBoundsRotation:(float)angle			{ NIMP; }
-- (void) setFrameRotation:(float)angle			{ NIMP; }
+- (void) rotateByAngle:(CGFloat)angle				{ NIMP; }
+- (void) setBoundsRotation:(CGFloat)angle			{ NIMP; }
+- (void) setFrameRotation:(CGFloat)angle			{ NIMP; }
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {

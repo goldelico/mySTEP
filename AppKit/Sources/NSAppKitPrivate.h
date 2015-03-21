@@ -170,7 +170,7 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSWindow (NSPrivate)
-+ (float) _titleBarHeightForStyleMask:(NSUInteger) mask /* forScreen:(NSScreen *) screen */;
++ (CGFloat) _titleBarHeightForStyleMask:(NSUInteger) mask /* forScreen:(NSScreen *) screen */;
 - (NSAffineTransform *) _base2screen;
 - (void) _screenParametersNotification:(NSNotification *) notification;
 - (void) _setIsVisible:(BOOL) flag;
@@ -178,6 +178,8 @@ typedef enum _NSRoundedBezelSegments
 - (void) _didExpose:(NSNotification *) n;	// rect of this window became visible and needs to be redrawn
 - (void) _setTexturedBackground:(BOOL) flag;
 - (NSView *) _themeFrame;
+- (void) _attachSheet:(NSWindow *) sheet;
+- (void) _becomeSheet;
 @end
 
 @interface NSFontPanel (NSPrivate)

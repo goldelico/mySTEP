@@ -375,7 +375,7 @@ FT_Library _ftLibrary(void)
 	while(gindex != 0)
 		{ // loop through all glyphs
 			FT_Error error;
-			NSLog(@"char=%04x glyph=%d", charcode, gindex);
+			NSLog(@"char=%04lx glyph=%d", charcode, gindex);
 			error = FT_Load_Glyph(_faceStruct, gindex, FT_LOAD_RENDER);
 			if(!error && slot->bitmap.width > 0 && slot->bitmap.rows > 0)
 				[self _addGlyph:(NSGlyph) gindex bitmap:(char *) slot->bitmap.buffer x:slot->bitmap_left y:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];

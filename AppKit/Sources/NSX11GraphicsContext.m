@@ -163,7 +163,7 @@ inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
 	}
 }
 
-inline static struct RGBA8 Pixel2RGBA8(int depth, unsigned int pixel)
+inline static struct RGBA8 Pixel2RGBA8(NSInteger depth, NSUInteger pixel)
 { // get RGBA8
 	struct RGBA8 dest;
 	// apply calibration curves/tables - we can read the tables from a file on the first call!
@@ -629,7 +629,7 @@ typedef struct
 	XSetWindowAttributes winattrs;
 	XWMHints *wm_hints;
 	NSRect frame;
-	int styleMask;
+	NSUInteger styleMask;
 	NSBackingStoreType backingType;
 	_compositingOperation = NSCompositeCopy;	// this is because we don't call [super _initWithAttributes]
 #if 0
@@ -824,8 +824,8 @@ typedef struct
 {
 	if(_hasRender)
 		{
-		ASSIGN(_state->_fillColor, color);
-		ASSIGN(_state->_strokeColor, color);
+		ASSIGN(_state->_fillColor, (_NSX11Color *)color);
+		ASSIGN(_state->_strokeColor, (_NSX11Color *)color);
 		}
 	else
 		{
@@ -841,7 +841,7 @@ typedef struct
 - (void) _setFillColor:(NSColor *) color;
 {
 	if(_hasRender)
-		ASSIGN(_state->_fillColor, color);
+		ASSIGN(_state->_fillColor, (_NSX11Color *)color);
 	else
 		{
 		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
@@ -856,7 +856,7 @@ typedef struct
 - (void) _setStrokeColor:(NSColor *) color;
 {
 	if(_hasRender)
-		ASSIGN(_state->_strokeColor, color);
+		ASSIGN(_state->_strokeColor, (_NSX11Color *)color);
 	else
 		{
 		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
@@ -1005,12 +1005,12 @@ static int _joinStyles[]=
 typedef struct _PointsForPathState
 {
 	NSBezierPath *path;
-	unsigned element;	// current element being expanded
-	unsigned elements;	// number of elements in path
+	unsigned int element;	// current element being expanded
+	unsigned int elements;	// number of elements in path
 	XPoint *points;		// points array
 	XPoint lastpoint;
 	int npoints;		// number of entries in array
-	unsigned capacity;	// how many elements are allocated
+	unsigned int capacity;	// how many elements are allocated
 } PointsForPathState;
 
 static inline void addPoint(PointsForPathState *state, NSPoint point)
@@ -1067,7 +1067,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSPoint first, current=NSZeroPoint, next;
 	NSBezierPathElement element;
 	if(state->element == 0)
-		state->elements=[state->path elementCount];	// initialize
+		state->elements=(int)[state->path elementCount];	// initialize
 	if(state->element >= state->elements)
 		{ // no more elements
 			if(state->points)
@@ -1224,7 +1224,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			if(state.npoints < 2)
 				region=XCreateRegion();	// create empty region
 			else
-				region=XPolygonRegion(state.points, state.npoints, [path windingRule] == NSNonZeroWindingRule?WindingRule:EvenOddRule);
+				region=XPolygonRegion(state.points, (int)state.npoints, [path windingRule] == NSNonZeroWindingRule?WindingRule:EvenOddRule);
 			}
 		else
 			NSLog(@"can't handle complex winding rules"); // else  FIXME: build the Union or intersection of both (depending on winding rule)
@@ -1242,9 +1242,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 		{
 		PointsForPathState state={ path };	// initializes other struct components with 0
-		float *pattern=NULL;	// FIXME: who is owner of this data? and who takes care not to overflow?
-		int count;
-		float phase;
+		CGFloat *pattern=NULL;	// FIXME: who is owner of this data? and who takes care not to overflow?
+		NSInteger count;
+		CGFloat phase;
 		int width=(_scale != 1.0)?[path lineWidth]*_scale:[path lineWidth];	// multiply with userSpaceScale factor of current NSScreen!
 		if(width < 1)
 			width=1;	// default width
@@ -1265,15 +1265,15 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			int i;
 			for(i = 0; i < count; i++)
 				dash_list[i] = (char) pattern[i];		
-			XSetDashes(_display, _state->_gc, phase, dash_list, count);
+			XSetDashes(_display, _state->_gc, phase, dash_list, (int)count);
 			}
 		while([self _pointsForPath:&state])
 			{
 #if 0
 			NSLog(@"npoints=%d", state.npoints);
 #endif
-			XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
-			_setDirtyPoints(self, state.points, state.npoints);
+			XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, (int)state.npoints, CoordModeOrigin);
+			_setDirtyPoints(self, state.points, (int)state.npoints);
 			}
 		}
 }
@@ -1479,7 +1479,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(!font || font == _state->_font)
 		return;	// change only if needed
 	[_state->_font release];
-	_state->_font=[font retain];
+	_state->_font=(_NSX11Font *)[font retain];
 }
 
 - (void) _beginText;
@@ -1511,27 +1511,27 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	ASSIGN(_textMatrix, tm);
 }
 
-- (void) _setLeading:(float) val;
+- (void) _setLeading:(CGFloat) val;
 { // PDF: x TL
 	_leading=val;
 }
 
-- (void) _setCharSpace:(float) val;
+- (void) _setCharSpace:(CGFloat) val;
 { // PDF: v Tc
 	_characterSpace=val;
 }
 
-- (void) _setHorizontalScale:(float) val;
+- (void) _setHorizontalScale:(CGFloat) val;
 { // PDF: v Tz
 	_horizontalScale=val;
 }
 
-- (void) _setWordSpace:(float) val;
+- (void) _setWordSpace:(CGFloat) val;
 { // PDF: v Tw
 	_wordSpace=val;
 }
 
-- (void) _setBaseline:(float) val;
+- (void) _setBaseline:(CGFloat) val;
 { // PDF: v Ts
 	_rise=val;
 }
@@ -1629,7 +1629,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						  yBy:0.0];		// advance text matrix in horizontal mode according to info from glyph
 }
 
-- (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
+- (void) _drawGlyphs:(NSGlyph *) glyphs count:(NSUInteger) cnt;	// (string) Tj
 {
 	static XChar2b *buf;	// translation buffer (NSGlyph -> XChar2b)
 	static unsigned int buflen;
@@ -1717,11 +1717,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			{
 			XRectangle box;
 			XClipBox(_state->_clip, &box);
-			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_rise+font->ascent+1), NSStringFromXRect(box));
+			NSLog(@"draw %lu glyphs at (%d,%d) clip=%@", (unsigned long)cnt, (int) cursor.x, (int)(cursor.y-_rise+font->ascent+1), NSStringFromXRect(box));
 			}
 #endif
 			if(!buf || cnt > buflen)
-				buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=cnt+20));	// increase translation buffer if needed
+				buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=(unsigned int)cnt+20));	// increase translation buffer if needed
 			if(sizeof(XChar2b) != 2)
 				{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
 					for(i=0; i<cnt; i++)
@@ -1748,7 +1748,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						   But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
 						   */
 						  buf,
-						  cnt);		// Unicode drawing
+						  (int) cnt);		// Unicode drawing
 			if(sizeof(XChar2b) != 2)
 				{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
 					for(i=0; i<cnt; i++)
@@ -1758,7 +1758,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 							buf[i].byte2=g;
 						}
 				}
-			width=XTextWidth16(font, buf, cnt);	// width in pixels
+			width=XTextWidth16(font, buf, (int) cnt);	// width in pixels
 			_setDirtyRect(self,
 						  cursor.x, cursor.y,
 						  width,
@@ -1804,7 +1804,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 #pragma mark Bitmap
 
-- (void) _setFraction:(float) fraction;
+- (void) _setFraction:(CGFloat) fraction;
 {
 	if(fraction > 1.0)
 		_fraction=1.0;
@@ -2047,7 +2047,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		static NSRect unitSquare={{ 0.0, 0.0 }, { 1.0, 1.0 }};
 		NSString *csp;		// color space name
 		int bytesPerRow;
-		float width, height;	// source image width&height
+		CGFloat width, height;	// source image width&height
 		unsigned char *imagePlanes[5];
 		NSPoint origin;			// drawing origin in X11 coords
 		NSRect scanRect;		// dest on screen in X11 coords
@@ -2091,7 +2091,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 		hasAlpha=[rep hasAlpha];
 		isPlanar=[(NSBitmapImageRep *) rep isPlanar];
-		bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
+		bytesPerRow=(int) [(NSBitmapImageRep *) rep bytesPerRow];
 		[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
 		csp=[rep colorSpaceName];
 		calibrated=[csp isEqualToString:NSCalibratedRGBColorSpace];
@@ -2458,14 +2458,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 #pragma mark WindowControl
 
-- (int) _windowNumber; { return _realWindow; }
+- (NSInteger) _windowNumber; { return _realWindow; }
 
-- (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
+- (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(NSInteger) otherWin;
 { // NSWindow frontend should have identified the otherWin number from the global window list or pass 0 if global front/back
 	XWindowChanges values;
 	NSWindow *win=[NSApp windowWithWindowNumber:_realWindow];
 #if 1
-	NSLog(@"_orderWindow: %d %@ %d%@", (int)_realWindow, (place==NSWindowOut?@"out":(place==NSWindowAbove?@"above":@"below")), otherWin, [win isVisible]?@" visible":@"");
+	NSLog(@"_orderWindow: %d %@ %d%@", (int)_realWindow, (place==NSWindowOut?@"out":(place==NSWindowAbove?@"above":@"below")), (int)otherWin, [win isVisible]?@" visible":@"");
 #if 0
 	{
 	char bfr[256];
@@ -2596,20 +2596,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _setTitle:(NSString *) string;
 { // note: it is the task of NSWindow to call this only if setTitle really changes the title
 	XTextProperty windowName;
-	const char *newTitle = [string cString];	// UTF8String??
+	const char *newTitle = [string UTF8String];
 	XStringListToTextProperty((char**) &newTitle, 1, &windowName);
 	XSetWMName(_display, _realWindow, &windowName);
 	XSetWMIconName(_display, _realWindow, &windowName);
 	// XStoreName???
 }
 
-- (void) _setLevel:(int) level andStyle:(int) mask;
+- (void) _setLevel:(NSInteger) level andStyle:(NSInteger) mask;
 { // note: it is the optimization task of NSWindow to call this only if setLevel really changes the level
 	GSAttributes wmattrs;
 #if 0
 	NSLog(@"setLevel %d of window %d (%d)", level, _realWindow, _realWindow);
 #endif
-	wmattrs.window_level = level;
+	wmattrs.window_level = (unsigned int) level;
 	wmattrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
 	wmattrs.window_style = (mask & GSAllWindowMask);		// set WindowMaker WM window style hints
 	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,
@@ -2965,7 +2965,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 					*eventModFlags |= NSAlternateKeyMask;
 				else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
 					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
-				else if ((keysym == XK_Mode_switch))
+				else if (keysym == XK_Mode_switch)
 					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
 			}
 		}
@@ -3150,11 +3150,11 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	for(i=0; requests[i].name; i++)
 		if(requests[i].major == error_event->request_code)
 			break;
-	NSLog(@"  sequence: %u:%u", LastKnownRequestProcessed(display), NextRequest(display));
+	NSLog(@"  sequence: %lu:%lu", LastKnownRequestProcessed(display), NextRequest(display));
 	if(requests[i].name)
-		NSLog(@"  request: %s(%lu).%lu", requests[i].name, error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %s(%hhu).%hhu", requests[i].name, error_event->request_code, error_event->minor_code);
 	else
-		NSLog(@"  request: %lu.%lu", error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %hhu.%hhu", error_event->request_code, error_event->minor_code);
     NSLog(@"  resource: %lu", error_event->resourceid);
 	if(error_event->request_code == 73)
 		return;	// ignore errors from XGetImage until we clip to the real window
@@ -3193,7 +3193,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 
 @implementation NSWindow (NSBackendOverride)
 
-+ (int) _getLevelOfWindowNumber:(int) windowNum;
++ (NSInteger) _getLevelOfWindowNumber:(NSInteger) windowNum;
 { // even if it is not a NSWindow
 	Atom actual_type_return;
 	int actual_format_return;
@@ -3241,6 +3241,8 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	[_NSX11Screen class];
 }
 
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
+
 + (NSArray *) screens
 {
 	static NSMutableArray *screens;
@@ -3273,7 +3275,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 // so is it equivalent to a client ID
 // FIXME: how is the stacking order defined for multiple screens?
 
-+ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL. Then, return # of entries copied
++ (int) _systemWindowListForContext:(NSInteger) context size:(NSInteger) size list:(NSInteger *) list;	// list may be NULL. Then, return # of entries copied
 { // get window numbers of visible windows from front to back
 	int i, j, s;
 	static Window *children;	// list of children (cached)
@@ -3282,12 +3284,12 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	for(s=0; s<ScreenCount(_display) && j<size; s++)
 		{ // loop over all screens (this mixes up the stacking order!)
 #if 1
-			NSLog(@"XQueryTree for screen %d (size=%d list=%p)", s, size, list);
+			NSLog(@"XQueryTree for screen %d (size=%ld list=%p)", s, (long)size, list);
 #endif
 			if(!list || !children)
 				{ // asking for number of windows only or not yet cached
 					Window root, parent;
-					nchildren=size;
+					nchildren=(unsigned int) size;
 					// NOTE: XQueryTree could fail since it does not return appropriate stacking order for child windows with different parent!
 					// but all our windows are children of the root window
 					if(!XQueryTree(_display, RootWindowOfScreen(XScreenOfDisplay(_display, s)), &root, &parent, &children, &nchildren))
@@ -3338,7 +3340,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	return nil;
 }
 
-- (NSWindow *) windowWithWindowNumber:(int) windowNum;
+- (NSWindow *) windowWithWindowNumber:(NSInteger) windowNum;
 {
 #if 0
 	NSLog(@"_windowForNumber %d -> %@", windowNum, NSMapGet(__WindowNumToNSWindow, (void *) windowNum));
@@ -3443,9 +3445,9 @@ static NSFileHandle *fh;
 	[[n object] waitForDataInBackgroundAndNotifyForModes:_XRunloopModes];
 }
 
-- (float) userSpaceScaleFactor;
+- (CGFloat) userSpaceScaleFactor;
 { // get dots per point	
-	static float factor=0.0;
+	static CGFloat factor=0.0;
 	if(factor <= 0.01)
 		{
 		// FIXME: read from user defaults!
@@ -3570,7 +3572,7 @@ static NSFileHandle *fh;
 	return YES;
 }
 
-- (int) _keyWindowNumber;
+- (NSInteger) _keyWindowNumber;
 { // returns the global focus window number (may be on a different screen!)
 	Window focus;
 	int revert_to;
@@ -3609,9 +3611,9 @@ static NSFileHandle *fh;
 		{
 		// FIXME: the lastXWin/lastMotionEvent mechanism isn't used any more
 		static Window lastXWin=None;		// last window (cache key)
-		static int windowNumber;			// number of lastXWin
+		static NSInteger windowNumber;		// number of lastXWin
 		static int windowHeight;			// attributes of lastXWin (signed so that we can calculate windowHeight-y and return negative coordinates)
-		static float windowScale;			// scaling factor
+		static CGFloat windowScale;			// scaling factor
 		static NSEvent *lastMotionEvent=nil;
 		static Time timeOfLastClick = 0;
 		static int clickCount = 1;
@@ -3718,6 +3720,7 @@ static NSFileHandle *fh;
 								  modifierFlags:__modFlags
 									  timestamp:X11toTimestamp(xe.xbutton)
 								   windowNumber:windowNumber
+					 // FIXME: this should send some graphics context!
 										context:self
 									eventNumber:xe.xbutton.serial
 									 clickCount:clickCount
@@ -3909,7 +3912,7 @@ static NSFileHandle *fh;
 #if 1
 				{
 				int idx;
-				NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
+				NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%lu:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
 				for(idx=0; idx < 8; idx++)
 					NSLog(@"%d: %08lx", idx, XLookupKeysym(&xe.xkey, idx));
 				/* it looks as if Apple X11 delivers
@@ -4171,7 +4174,7 @@ static NSFileHandle *fh;
 	event.same_screen=([win screen] == self);
 	// FIXME: translate Cocoa keycodes and modifier flags to what X11 expects!
 	event.keycode = [e keyCode];
-	event.state = [e modifierFlags];	
+	event.state = (unsigned int)[e modifierFlags];
 	XSendEvent(event.display, event.window, True, mask, (XEvent *) &event);
 }
 
@@ -4244,7 +4247,7 @@ static NSFileHandle *fh;
 				}
 			if(!self || !scr || !XAllocColor(_display, XDefaultColormapOfScreen(scr), _colorData))
 				{
-				NSLog(@"Unable to allocate color %@ for X11 Screen %08x", color, scr);
+				NSLog(@"Unable to allocate color %@ for X11 Screen %p", color, scr);
 				return 0;
 				}
 		}
@@ -4322,7 +4325,7 @@ static NSFileHandle *fh;
 	return self;
 }
 
-- (void) _setScale:(float) scale;
+- (void) _setScale:(CGFloat) scale;
 { // scale font
 	scale*=10.0;
 	if(_fontScale != scale)
@@ -4413,7 +4416,7 @@ static NSFileHandle *fh;
 #if 1
 		NSLog(@"try %@", xf);
 #endif
-		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
+		if((_fontStruct = XLoadQueryFont(_display, [xf UTF8String])))	// Load X font
 			return _fontStruct;
 		xWeight="*";	// try any weight
 		xf=[NSString stringWithFormat: @"-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s",
@@ -4423,7 +4426,7 @@ static NSFileHandle *fh;
 #if 1
 		NSLog(@"try %@", xf);
 #endif
-		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
+		if((_fontStruct = XLoadQueryFont(_display, [xf UTF8String])))	// Load X font
 			return _fontStruct;
 		xFamily="*";	// try any family
 		xf=[NSString stringWithFormat: @"-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s",
@@ -4433,7 +4436,7 @@ static NSFileHandle *fh;
 #if 1
 		NSLog(@"try %@", xf);
 #endif
-		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
+		if((_fontStruct = XLoadQueryFont(_display, [xf UTF8String])))	// Load X font
 			return _fontStruct;
 		NSLog(@"font: %@ is not available", xf);
 		NSLog(@"Trying 9x15 system font instead");			
@@ -4448,7 +4451,7 @@ static NSFileHandle *fh;
 	return _fontStruct;
 }
 
-- (float) _widthOfAntialisedString:(NSString *) string;
+- (CGFloat) _widthOfAntialisedString:(NSString *) string;
 { // overwritten by NSFreeTypeFont.m
 	NSLog(@"can't determine width of antialiased strings");
 	return 0.0;
@@ -4603,7 +4606,7 @@ static NSFileHandle *fh;
 - (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;
 { // get Picture to render
 	_CachedGlyph g;
-	if(!_glyphCache || !(g=NSMapGet(_glyphCache, (void *) glyph)))
+	if(!_glyphCache || !(g=NSMapGet(_glyphCache, (void *) (NSUInteger)glyph)))
 		{ // not found
 			if(!_glyphCache)	// create map table
 				_glyphCache=NSCreateMapTable(NSIntMapKeyCallBacks,
@@ -4612,7 +4615,7 @@ static NSFileHandle *fh;
 				; // handle LRU cleanup
 			g=[self _defineGlyph:(NSGlyph) glyph];	// overwritten in NSFreeTypeFont.m
 			if(g)
-				NSMapInsert(_glyphCache, (void *) glyph, (void *) g);
+				NSMapInsert(_glyphCache, (void *) (NSUInteger) glyph, (void *) g);
 		}
 #if 0
 	NSLog(@"font %p glyph %d -> %p", self, glyph, g);
@@ -4621,21 +4624,21 @@ static NSFileHandle *fh;
 	return g;
 }
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(NSUInteger) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 { // overwritten by NSFreeTypeFont.m
 	NSLog(@"can't draw antialiased fonts");
 }
 
 // DEPRECATED SINCE 10.4 BECAUSE THIS DEPENDS ON CHARACTER ENCODING AND WRITING DIRECTION
 
-- (float) widthOfString:(NSString *) string;
+- (CGFloat) widthOfString:(NSString *) string;
 { // get size from X11 font assuming no scaling
 	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		{
 		static XChar2b *buf;	// translation buffer (unichar -> XChar2b)
 		static unsigned int buflen;
 		unsigned int i;
-		unsigned length=[string length];
+		NSUInteger length=[string length];
 		float width;
 		SEL cai=@selector(characterAtIndex:);
 		typedef unichar (*CAI)(id self, SEL _cmd, int i);
@@ -4644,7 +4647,7 @@ static NSFileHandle *fh;
 		NSLog(@"widthOfString:%@ font:%@", string, _state->_font);
 #endif
 		if(!buf || length > buflen)
-			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=length+20));	// increase translation buffer if needed
+			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=(unsigned int)length+20));	// increase translation buffer if needed
 		if(!_unscaledFontStruct)
 			{
 			_fontScale=10.0;
@@ -4660,7 +4663,7 @@ static NSFileHandle *fh;
 			buf[i].byte1=c>>8;
 			buf[i].byte2=c;
 			}
-		width=XTextWidth16(_unscaledFontStruct, buf, length);
+		width=XTextWidth16(_unscaledFontStruct, buf, (int) length);
 #if 0
 		NSLog(@"%@[%@] -> %f (C: %d)", self, string, width, XTextWidth(_fontStruct, [string cString], length));
 #endif
@@ -4743,11 +4746,11 @@ static NSFileHandle *fh;
 					{
 #if 1
 					NSLog(@"convert to PixmapCursor: %@", self);
-					NSLog(@"  bestRep = ", bestRep);
+					NSLog(@"  bestRep = %@", bestRep);
 #endif
 					Drawable root=RootWindowOfScreen(XScreenOfDisplay(_display, 0));
-					int width=[bestRep pixelsWide];
-					int height=[bestRep pixelsHigh];
+					int width=(int)[bestRep pixelsWide];
+					int height=(int)[bestRep pixelsHigh];
 					int x, y;
 					XColor fg, bg;	// color for 1 and 0 bits resp.
 					XGCValues attribs;
@@ -4758,7 +4761,7 @@ static NSFileHandle *fh;
 						{ // this loop is quite slow but we shouldn't change cursors very often
 							for(y=0; y<height; y++)
 								{ // fill pixmaps with cursor image
-									unsigned int planes[5]; // we assume RGBA
+									NSUInteger planes[5]; // we assume RGBA
 									BOOL alpha, white;
 									[bestRep getPixel:planes atX:x y:(height-1)-y];
 									white=299*planes[0]+587*planes[1]+114*planes[2] > 500*255;		// based on weighted intensity
@@ -4873,7 +4876,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 	int nedges=0;
 	int edgescapacity=0;
 	int *bends;	// sorted array along the y axis
-	int npoints=0;
+	NSInteger npoints=0;
 	int i;
 	NSPoint first;
 	// FIXME: use a different flag to indicate that we need recaching of the flattened path
@@ -4883,7 +4886,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 			_flattenedPath=nil;
 			[_strokedPath release];	// must be rebuilt
 			_strokedPath=nil;
-			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+			_flattenedPath=(_NSX11BezierPath *)[[self bezierPathByFlatteningPath] retain];	// needs flattening first
 		}
 	if(_flattenedPath)
 		{ // fill flattened version
@@ -5032,7 +5035,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 			_flattenedPath=nil;
 			[_strokedPath release];	// must be rebuilt
 			_strokedPath=nil;
-			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+			_flattenedPath=(_NSX11BezierPath *)[[self bezierPathByFlatteningPath] retain];	// needs flattening first
 		}
 	if(_flattenedPath)
 		{ // stroke flattened version
@@ -5079,7 +5082,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 		int i;
 		BOOL first = NO;
 		NSLog(@"create stroke path");
-		_strokedPath=[[NSBezierPath alloc] init];
+		_strokedPath=(_NSX11BezierPath *)[[NSBezierPath alloc] init];
 		for(i = 0; i < _count; i++)
 			{
 			NSBezierPathElement type=[self elementAtIndex: i associatedPoints: pts];
@@ -5135,7 +5138,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 	[_strokedPath _fill:context color:color];
 }
 
-- (void) setFlatness:(float)flatness
+- (void) setFlatness:(CGFloat)flatness
 {
 	_flatness = flatness;
 	[_flattenedPath release];

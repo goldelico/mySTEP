@@ -42,7 +42,7 @@ enum
     CGFloat _minWidth;
     CGFloat _maxWidth;
     NSTableView *_tableView;
-    NSTableHeaderCell *_headerCell;
+    NSCell *_headerCell;
     NSCell *_dataCell;
     NSSortDescriptor *_sortDescriptor;
     struct __colFlags {

@@ -34,7 +34,7 @@ static NSString	*__timers = @"NSEventTimersKey";
 
 + (NSEvent *) enterExitEventWithType:(NSEventType)t	
 							location:(NSPoint)location
-							modifierFlags:(NSUInteger)flags
+							modifierFlags:(NSEventModifierFlags)flags
 							timestamp:(NSTimeInterval)time
 							windowNumber:(NSInteger)windowNum
 							context:(NSGraphicsContext *)context	
@@ -63,7 +63,7 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) keyEventWithType:(NSEventType)type
 					  location:(NSPoint)location
-					  modifierFlags:(NSUInteger)flags
+					  modifierFlags:(NSEventModifierFlags)flags
 					  timestamp:(NSTimeInterval)time
 					  windowNumber:(NSInteger)windowNum
 					  context:(NSGraphicsContext *)context	
@@ -100,7 +100,7 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) mouseEventWithType:(NSEventType)t	
 						location:(NSPoint)location
-						modifierFlags:(NSUInteger)flags
+						modifierFlags:(NSEventModifierFlags)flags
 						timestamp:(NSTimeInterval)time
 						windowNumber:(NSInteger)windowNum
 						context:(NSGraphicsContext *)context 
@@ -129,7 +129,7 @@ NSEvent *e = [[NSEvent new] autorelease];
 
 + (NSEvent *) otherEventWithType:(NSEventType)t	
 						location:(NSPoint)location
-						modifierFlags:(NSUInteger)flags
+						modifierFlags:(NSEventModifierFlags)flags
 						timestamp:(NSTimeInterval)time
 						windowNumber:(NSInteger)windowNum
 						context:(NSGraphicsContext *)context 
@@ -262,10 +262,10 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 - (NSGraphicsContext *) context			{ return event_context; }
 - (NSPoint) locationInWindow	{ return location_point; }
-- (NSEventModifierFlags) modifierFlags	{ return modifier_flags; }
+- (NSEventModifierFlags) modifierFlags	{ return (NSEventModifierFlags) modifier_flags; }
 - (NSTimeInterval) timestamp	{ return event_time; }
 - (NSEventType) type			{ return event_type; }
-- (int) windowNumber			{ return _windowNum; }
+- (NSInteger) windowNumber			{ return _windowNum; }
 
 - (NSWindow *) window
 {
@@ -300,14 +300,14 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.key.key_code;
 }
 
-- (int) clickCount										// Mouse Event Info
+- (NSInteger) clickCount										// Mouse Event Info
 {
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
 		return 0;										// must be mouse event
 	return event_data.mouse.click;
 }
 
-- (int) eventNumber
+- (NSInteger) eventNumber
 {
 	if ((event_type == NSMouseEntered) || (event_type == NSMouseExited) || (event_type == NSCursorUpdate))
 		return event_data.tracking.event_num;
@@ -344,7 +344,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.mouse.pressure;
 }
 
-- (int) trackingNumber									// Tracking Event Info
+- (NSInteger) trackingNumber									// Tracking Event Info
 {
 	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited) && (event_type != NSCursorUpdate))
 		[NSException raise:NSInternalInconsistencyException format:@"trackingNumber not defined for %@", self];
@@ -358,7 +358,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.tracking.user_data;
 }
 
-- (int) data1											// Special Events info
+- (NSInteger) data1											// Special Events info
 {
 	switch(event_type)
 		{
@@ -373,7 +373,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return event_data.misc.data1;
 }
 
-- (int) data2
+- (NSInteger) data2
 {
 	switch(event_type)
 		{
@@ -617,23 +617,23 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSScrollWheel:
 			return [NSString stringWithFormat:
 				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %d, Context = %p,"
-				@" event number = %d, click = %d, pressure = %f",
+				@" time = %f, window = %ld, Context = %p,"
+				@" event number = %ld, click = %ld, pressure = %f",
 				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, _windowNum, event_context,
-				event_data.mouse.event_num, event_data.mouse.click,
+				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				(long)event_data.mouse.event_num, (long)event_data.mouse.click,
 				event_data.mouse.pressure];
 	
 		case NSMouseEntered:
 		case NSMouseExited:
 			return [NSString stringWithFormat:
 				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %d, Context = %p, "
-				@" event number = %d, tracking number = %d, user data = %p",
+				@" time = %f, window = %ld, Context = %p, "
+				@" event number = %ld, tracking number = %ld, user data = %p",
 				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, _windowNum, event_context,
-				event_data.tracking.event_num,
-				event_data.tracking.tracking_num,
+				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				(long)event_data.tracking.event_num,
+				(long)event_data.tracking.tracking_num,
 				event_data.tracking.user_data];
 	
 		case NSKeyDown:
@@ -641,10 +641,10 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSFlagsChanged:
 			return [NSString stringWithFormat:
 				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %d, Context = %p, "
+				@" time = %f, window = %ld, Context = %p, "
 				@" repeat = %s, keys = %@, ukeys = %@, keyCode = 0x%x",
 				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, _windowNum, event_context,
+				[self _modifier_flags], event_time, (long)_windowNum, event_context,
 				(event_data.key.repeat ? "YES" : "NO"),
 				event_data.key.char_keys, event_data.key.unmodified_keys,
 				event_data.key.key_code];
@@ -656,12 +656,12 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSApplicationDefined:
 			return [NSString stringWithFormat:
 				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %d, Context = %p, "
-				@" subtype = %d, data1 = %x, data2 = %x",
+				@" time = %f, window = %ld, Context = %p, "
+				@" subtype = %d, data1 = %lx, data2 = %lx",
 				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, _windowNum, event_context,
-				event_data.misc.sub_type, event_data.misc.data1,
-				event_data.misc.data2];
+				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				event_data.misc.sub_type, (long)event_data.misc.data1,
+				(long)event_data.misc.data2];
 		case NSTabletPoint:
 		case NSTabletProximity:
 			// NIMP;

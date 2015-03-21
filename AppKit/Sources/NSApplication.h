@@ -113,7 +113,7 @@ extern id NSApp;					// NSApp global var
 	IBOutlet NSTextField *_copyright;
 	IBOutlet NSTextField *_applicationVersion;
 			
-	int _windowItems;					// counter for explicitly added/removed menu items
+	NSInteger _windowItems;					// counter for explicitly added/removed menu items
 
 	struct __appFlags {
 		unsigned int isRunning:1;

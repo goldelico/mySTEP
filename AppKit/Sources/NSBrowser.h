@@ -60,9 +60,9 @@ typedef NSUInteger NSBrowserDropOperation;
 	CGFloat _minColumnWidth;
 	CGFloat _preferedColumnWidth;
 	NSBrowserColumnResizingType _columnResizing;
-	int _numberOfVisibleColumns;
-	int _firstVisibleColumn;
-	int _maxVisibleColumns;
+	NSInteger _numberOfVisibleColumns;
+	NSInteger _firstVisibleColumn;
+	NSInteger _maxVisibleColumns;
 	BOOL _isLoaded;
 	
 	struct __BrowserFlags {
@@ -104,7 +104,7 @@ typedef NSUInteger NSBrowserDropOperation;
 - (CGFloat) columnWidthForColumnContentWidth:(CGFloat) colWith;
 - (id) delegate;										// delegate
 - (void) displayAllColumns;
-- (void) displayColumn:(int) col;
+- (void) displayColumn:(NSInteger) col;
 - (void) doClick:(id) sender;							// Event Handling
 - (void) doDoubleClick:(id) sender;
 - (SEL) doubleAction;	// Target / Action
@@ -114,7 +114,7 @@ typedef NSUInteger NSBrowserDropOperation;
 									   offset:(NSPointPointer) offset;
 - (NSDragOperation) draggingSourceOperationMaskForLocal:(BOOL) dest;
 - (void) drawTitleOfColumn:(NSInteger) col inRect:(NSRect) rect;
-- (void) drawTitle:(NSString *) title inRect:(NSRect) rect ofColumn:(int) col; /* THIS METHOD DOESNT EXIST IN API */
+- (void) drawTitle:(NSString *) title inRect:(NSRect) rect ofColumn:(NSInteger) col; /* THIS METHOD DOESNT EXIST IN API */
 - (NSInteger) firstVisibleColumn;
 - (NSRect) frameOfColumn:(NSInteger) col;					// Column Frames
 - (NSRect) frameOfInsideOfColumn:(NSInteger) col;

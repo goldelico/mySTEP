@@ -83,7 +83,7 @@ enum {
 	NSFont *_keyEquivalentFont;
 	NSColor *_backgroundColor;
 	NSImage *_image;	// image that is currently drawn (FIXME: should not be an iVar)
-	NSString *_title;
+	id _title;
 	NSUInteger _keyEquivalentModifierMask;
 	NSUInteger _highlightMask;
 	NSUInteger _stateMask;

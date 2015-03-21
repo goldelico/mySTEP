@@ -133,7 +133,7 @@ typedef struct _CachedGlyph
 - (void) _setScale:(CGFloat) scale;		// set font scaling factor
 - (XFontStruct *) _font;				// X11 bitmap font
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(NSUInteger) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 
 - (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;	// get cached Picture to render
 // - (GlyphSet) _glyphSet;

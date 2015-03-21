@@ -27,7 +27,7 @@
 	return NO;
 }
 
-+ (int) uniqueSpellDocumentTag
++ (NSInteger) uniqueSpellDocumentTag
 {
   return 0;
 }
@@ -48,14 +48,14 @@
 //
 // Checking Spelling 
 //
-- (int)countWordsInString:(NSString *)aString
+- (NSInteger)countWordsInString:(NSString *)aString
 		 		 language:(NSString *)language
 {
   return 0;
 }
 
 - (NSRange)checkSpellingOfString:(NSString *)stringToCheck
-		      startingAt:(int)startingOffset
+		      startingAt:(NSInteger)startingOffset
 {
   NSRange r;
 
@@ -63,11 +63,11 @@
 }
 
 - (NSRange)checkSpellingOfString:(NSString *)stringToCheck
-		     		  startingAt:(int)startingOffset
+		     		  startingAt:(NSInteger)startingOffset
 					  language:(NSString *)language
 		      		  wrap:(BOOL)wrapFlag
-					  inSpellDocumentWithTag:(int)tag
-		      		  wordCount:(int *)wordCount
+					  inSpellDocumentWithTag:(NSInteger)tag
+		      		  wordCount:(NSInteger *)wordCount
 {
 NSRange r;
 
@@ -84,22 +84,22 @@ NSRange r;
   return NO;
 }
 
-- (void)closeSpellDocumentWithTag:(int)tag
+- (void)closeSpellDocumentWithTag:(NSInteger)tag
 {
 }
 
 - (void)ignoreWord:(NSString *)wordToIgnore
-		inSpellDocumentWithTag:(int)tag
+		inSpellDocumentWithTag:(NSInteger)tag
 {
 }
 
-- (NSArray *)ignoredWordsInSpellDocumentWithTag:(int)tag
+- (NSArray *)ignoredWordsInSpellDocumentWithTag:(NSInteger)tag
 {
   return nil;
 }
 
 - (void)setIgnoredWords:(NSArray *)someWords
-		inSpellDocumentWithTag:(int)tag
+		inSpellDocumentWithTag:(NSInteger)tag
 {
 }
 

@@ -138,11 +138,11 @@ static Class __controlClass;
 
 // Target / Action
 - (SEL) action							{ return action; }
-- (int) tag								{ return tag; }
+- (NSInteger) tag							{ return tag; }
 - (id) target							{ return target; }
 - (void) setAction:(SEL)aSelector		{ action = aSelector; }
 - (void) setControlView:(NSView*) controlView; { [super setControlView:controlView]; }
-- (void) setTag:(int)anInt				{ tag = anInt; }
+- (void) setTag:(NSInteger)anInt		{ tag = anInt; }
 - (void) setTarget:(id)anObject			{ target = anObject; }
 
 - (NSString *) stringValue;

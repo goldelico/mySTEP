@@ -114,22 +114,22 @@
 	[_tableView setDataSource:self];
 }
 
-- (void) selectItemAtIndex:(int)index
+- (void) selectItemAtIndex:(NSInteger)index
 {
 	[_tableView selectRow:index byExtendingSelection:NO];
 }
 
-- (void) deselectItemAtIndex:(int)index
+- (void) deselectItemAtIndex:(NSInteger)index
 {
 	[_tableView deselectRow:index];
 }
 
-- (int) indexOfSelectedItem
+- (NSInteger) indexOfSelectedItem
 {
 	return [_tableView selectedRow];
 }
 
-- (int) numberOfItems
+- (NSInteger) numberOfItems
 {
 #if 0
 	NSLog(@"numberOfItems: %@", self);
@@ -139,7 +139,7 @@
     return [_popUpList count];
 }
 
-- (int) numberOfVisibleItems			{ return _visibleItems; }
+- (NSInteger) numberOfVisibleItems			{ return _visibleItems; }
 - (BOOL) hasVerticalScroller			{ return YES; }
 - (NSSize) intercellSpacing				{ return _intercellSpacing; }
 - (CGFloat) itemHeight					{ return _itemHeight; }

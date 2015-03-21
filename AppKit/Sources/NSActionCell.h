@@ -28,7 +28,7 @@
 
 @interface NSActionCell : NSCell  <NSCopying, NSCoding>
 {
-	int tag;
+	NSInteger tag;
 	id target;
 	SEL action;
 }
@@ -49,7 +49,7 @@
 - (void) setFont:(NSFont *) font;				// -> NSCell
 - (void) setImage:(NSImage *) image;
 - (void) setObjectValue:(id <NSCopying>) object;
-- (void) setTag:(int) tag;								// Integer Tag
+- (void) setTag:(NSInteger) tag;								// Integer Tag
 - (void) setTarget:(id) target;
 - (NSString *) stringValue;
 - (NSInteger) tag;

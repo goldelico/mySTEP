@@ -697,10 +697,10 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 				if([subst length] > 0)
 					ASSIGN(_resourceName, subst);			// try to load that one
 				}
-			img=[[NSImage _imageNamed:_resourceName inBundle:[[(NSKeyedUnarchiver *) coder delegate] _bundle]] retain];
+			img=[[NSImage _imageNamed:_resourceName inBundle:[(NSNib *)[(NSKeyedUnarchiver *) coder delegate] _bundle]] retain];
 			if(!img)
 				NSLog(@"NSCustomResource did not find NSImage: %@", _resourceName);
-			return img;
+			return (NSCustomResource *) img;
 			}
 #if 0
 		NSLog(@"NSCustomResource initializedWithCoder: %@", self);
@@ -753,7 +753,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (NSImage *) buttonImageForCell:(NSButtonCell *) cell;
 {
-	int state=[cell state];
+	NSInteger state=[cell state];
 	NSImage *img=nil;
 #if 0
 	NSLog(@"%@ buttonImageForCell:%@", self, cell);
@@ -948,7 +948,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	[data release];	// clean up no longer needed unless archiver does
 	if(!unarchiver)
 		NSLog(@"can't open with keyed unarchiver");
-	[unarchiver setDelegate:self];
+	[unarchiver setDelegate:(id)self];
 	_bundle=[bundle retain];
 #if 0
 	NSLog(@"unarchiver decode IB.objectdata %@", path);

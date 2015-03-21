@@ -154,10 +154,10 @@
 
 - (void) mouseDown:(NSEvent *) event
 {
-	int clickCount = [event clickCount];
+	NSInteger clickCount = [event clickCount];
 	NSPoint location;	// location in view
-	id aCell;			// selected cell
-	int column;			// row/col of selected cell
+	id aCell = nil;			// selected cell
+	NSInteger column;			// row/col of selected cell
 	NSTableColumn *tableColumn=nil;
 	NSRect rect;		// rect of selected cell
 	NSDate *limitDate;
@@ -190,7 +190,7 @@
 					limitDate = [NSDate distantFuture];	// wait unlimited...
 				}
 #if 1
-			NSLog(@"mouse down in col %d resize %d rect %@ cell %@", column, _resizedColumn, NSStringFromRect(rect), aCell);
+			NSLog(@"mouse down in col %ld resize %ld rect %@ cell %@", (long)column, (long)_resizedColumn, NSStringFromRect(rect), aCell);
 #endif
 		}
 	while([event type] != NSLeftMouseUp)
@@ -299,7 +299,7 @@
 	if(_draggedColumn >= 0)
 		{ // end dragging
 #if 1
-			NSLog(@"end column dragging %d -> %d", _draggedColumn, column);
+			NSLog(@"end column dragging %ld -> %ld", (long)_draggedColumn, (long)column);
 #endif
 			[_tableView moveColumn:_draggedColumn toColumn:column];
 			if([[_tableView delegate] respondsToSelector:@selector(tableView:didDragTableColumn:)])
@@ -310,11 +310,11 @@
 	if(_resizedColumn >= 0)
 		{
 #if 1
-			NSLog(@"end column resizing %d", _resizedColumn);
+			NSLog(@"end column resizing %ld", (long)_resizedColumn);
 #endif
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidResize) object:_tableView userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSNumber numberWithInt:_resizedColumn], @"NSTableColumn",
+				[NSNumber numberWithInteger:_resizedColumn], @"NSTableColumn",
 				[NSNumber numberWithFloat:oldWidth], @"NSOldWidth",
 				nil]];
 			_resizedColumn=-1;
@@ -372,7 +372,7 @@
 		}
 }
 
-- (NSRect) headerRectOfColumn:(int)column	  
+- (NSRect) headerRectOfColumn:(NSInteger)column
 {
 	NSRect h = [_tableView rectOfColumn:column];
 	return (NSRect){{NSMinX(h),NSMinY(_bounds)},{NSWidth(h),NSHeight(_bounds)}};
@@ -382,7 +382,7 @@
 { // rebuild cursor rects for resize cursors
 	NSRange columnRange = [_tableView columnsInRect:[self visibleRect]];
 	NSArray *tableColumns = [_tableView tableColumns];
-	int i, count;
+	NSInteger i, count;
 	NSCursor *resize = [NSCursor resizeLeftRightCursor];
 	CGFloat intercellWidth = [_tableView intercellSpacing].width;
 	NSRect r = {{-GRAB_ZONE_MARGIN, 0}, { intercellWidth+2*GRAB_ZONE_MARGIN, NSHeight(_frame)}};
@@ -398,7 +398,7 @@
 		}
 }
 
-- (int) columnAtPoint:(NSPoint)p
+- (NSInteger) columnAtPoint:(NSPoint)p
 {
 	return [_tableView columnAtPoint:p];
 }
@@ -406,8 +406,8 @@
 - (void) setTableView:(NSTableView*)tview	{ _tableView=tview; }	// not retained!
 - (NSTableView*) tableView					{ return _tableView; }
 - (CGFloat) draggedDistance					{ return _draggedDistance; }
-- (int) draggedColumn						{ return _draggedColumn; }
-- (int) resizedColumn						{ return _resizedColumn; }
+- (NSInteger) draggedColumn					{ return _draggedColumn; }
+- (NSInteger) resizedColumn					{ return _resizedColumn; }
 - (BOOL) isFlipped							{ return YES; }
 - (BOOL) isOpaque							{ return YES; }				
 - (BOOL) acceptsFirstResponder				{ return [_tableView acceptsFirstResponder]; }
@@ -711,12 +711,12 @@
 - (void) setIntercellSpacing:(NSSize)aSize	{ _intercellSpacing = aSize; }
 - (NSSize) intercellSpacing					{ return _intercellSpacing; }
 - (NSArray*) tableColumns					{ return _tableColumns; }
-- (int) numberOfColumns						{ return [_tableColumns count]; }
-- (int) numberOfRows						{ return _numberOfRows; }
+- (NSInteger) numberOfColumns				{ return [_tableColumns count]; }
+- (NSInteger) numberOfRows					{ return _numberOfRows; }
 
 - (void) noteNumberOfRowsChanged
 { // clear cache
-	int n=_numberOfRows;
+	NSInteger n=_numberOfRows;
 	if(!_window || !_superview || !_dataSource)
 		{
 #if 0
@@ -752,7 +752,7 @@
 
 - (void) removeTableColumn:(NSTableColumn *)column
 {
-	int i=[_tableColumns indexOfObjectIdenticalTo:column];
+	NSUInteger i=[_tableColumns indexOfObjectIdenticalTo:column];
 	if(i != NSNotFound)
 		{
 		if(_highlightedTableColumn == column)
@@ -763,9 +763,9 @@
 		}
 }
 
-- (int) columnWithIdentifier:(id)identifier 
+- (NSInteger) columnWithIdentifier:(id)identifier
 {
-	int i, count = [_tableColumns count];
+	NSUInteger i, count = [_tableColumns count];
 	for (i = 0; i < count; i++)
 		if ([[[_tableColumns objectAtIndex:i] identifier] isEqual:identifier])
 			return i;
@@ -774,22 +774,22 @@
 
 - (NSTableColumn *) tableColumnWithIdentifier:(id)identifier 
 {
-int index = [self columnWithIdentifier:identifier];
+	NSInteger index = [self columnWithIdentifier:identifier];
 
 	return (index != -1) ? [_tableColumns objectAtIndex:index] : nil;
 }
 
-- (void) scrollRowToVisible:(int)row 
+- (void) scrollRowToVisible:(NSInteger)row
 {
 	[self scrollRectToVisible:[self rectOfRow:row]];
 }
 
-- (void) scrollColumnToVisible:(int)column 
+- (void) scrollColumnToVisible:(NSInteger)column
 {
 	[self scrollRectToVisible:[self rectOfColumn:column]];
 }
 
-- (void) moveColumn:(int)column toColumn:(int)newIndex 
+- (void) moveColumn:(NSInteger)column toColumn:(NSInteger)newIndex
 {
 	if(column != newIndex)
 		{
@@ -799,8 +799,8 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidMove) object:self userInfo:
 		[NSDictionary dictionaryWithObjectsAndKeys:
-					[NSNumber numberWithInt:column], @"NSOldColumn",
-					[NSNumber numberWithInt:newIndex], @"NSNewColumn",
+					[NSNumber numberWithInteger:column], @"NSOldColumn",
+					[NSNumber numberWithInteger:newIndex], @"NSNewColumn",
 					nil]];
 }
 
@@ -883,7 +883,7 @@ int index = [self columnWithIdentifier:identifier];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(SelectionDidChange) object: self];
 }
 
-- (void) selectColumn:(int)column byExtendingSelection:(BOOL)extend
+- (void) selectColumn:(NSInteger)column byExtendingSelection:(BOOL)extend
 {
 	// FIXME: should be based on selectIndexes
 	BOOL colSelectionDidChange = NO;
@@ -927,7 +927,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 }
 
-- (void) selectRow:(int)row byExtendingSelection:(BOOL)extend
+- (void) selectRow:(NSInteger)row byExtendingSelection:(BOOL)extend
 {
 	// FIXME: should be based on selectIndexes and optimize redrawing!
 	BOOL colSelectionDidChange = NO;
@@ -1030,7 +1030,7 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 }
 
-- (void) deselectColumn:(int)column 
+- (void) deselectColumn:(NSInteger)column
 {
 	// FIXME: should be based on selectIndexes
 	if([_selectedColumns containsIndex:column])
@@ -1048,7 +1048,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 }
 
-- (void) deselectRow:(int)row 
+- (void) deselectRow:(NSInteger)row
 {
 	// FIXME: should be based on selectIndexes
 	if([_selectedRows containsIndex:row])
@@ -1067,31 +1067,31 @@ int index = [self columnWithIdentifier:identifier];
 }
 
 // Return index of last column/row selected or added to the selection, or -1 if no column/row is selected.
-- (int) selectedColumn 					{ return _lastSelectedColumn; }
-- (int) selectedRow 					{ return _lastSelectedRow; }
+- (NSInteger) selectedColumn 			{ return _lastSelectedColumn; }
+- (NSInteger) selectedRow 				{ return _lastSelectedRow; }
 - (NSIndexSet *) selectedColumnIndexes 	{ return _selectedColumns; }
 - (NSIndexSet *) selectedRowIndexes 	{ return _selectedRows; }
-- (int) editedColumn					{ return _editingColumn; }
-- (int) editedRow						{ return _editingRow; }
-- (int) clickedColumn					{ return _clickedColumn; }
-- (int) clickedRow						{ return _clickedRow; }
+- (NSInteger) editedColumn				{ return _editingColumn; }
+- (NSInteger) editedRow					{ return _editingRow; }
+- (NSInteger) clickedColumn				{ return _clickedColumn; }
+- (NSInteger) clickedRow				{ return _clickedRow; }
 
-- (BOOL) isColumnSelected:(int)columnIndex 
+- (BOOL) isColumnSelected:(NSInteger)columnIndex
 {
 	return [_selectedColumns containsIndex:columnIndex];
 }
 
-- (BOOL) isRowSelected:(int)rowIndex
+- (BOOL) isRowSelected:(NSInteger)rowIndex
 { 
 	return [_selectedRows containsIndex:rowIndex];
 }
 
-- (int) numberOfSelectedColumns 
+- (NSInteger) numberOfSelectedColumns
 {
 	return [_selectedColumns count];
 }
 
-- (int) numberOfSelectedRows 
+- (NSInteger) numberOfSelectedRows
 {
 	return [_selectedRows count];
 }
@@ -1116,7 +1116,7 @@ int index = [self columnWithIdentifier:identifier];
 	return [a objectEnumerator];
 }
 
-- (NSRect) rectOfColumn:(int)column
+- (NSRect) rectOfColumn:(NSInteger)column
 { // Layout support
 	int i;
 	NSEnumerator *e;
@@ -1135,7 +1135,7 @@ int index = [self columnWithIdentifier:identifier];
 	return (NSRect){{x, 0}, {col->_width, NSHeight(_frame)}};
 }
 
-- (NSRect) rectOfRow:(int) row 
+- (NSRect) rectOfRow:(NSInteger) row
 { // FIXME: there should be a cache if we have millions of rows...!
 	CGFloat y;
 	if(_tv.delegateProvidesHeightOfRow)
@@ -1148,7 +1148,7 @@ int index = [self columnWithIdentifier:identifier];
 	return NSMakeRect(0, y, NSWidth(_frame), _rowHeight);
 }
 
-- (int) columnAtPoint:(NSPoint)point 
+- (NSInteger) columnAtPoint:(NSPoint)point
 {
 	int i=0;
 	NSTableColumn *col;
@@ -1199,11 +1199,11 @@ int index = [self columnWithIdentifier:identifier];
 	return r;
 }
 
-- (int) _rowAtPoint:(NSPoint)point 
+- (NSInteger) _rowAtPoint:(NSPoint)point
 {
 	if(_tv.delegateProvidesHeightOfRow)
 		{
-		int i, count = [self numberOfRows];
+		NSInteger i, count = [self numberOfRows];
 		// FIXME: use the cache (binary tree?) to rapidly find row for a point if we have millions of rows
 		for (i = 0; i < count; i++)
 			if (NSPointInRect(point, [self rectOfRow:i]))
@@ -1218,9 +1218,9 @@ int index = [self columnWithIdentifier:identifier];
 		}
 }
 
-- (int) rowAtPoint:(NSPoint)point 
+- (NSInteger) rowAtPoint:(NSPoint)point
 { // outside existing rows returns -1
-	int row=[self _rowAtPoint:point];
+	NSInteger row=[self _rowAtPoint:point];
 	if(row >= _numberOfRows)
 		row=-1;
 	return row;
@@ -1229,12 +1229,13 @@ int index = [self columnWithIdentifier:identifier];
 - (NSRange) rowsInRect:(NSRect)rect 
 {
 	NSRange r;
-	int r2;
-	r.location=[self _rowAtPoint:rect.origin];
-	if(r.location < 0)
+	NSInteger r1, r2;
+	r1=[self _rowAtPoint:rect.origin];
+	if(r1 < 0)
 		return NSMakeRange(0, 0);
+	r.location=r1;
 	r2=[self _rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))];
-	if(r2 >= (int) r.location)
+	if(r2 >= r1)
 		r.length=r2-r.location+1;	// round up
 	else
 		r.length=0;
@@ -1263,13 +1264,13 @@ int index = [self columnWithIdentifier:identifier];
 	return r;
 }
 
-- (NSRect) frameOfCellAtColumn:(int)column row:(int)row 
+- (NSRect) frameOfCellAtColumn:(NSInteger)column row:(NSInteger)row
 {
 	return NSIntersectionRect([self rectOfRow:row], [self rectOfColumn:column]);
 }
 
-- (void) editColumn:(int)column 								// Edit fields
-				row:(int)row 
+- (void) editColumn:(NSInteger)column 								// Edit fields
+				row:(NSInteger)row
 				withEvent:(NSEvent*)event 
 				select:(BOOL)select
 {
@@ -1307,7 +1308,7 @@ int index = [self columnWithIdentifier:identifier];
 					  event:event];
 	else
 		{
-		int l = (select) ? [[_editingCell stringValue] length] : 0;
+		NSInteger l = (select) ? [[_editingCell stringValue] length] : 0;
 
 		[_editingCell selectWithFrame:r
 					  inView:self
@@ -1407,8 +1408,8 @@ int index = [self columnWithIdentifier:identifier];
 {
 	NSPoint current, previous = [event locationInWindow];
 	NSPoint p = [self convertPoint:previous fromView:nil];
-	int i, startRow, lastRow, scrollRow=-1;
-	int row = [self rowAtPoint:p];
+	NSInteger i, startRow, lastRow, scrollRow=-1;
+	NSInteger row = [self rowAtPoint:p];
 	NSRange extend = {-1, 0}, reduce = {-1, 0};
 	NSEventType eventType;
 	NSEvent *lastMouseEvent=nil;
@@ -1419,7 +1420,7 @@ int index = [self columnWithIdentifier:identifier];
 	_clickedColumn=[self columnAtPoint:p];
 	_clickedRow=row;
 #if 1
-	NSLog(@"mouseDown row=%d col=%d rows=%d", _clickedRow, _clickedColumn, _numberOfRows);
+	NSLog(@"mouseDown row=%ld col=%ld rows=%ld", (long)_clickedRow, (long)_clickedColumn, (long)_numberOfRows);
 #endif
 	if(_lastSelectedRow >= 0)
 		{ // pre-existing sel
@@ -1512,7 +1513,7 @@ int index = [self columnWithIdentifier:identifier];
 				
 				// FIXME: use selectRowIndex:byExtendingSelection
 				
-				if(extend.location >= 0)				// extend selection
+				if((NSInteger)extend.location >= 0)				// extend selection
 					{
 					r = [self rectOfRow: extend.location];
 					r.origin.x = NSMinX(visibleRect);
@@ -1526,7 +1527,7 @@ int index = [self columnWithIdentifier:identifier];
 					extend.location = -1;
 					}
 				
-				if(reduce.location >= 0)				// reduce selection
+				if((NSInteger)reduce.location >= 0)				// reduce selection
 					{
 					r = [self rectOfRow: reduce.location];
 					r.origin.x = NSMinX(visibleRect);
@@ -1618,7 +1619,7 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 	if(_window && _superview && _dataSource)
 		{
-		int cols;
+		NSInteger cols;
 		if(_numberOfRows == NSNotFound)
 			[self noteNumberOfRowsChanged];		// read from data source
 		cols = [_tableColumns count];
@@ -1746,10 +1747,10 @@ int index = [self columnWithIdentifier:identifier];
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {
 	NSRange rowRange = [self rowsInRect:rect];
-	int i, maxRowRange = NSMaxRange(rowRange), cnt=[self numberOfColumns];
+	NSInteger i, maxRowRange = NSMaxRange(rowRange), cnt=[self numberOfColumns];
 	if(!_window || _numberOfRows == NSNotFound)
 		{
-		NSLog(@"win=%@ _numRows=%d: %@", _window, _numberOfRows, self);
+		NSLog(@"win=%@ _numRows=%ld: %@", _window, (long)_numberOfRows, self);
 		return;	// not yet initialized
 		}
 #if 0
@@ -1800,7 +1801,7 @@ int index = [self columnWithIdentifier:identifier];
 	return;	// don't call super to avoid recursion, since we know that we update the cell during drawRect:
 }
 
-- (NSCell *) preparedCellAtColumn:(int)col row:(int)row
+- (NSCell *) preparedCellAtColumn:(NSInteger)col row:(NSInteger)row
 {
 	NSTableColumn *column;
 	NSCell *aCell;
@@ -1833,7 +1834,7 @@ int index = [self columnWithIdentifier:identifier];
 	return aCell;
 }
 
-- (void) drawRow:(int)row clipRect:(NSRect)rect
+- (void) drawRow:(NSInteger)row clipRect:(NSRect)rect
 { // draws no cells if row is not inside table (but updates caches etc.)
 	NSUInteger i, cnt=[self numberOfColumns];
 #if 0
@@ -1867,8 +1868,8 @@ int index = [self columnWithIdentifier:identifier];
 		[_gridColor set];
 	if(vert)
 		{ // draw column separators
-		int col=[self columnAtPoint:rect.origin];	// determine first row
-		int maxcol=[_tableColumns count];
+		NSInteger col=[self columnAtPoint:rect.origin];	// determine first row
+		NSInteger maxcol=[_tableColumns count];
 		CGFloat right=NSMaxX(rect);
 		while(col < maxcol)
 			{
@@ -1882,7 +1883,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	if(horz)
 		{ // draw row separators
-		int row=[self _rowAtPoint:rect.origin];	// determine first row
+		NSInteger row=[self _rowAtPoint:rect.origin];	// determine first row
 		CGFloat bottom=NSMaxY(rect);
 		while(YES)
 			{
@@ -1904,7 +1905,7 @@ int index = [self columnWithIdentifier:identifier];
 		NSUInteger ncolors=[colors count];
 		if(ncolors > 0)
 			{
-			int row=[self _rowAtPoint:rect.origin];	// determine first row
+			NSInteger row=[self _rowAtPoint:rect.origin];	// determine first row
 			CGFloat bottom=NSMaxY(rect);
 			while(YES)
 				{
@@ -1982,7 +1983,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSImage *) indicatorImageInTableColumn:(NSTableColumn *) col;
 {
-	int i=[_tableColumns indexOfObjectIdenticalTo:col];
+	NSInteger i=[_tableColumns indexOfObjectIdenticalTo:col];
 	if(i != NSNotFound)
 		{
 		NSImage *img=[_indicatorImages objectAtIndex:i];
@@ -2042,7 +2043,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) setSortDescriptors:(NSArray *) sd;
 {
-	int i, count=[sd count];
+	NSInteger i, count=[sd count];
 	if(count != [_tableColumns count])
 		return;	// should raise exception
 	for(i=0; i<count; i++)
@@ -2068,7 +2069,7 @@ int index = [self columnWithIdentifier:identifier];
 	if([aDecoder allowsKeyedCoding])
 		{
 		long tvFlags=[aDecoder decodeInt32ForKey:@"NSTvFlags"];
-		int i;
+		NSInteger i;
 		NSNull *null=[NSNull null];
 #if 0
 		NSLog(@"TvFlags=%08lx", tvFlags);

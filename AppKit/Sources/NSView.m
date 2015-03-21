@@ -133,8 +133,8 @@ static NSUInteger __toolTipSequenceCounter = 0;
 
 - (void) mouseMoved:(NSEvent *)event
 {
-NSPoint current = [event locationInWindow];
-int i, j = (_trackRects) ? [_trackRects count] : 0;
+	NSPoint current = [event locationInWindow];
+	NSInteger i, j = (_trackRects) ? [_trackRects count] : 0;
 
 	for (i = 0; i < j; ++i)								// Check tracking rects
 		{
@@ -175,7 +175,7 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 	if ((_cursorRects) && ((j = [_cursorRects count]) > 0))
 		{
 		NSEvent *enter[j], *exit[j];
-		int l = 0, k = 0;
+		NSInteger l = 0, k = 0;
 	
 		for (i = 0; i < j; ++i)							// Check cursor rects
 			{
@@ -386,7 +386,7 @@ printing
 - (NSAttributedString *) pageFooter;
 {
 	// Check UserDefaults for NSPrintHeaderAndFooter
-	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"Page %d", [[NSPrintOperation currentOperation] currentPage]]] autorelease];
+	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"Page %ld", (long)[[NSPrintOperation currentOperation] currentPage]]] autorelease];
 }
 
 - (NSAttributedString *) pageHeader;
@@ -403,7 +403,7 @@ printing
 	return [_window title];	// return the window title or nil
 }
 
-- (NSRect) rectForPage:(int)page;
+- (NSRect) rectForPage:(NSInteger)page;
 {
 	return _bounds;
 }
@@ -462,7 +462,7 @@ printing
 		NSLog(@"can't lockFocus without a window");
 	else
 		{
-		int gState=_gState;
+		NSInteger gState=_gState;
 #if FIXME
 		if(_gState == 0 /* and there is one allocated */)
 			[self setUpGState];
@@ -516,7 +516,7 @@ printing
 	if(_nInvalidRects == 1)
 		[s appendFormat:@" invalid=[%.1lf,%.1lf,%.1lf,%.1lf]", _invalidRects[0].origin.x, _invalidRects[0].origin.y, _invalidRects[0].size.width, _invalidRects[0].size.height];
 	if(_nInvalidRects > 1)
-		[s appendFormat:@" %d invalid rects", _nInvalidRects];
+		[s appendFormat:@" %lu invalid rects", (unsigned long)_nInvalidRects];
 	if([self isHidden]) [s appendString:@" isHidden"];
 	if([self isFlipped]) [s appendString:@" isFlipped"];
 	if([self isOpaque]) [s appendString:@" isOpaque"];
@@ -729,7 +729,7 @@ printing
 
 - (void) replaceSubview:(NSView *)oldView with:(NSView *)newView
 {
-	int index;
+	NSInteger index;
 	if(!newView || !oldView)
 		{
 		NSLog(@"NSView warning - can't replace subview %@ with %@", oldView, newView);
@@ -1637,7 +1637,7 @@ printing
 	if(_v.hasToolTip)
 		{
 		NSMutableArray *trackRects = [_window _trackingRects];
-		int i, j = [trackRects count];
+		NSUInteger i, j = [trackRects count];
 
 		for (i = 0; i < j; ++i)
 			{
@@ -1675,7 +1675,7 @@ printing
 		NSLog(@"can't resizeSubviewsWithOldSize (rotated base): %@", self);
 	else if (_v.autoSizeSubviews)					 
 		{												// resize subviews only
-		int i, count = [_subviews count];				// if we are supposed
+		NSInteger i, count = [_subviews count];				// if we are supposed
 														// to and we have never
 														// been rotated
 		for (i = 0; i < count; i++)						// resize the subviews
@@ -1844,7 +1844,7 @@ printing
     return NO;
 }
 
-- (void) getRectsBeingDrawn:(const NSRect **) rects count:(int *) count;
+- (void) getRectsBeingDrawn:(const NSRect **) rects count:(NSInteger *) count;
 {
 	NIMP;
 	// currently broken
@@ -1863,7 +1863,7 @@ printing
 	return NSZeroRect;	// FIXME: not yet supported
 }
 
-- (void) getRectsExposedDuringLiveResize:(NSRect[4]) rects count:(int *) count;
+- (void) getRectsExposedDuringLiveResize:(NSRect[4]) rects count:(NSInteger *) count;
 {
 	//	NIMP;
 	*count=0;	// FIXME: not yet supported
@@ -2255,9 +2255,9 @@ printing
 	[self unlockFocus];
 }
 
-- (id) viewWithTag:(int)aTag
+- (id) viewWithTag:(NSInteger)aTag
 {
-	int i, count = [_subviews count];
+	NSInteger i, count = [_subviews count];
 	id v;
 	for (i = 0; i < count; ++i)
 		if ([(v = [_subviews objectAtIndex:i]) tag] == aTag)
@@ -2269,7 +2269,7 @@ printing
 
 - (NSView *) hitTest:(NSPoint) aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
 {
-	int i;
+	NSInteger i;
 	NSView *v;
 	// can we somehow cache this?
 	// We go through the view hierarchy twice:
@@ -2305,7 +2305,7 @@ printing
 				if((v = [[_subviews objectAtIndex:i] hitTest:aPoint]))
 					{ // hit in subview
 #if 1
-					NSLog(@"  found %d=%@", i, v);
+					NSLog(@"  found %ld=%@", (long)i, v);
 #endif
 					return v;
 					}
@@ -2329,7 +2329,7 @@ printing
 
 - (BOOL) performKeyEquivalent:(NSEvent *)event
 {
-	int i=0, cnt=[_subviews count];
+	NSInteger i=0, cnt=[_subviews count];
 	while(i<cnt)	// Check our sub_views
 		{
 		if([[_subviews objectAtIndex:i] performKeyEquivalent:event])
@@ -2430,7 +2430,7 @@ NSView *p = nil;
 - (NSMutableArray *) subviews					{ return _subviews; }
 - (NSUInteger) autoresizingMask				{ return _v.autoresizingMask; }
 - (void) setAutoresizesSubviews:(BOOL)flag		{ _v.autoSizeSubviews = flag; }
-- (void) setAutoresizingMask:(NSUInteger)mask	{ _v.autoresizingMask = mask; }
+- (void) setAutoresizingMask:(NSUInteger)mask	{ _v.autoresizingMask = (unsigned int) mask; }
 
 - (void) setHidden:(BOOL)flag
 {
@@ -2459,8 +2459,8 @@ NSView *p = nil;
 - (BOOL) preservesContentDuringLiveResize		{ return _v.preservesContentDuringLiveResize; }
 - (BOOL) postsFrameChangedNotifications			{ return _v.postFrameChange; }
 - (BOOL) postsBoundsChangedNotifications		{ return _v.postBoundsChange;}
-- (int) tag										{ return -1; }
-- (int) gState									{ return _gState; }
+- (NSInteger) tag								{ return -1; }
+- (NSInteger) gState							{ return _gState; }
 
 - (void) setToolTip:(NSString *)string
 {
@@ -2529,7 +2529,7 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 			[__toolTipText setDrawsBackground:NO];
 			[__toolTipText setSelectable:NO];
 
-			__toolTipWindow = [[NSWindow alloc] initWithContentRect:wRect
+			__toolTipWindow = [[NSPanel alloc] initWithContentRect:wRect
 							 styleMask:NSBorderlessWindowMask
 							 backing:NSBackingStoreNonretained	
 							 defer:YES];
@@ -2622,9 +2622,9 @@ GSTrackingRect *o;
 
 - (void) removeCursorRect:(NSRect)aRect cursor:(NSCursor *)anObject
 {
-NSMutableArray *cursorRects = [_window _cursorRects];
-id e = [cursorRects reverseObjectEnumerator];
-GSTrackingRect *o;
+	NSMutableArray *cursorRects = [_window _cursorRects];
+	id e = [cursorRects reverseObjectEnumerator];
+	GSTrackingRect *o;
   														// Base remove test 
 	while ((o = [e nextObject])) 						// upon cursor object
 		{
@@ -2639,8 +2639,8 @@ GSTrackingRect *o;
 
 - (void) removeTrackingRect:(NSTrackingRectTag)tag
 {
-NSMutableArray *trackingRects = [_window _trackingRects];
-int i, j = [trackingRects count];
+	NSMutableArray *trackingRects = [_window _trackingRects];
+	NSInteger i, j = [trackingRects count];
 
 	for (i = 0; i < j; ++i)
 		{
@@ -2658,7 +2658,7 @@ int i, j = [trackingRects count];
 								userData:(void *)data
 								assumeInside:(BOOL)flag
 {
-NSMutableArray *trackingRects = [_window _trackingRects];
+	NSMutableArray *trackingRects = [_window _trackingRects];
 	GSTrackingRect *m = [GSTrackingRect new];
 
 	m->rect = [self convertRect:aRect toView:nil];

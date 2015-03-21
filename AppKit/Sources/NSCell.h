@@ -326,7 +326,7 @@ enum {
 - (void) setSelectable:(BOOL) flag;
 - (void) setSendsActionOnEndEditing:(BOOL) flag;
 - (void) setShowsFirstResponder:(BOOL) flag;
-- (void) setState:(int) value;							// NSCell's State
+- (void) setState:(NSInteger) value;							// NSCell's State
 - (void) setStringValue:(NSString *) aString;
 - (void) setTag:(NSInteger) anInt;								// Assigning a Tag
 - (void) setTarget:(id) anObject;

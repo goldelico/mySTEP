@@ -99,13 +99,13 @@
 // managing the window
 
 - (NSInteger) _windowNumber;		// get the window number
-- (NSInteger) _windowTitleHeight;	// amount added by window manager for window title
+- (int) _windowTitleHeight;	// amount added by window manager for window title in screen pixels
 - (void) _setBackingType:(NSBackingStoreType) type;
 - (void) _map;		// map the window
 - (void) _unmap;	// unmap the window
 - (void) _miniaturize;
 - (void) _deminiaturize;
-- (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
+- (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(NSInteger) otherWin;
 - (void) _makeKeyWindow;	// attract keyboard focus
 - (BOOL) _isKeyWindow;		// if we have keyboard focus
 - (NSRect) _frame;			// get current frame as on screen (might have been moved by window manager)
@@ -130,7 +130,7 @@
 @interface NSScreen (NSBackend)
 + (NSInteger) _systemWindowListForContext:(NSInteger) context size:(NSInteger) size list:(NSInteger *) list;	// list may be NULL, return # of entries copied
 - (BOOL) _hasWindowManager;	// there is a window manager...
-- (NSInteger) _windowTitleHeight;
+- (int) _windowTitleHeight;
 - (void) _sendEvent:(NSEvent *) event;
 - (void) _grabKey:(NSInteger) keycode;
 - (NSInteger) _keyWindowNumber;

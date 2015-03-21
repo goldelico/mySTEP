@@ -187,7 +187,7 @@ typedef NSUInteger NSTableViewDropOperation;
 - (void) scrollRowToVisible:(NSInteger) row;
 - (void) selectAll:(id) sender;
 - (void) selectColumnIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) extend;
-- (void) selectColumn:(int) column byExtendingSelection:(BOOL) extend; /* DEPRECATED */
+- (void) selectColumn:(NSInteger) column byExtendingSelection:(BOOL) extend; /* DEPRECATED */
 - (NSInteger) selectedColumn;
 - (NSEnumerator *) selectedColumnEnumerator; /* DEPRECATED */
 - (NSIndexSet *) selectedColumnIndexes;
@@ -195,7 +195,7 @@ typedef NSUInteger NSTableViewDropOperation;
 - (NSEnumerator *) selectedRowEnumerator; /* DEPRECATED */
 - (NSIndexSet *) selectedRowIndexes;
 - (NSTableViewSelectionHighlightStyle) selectionHighlightStyle; 
-- (void) selectRow:(int) row byExtendingSelection:(BOOL) extend; /* ??? */
+- (void) selectRow:(NSInteger) row byExtendingSelection:(BOOL) extend; /* ??? */
 - (void) selectRowIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) extend;
 - (void) setAllowsColumnReordering:(BOOL) flag;
 - (void) setAllowsColumnResizing:(BOOL) flag;

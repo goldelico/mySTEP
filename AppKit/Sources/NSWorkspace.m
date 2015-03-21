@@ -960,9 +960,9 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 					   source:(NSString *)source
 				  destination:(NSString *)destination
 						files:(NSArray *)files
-						  tag:(int *)tag
+						  tag:(NSInteger *)tag
 {
-	int result=NSAlertDefaultReturn, count = [files count];
+	NSInteger result=NSAlertDefaultReturn, count = [files count];
 	
 	NSLog(@"performFileOperation %@", operation);
 	

@@ -171,9 +171,9 @@ typedef NSUInteger NSWindowCollectionBehavior;
 
 	CGFloat _userSpaceScaleFactor;
 
-	int _disableFlushWindow;
-	int _level;
-	int _gState;
+	NSInteger _disableFlushWindow;	// counts disable/enable
+	NSInteger _level;
+	NSInteger _gState;
 	
     struct __WindowFlags {
 		UIBITFIELD(unsigned int, isOneShot, 1);

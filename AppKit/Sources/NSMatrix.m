@@ -35,15 +35,15 @@ enum { DEFAULT_CELL_HEIGHT = 17, DEFAULT_CELL_WIDTH = 100 };
 
 
 typedef struct {									// struct used to compute 
-	int x;											// selection in list mode.
-	int y;
+	NSInteger x;											// selection in list mode.
+	NSInteger y;
 } MPoint;
 
 typedef struct {
-	int x;
-	int y;
-	int width;
-	int height;
+	NSInteger x;
+	NSInteger y;
+	NSInteger width;
+	NSInteger height;
 } MRect;
 
 //
@@ -73,10 +73,10 @@ typedef struct {
 }
 
 - (id) initWithFrame:(NSRect)frameRect
-				mode:(int)aMode
+				mode:(NSInteger)aMode
 		   cellClass:(Class)class
-		numberOfRows:(int)rowsHigh
-	 numberOfColumns:(int)colsWide
+		numberOfRows:(NSInteger)rowsHigh
+	 numberOfColumns:(NSInteger)colsWide
 {
 	return [self initWithFrame:frameRect
 						  mode:aMode
@@ -86,12 +86,12 @@ typedef struct {
 }
 
 - (id) initWithFrame:(NSRect)frameRect
-				mode:(int)aMode
+				mode:(NSInteger)aMode
 		   prototype:(NSCell*)prototype
-		numberOfRows:(int)rows
-	 numberOfColumns:(int)cols
+		numberOfRows:(NSInteger)rows
+	 numberOfColumns:(NSInteger)cols
 {
-	int i, size = rows * cols;
+	NSInteger i, size = rows * cols;
 	
 	self=[super initWithFrame:frameRect];
 	if(self)
@@ -117,7 +117,7 @@ typedef struct {
 		_m.drawsBackground = YES;
 		_m.selectionByRect = YES;
 		_m.autosizesCells = YES;
-		_m.mode = aMode;
+		_m.mode = (int) aMode;
 		
 		if (_m.mode == NSRadioModeMatrix && _numRows && _numCols)
 			[self selectCellAtRow:0 column:0];
@@ -147,9 +147,9 @@ typedef struct {
 	[self insertRow:_numRows withCells:cellArray];
 }
 
-- (void) insertColumn:(int)column
+- (void) insertColumn:(NSInteger)column
 {
-	int i;
+	NSInteger i;
 	
 	if (column >= _numCols)
 		[self renewRows:(_numRows = MAX(1, _numRows)) columns:column];
@@ -163,9 +163,9 @@ typedef struct {
 		[self selectCellAtRow:0 column:0];
 }
 
-- (void) insertColumn:(int)column withCells:(NSArray*)cellArray
+- (void) insertColumn:(NSInteger)column withCells:(NSArray*)cellArray
 {
-	int i, j = column;
+	NSInteger i, j = column;
 	
 	if (column >= _numCols)
 		[self renewRows:(_numRows = MAX(1, _numRows)) columns:column];
@@ -179,7 +179,7 @@ typedef struct {
 		[self selectCellAtRow:0 column:0];
 }
 
-- (void) insertRow:(int)row
+- (void) insertRow:(NSInteger)row
 {
 	int i;
 	
@@ -195,9 +195,9 @@ typedef struct {
 		[self selectCellAtRow:0 column:0];
 }
 
-- (void) insertRow:(int)row withCells:(NSArray*)cellArray
+- (void) insertRow:(NSInteger)row withCells:(NSArray*)cellArray
 {
-	int i, insertPoint;
+	NSInteger i, insertPoint;
 	
 	if (row >= _numRows)
 		[self renewRows:row columns:(_numCols = MAX(1, _numCols))];
@@ -213,7 +213,7 @@ typedef struct {
 		[self selectCellAtRow:0 column:0];
 }
 
-- (NSCell*) makeCellAtRow:(int)row column:(int)column
+- (NSCell*) makeCellAtRow:(NSInteger)row column:(NSInteger)column
 {
 	NSCell *aCell;
 	
@@ -228,7 +228,7 @@ typedef struct {
 	return aCell;
 }
 
-- (NSRect) cellFrameAtRow:(int)row column:(int)column
+- (NSRect) cellFrameAtRow:(NSInteger)row column:(NSInteger)column
 {
 	NSRect rect;
 	rect.origin.x = column * (_cellSize.width + _interCell.width);
@@ -237,21 +237,21 @@ typedef struct {
 	return rect;
 }
 
-- (void) getNumberOfRows:(int*)rowCount columns:(int*)columnCount
+- (void) getNumberOfRows:(NSInteger*)rowCount columns:(NSInteger*)columnCount
 {
     *rowCount = _numRows;
     *columnCount = _numCols;
 }
 
-- (void) putCell:(NSCell*)newCell atRow:(int)row column:(int)column
+- (void) putCell:(NSCell*)newCell atRow:(NSInteger)row column:(NSInteger)column
 {
 	[_cells replaceObjectAtIndex:(row * _numCols) + column withObject:newCell];
 	[self setNeedsDisplayInRect:[self cellFrameAtRow:row column:column]];
 }
 
-- (void) removeColumn:(int)column
+- (void) removeColumn:(NSInteger)column
 {
-	int i = _numRows;
+	NSInteger i = _numRows;
 	
 	if (column >= _numCols)
 		return;
@@ -265,9 +265,9 @@ typedef struct {
 		_numRows = 0;
 }
 
-- (void) removeRow:(int)row
+- (void) removeRow:(NSInteger)row
 {
-	int i = _numCols, removalPoint = row * _numCols;
+	NSInteger i = _numCols, removalPoint = row * _numCols;
 	
 	if (row >= _numRows)
 		return;
@@ -281,9 +281,9 @@ typedef struct {
 		_numCols = 0;
 }
 
-- (void) renewRows:(int)newRows columns:(int)newColumns
+- (void) renewRows:(NSInteger)newRows columns:(NSInteger)newColumns
 {								// First check to see if the rows really have
-	int i, j;						// fewer cells than newColumns. This may happen
+	NSInteger i, j;						// fewer cells than newColumns. This may happen
 									// because the row arrays does not shrink when
 	if (newColumns > _numCols) 	// a lower number of cells is given.
 		{
@@ -305,7 +305,7 @@ typedef struct {
 	[self deselectAllCells];
 }
 
-- (void) sortUsingFunction:(int (*)(id element1, id element2, 
+- (void) sortUsingFunction:(NSInteger (*)(id element1, id element2,
 									void *userData))comparator
 				   context:(void*)context
 {
@@ -317,7 +317,7 @@ typedef struct {
 	[_cells sortUsingSelector:comparator];
 }
 
-- (BOOL) getRow:(int*)row column:(int*)column forPoint:(NSPoint)point
+- (BOOL) getRow:(NSInteger*)row column:(NSInteger*)column forPoint:(NSPoint)point
 {
 	BOOL betweenRows, betweenCols;
 	CGFloat h, w, approxRowsHeight, approxColsWidth;
@@ -356,7 +356,7 @@ typedef struct {
 	return !(betweenRows || betweenCols);
 }
 
-- (BOOL) getRow:(int *)row column:(int *)column ofCell:(NSCell *)aCell
+- (BOOL) getRow:(NSInteger *)row column:(NSInteger *)column ofCell:(NSCell *)aCell
 { // find cell location
 	int i, j;
 	for (i = 0; i < _numRows; i++)
@@ -374,14 +374,14 @@ typedef struct {
 	return NO;
 }
 
-- (void) setState:(int)value atRow:(int)row column:(int)column
+- (void) setState:(NSInteger)value atRow:(NSInteger)row column:(NSInteger)column
 {
 	NSCell *aCell = [self cellAtRow:row column:column];
 	if (!aCell)
 		return;
 	if (_m.mode == NSRadioModeMatrix) 
 		{
-		int selectedRow, selectedColumn;
+		NSInteger selectedRow, selectedColumn;
 		NSCell *selectedCell=[self selectedCell];	// find currently selected cell (if any)
 		if(!value && !_m.allowsEmptySelect)
 			return;
@@ -400,7 +400,7 @@ typedef struct {
 {
 	if(_m.allowsEmptySelect || (_m.mode != NSRadioModeMatrix))
 		{	
-		int count = [_cells count];
+		NSInteger count = [_cells count];
 		while(count--)
 			[[_cells objectAtIndex:count] setState:NSOffState];
 			// FIXME: can we optimize if not all cells are selected?
@@ -411,7 +411,7 @@ typedef struct {
 - (void) deselectSelectedCell
 {
 	NSCell *selectedCell=[self selectedCell];
-	int selectedRow, selectedColumn;
+	NSInteger selectedRow, selectedColumn;
 	if(!selectedCell || (!_m.allowsEmptySelect && _m.mode == NSRadioModeMatrix))
 		return;	// Don't allow loss of selection if in radio mode and empty selection is not allowed.
 	[self getRow:&selectedRow column:&selectedColumn ofCell:selectedCell];
@@ -420,7 +420,7 @@ typedef struct {
 
 - (void) selectAll:(id)sender
 {
-	int count = [_cells count];
+	NSInteger count = [_cells count];
 	if(!count)
 		return;
 	while(count--)
@@ -430,17 +430,17 @@ typedef struct {
 
 - (void) selectCell:(NSCell *) cell;
 {
-	int row, col;
+	NSInteger row, col;
 	if (cell && [self getRow:&row column:&col ofCell:cell])
 		[self setState:NSOnState atRow:row column:col];
 }
 
-- (void) selectCellAtRow:(int)row column:(int)column
+- (void) selectCellAtRow:(NSInteger)row column:(NSInteger)column
 {
 	[self selectCell:[self cellAtRow:row column:column]];
 }
 
-- (BOOL) selectCellWithTag:(int)anInt
+- (BOOL) selectCellWithTag:(NSInteger)anInt
 {
 	NSCell *cell=[self cellWithTag:anInt];
 	[self selectCell:cell];
@@ -462,8 +462,8 @@ typedef struct {
 
 - (void) _setState:(BOOL)state inRect:(MRect)matrix
 {
-	int i = MAX(matrix.y - matrix.height, 0), j;
-	int maxX = MIN(matrix.x + matrix.width, _numCols);
+	NSInteger i = MAX(matrix.y - matrix.height, 0), j;
+	NSInteger maxX = MIN(matrix.x + matrix.width, _numCols);
 
 	[self setNeedsDisplayInRect:NSUnionRect([self cellFrameAtRow:i column:matrix.x], [self cellFrameAtRow:matrix.y column:maxX])];	// first and last cell
 	
@@ -507,15 +507,15 @@ This method is used for selecting cells in list mode with selection by
 						   last:(MPoint)last
 						current:(MPoint)current
 {
-	int dxca = current.x - anchor.x;
-	int dyca = current.y - anchor.y;
-	int dxla = last.x - anchor.x;
-	int dyla = last.y - anchor.y;
-	int dxca_dxla, dyca_dyla;
+	NSInteger dxca = current.x - anchor.x;
+	NSInteger dyca = current.y - anchor.y;
+	NSInteger dxla = last.x - anchor.x;
+	NSInteger dyla = last.y - anchor.y;
+	NSInteger dxca_dxla, dyca_dyla;
 	int selectRectsNo = 0, unselectRectsNo = 0;
 	MRect selectRect[2];
 	MRect unselectRect[2];
-	int i, tmpx, tmpy;
+	NSInteger i, tmpx, tmpy;
 	
 	dxca_dxla = SIGN(dxca) / (dxla != 0 ? SIGN(dxla) : 1);	// protect against division by zero
 	dyca_dyla = SIGN(dyca) / (dyla != 0 ? SIGN(dyla) : 1);
@@ -758,11 +758,11 @@ This method is used for selecting cells in list mode with selection by
 		[self _setState:NSOnState inRect:selectRect[i]];
 }
 
-- (void) _setState:(BOOL)state startIndex:(int)start endIndex:(int)end
+- (void) _setState:(BOOL)state startIndex:(NSInteger)start endIndex:(NSInteger)end
 {
 	MPoint startPoint = POINT_FROM_INDEX(start);
 	MPoint endPoint = POINT_FROM_INDEX(end);
-	int i, j = startPoint.x, colLimit;
+	NSInteger i, j = startPoint.x, colLimit;
 	
 	for (i = startPoint.y; i <= endPoint.y; i++) 
 		{
@@ -781,14 +781,14 @@ This method is used for selecting cells in list mode with selection by
 								 last:(MPoint)last
 							  current:(MPoint)current
 {													// Select and unselect
-	int anchorIndex = INDEX_FROM_POINT(anchor);			// cells in list mode with 
-	int lastIndex = INDEX_FROM_POINT(last);				// select by rect disabled
-	int currentIndex = INDEX_FROM_POINT(current);		// The idea is to compare 
+	NSInteger anchorIndex = INDEX_FROM_POINT(anchor);			// cells in list mode with
+	NSInteger lastIndex = INDEX_FROM_POINT(last);				// select by rect disabled
+	NSInteger currentIndex = INDEX_FROM_POINT(current);		// The idea is to compare
 	BOOL doSelect = NO;									// the points based on
 	MPoint selectPoint, unselectPoint;					// their linear index in
 	BOOL doUnselect = NO;								// matrix and then perform
-	int dca = currentIndex - anchorIndex;				// the appropriate action
-	int dla = lastIndex - anchorIndex;
+	NSInteger dca = currentIndex - anchorIndex;				// the appropriate action
+	NSInteger dla = lastIndex - anchorIndex;
 	int dca_dla = SIGN(dca) / (SIGN(dla) ? SIGN(dla) : 1);
 	
 	if (dca_dla >= 0) 
@@ -828,9 +828,9 @@ This method is used for selecting cells in list mode with selection by
 		[self _setState:NSOffState startIndex:selectPoint.x endIndex:selectPoint.y];
 }
 
-- (void) setSelectionFrom:(int)startPos
-					   to:(int)endPos
-				   anchor:(int)anchorPos
+- (void) setSelectionFrom:(NSInteger)startPos
+					   to:(NSInteger)endPos
+				   anchor:(NSInteger)anchorPos
 				highlight:(BOOL)flag
 {
 	MPoint anchor = POINT_FROM_INDEX(anchorPos);
@@ -845,7 +845,7 @@ This method is used for selecting cells in list mode with selection by
 
 - (id) selectedCell
 { // returns the rightmost bottommost selected cell
-	int row, column;
+	NSInteger row, column;
 	// FIXME: this should be cached and rebuilt only if a cell state changes (how can we know that? KVO?)
 	// the problem is that we can externally change the cell state
 	// a simple solution would be to cache the result cell and return it as long as it is still selected
@@ -862,9 +862,9 @@ This method is used for selecting cells in list mode with selection by
 	return nil;
 }
 
-- (int) selectedColumn
+- (NSInteger) selectedColumn
 { // return the rightmost column where we have a selected cell
-	int row, column;
+	NSInteger row, column;
 	// FIXME: this should be cached and rebuilt only if a cell state changes (how can we know that? KVO?)
 	for(column=_numCols-1; column >= 0; column--)
 		{
@@ -878,9 +878,9 @@ This method is used for selecting cells in list mode with selection by
 	return -1;	// none
 }
 
-- (int) selectedRow
+- (NSInteger) selectedRow
 { // return last (spatial not temporal!) row with a selected cell
-	int row, column;
+	NSInteger row, column;
 	for(row=_numRows-1; row >= 0; row--)
 		{
 		for(column=_numCols-1; column >= 0; column--)
@@ -893,14 +893,14 @@ This method is used for selecting cells in list mode with selection by
 	return -1;
 }
 
-- (id) cellAtRow:(int)row column:(int)column
+- (id) cellAtRow:(NSInteger)row column:(NSInteger)column
 {
 	if (row < 0 || row >= _numRows || column < 0 || column >= _numCols)
 		return nil;	
 	return [_cells objectAtIndex:((row * _numCols) + column)];
 }
 
-- (id) cellWithTag:(int)anInt
+- (id) cellWithTag:(NSInteger)anInt
 {
 	NSEnumerator *e=[_cells objectEnumerator];
 	NSCell *cell;
@@ -910,7 +910,7 @@ This method is used for selecting cells in list mode with selection by
 	return nil;
 }
 
-- (id) selectTextAtRow:(int)row column:(int)column
+- (id) selectTextAtRow:(NSInteger)row column:(NSInteger)column
 {
 	NSCell *cell=[self cellAtRow:row column:column];
 #if 1
@@ -934,7 +934,7 @@ This method is used for selecting cells in list mode with selection by
 	if (selectedCell && [selectedCell isEditable] && [selectedCell isEnabled])
 		{
 		NSText *t = [_window fieldEditor:YES forObject:selectedCell];
-		int selectedRow, selectedColumn;
+		NSInteger selectedRow, selectedColumn;
 		NSRect r;
 		[self getRow:&selectedRow column:&selectedColumn ofCell:selectedCell];
 		r = [self cellFrameAtRow:selectedRow column:selectedColumn];		
@@ -1052,7 +1052,7 @@ This method is used for selecting cells in list mode with selection by
 	[self setFrameSize: newSize];
 }
 
-- (void) scrollCellToVisibleAtRow:(int)row column:(int)column
+- (void) scrollCellToVisibleAtRow:(NSInteger)row column:(NSInteger)column
 {
 	[self scrollRectToVisible:[self cellFrameAtRow:row column:column]];
 }
@@ -1068,9 +1068,9 @@ This method is used for selecting cells in list mode with selection by
 
 - (void) drawRect:(NSRect)rect
 {
-	int i, j;
-	int row1, col1;								// cell at the upper left corner
-	int row2, col2;								// cell at the lower right corner
+	NSInteger i, j;
+	NSInteger row1, col1;								// cell at the upper left corner
+	NSInteger row2, col2;								// cell at the lower right corner
 
 	NSPoint p = {NSMaxX(rect), NSMaxY(rect)}; 
 	
@@ -1105,7 +1105,7 @@ This method is used for selecting cells in list mode with selection by
 		}
 }
 
-- (void) drawCellAtRow:(int)row column:(int)column
+- (void) drawCellAtRow:(NSInteger)row column:(NSInteger)column
 {
 	NSCell *aCell = [self cellAtRow:row column:column];
 	NSRect cellFrame = [self cellFrameAtRow:row column:column];
@@ -1113,8 +1113,8 @@ This method is used for selecting cells in list mode with selection by
 }
 
 - (void) highlightCell:(BOOL)flag
-				 atRow:(int)row
-				column:(int)column
+				 atRow:(NSInteger)row
+				column:(NSInteger)column
 {
 	NSCell *aCell = [self cellAtRow:row column:column];	
 	if (aCell) 
@@ -1172,11 +1172,11 @@ This method is used for selecting cells in list mode with selection by
 
 - (void) mouseDown:(NSEvent *) event
 {
-	int clickCount = [event clickCount];
+	NSInteger clickCount = [event clickCount];
 	NSPoint location;	// location in view
 	BOOL inCell;		// initially in cell or in intercell spacing?
 	id aCell=nil;			// selected cell
-	int row, column;	// row/col of selected cell
+	NSInteger row, column;	// row/col of selected cell
 	NSRect rect;		// rect of selected cell
 	id previousCell = nil;			// previous cell during ListMode
 	static MPoint anchor = {0, 0};	// initial cell during ListMode
@@ -1273,7 +1273,7 @@ This method is used for selecting cells in list mode with selection by
 						else if(aCell != previousCell)
 							{ // extend/shrink selection							
 #if 1
-							NSLog(@"extend to (%d, %d)", row, column);
+							NSLog(@"extend to (%ld, %ld)", (long)row, (long)column);
 #endif					
 #if 0
 							if (_m.selectionByRect)
@@ -1349,7 +1349,7 @@ This method is used for selecting cells in list mode with selection by
 
 - (void) updateCellInside:(NSCell *)aCell
 { // same...
-	int r, c;	// attempt to update only the cell and not the whole matrix
+	NSInteger r, c;	// attempt to update only the cell and not the whole matrix
 	if([self getRow:&r column:&c ofCell:aCell])
 		{
 		[self setNeedsDisplayInRect:[self cellFrameAtRow:r column:c]];
@@ -1443,9 +1443,9 @@ This method is used for selecting cells in list mode with selection by
 - (BOOL) autosizesCells						{ return _m.autosizesCells; }
 - (BOOL) isAutoscroll						{ return _m.autoscroll; }
 - (void) setAutoscroll:(BOOL)flag			{ _m.autoscroll = flag; }
-- (int) numberOfRows						{ return _numRows; }
-- (int) numberOfColumns						{ return _numCols; }
-- (int) mouseDownFlags		   				{ return _mouseDownFlags; }
+- (NSInteger) numberOfRows					{ return _numRows; }
+- (NSInteger) numberOfColumns				{ return _numCols; }
+- (NSInteger) mouseDownFlags				{ return _mouseDownFlags; }
 - (BOOL) isFlipped							{ return YES; }
 - (BOOL) acceptsFirstResponder				{ return YES; }
 

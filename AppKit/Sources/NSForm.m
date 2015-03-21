@@ -253,7 +253,7 @@ int i, count = [self numberOfRows];
 
 - (void) setTitleAlignment:(NSTextAlignment)aMode
 {
-int i, count = [self numberOfRows];
+NSInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setTitleAlignment:aMode];
 
@@ -261,9 +261,9 @@ int i, count = [self numberOfRows];
 		[[self cellAtRow:i column:0] setTitleAlignment:aMode];
 }
 
-- (void) setTextAlignment:(int)aMode
+- (void) setTextAlignment:(NSInteger)aMode
 {
-int i, count = [self numberOfRows];
+NSInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setAlignment:aMode];
 

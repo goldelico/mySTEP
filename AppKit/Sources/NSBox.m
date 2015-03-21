@@ -138,7 +138,7 @@
 {
 	if (_bx.boxType != aType)
 		{
-		_bx.boxType = aType;
+		_bx.boxType = (unsigned int) aType;
 		[_contentView setFrame: [self _calcSizes]];
 		[self setNeedsDisplay: YES];
 		}

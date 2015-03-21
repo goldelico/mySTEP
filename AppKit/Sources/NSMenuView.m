@@ -732,7 +732,7 @@
 - (void) drawRect:(NSRect) rect
 { // Drawing code here.
 	int i;
-	int nc=[_cells count];
+	NSInteger nc=[_cells count];
 	BOOL any=NO;
 	NSRect bounds=[self bounds];
 	if(nc > 50)
