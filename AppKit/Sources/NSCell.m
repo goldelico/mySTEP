@@ -693,6 +693,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	NSLog(@"_contents=%@", _contents);
 	NSLog(@"_contents class=%@", [_contents class]);
 #endif
+	// FIXME: what happens if _contents is nil?
 	if(_formatter)
 		{
 		if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])

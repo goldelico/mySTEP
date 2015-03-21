@@ -46,11 +46,13 @@
 		while(num > 0 && *index < length)
 			{
 			NSRange attribRange=NSMakeRange(1,1);	// range of same attributes
+#if 0
 			NSLog(@"attribRange = %@", NSStringFromRange(attribRange));
 			NSLog(@"attribRange = %@", NSStringFromRange(NSMakeRange(3, 4)));
-
+#endif
 			NSDictionary *attribs=[astr attributesAtIndex:*index effectiveRange:&attribRange];
 			NSFont *font=[attribs objectForKey:NSFontAttributeName];
+#if 0
 			if(attribRange.length == 0)
 				{
 				NSLog(@"num = %d", num);
@@ -60,6 +62,7 @@
 				NSLog(@"attribs = %@", attribs);
 				NSAssert(attribRange.length > 0, @"should never be empty");
 				}
+#endif
 			attribRange.length-=(*index)-attribRange.location;	// characters with same attributes before we start
 			font=[(NSLayoutManager *) storage substituteFontForFont:font];
 			if(!font) font=[[[(NSLayoutManager *) storage firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes

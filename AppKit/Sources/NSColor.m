@@ -88,9 +88,13 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		}
 	else if(rep)
 		{ // look up
-		const char *str = [rep cString];
+		const char *str = [rep UTF8String];
 		CGFloat r, g, b, a=1.0;
-		int args=sscanf(str, "%f %f %f %f", &r, &g, &b, &a);
+		int args = 0;
+		if(sizeof(r) == sizeof(float))
+			args=sscanf(str, "%f %f %f %f", (float *)&r, (float *)&g, (float *)&b, (float *)&a);
+		else if(sizeof(r) == sizeof(double)) // CGFLoat is double
+			args=sscanf(str, "%lf %lf %lf %lf", &r, &g, &b, &a);
 		if(!(args == 3 || args == 4))
 			NSLog(@"System color '%@' has bad string rep: '%@'", name, rep);
 		if((color = [self colorWithCalibratedRed:r green:g blue:b alpha:a]))
@@ -409,8 +413,8 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 }
  
 + (NSColor *) colorWithColorSpace:(NSColorSpace *) space
-					   components:(const float *) comp
-							count:(int) number;
+					   components:(const CGFloat *) comp
+							count:(NSInteger) number;
 {
 	return NIMP;
 }
@@ -938,7 +942,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	return self;
 }
 
-- (int) numberOfComponents;
+- (NSInteger) numberOfComponents;
 {
 	return [[self colorSpace] numberOfColorComponents];
 }
@@ -997,8 +1001,8 @@ NSArray *a;
 
 + (NSColorList*) colorListNamed:(NSString*)name
 {
-int i, count;
-NSColorList* color = nil;
+	NSInteger i, count;
+	NSColorList* color = nil;
 														// Serialize access to 
 	[_colorListLock lock];								// color list
 	for (i = 0, count = [_availableColorLists  count]; i < count; i++) 		

@@ -521,8 +521,8 @@
 - (id) dataCellForRow:(NSInteger)row;				 { return [self dataCell]; }
 - (NSSortDescriptor *) sortDescriptorPrototype; { return _sortDescriptor; }
 - (void) setSortDescriptorPrototype:(NSSortDescriptor *) desc; { ASSIGN(_sortDescriptor, desc); }
-- (void) setResizingMask:(unsigned)mask;	 { _cFlags.resizingMask = mask; }
-- (unsigned) resizingMask;					 { return _cFlags.resizingMask; }
+- (void) setResizingMask:(NSUInteger)mask;	 { _cFlags.resizingMask = (unsigned int) mask; }
+- (NSUInteger) resizingMask;					 { return _cFlags.resizingMask; }
 - (void) setResizable:(BOOL)flag			 { _cFlags.resizingMask = flag?(NSTableColumnAutoresizingMask|NSTableColumnUserResizingMask):0; }
 - (BOOL) isResizable						 { return _cFlags.resizingMask != NSTableColumnNoResizing; }
 - (void) setEditable:(BOOL)flag				 { _cFlags.isEditable = flag; }
@@ -700,8 +700,8 @@
 - (void) setDrawsGrid:(BOOL)flag			{ _tv.gridStyleMask = flag?(NSTableViewSolidVerticalGridLineMask|
 																		NSTableViewSolidHorizontalGridLineMask):
 																				NSTableViewGridNone; }
-- (void) setGridStyleMask:(unsigned int) mask; { _tv.gridStyleMask=mask; }
-- (unsigned int) gridStyleMask;				{ return _tv.gridStyleMask; }
+- (void) setGridStyleMask:(NSUInteger) mask; { _tv.gridStyleMask=(unsigned int) mask; }
+- (NSUInteger) gridStyleMask;				{ return _tv.gridStyleMask; }
 - (void) setBackgroundColor:(NSColor*)color	{ ASSIGN(_backgroundColor,color); }
 - (void) setGridColor:(NSColor*)color		{ ASSIGN(_gridColor, color); }
 - (NSColor*) backgroundColor				{ return _backgroundColor; }
@@ -816,7 +816,7 @@
 - (void) setAllowsColumnReordering:(BOOL)flag { _tv.allowsColumnReordering = flag; }
 - (void) setAllowsColumnResizing:(BOOL)flag	{ _tv.allowsColumnResizing = flag; }
 - (void) setAutoresizesAllColumnsToFit:(BOOL)flag { _tv.autoResizingStyle = flag?NSTableViewUniformColumnAutoresizingStyle:NSTableViewLastColumnOnlyAutoresizingStyle; }
-- (void) setColumnAutoresizingStyle:(NSTableViewColumnAutoresizingStyle) style { _tv.autoResizingStyle = style; }
+- (void) setColumnAutoresizingStyle:(NSTableViewColumnAutoresizingStyle) style { _tv.autoResizingStyle = (unsigned int) style; }
 
 - (BOOL) autoresizesAllColumnsToFit	{ return _tv.autoResizingStyle&NSTableViewUniformColumnAutoresizingStyle; }
 - (NSTableViewColumnAutoresizingStyle) columnAutoresizingStyle	{ return _tv.autoResizingStyle; }
