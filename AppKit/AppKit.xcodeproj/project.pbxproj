@@ -1920,7 +1920,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./AppKit.qcodeproj\n";
+			shellScript = "# ./AppKit.qcodeproj\n";
 		};
 		EE5EBBEC0A19138A0045B88D /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
