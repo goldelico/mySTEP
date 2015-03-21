@@ -30,6 +30,8 @@ function _NSLog($format)
 	// loop through all arguments if multiple are given?
 	// and get description() if possible?
 	// use first as format string?
+	if(is_null($format))
+		$format="<nil>";
 	if(!is_scalar($format))
 		{
 		// check if a description() method exists
@@ -309,9 +311,10 @@ function __load($path)
 class NSBundle extends NSObject
 { // abstract superclass
 	protected $path;
-	protected static $allBundlesByPath;
+	protected static $allBundlesByPath=array();
 	protected $infoDictionary;
 	protected $loaded=false;
+	protected static $mainBundle;
 	public static function bundleWithPath($path) 
 		{
 //		NSLog("bundleWithPath: $path");
@@ -325,16 +328,21 @@ class NSBundle extends NSObject
 		}
 	public static function allBundles()
 		{
-		return $allBundlesByPath;
+		return self::$allBundlesByPath;
 		}
 	public static function mainBundle()
 		{
-		// FIXME: this requires us to use AppKit.php...
-		global $NSApp;
-		NSLog("mainBundle");
-		if(isset($NSApp))
-			return NSBundle::bundleForClass($NSApp->classString());	// assumes that some NSApp object exists
-		return NULL;	// unknown
+		if(!isset(self::$mainBundle))
+			{
+			// FIXME: this requires us to use AppKit.php...
+			global $NSApp;
+			NSLog("mainBundle");
+			NSLog("class: ".$NSApp->classString());
+			NSLog($_SERVER);
+			if(isset($NSApp))
+				self::$mainBundle=NSBundle::bundleForClass($NSApp->delegate()->classString());	// assumes that the NSApp delegate belongs to the main bundle!
+			}
+		return self::$mainBundle;	// unknown
 		}
 	public static function bundleForClass($class)
 		{
@@ -348,13 +356,15 @@ class NSBundle extends NSObject
 			return null;
 			}
 //		NSLog("bundleForClass: $class");
-		$path=$reflector->getFileName();	// path for .php file of given class
-//		NSLog(" path $path");
-		// FIXME: this is tailored for .framework bundles! .app bundles may look differently
-		$path=dirname($path);	// Versions/A/php/Something.php
-		$path=dirname($path);	// Versions/A/php
-		$path=dirname($path);	// Versions/A
-		$path=dirname($path);	// Versions
+		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($reflector->getFileName());	// path for .php file of given class
+		$path=dirname($path);	// Versions/A/php/Something.php // Contents/php/Something.php
+		$path=dirname($path);	// Versions/A/php // Contents/php
+NSLog($path);
+		if(substr($path, -9) != "/Contents")
+			{ // appears to be a Framework bundle
+			$path=dirname($path);	// Versions/A
+			}
+		$path=dirname($path);	// Versions // Contents
 //		NSLog(" path $path");
 		return NSBundle::bundleWithPath($path);
 		}
@@ -362,9 +372,10 @@ class NSBundle extends NSObject
 		{
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
-				$plistPath=$this->pathForResourceOfType("Info", "plist");
+				$plistPath=$this->resourcePath();
 				if(is_null($plistPath)) return null;	// there is no Info.plist
-//				NSLog("read $plistPath");
+				$plistPath.="/../Info.plist";
+				NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
 		return $this->infoDictionary;
@@ -374,15 +385,26 @@ class NSBundle extends NSObject
 		$executable=$this->objectForInfoDictionaryKey('CFBundleExecutable');
 		if(is_null($executable)) return null;
 		$fm=NSFileManager::defaultManager();
+		$executable=$this->path."/Contents/php/".$executable.".php";
 		if(!$fm->fileExistsAtPath($executable)) return null;	// there is no executable
-		return $this->path."/Contents/php/".$executable.".php";
+		return $executable;
+		}
+	public function resourcePath()
+		{
+		$fm=NSFileManager::defaultManager();
+		$p=$this->path."/Versions/Current/Resources"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->path."/Contents/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
+		return null;
 		}
 	public function pathForResourceOfType($name, $type)
 		{
+		$p=$this->resourcePath();
+		if(is_null($p)) return null;
 		$fm=NSFileManager::defaultManager();
-		$p=$this->path."/Contents/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
-		$p=$this->path."/Contents/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
-		$p=$this->path."/Resources/$name.$type"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$p."/$name";
+		if($type != "")
+			$p.=".$type";	// given suffix
+		if($fm->fileExistsAtPath($p)) return $p;
 		return null;
 		}
 	public function objectForInfoDictionaryKey($key)
@@ -390,10 +412,13 @@ class NSBundle extends NSObject
 		$dict=$this->infoDictionary();
 		return isset($dict[$key])?$dict[$key]:null;
 		}
-	public function bundleIdentifier() { return $this->objectForInfoDictionaryKey('CFBundleIdentifier'); }
+	public function bundleIdentifier()
+		{
+		return $this->objectForInfoDictionaryKey ('CFBundleIdentifier');
+		}
 	public static function bundleWithIdentifier($ident)
 		{
-		foreach ($allBundlesByPath as $bundle)
+		foreach (self::$allBundlesByPath as $bundle)
 			if($bundle->bundleIdentifier() == $ident)
 				return $bundle;	// found
 		return NULL;
@@ -605,13 +630,13 @@ class NSFileManager extends NSObject
 		{
 		global $ROOT;
 		if(substr($path, 0, strlen($ROOT)) == $ROOT)
-			return substr($path, strlen($ROOT));	// strip off $ROOT/ prefix
+			return "/".substr($path, strlen($ROOT));	// strip off $ROOT prefix
 		return $path;
 		}
 	public function attributesOfItemAtPath($path)
 		{
 		$f=$this->fileSystemRepresentationWithPath($path);
-//		NSLog("attributesOfItemAtPath($path) -> $f ");
+		NSLog("attributesOfItemAtPath($path) -> $f ");
 		if(!file_exists($f))
 			return null;	// does not exist
 		$a=stat($f);
@@ -627,6 +652,7 @@ class NSFileManager extends NSObject
  */
 		$attribs[NSFileManager::NSFileName]=$path;
 		$attribs[NSFileManager::NSFileType]=is_dir($f)?NSFileManager::NSFileTypeDirectory:NSFileManager::NSFileTypeRegular;
+		NSLog($attribs);
 		return $attribs;
 		}
 	public function setAttributesOfItemAtPath($path, $attributes)
@@ -634,7 +660,7 @@ class NSFileManager extends NSObject
 		}
 	public function fileExistsAtPath($path)
 		{
-//		NSLog("fileExistsAtPath($path)");
+		NSLog("fileExistsAtPath($path)");
 		return $this->attributesOfItemAtPath($path) != null;
 		}
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
