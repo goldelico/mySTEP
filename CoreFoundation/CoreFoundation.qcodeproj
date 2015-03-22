@@ -8,8 +8,8 @@ export SOURCES+=" Sources/CFString.m"
 export SOURCES+=" Sources/CFBase.h"
 export SOURCES+=" Sources/CFString.h"
 export SOURCES+=" Sources/CoreFoundation.h"
+export SOURCES+=" CoreFoundation-Info.plist"
 export WRAPPER_EXTENSION="framework"
 
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

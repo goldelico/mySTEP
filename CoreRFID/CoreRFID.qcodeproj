@@ -8,7 +8,9 @@ export SOURCES+=" CoreRFID.m"
 export SOURCES+=" CRTag.h"
 export SOURCES+=" CRTagManager.h"
 export SOURCES+=" CRTagManagerDelegate.h"
+export SOURCES+=" Info.plist"
+export SOURCES+=" English.lproj"
 export WRAPPER_EXTENSION="framework"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

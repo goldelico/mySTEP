@@ -34,8 +34,8 @@ export SOURCES+=" IOBluetoothSDPUUID.h"
 export SOURCES+=" IOBluetoothUserNotification.h"
 export SOURCES+=" OBEXFileTransferServices.h"
 export SOURCES+=" OBEXSession.h"
+export SOURCES+=" IOBluetooth-Info.plist"
 export WRAPPER_EXTENSION="framework"
 
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

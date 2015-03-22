@@ -9,7 +9,5 @@ export SOURCES+=" BatteryView.h"
 export SOURCES+=" CoreDevice.h"
 export WRAPPER_EXTENSION="framework"
 
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
