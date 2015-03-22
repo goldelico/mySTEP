@@ -137,11 +137,38 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
+- (NSString *) powerPath:(NSString *) value forType:(NSString *) type
+{
+	int bestQuality;
+	NSString *bestVal=@"";
+	NSFileManager *fm=[NSFileManager defaultManager];
+	NSString *dir=@"/sys/class/power_supply";
+	NSEnumerator *e=[[fm contentsOfDirectoryAtPath:dir error:NULL] objectEnumerator];
+	NSString *device;
+	while((device = [e nextObject]))
+		{ // find matching device
+		NSString *dpath=[dir stringByAppendingPathComponent:device];
+		int quality=0;
+		NSString *val=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:value]];
+			NSLog(@"%@/%@ -> %@", dpath, value, val);
+		if(!val)
+			continue;	// does not provide value
+		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"type"]] isEqualToString:type])
+			quality+=4;	// type matches
+		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"present"]] intValue] == 1)
+			quality+=2;	// is present
+		if([device hasPrefix:@"bq27"])
+			quality++;	// prefer bq27xxx fuel gauge
+		if(!bestVal || quality > bestQuality)
+			bestVal=val, bestQuality=quality;	// better quality value found
+		}
+	NSLog(@"%@/%@ bestval = %@", type, value, bestVal);
+	return bestVal;
+}
+
 - (NSString *) batteryPath:(NSString *) value
 {
-	if([[NSString stringWithContentsOfFile:@"/sys/class/power_supply/bq27000-battery/present"] intValue] == 1)
-		return [NSString stringWithFormat:@"/sys/class/power_supply/bq27000-battery/%@", value];
-	return [NSString stringWithFormat:@"/sys/class/power_supply/twl4030_battery/%@", value];
+	return [self powerPath:value forType:@"Battery"];
 }
 
 - (float) batteryLevel;
@@ -180,7 +207,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([self batteryState] == UIDeviceBatteryStateCharging)
 		{
 		NSString *status;
-		status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
+		status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"USB"]];
 		if([status hasPrefix:@"Charging"])
 			{ // USB charger active
 				{ // USB charger active
@@ -212,10 +239,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			{
 			if([self batteryLevel] > 0.99)
 				return UIDeviceBatteryStateFull;
-			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/status"];
+			status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"USB"]];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateCharging;
-			status=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_ac/status"];
+			status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"Mains"]];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
 			return UIDeviceBatteryStateUnknown;	// we don't know why the battery is charging...
@@ -268,7 +295,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (float) chargerVoltage;
 {
 	// FIXME: use VAC or VBUS whatever is available
-	NSString *val=[NSString stringWithContentsOfFile:@"/sys/class/power_supply/twl4030_usb/voltage_now"];
+	NSString *val=[NSString stringWithContentsOfFile:[self powerPath:@"voltage_now" forType:@"USB"]];
 	return [val floatValue] * 1e-6;
 }
 
