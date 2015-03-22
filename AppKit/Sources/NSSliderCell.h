@@ -48,7 +48,7 @@ typedef enum _NSTickMarkPosition
 	CGFloat _maxValue;
 	//	float _floatValue;	// NSNumber in _contents
 	CGFloat _altIncrementValue;
-	int _numberOfTickMarks;
+	NSInteger _numberOfTickMarks;
 	NSRect _trackRect;
 	NSSliderType _sliderType;
 	NSTickMarkPosition _tickMarkPosition;

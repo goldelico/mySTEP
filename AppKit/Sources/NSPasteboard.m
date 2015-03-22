@@ -110,9 +110,9 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 
 - (NSString *) name						{ return _name; }
 - (NSArray *) types						{ return _types; }
-- (int) changeCount						{ return _changeCount; }
+- (NSInteger) changeCount						{ return _changeCount; }
 
-- (int) addTypes:(NSArray *)newTypes owner:(id)newOwner
+- (NSInteger) addTypes:(NSArray *)newTypes owner:(id)newOwner
 {
 	ASSIGN(_owner, newOwner);
 	ASSIGN(_types, [_types arrayByAddingObjectsFromArray: newTypes]);
@@ -120,7 +120,7 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 	return _changeCount++;
 }
 
-- (int) declareTypes:(NSArray *)newTypes owner:(id)newOwner
+- (NSInteger) declareTypes:(NSArray *)newTypes owner:(id)newOwner
 {
 	ASSIGN(_types, newTypes);
 	ASSIGN(_typesProvided, [_types mutableCopy]);

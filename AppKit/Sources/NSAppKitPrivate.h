@@ -56,7 +56,7 @@
 
 typedef struct _NSGraphicsState
 { // generic graphics state - backends might define their own object structs
-	int _gState;							// unique gState number
+	NSInteger _gState;							// unique gState number
 	NSGraphicsContext *_context;			// associated context
 	struct _NSGraphicsState *_nextOnStack;	// stack pointer
 	NSPoint _patternPhase;
@@ -96,7 +96,7 @@ typedef enum _NSRoundedBezelSegments
 
 @interface NSGraphicsContext (NSPrivate)
 - (_NSGraphicsState *) _copyGraphicsState:(_NSGraphicsState *) state;	// allocate and copy (it not NULL)
-- (int) _currentGState;
+- (NSInteger) _currentGState;
 - (id) _initWithAttributes:(NSDictionary *) attributes;
 @end
 
@@ -180,6 +180,7 @@ typedef enum _NSRoundedBezelSegments
 - (NSView *) _themeFrame;
 - (void) _attachSheet:(NSWindow *) sheet;
 - (void) _becomeSheet;
+- (void) _allocateGraphicsContext;
 @end
 
 @interface NSFontPanel (NSPrivate)
@@ -279,7 +280,7 @@ typedef enum _NSRoundedBezelSegments
 
 @interface NSStatusItem (NSPrivate)
 - (NSMenuItem *) _menuItem;
-- (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
+- (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(CGFloat) len;
 @end
 
 #define BUTTON_EDGES_NORMAL  \
@@ -391,9 +392,9 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 
 @interface NSSplitView (NSPrivate)
 
-- (void) setDividerThickNess: (float)newWidth;
+- (void) setDividerThickNess: (CGFloat)newWidth;
 - (float) draggedBarWidth;
-- (void) setDraggedBarWidth: (float)newWidth;
+- (void) setDraggedBarWidth: (CGFloat)newWidth;
 - (void) setDimpleImage:(NSImage *)anImage resetDividerThickness: (BOOL)flag;
 - (NSImage *) dimpleImage;
 - (NSColor *) backgroundColor;

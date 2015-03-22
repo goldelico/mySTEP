@@ -215,7 +215,7 @@ If not, write to the Free Software Foundation,
 
 - (void) updateChangeCount:(NSDocumentChangeType)change
 {
-	int i, count = [_windowControllers count];
+	NSInteger i, count = [_windowControllers count];
 	BOOL isEdited;
 	
 	switch (change)
@@ -320,7 +320,7 @@ If not, write to the Free Software Foundation,
 
 - (NSString *) displayName
 {
-	static NSUInteger untitledCount = 1;
+	static int untitledCount = 1;
 	if ([self fileName] != nil)
 		return [[[self fileName] lastPathComponent] stringByDeletingPathExtension];
 	if(!_documentIndex)
@@ -376,7 +376,7 @@ If not, write to the Free Software Foundation,
 	NSFileWrapper *wrapper;
 	DEPRECATED;
 	wrapper=[[[NSFileWrapper alloc] initWithPath:fileName] autorelease];
-	if(!wrapper) return nil;	// outError has been set
+	if(!wrapper) return NO;	// outError has been set
 	return [self readFromFileWrapper:wrapper ofType:typeName error:NULL];
 }
 
@@ -461,7 +461,7 @@ If not, write to the Free Software Foundation,
 	//FIXME if we have accessory -- store the desired save type somewhere.
 }
 
-- (int) runModalSavePanel:(NSSavePanel *)savePanel 
+- (NSInteger) runModalSavePanel:(NSSavePanel *)savePanel
        withAccessoryView:(NSView *)accessoryView
 {
 	[savePanel setAccessoryView:accessoryView];
@@ -557,7 +557,7 @@ If not, write to the Free Software Foundation,
 
 // Page layout panel (Page Setup)
 
-- (int) runModalPageLayoutWithPrintInfo:(NSPrintInfo *)printInfo
+- (NSInteger) runModalPageLayoutWithPrintInfo:(NSPrintInfo *)printInfo
 {
 	return [[NSPageLayout pageLayout] runModalWithPrintInfo:printInfo];
 }
@@ -778,7 +778,7 @@ closing. It is closed without saving any information.
 {
 	if (_docFlags.inClose == NO)
 		{
-		int count = [_windowControllers count];
+		NSInteger count = [_windowControllers count];
 		/* Closing a windowController will also send us a close, so make
 		sure we don't go recursive */
 		_docFlags.inClose = YES;

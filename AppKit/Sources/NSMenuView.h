@@ -30,7 +30,7 @@
 	NSMenuView *_attachedMenuView;
 	NSMutableArray *_cells;	// all cells
 	NSRect *_rectOfCells;	// sized using realloc()
-    int _highlightedItemIndex;
+    NSInteger _highlightedItemIndex;
     CGFloat _horizontalEdgePadding;
     CGFloat _imageAndTitleOffset;
     CGFloat _imageAndTitleWidth;

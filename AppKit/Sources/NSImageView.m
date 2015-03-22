@@ -38,12 +38,12 @@ id __imageCellClass = nil;
 	return c;
 }
 
-- (SEL) action							{ return action; }
-- (int) tag								{ return tag; }
-- (id) target							{ return target; }
-- (void) setAction:(SEL)aSelector		{ action = aSelector; }
-- (void) setTag:(int)anInt				{ tag = anInt; }
-- (void) setTarget:(id)anObject			{ target = anObject; }
+- (SEL) action								{ return action; }
+- (NSInteger) tag							{ return tag; }
+- (id) target								{ return target; }
+- (void) setAction:(SEL)aSelector			{ action = aSelector; }
+- (void) setTag:(NSInteger)anInt			{ tag = anInt; }
+- (void) setTarget:(id)anObject				{ target = anObject; }
 
 - (NSImageScaling) imageScaling				{ return _d.imageScaling; }
 - (NSImageAlignment) imageAlignment			{ return _ic.imageAlignment; }
@@ -54,7 +54,7 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"setImageScaling");
 #endif
-	_d.imageScaling = scaling;
+	_d.imageScaling = (unsigned int) scaling;
 	[_contents setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
 #if 0
 	NSLog(@"setImageScaling done");

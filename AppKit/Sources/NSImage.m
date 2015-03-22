@@ -152,7 +152,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 + (BOOL) canInitWithPasteboard:(NSPasteboard*)pasteboard
 {														// FIX ME: Implement
 	NSArray *array = [NSImageRep registeredImageRepClasses];
-	int i, count = [array count];
+	NSInteger i, count = [array count];
 	
 	for (i = 0; i < count; i++)
 		if ([[array objectAtIndex: i] canInitWithPasteboard: pasteboard])
@@ -403,7 +403,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			break;
 		}
 	if([bestRep isKindOfClass:[NSCachedImageRep class]])
-		_cache=[bestRep retain];	// just save the reference
+		_cache=(NSCachedImageRep *) [bestRep retain];	// just save the reference
 	else
 		{ // draw into new cache
 		[self lockFocusOnRepresentation:bestRep];	// render into cache window
@@ -677,7 +677,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	int score=0;
 	int imageResolution, deviceResolution;
-	int bpp;	// bits per plane
+	NSInteger bpp;	// bits per plane
 	if([r isKindOfClass:[NSCachedImageRep class]])
 		return -1;	// ignore in scoring process
 	if(!_img.prefersColorMatch)

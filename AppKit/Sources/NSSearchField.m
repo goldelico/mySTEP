@@ -99,8 +99,8 @@
 - (void) setSendsWholeSearchString:(BOOL) flag; { sendsWholeSearchString=flag; }
 - (BOOL) sendsSearchStringImmediately; { return sendsSearchStringImmediately; }
 - (void) setSendsSearchStringImmediately:(BOOL) flag; { sendsSearchStringImmediately=flag; }
-- (int) maximumRecents; { return maxRecents; }
-- (void) setMaximumRecents:(int) max;
+- (NSInteger) maximumRecents; { return maxRecents; }
+- (void) setMaximumRecents:(NSInteger) max;
 {
 	if(max > 254) max=254;
 	maxRecents=max;

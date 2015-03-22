@@ -709,7 +709,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	else if([_contents isKindOfClass:[NSAttributedString class]])
 		string=_contents;   // is already an attributed string
 	else
-		string=[[[NSAttributedString alloc] initWithString:[_contents description] attributes:attribs] autorelease];
+		string=[[[NSAttributedString alloc] initWithString:_contents?[_contents description]:@"(nil)" attributes:attribs] autorelease];
 #if 0
 	NSLog(@"string=%@", string);
 #endif

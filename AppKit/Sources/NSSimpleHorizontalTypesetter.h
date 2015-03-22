@@ -142,7 +142,7 @@ typedef struct _NSTypesetterGlyphInfo
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 #define NSGlyphInfoAtIndex(IDX) (&glyphs[IDX])
-- (void) breakLineAtIndex:(unsigned) location;
+- (void) breakLineAtIndex:(NSUInteger) location;
 - (NSUInteger) capacityOfTypesetterGlyphInfo;
 - (void) clearAttributesCache;
 - (void) clearGlyphCache;

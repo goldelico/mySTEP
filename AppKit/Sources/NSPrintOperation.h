@@ -57,7 +57,7 @@ extern NSString *NSPrintOperationExistsException;
 	NSString *_path;		// if we want to save to file
 	NSView *_view;			// view to print
 	NSRect _insideRect;		// rectangle
-	int _currentPage;		// current page number
+	NSInteger _currentPage;		// current page number
 	NSPrintingPageOrder _pageOrder;
 	BOOL _cancelled;
 	BOOL _success;

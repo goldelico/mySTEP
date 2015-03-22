@@ -36,8 +36,8 @@ enum
 	double _warningValue;	// switching to yellow
 	double _criticalValue;	// switching to red
 	double _maxValue;
-	int _numberOfMajorTickMarks;
-	int _numberOfTickMarks;
+	NSInteger _numberOfMajorTickMarks;
+	NSInteger _numberOfTickMarks;
 	NSLevelIndicatorStyle _style;
 	NSTickMarkPosition _tickMarkPosition;
 }

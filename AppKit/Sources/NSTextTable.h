@@ -145,10 +145,10 @@ typedef NSUInteger NSTextTableLayoutAlgorithm;
 @interface NSTextTableBlock : NSTextBlock
 {
 	NSTextTable *_table;
-	int _col;
-	int _cspan;
-	int _row;
-	int _rspan;
+	NSInteger _col;
+	NSInteger _cspan;
+	NSInteger _row;
+	NSInteger _rspan;
 }
 
 - (NSInteger) columnSpan;

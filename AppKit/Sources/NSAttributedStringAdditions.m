@@ -755,14 +755,16 @@ int ch, cNibble = 2, b = 0;
 - (id) initWithRTF:(NSData *)data documentAttributes:(NSDictionary **)dict
 {
 	const void *bytes = [data bytes];
-	int len = [data length];
+	NSInteger len = [data length];
+	NSString *str;
 	__buf = objc_calloc(len , sizeof(__buf)+1);
 	if ((GSParseRTF(bytes)) != ecOK)
 		// FIXME: should do more specific error handling
 		NSLog(@"error parsing RTF");
-	return [[NSString alloc] initWithCStringNoCopy:__buf 
+	str=[[[NSString alloc] initWithCStringNoCopy:__buf
 											length:strlen(__buf)
-									  freeWhenDone:YES];
+									  freeWhenDone:YES] autorelease];
+	return [[[NSAttributedString alloc] initWithString:str attributes:nil] autorelease];
 }
 
 - (id) initWithRTFD:(NSData *)data documentAttributes:(NSDictionary **)dict
@@ -896,7 +898,7 @@ static BOOL done;
 			{ // fonttbl example: {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;}
 			if([fonts count] == 0)
 				[rtf appendString:@"{\fonttbl"];	// first font
-			[rtf appendFormat:@"\f%d", [fonts count]];	// unique number
+			[rtf appendFormat:@"\f%lu", (unsigned long)[fonts count]];	// unique number
 														//// what does \fswiss resp. \fnil mean?
 														// write \fcharset
 			[rtf appendFormat:@" %@;", [font fontName]];	// e.g. Helvetica-Bold
@@ -915,7 +917,7 @@ static BOOL done;
 	// filetbl - optional
 	if([colors count])
 		{ // colortbl example: {\colortbl;\red255\green255\blue255;\red118\green15\blue80;}
-		int c, ccnt=[colors count];
+		NSInteger c, ccnt=[colors count];
 		[rtf appendString:@"{\\colortbl;\n"];	// open color table
 		for(c=0; c<ccnt; i++)
 			{
@@ -939,7 +941,8 @@ static BOOL done;
 		NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
 		NSFont *font=[attr objectForKey:NSFontAttributeName];
 		unichar c;
-		[rtf appendFormat:@"\f%d\fs%d", [fonts indexOfObject:[font fontName]], [font pointSize]*TWIPSperPOINT];	// select font
+			// CHECKME: is %d really an integer or is a float permitted?
+		[rtf appendFormat:@"\f%lu\fs%d", (unsigned long)[fonts indexOfObject:[font fontName]], (int)([font pointSize]*TWIPSperPOINT)];	// select font
 		// FIXME: encode other attributes like colors
 		while(rng.length-- > 0)
 			{
@@ -1066,7 +1069,7 @@ static BOOL done;
 	if(!c)
 		c=[[NSCharacterSet characterSetWithCharactersInString:@"\n"] retain];
 	if(aRange.location+aRange.length > len || location > len)
-		[NSException raise:NSRangeException format:@"Invalid location %u and range %@", location, NSStringFromRange(aRange)];	// raise exception
+		[NSException raise:NSRangeException format:@"Invalid location %lu and range %@", (unsigned long)location, NSStringFromRange(aRange)];	// raise exception
 	while(aRange.length-- > 0 && aRange.location < len && aRange.location < location)
 		{
 		if([c characterIsMember:[s characterAtIndex:aRange.location]])
@@ -1089,7 +1092,7 @@ static BOOL done;
 	rng.location=[self nextWordFromIndex:location forward:NO];
 	rng.length=[self nextWordFromIndex:location forward:YES]-rng.location;
 #if 1
-	NSLog(@"doubleClickAtIndex:%u -> %@", location, NSStringFromRange(rng));
+	NSLog(@"doubleClickAtIndex:%lu -> %@", (unsigned long)location, NSStringFromRange(rng));
 #endif
 	return rng;
 }
@@ -1101,12 +1104,12 @@ static BOOL done;
 	static NSCharacterSet *c;
 	NSRange r;
 #if 1
-	NSLog(@"nextWordFromIndex:%u forward:%d", location, flag);
+	NSLog(@"nextWordFromIndex:%lu forward:%d", (unsigned long)location, flag);
 #endif
 	if(!c)
 		c=[[[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet] retain];
 	if(location > len || (location == len && flag) || (location == 0 && !flag))
-		[NSException raise:NSRangeException format:@"Invalid location %u", location];	// raise exception
+		[NSException raise:NSRangeException format:@"Invalid location %lu", (unsigned long)location];	// raise exception
 	if(flag)
 		r=[s rangeOfCharacterFromSet:c options:0 range:NSMakeRange(location+1, len-location-1)];
 	else
@@ -1167,7 +1170,7 @@ static BOOL done;
 
 + (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
 {
-	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%C", NSAttachmentCharacter]
+	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%C", (unichar)NSAttachmentCharacter]
 										   attributes:[NSDictionary dictionaryWithObject:attach forKey:NSAttachmentAttributeName]] autorelease]; }
 
 /*

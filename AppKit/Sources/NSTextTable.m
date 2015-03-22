@@ -311,10 +311,10 @@ static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRect
 }
 
 - (id) initWithTable:(NSTextTable *) table
-		 startingRow:(int) row
-			 rowSpan:(int) rspan
-	  startingColumn:(int) col
-		  columnSpan:(int) cspan;
+		 startingRow:(NSInteger) row
+			 rowSpan:(NSInteger) rspan
+	  startingColumn:(NSInteger) col
+		  columnSpan:(NSInteger) cspan;
 {
 	if((self=[super init]))
 		{
@@ -341,10 +341,10 @@ static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRect
  */
 
 
-- (int) columnSpan; { return _cspan; }
-- (int) rowSpan; { return _rspan; }
-- (int) startingColumn; { return _col; }
-- (int) startingRow; { return _row; }
+- (NSInteger) columnSpan; { return _cspan; }
+- (NSInteger) rowSpan; { return _rspan; }
+- (NSInteger) startingColumn; { return _col; }
+- (NSInteger) startingRow; { return _row; }
 - (NSTextTable *) table; { return _table; }
 
 @end

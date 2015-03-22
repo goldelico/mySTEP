@@ -148,7 +148,7 @@ id obj = nil;
 // Use tag in menu cell to identify
 - (NSString*) item2title:(NSCell*)item		// slot in menu titles array that
 {											// contains the full title of the
-	unsigned p;									// service.  Return nil if this is
+	NSInteger p;									// service.  Return nil if this is
 												// not one of our servicemenu cells
 	if ([item target] != self || ((p = [item tag]) > [menuTitles count]))				
 		return nil;
@@ -276,7 +276,7 @@ unsigned pos;
 		SEL sel = @selector(doService:);
 		NSMenu *submenu = nil;
 		NSArray *itemArray = [[servicesMenu itemArray] retain];
-		unsigned pos = [itemArray count];
+		NSInteger pos = [itemArray count];
 
 		while (pos > 0)
 			[servicesMenu removeItem: [itemArray objectAtIndex: --pos]];
@@ -380,8 +380,8 @@ unsigned pos;
 - (void) registerSendTypes:(NSArray *)sendTypes
                returnTypes:(NSArray *)returnTypes
 {
-BOOL didChange = NO;
-unsigned i;
+	BOOL didChange = NO;
+	NSInteger i;
 
 	for (i = 0; i < [sendTypes count]; i++)
 		{
@@ -397,7 +397,7 @@ unsigned i;
         	}
 		else
 			{
-          	unsigned count = [returnSet count];
+          	NSInteger count = [returnSet count];
 
 			[returnSet addObjectsFromArray: returnTypes];
 			if ([returnSet count] != count)
@@ -453,9 +453,9 @@ NSDictionary *info = [title2info objectForKey: title];
 NSArray *sendTypes = [info objectForKey: @"NSSendTypes"];
 NSArray *returnTypes = [info objectForKey: @"NSReturnTypes"];
 NSWindow *resp = (NSWindow *) [[NSApp keyWindow] firstResponder];
-unsigned es = [sendTypes count];
-unsigned er = [returnTypes count];
-unsigned i, j;							// If the menu item is not in our map,
+NSInteger es = [sendTypes count];
+NSInteger er = [returnTypes count];
+NSInteger i, j;							// If the menu item is not in our map,
 										// it must be the cell containing a  
 	if (title == nil)					// sub-menu - so we see if any cell in 
 		return YES;						// the submenu is valid.

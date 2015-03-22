@@ -137,8 +137,8 @@
 	[coder encodeObject:_content forKey:@"content"];
 	[coder encodeBool:_allowsMultipleSelection forKey:@"allowedMultipleSelection"];
 	[coder encodeSize:_maxItemSize forKey:@"maxItemSize"];
-	[coder encodeInt:_maxNumberOfColumns forKey:@"maxNumberOfColumns"];
-	[coder encodeInt:_maxNumberOfRows forKey:@"maxNumberOfRows"];
+	[coder encodeInteger:_maxNumberOfColumns forKey:@"maxNumberOfColumns"];
+	[coder encodeInteger:_maxNumberOfRows forKey:@"maxNumberOfRows"];
 	[coder encodeSize:_minItemSize forKey:@"minItemSize"];
 	[coder encodeBool:_selectable forKey:@"selectable"];
 	[super encodeWithCoder:coder];

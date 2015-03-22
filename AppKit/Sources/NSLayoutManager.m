@@ -135,7 +135,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSSize) attachmentSizeForGlyphAtIndex:(NSUInteger)index;
 {
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	NIMP;
 	return NSZeroSize;
 }
@@ -341,7 +341,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 							r[i].origin.x+=origin.x;
 							r[i].origin.y+=origin.y;	// move to drawing origin
 #if 1
-							NSLog(@"fill background %u: %@", i, NSStringFromRect(r[i]));
+							NSLog(@"fill background %lu: %@", (unsigned long)i, NSStringFromRect(r[i]));
 #endif
 							}
 						[color set];	// must be set before drawing (parameter below is only for informational purposes)
@@ -494,7 +494,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				objc_free(glyphs);
 				glyphsToShow.length-=count;
 				glyphsToShow.location+=count;
-				[[attribs objectForKey:NSUnderlineColorAttributeName] set];
+				[(NSColor *) [attribs objectForKey:NSUnderlineColorAttributeName] set];
 				[[attribs objectForKey:NSUnderlineStyleAttributeName] intValue];
 				/* get underline attribute value
 				 [self drawUnderlineForGlyphRange:(NSRange)glyphRange 
@@ -524,7 +524,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 { // happens if we use fixed line height
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	return _glyphs[index].drawsOutsideLineFragment;
 }
 
@@ -756,7 +756,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		{
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 		if(glyphIndex >= _numberOfGlyphs)	// still not enough glyphs for this index
-			[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];		
+			[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 		}
 	return _glyphs[glyphIndex].glyph;
 }
@@ -978,7 +978,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 	switch(attributeTag) {
 		case NSGlyphAttributeSoft:
 			if(!_glyphs[glyphIndex].extra) return 0;
@@ -993,7 +993,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			if(!_glyphs[glyphIndex].extra) return 0;
 			return _glyphs[glyphIndex].extra->inscribeAttribute;
 		default:
-			[NSException raise:@"NSLayoutManager" format:@"unknown intAttribute tag: %u", attributeTag];
+			[NSException raise:@"NSLayoutManager" format:@"unknown intAttribute tag: %ld", (long)attributeTag];
 			return 0;
 	}
 }
@@ -1134,7 +1134,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(!layoutFlag)
 		[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];	// do additional layout
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	lfr=_glyphs[index].lineFragmentRect;
 	if(range)
 		{ // find the effective range by searching back and forth from the current index for glyphs with the same lfr
@@ -1167,7 +1167,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(!flag)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	lfur=_glyphs[index].usedLineFragmentRect;
 	if(range)
 		{ // find the effective range by searching back and forth from the current index for glyphs with the same lfr
@@ -1193,7 +1193,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	return _glyphs[index].location;
 }
 
@@ -1201,7 +1201,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	return _glyphs[index].notShownAttribute;
 }
 
@@ -1216,7 +1216,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 { // return a glpyh range with no kerning
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 	//	NIMP;
 	// search backwards until the first glyph with a location is found
 	// then find the range up to but not including the next location
@@ -1352,7 +1352,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	// FIXME: locate glyph run
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 	_glyphs[glyphIndex].glyph=newGlyph;	// simply change but don't invalidate anything
 }
 
@@ -1419,7 +1419,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setCharacterIndex:(NSUInteger) charIndex forGlyphAtIndex:(NSUInteger) index;
 { // character indices should be ascending with glyphIndex... so be careful what you do by calling this method!
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	_glyphs[index].characterIndex=charIndex;
 }
 
@@ -1430,7 +1430,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setDrawsOutsideLineFragment:(BOOL) flag forGlyphAtIndex:(NSUInteger) index;
 {
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	_glyphs[index].drawsOutsideLineFragment=flag;
 }
 
@@ -1508,7 +1508,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setNotShownAttribute:(BOOL) flag forGlyphAtIndex:(NSUInteger) index;
 {
 	if(index >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)index];
 	_glyphs[index].notShownAttribute=flag;
 }
 
@@ -1628,7 +1628,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		   effectiveRange:(NSRangePointer) effectiveRange;
 {
 	if(loc >= [_textStorage length])
-		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %lu", (unsigned long)loc];
 	return NIMP;
 }
 
@@ -1638,7 +1638,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				  inRange:(NSRange) limit;
 {
 	if(loc >= [_textStorage length])
-		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %lu", (unsigned long)loc];
 	return NIMP;
 }
 
@@ -1647,7 +1647,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 											   inRange:(NSRange) limit;
 {
 	if(loc >= [_textStorage length])
-		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %lu", (unsigned long)loc];
 	return NIMP;
 }
 
@@ -1655,7 +1655,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 										effectiveRange:(NSRangePointer) effectiveRange;
 {
 	if(loc >= [_textStorage length])
-		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %lu", (unsigned long)loc];
 	return NIMP;
 }
 
@@ -1699,7 +1699,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(!flag)
 		[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)]; // ensure layout up to and including this index
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 	// FIXME: we could do a binary search the best matching text container's glyph range...
 	// and get rid of the _glyphs[].textContainer variable (which needs some bytes per glyph)
 	tc=_glyphs[glyphIndex].textContainer;
@@ -1868,7 +1868,7 @@ forStartingGlyphAtIndex:(NSUInteger) glyph
 - (void) setIntAttribute:(NSInteger) attributeTag value:(NSInteger) val forGlyphAtIndex:(NSUInteger) glyphIndex;
 { // subclasses must provide storage for additional attributeTag values and call this for the "old" ones
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %lu", (unsigned long)glyphIndex];
 	allocateExtra(&_glyphs[glyphIndex]);
 	switch(attributeTag) {
 		case NSGlyphAttributeSoft:
@@ -1884,7 +1884,7 @@ forStartingGlyphAtIndex:(NSUInteger) glyph
 			_glyphs[glyphIndex].extra->inscribeAttribute=val;
 			break;
 		default:
-			[NSException raise:@"NSLayoutManager" format:@"unknown intAttribute tag: %u", attributeTag];
+			[NSException raise:@"NSLayoutManager" format:@"unknown intAttribute tag: %ld", (long)attributeTag];
 	}
 }
 

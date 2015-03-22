@@ -78,7 +78,7 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 			return _currentProgress;					
 	}
 #if 1
-	NSLog(@"undefined curve %d", _animationCurve);
+	NSLog(@"undefined curve %lu", (unsigned long)_animationCurve);
 #endif
 	return 0.0;
 }

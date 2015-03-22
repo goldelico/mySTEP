@@ -37,7 +37,7 @@
 
 @interface NSControl : NSView  <NSCoding>
 {
-	int _tag;
+	NSInteger _tag;
 	id _cell;
 	id _delegate;	// available for subclasses
 	BOOL _ignoresMultiClick;

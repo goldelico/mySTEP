@@ -89,7 +89,7 @@ enum {
 	NSColorList *_colorList;
 	id _target;
 	SEL _action;
-	int _mode;
+	NSInteger _mode;
 	BOOL _isContinuous;
 	BOOL _showsAlpha;
 }

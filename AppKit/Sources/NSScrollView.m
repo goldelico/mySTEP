@@ -771,7 +771,7 @@ static Class __rulerViewClass = nil;
 			NSUInteger len=0;
 			amts=(struct _AMTS *) [aDecoder decodeBytesForKey:@"NSScrollAmts" returnedLength:&len];
 			if(len != sizeof(*amts))
-				NSLog(@"scroll amts=%p[%u]", amts, len);
+				NSLog(@"scroll amts=%p[%lu]", amts, (unsigned long)len);
 			else
 				{ // byte swap from bigendian to host byte order // FIXME: really?
 #if 0

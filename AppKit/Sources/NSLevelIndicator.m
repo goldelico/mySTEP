@@ -207,10 +207,10 @@
 - (NSImage *) image; { return _image; }
 - (double) maxValue; { return _maxValue; }
 - (double) minValue; { return _minValue; }
-- (int) numberOfMajorTickMarks; { return _numberOfMajorTickMarks; }
-- (int) numberOfTickMarks; { return _numberOfTickMarks; }
+- (NSInteger) numberOfMajorTickMarks; { return _numberOfMajorTickMarks; }
+- (NSInteger) numberOfTickMarks; { return _numberOfTickMarks; }
 
-- (NSRect) rectOfTickMarkAtIndex:(int) index;
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
 {
 	NIMP; return NSZeroRect;
 }
@@ -220,13 +220,13 @@
 - (void) setLevelIndicatorStyle:(NSLevelIndicatorStyle) style; { _style=style; }
 - (void) setMaxValue:(double) val; { _maxValue=val; }
 - (void) setMinValue:(double) val; { _minValue=val; }
-- (void) setNumberOfMajorTickMarks:(int) count; { _numberOfMajorTickMarks=count; }
-- (void) setNumberOfTickMarks:(int) count; { _numberOfTickMarks=count; }
+- (void) setNumberOfMajorTickMarks:(NSInteger) count; { _numberOfMajorTickMarks=count; }
+- (void) setNumberOfTickMarks:(NSInteger) count; { _numberOfTickMarks=count; }
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos; { _tickMarkPosition=pos; }
 - (void) setWarningValue:(double) val; { _warningValue=val; }
 - (NSTickMarkPosition) tickMarkPosition; { return _tickMarkPosition; }
 
-- (double) tickMarkValueAtIndex:(int) index;
+- (double) tickMarkValueAtIndex:(NSInteger) index;
 {
 	return _minValue+(index*(_maxValue-_minValue))/_numberOfTickMarks;
 }
@@ -278,18 +278,18 @@
 - (double) criticalValue; { return [_cell criticalValue]; }
 - (double) maxValue; { return [_cell maxValue]; }
 - (double) minValue; { return [_cell minValue]; }
-- (int) numberOfMajorTickMarks; { return [_cell numberOfMajorTickMarks]; }
-- (int) numberOfTickMarks; { return [_cell numberOfTickMarks]; }
-- (NSRect) rectOfTickMarkAtIndex:(int) index; { return [_cell rectOfTickMarkAtIndex:index]; }
+- (NSInteger) numberOfMajorTickMarks; { return [_cell numberOfMajorTickMarks]; }
+- (NSInteger) numberOfTickMarks; { return [_cell numberOfTickMarks]; }
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index; { return [_cell rectOfTickMarkAtIndex:index]; }
 - (void) setCriticalValue:(double) val; { [_cell setCriticalValue:val]; }
 - (void) setMaxValue:(double) val; { [_cell setMaxValue:val]; }
 - (void) setMinValue:(double) val; { [_cell setMinValue:val]; }
-- (void) setNumberOfMajorTickMarks:(int) count; { [_cell setNumberOfMajorTickMarks:count]; }
-- (void) setNumberOfTickMarks:(int) count; { [_cell setNumberOfTickMarks:count]; }
+- (void) setNumberOfMajorTickMarks:(NSInteger) count; { [_cell setNumberOfMajorTickMarks:count]; }
+- (void) setNumberOfTickMarks:(NSInteger) count; { [_cell setNumberOfTickMarks:count]; }
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos; { [_cell setTickMarkPosition:pos]; }
 - (void) setWarningValue:(double) val; { [_cell setWarningValue:val]; }
 - (NSTickMarkPosition) tickMarkPosition; { return [_cell tickMarkPosition]; }
-- (double) tickMarkValueAtIndex:(int) index; { return [_cell tickMarkValueAtIndex:index]; }
+- (double) tickMarkValueAtIndex:(NSInteger) index; { return [_cell tickMarkValueAtIndex:index]; }
 - (double) warningValue; { return [_cell warningValue]; }
 
 @end

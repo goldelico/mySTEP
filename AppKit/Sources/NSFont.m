@@ -791,7 +791,7 @@ static BOOL changed;
 		NSLog(@"scan %@", dir);
 #endif
 		dir=[dir stringByExpandingTildeInPath];
-		f=[[[NSFileManager defaultManager] directoryContentsAtPath:dir] objectEnumerator];
+		f=[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:NULL] objectEnumerator];
 		while((file=[f nextObject]))
 			{
 			if([file hasPrefix:@"."])

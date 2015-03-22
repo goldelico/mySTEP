@@ -52,7 +52,7 @@ typedef enum {
 
 @interface NSImageCell : NSCell <NSCopying, NSCoding>
 {
-	int tag;
+	NSInteger tag;
 	id target;
 	SEL action;
 	struct __ImageCellFlags {

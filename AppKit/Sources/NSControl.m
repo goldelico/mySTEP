@@ -63,7 +63,7 @@ static Class __controlCellClass = Nil;
 - (void) setNeedsDisplay		{ [self setNeedsDisplay:YES]; }
 - (void) setFont:(NSFont*)font	{ [_cell setFont:font]; }
 - (NSFont*) font				{ return [_cell font]; }
-- (int) selectedTag				{ return [[self selectedCell] tag]; }
+- (NSInteger) selectedTag		{ return [[self selectedCell] tag]; }
 - (int) intValue				{ return [[self selectedCell] intValue]; }
 - (NSInteger) integerValue		{ return [[self selectedCell] integerValue]; }
 - (float) floatValue			{ NSCell *cell; return (cell=[self selectedCell])?[cell floatValue]:0.0; }
@@ -308,9 +308,9 @@ static Class __controlCellClass = Nil;
 	[self setNeedsDisplay:YES];
 }
 
-- (void) setTag:(int)anInt					{ _tag = anInt; }
-- (int) tag									{ return _tag; }
-- (int) sendActionOn:(int)msk				{ return [(NSCell *) _cell sendActionOn:msk];}
+- (void) setTag:(NSInteger)anInt			{ _tag = anInt; }
+- (NSInteger) tag							{ return _tag; }
+- (NSInteger) sendActionOn:(NSInteger)msk			{ return [(NSCell *) _cell sendActionOn:msk];}
 - (SEL) action								{ return [_cell action]; }
 - (void) setAction:(SEL)aSelector			{ [_cell setAction:aSelector]; }
 - (id) target								{ return [_cell target]; }

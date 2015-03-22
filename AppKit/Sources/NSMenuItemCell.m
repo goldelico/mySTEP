@@ -39,6 +39,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #define ARROW_HEIGHT	(2.0*3.0/4.0*ARROW_WIDTH)	// make triangular
 
 @interface NSMenuItemCell (Private)
+// FIXME: why is this a mutable string?
 - (NSMutableAttributedString *) _keyEquivalentAttributedString;
 - (NSImage *) _stateImage;
 - (NSColor *) _textColor;
@@ -195,7 +196,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSRange r;
 	BOOL shift;
 	if([key length] == 0 || [_controlView isHorizontal])
-		return [[[NSAttributedString alloc] initWithString:@""] autorelease]; // no shortcut defined and never display on horizontal menus
+		return [[[NSMutableAttributedString alloc] initWithString:@""] autorelease]; // no shortcut defined and never display on horizontal menus
 	m=[menuItem keyEquivalentModifierMask]; // get mask
 	shift=(m&NSShiftKeyMask);	// mask is set (Function keys only)
 #if 0
@@ -670,8 +671,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	return titleWidth;
 }
 
-- (int) tag								{ return tag; }
-- (void) setTag:(int)anInt				{ tag = anInt; }
+- (NSInteger) tag								{ return tag; }
+- (void) setTag:(NSInteger)anInt				{ tag = anInt; }
 
 - (id) initWithCoder:(NSCoder *) aDecoder
 {

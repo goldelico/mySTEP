@@ -103,10 +103,10 @@ typedef NSInteger NSTypesetterBehavior;
 		struct NSGlyphStorageExtra {
 			NSSize attachmentSize;
 			NSDictionary *temporaryAttributes;	// FIXME: these are NOT indexed by the glyph but by the character!!!
-			int softAttribute;	// integer attributes
-			int elasticAttribute;
-			int bidiLevelAttribute;
-			int inscribeAttribute;
+			NSInteger softAttribute;	// integer attributes
+			NSInteger elasticAttribute;
+			NSInteger bidiLevelAttribute;
+			NSInteger inscribeAttribute;
 		} *extra;	// extra data allocated on demand (NULL otherwise)
 		NSUInteger characterIndex;	// the character index
 		// define some int Attribute and bit fields

@@ -71,7 +71,7 @@ typedef enum NSBezierPathElement
 @interface NSBezierPath : NSObject <NSCopying, NSCoding>
 {
 	@protected
-	int _dashCount;
+	NSInteger _dashCount;
 	float _dashPhase;
 	float *_dashPattern;
 	float _lineWidth;

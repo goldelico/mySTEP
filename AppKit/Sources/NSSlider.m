@@ -247,7 +247,8 @@ static Class _sliderCellClass;
 
 - (double) minValue						{ return _minValue; }
 - (double) maxValue						{ return _maxValue; }
-- (int) isVertical						{ return _isVertical; }
+// FIXME: is vertical if height > width
+- (NSInteger) isVertical				{ return _isVertical; }
 - (double) altIncrementValue			{ return _altIncrementValue; }
 + (BOOL) prefersTrackingUntilMouseUp	{ return YES; }
 - (NSRect) trackRect					{ return _trackRect; }
@@ -255,14 +256,14 @@ static Class _sliderCellClass;
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos; { _tickMarkPosition=pos; }
 - (NSTickMarkPosition) tickMarkPosition; { return _tickMarkPosition; }
 
-- (double) tickMarkValueAtIndex:(int) index;
+- (double) tickMarkValueAtIndex:(NSInteger) index;
 {
 	if(_numberOfTickMarks == 0)
 		return _minValue;
 	return _minValue+(index*(_maxValue-_minValue))/_numberOfTickMarks;
 }
 
-- (NSRect) rectOfTickMarkAtIndex:(int) index;
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
 {
 	NSRect r=NSZeroRect;
 	CGFloat w=2.0+16.0;	// knob size
@@ -335,16 +336,16 @@ static Class _sliderCellClass;
 	return value;
 }
 
-- (int) indexOfTickMarkAtPoint:(NSPoint) point;
+- (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
 {
 	NIMP;
 	return NSNotFound;
 }
 
 - (BOOL) allowsTickMarkValuesOnly;					{ return _allowTickMarkValuesOnly; }
-- (int) numberOfTickMarks;							{ return _numberOfTickMarks; }
+- (NSInteger) numberOfTickMarks;					{ return _numberOfTickMarks; }
 - (void) setAllowsTickMarkValuesOnly:(BOOL) flag;	{ _allowTickMarkValuesOnly=flag; }
-- (void) setNumberOfTickMarks:(int) num;			{ _numberOfTickMarks=num > 0?num:0; }
+- (void) setNumberOfTickMarks:(NSInteger) num;		{ _numberOfTickMarks=num > 0?num:0; }
 - (void) setSliderType:(NSSliderType) sliderType;	{ _sliderType=sliderType; }
 - (NSSliderType) sliderType;						{ return _sliderType; }
 
@@ -439,7 +440,7 @@ static Class _sliderCellClass;
 }
 
 - (NSImage *) image							{ return [_cell image]; }
-- (int) isVertical							{ return [_cell isVertical]; }
+- (NSInteger) isVertical							{ return [_cell isVertical]; }
 // NOT TESTED: - (BOOL) isFlipped							{ return YES; }
 - (CGFloat) knobThickness					{ return [_cell knobThickness]; }
 - (void) setImage:(NSImage*)backgroundImg	{ [_cell setImage:backgroundImg]; }
@@ -455,19 +456,19 @@ static Class _sliderCellClass;
 - (BOOL) allowsTickMarkValuesOnly;			{ return [_cell allowsTickMarkValuesOnly]; }
 - (double) altIncrementValue				{ return [_cell altIncrementValue]; }
 - (double) closestTickMarkValueToValue:(double) value;	{ return [_cell closestTickMarkValueToValue:value]; }
-- (int) indexOfTickMarkAtPoint:(NSPoint) point;	{ return [_cell indexOfTickMarkAtPoint:point]; }
+- (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;	{ return [_cell indexOfTickMarkAtPoint:point]; }
 - (double) maxValue							{ return [_cell maxValue]; }
 - (double) minValue							{ return [_cell minValue]; }
-- (int) numberOfTickMarks;					{ return [_cell numberOfTickMarks]; }
-- (NSRect) rectOfTickMarkAtIndex:(int) index;	{ return [_cell rectOfTickMarkAtIndex:index]; }
+- (NSInteger) numberOfTickMarks;					{ return [_cell numberOfTickMarks]; }
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;	{ return [_cell rectOfTickMarkAtIndex:index]; }
 - (void) setAllowsTickMarkValuesOnly:(BOOL)f	{ [_cell setAllowsTickMarkValuesOnly:f]; }
 - (void) setAltIncrementValue:(double)aDouble	{ [_cell setAltIncrementValue:aDouble]; }
 - (void) setMaxValue:(double)aDouble		{ [_cell setMaxValue:aDouble]; }
 - (void) setMinValue:(double)aDouble		{ [_cell setMinValue:aDouble]; }
-- (void) setNumberOfTickMarks:(int) num;	{ [_cell setNumberOfTickMarks:num]; }
+- (void) setNumberOfTickMarks:(NSInteger) num;	{ [_cell setNumberOfTickMarks:num]; }
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;	{ [_cell setTickMarkPosition:pos]; }
 - (NSTickMarkPosition) tickMarkPosition;	{ return [_cell tickMarkPosition]; }
-- (double) tickMarkValueAtIndex:(int) index;	{ return [_cell tickMarkValueAtIndex:index]; }
+- (double) tickMarkValueAtIndex:(NSInteger) index;	{ return [_cell tickMarkValueAtIndex:index]; }
 - (NSRect) trackRect						{ return [_cell trackRect]; }
 - (BOOL) acceptsFirstMouse:(NSEvent*)event	{ return YES; }
 

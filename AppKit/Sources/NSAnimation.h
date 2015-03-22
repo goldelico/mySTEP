@@ -118,7 +118,7 @@ extern NSString *NSViewAnimationFadeOutEffect;
 {
 	NSArray *_viewAnimations;
 	void *_private;
-	int _count;
+	NSInteger _count;
 }
 
 - (id) initWithViewAnimations:(NSArray *) animations;

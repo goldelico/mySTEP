@@ -54,8 +54,8 @@ NSSplitView.h
 	NSRect r, r1, bigRect, vr;
 	NSView *v=nil, *prev = nil;
 	CGFloat minCoord = -1, maxCoord = -1;
-	int offset = 0, i, count;
-	CGFloat divVertical, divHorizontal;
+	NSInteger offset = 0, i, count;
+	CGFloat divVertical = 0, divHorizontal = 0;
 	NSDate *distantFuture;
 	
 	if((count = [_subviews count]) < 2)		// if there are less than two  
@@ -257,7 +257,7 @@ NSSplitView.h
 	
 		{ // split the area up evenly 
 			// FIXME: should be scaled proportionally!
-		int i, count = [_subviews count];
+		NSInteger i, count = [_subviews count];
 		int div = (int)(_dividerThickness * (count - 1));
 		int w = (int)ceilf((NSWidth(_bounds) - div) / count);
 		CGFloat total = 0, maxSize, divRemainder;
@@ -341,7 +341,7 @@ NSSplitView.h
 
 - (void) drawRect:(NSRect)r
 {
-	int i, count = [_subviews count];
+	NSInteger i, count = [_subviews count];
 	
 	if(backgroundColor)
 		{

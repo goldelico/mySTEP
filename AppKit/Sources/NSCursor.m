@@ -44,7 +44,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 
 + (void) pop
 {
-	int cursorStackCount = [__cursorStack count];
+	NSInteger cursorStackCount = [__cursorStack count];
 													// stack is now empty so
 	if(cursorStackCount == 1)						// cursor remains unchanged
 		[(NSCursor *)[__cursorStack lastObject] set];

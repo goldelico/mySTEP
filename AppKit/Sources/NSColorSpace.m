@@ -64,7 +64,7 @@
 		}
 }
 
-- (int) numberOfColorComponents;	// plus alpha!
+- (NSInteger) numberOfColorComponents;	// plus alpha!
 {
 	switch(colorSpaceModel)
 		{

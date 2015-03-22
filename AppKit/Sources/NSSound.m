@@ -42,7 +42,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 + (id) soundNamed:(NSString *) aName;
 {
 	NSSound *sound;
-	NSString *name;
+	NSString *name=aName;
 	NSString *ext;
 	NSString *path;
 	NSArray *fileTypes;
@@ -74,7 +74,6 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		id o;
 		ext=nil;	// ignore extension
 		e = [fileTypes objectEnumerator];
-		name = aName;
 		while((o = [e nextObject]))
 			{
 #if 0

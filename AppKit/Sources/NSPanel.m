@@ -365,9 +365,9 @@ NSReleaseAlertPanel(id alertPanel)
 							//		__alertPanelIsActive = NO;
 }
 
-static int _NSRunPanel(NSPanel *p)
+static NSInteger _NSRunPanel(NSPanel *p)
 { // run any panel
-	int r = NSAlertErrorReturn;	// default
+	NSInteger r = NSAlertErrorReturn;	// default
 #if 1
 	NSLog(@"_NSRunPanel");
 #endif
@@ -378,7 +378,7 @@ static int _NSRunPanel(NSPanel *p)
 	return r;
 }
 
-int
+NSInteger
 NSRunAlertPanel(NSString *title,
 				NSString *msg,
 				NSString *defaultButton,
@@ -395,7 +395,7 @@ NSRunAlertPanel(NSString *title,
 	return _NSRunPanel(p);
 }
 
-int
+NSInteger
 NSRunCriticalAlertPanel(NSString *title,
 						NSString *msg,
 						NSString *defaultButton,
@@ -412,7 +412,7 @@ NSRunCriticalAlertPanel(NSString *title,
 	return _NSRunPanel(p);
 }
 
-int
+NSInteger
 NSRunInformationalAlertPanel(NSString *title,
 							 NSString *msg,
 							 NSString *defaultButton,
@@ -659,10 +659,10 @@ static NSSavePanel *__savePanel;
 #endif
 }
 
-- (int) runModalForDirectory:(NSString *)path 				// Run NSSavePanel
+- (NSInteger) runModalForDirectory:(NSString *)path 				// Run NSSavePanel
 						file:(NSString *)name
 {	
-	int	ret;
+	NSInteger	ret;
 	static BOOL registered = NO;
 	
 	if (!registered)
@@ -694,13 +694,13 @@ static NSSavePanel *__savePanel;
 			return NSCancelButton;
 #endif
 #if 1
-	NSLog(@"r=%d selected url=%@", ret, [self URL]);
+	NSLog(@"r=%ld selected url=%@", (long)ret, [self URL]);
 #endif
 	
     return ret;
 }
 
-- (int) runModal
+- (NSInteger) runModal
 {
 	return [self runModalForDirectory:[self directory] file:@""];
 }
@@ -827,13 +827,13 @@ static NSSavePanel *__savePanel;
 }
 
 - (void) browser:(NSBrowser *) sender 						// browser delegate
-		 createRowsForColumn:(int) column
+		 createRowsForColumn:(NSInteger) column
 		inMatrix:(NSMatrix *) matrix
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSString *ptc = [sender pathToColumn: column];
-	NSArray *f = [fm directoryContentsAtPath: ptc];
-	int i, count;
+	NSArray *f = [fm contentsOfDirectoryAtPath: ptc error:NULL];
+	NSInteger i, count;
 	NSMutableArray *files = [NSMutableArray arrayWithCapacity:[f count]];
 	NSArray *sortedFiles;
 	NSEnumerator *e=[f objectEnumerator];
@@ -890,7 +890,7 @@ static NSSavePanel *__savePanel;
 
 - (BOOL) browser:(NSBrowser *)sender 
 		 selectCellWithString:(NSString *)title
-		inColumn:(int)column
+		inColumn:(NSInteger)column
 {
 	NSString *p = [sender pathToColumn: column];
 	NSMutableString *s = [[[NSMutableString alloc] initWithString:p] autorelease];
@@ -1064,14 +1064,14 @@ static NSOpenPanel *__openPanel;
 
 - (NSArray *) URLs; { return NIMP; }
 
-- (int) runModalForTypes:(NSArray *)fileTypes			// Run the NSOpenPanel
+- (NSInteger) runModalForTypes:(NSArray *)fileTypes			// Run the NSOpenPanel
 {	
 	return [self runModalForDirectory:[self directory] 
 								 file: @"" 
 								types: fileTypes];
 }
 
-- (int) runModalForDirectory:(NSString *)path 
+- (NSInteger) runModalForDirectory:(NSString *)path
 						file:(NSString *)name
 					   types:(NSArray *)fileTypes
 {	
@@ -1080,12 +1080,12 @@ static NSOpenPanel *__openPanel;
 }
 
 - (void) browser:(NSBrowser*)sender 						// browser delegate
-		 createRowsForColumn:(int)column
+		 createRowsForColumn:(NSInteger)column
 		inMatrix:(NSMatrix*)matrix
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSString *ptc = [sender pathToColumn: column];
-	int i, count=[matrix numberOfRows];
+	NSInteger i, count=[matrix numberOfRows];
 	[super browser:sender createRowsForColumn:column inMatrix:matrix];	// standard
     for (i = 0; i < count; ++i) 
 		{ // loop a second time and update the setEnabled flag
@@ -1221,7 +1221,7 @@ static NSColorPanel *__colorPanel;
 	[super dealloc];
 }
 
-+ (void) setPickerMask:(unsigned int)mask			{ NIMP }
++ (void) setPickerMask:(/*NSColorPanelOptions*/NSUInteger)mask			{ NIMP }
 + (void) setPickerMode:(NSColorPanelMode)mode			{ NIMP }
 
 + (BOOL) dragColor:(NSColor *)aColor
@@ -1330,13 +1330,13 @@ static NSColorPanel *__colorPanel;
 - (NSView *) accessoryView					{ return _accessoryView; }
 - (BOOL) isContinuous						{ return _isContinuous; }
 - (BOOL) showsAlpha							{ return _showsAlpha; }
-- (int) mode								{ return _mode; }
-- (CGFloat) alpha								{ return [_alphaSlider isHidden]?1.0:[[_colorWell color] alphaComponent]; }
+- (NSInteger) mode							{ return _mode; }
+- (CGFloat) alpha							{ return [_alphaSlider isHidden]?1.0:[[_colorWell color] alphaComponent]; }
 - (NSColor *) color							{ return [_colorWell color]; }
 
 - (void) setAction:(SEL)aSelector			{ _action=aSelector; }
 
-- (void) setMode:(int)mode					{ _mode=mode; }
+- (void) setMode:(NSInteger)mode			{ _mode=mode; }
 
 - (void) setTarget:(id)anObject				{ _target=anObject; }
 - (void) attachColorList:(NSColorList *)aColorList		{}

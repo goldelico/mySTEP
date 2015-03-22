@@ -62,15 +62,15 @@
 static NSNotificationCenter *nc = nil;
 static const int current_version = 1;
 
-static int lastVerticalQuarterPosition;
-static int lastHorizontalHalfPosition;
+static NSInteger lastVerticalQuarterPosition;
+static NSInteger lastHorizontalHalfPosition;
 static NSDragOperation dragOperation;
 
 static NSRect oldDraggingRect;
 static id oldDropItem;
 static id currentDropItem;
-static int oldDropIndex;
-static int currentDropIndex;
+static NSInteger oldDropIndex;
+static NSInteger currentDropIndex;
 
 static NSMutableSet *autoExpanded = nil;
 static NSDate	*lastDragUpdate = nil;
@@ -85,27 +85,27 @@ static NSImage *unexpandable  = nil;
 @interface NSOutlineView (NotificationRequestMethods)
 - (void) _postSelectionIsChangingNotification;
 - (void) _postSelectionDidChangeNotification;
-- (void) _postColumnDidMoveNotificationWithOldIndex: (int) oldIndex
-                                           newIndex: (int) newIndex;
+- (void) _postColumnDidMoveNotificationWithOldIndex: (NSInteger) oldIndex
+                                           newIndex: (NSInteger) newIndex;
 // FIXME: There is a method with a similar name.but this is never called
 //- (void) _postColumnDidResizeNotification;
 - (BOOL) _shouldSelectTableColumn: (NSTableColumn *)tableColumn;
-- (BOOL) _shouldSelectRow: (int)rowIndex;
+- (BOOL) _shouldSelectRow: (NSInteger)rowIndex;
 - (BOOL) _shouldSelectionChange;
 - (BOOL) _shouldEditTableColumn: (NSTableColumn *)tableColumn
-                            row: (int) rowIndex;
+                            row: (NSInteger) rowIndex;
 - (void) _willDisplayCell: (NSCell*)cell
            forTableColumn: (NSTableColumn *)tb
-                      row: (int)index;
+                      row: (NSInteger)index;
 - (BOOL) _writeRows: (NSIndexSet *)rows
        toPasteboard: (NSPasteboard *)pboard;
 - (BOOL) _isDraggingSource;
 - (id) _objectValueForTableColumn: (NSTableColumn *)tb
-                              row: (int)index;
+                              row: (NSInteger)index;
 - (void) _setObjectValue: (id)value
           forTableColumn: (NSTableColumn *)tb
-                     row: (int) index;
-- (int) _numRows;
+                     row: (NSInteger) index;
+- (NSInteger) _numRows;
 @end
 
 // These methods are private...
@@ -116,11 +116,11 @@ static NSImage *unexpandable  = nil;
 - (void) _collectItemsStartingWith: (id)startitem
                               into: (NSMutableArray *)allChildren;
 - (void) _loadDictionaryStartingWith: (id) startitem
-                             atLevel: (int) level;
+                             atLevel: (NSInteger) level;
 - (void) _openItem: (id)item;
 - (void) _closeItem: (id)item;
 - (void) _removeChildren: (id)startitem;
-- (void) _noteNumberOfRowsChangedBelowItem: (id)item by: (int)n;
+- (void) _noteNumberOfRowsChangedBelowItem: (id)item by: (NSInteger)n;
 @end
 
 @interface	NSOutlineView (Private)
@@ -256,7 +256,7 @@ static NSImage *unexpandable  = nil;
 		// are valid when we post our notifications).
 		if (collapseChildren) // collapse all
 			{
-			int index, numChildren;
+			NSInteger index, numChildren;
 			NSMutableArray *allChildren;
 			id sitem = (item == nil) ? (id)[NSNull null] : (id)item;
 			
@@ -342,7 +342,7 @@ static NSImage *unexpandable  = nil;
 		// recursively find all children and call this method to open them.
 		if (expandChildren) // expand all
 			{
-			int index, numChildren;
+			NSInteger index, numChildren;
 			NSMutableArray *allChildren;
 			id sitem = (item == nil) ? (id)[NSNull null] : (id)item;
 			
@@ -820,8 +820,8 @@ name: NSOutlineView##notif_name##Notification object: self]
 		NSImage *image;
 		
 		id item = [self itemAtRow:_clickedRow];
-		int level = [self levelForRow: _clickedRow];
-		int position = 0;
+		NSInteger level = [self levelForRow: _clickedRow];
+		NSInteger position = 0;
 		
 		if ([self isItemExpanded: item])
 			{
@@ -911,12 +911,11 @@ name: NSOutlineView##notif_name##Notification object: self]
  */
 - (void) drawRow: (NSInteger)rowIndex clipRect: (NSRect)aRect
 {
-	int startingColumn;
-	int endingColumn;
+	NSInteger startingColumn, endingColumn;
 	NSRect drawingRect;
 	NSCell *imageCell = nil;
 	NSRect imageRect;
-	int i;
+	NSInteger i;
 	NSInteger _numberOfColumns=[self numberOfColumns];
 	CGFloat x_pos;
 	
@@ -1105,10 +1104,10 @@ name: NSOutlineView##notif_name##Notification object: self]
 
 // TODO: Move the part that starts at 'Compute the indicator rect area' to GSTheme
 - (void) drawDropAboveIndicatorWithDropItem: (id)currentDropItem 
-                                      atRow: (int)row 
-                             childDropIndex: (int)currentDropIndex
+                                      atRow: (NSInteger)row
+                             childDropIndex: (NSInteger)currentDropIndex
 {
-	int level = 0;
+	NSInteger level = 0;
 	NSBezierPath *path = nil;
 	NSRect newRect = NSZeroRect;
 	
@@ -1188,8 +1187,8 @@ name: NSOutlineView##notif_name##Notification object: self]
 // TODO: Move a method common to -drapOnRootIndicator and the one below to GSTheme
 - (void) drawDropOnIndicatorWithDropItem: (id)currentDropItem
 {
-	int row = [_items indexOfObject: currentDropItem];
-	int level = [self levelForItem: currentDropItem];
+	NSInteger row = [_items indexOfObject: currentDropItem];
+	NSInteger level = [self levelForItem: currentDropItem];
 	NSRect newRect = [self frameOfCellAtColumn: 0
 										   row: row];
 	
@@ -1543,7 +1542,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	NSTableColumn *tb;
 	NSRect drawingRect;
 	NSUInteger length = 0;
-	int level = 0;
+	NSInteger level = 0;
 	CGFloat indentationFactor = 0.0;
 	
 	// We refuse to edit cells if the delegate can not accept results
@@ -1722,17 +1721,17 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	 NSOutlineViewSelectionDidChangeNotification
 					  object: self];
 }
-- (void) _postColumnDidMoveNotificationWithOldIndex: (int) oldIndex
-                                           newIndex: (int) newIndex
+- (void) _postColumnDidMoveNotificationWithOldIndex: (NSInteger) oldIndex
+                                           newIndex: (NSInteger) newIndex
 {
 	[nc postNotificationName:
 	 NSOutlineViewColumnDidMoveNotification
 					  object: self
 					userInfo: [NSDictionary
 							   dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithInt: newIndex],
+							   [NSNumber numberWithInteger: newIndex],
 							   @"NSNewColumn",
-							   [NSNumber numberWithInt: oldIndex],
+							   [NSNumber numberWithInteger: oldIndex],
 							   @"NSOldColumn",
 							   nil]];
 }
@@ -1764,7 +1763,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	return YES;
 }
 
-- (BOOL) _shouldSelectRow: (int)rowIndex
+- (BOOL) _shouldSelectRow: (NSInteger)rowIndex
 {
 	id item = [self itemAtRow: rowIndex];
 	
@@ -1813,7 +1812,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 }
 
 - (BOOL) _shouldEditTableColumn: (NSTableColumn *)tableColumn
-                            row: (int) rowIndex
+                            row: (NSInteger) rowIndex
 {
 	if ([_delegate respondsToSelector:
 		 @selector(outlineView:shouldEditTableColumn:item:)])
@@ -1832,7 +1831,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 
 - (void) _willDisplayCell: (NSCell*)cell
            forTableColumn: (NSTableColumn *)tb
-                      row: (int)index
+                      row: (NSInteger)index
 {
 	if (_del_responds)
 		{
@@ -1875,7 +1874,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 }
 
 - (id) _objectValueForTableColumn: (NSTableColumn *)tb
-                              row: (int) index
+                              row: (NSInteger) index
 {
 	id result = nil;
 	
@@ -1894,7 +1893,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 
 - (void) _setObjectValue: (id)value
           forTableColumn: (NSTableColumn *)tb
-                     row: (int) index
+                     row: (NSInteger) index
 {
 	if ([_dataSource respondsToSelector:
 		 @selector(outlineView:setObjectValue:forTableColumn:byItem:)])
@@ -1908,7 +1907,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 		}
 }
 
-- (int) _numRows
+- (NSInteger) _numRows
 {
 	return [_items count];
 }
@@ -1978,8 +1977,8 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 - (void)_collectItemsStartingWith: (id)startitem
                              into: (NSMutableArray *)allChildren
 {
-	int num;
-	int i;
+	NSInteger num;
+	NSInteger i;
 	id sitem = (startitem == nil) ? (id)[NSNull null] : (id)startitem;
 	NSMutableArray *anarray;
 	
@@ -2015,10 +2014,10 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 }
 
 - (void) _loadDictionaryStartingWith: (id) startitem
-                             atLevel: (int) level
+                             atLevel: (NSInteger) level
 {
-	int num = 0;
-	int i = 0;
+	NSInteger num = 0;
+	NSInteger i = 0;
 	id sitem = (startitem == nil) ? (id)[NSNull null] : (id)startitem;
 	NSMutableArray *anarray = nil;
 	
@@ -2043,7 +2042,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 		NSMapInsert(_itemDict, sitem, anarray);
 		}
 	
-	NSMapInsert(_levelOfItems, sitem, [NSNumber numberWithInt: level]);
+	NSMapInsert(_levelOfItems, sitem, [NSNumber numberWithInteger: level]);
 	
 	for (i = 0; i < num; i++)
 		{
@@ -2165,7 +2164,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 	[self _noteNumberOfRowsChangedBelowItem: startitem by: -numChildren];
 }
 
-- (void) _noteNumberOfRowsChangedBelowItem: (id)item by: (int)numItems
+- (void) _noteNumberOfRowsChangedBelowItem: (id)item by: (NSInteger)numItems
 {
 	BOOL selectionDidChange = NO;
 	NSUInteger rowIndex, nextIndex;

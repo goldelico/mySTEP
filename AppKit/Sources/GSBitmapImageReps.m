@@ -83,7 +83,8 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	png_infop read_info_ptr, end_info_ptr;
 	png_uint_32 y, width, height;
 	int num_pass, pass;
-	int bit_depth, color_type, row_bytes, intent;
+	int bit_depth, color_type, intent;
+	unsigned int row_bytes;
 	int interlace_type, compression_type, filter_type;
 	const char *pin;
 	char *buffer;
@@ -427,7 +428,7 @@ GIF *handle;									// Returns NULL if can't read
 static int
 ReadGIF(GifFileType *handle, GifByteType *buf, int count)
 {
-GIF *chand = (GIF *)handle->UserData;
+	GIF *chand = (GIF *)handle->UserData;
 
 	NSDebugLog (@"ReadGIF\n");
 	if (chand->position >= chand->size)
@@ -826,7 +827,7 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 	size=NSSwapBigLongToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
 	if(size > [self length])
 		{
-		NSLog(@"invalid resource: resource len=%u/%x > NSData len=%u", size, size, [self length]);
+		NSLog(@"invalid resource: resource len=%lu/%lx > NSData len=%lu", size, size, (unsigned long)[self length]);
 		NSLog(@"NSData = %@", self);
 		}
 	return size;
@@ -846,7 +847,7 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 { // get named subresource (from catenated list of resources); return length of contents
 	unsigned off=0;
 	unsigned long size;
-	unsigned cnt=[self length];
+	NSInteger cnt=[self length];
 	for(off=0; off < cnt; off+=size)
 		{
 		long type;

@@ -207,8 +207,8 @@ should always use this method to get the NSDocumentController. */
 { // update MainMenu
 	NSMenu *recentMenu;
 	NSMenu *fileMenu;
-	int openMenu;
-	int i;
+	NSInteger openMenu;
+	NSInteger i;
 	if(![self _isDocumentBased])
 		return;	// no menu to update
 	if([[NSApp mainMenu] numberOfItems] < 2)
@@ -275,7 +275,7 @@ should always use this method to get the NSDocumentController. */
 
 - (IBAction) _openRecentDocument:(id) Sender;
 { // action to open recent document by tag index
-	int idx=[Sender tag];
+	NSInteger idx=[Sender tag];
 	NSURL *doc;
 	if(idx < 0 || idx >= [_recentDocuments count])
 		{ // something went wrong
@@ -310,7 +310,7 @@ becomes the shared instance.
 		_recentDocuments = [[NSUserDefaults standardUserDefaults] objectForKey: NSRecentDocuments];
 		if (_recentDocuments)
 			{
-			int i, count;
+			NSInteger i, count;
 			_recentDocuments = [_recentDocuments mutableCopy];
 			count = [_recentDocuments count];
 			for (i = 0; i < count; i++)
@@ -387,7 +387,7 @@ becomes the shared instance.
 
 - (NSString *) defaultType
 { // return first type of role "Editor" - if any
-	int i, count = [_types count];
+	NSInteger i, count = [_types count];
 	for (i = 0; i < count; i++)
 		{
 		NSDictionary *typeInfo = [_types objectAtIndex: i];		
@@ -493,7 +493,7 @@ becomes the shared instance.
 /** Invokes [NSOpenPanel -runModalForTypes:] with the NSOpenPanel
 object openPanel, and passes the openableFileExtensions file types 
 */
-- (int) runModalOpenPanel: (NSOpenPanel *)openPanel 
+- (NSInteger) runModalOpenPanel: (NSOpenPanel *)openPanel
 				 forTypes: (NSArray *)openableFileExtensions
 {
 	return [openPanel runModalForTypes:openableFileExtensions];
@@ -501,7 +501,7 @@ object openPanel, and passes the openableFileExtensions file types
 
 - (NSArray *) _openableFileExtensions
 {
-	int i, count = [_types count];
+	NSInteger i, count = [_types count];
 	NSMutableArray *array = [NSMutableArray arrayWithCapacity: count];
 	
 	for (i = 0; i < count; i++)
@@ -586,7 +586,7 @@ document returns YES, then it is closed.
 */
 - (BOOL) closeAllDocuments
 {
-	int count;
+	NSInteger count;
 	DEPRECATED;
 	count = [_documents count];
 	if (count > 0)
@@ -686,7 +686,7 @@ made to the document that have not been saved to the disk
 */
 - (BOOL) hasEditedDocuments
 {
-	int i, count = [_documents count];
+	NSInteger i, count = [_documents count];
 	
 	for (i = 0; i < count; i++)
 		{
@@ -766,7 +766,7 @@ the user's home directory if no document has been opened before.
 
 - (id) documentForURL: (NSURL *) url
 {
-	int i, count = [_documents count];
+	NSInteger i, count = [_documents count];
 	for (i = 0; i < count; i++)
 		{
 		NSDocument *document = [_documents objectAtIndex: i];
@@ -778,7 +778,7 @@ the user's home directory if no document has been opened before.
 
 - (id) documentForFileName: (NSString *)fileName
 {
-	int i, count = [_documents count];
+	NSInteger i, count = [_documents count];
 	DEPRECATED;
 	for (i = 0; i < count; i++)
 		{
@@ -815,7 +815,7 @@ the user's home directory if no document has been opened before.
 
 - (NSString *) typeFromFileExtension:(NSString *) fileExtension
 {
-	int i, count = [_types count];
+	NSInteger i, count = [_types count];
 #if 0
 	NSLog(@"typeFromFileExtension:%@", fileExtension);
 #endif
@@ -952,7 +952,7 @@ the user's home directory if no document has been opened before.
 
 - (NSArray *) _editorAndViewerTypesForClass: (Class)documentClass
 {
-	int i, count = [_types count];
+	NSInteger i, count = [_types count];
 	NSMutableArray *types = [NSMutableArray arrayWithCapacity: count];
 	NSString *docClassName = NSStringFromClass (documentClass);
 	
@@ -976,7 +976,7 @@ the user's home directory if no document has been opened before.
 
 - (NSArray *) _editorTypesForClass: (Class)documentClass
 {
-	int i, count = [_types count];
+	NSInteger i, count = [_types count];
 	NSMutableArray *types = [NSMutableArray arrayWithCapacity: count];
 	NSString *docClassName = NSStringFromClass (documentClass);
 	

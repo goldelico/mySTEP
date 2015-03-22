@@ -108,19 +108,19 @@ id NSGetInformationalAlertPanel(NSString *title,						// Create alert panel
 								NSString *alternateButton, 
 								NSString *otherButton, ...);
 
-int NSRunAlertPanel(NSString *title,					// Create and run an 
+NSInteger NSRunAlertPanel(NSString *title,					// Create and run an
                     NSString *msg,						// alert panel
                     NSString *defaultButton,
                     NSString *alternateButton,
                     NSString *otherButton, ...);
 
-int NSRunCriticalAlertPanel(NSString *title,			// Create and run an 
+NSInteger NSRunCriticalAlertPanel(NSString *title,			// Create and run an
                     NSString *msg,						// critical alert panel
                     NSString *defaultButton,
                     NSString *alternateButton,
                     NSString *otherButton, ...);
 
-int NSRunInformationalAlertPanel(NSString *title,		// Create and run an 
+NSInteger NSRunInformationalAlertPanel(NSString *title,		// Create and run an 
 							NSString *msg,				// informational alert panel
 							NSString *defaultButton,
 							NSString *alternateButton,

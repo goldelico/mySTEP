@@ -29,7 +29,7 @@ static NSButtonCell *__upCell = nil;					// class button cells
 static NSButtonCell *__downCell = nil;					// used by scroller 
 static NSButtonCell *__leftCell = nil;					// instances to draw 
 static NSButtonCell *__rightCell = nil;					// buttons and knob.
-static NSButtonCell *__knobCell = nil;
+static NSActionCell *__knobCell = nil;
 
 @interface _NSScrollerButtonCell : NSButtonCell
 @end
@@ -254,7 +254,7 @@ static NSButtonCell *__knobCell = nil;
 		}
 }
 
-- (void) setFloatValue:(float)aFloat knobProportion:(float)ratio
+- (void) setFloatValue:(float)aFloat knobProportion:(CGFloat)ratio
 {
 	[self setKnobProportion:ratio];
 	[self setFloatValue:aFloat];

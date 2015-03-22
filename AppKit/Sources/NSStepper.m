@@ -76,7 +76,7 @@
 			[c setAlternateImage:[NSImage imageNamed:i==0?@"GSArrowUpH":@"GSArrowDownH"]];
 			[c setImagePosition:NSImageOnly];
 			[c setTarget:self];
-			[c setAction:i==0?@selector(_increment):@selector(_decrement)];
+			[c setAction:i==0?@selector(_increment:):@selector(_decrement:)];
 			[c setBezelStyle:NSRegularSquareBezelStyle];
 			[c setButtonType:NSMomentaryChangeButton];	// ???
 			[c setPeriodicDelay:0.5 interval:0.1];

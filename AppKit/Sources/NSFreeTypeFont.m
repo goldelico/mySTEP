@@ -140,7 +140,7 @@ static CGFloat rscale64;	// cache for 1/(64.0*screen scale)
 
 - (NSGlyph) glyphWithName:(NSString *) name;
 {
-	FT_UInt glyph=FT_Get_Name_Index(_faceStruct, (FT_String *) [name cString]);
+	FT_UInt glyph=FT_Get_Name_Index(_faceStruct, (FT_String *) [name UTF8String]);
 	if(glyph == 0)
 		return NSNullGlyph;
 	return glyph;

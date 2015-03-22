@@ -358,7 +358,7 @@ static NSString *__fontCollections = nil;
 
 - (NSFont *) fontWithFamily:(NSString *)family
 					 traits:(NSFontTraitMask)traits
-					 weight:(int)weight
+					 weight:(NSInteger)weight
 					   size:(CGFloat)size
 {
 	NSArray *fontDefs = [self availableMembersOfFontFamily: family];
@@ -411,7 +411,7 @@ static NSString *__fontCollections = nil;
 				}
 			}
 		}
-	NSLog(@"Invalid font request: fontWithFamily:%@ traits:%08x weight:%d size:%f", family, traits, weight, size);
+	NSLog(@"Invalid font request: fontWithFamily:%@ traits:%08x weight:%d size:%f", family, traits, (long) weight, size);
 	return nil;
 }
 
@@ -532,7 +532,7 @@ static NSString *__fontCollections = nil;
 - (void) addFontTrait: (id)sender
 {
 	_storedTag = NSAddTraitFontAction;
-	_trait = [sender tag];
+	_trait = (NSFontTraitMask) [sender tag];
 	[self sendAction];	
 	if (_selectedFont)
 		{ // We update our own selected font
@@ -545,7 +545,7 @@ static NSString *__fontCollections = nil;
 - (void) removeFontTrait: (id)sender
 {
 	_storedTag = NSRemoveTraitFontAction;
-	_trait = [sender tag];
+	_trait = (NSFontTraitMask) [sender tag];
 	[self sendAction];
 	if (_selectedFont)
 		{ // We update our own selected font
@@ -557,7 +557,7 @@ static NSString *__fontCollections = nil;
 
 - (void) modifyFont: (id)sender
 {
-	_storedTag = [sender tag];
+	_storedTag = (NSFontAction) [sender tag];
 	[self sendAction];
 	if (_selectedFont)
 		{ // We update our own selected font
@@ -783,7 +783,7 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) collectionNames;
 {
-	NSArray *files=[[NSFileManager defaultManager] directoryContentsAtPath:__fontCollections];
+	NSArray *files=[[NSFileManager defaultManager] contentsOfDirectoryAtPath:__fontCollections error:NULL];
 	NSEnumerator *e=[files objectEnumerator];
 	NSMutableArray *r=[NSMutableArray arrayWithCapacity:[files count]+1];
 	NSString *c;
@@ -818,7 +818,7 @@ static NSString *__fontCollections = nil;
 	return [NSArray array];	// unknown
 }
 
-- (BOOL) addCollection:(NSString *) name options:(int) options;
+- (BOOL) addCollection:(NSString *) name options:(NSInteger) options;
 {
 	if(options & NSFontCollectionApplicationOnlyMask)
 		{ // create local collection
@@ -940,8 +940,8 @@ static NSString *__fontCollections = nil;
 
 - (NSFont *) panelConvertFont:(NSFont *)fontObject
 {
-	int font=[_browser selectedRowInColumn:0];
-	int face=[_browser selectedRowInColumn:1];
+	NSInteger font=[_browser selectedRowInColumn:0];
+	NSInteger face=[_browser selectedRowInColumn:1];
 	if(font >= 0 && face >= 0)
 		{
 		NSFontManager *fm=[NSFontManager sharedFontManager];
@@ -1070,7 +1070,7 @@ static NSString *__fontCollections = nil;
 
 // CHECKME: is this the same as singleClick where we can ask for clickedColumn???
 
-- (BOOL) browser:(NSBrowser *)sender selectRow:(int) row inColumn:(int) column
+- (BOOL) browser:(NSBrowser *)sender selectRow:(NSInteger) row inColumn:(NSInteger) column
 {
 	switch(column)
 		{
@@ -1086,9 +1086,9 @@ static NSString *__fontCollections = nil;
 	return YES;
 }
 
-- (int) browser:(NSBrowser *) sender numberOfRowsInColumn:(int) column
+- (NSInteger) browser:(NSBrowser *) sender numberOfRowsInColumn:(NSInteger) column
 {
-	int selected=[sender selectedRowInColumn:0];
+	NSInteger selected=[sender selectedRowInColumn:0];
 	if(!_families)
 		{ // load families
 		_families=[[NSFontManager sharedFontManager] availableFontFamilies];
@@ -1117,7 +1117,7 @@ static NSString *__fontCollections = nil;
 	return 0;
 }
 
-- (void) browser:(NSBrowser *)sender willDisplayCell:(id) cell atRow:(int) row column:(int) column
+- (void) browser:(NSBrowser *)sender willDisplayCell:(id) cell atRow:(NSInteger) row column:(NSInteger) column
 {
 	switch(column)
 		{

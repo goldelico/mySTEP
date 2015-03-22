@@ -170,7 +170,7 @@ static NSCountedSet *__pb;
 
 + (NSArray *) imageRepsWithPasteboard:(NSPasteboard *)pasteboard
 {
-	int i, count = [__imageRepClasses count];
+	NSInteger i, count = [__imageRepClasses count];
 	NSMutableArray *array = [NSMutableArray arrayWithCapacity:1];
 	
 	for (i = 0; i < count; i++)
@@ -195,7 +195,7 @@ static NSCountedSet *__pb;
 
 + (Class) imageRepClassForData:(NSData *)data
 {
-	int i, count = [__imageRepClasses count];
+	NSInteger i, count = [__imageRepClasses count];
 	Class rep;
 	
 	for (i = 0; i < count; i++)
@@ -207,7 +207,7 @@ static NSCountedSet *__pb;
 
 + (Class) imageRepClassForFileType:(NSString *)type
 {
-	int i, count = [__imageRepClasses count];
+	NSInteger i, count = [__imageRepClasses count];
 	
 	for (i = 0; i < count; i++)
 		{
@@ -222,7 +222,7 @@ static NSCountedSet *__pb;
 
 + (Class) imageRepClassForPasteboardType:(NSString *)type
 {
-	int i, count = [__imageRepClasses count];
+	NSInteger i, count = [__imageRepClasses count];
 	
 	for (i = 0; i < count; i++)
 		{
@@ -248,12 +248,12 @@ static NSCountedSet *__pb;
 - (BOOL) hasAlpha								{ return _irep.hasAlpha; }
 - (BOOL) isOpaque								{ return _irep.isOpaque; }
 - (void) setOpaque:(BOOL)flag					{ _irep.isOpaque = flag; }
-- (void) setPixelsWide:(int)anInt				{ _pixelsWide = anInt; }
-- (void) setPixelsHigh:(int)anInt				{ _pixelsHigh = anInt; }
-- (void) setBitsPerSample:(int)anInt			{ _irep.bitsPerSample = anInt;}
-- (int) pixelsWide								{ return _pixelsWide; }
-- (int) pixelsHigh								{ return _pixelsHigh; }
-- (int) bitsPerSample							{ return _irep.bitsPerSample; }
+- (void) setPixelsWide:(NSInteger)anInt				{ _pixelsWide = anInt; }
+- (void) setPixelsHigh:(NSInteger)anInt				{ _pixelsHigh = anInt; }
+- (void) setBitsPerSample:(NSInteger)anInt			{ _irep.bitsPerSample = (unsigned int) anInt;}
+- (NSInteger) pixelsWide								{ return _pixelsWide; }
+- (NSInteger) pixelsHigh								{ return _pixelsHigh; }
+- (NSInteger) bitsPerSample							{ return _irep.bitsPerSample; }
 - (NSString *) colorSpaceName					{ return _colorSpace; }
 - (void) setColorSpaceName:(NSString *)aString	{ ASSIGN(_colorSpace,aString);}
 
@@ -561,7 +561,7 @@ TiffHandleWrite(thandle_t handle, tdata_t buf, tsize_t count)
 	chandle_t *chand = (chandle_t *)handle;
 	
 	NSDebugLog (@"TiffHandleWrite\n");
-	if (chand->mode == "r" || (chand->position + count > chand->size))
+	if (strcmp(chand->mode, "r") == 0 || (chand->position + count > chand->size))
 		return 0;
 	memcpy(chand->data + chand->position, buf, count);
 	
@@ -579,7 +579,7 @@ TiffHandleSeek(thandle_t handle, toff_t offset, int mode)
 		case SEEK_SET: chand->position = offset;  break;
 		case SEEK_CUR: chand->position += offset; break;
 		case SEEK_END: 
-			if (offset > 0 && chand->mode == "r")
+			if (offset > 0 && strcmp(chand->mode, "r") == 0)
 				return 0;
 			chand->position += offset; 
 			break;
@@ -757,7 +757,7 @@ GSTiffRead(TIFF *tif, NSTiffInfo *info, char *data)
 	if (data == NULL)		// coverted to 24-bit contig direct color images.
 		return -1;			// Data array should be large enough to hold this.
 	
-    if (!(buf = (u_char *) malloc((sl_size = TIFFScanlineSize(tif)))))
+    if (!(buf = (u_char *) malloc((sl_size = (int) TIFFScanlineSize(tif)))))
 		return -1;
 	
 	switch (info->photoInterp) 
@@ -982,15 +982,15 @@ static NSArray *__pbBitmapImageReps;
 }
 
 - (id) initWithBitmapDataPlanes:(unsigned char **)planes
-					 pixelsWide:(int)width
-					 pixelsHigh:(int)height
-				  bitsPerSample:(int)bitsPerSample
-				samplesPerPixel:(int)samplesPerPixel
+					 pixelsWide:(NSInteger)width
+					 pixelsHigh:(NSInteger)height
+				  bitsPerSample:(NSInteger)bitsPerSample
+				samplesPerPixel:(NSInteger)samplesPerPixel
 					   hasAlpha:(BOOL)alpha
 					   isPlanar:(BOOL)isPlanar
 				 colorSpaceName:(NSString *)colorSpaceName
-					bytesPerRow:(int)rowBytes
-				   bitsPerPixel:(int)pixelBits;
+					bytesPerRow:(NSInteger)rowBytes
+				   bitsPerPixel:(NSInteger)pixelBits;
 {
 	return [self initWithBitmapDataPlanes:planes
 							   pixelsWide:width
@@ -1006,16 +1006,16 @@ static NSArray *__pbBitmapImageReps;
 }
 
 - (id) initWithBitmapDataPlanes:(unsigned char **)planes	// designated init
-					 pixelsWide:(int)width
-					 pixelsHigh:(int)height
-				  bitsPerSample:(int)bitsPerSample
-				samplesPerPixel:(int)samplesPerPixel
+					 pixelsWide:(NSInteger)width
+					 pixelsHigh:(NSInteger)height
+				  bitsPerSample:(NSInteger)bitsPerSample
+				samplesPerPixel:(NSInteger)samplesPerPixel
 					   hasAlpha:(BOOL)alpha
 					   isPlanar:(BOOL)isPlanar
 				 colorSpaceName:(NSString *)colorSpaceName
 					bitmapFormat:(NSBitmapFormat)bitmapFormat
-					bytesPerRow:(int)rowBytes
-				   bitsPerPixel:(int)pixelBits;
+					bytesPerRow:(NSInteger)rowBytes
+				   bitsPerPixel:(NSInteger)pixelBits;
 {
 	if (bitsPerSample <= 0) [NSException raise: NSInvalidArgumentException format: @"bitsPerSample (%d) must be > 0", bitsPerSample];
 	if (samplesPerPixel <= 0 || samplesPerPixel > 5) [NSException raise: NSInvalidArgumentException format: @"samplesPerPixel (%d) must be between 1 and 5", samplesPerPixel];
@@ -1042,8 +1042,8 @@ static NSArray *__pbBitmapImageReps;
 		_pixelsWide = width;
 		_pixelsHigh = height;
 		_size = NSMakeSize(width, height);
-		_irep.bitsPerSample = bitsPerSample;
-		_brep.numColors = samplesPerPixel;
+		_irep.bitsPerSample = (unsigned int) bitsPerSample;
+		_brep.numColors = (unsigned int) samplesPerPixel;
 		_irep.hasAlpha = alpha;  
 		_brep.isPlanar = isPlanar;
 		_format=bitmapFormat;
@@ -1052,11 +1052,11 @@ static NSArray *__pbBitmapImageReps;
 		_colorSpace = [colorSpaceName retain];
 		if(!pixelBits)
 			pixelBits = bitsPerSample * ((_brep.isPlanar) ? 1 : samplesPerPixel);
-		_brep.bitsPerPixel = pixelBits;
+		_brep.bitsPerPixel = (unsigned int) pixelBits;
 		if(!rowBytes) 
-			bytesPerRow = ((NSUInteger) width * _brep.bitsPerPixel + 7)/8;
+			bytesPerRow = (unsigned int)(width * _brep.bitsPerPixel + 7)/8;
 		else
-			bytesPerRow = rowBytes;
+			bytesPerRow = (unsigned int)rowBytes;
 		if(planes) 
 			{
 			int i, np = ((_brep.isPlanar) ? _brep.numColors : 1);
@@ -1097,9 +1097,9 @@ static NSArray *__pbBitmapImageReps;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: WxH=%dx%d, size=%@, bit/sample=%d, planes=%d, alpha=%d, planar=%d, colorspace=%@, bit/px=%d, byte/row=%d",
+	return [NSString stringWithFormat:@"%@: WxH=%ldx%ld, size=%@, bit/sample=%d, planes=%d, alpha=%d, planar=%d, colorspace=%@, bit/px=%d, byte/row=%d",
 		NSStringFromClass([self class]),
-		_pixelsWide, _pixelsHigh,
+		(long)_pixelsWide, (long)_pixelsHigh,
 		NSStringFromSize(_size),
 		_irep.bitsPerSample,
 		_brep.numColors,
@@ -1118,12 +1118,12 @@ static NSArray *__pbBitmapImageReps;
 	return [self initWithData:data]?NSImageRepLoadStatusCompleted:NSImageRepLoadStatusUnexpectedEOF;
 }
 
-- (int) bitsPerPixel			{ return _brep.bitsPerPixel; }
-- (int) samplesPerPixel			{ return _brep.numColors; }
-- (int) numberOfPlanes			{ return _brep.isPlanar ? _brep.numColors : 1;}
-- (int) bytesPerPlane			{ return bytesPerRow * _pixelsHigh; }
-- (int) bytesPerRow				{ return bytesPerRow; }
-- (BOOL) isPlanar				{ return _brep.isPlanar; }
+- (NSInteger) bitsPerPixel			{ return _brep.bitsPerPixel; }
+- (NSInteger) samplesPerPixel		{ return _brep.numColors; }
+- (NSInteger) numberOfPlanes		{ return _brep.isPlanar ? _brep.numColors : 1;}
+- (NSInteger) bytesPerPlane			{ return bytesPerRow * _pixelsHigh; }
+- (NSInteger) bytesPerRow			{ return bytesPerRow; }
+- (BOOL) isPlanar					{ return _brep.isPlanar; }
 
 - (BOOL) draw
 { // draw scaled by size
@@ -1143,7 +1143,7 @@ static NSArray *__pbBitmapImageReps;
 {
 	if (!_imagePlanes || !_imagePlanes[0])
 		{ // allocate data planes
-		int i, planeSize = (bytesPerRow * _pixelsHigh);
+		NSInteger i, planeSize = (bytesPerRow * _pixelsHigh);
 		NSUInteger length = _brep.numColors * planeSize * sizeof(unsigned char);
 		
 		_imagePlanes = objc_calloc(MAX_PLANES, sizeof(_imagePlanes[0]));

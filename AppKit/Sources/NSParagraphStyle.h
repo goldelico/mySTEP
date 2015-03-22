@@ -79,7 +79,7 @@ extern NSString *NSTabColumnTerminatorsAttributeName;
 	NSTextAlignment alignment;
 	NSLineBreakMode lineBreakMode;
 	NSWritingDirection writingDirection;
-	int headerLevel;
+	NSInteger headerLevel;
 }
 
 + (NSParagraphStyle *) defaultParagraphStyle;

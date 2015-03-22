@@ -78,7 +78,7 @@
 #endif
 }
 
-- (void) attachSubmenuForItemAtIndex:(int) index;
+- (void) attachSubmenuForItemAtIndex:(NSInteger) index;
 {
 	NSRect r;
 	NSMenu *submenu=[[_menumenu itemAtIndex:index] submenu];
@@ -102,7 +102,7 @@
 		[_menuWindow setLevel:NSSubmenuWindowLevel];
 #if 1
 		NSLog(@"win=%@", _menuWindow);
-		NSLog(@"index=%d rect=%@", index, NSStringFromRect([self rectOfItemAtIndex:index]));
+		NSLog(@"index=%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 		NSLog(@"converted rect=%@", NSStringFromRect([self convertRect:[self rectOfItemAtIndex:index] toView:nil]));
 		NSLog(@"autodisplay=%d", [_menuWindow isAutodisplay]);
 #endif
@@ -158,7 +158,7 @@
 
 - (NSFont *) font; { return _font?_font:(_isStatusBar?[NSFont menuFontOfSize:0.0]:[NSFont menuBarFontOfSize:0.0]); }
 
-- (int) highlightedItemIndex; { return _highlightedItemIndex; }
+- (NSInteger) highlightedItemIndex; { return _highlightedItemIndex; }
 
 - (CGFloat) horizontalEdgePadding; { return _horizontalEdgePadding; }
 
@@ -166,10 +166,9 @@
 
 - (CGFloat) imageAndTitleWidth; { if(_needsSizing) [self sizeToFit]; return _imageAndTitleWidth; }
 
-- (int) indexOfItemAtPoint:(NSPoint) point
+- (NSInteger) indexOfItemAtPoint:(NSPoint) point
 {
-	int i;
-	int nc=[_cells count];
+	NSInteger i, nc=[_cells count];
 	for(i=0; i<nc; i++)
 		if(NSPointInRect(point, [self rectOfItemAtIndex:i]))	// CHECKME: mouseinpoint?
 			return i;	// found
@@ -272,7 +271,7 @@
 - (NSPoint) locationForSubmenu:(NSMenu *) submenu;
 {
 	NSRect p;
-	int idx;
+	NSInteger idx;
 #if 1
 	NSLog(@"locationForSubmenu");
 	NSLog(@"should not be used!");
@@ -297,14 +296,14 @@
 
 - (NSMenu *) menu; { return _menumenu; }
 
-- (NSMenuItemCell *) menuItemCellForItemAtIndex:(int) index;
+- (NSMenuItemCell *) menuItemCellForItemAtIndex:(NSInteger) index;
 {
 	return [_cells objectAtIndex:index];
 }
 
 - (BOOL) needsSizing; { return _needsSizing; }
 
-- (void) performActionWithHighlighingForItemAtIndex:(int) index;
+- (void) performActionWithHighlighingForItemAtIndex:(NSInteger) index;
 {
 	NSMenuItemCell *c=[self menuItemCellForItemAtIndex:index];
 	[self setHighlightedItemIndex:index];
@@ -320,7 +319,7 @@
 	return [_menumenu performKeyEquivalent:event];
 }
 
-- (NSRect) rectOfItemAtIndex:(int) index;
+- (NSRect) rectOfItemAtIndex:(NSInteger) index;
 {
 	if(_needsSizing)
 		[self sizeToFit];
@@ -337,7 +336,7 @@
 	_needsSizing=YES;
 }
 
-- (void) setHighlightedItemIndex:(int) index;
+- (void) setHighlightedItemIndex:(NSInteger) index;
 {
 	NSMenuItemCell *c;
 #if 0
@@ -372,8 +371,7 @@
 
 - (void) setHorizontal:(BOOL) flag;
 {
-	int i;
-	int nc;
+	NSInteger i, nc;
 	if(_isHorizontal==flag)
 		return;	// no change
 #if 0
@@ -390,7 +388,7 @@
 
 - (void) setMenu:(NSMenu *) m;
 {
-	int i, cnt;
+	NSInteger i, cnt;
 	if(_menumenu == m)
 		return;	// no change
 #if 1
@@ -439,13 +437,13 @@
 			[self setMenuItemCell:cell forItemAtIndex:i];		// to add all cell connections and updates
 			}
 		if(cnt > 50)
-			NSLog(@"set large menu with %d entries", cnt);
+			NSLog(@"set large menu with %ld entries", (long)cnt);
 		_needsSizing=YES;		// even if we have no cells...
 		[_menumenu update];		// auto-enable and resize if needed
 		}
 }
 
-- (void) setMenuItemCell:(NSMenuItemCell *) cell forItemAtIndex:(int) index;
+- (void) setMenuItemCell:(NSMenuItemCell *) cell forItemAtIndex:(NSInteger) index;
 {
 	[_cells replaceObjectAtIndex:index withObject:cell];
 	[cell setMenuItem:[[_menumenu itemArray] objectAtIndex:index]];	// make a reference to menu item to be shown
@@ -455,10 +453,10 @@
 	_needsSizing=YES;	// we will need to recalc size - which will also redisplay the full menu
 }
 
-- (void) setNeedsDisplayForItemAtIndex:(int) index;
+- (void) setNeedsDisplayForItemAtIndex:(NSInteger) index;
 {
 #if 1
-	NSLog(@"setNeedsDisplayForItemAtIndex:%d rect=%@", index, NSStringFromRect([self rectOfItemAtIndex:index]));
+	NSLog(@"setNeedsDisplayForItemAtIndex:%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 #endif
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
 	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing for this cell
@@ -469,13 +467,13 @@
 - (void) setWindowFrameForAttachingToRect:(NSRect) ref
 								 onScreen:(NSScreen *) screen
 							preferredEdge:(NSRectEdge) edge
-						popUpSelectedItem:(int) index;
+						popUpSelectedItem:(NSInteger) index;
 {
 	NSRect mf;  // new menu frame in content rect coordinates
 	NSRect sf=[[_window screen] visibleFrame];
 	NSRect item=NSZeroRect;
 #if 1
-	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%d", NSStringFromRect(ref), edge, index);
+	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%ld", NSStringFromRect(ref), (int)edge, (long)index);
 #endif
 	if(_needsSizing)
 		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
@@ -593,8 +591,7 @@
 { // calculate new size and positon of cells - handle horizontal vs. vertical - handle rightToLeft
 	NSRect p;				// cell position
 	NSRect f;				// frame size
-	int i;
-	int nc;
+	NSInteger i, nc;
 	if(!_needsSizing)
 		return;
 #if 1
@@ -615,7 +612,7 @@
 #endif
 	nc=[_cells count];
 	if(nc > 50)
-		NSLog(@"sizing large menu with %d entries", nc);
+		NSLog(@"sizing large menu with %ld entries", (long)nc);
 	if(_isHorizontal)
 		{ // horizontal menu
 		_imageAndTitleWidth=0.0;	// we don't know for a horizontal menu
@@ -736,11 +733,11 @@
 	BOOL any=NO;
 	NSRect bounds=[self bounds];
 	if(nc > 50)
-		NSLog(@"drawing large menu with %d entries", nc);
+		NSLog(@"drawing large menu with %ld entries", (long)nc);
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
 #if 1
-	NSLog(@"NSMenuView - %@ (nc=%d) drawRect:%@", [[_menumenu itemAtIndex:0] title], nc, NSStringFromRect(rect));
+	NSLog(@"NSMenuView - %@ (nc=%ld) drawRect:%@", [[_menumenu itemAtIndex:0] title], (long)nc, NSStringFromRect(rect));
 #endif
 	//// FIXME: the following code deletes all menu items in the drawing rectangle which may be the union of 2 non-adjacent cells!
 	//// so this greys out the cells in between unless we redraw them all...
@@ -912,7 +909,7 @@
 		}
 	if(NSMouseInRect(p, _bounds, [self isFlipped]))
 		{ // highlight (new) cell
-			int item=[self indexOfItemAtPoint:p];	// get selected item
+			NSInteger item=[self indexOfItemAtPoint:p];	// get selected item
 #if 0
 			NSLog(@"item=%d", item);
 #endif
@@ -935,7 +932,7 @@
 { // is not an NSControl so we must track ourselves
 	NSTimeInterval menuOpenTimestamp=[theEvent timestamp];
 	NSMenuView *mv;
-	int idx;
+	NSInteger idx;
 	BOOL stayOpen=NO;
 #if 1
 	NSLog(@"mouseDown:%@", theEvent);
@@ -981,7 +978,7 @@
 		mv=[mv attachedMenuView];	// go down to lowest open submenu level
 	idx=[mv highlightedItemIndex];
 #if 1
-	NSLog(@"item selected %d", idx);
+	NSLog(@"item selected %ld", (long)idx);
 #endif
 	[self setHighlightedItemIndex:-1];	// unhighligt my item
 	[self detachSubmenu];				// detach all open submenu items
@@ -1001,9 +998,9 @@
 	static NSPanel *win;
 	static NSMenuView *menuView;
 	NSRect r;
-	int item;	// item to pop up when scrolling
+	NSInteger item;	// item to pop up when scrolling
 #if 1
-	NSLog(@"popUpContextMenu %08x", menu);
+	NSLog(@"popUpContextMenu %p", menu);
 	NSLog(@"popUpContextMenu %@", [menu title]);
 	NSLog(@"popUpContextMenu event %@", event);
 	NSLog(@"popUpContextMenu view %@", view);

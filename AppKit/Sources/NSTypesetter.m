@@ -1397,7 +1397,9 @@ NSLayoutOutOfGlyphs
 
 - (void) layoutTab;
 {
-	NSTextTab *tab=[super textTabForGlyphLocation:curGlyphOffset writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
+	NSTextTab *tab=[super textTabForGlyphLocation:curGlyphOffset
+								 writingDirection:curLayoutDirection == NSLayoutRightToLeft?NSWritingDirectionRightToLeft:NSWritingDirectionLeftToRight
+									  maxLocation:curContainerSize.width];
 	NSTypesetterGlyphInfo *glyphInfo=[self _glyphInfoAtIndex:curGlyphIndex];
 	CGFloat interval;
 	if(tab)
@@ -1407,7 +1409,7 @@ NSLayoutOutOfGlyphs
 	glyphInfo->_giflags.dontShow=YES;
 }
 
-- (unsigned) sizeOfTypesetterGlyphInfo;
+- (NSUInteger) sizeOfTypesetterGlyphInfo;
 {
 	return sizeof(NSTypesetterGlyphInfo);
 }
@@ -1434,9 +1436,9 @@ NSLayoutOutOfGlyphs
 	return busy;
 }
 
-- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) idx;
+- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(NSUInteger) idx;
 {
-	NSAssert1(idx < capacityGlyphInfo, @"no glyphInfo for index %u known", idx);
+	NSAssert1(idx < capacityGlyphInfo, @"no glyphInfo for index %lu known", (unsigned long) idx);
 	return NSGlyphInfoAtIndex(idx);	// &glyphs[IDX]
 }
 

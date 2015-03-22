@@ -189,14 +189,14 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) addItemsWithTitles:(NSArray *)itemTitles
 {
-	int i, count = [itemTitles count];	
+	NSInteger i, count = [itemTitles count];
 	for (i = 0; i < count; i++)
 		[self addItemWithTitle:[itemTitles objectAtIndex:i]];
 }
 
-- (void) insertItemWithTitle:(NSString *)title atIndex:(int)index
+- (void) insertItemWithTitle:(NSString *)title atIndex:(NSInteger)index
 {
-	int i;
+	NSInteger i;
 	NSMenuItem *c;
 #if 0
 	NSLog(@"insertItemWithTitle:%@ atIndex:%d", title, index);
@@ -273,21 +273,21 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[super setMenu:m];
 }
 
-- (NSMenuItem *) itemAtIndex:(int)index
+- (NSMenuItem *) itemAtIndex:(NSInteger)index
 {
 	if(index < 0 || index >= [_menu numberOfItems])
 		return nil;
 	return [_menu itemAtIndex:index];
 }
 
-- (NSString *) itemTitleAtIndex:(int)index
+- (NSString *) itemTitleAtIndex:(NSInteger)index
 {
 	return [[_menu itemAtIndex:index] title];
 }
 
 - (NSArray *) itemTitles
 {
-	int i, count = [_menu numberOfItems];
+	NSInteger i, count = [_menu numberOfItems];
 	NSMutableArray *titles = [NSMutableArray arrayWithCapacity:count];
 	for (i = 0; i < count; i++)
 		[titles addObject:[[_menu itemAtIndex:i] title]];
@@ -296,7 +296,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (NSMenuItem *) itemWithTitle:(NSString *)title
 {
-	int i = [self indexOfItemWithTitle:title];
+	NSInteger i = [self indexOfItemWithTitle:title];
 	return (i != NSNotFound) ? [_menu itemAtIndex:i] : (NSMenuItem *) nil;
 }
 
@@ -314,7 +314,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (id) objectValue;
 {
-	return [NSNumber numberWithInt:_selectedItem];
+	return [NSNumber numberWithInteger:_selectedItem];
 }
 
 - (NSString *) titleOfSelectedItem
@@ -322,7 +322,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	return [[self selectedItem] title];
 }
 
-- (void) selectItemAtIndex:(int)index
+- (void) selectItemAtIndex:(NSInteger)index
 {
 #if 0
 	NSLog(@"selectItemAtIndex: %d [0,%d]", index, [_menu numberOfItems]-1);
@@ -345,7 +345,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) selectItem:(NSMenuItem *) item;
 {
-	int idx;
+	NSInteger idx;
 	idx=[self indexOfItem:item];
 #if 0
 	NSLog(@"selectItem [%d]: %@", idx, item);
@@ -355,9 +355,9 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[self selectItemAtIndex:idx];
 }
 
-- (BOOL) selectItemWithTag:(int)t
+- (BOOL) selectItemWithTag:(NSInteger)t
 {
-	int idx=[self indexOfItemWithTag:t];
+	NSInteger idx=[self indexOfItemWithTag:t];
 #if 0
 	NSLog(@"selectItemWithTag:%d", t);
 #endif
@@ -392,7 +392,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) setTitle:(NSString *)aString			
 {
-	int i = [self indexOfItemWithTitle:aString];
+	NSInteger i = [self indexOfItemWithTitle:aString];
 #if 0
 	NSLog(@"setTitle:%@ -> %d", aString, i);
 #endif
@@ -406,7 +406,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) synchronizeTitleAndSelectedItem
 {
-	int i = (_pullsDown) ? 0 : _selectedItem;
+	NSInteger i = (_pullsDown) ? 0 : _selectedItem;
 #if 0
 	NSLog(@"synchronizeTitleAndSelectedItem i=%d", i);
 #endif

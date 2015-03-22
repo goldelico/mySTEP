@@ -91,7 +91,7 @@ static NSMapTable *_toolbars;
 			{
 				[items addObject:[item itemIdentifier]];
 				if([item visibilityPriority] != NSToolbarItemVisibilityPriorityStandard)
-					[priorities setObject:[NSArray arrayWithObject:[NSNumber numberWithInt:[item visibilityPriority]]] forKey:[item itemIdentifier]];
+					[priorities setObject:[NSArray arrayWithObject:[NSNumber numberWithInteger:[item visibilityPriority]]] forKey:[item itemIdentifier]];
 			}
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 											[NSNumber numberWithInt:_displayMode], @"TB Display Mode",
@@ -364,7 +364,7 @@ NSString *NSToolbarPrintItemIdentifier=@"NSToolbarPrintItem";
 
 @implementation NSToolbarItemGroup
 
-- (void) setSubitems:(NSArray *) items; { ASSIGN(_subitems, items); }
+- (void) setSubitems:(NSArray *) items; { ASSIGN(_subitems, (NSMutableArray *)items); }
 - (NSArray *) subitems; { return _subitems; }
 
 @end

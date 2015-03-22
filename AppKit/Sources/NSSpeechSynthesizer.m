@@ -50,7 +50,7 @@ NSString *NSVoiceGenderFemale=@"GenderFemale";
 
 - (id) copyWithZone:(NSZone *) z; { return [[NSSpeechSynthesizer alloc] initWithVoice:_voice]; }
 
-- (BOOL) isSpeaking; { return _task; }
+- (BOOL) isSpeaking; { return _task != nil; }
 - (void) setDelegate:(id) delegate; { _delegate=delegate; }
 - (void) setUsesFeedbackWindow:(BOOL) flag; { _usesFeedbackWindow=flag; }
 - (BOOL) setVoice:(NSString *) voice; { ASSIGN(_voice, voice); return YES; }

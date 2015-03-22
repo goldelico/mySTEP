@@ -132,7 +132,7 @@ id __buttonCellClass = nil;
 			@"transparent=%d\n"
 			@"dimsWhenDisabled=%d\n" 
 			@"bgcolor=%@\n", 
-			[super description], _title, (unsigned long)_stateMask, (unsigned long)_highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
+			[super description], _title, (unsigned long)_stateMask, (unsigned long)_highlightMask, (int)_buttonType, (int)_bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
 			];
 }
 
@@ -389,7 +389,7 @@ id __buttonCellClass = nil;
 - (void) setObjectValue:(id <NSCopying>)anObject
 {
 	if([(id <NSObject>) anObject respondsToSelector:@selector(intValue)])
-		[self setState:[(id) anObject intValue]];
+		[self setState:[(NSNumber *) anObject intValue]];
 	else
 		[self setState:(anObject != nil)];
 }
@@ -413,7 +413,8 @@ id __buttonCellClass = nil;
 
 // does never use _c.state to allow for subclasses to override -state
 
-- (NSInteger) intValue					{ return [self state]; }
+- (int) intValue						{ return (int) [self state]; }
+- (NSInteger) integerValue				{ return [self state]; }
 - (float) floatValue					{ return [self state]; }
 - (double) doubleValue					{ return [self state]; }
 - (id) objectValue		{ return [NSNumber numberWithInteger:[self state]]; }

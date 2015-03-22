@@ -158,7 +158,7 @@ static NSCursor *__textCursor = nil;
 
 - (void) replaceTextContainer:(NSTextContainer *)newContainer
 { // do something to retain the web
-	int idx;
+	NSInteger idx;
 	if(textContainer == newContainer)
 		return;	// not really changed
 	[self retain];	// just be sure
@@ -543,17 +543,17 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	// adjust view
 }
 
-- (int) spellCheckerDocumentTag
+- (NSInteger) spellCheckerDocumentTag
 { 
 	return _spellCheckerDocumentTag;	// from superclass
 }
 
-- (NSDictionary*) typingAttributes { return typingAttributes; }
+- (NSDictionary *) typingAttributes { return typingAttributes; }
 
 - (void) setTypingAttributes:(NSDictionary *)attrs
 {
 	if(_delegate) attrs=[_delegate textView:self shouldChangeTypingAttributes:typingAttributes toAttributes:attrs];
-	ASSIGN(typingAttributes, attrs);
+	ASSIGN(typingAttributes, (NSMutableDictionary *) attrs);
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSTextViewDidChangeTypingAttributesNotification object:self];
 }
 
@@ -989,14 +989,14 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		p=[self convertPoint:[event locationInWindow] fromView:nil];
 		pos=[self characterIndexForPoint:p];	// convert to character index
 #if 1
-		NSLog(@"NSTextView mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
+		NSLog(@"NSTextView mouseDown point=%@ pos=%lu", NSStringFromPoint(p), (unsigned long)pos);
 #endif
 		if([event type] == NSLeftMouseDown)
 			{
 			if([event clickCount] > 1 && NSLocationInRange(pos, _selectedRange))
 				{ // in current range; we already hit the current selection -> it is a potential drag&drop
 #if 1
-					NSLog(@"multiclick %d", [event clickCount]);
+					NSLog(@"multiclick %ld", (long)[event clickCount]);
 #endif
 					[self setSelectionGranularity:NSSelectByWord];
 					rng=_selectedRange;	// default: unchanged
@@ -1113,7 +1113,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setSelectedRange:(NSRange)range;
 {
-	[self setSelectedRange:range affinity:NSSelectByCharacter stillSelecting:NO];
+	[self setSelectedRange:range affinity:NSSelectionAffinityUpstream stillSelecting:NO];
 }
 
 // override to guarantee stable cursor columns

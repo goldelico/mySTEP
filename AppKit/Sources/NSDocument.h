@@ -275,8 +275,8 @@ originalContentsURL:(NSURL *) orig
 - (BOOL) readFromURL:(NSURL *) url ofType:(NSString *) type;
 - (BOOL) revertToSavedFromFile:(NSString *) fileName ofType:(NSString *) type;
 - (BOOL) revertToSavedFromURL:(NSURL *) url ofType:(NSString *) type;
-- (int) runModalPageLayoutWithPrintInfo:(NSPrintInfo *) printInfo;
-- (int) runModalSavePanel:(NSSavePanel *) savePanel withAccessoryView:(NSView *) accessoryView;
+- (NSInteger) runModalPageLayoutWithPrintInfo:(NSPrintInfo *) printInfo;
+- (NSInteger) runModalSavePanel:(NSSavePanel *) savePanel withAccessoryView:(NSView *) accessoryView;
 - (void) saveToFile:(NSString *) path 
       saveOperation:(NSSaveOperationType) op 
 		   delegate:(id) delegate

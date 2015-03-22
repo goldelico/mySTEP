@@ -74,9 +74,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 - (NSRect) bounds		{	return _rect; }
 
 - (BOOL) isEmpty								{ return NO; }
-- (int) elementCount							{ return 5; }
+- (NSInteger) elementCount						{ return 5; }
 
-- (NSBezierPathElement) elementAtIndex:(int)index
+- (NSBezierPathElement) elementAtIndex:(NSInteger)index
 											associatedPoints:(NSPoint *)points
 {
 	if (index < 0 || index >= 5)
@@ -581,7 +581,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	memcpy(pattern, _dashPattern, _dashCount * sizeof(*pattern));
 }
 
-- (void) setLineDash:(const CGFloat *)pattern count:(int)count phase:(CGFloat)phase
+- (void) setLineDash:(const CGFloat *)pattern count:(NSInteger)count phase:(CGFloat)phase
 {
 	if ((pattern == NULL) || (count == 0))
 		{
@@ -630,7 +630,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	NSPoint pts[3];
 	NSPoint coeff[4];
 	NSPoint p, last_p;
-	int i;
+	NSInteger i;
 	BOOL first = YES;
 	
 	if(_bz.flat)
@@ -689,7 +689,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	NSBezierPathElement type, last_type = NSMoveToBezierPathElement;
 	NSPoint pts[3];
 	NSPoint p, cp1, cp2;
-	int i, j;
+	NSInteger i, j;
 	BOOL closed = NO;
 	
 	i=_count;
@@ -786,7 +786,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 - (NSPoint) currentPoint
 {
 	NSPoint points[3];
-	int i;
+	NSInteger i;
 	
 	if (!_count) 
 		[NSException raise: NSGenericException
@@ -938,9 +938,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 - (BOOL) isEmpty								{ return (_count == 0); }
-- (int) elementCount							{ return _count; }
+- (NSInteger) elementCount						{ return _count; }
 
-- (NSBezierPathElement) elementAtIndex:(int)index
+- (NSBezierPathElement) elementAtIndex:(NSInteger)index
 					  associatedPoints:(NSPoint *)points
 {
 	PathElement *e;
@@ -968,14 +968,14 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	return e->type;
 }
 
-- (NSBezierPathElement) elementAtIndex:(int)index
+- (NSBezierPathElement) elementAtIndex:(NSInteger)index
 {
 	return [self elementAtIndex: index associatedPoints: NULL];	
 }
 
 - (void) appendBezierPath:(NSBezierPath *)aPath
 {
-	int i, count = [aPath elementCount];
+	NSInteger i, count = [aPath elementCount];
 	
 	_bz.flat = _bz.flat && aPath->_bz.flat;
 	
@@ -1001,7 +1001,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[self appendBezierPath: [[self class] bezierPathWithRect: rect]];
 }
 
-- (void) appendBezierPathWithPoints:(NSPoint *)points count:(int)count
+- (void) appendBezierPathWithPoints:(NSPoint *)points count:(NSInteger)count
 {
 	int i;
 	
@@ -1311,7 +1311,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {
 	NSBezierPathElement type;
 	NSPoint pts[3];
-	int i, count;
+	NSInteger i, count;
 	CGFloat f = [self lineWidth];
 	
 	[aCoder encodeValueOfObjCType: @encode(CGFloat) at: &f];
@@ -1420,7 +1420,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	return path;
 }
 
-- (void) setAssociatedPoints:(NSPoint *)points atIndex:(int)index
+- (void) setAssociatedPoints:(NSPoint *)points atIndex:(NSInteger)index
 {
 	PathElement *e;
 	if (index < 0 || index >= _count)

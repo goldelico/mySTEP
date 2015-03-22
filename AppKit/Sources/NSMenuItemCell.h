@@ -62,3 +62,7 @@
 - (CGFloat) titleWidth;		// title width
 
 @end
+
+@interface NSObject (RepresentedObject)
+- (BOOL) drawMenuBackground:(BOOL) higlighted;
+@end

@@ -43,7 +43,7 @@
 - (BOOL) isEnabled; { return [menuItem isEnabled]; }
 - (CGFloat) length; { return length; }
 - (NSMenu *) menu; { return [menuItem submenu]; }
-- (void) sendActionOn:(int) mask; { NIMP }
+- (void) sendActionOn:(NSInteger) mask; { NIMP }
 - (void) setAction:(SEL) action; { [menuItem setAction:action]; }
 - (void) setAttributedTitle:(NSAttributedString *) title;  { [attributedTitle autorelease]; attributedTitle=[title retain]; [menuItem setTitle:[title string]]; }
 - (void) setEnabled:(BOOL) flag;  { [menuItem setEnabled:flag]; }

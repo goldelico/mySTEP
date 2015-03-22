@@ -42,7 +42,7 @@
     NSMutableArray *_popUpList;
     NSSize _intercellSpacing;
 	CGFloat _itemHeight;
-	int _visibleItems;
+	NSInteger _visibleItems;
 
     struct __comboBoxCellFlags {
 		unsigned int usesDataSource:1;

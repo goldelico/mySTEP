@@ -30,8 +30,8 @@ enum {
 {
 	NSString *_colorSpace;
 	NSSize _size;
-	int _pixelsWide;
-	int _pixelsHigh;
+	NSInteger _pixelsWide;
+	NSInteger _pixelsHigh;
     struct __repFlags {
 		unsigned int hasAlpha:1;
 		unsigned int isOpaque:1;

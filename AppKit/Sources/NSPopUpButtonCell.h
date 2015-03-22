@@ -39,7 +39,7 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 @interface NSPopUpButtonCell : NSMenuItemCell
 {
 	NSPanel *_menuPanel;
-	int _selectedItem;
+	NSInteger _selectedItem;
 	NSPopUpArrowPosition _arrowPosition;
 	NSRectEdge _preferredEdge;
 	BOOL _altersStateOfSelectedItem;
@@ -65,7 +65,7 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 - (void) insertItemWithTitle:(NSString *) title atIndex:(NSInteger) index;
 - (NSArray *) itemArray;
 - (NSMenuItem *) itemAtIndex:(NSInteger) index;
-- (NSString *) itemTitleAtIndex:(int) index;
+- (NSString *) itemTitleAtIndex:(NSInteger) index;
 - (NSArray *) itemTitles;
 - (NSMenuItem *) itemWithTitle:(NSString *) title;
 - (NSMenuItem *) lastItem;

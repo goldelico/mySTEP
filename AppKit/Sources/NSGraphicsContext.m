@@ -196,11 +196,11 @@ NSGraphicsContext *GSCurrentContext(void)
 		}
 }
 
-+ (void) setGraphicsState:(int) graphicsState
++ (void) setGraphicsState:(NSInteger) graphicsState
 { // make context the current and reset graphics state
 	_NSGraphicsState *state=NSMapGet(_gState2struct, (void *) graphicsState);
 	if(!state)
-		[NSException raise:NSGenericException format: @"setGraphicsState: invalid graphics state %d", graphicsState];
+		[NSException raise:NSGenericException format: @"setGraphicsState: invalid graphics state %ld", (long)graphicsState];
 #if 0
 	NSLog(@"setGraphicsState:%d", graphicsState);
 #endif
@@ -273,7 +273,7 @@ NSGraphicsContext *GSCurrentContext(void)
 	return (_NSGraphicsState *) objc_calloc(1, sizeof(*state));	// we have no private data to copy
 }
 
-- (int) _currentGState;
+- (NSInteger) _currentGState;
 { // current top of stack gState
 	if(_graphicsState)
 		return ((_NSGraphicsState *) _graphicsState)->_gState;
@@ -376,7 +376,7 @@ void NSCopyBits(NSInteger srcGstate, NSRect srcRect, NSPoint destPoint)
 		{
 		state=NSMapGet(_gState2struct, (void *) srcGstate);
 		if(!state)
-			[NSException raise:NSGenericException format:@"NSCopyBits: invalid source graphics state %d", srcGstate];
+			[NSException raise:NSGenericException format:@"NSCopyBits: invalid source graphics state %ld", (long)srcGstate];
 		}
 	// FIXME: should we save/restore the compositing operation?
 	[ctxt setCompositingOperation:NSCompositeCopy];

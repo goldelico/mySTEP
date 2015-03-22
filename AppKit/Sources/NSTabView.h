@@ -45,7 +45,7 @@ typedef enum {
 	BOOL tab_draws_background;
 	BOOL tab_truncated_label;
 	id tab_delegate;
-	int tab_selected_item;
+	NSInteger tab_selected_item;
 	NSControlSize _controlSize;
 	NSControlTint _controlTint;
 }

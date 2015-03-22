@@ -204,7 +204,7 @@ static struct _NSTabViewSizing
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%@ csize %d type %d items %@", [super description], _controlSize, tab_type, tab_items];
+	return [NSString stringWithFormat:@"%@ csize %lu type %d items %@", [super description], (unsigned long)_controlSize, tab_type, tab_items];
 }
 
 - (void) addTabViewItem:(NSTabViewItem *)tabViewItem
@@ -213,7 +213,7 @@ static struct _NSTabViewSizing
 }
 
 - (void) insertTabViewItem:(NSTabViewItem *)tabViewItem 
-				   atIndex:(int)index
+				   atIndex:(NSInteger)index
 {
 	[tabViewItem _setTabView:self];
 	[tab_items insertObject:tabViewItem atIndex:index];
@@ -228,7 +228,7 @@ static struct _NSTabViewSizing
 
 - (void) removeTabViewItem:(NSTabViewItem *)tabViewItem
 {
-	int i = [tab_items indexOfObject:tabViewItem];
+	NSInteger i = [tab_items indexOfObject:tabViewItem];
 	if(tabViewItem == tab_selected)
 		[self selectNextTabViewItem:nil];	// we are the selected one
 	if(i == NSNotFound)
@@ -242,14 +242,14 @@ static struct _NSTabViewSizing
 		[tab_delegate tabViewDidChangeNumberOfTabViewItems:self];
 }
 
-- (int) indexOfTabViewItem:(NSTabViewItem *)tabViewItem
+- (NSInteger) indexOfTabViewItem:(NSTabViewItem *)tabViewItem
 {
 	return [tab_items indexOfObject:tabViewItem];
 }
 
-- (int) indexOfTabViewItemWithIdentifier:(id)identifier
+- (NSInteger) indexOfTabViewItemWithIdentifier:(id)identifier
 {
-	int numberOfTabs = [tab_items count];
+	NSInteger numberOfTabs = [tab_items count];
 	int i;
 	for(i = 0; i < numberOfTabs; i++)
 		{
@@ -260,12 +260,12 @@ static struct _NSTabViewSizing
 	return NSNotFound;
 }
 
-- (NSTabViewItem *) tabViewItemAtIndex:(int)index
+- (NSTabViewItem *) tabViewItemAtIndex:(NSInteger)index
 {
 	return [tab_items objectAtIndex:index];
 }
 
-- (int) numberOfTabViewItems			{ return [tab_items count]; }
+- (NSInteger) numberOfTabViewItems			{ return [tab_items count]; }
 - (NSArray *) tabViewItems				{ return (NSArray *)tab_items; }
 
 - (void) selectFirstTabViewItem:(id)sender	
@@ -365,7 +365,7 @@ static struct _NSTabViewSizing
 	[self _tile];
 }
 
-- (void) selectTabViewItemAtIndex:(int)index
+- (void) selectTabViewItemAtIndex:(NSInteger)index
 {
 	[self selectTabViewItem:[tab_items objectAtIndex:index]];
 }
@@ -575,9 +575,8 @@ static struct _NSTabViewSizing
 
 - (NSTabViewItem *) tabViewItemAtPoint:(NSPoint)point
 {
-	int numberOfTabs = [tab_items count];						// Event handling.
-	int i;
-	for(i = 0; i < numberOfTabs; i++) 
+	NSInteger i, numberOfTabs = [tab_items count];						// Event handling.
+	for(i = 0; i < numberOfTabs; i++)
 		{
 		NSTabViewItem *aTab = [tab_items objectAtIndex:i];
 		if(NSPointInRect(point, [aTab _tabRect]))	// private method returns where it has been drawn last time

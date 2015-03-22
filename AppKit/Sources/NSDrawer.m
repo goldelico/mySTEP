@@ -94,7 +94,7 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 - (void) setParentWindow:(NSWindow *) parent; { ASSIGN(_parentWindow, parent); }
 - (void) setPreferredEdge:(NSRectEdge) edge; { _edge=edge; }
 - (void) setTrailingOffset:(CGFloat) offset; { _trailingOffset=offset; }
-- (int) state; { return _state; }
+- (NSInteger) state; { return _state; }
 
 - (void) toggle:(id) sender;
 {

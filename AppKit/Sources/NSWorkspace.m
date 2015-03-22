@@ -49,6 +49,7 @@
 #import "NSSystemServer.h"
 
 #include <sys/types.h>
+#include <sys/time.h>	// gettimeofday()
 #include <unistd.h>		// getpid()
 
 #define WORKSPACE(notif_name)	NSWorkspace##notif_name##Notification
@@ -621,8 +622,8 @@ additionalEventParamDescriptor:(id) params
 		  appname, @"NSApplicationName",
 		  [b bundleIdentifier], @"NSApplicationBundleIdentifier",
 		  [NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",	// we don't know yet
-		  [NSNumber numberWithInt:psn_high], @"NSApplicationProcessSerialNumberHigh",
-		  [NSNumber numberWithInt:psn_low], @"NSApplicationProcessSerialNumberLow",
+		  [NSNumber numberWithUnsignedLong:psn_high], @"NSApplicationProcessSerialNumberHigh",
+		  [NSNumber numberWithUnsignedLong:psn_low], @"NSApplicationProcessSerialNumberLow",
 		  nil];
 	[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
 																	  object:self
@@ -746,7 +747,7 @@ launchIdentifiers:(NSArray **) identifiers;
 #endif
 						if([path isAbsolutePath] && [ext isEqualToString:@"app"] && [list count] == 1)
 							{ // open single application (well, myFinder could handle this if it is asked to open)
-								apps=[NSDictionary dictionaryWithObject:[NSArray array] forKey:path];
+								apps=(NSMutableDictionary *) [NSDictionary dictionaryWithObject:[NSArray array] forKey:path];
 								break;
 							}
 						else if([ext length] == 0)
@@ -784,7 +785,7 @@ launchIdentifiers:(NSArray **) identifiers;
 				}
 		}
 	else
-		apps=[NSDictionary dictionaryWithObject:list forKey:identOrApp];
+		apps=(NSMutableDictionary *)[NSDictionary dictionaryWithObject:list forKey:identOrApp];
 #if 0
 	NSLog(@"openURLs -> %@", apps);
 #endif
@@ -909,7 +910,7 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 	NSString *path;
 	NSBundle *b;
 #if 1
-	NSLog(@"launchAppWithBundleIdentifier: %@ options: %d eventparam: %@", identOrApp, options, params); 
+	NSLog(@"launchAppWithBundleIdentifier: %@ options: %lu eventparam: %@", identOrApp, (unsigned long)options, params);
 #endif
 	if(!__launchServices)
 		[QSLaunchServices sharedLaunchServices];
@@ -1541,7 +1542,7 @@ static NSArray *prevList;
 	return d;
 }
 
-- (int) extendPowerOffBy:(int)requested;
+- (NSInteger) extendPowerOffBy:(NSInteger)requested;
 {
 	// touch some system file so that the loginwindow process can monitor
 	return 0;

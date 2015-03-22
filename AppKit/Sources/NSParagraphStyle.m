@@ -186,7 +186,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 - (NSWritingDirection) baseWritingDirection; { return writingDirection; }
 - (CGFloat) defaultTabInterval; { return defaultTabInterval; }	// after the last defined tab stop
-- (int) headerLevel; { return headerLevel; }
+- (NSInteger) headerLevel; { return headerLevel; }
 - (float) hyphenationFactor; { return hyphenationFactor; }
 - (CGFloat) lineHeightMultiple; { return lineHeightMultiple; }
 - (CGFloat) paragraphSpacingBefore; { return paragraphSpacingBefore; }
@@ -268,7 +268,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direct;	{ writingDirection=direct; }
 - (void) setDefaultTabInterval:(CGFloat) interval;				{ defaultTabInterval=interval; }
-- (void) setHeaderLevel:(int) level;							{ headerLevel=level; }
+- (void) setHeaderLevel:(NSInteger) level;							{ headerLevel=level; }
 - (void) setHyphenationFactor:(float) factor;					{ hyphenationFactor=factor; }
 - (void) setLineHeightMultiple:(CGFloat) factor;					{ lineHeightMultiple=factor; }
 - (void) setParagraphSpacingBefore:(CGFloat) spacing;				{ paragraphSpacingBefore=spacing; }

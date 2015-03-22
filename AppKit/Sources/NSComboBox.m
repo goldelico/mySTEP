@@ -45,7 +45,7 @@
     return [self itemObjectValueAtIndex: row];
 }
 
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
     return [self numberOfItems];
 }
@@ -87,7 +87,7 @@
 - (void) setHasVerticalScroller:(BOOL)flag	{ _cbc.hasVerticalScroller = flag;}
 - (void) setIntercellSpacing:(NSSize)aSize	{ _intercellSpacing = aSize; }
 - (void) setItemHeight:(CGFloat)itemHeight	{ _itemHeight = itemHeight; }
-- (void) setNumberOfVisibleItems:(int)v		{ _visibleItems = v; }
+- (void) setNumberOfVisibleItems:(NSInteger)v		{ _visibleItems = v; }
 - (void) setUsesDataSource:(BOOL)flag		{ _cbc.usesDataSource = flag; }
 - (BOOL) usesDataSource						{ return _cbc.usesDataSource; }
 - (BOOL) completes							{ return _cbc.completes; }
@@ -160,7 +160,7 @@
 		[_popUpList addObjectsFromArray: objects];
 }
 
-- (void) insertItemWithObjectValue:(id)object atIndex:(int)index
+- (void) insertItemWithObjectValue:(id)object atIndex:(NSInteger)index
 {
 	if (_cbc.usesDataSource)
 		NSLog(@"NSComboBoxCell is not configured for an internal datasource");
@@ -176,7 +176,7 @@
 		[_popUpList removeObjectIdenticalTo:object];
 }
 
-- (void) removeItemAtIndex:(int)index
+- (void) removeItemAtIndex:(NSInteger)index
 { 
 	if (_cbc.usesDataSource)
 		NSLog(@"NSComboBoxCell is not configured for an internal datasource");
@@ -197,7 +197,7 @@
 	[self selectItemAtIndex: [self indexOfItemWithObjectValue:object]];
 }
 
-- (id) itemObjectValueAtIndex:(int)index
+- (id) itemObjectValueAtIndex:(NSInteger)index
 {
 	if (_cbc.usesDataSource)
 		return [_dataSource comboBoxCell:self objectValueForItemAtIndex:index];
@@ -210,7 +210,7 @@
 	return [self itemObjectValueAtIndex: [_tableView selectedRow]];
 }
 
-- (int) indexOfItemWithObjectValue:(id)object
+- (NSInteger) indexOfItemWithObjectValue:(id)object
 {
 	if (_cbc.usesDataSource)
 		NSLog(@"NSComboBoxCell is not configured for an internal datasource");
@@ -223,9 +223,9 @@
 
 - (void) noteNumberOfItemsChanged { [_tableView noteNumberOfRowsChanged]; }
 
-- (void) scrollItemAtIndexToTop:(int)index { [_tableView scrollRowToVisible:index]; }
+- (void) scrollItemAtIndexToTop:(NSInteger)index { [_tableView scrollRowToVisible:index]; }
 
-- (void) scrollItemAtIndexToVisible:(int)index { [_tableView scrollRowToVisible:index]; }
+- (void) scrollItemAtIndexToVisible:(NSInteger)index { [_tableView scrollRowToVisible:index]; }
 
 - (NSArray *) objectValues	{ return _popUpList; }
 
@@ -324,7 +324,7 @@
 
 - (IBAction) tableViewAction:(NSComboTableView *) sender
 { // undocumented method
-	int row=[sender selectedRow];
+	NSInteger row=[sender selectedRow];
 #if 1
 	NSLog(@"tableViewAction");
 #endif
@@ -492,20 +492,20 @@ static Class __comboBoxCellClass = Nil;
 
 - (void) setHasVerticalScroller:(BOOL)f	{ [_cell setHasVerticalScroller:f]; }
 - (void) setIntercellSpacing:(NSSize)s	{ [_cell setIntercellSpacing:s]; }
-- (void) setItemHeight:(CGFloat)h			{ [_cell setItemHeight:h]; }
-- (void) setNumberOfVisibleItems:(int)v	{ [_cell setNumberOfVisibleItems:v]; }
+- (void) setItemHeight:(CGFloat)h		{ [_cell setItemHeight:h]; }
+- (void) setNumberOfVisibleItems:(NSInteger)v	{ [_cell setNumberOfVisibleItems:v]; }
 - (BOOL) hasVerticalScroller			{ return [_cell hasVerticalScroller]; }
 - (NSSize) intercellSpacing				{ return [_cell intercellSpacing]; }
 - (CGFloat) itemHeight					{ return [_cell itemHeight]; }
-- (int) numberOfVisibleItems			{ return [_cell numberOfVisibleItems];}
+- (NSInteger) numberOfVisibleItems		{ return [_cell numberOfVisibleItems];}
 - (void) reloadData						{ [_cell reloadData]; }
 - (void) noteNumberOfItemsChanged		{ [_cell noteNumberOfItemsChanged]; }
-- (void) scrollItemAtIndexToTop:(int)index	{ [_cell scrollItemAtIndexToTop:index]; }
-- (void) scrollItemAtIndexToVisible:(int)index	{ [_cell scrollItemAtIndexToVisible:index]; }
-- (void) selectItemAtIndex:(int)index	{ [_cell selectItemAtIndex:index]; }
-- (void) deselectItemAtIndex:(int)index	{ [_cell deselectItemAtIndex:index]; }
-- (int) indexOfSelectedItem				{ return [_cell indexOfSelectedItem]; }
-- (int) numberOfItems					{ return [_cell numberOfItems]; }
+- (void) scrollItemAtIndexToTop:(NSInteger)index	{ [_cell scrollItemAtIndexToTop:index]; }
+- (void) scrollItemAtIndexToVisible:(NSInteger)index	{ [_cell scrollItemAtIndexToVisible:index]; }
+- (void) selectItemAtIndex:(NSInteger)index	{ [_cell selectItemAtIndex:index]; }
+- (void) deselectItemAtIndex:(NSInteger)index	{ [_cell deselectItemAtIndex:index]; }
+- (NSInteger) indexOfSelectedItem				{ return [_cell indexOfSelectedItem]; }
+- (NSInteger) numberOfItems				{ return [_cell numberOfItems]; }
 - (void) setUsesDataSource:(BOOL)flag	{ [_cell setUsesDataSource:flag]; }
 - (BOOL) usesDataSource					{ return [_cell usesDataSource]; }
 - (BOOL) completes						{ return [_cell completes]; }
@@ -540,20 +540,20 @@ static Class __comboBoxCellClass = Nil;
 	[self setNeedsDisplay: YES];
 }
 
-- (void) insertItemWithObjectValue:(id)object atIndex:(int)index
+- (void) insertItemWithObjectValue:(id)object atIndex:(NSInteger)index
 {
 	[_cell insertItemWithObjectValue:object atIndex:index];
 	[self setNeedsDisplay: YES];
 }
 
 - (void) removeItemWithObjectValue:(id)o{ [_cell removeItemWithObjectValue:o];}
-- (void) removeItemAtIndex:(int)index	{ [_cell removeItemAtIndex:index]; }
+- (void) removeItemAtIndex:(NSInteger)index	{ [_cell removeItemAtIndex:index]; }
 - (void) removeAllItems					{ [_cell removeAllItems]; }
 - (NSArray *) objectValues				{ return [_cell objectValues]; }
 - (void) selectItemWithObjectValue:(id)object	{ [_cell selectItemWithObjectValue:object]; }
-- (id) itemObjectValueAtIndex:(int)index	{ return [_cell itemObjectValueAtIndex:index]; }
+- (id) itemObjectValueAtIndex:(NSInteger)index	{ return [_cell itemObjectValueAtIndex:index]; }
 - (id) objectValueOfSelectedItem		{ return [_cell objectValueOfSelectedItem]; }
-- (int) indexOfItemWithObjectValue:(id)object	{ return [_cell indexOfItemWithObjectValue:object]; }
+- (NSInteger) indexOfItemWithObjectValue:(id)object	{ return [_cell indexOfItemWithObjectValue:object]; }
 
 - (void) setDelegate:(id)anObject
 {

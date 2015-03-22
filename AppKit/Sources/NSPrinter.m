@@ -132,7 +132,7 @@
 	return NO;    
 }
 
-- (int) languageLevel
+- (NSInteger) languageLevel
 {
 	return 0;
 }
@@ -534,7 +534,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) beginSheetWithPrintInfo:(NSPrintInfo *) info modalForWindow:(NSWindow *) window delegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
 {
-	int r;
+	NSInteger r;
 	NSPanel *panel;
 	[self updateFromPrintInfo];
 	
@@ -548,10 +548,10 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 			}
 	else
 			{
-				void (*didend)(id, SEL, NSPrintPanel *, int, void *);
+				void (*didend)(id, SEL, NSPrintPanel *, NSInteger, void *);
 				; // create a popup
 				r=[NSApp runModalForWindow:panel];
-				didend = (void (*)(id, SEL, NSPrintPanel *, int, void *))[delegate methodForSelector:sel];
+				didend = (void (*)(id, SEL, NSPrintPanel *, NSInteger, void *))[delegate methodForSelector:sel];
 				(*didend)(self, sel, self, r, context); 
 			}
 }
@@ -587,9 +587,9 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 @implementation NSPageLayout		// PageLayout panel queries the user for
 									// paper type and orientation info
 + (NSPageLayout *) pageLayout				{ return nil; }
-- (int) runModal							{ return 0; }
+- (NSInteger) runModal							{ return 0; }
 
-- (int) runModalWithPrintInfo:(NSPrintInfo *)pInfo
+- (NSInteger) runModalWithPrintInfo:(NSPrintInfo *)pInfo
 {
 	return 0;
 }
@@ -734,7 +734,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	NSData *data=[self propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
 	NSDictionary *a=[NSDictionary dictionaryWithObjectsAndKeys:
 						@"Stream", @"Type",
-						[NSNumber numberWithInt:[data length]], @"Length",
+						[NSNumber numberWithInteger:[data length]], @"Length",
 						nil];
 	[a appendToStream:stream];	// append dictionary
 	[stream appendFormat:@"stream\n"];
@@ -1279,7 +1279,7 @@ static NSPrintOperation *_currentOperation;
 				NSRect pageRect=paginated?[_view rectForPage:_currentPage]:_insideRect;
 				// give loop a chance to run once and handle needsDisplay events!!!
 #if 1
-				NSLog(@"Print Page %d of %d", _currentPage, pages.length);
+				NSLog(@"Print Page %d of %lu", _currentPage, (unsigned long)pages.length);
 #endif
 				if(_progressIndicator)
 					{
