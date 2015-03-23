@@ -260,6 +260,7 @@ static IMP appendImp;
 #if 0
 	NSLog(@"_initWithBase64String:%@", string);
 #endif
+	NSAssert(string, @"does not accept a nil string");
 	while((b=*str++))
 		{
 		int bit6;
@@ -281,11 +282,13 @@ static IMP appendImp;
 				continue;	// ignore white space
 			default:
 				NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
+				objc_free(bytes);
 				[self release];
 				return nil;	// invalid character
 			}
 		if(pad)
 			{ // invalid character follows after any padding
+			objc_free(bytes);
 			[self release];
 			return nil;
 			}
@@ -320,6 +323,7 @@ static IMP appendImp;
 		NSLog(@"byte=%06x", byte);
 		NSLog(@"string=%@", string);
 #endif
+		objc_free(bytes);
 		[self release];
 		return nil;
 		}
