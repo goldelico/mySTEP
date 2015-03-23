@@ -169,10 +169,11 @@
 		}
 	// leaf elements
 	else if([elementName isEqualToString:@"key"])
+// FIXME: handle currentValue == nil
 		[self setKey:currentValue];	// pass key to parent
 	else if([elementName isEqualToString:@"data"])
 		{
-		NSData *d=[[NSData alloc] _initWithBase64String:currentValue];
+		NSData *d=[[NSData alloc] _initWithBase64String:currentValue?currentValue:@""];
 		if(!d)
 			{
 #if 0
