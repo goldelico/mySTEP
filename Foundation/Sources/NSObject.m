@@ -48,7 +48,7 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
 	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@" (unknown class)";
-//	fprintf(stderr, "obj=%p sel=%s\n", s, sel_get_name(aSel));
+	fprintf(stderr, "zombied obj=%p sel=%s obj=%s\n", s, sel_get_name(aSel), [s UTF8String]);
 	NSLog(@"Trying to send selector -%@ to deallocated object: %p %@", NSStringFromSelector(aSel), self, s);
 	[NSException raise:NSInternalInconsistencyException format:@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s];
 	abort();
@@ -327,7 +327,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 				NSLog(@"zombiing %p: %@", self, [self description]);
 #endif
 #if 1
-			fprintf(stderr, "zombiing %p\n", self);	// NSLog() would recursively call -[NSObject release]
+			fprintf(stderr, "zombiing %p: %s\n", self, [[self description] UTF8String]);	// NSLog() would recursively call -[NSObject release]
 #endif
 #if 1
 			NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
