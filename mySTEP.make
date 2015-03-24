@@ -656,7 +656,7 @@ build_debian_packages: \
 # FIXME: use different /tmp/data subdirectories for each running make
 # NOTE: don't include /tmp here to protect against issues after typos
 
-UNIQUE := mySTEP-$(shell date '+%Y%m%d%H%M%S')
+UNIQUE := $(shell mktemp -d -u mySTEP.XXXXXX)
 TMP_DATA := $(UNIQUE)/data
 TMP_CONTROL := $(UNIQUE)/control
 TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
