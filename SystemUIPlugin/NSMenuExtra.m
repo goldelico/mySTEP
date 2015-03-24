@@ -7,6 +7,8 @@
 
 #import <SystemUIPlugin/NSMenuExtra.h>
 
+@class NSMenuView;
+
 @interface NSStatusBar(NSAppKitPrivate)
 - (NSMenuView *) _menuView;
 - (id) _initWithMenuView:(NSMenuView *) v;
