@@ -35,7 +35,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if (! SINGLETON_VARIABLE)
 		return [super allocWithZone:zone];
 	}
-    return SINGLETON_VARIABLE;
+	return SINGLETON_VARIABLE;
 }
 
 - (id) copyWithZone:(NSZone *)zone { return self; }
@@ -54,8 +54,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	{
 	if (! SINGLETON_VARIABLE)
 		[[self alloc] init];
-    }
-    return SINGLETON_VARIABLE;
+	}
+	return SINGLETON_VARIABLE;
 }
 
 /* customized part */
@@ -74,15 +74,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		_previousOrientation=UIDeviceOrientationUnknown;
 		_previousProximityState=NO;
 		}
+#if 0
 	NSLog(@"init: %@", self);
-    }
-    return self;
+#endif
+	}
+	return self;
 }
 
 - (void) dealloc
 { // should not happen for a singleton!
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel previous updates
-#if 1
+#if 0
 	NSLog(@"CoreDevice dealloc");
 	abort();
 #endif
@@ -91,7 +93,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _update;
 {
-#if 1
+#if 0
 	NSLog(@"CoreDevice _update");
 #endif
 	if(batteryMonitoringEnabled)
@@ -127,7 +129,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceProximityStateDidChangeNotification object:nil];
 			}
 		}
-	[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
+	[self performSelector:_cmd withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
 - (void) _startUpdater;
@@ -137,10 +139,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
-- (NSString *) powerPath:(NSString *) value forType:(NSString *) type
+- (NSString *) getPowerSupplyValue:(NSString *) value forType:(NSString *) type
 {
 	int bestQuality;
-	NSString *bestVal=@"";
+	NSString *bestVal=nil;
 	NSFileManager *fm=[NSFileManager defaultManager];
 	NSString *dir=@"/sys/class/power_supply";
 	NSEnumerator *e=[[fm contentsOfDirectoryAtPath:dir error:NULL] objectEnumerator];
@@ -150,7 +152,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSString *dpath=[dir stringByAppendingPathComponent:device];
 		int quality=0;
 		NSString *val=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:value]];
+#if 0
 			NSLog(@"%@/%@ -> %@", dpath, value, val);
+#endif
 		if(!val)
 			continue;	// does not provide value
 		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"type"]] isEqualToString:type])
@@ -159,21 +163,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			quality+=2;	// is present
 		if([device hasPrefix:@"bq27"])
 			quality++;	// prefer bq27xxx fuel gauge
+#if 0
+			NSLog(@"val=%@ quality=%d bestVal=%@ bestQuality=%d", val, quality, bestVal, bestQuality);
+#endif
 		if(!bestVal || quality > bestQuality)
 			bestVal=val, bestQuality=quality;	// better quality value found
 		}
+#if 0
 	NSLog(@"%@/%@ bestval = %@", type, value, bestVal);
+#endif
 	return bestVal;
 }
 
-- (NSString *) batteryPath:(NSString *) value
+- (NSString *) batteryValue:(NSString *) value
 {
-	return [self powerPath:value forType:@"Battery"];
+	return [self getPowerSupplyValue:value forType:@"Battery"];
 }
 
 - (float) batteryLevel;
 {
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"capacity"]];
+	NSString *val=[self batteryValue:@"capacity"];
 	if(!val)
 		{
 		// battery may be decalibrated!
@@ -207,7 +216,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([self batteryState] == UIDeviceBatteryStateCharging)
 		{
 		NSString *status;
-		status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"USB"]];
+		status=[self getPowerSupplyValue:@"status" forType:@"USB"];
 		if([status hasPrefix:@"Charging"])
 			{ // USB charger active
 				{ // USB charger active
@@ -227,8 +236,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (UIDeviceBatteryState) _batteryState;
 { // should not be called too often in sequence!
 	// we should check when it was lastly asked for and return a cached value if less than some timeout...
-	NSString *status=[NSString stringWithContentsOfFile:[self batteryPath:@"status"]];
-#if 1
+	NSString *status=[self batteryValue:@"status"];
+#if 0
 	NSLog(@"batteryState=%@", status);
 #endif
 	if(status)
@@ -239,10 +248,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			{
 			if([self batteryLevel] > 0.99)
 				return UIDeviceBatteryStateFull;
-			status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"USB"]];
+			status=[self getPowerSupplyValue:@"status" forType:@"USB"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateCharging;
-			status=[NSString stringWithContentsOfFile:[self powerPath:@"status" forType:@"Mains"]];
+			status=[self getPowerSupplyValue:@"status" forType:@"Mains"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
 			return UIDeviceBatteryStateUnknown;	// we don't know why the battery is charging...
@@ -262,7 +271,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	static UIDeviceBatteryState lastState;	// cached state
 	time_t t=time(NULL);
 	if(t >= last+1)
-		lastState=[self _batteryState];	// get new value
+		lastState=[self _batteryState];	// get new value every second
 	last=t;
 	return lastState;
 }
@@ -270,33 +279,33 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (NSTimeInterval) remainingTime;
 { // estimate remaining time (in seconds)
 	// FIXME: only available if discharging! During charging we have time_to_full_now
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"time_to_empty_now"]];
-	return [val doubleValue];
+	NSString *val=[self batteryValue:@"time_to_empty_now"];
+	return val?[val doubleValue]:-1.0;
 }
 
 - (unsigned int) chargingCycles;
 { // number of charging cycles
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"cycle_count"]];
-	return [val intValue];
+	NSString *val=[self batteryValue:@"cycle_count"];
+	return val?[val intValue]:-1;
 }
 
 - (float) batteryVoltage;
 {
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"voltage_now"]];
-	return [val floatValue] * 1e-6;
+	NSString *val=[self batteryValue:@"voltage_now"];
+	return val?[val floatValue] * 1e-6:-1.0;
 }
 
 - (float) batteryDischargingCurrent;
 {
-	NSString *val=[NSString stringWithContentsOfFile:[self batteryPath:@"current_now"]];
-	return [val floatValue] * 1e-6;
+	NSString *val=[self batteryValue:@"current_now"];
+	return val?[val floatValue] * 1e-6:0.0;
 }
 
 - (float) chargerVoltage;
 {
 	// FIXME: use VAC or VBUS whatever is available
-	NSString *val=[NSString stringWithContentsOfFile:[self powerPath:@"voltage_now" forType:@"USB"]];
-	return [val floatValue] * 1e-6;
+	NSString *val=[self getPowerSupplyValue:@"voltage_now" forType:@"USB"];
+	return val?[val floatValue] * 1e-6 : -1.0;
 }
 
 - (NSString *) localizedModel;
@@ -306,7 +315,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) model;
 {
-	return @"GTA04";	// should be read from sysinfo database
+	// read /sys/firmware/devicetree/base/model
+	return @"GTA04";	// should be read from sysinfo database or device tree
 }
 
 - (BOOL) isMultitaskingSupported;	/* always YES */
@@ -348,6 +358,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (UIDeviceOrientation) orientation;
 { // ask accelerometer
+  // FIXME: needs a completely different approach to be generic
 	NSArray *val=[[NSString stringWithContentsOfFile:@"/sys/bus/i2c/devices/i2c-2/2-0041/coord"] componentsSeparatedByString:@","];
 	if([val count] >= 3)
 		{

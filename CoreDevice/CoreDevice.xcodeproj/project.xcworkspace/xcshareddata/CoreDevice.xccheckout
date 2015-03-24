@@ -16,7 +16,7 @@
 		<string>ssh://git.goldelico.com/mySTEP.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>CoreDevice/CoreDevice.xcodeproj/project.xcworkspace</string>
+	<string>CoreDevice/CoreDevice.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>1386ABB80FA464B2BEEFF136D79FCDB76542E59B</key>
