@@ -4,7 +4,5 @@ export INSTALL_PATH="/usr"
 export PRODUCT_NAME="say"
 export SOURCES="say.m"
 
-
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
