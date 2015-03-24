@@ -803,9 +803,11 @@ ifeq ($(INSTALL),true)
     # INSTALL: $(INSTALL)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" # copy potential MacOS binary
-	# FIXME: removing the package does not work correctly for the "bin" and "lib" packages because they overlay several "packages"
-	# therefore the rm is disabled (which may leave files if we remove them from the sources/resources)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; : rm -rf "$(NAME_EXT)" ; $(TAR) xpvf - -U --recursive-unlink))
+ifeq ($(NAME_EXT),bin)
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; $(TAR) xpvf -))
+else
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; $(TAR) xpvf - -U --recursive-unlink))
+endif
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
 	# don't install locally
@@ -905,9 +907,16 @@ endif
 	MACOSX_DEPLOYMENT_TARGET=10.5 $(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
 	# linked.
+ifeq ($(WRAPPER_EXTENSION),)
+ifeq ($(ARCHITECTURE),MacOS)
+	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
+	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	# link binary
+endif
+endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
-	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
+	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
 ifeq ($(ARCHITECTURE),MacOS)
 	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 else
