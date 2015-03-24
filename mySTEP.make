@@ -216,7 +216,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
 ifeq ($(ARCHITECTURE),MacOS)
-	LDFLAGS := -dylib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
 endif
