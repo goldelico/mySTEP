@@ -161,38 +161,23 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		{
 		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
 		}
-
-	/* we need this to convert file system paths into an external URL */
-	/* hm, here we have a fundamental problem:
-	 * we don't know where the framework/bundle requesting the path can be accessed  externaly!
-	 * because that is very very installation dependent (e.g. mapping from external URLs through links to local file paths)
-	 * we could try to deduce from $_SERVER values
-	 *
-	 * or we return some ?RESOURCE=path URL
-	 * and detect this special $_GET['RESOURCE'] (in NSWindow display() or earlier)
-	 * and then read/echo the file's contents (potentially amended by the right headers)
-	 * but we must really really protect that it does not become possible to download
-	 * arbitrary files from the server!
-	 * mainly this goes around almost all security settings of httpd
-	 */
-
 	public function externalURLforPath($path)
 		{
-		// locate NSBundle the $path belongs to
-		// if none found, we could use data:
-		// if not mainBundle, add BUNDLE=identifier
-		return "?RESOURCE=".rawurlencode($path);
-
-		// enable read (only) access to file (if not yet possible)
-		// NSLog("path: $path");
-		$path=str_replace("/Users/hns/Documents/Projects", "", $path);
-		$path="http://localhost".$path;
-		// strip off: /Users/hns/Documents/Projects
-//		NSLog("__FILE__: ".$__FILE__);
-//		NSLog($_SERVER);
-		
-		// NSLog("URL: $path");
-		return $path;
+		$bundles=NSBundle::allBundles();
+		foreach($bundles as $bundle)
+			{
+			$res=$bundle->resourcePath();
+			if(substr($path, 0, strlen($res)) == $res)
+				{ // we have found a bundle where this file is stored as a resource!
+				$path=substr($path, strlen($res));	// strip off path prefix
+				$url="?RESOURCE=".rawurlencode($path);
+				if($bundle != NSBundle::mainBundle())
+					$url.="&BUNDLE=".rawurlencode($bundle->bundleIdentifier());
+				return $url;
+				}
+			}
+		_NSLog("can't publish $path");
+		return null;
 		}
 	
 	}
@@ -371,6 +356,8 @@ NSLog("sendAction $action to ".$target->description());
 		{
 		if(isset($_GET['RESOURCE']))
 			{ // serve some resource file
+			NSBundle::mainBundle();
+			NSBundle::bundleForClass($this->classString());
 			if(isset($_GET['BUNDLE']))
 				$bundle=NSBundle::bundleWithIdentifier($_GET['BUNDLE']);
 			else
@@ -389,7 +376,7 @@ NSLog("noopen: $noopen\n");
 NSLog("noopen: $noopen after fileExistsAtPath $path\n");
 			if(!$noopen)
 				{ // check if valid extension
-				$extensions=array("png", "jpg", "jpeg", "gif");
+				$extensions=array("png", "jpg", "jpeg", "gif", "css", "js");
 				$pi=pathinfo($path);
 NSLog("extensions:");
 NSLog($extensions);
@@ -442,7 +429,7 @@ class NSColor extends NSObject
 	public function name() { }
 	public static function systemColorWithName($name)
 		{
-//		NSBundle::bundleForClass($this);
+//		NSBundle::bundleForClass($this->classString());
 		// get system colors
 		}
 	}
@@ -837,6 +824,7 @@ class NSImage extends NSObject
 		{
 		html("<img");
 		parameter("id", $this->elementId);
+		// FIXME: if we don't know the url but a path -> make a data: URL
 		parameter("src", _htmlentities($this->url));
 		if(isset($this->name))
 			parameter("name", _htmlentities($this->name));
@@ -851,17 +839,20 @@ class NSImage extends NSObject
 			{
 			if(!isset($this->url))
 				{ // not initialized by referencing file/url
-				$bundle=NSBundle::mainBundle();
-				// alternatively look in AppKit.framework bundle
+				$bundles=array(NSBundle::mainBundle(), NSBundle::bundleForClass($this->classString()));
+				foreach($bundles as $bundle)
+					{
 _NSLog($bundle);
-				$path=$bundle->pathForResourceOfType($name, "");	// check w/o suffix (or suffix in $name)
-				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "png");
-				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpg");
-				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpeg");
-				if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "gif");
+					$path=$bundle->pathForResourceOfType($name, "");	// check w/o suffix (or suffix in $name)
+					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "png");
+					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpg");
+					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpeg");
+					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "gif");
 _NSLog($path);
-				if(is_null($path)) return false;	// still not found
-				$this->initByReferencingFile($path);
+					if(!is_null($path))
+						return $this->initByReferencingFile($path);	// found
+					}
+				return false;	// not found
 				}
 			$this->name=$name;
 			self::$images[$name]=$this;	// store in list of known images
@@ -882,23 +873,13 @@ _NSLog($url);
 		}
 	public function initByReferencingFile($path)
 		{
-		$bundles=NSBundle::allBundles();
-		foreach($bundles as $bundle)
-			{
-			$res=$bundles->resourcePath();
-			if(substr($path, 0, strlen($res)) == $res)
-				{ // bundle where this file is a resource found!
-				$path=substr($path, strlen($res));	// strip off path prefix
-				$url="?RESOURCE=".rawurlencode($path);
-				if($bundle != NSBundle::mainBundle())
-					$url.="&BUNDLE=".rawurlencode($bundle->bundleIdentifier());
-				return $this->initByReferencingURL($url);
-				}
-			}
+		$url=NSHTMLGraphicsContext::currentContext()->externalURLForPath($path);
+		if(!is_null($url))
+			return $this->initByReferencingURL($url);
 		// FIXME: could try to use data: scheme
-		$url=NSHTMLGraphicsContext::currentContext()->externalURLforPath($path);
-		return $this->initByReferencingURL($url);
-//		$this->initByReferencingURL("https://".$_SERVER['HTTP_HOST']."/$path");
+		// or we could simply store the file path so that we can process the image in memory
+		// and create data: only during composite()
+		return null;	// don't know how to reference externally
 		}
 }
 
@@ -1441,14 +1422,16 @@ class NSWindow extends NSResponder
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 			{
-			html("<link");
-			parameter("rel", "stylesheet");
-			parameter("href", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
-			parameter("type", "text/css");
-			html(">\n");
+			$r=NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
+			if(!is_null($r))
+				{
+				html("<link");
+				parameter("rel", "stylesheet");
+				parameter("href", $r);
+				parameter("type", "text/css");
+				html(">\n");
+				}
 			}
-// allow to add app specific CSS (by WikiView.php)
-
 		// onlclick handlers should only be used if necessary since they require JavaScript enabled
 		html("<script>");
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
@@ -1459,11 +1442,15 @@ class NSWindow extends NSResponder
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
 			{
-			html("<script");
-			parameter("src", NSHTMLGraphicsContext::currentContext()->externalURLforPath($r));
-			parameter("type", "text/javascript");
-			html(">\n");
-			html("</script>\n");
+			$r=NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
+			if(!is_null($r))
+				{
+				html("<script");
+				parameter("src", $r);
+				parameter("type", "text/javascript");
+				html(">\n");
+				html("</script>\n");
+				}
 			}
 		html("<noscript>Your browser does not support JavaScript!</noscript>\n");
 		if(isset($this->title))
