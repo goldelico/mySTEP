@@ -939,6 +939,10 @@ class NSCollectionView extends NSControl
 		foreach($items as $item)
 			$this->addSubview($item);
 		}
+	public function addCollectionViewItem($item)
+		{ // alternate function name
+			$this->addSubview($item);
+		}
 	public function setBorder($border) { $this->border=0+$border; }
 
 // allow to define colspan and rowspan objects
