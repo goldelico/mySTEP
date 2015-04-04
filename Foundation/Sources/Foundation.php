@@ -200,7 +200,7 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
-	private static function readPropertyListElementFromFile($file, $thisline)
+	private static function readPropertyListElementFromStream($stream)
 		{ // read next element
 			$line=trim($thisline);
 				// this is a hack to read XML property lists
@@ -212,8 +212,9 @@ class NSPropertyListSerialization extends NSObject
 					$line=trim($thisline);
 					if(substr($line, 0, -7) == "</dict>")
 						break;
-					$key=readPropertyListElementFromFile($file, $thisline);
-					$value=readPropertyListElementFromFile($file, $thisline);
+					$key=readPropertyListElementFromStream($stream);
+					// check if string
+					$value=readPropertyListElementFromStream($stream);
 					$ret[$key]=$value;
 					}
 				return $ret;
@@ -226,7 +227,7 @@ class NSPropertyListSerialization extends NSObject
 					$line=trim($thisline);
 					if(substr($line, 0, -9) == "</array>")
 						break;
-					$value=readPropertyListElementFromFile($file, $thisline);
+					$value=readPropertyListElementFromStream($stream);
 					$ret[]=$value;
 					}
 				return $ret;
@@ -254,18 +255,20 @@ class NSPropertyListSerialization extends NSObject
 				{
 				
 				}
+			// <data>, <date>, <true/>, <false>
 		}
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 		NSLog("$filename =>");
-		$f=fopen($filename, "r");	// open for reading
+		$f=@fopen($filename, "r");	// open for reading
 		if($f)
 			{ // file exists and can be read
 				while($line=fgets($f))
 					{
 					$line=trim($line);
-					// this is a hack to read XML property lists
+					// FIXME: this is a simple hack to read XML property lists
+					// should be recursive and handle <dict> <array> <data> etc.
 					if(substr($line, 0, 5) == "<key>")
 						{
 						$key=html_entity_decode(substr(substr($line, 5), 0, -6));
@@ -280,7 +283,7 @@ class NSPropertyListSerialization extends NSObject
 					}
 				fclose($f);
 			}
-		NSLog($plist);
+		if(isset($plist)) NSLog($plist);
 		return isset($plist)?$plist:null;
 		}
 	private static function writePropertyListElementToFile(NSObject $element, $file)
@@ -314,13 +317,13 @@ class NSBundle extends NSObject
 	protected static $mainBundle;
 	public static function bundleWithPath($path) 
 		{
-//		NSLog("bundleWithPath: $path");
+		NSLog("bundleWithPath: $path");
 		if(isset(self::$allBundlesByPath[$path]))
 			return self::$allBundlesByPath[$path];	// return bundle object we already know
 		$r=new NSBundle($path);
 		$r->path=$path;
 		self::$allBundlesByPath[$path]=$r;
-//		NSLog("bundleWithPath stored");
+		NSLog("bundleWithPath $path stored");
 		return $r;
 		}
 	public static function allBundles()
@@ -415,9 +418,13 @@ NSLog($path);
 		}
 	public static function bundleWithIdentifier($ident)
 		{
+NSLog("bundleWithIdentifier: $ident");
 		foreach (self::$allBundlesByPath as $bundle)
+			{
+			NSLog("try ".$bundle->bundleIdentifier());
 			if($bundle->bundleIdentifier() == $ident)
 				return $bundle;	// found
+			}
 		return NULL;
 		}
 	public function principalClass()
