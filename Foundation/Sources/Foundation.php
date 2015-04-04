@@ -45,7 +45,7 @@ function _NSLog($format)
 		$str=$format;
 		if(substr($str, -1) != '\n')
 			$str.="\n";	// append \n
-		echo nl2br(htmlentities($format, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8'))."\n";
+		echo nl2br(htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8'))."\n";
 		}
 	flush();
 	}
@@ -74,7 +74,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 
 	switch ($errno) {
 	case E_USER_ERROR:
-		echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+		echo "<b>ERROR</b> [$errno] $errstr<br />\n";
 		echo "  Fatal error on line $errline in file $errfile";
 		echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
 		echo "Aborting...<br />\n";
@@ -82,18 +82,15 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 		break;
 
 	case E_USER_WARNING:
-		NSLog("<b>My WARNING</b> [$errno] $errstr on line $errline in file $errfile");
+		_NSLog("<b>WARNING</b> [$errno] $errstr on line $errline in file $errfile");
 		break;
 
 	case E_USER_NOTICE:
-		NSLog("<b>My NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
+		_NSLog("<b>NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
 		break;
 
 	default:
-		$debug=$GLOBALS['debug'];
-		$GLOBALS['debug']=true;
-		NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
-		$GLOBALS['debug']=$debug;
+		_NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
 		break;
 	}
 
@@ -119,7 +116,7 @@ class NSObject /* root class */
 		$target=$invocation->target();
 		$class=$target->classString();
 		$arguments=$invocation->arguments();
-		NSLog("called unimplemented method '$class->$selector()'");
+		_NSLog("called unimplemented method '$class->$selector()'");
 		}
 	
 	public function __call($name, $arguments)
