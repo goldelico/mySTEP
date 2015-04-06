@@ -176,7 +176,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 				return $url;
 				}
 			}
-		_NSLog("can't publish $path");
+//		_NSLog("can't publish $path");
 		return null;
 		}
 	
@@ -842,13 +842,13 @@ class NSImage extends NSObject
 				$bundles=array(NSBundle::mainBundle(), NSBundle::bundleForClass($this->classString()));
 				foreach($bundles as $bundle)
 					{
-_NSLog($bundle);
+// _NSLog($bundle);
 					$path=$bundle->pathForResourceOfType($name, "");	// check w/o suffix (or suffix in $name)
 					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "png");
 					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpg");
 					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "jpeg");
 					if(is_null($path)) $path=$bundle->pathForResourceOfType($name, "gif");
-_NSLog($path);
+// _NSLog($path);
 					if(!is_null($path))
 						return $this->initByReferencingFile($path);	// found
 					}
@@ -861,7 +861,7 @@ _NSLog($path);
 		}
 	public function initByReferencingURL($url)
 		{
-_NSLog($url);
+// _NSLog($url);
 		$this->url=$url;
 		$c=parse_url($url);
 		if(isset($c['path']))
@@ -1408,7 +1408,13 @@ class NSWindow extends NSResponder
 		{
 		// FIXME: use HTML class and CSS
 		global $NSApp;
-		html("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n");
+		html("<!DOCTYPE html");
+		if(true)	// use HTML4
+			{
+			html(" PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"");
+			html(" \"http://www.w3.org/TR/html401/loose.dtd\"");
+			}
+		html(">\n");
 		html("<html>\n");
 		html("<head>\n");
 		html("<meta");
@@ -1463,6 +1469,7 @@ class NSWindow extends NSResponder
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
+		parameter("enctype", NSHTMLGraphicsContext::encoding);
 		html(">\n");
 		html("<input");
 		parameter("type", "hidden");
