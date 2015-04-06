@@ -827,7 +827,12 @@ class NSImage extends NSObject
 		// FIXME: if we don't know the url but a path -> make a data: URL
 		parameter("src", _htmlentities($this->url));
 		if(isset($this->name))
+			{
 			parameter("name", _htmlentities($this->name));
+			parameter("alt", _htmlentities($this->name));
+			}
+		else
+			parameter("alt", _htmlentities("unnamed image"));
 		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
 		html(">\n");
 		}
