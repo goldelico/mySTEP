@@ -503,12 +503,16 @@ class NSView extends NSResponder
 //		NSLog("<!-- ".$this->elementId." -->");
 		if(isset($this->tooltip) && $this->tooltip)
 			{
-			// wrap in <span title="$tooltip">
+			html("<span");
+			parameter("title", $this->tooltip);
+			html(">\n");
 			}
 		// if $this->class()-defaultMenu() exists -> add menu
 		foreach($this->subviews as $view)
 			$view->display();
 		$this->draw();
+		if(isset($this->tooltip) && $this->tooltip)
+			html("</span>\n");
 		}
 	public function setToolTip($str=null) { $this->tooltip=$str; }
 	public function toolTip() { return $this->tooltip; }
@@ -547,6 +551,7 @@ class NSMatrix extends NSControl
 class NSButton extends NSControl
 	{
 	protected $title;
+	protected $altTitle;
 	protected $action;	// function name
 	protected $target;	// object
 	protected $state;
@@ -577,6 +582,8 @@ class NSButton extends NSControl
 	public function description() { return parent::description()." ".$this->title; }
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
+	public function alternateTitle() { return $this->altTitle; }
+	public function setAlternateTitle($title) { $this->altTitle=$title; }
 	public function state() { return $this->state; }
 	public function setState($s) { $this->state=$s; }
 	public function mouseDown(NSEvent $event)
@@ -593,18 +600,23 @@ class NSButton extends NSControl
 		parameter("class", "NSButton");
 		switch($this->buttonType)
 			{
-				case "CheckBox":
-					parameter("type", "checkbox");
-				break;
 				case "Radio":
 					parameter("type", "radio");
-				break;
+					parameter("name", $this->elementId."-ck");
+					break;
+				case "CheckBox":
+					parameter("type", "checkbox");
+		// if Radio Button/Checkbox take elementId of parent so that radio buttons are grouped correctly!
+					parameter("name", $this->elementId."-ck");
+					break;
 				default:
 					parameter("type", "submit");
-				parameter("value", _htmlentities($this->title));
+					parameter("name", $this->elementId."-ck");
+					parameter("value", _htmlentities($this->title));
+					if(isset($this->altTitle))
+						{ // use CSS or JS to change contents on hover
+						}
 			}
-		// if Radio Button/Checkbox take elementId of parent!
-		parameter("name", $this->elementId."-ck");
 // FIXME: if default button (shortcut "\r"): make it blue
 		if($this->isSelected())
 			{
