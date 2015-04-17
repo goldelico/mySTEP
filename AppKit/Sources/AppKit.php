@@ -395,9 +395,12 @@ NSLog($path);
 			{
 			if(isset($this->queuedEvent))
 				$this->mainWindow->sendEvent($this->queuedEvent);
+			unset($this->queuedEvent);
 			$this->mainWindow->display();
 			// could we run an AJAX loop here?
-			} while(false);
+			if(isset($this->queuedEvent))
+				_NSLog("did set event during display(): ".$this->queuedEvent->description());
+			} while(false);	// not really a loop in a http response...
 		}
 }
 	
@@ -410,8 +413,8 @@ function NSApplicationMain($name)
 		echo '$ROOT is not set globally!';
 		exit;
 		}
-// _NSLog("_POST:");
-// _NSLog($_POST);
+NSLog("_POST:");
+NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
 	$NSApp->setDelegate(new AppController);	// this should be the principalClass from the NIB file!
@@ -602,11 +605,11 @@ class NSButton extends NSControl
 			{
 				case "Radio":
 					parameter("type", "radio");
+		// if Radio Button take elementId of parent so that radio buttons are grouped correctly!
 					parameter("name", $this->elementId."-ck");
 					break;
 				case "CheckBox":
 					parameter("type", "checkbox");
-		// if Radio Button/Checkbox take elementId of parent so that radio buttons are grouped correctly!
 					parameter("name", $this->elementId."-ck");
 					break;
 				default:
