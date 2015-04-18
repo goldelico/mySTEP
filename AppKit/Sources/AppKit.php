@@ -1342,6 +1342,18 @@ class NSTextField extends NSControl
 			parameter("name", $this->elementId."-string");
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
+			switch($this->type)
+				{ // special types
+				case "search":
+					parameter("onsearch", "e('".$this->elementId."');s()");
+					break;
+				case "search":
+					parameter("onchange", "e('".$this->elementId."');s()");
+					break;
+				case "range":
+					parameter("oninput", "e('".$this->elementId."');s()");
+					break;
+				}
 			html("/>\n");
 			$this->_persist("string", "", "");	// remove from persistence store
 			}
@@ -1371,6 +1383,16 @@ class NSSearchField extends NSTextField
 	{
 		parent::__construct($width);
 		$this->type="search";
+	}
+
+}
+
+class NSSlider extends NSTextField
+{
+	public function __construct()
+	{
+		parent::__construct(30);
+		$this->type="range";
 	}
 
 }
