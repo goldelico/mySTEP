@@ -52,6 +52,21 @@ function _NSLog($format)
 
 function NSLog($format)
 	{
+	if(isset($_GET['debug2log']))
+		{
+		$f=fopen("/tmp/mySTEP.log", "a");
+		if(is_null($format))
+			$format="<nil>";
+		if(!is_scalar($format))
+			// check if a description() method exists
+			$format=var_export($format, true);
+		// NSDate::date()->description()
+		if(substr($format, -1) != '\n')
+			$format.="\n";	// append \n
+		fputs($f, $format);
+		fclose($f);
+		return;
+		}
 	if(!$GLOBALS['debug'])
 		return;	// disable
 	_NSLog($format);
