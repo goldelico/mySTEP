@@ -353,16 +353,23 @@ class NSApplication extends NSResponder
 		}
 	public function sendActionToTarget(NSResponder $from, $action, $target)
 		{
+		if(!$action)
+			return;	// no action is set
 		if(!isset($target))
-			{
-NSLog("sendAction $action to first responder");
-			$target=null;	// it $target does not exist -> take first responder
+			{ // it $target does not exist -> take first responder
+_NSLog("sendAction $action to first responder");
+			$target=null;	// FIXME: locate first responder
 			}
+		else
+{
 // echo "printr--";
 // print_r($target); echo "--print_r"; flush();
 NSLog("sendAction $action to ".$target->description());
-		// FIXME: if method does not exist -> ignore or warn
-		$target->$action($from);
+}
+		if(method_exists($target, $action))
+			$target->$action($from);
+		else
+			_NSLog(/*$target->description().*/"target does no handle $action");
 		}
 	public function run()
 		{
