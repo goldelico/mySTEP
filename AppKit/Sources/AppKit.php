@@ -208,10 +208,22 @@ global $NSApp;
 
 class NSResponder extends NSObject
 {
+	protected static $objects=array();	// all objects
+	protected $elementId;	// unique object id
 	public function __construct()
 	{
 		parent::__construct();
+		$this->elementId=1+count(self::$objects);	// assign element numbers
+		self::$objects[$this->elementId]=$this;	// store reference
+		if(_persist('NSEvent', null) == $this->elementId)
+			{ // user did click into this object to send this form
+			global $NSApp;
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			_persist('NSEvent', "", "");	// reset
+			}
 	}
+	public static function _objectForId($id) { return self::$objects[$id]; }
+	protected function elementId() { return $this->elementId; }
 }
 
 class NSApplication extends NSResponder
@@ -440,7 +452,6 @@ class NSColor extends NSObject
 class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $frame;
-	protected $elementId;
 	protected $subviews=array();
 	protected $superview;
 	protected $autoResizing;
@@ -449,11 +460,9 @@ class NSView extends NSResponder
 	protected $tooltip;
 	public function __construct()
 		{
-		static $elementNumber;	// unique number
 		parent::__construct();
 		// if we ever get problems with this numbering, we should derive the name from
 		// the subview tree index, e.g. 0-2-3
-		$this->elementId=++$elementNumber;
 		$this->frame=NSMakeRect(0, 0, 0, 0);
 		}
 	public function _persist($object, $default, $value=null)
@@ -571,7 +580,8 @@ class NSButton extends NSControl
 			global $NSApp;
 			$this->_persist("ck", "", "");	// unset
 			NSLog($this->classString());
-			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			if($this->action)
+				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		}
 	public function isSelected()
@@ -1176,17 +1186,11 @@ class NSTableView extends NSControl
 		$this->selectedRow=$this->_persist("selectedRow", -1);
 		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
 		$this->headers=$headers;
-		if(_persist('NSEvent', null) == $this->elementId)
-			{ // click into table
-			global $NSApp;
-			_persist('NSEvent', "", "");	// reset
-			$this->clickedRow=_persist('clickedRow', null);
-			_persist('clickedRow', "", "");	// reset
-			$this->clickedColumn=_persist('clickedColumn', null);
-			_persist('clickedColumn', "", "");	// reset
-			NSLog($this->classString());
-			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
-			}
+		$this->clickedRow=_persist('clickedRow', null);
+		_persist('clickedRow', "", "");	// reset
+		$this->clickedColumn=_persist('clickedColumn', null);
+		_persist('clickedColumn', "", "");	// reset
+		NSLog($this->classString());
 		}
 	public function reloadData() { $this->setNeedsDisplay(); }
 	public function columns()
