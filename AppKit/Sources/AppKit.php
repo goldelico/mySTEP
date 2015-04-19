@@ -215,14 +215,8 @@ class NSResponder extends NSObject
 		parent::__construct();
 		$this->elementId=1+count(self::$objects);	// assign element numbers
 		self::$objects[$this->elementId]=$this;	// store reference
-		if(_persist('NSEvent', null) == $this->elementId)
-			{ // user did click into this object to send this form
-			global $NSApp;
-			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
-			_persist('NSEvent', "", "");	// reset
-			}
 	}
-	public static function _objectForId($id) { return self::$objects[$id]; }
+	public static function _objectForId($id) { return isset(self::$objects[$id])?self::$objects[$id]:null; }
 	protected function elementId() { return $this->elementId; }
 }
 
@@ -412,13 +406,22 @@ NSLog($path);
 			}
 		do
 			{
+			$targetId=_persist('NSEvent', null);
+			if(!is_null($targetId) && $targetId)
+				$target=NSResponder::_objectForId($targetId);	// not empty
+			else
+				$target=null;
+			if(!is_null($target))
+				{ // user did click into this object when sending this form
+				global $NSApp;
+				$event=new NSEvent($target, 'NSMouseDown');
+				$this->queueEvent($event);
+				}
+			_persist('NSEvent', "", "");	// reset
 			if(isset($this->queuedEvent))
 				$this->mainWindow->sendEvent($this->queuedEvent);
-			unset($this->queuedEvent);
 			$this->mainWindow->display();
 			// could we run an AJAX loop here?
-			if(isset($this->queuedEvent))
-				_NSLog("did set event during display(): ".$this->queuedEvent->description());
 			} while(false);	// not really a loop in a http response...
 		}
 }
@@ -587,8 +590,18 @@ class NSButton extends NSControl
 			global $NSApp;
 			$this->_persist("ck", "", "");	// unset
 			NSLog($this->classString());
-			if($this->action)
-				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+			switch($type)
+				{
+				case "CheckBox":
+				case "Radio":
+					$this->state=true;
+					break;	// don't assume a button that has been clicked
+			// FIXME: multiple buttons may have -ck set (the button pressed and several checkboxes)
+			// => use ck only for checkboxes? and not as "click"???
+		//	if($this->action)	// FIXME: action is never set here!!!
+				default:
+					$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				}
 			}
 		}
 	public function isSelected()
@@ -604,8 +617,8 @@ class NSButton extends NSControl
 	public function setTitle($title) { $this->title=$title; }
 	public function alternateTitle() { return $this->altTitle; }
 	public function setAlternateTitle($title) { $this->altTitle=$title; }
-	public function state() { return $this->state; }
-	public function setState($s) { $this->state=$s; }
+	public function state() { return $this->isSelected(); }
+	public function setState($s) { $this->setSelected($s); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
 		// NSLog($event);
@@ -1327,8 +1340,8 @@ class NSTextField extends NSControl
 		$this->width=$width;
 	}
 	public function mouseDown(NSEvent $event)
-		{ // some button has been pressed
-
+		{ // user has pressed return in this (search)field
+		$this->sendAction($this->action, $this->target);
 		}
 	public function draw()
 		{
