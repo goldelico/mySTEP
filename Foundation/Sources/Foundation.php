@@ -530,7 +530,7 @@ class NSUserDefaults extends NSObject
 	}
 
 	public function setPersistentDomainForName($dict, $domain, $duration=0)
-	{
+	{ // NOTE: $domain is the NSUserDefaults domain and has nothing to do with the setcookie(... $domain) parameter
 		NSLog("setPersistentDomainForName($domain) duration:$duration)");
 		NSLog($dict);
 		if($duration == 0)
@@ -544,7 +544,7 @@ class NSUserDefaults extends NSObject
 			}
 		else
 			{
-			setcookie($domain, json_encode($dict), $time, "/", ".");	// set cookie for all domains and subpaths
+			setcookie($domain, json_encode($dict), $time, "/", "");	// set cookie for all domains and subpaths
 			$_COOKIE[$domain]=$dict;	// replace
 			}
 	}
