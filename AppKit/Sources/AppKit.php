@@ -193,6 +193,7 @@ class NSEvent extends NSObject
 {
 	protected $target;
 	protected $type;
+	protected $position;
 	public function __construct(NSResponder $target, $type)
 	{
 		parent::__construct();
@@ -202,6 +203,8 @@ class NSEvent extends NSObject
 	public function description() { return "NSEvent: ".$this->type." -> ".$this->target->description(); }
 	public function type() { return $this->type; }
 	public function target() { return $this->target; }
+	public function position() { return $this->position; }
+	public function setPosition($pos) { $this->position=$pos; }
 }
 
 global $NSApp;
@@ -415,6 +418,9 @@ NSLog($path);
 				{ // user did click into this object when sending this form
 				global $NSApp;
 				$event=new NSEvent($target, 'NSMouseDown');
+				$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
+				_persist('clickedRow', "", "");	// reset
+				_persist('clickedColumn', "", "");	// reset
 				$this->queueEvent($event);
 				}
 			_persist('NSEvent', "", "");	// reset
@@ -1206,10 +1212,6 @@ class NSTableView extends NSControl
 		$this->selectedRow=$this->_persist("selectedRow", -1);
 		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
 		$this->headers=$headers;
-		$this->clickedRow=_persist('clickedRow', null);
-		_persist('clickedRow', "", "");	// reset
-		$this->clickedColumn=_persist('clickedColumn', null);
-		_persist('clickedColumn', "", "");	// reset
 		NSLog($this->classString());
 		}
 	public function reloadData() { $this->setNeedsDisplay(); }
@@ -1238,6 +1240,9 @@ class NSTableView extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{
+		$pos=$event->position();
+		$this->clickedColumn=$pos['x'];
+		$this->clickedRow=$pos['y'];
 		if(false && $this->clickedRow == -1)
 			; // select column
 		$this->selectRow($this->clickedRow);
@@ -1322,18 +1327,23 @@ class NSTextField extends NSControl
 	protected $isEditable=true;
 	protected $textColor;
 	protected $wraps=false;
+	protected $name;	// name of this <input>
 	public function stringValue() { return $this->stringValue; }
 	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); }
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
-	public function __construct($width=30, $stringValue = null)
+	public function __construct($width=30, $stringValue = null, $name = null)
 	{
        		parent::__construct();
-// _NSLog("__contruct NSTextField ".$this->elementId);
-		$this->setStringValue($this->_persist("string", ""));
-		// should be depreacted and be replaced by SetStringValue() ...
+		if(is_null($name))
+			$this->name=$this->elementId."-string";	// default name
+		else
+			$this->name=$name;	// override
+// _NSLog("__contruct NSTextField ".$this->name);
+		$this->setStringValue(_persist($this->name, ""));
+		// the second parameter should be depreacted and be replaced by an explicit setStringValue() only ...
 		if(!is_null($stringValue))
 			$this->setStringValue($stringValue);	// overwrite
 		// should be depreacted and replaced by setFrame() ...
@@ -1352,7 +1362,8 @@ class NSTextField extends NSControl
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
-			parameter("name", $this->elementId."-string");
+			// FIXME: _setName should allow to set a global name, e.g. "username" or "password"
+			parameter("name", $this->name);
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
 			switch($this->type)
@@ -1368,7 +1379,7 @@ class NSTextField extends NSControl
 					break;
 				}
 			html("/>\n");
-			$this->_persist("string", "", "");	// remove from persistence store
+			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
 			}
 		else
 			{
@@ -1382,9 +1393,9 @@ class NSTextField extends NSControl
 
 class NSSecureTextField extends NSTextField
 {
-	public function __construct($width=30)
+	public function __construct($width=30, $name=null)
 	{
-       		parent::__construct($width);
+		parent::__construct($width, null, $name);
 		$this->type="password";
 	}
 
@@ -1392,9 +1403,9 @@ class NSSecureTextField extends NSTextField
 
 class NSSearchField extends NSTextField
 {
-	public function __construct($width=30)
+	public function __construct($width=30, $name=null)
 	{
-		parent::__construct($width);
+		parent::__construct($width, null, $name);
 		$this->type="search";
 	}
 
@@ -1404,7 +1415,7 @@ class NSSlider extends NSTextField
 {
 	public function __construct()
 	{
-		parent::__construct(30);
+		parent::__construct();
 		$this->type="range";
 	}
 
@@ -1576,7 +1587,7 @@ class NSWindow extends NSResponder
 	}
 }
 
-class NSWorkspace
+class NSWorkspace extends NSObject
 {
 	protected static $sharedWorkspace;
 	protected static $knownApplications;
