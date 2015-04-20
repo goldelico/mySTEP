@@ -623,21 +623,23 @@ NSLog("sql: $ident");
 		$result=mysqli_query($this->db, $sql);
 		if($result === FALSE)
 			{ // failed
-			NSLog("MySQL query failed");
+			NSLog("query $sql failed");
+			$error="MySQL query failed: ".mysqli_error($this->db);
 			return false;
 			}
 		if($result === TRUE)
 			{ // not a SELECT succeeded
-			NSLog("MySQL query succeeded");
+			$error="MySQL query succeeded";
 			return true;
 			}
 		NSLog("MySQL query done");
 		if(mysqli_error($this->db))
 			{
-			NSLog("MySQL query failed: ".mysqli_error($this->db));
+			NSLog("query $sql failed: ".mysqli_error($this->db));
+			$error="MySQL query failed: ".mysqli_error($this->db);
 			return null;
 			}
-		NSLog("query ok");
+		$error="query ok";
 		return new SQLRowEnumerator($result);
 		}
 	if($this->type == "sqlite")
@@ -647,7 +649,7 @@ NSLog("sql: $ident");
 			{
 			return null;
 			}
-		NSLog("MySQL query done");
+		$error="MySQL query done";
 		return new _SQLiteRowEnumerator($result);
 		}
 	if($this->type == "file")
