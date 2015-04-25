@@ -445,7 +445,7 @@ NSLog("_POST:");
 NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	new NSApplication($name);
-	$NSApp->setDelegate(new AppController);	// this should be the principalClass from the NIB file!
+	$NSApp->setDelegate(new AppController);	// this should be loaded from the NIB file!
 	// FIXME: shouldn't we better implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
 	if(method_exists($NSApp->delegate(), "awakeFromNib"))
 		$NSApp->delegate()->awakeFromNib();

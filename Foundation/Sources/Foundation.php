@@ -357,7 +357,7 @@ class NSBundle extends NSObject
 			if(isset($NSApp))
 				self::$mainBundle=NSBundle::bundleForClass($NSApp->delegate()->classString());	// assumes that the NSApp delegate belongs to the main bundle!
 			}
-		return self::$mainBundle;	// unknown
+		return self::$mainBundle;
 		}
 	public static function bundleForClass($class)
 		{
