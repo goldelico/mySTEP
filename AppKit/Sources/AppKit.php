@@ -10,7 +10,7 @@
  * sendEvent and mouseDown are called when button is clicked or something modified
  */
 
-	// FIXME: make this configurabe (how?)
+// FIXME: make this configurabe (how?)
 // through User-Defaults? Or should the web site be configured???
 
 if(false && $_SERVER['SERVER_PORT'] != 443)
@@ -359,9 +359,7 @@ _NSLog("sendAction $action to first responder");
 			}
 		else
 {
-// echo "printr--";
-// print_r($target); echo "--print_r"; flush();
-NSLog("sendAction $action to ".$target->description());
+// NSLog("sendAction $action to ".$target->description());
 }
 		if(method_exists($target, $action))
 			$target->$action($from);
@@ -378,42 +376,45 @@ NSLog("sendAction $action to ".$target->description());
 				$bundle=NSBundle::bundleWithIdentifier($_GET['BUNDLE']);
 			else
 				$bundle=NSBundle::mainBundle();
-NSLog($bundle);
+// NSLog($bundle);
 			$noopen= is_null($bundle);	// bundle not found
-NSLog("noopen: $noopen\n");
+// NSLog("noopen: $noopen\n");
 			if(!$noopen)
 				$path=$bundle->resourcePath()."/".$_GET['RESOURCE'];	// relative to Resources
 			else
 				$path="?";
-NSLog("path: $path\n");
+// NSLog("path: $path\n");
 			$noopen= $noopen || strpos("/".$path."/", "/../") !== FALSE;	// if someone tries ..
-NSLog("noopen: $noopen\n");
+// NSLog("noopen: $noopen\n");
 			$noopen= $noopen || !NSFileManager::defaultManager()->fileExistsAtPath($path);
-NSLog("noopen: $noopen after fileExistsAtPath $path\n");
+// NSLog("noopen: $noopen after fileExistsAtPath $path\n");
 			if(!$noopen)
 				{ // check if valid extension
 				$extensions=array("png", "jpg", "jpeg", "gif", "css", "js");
 				$pi=pathinfo($path);
-NSLog("extensions:");
-NSLog($extensions);
-NSLog($pi);
+// NSLog("extensions:");
+// NSLog($extensions);
+// NSLog($pi);
 				$noopen = !isset($pi['extension']) || !in_array($pi['extension'], $extensions);
 				}
 			if($noopen)
 				_404();	// simulate 404 error
 			header("Content-Type: image/".$pi['extension']);
-NSLog($path);
+// NSLog($path);
 			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 			echo $file;	// provide requested contents to browser
 			exit;
 			}
 		do
 			{
+// _NSLog($_POST);
 			$targetId=_persist('NSEvent', null);
+// _NSLog("targetId $targetId");
 			if(!is_null($targetId) && $targetId)
-				$target=NSResponder::_objectForId($targetId);	// not empty
+				$target=NSResponder::_objectForId($targetId);
 			else
 				$target=null;
+// _NSLog($target);
 			if(!is_null($target))
 				{ // user did click into this object when sending this form
 				global $NSApp;
@@ -554,17 +555,23 @@ class NSView extends NSResponder
 
 class NSControl extends NSView
 	{
+	protected $action;	// function name
+	protected $target;	// object
 	public function __construct()
 		{ // must explicitly call!
 		parent::__construct();
 		}
-	public function sendAction($action, NSObject $target=null)
+	public function sendAction($action=null, NSObject $target=null)
 		{
 		global $NSApp;
+		if(is_null($action))
+			$action=$this->action;
+		if(is_null($target))
+			$target=$this->target;
 NSLog($this->description()." sendAction $action");
 		$NSApp->sendActionToTarget($this, $action, $target);
 		}
-	public function setActionAndTarget($action, NSObject $target=null)
+	public function setActionAndTarget($action, NSObject $target)
 		{
 		$this->action=$action;
 		$this->target=$target;
@@ -580,8 +587,6 @@ class NSButton extends NSControl
 	{
 	protected $title;
 	protected $altTitle;
-	protected $action;	// function name
-	protected $target;	// object
 	protected $state;
 	protected $buttonType;
 	public function __construct($newtitle = "NSButton", $type="Button")
@@ -630,7 +635,7 @@ class NSButton extends NSControl
 		// NSLog($event);
 		// NSLog($this);
 		// if radio button or checkbox, watch for value
-		$this->sendAction($this->action, $this->target);
+		$this->sendAction();
 	}
 	public function draw()
 		{
@@ -683,8 +688,6 @@ class NSMenuItemView extends NSButton
 		protected $icon;
 		protected $shortcut;
 		protected $subMenuView;
-		protected $action;
-		protected $target;
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
 		public function setSelected($sel) { $this->isSelected=$this->_persist("isSelected", 0, $sel); }
@@ -768,7 +771,7 @@ class NSMenuView extends NSMenu
 	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
 	public function addMenuItem(NSMenuItemView $item) { $this->menuItems[]=$item; }
-	public function addMenuItemWithTitleAndAction($title, $action, $target)
+	public function addMenuItemWithTitleAndAction($title, $action, NSObject $target)
 		{
 		$item=new NSMenuItemView($title);
 		$item->setActionAndTarget($action, $target);
@@ -1351,7 +1354,9 @@ class NSTextField extends NSControl
 	}
 	public function mouseDown(NSEvent $event)
 		{ // user has pressed return in this (search)field
-		$this->sendAction($this->action, $this->target);
+// _NSLog("mouseDown");
+// _NSLog($this);
+		$this->sendAction();
 		}
 	public function draw()
 		{
@@ -1453,6 +1458,21 @@ class NSTextView extends NSControl
 		}
 }
 
+// NSClipView? with different overflow-setting?
+
+class NSScrollView extends NSView
+{
+	public function draw()
+		{
+		html("<div");
+		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
+		html(">");
+		foreach($this->subviews as $item)
+			$item->display();
+		html("</div>");
+		}
+}
+
 class NSWindow extends NSResponder
 {
 	protected $title;
@@ -1483,7 +1503,6 @@ class NSWindow extends NSResponder
 		}
 	public function display() 
 		{
-		// FIXME: use HTML class and CSS
 		global $NSApp;
 		html("<!DOCTYPE html");
 		if(true)	// use HTML4
@@ -1515,7 +1534,7 @@ class NSWindow extends NSResponder
 				html(">\n");
 				}
 			}
-		// onlclick handlers should only be used if necessary since they require JavaScript enabled
+		// onclick handlers should only be used if necessary since they require JavaScript enabled
 		html("<script>");
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
 		html("function r(v){document.forms[0].clickedRow.value=v;};");
