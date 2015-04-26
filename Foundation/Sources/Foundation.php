@@ -520,8 +520,9 @@ class NSUserDefaults extends NSObject
 
 	public function persistentDomainForName($domain)
 	{
-		if(!isset($_COOKIES[$domain])) return null;
-		return json_decode($_COOKIES[$domain], true);
+		$domain=str_replace('.', '_', $domain);	// cookies don't accept _
+		if(!isset($_COOKIE[$domain])) return null;
+		return json_decode($_COOKIE[$domain], true);
 	}
 
 	public function removePersistentDomainForName($domain)
@@ -531,6 +532,7 @@ class NSUserDefaults extends NSObject
 
 	public function setPersistentDomainForName($dict, $domain, $duration=0)
 	{ // NOTE: $domain is the NSUserDefaults domain and has nothing to do with the setcookie(... $domain) parameter
+		$domain=str_replace('.', '_', $domain);	// cookies don't accept _
 		NSLog("setPersistentDomainForName($domain) duration:$duration)");
 		NSLog($dict);
 		if($duration == 0)
@@ -544,7 +546,8 @@ class NSUserDefaults extends NSObject
 			}
 		else
 			{
-			setcookie($domain, json_encode($dict), $time, "/", "");	// set cookie for all domains and subpaths
+			$dict=json_encode($dict);
+			setcookie($domain, $dict, $time, "/", "");	// set cookie for all domains and subpaths
 			$_COOKIE[$domain]=$dict;	// replace
 			}
 	}
@@ -552,7 +555,8 @@ class NSUserDefaults extends NSObject
 	public function persistentDomainNames()
 	{
 		// FIXME: don't return numeric indexes!
-		return array_keys($_COOKIES);
+		// FIXME: replace _ by . (which means we should not use domains with _)
+		return array_keys($_COOKIE);
 	}
 
 	public function volatileDomainForName($domain)
