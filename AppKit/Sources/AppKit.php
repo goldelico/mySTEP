@@ -475,6 +475,7 @@ class NSView extends NSResponder
 	protected $needsDisplay;
 	protected $window;
 	protected $tooltip;
+	protected $hidden=false;
 	public function __construct()
 		{
 		parent::__construct();
@@ -527,8 +528,12 @@ class NSView extends NSResponder
 		{
 		return $this->needsDisplay;
 		}
+	public function isHidden() { return $this->hidden; }
+	public function setHidden($flag) { $this->hidden=$flag; }
 	public function display()
 		{ // draw subviews first
+		if($this->hidden)
+			return;	// hide - including subviews
 //		NSLog("<!-- ".$this->elementId." -->");
 		if(isset($this->tooltip) && $this->tooltip)
 			{
@@ -1000,6 +1005,8 @@ class NSCollectionView extends NSControl
 		}
 	public function display()
 		{
+		if($this->hidden)
+			return;
 		html("<table");
 		parameter("class", "NSCollectionView");
 		parameter("border", $this->border);
@@ -1322,6 +1329,7 @@ class NSTableView extends NSControl
 class NSTextField extends NSControl
 {
 	protected $stringValue;	// should this be a property of NSControl?
+	protected $placeholder="";
 	protected $htmlValue;
 	protected $backgroundColor;
 	protected $align;
@@ -1337,6 +1345,8 @@ class NSTextField extends NSControl
 	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
+	public function placeholderString() { return $this->placeholder; }
+	public function setPlaceholderString($str) { $this->placeholder=$str; }
 	public function __construct($width=30, $stringValue = null, $name = null)
 	{
        		parent::__construct();
@@ -1366,6 +1376,9 @@ class NSTextField extends NSControl
 			parameter("id", $this->elementId);
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
+			parameter("size", $this->width);
+			if($this->placeholder)
+				parameter("placeholder", $this->placeholder);
 			parameter("size", $this->width);
 			// FIXME: _setName should allow to set a global name, e.g. "username" or "password"
 			parameter("name", $this->name);
@@ -1464,6 +1477,8 @@ class NSScrollView extends NSView
 {
 	public function draw()
 		{
+		if($this->hidden)
+			return;
 		html("<div");
 		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
 		html(">");
