@@ -42,6 +42,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) FMWKS
 #   (*) LIBS
 #  compile control
+#   () NOCOMPILE
 #   () BUILT_PRODUCTS_DIR - default: build/Deployment
 #   () TARGET_BUILD_DIR - default: build/Deployment
 #   (+) PHPONLY
@@ -233,7 +234,11 @@ endif
 
 # this is the default/main target on the outer level
 
+ifeq ($(NOCOMPILE),true)
+build:	build_subprojects build_doxy install_local
+else
 build:	build_subprojects build_doxy build_architectures make_php install_local deploy_remote launch_remote
+endif
 	date
 
 clean:	# also clean for subprojects???
