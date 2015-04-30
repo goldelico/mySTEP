@@ -152,12 +152,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSString *dpath=[dir stringByAppendingPathComponent:device];
 		int quality=0;
 		NSString *val=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:value]];
+		NSString *t;
 #if 0
 			NSLog(@"%@/%@ -> %@", dpath, value, val);
 #endif
 		if(!val)
 			continue;	// does not provide value
-		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"type"]] isEqualToString:type])
+		t=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"type"]];
+		t=[t stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+#if 0
+		NSLog(@"%@ = %@", t, type);
+#endif
+		if([t isEqualToString:type])
 			quality+=4;	// type matches
 		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"present"]] intValue] == 1)
 			quality+=2;	// is present
