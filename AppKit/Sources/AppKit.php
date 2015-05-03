@@ -882,7 +882,7 @@ class NSImage extends NSObject
 	public function composite()
 		{
 		html("<img");
-		parameter("id", $this->elementId);
+//		parameter("id", $this->elementId);
 		// FIXME: if we don't know the url but a path -> make a data: URL
 		parameter("src", _htmlentities($this->url));
 		if(isset($this->name))
@@ -1281,6 +1281,7 @@ class NSTableView extends NSControl
 			{
 			html("<th");
 			parameter("id", $this->elementId."-".$index);
+			parameter("name", $header);
 			parameter("class", "NSTableHeaderCell");
 			parameter("bgcolor", "LightSteelBlue");
 			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
@@ -1301,6 +1302,7 @@ class NSTableView extends NSControl
 				{
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
+				parameter("name", $column);
 				parameter("class", "NSTableCell");
 				if($row == $this->selectedRow)
 					parameter("bgcolor", "LightSteelBlue");	// selected
