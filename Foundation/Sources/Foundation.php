@@ -520,7 +520,7 @@ class NSUserDefaults extends NSObject
 
 	public function persistentDomainForName($domain)
 	{
-		$domain=str_replace('.', '_', $domain);	// cookies don't accept _
+		$domain=str_replace('.', '_', $domain);	// cookies don't accept . in name
 		if(!isset($_COOKIE[$domain])) return null;
 		return json_decode($_COOKIE[$domain], true);
 	}
@@ -532,16 +532,18 @@ class NSUserDefaults extends NSObject
 
 	public function setPersistentDomainForName($dict, $domain, $duration=0)
 	{ // NOTE: $domain is the NSUserDefaults domain and has nothing to do with the setcookie(... $domain) parameter
-		$domain=str_replace('.', '_', $domain);	// cookies don't accept _
-		NSLog("setPersistentDomainForName($domain) duration:$duration)");
-		NSLog($dict);
+		$domain=str_replace('.', '_', $domain);	// cookies don't accept . in name
+// _NSLog("setPersistentDomainForName($domain) duration:$duration)");
+// _NSLog($dict);
+// _NSLog("before");
+// _NSLog($_COOKIE);
 		if($duration == 0)
 			$time=(2038-1970)*365*24*3600;	// almost for ever...
 		else
 			$time=time()+$duration;
 		if($duration < 0)
-			{ // unset
-			setcookie($domain, "", $time);
+			{ // unset coockie completely
+			setcookie($domain, false, $time, "/", "");
 			unset($_COOKIE[$domain]);
 			}
 		else
@@ -550,6 +552,8 @@ class NSUserDefaults extends NSObject
 			setcookie($domain, $dict, $time, "/", "");	// set cookie for all domains and subpaths
 			$_COOKIE[$domain]=$dict;	// replace
 			}
+// _NSLog("after");
+// _NSLog($_COOKIE);
 	}
 
 	public function persistentDomainNames()
