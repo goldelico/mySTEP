@@ -235,7 +235,8 @@ class NSApplication extends NSResponder
 
 	public function _url()
 		{ // the URL of the script we are currently running
-		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+		$rp=empty($_SERVER['HTTPS'])?443 : 80; // default remote port
+		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] != $rp ? ":".$_SERVER['SERVER_PORT'] : "").$_SERVER['REQUEST_URI'];
 		}
 
 	public function delegate() { return $this->delegate; }
