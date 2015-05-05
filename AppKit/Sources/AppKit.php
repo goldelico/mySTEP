@@ -36,9 +36,9 @@ function _404()
 	$_SERVER['REDIRECT_STATUS'] = 404;
 	echo "<h1>Not Found</h1>";
 	echo "<p>The requested URL ";
-	echo $_SERVER['PHP_SELF'];
+	echo htmlentities($_SERVER['PHP_SELF']);
 	if($_SERVER['QUERY_STRING'])
-		echo "?".$_SERVER['QUERY_STRING'];
+		echo "?".htmlentities($_SERVER['QUERY_STRING']);
 	echo " was not found on this server.</p>";
 // FIXME: optionally notify someone?
 	exit;
@@ -232,6 +232,11 @@ class NSApplication extends NSResponder
 	protected $mainWindow;
 	protected $mainMenu;
 	protected $queuedEvent;
+
+	public function _url()
+		{ // the URL of the script we are currently running
+		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+		}
 
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -1578,6 +1583,7 @@ class NSWindow extends NSResponder
 		html("</head>\n");
 		html("<body>\n");
 		html("<form");
+//		parameter("action", "?");	// delete any query parameter - does not work correctly in all situations :(
 		parameter("id", "NSWindow");
 		parameter("class", "NSWindow");
 		parameter("accept_charset", NSHTMLGraphicsContext::encoding);
