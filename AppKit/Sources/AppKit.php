@@ -1015,6 +1015,7 @@ class NSCollectionView extends NSControl
 			return;
 		html("<table");
 		parameter("class", "NSCollectionView");
+		parameter("id", $this->elementId);
 		parameter("border", $this->border);
 		parameter("width", $this->width);
 		html(">\n");
