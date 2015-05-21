@@ -1044,6 +1044,63 @@ class NSCollectionView extends NSControl
 		}
 }
 
+class NSBox extends NSControl
+{
+	protected $colums=1;
+	protected $border=0;
+	protected $width="100%";
+	public function content() { return $this->subviews(); }
+	public function setContent($items)
+		{
+		foreach($this->subviews() as $item)
+			$item->removeFromSuperview();	// remove from hierarchy
+		foreach($items as $item)
+			$this->addSubview($item);
+		}
+	public function addCollectionViewItem($item)
+		{ // alternate function name
+			$this->addSubview($item);
+		}
+	public function setBorder($border) { $this->border=0+$border; }
+
+// allow to define colspan and rowspan objects
+// allow to modify alignment
+
+	public function __construct($cols=1, $items=array())
+		{
+		parent::__construct();
+		$this->columns=$cols;
+		$this->setContent($items);
+// NSLog("NSCollectionView cols=$cols rows=".(count($item)+$cols-1)/$cols);
+		}
+	public function mouseDown(NSEvent $event)
+		{
+		}
+	public function display()
+		{
+		if($this->hidden)
+			return;
+		html("<div");
+		parameter("class", "NSBox");
+		parameter("id", $this->elementId);
+		html(">\n");
+		$col=1;
+		foreach($this->subviews as $item)
+			{
+			html("<div");
+			parameter("class", "NSBoxItem");
+			html(">\n");
+			$item->display();
+			$col++;
+			if($col > $this->columns)
+				{
+				$col=1;
+				}
+			}
+		html("</div>\n");
+		}
+}
+
 class NSSegmentedControl extends NSControl
 	{
 	protected $segments;
