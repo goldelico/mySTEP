@@ -34,6 +34,13 @@ function _404()
 	header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
 	header("Status: 404 Not Found");
 	$_SERVER['REDIRECT_STATUS'] = 404;
+	// echo "<DOCTYPE>";
+	echo "<html>";
+	echo "<head>";
+	echo "<title>404 Not Found</title>";
+	echo "<meta name=\"generator\" content=\"mySTEP.php\">";	// a hint that the script is running
+	echo "</head>";
+	echo "<body>";
 	echo "<h1>Not Found</h1>";
 	echo "<p>The requested URL ";
 	echo htmlentities($_SERVER['PHP_SELF']);
@@ -41,6 +48,8 @@ function _404()
 		echo "?".htmlentities($_SERVER['QUERY_STRING']);
 	echo " was not found on this server.</p>";
 // FIXME: optionally notify someone?
+	echo "</body>";
+	echo "</html>";
 	exit;
 }
 
