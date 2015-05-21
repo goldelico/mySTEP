@@ -21,7 +21,7 @@ class NSMailDelivery extends NSObject
 	{
 		if(filter_var($mail, FILTER_VALIDATE_EMAIL) == false)
 			return false;
-		list($user, $domain) = split('@', $mail);
+		list($user, $domain) = explode('@', $mail, 2);
 		if(checkdnsrr($domain, 'MX'))
 			return true;
 // NSLog("no MX for $mail");
