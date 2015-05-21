@@ -156,6 +156,37 @@ class NSObject /* root class */
 		{ // simple description is class name
 		return $this->classString();
 		}
+
+	public function valueForUndefinedKey($key)
+		{
+		// should raise NSUndefinedKeyException
+		return null;
+		}
+
+	public function valueForKey($key)
+		{ // fetch instance variables by name
+		// FIXME: could also call a getter methods
+		// i.e. is$key and $key and _$key
+		$vars=get_object_vars($this);
+		if(isset($vars[$key]))
+			return $vars[$key];	// exists
+		return $this->valueForUndefinedKey($key);
+		}
+
+// can check for existence by wrapping property_exists($this, $key)
+
+	public function valueForKeyPath($path)
+		{
+		$val=$this;
+		$components=explode('.', $key);
+		foreach($components as $key)
+			{
+			$val=$val->valueForKey($key);	// try to dereference
+			if(is_null($val))
+				break;
+			}
+		return $val;
+		}
 	}
 
 function NSStringFromClass($class)
