@@ -38,20 +38,21 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   * SOURCES
 #   (*) INCLUDES
 #   (*) CFLAGS
-#   PROFILING
+#   (+) PROFILING
 #   (*) FMWKS
 #   (*) LIBS
 #  compile control
-#   () NOCOMPILE
-#   () BUILT_PRODUCTS_DIR - default: build/Deployment
-#   () TARGET_BUILD_DIR - default: build/Deployment
-#   (+) PHPONLY
-#   (+) RECURSIVE
+#   (+) NOCOMPILE
+#   (+) BUILT_PRODUCTS_DIR - default: build/Deployment
+#   (+) TARGET_BUILD_DIR - default: build/Deployment
+#   (+) PHPONLY - build only PHP
+#   (+) RECURSIVE - build subprojects first
 #   (+) BUILD_FOR_DEPLOYMENT
-#   (+) OPTIMIZE
-#   BUILD_STYLE
-#   GCC_OPTIMIZATION_LEVEL
-#   () BUILD_DOCUMENTATION
+#   (+) OPTIMIZE - optimize level
+#   (+) INSPECT - save .i and .S intermediate steps
+#   (+) BUILD_STYLE
+#   (+) GCC_OPTIMIZATION_LEVEL
+#   (+) BUILD_DOCUMENTATION
 #  bundle definitions (output)
 #   * PROJECT_NAME
 #   PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
@@ -496,8 +497,10 @@ endif
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
+ifeq ($(INSPECT),true)
 	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.i	# store preprocessor result for debugging
 	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.S	# store assembler source for debugging
+endif
 	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
