@@ -577,6 +577,7 @@ class NSControl extends NSView
 	{
 	protected $action;	// function name
 	protected $target;	// object
+	protected $tag=0;
 	public function __construct()
 		{ // must explicitly call!
 		parent::__construct();
@@ -596,6 +597,8 @@ NSLog($this->description()." sendAction $action");
 		$this->action=$action;
 		$this->target=$target;
 		}
+	public function setTag($val) { $this->tag=$val; }
+	public function tag() { return $this; }
 	}
 
 class NSMatrix extends NSControl
