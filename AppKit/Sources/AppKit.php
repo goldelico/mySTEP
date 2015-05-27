@@ -704,7 +704,7 @@ class NSButton extends NSControl
 		}
 	}
 
-// FIXME: we currently do not separate between NSMenu/NSMenuItem and NSMenuView/NSMenuItemView
+// FIXME: we currently do not correctly separate between NSMenu/NSMenuItem and NSMenuView/NSMenuItemView
 
 class NSMenuItemView extends NSButton
 	{	
@@ -719,10 +719,8 @@ class NSMenuItemView extends NSButton
 			parent::__construct($label);
 			$this->isSelected=$this->_persist("isSelected", 0);
 			}
-		public function setSubmenu(NSMenu $submenu)
-			{
-			$this->subMenuView=$submenu;
-			}
+		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; }
+		public function submenu() { return $this->subMenuView; }
 		public function draw()
 			{
 			// FXIME: use <style>
@@ -856,6 +854,76 @@ class NSMenuView extends NSMenu
 					}
 			}
 		}
+	}
+
+class NSPopUpButton extends NSButton
+	{
+	protected $menu;
+	protected $pullsDown=true;
+	protected $selectedItemIndex;
+
+	public function __construct()
+		{
+		parent::__construct("");
+		$this->menu=array();
+		$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
+		}
+
+	public function pullsDown() { return $this->pullsDown; }
+	public function setPullsDown($flag) { $this->pullsDown=$flag; }
+
+	public function addItemWithTitle($title) { $this->menu[]=$title; }
+	public function addItemWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
+	public function insertItemWithTitleAtIndex($title, $index) { }
+	public function removeAllItems() { $this->menu=array(); }
+	public function removeItemWithTitle($title) { }
+	public function removeItemWithTitles($titleArray) { }
+	public function selectedItem() { return null;	/* NSMenuItem! */ }
+	public function indexOfSelectedItem() { return $this->selectedItemIndex; }
+	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
+	public function selectItemAtIndex($index) { $this->selectedItemIndex=$this->_persist("selectedIndex", $index); }
+	public function selectItemWithTitle($title) { $this->selectItemAtIndex($this->indexOfItemWithTitle($title)); }
+	public function menu() { return $this->menu; }
+	public function itemArray() { return $this->menu; }
+	public function itemWithTitle($title)
+		{
+		$idx=$this->indexOfItemWithTitle($title);
+		return $idx < 0 ? null : $this->menu[$idx];
+		}
+	public function indexOfItemWithTitle($title)
+		{ // search by title
+		for($idx=0; $idx<count($this->menu); $idx++)
+			if($this->menu[$idx] == $title)
+				return $idx;
+		return null;
+		}
+
+		public function draw()
+			{
+			NSGraphicsContext::currentContext()->text($this->title);
+			html("<select");
+			parameter("id", $this->elementId);
+			parameter("class", "NSPopUpButton");
+			parameter("name", $this->elementId);
+// FIXME: handle selection
+			parameter("onclick", "e('".$this->elementId."');s()");
+			parameter("size", 1);	// make a popup not a combo-box
+			html(">\n");
+			$index=0;
+			foreach($this->menu as $item)
+				{ // add options
+				html("<option");
+				parameter("class", "NSMenuItem");
+				if($index == $this->selectedItemIndex)
+					parameter("selected", "selected");	// mark menu title as selected
+				html(">");
+				text($item);	// draws the title
+				html("</option>\n");
+				$index++;
+				}
+			html("</select>\n");
+			}
+
 	}
 
 class NSComboBox extends NSControl
