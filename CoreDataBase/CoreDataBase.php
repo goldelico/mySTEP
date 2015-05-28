@@ -389,6 +389,7 @@ class SQL extends NSObject
 				// set error
 				return false;
 				}
+			$this->query("SET NAMES 'utf8'", $error);
 			return true;
 			}
 		if($this->type == "sqlite")
