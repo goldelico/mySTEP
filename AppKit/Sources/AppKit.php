@@ -487,7 +487,7 @@ class NSView extends NSResponder
 	protected $subviews=array();
 	protected $superview;
 	protected $autoResizing;
-	protected $needsDisplay;
+	protected $needsDisplay=true;
 	protected $window;
 	protected $tooltip;
 	protected $hidden=false;
@@ -511,11 +511,13 @@ class NSView extends NSResponder
 		$this->window=$window;
 		foreach($this->subviews as $view)
 			$view->setWindow($window);
+		$this->setNeedsDisplay();
 		}
 	public function superview() { return $this->superview; }
 	public function _setSuperView(NSView $superview=null)
 		{
 		$this->superview=$superview;
+		$this->setNeedsDisplay();
 		}
 	public function subviews() { return $this->subviews; }
 	public function addSubview(NSView $view)
@@ -523,13 +525,15 @@ class NSView extends NSResponder
 		$this->subviews[]=$view;
 		$view->_setSuperView($this);
 		$view->setWindow($this->window);
+		$view->setNeedsDisplay();
 		}
 	public function _removeSubView(NSView $view)
 		{
 		$view->setWindow(null);
 		$view->_setSuperView(null);
 		if(($key = array_search($view, $this->subviews, true)) !== false)
-			$this->subviews($array[$key]);
+			unset($this->subviews[$key]);
+		$this->setNeedsDisplay();
 		}
 	public function removeFromSuperview()
 		{
@@ -538,13 +542,15 @@ class NSView extends NSResponder
 	public function setNeedsDisplay()
 		{
 		$this->needsDisplay=true;
+		if(!is_null($this->superview()))
+			$this->superview()->setNeedsDisplay();	// pass upwards
 		}
 	public function needsDisplay()
 		{
 		return $this->needsDisplay;
 		}
 	public function isHidden() { return $this->hidden; }
-	public function setHidden($flag) { $this->hidden=$flag; }
+	public function setHidden($flag) { $this->hidden=$flag; $this->setNeedsDisplay(); }
 	public function display()
 		{ // draw subviews first
 		if($this->hidden)
@@ -567,9 +573,11 @@ class NSView extends NSResponder
 	public function toolTip() { return $this->tooltip; }
 	public function draw()
 		{ // draw our own contents
+		// text("plain NSView");
 		}
 	public function mouseDown(NSEvent $event)
 		{ // nothing by default
+		return;
 		}
 }
 
@@ -645,12 +653,13 @@ class NSButton extends NSControl
 	public function setSelected($value)
 		{
 		$this->state=$this->_persist("selected", $value);
+		$this->setNeedsDisplay();
 		}
 	public function description() { return parent::description()." ".$this->title; }
 	public function title() { return $this->title; }
-	public function setTitle($title) { $this->title=$title; }
+	public function setTitle($title) { $this->title=$title; $this->setNeedsDisplay(); }
 	public function alternateTitle() { return $this->altTitle; }
-	public function setAlternateTitle($title) { $this->altTitle=$title; }
+	public function setAlternateTitle($title) { $this->altTitle=$title; $this->setNeedsDisplay(); }
 	public function state() { return $this->isSelected(); }
 	public function setState($s) { $this->setSelected($s); }
 	public function mouseDown(NSEvent $event)
@@ -719,7 +728,7 @@ class NSMenuItemView extends NSButton
 			parent::__construct($label);
 			$this->isSelected=$this->_persist("isSelected", 0);
 			}
-		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; }
+		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; $this->setNeedsDisplay(); }
 		public function submenu() { return $this->subMenuView; }
 		public function draw()
 			{
@@ -791,11 +800,12 @@ class NSMenuView extends NSMenu
 		}
 	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
-	public function addMenuItem(NSMenuItemView $item) { $this->menuItems[]=$item; }
+	public function addMenuItem(NSMenuItemView $item) { $this->menuItems[]=$item; $this->setNeedsDisplay(); }
 	public function addMenuItemWithTitleAndAction($title, $action, NSObject $target)
 		{
 		$item=new NSMenuItemView($title);
 		$item->setActionAndTarget($action, $target);
+		// FIXME: make subview???
 		$this->addMenuItem($item);
 		return $item;
 		}
@@ -870,18 +880,18 @@ class NSPopUpButton extends NSButton
 		}
 
 	public function pullsDown() { return $this->pullsDown; }
-	public function setPullsDown($flag) { $this->pullsDown=$flag; }
+	public function setPullsDown($flag) { $this->pullsDown=$flag; $this->setNeedsDisplay(); }
 
-	public function addItemWithTitle($title) { $this->menu[]=$title; }
+	public function addItemWithTitle($title) { $this->menu[]=$title; $this->setNeedsDisplay(); }
 	public function addItemsWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
 	public function insertItemWithTitleAtIndex($title, $index) { }
-	public function removeAllItems() { $this->menu=array(); }
+	public function removeAllItems() { $this->menu=array(); $this->setNeedsDisplay(); }
 	public function removeItemWithTitle($title) { }
 	public function removeItemWithTitles($titleArray) { }
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
 	public function indexOfSelectedItem() { return $this->selectedItemIndex; }
 	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
-	public function selectItemAtIndex($index) { $this->selectedItemIndex=$this->_persist("selectedIndex", $index); }
+	public function selectItemAtIndex($index) { $this->selectedItemIndex=$this->_persist("selectedIndex", $index); $this->setNeedsDisplay(); }
 	public function selectItemWithTitle($title) { $this->selectItemAtIndex($this->indexOfItemWithTitle($title)); }
 	public function menu() { return $this->menu; }
 	public function itemArray() { return $this->menu; }
@@ -947,6 +957,7 @@ class NSImage extends NSObject
 		{
 		$width=$array['width'];
 		$height=$array['height'];
+		$this->setNeedsDisplay();
 		}
 	public static function imageNamed($name)
 		{
@@ -1074,7 +1085,7 @@ class NSCollectionView extends NSControl
 		{ // alternate function name
 			$this->addSubview($item);
 		}
-	public function setBorder($border) { $this->border=0+$border; }
+	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 
 // allow to define colspan and rowspan objects
 // allow to modify alignment
@@ -1232,6 +1243,7 @@ class NSTabView extends NSControl
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		$this->tabViewItems[]=$item;
+		$this->setNeedsDisplay();
 		}
 	public function indexOfSelectedTabViewItem() { return $this->selectedIndex; }
 	public function selectedTabViewItem()
@@ -1265,8 +1277,9 @@ class NSTabView extends NSControl
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		NSLog("selectTabViewItemAtIndex $index done");
+		$this->setNeedsDisplay();
 		}
-	public function setBorder($border) { $this->border=0+$border; }
+	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 		{
 		NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
@@ -1354,9 +1367,9 @@ class NSTableView extends NSControl
 	protected $clickedColumn;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
-	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; }
-	public function setHeaders($headers) { $this->headers=$headers; }
-	public function setBorder($border) { $this->border=0+$border; }
+	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; $this->reloadData(); }
+	public function setHeaders($headers) { $this->headers=$headers; $this->reloadData(); }
+	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
 	public function __construct($headers=array("Column1"), $visibleRows=0)
@@ -1391,6 +1404,7 @@ class NSTableView extends NSControl
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
 		// if ! extend -> delete previous otherwise merge into set
 		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
+		$this->setNeedsDisplay();
 		}
 	public function mouseDown(NSEvent $event)
 		{
@@ -1486,13 +1500,13 @@ class NSTextField extends NSControl
 	protected $wraps=false;
 	protected $name;	// name of this <input>
 	public function stringValue() { return $this->stringValue; }
-	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); }
+	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); $this->setNeedsDisplay(); }
 	// should be used for static text fields
-	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; }
+	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; $this->setNeedsDisplay(); }
 	public function isEditable() { return $this->isEditable; }
-	public function setEditable($flag) { $this->isEditable=$flag; }
+	public function setEditable($flag) { $this->isEditable=$flag; $this->setNeedsDisplay(); }
 	public function placeholderString() { return $this->placeholder; }
-	public function setPlaceholderString($str) { $this->placeholder=$str; }
+	public function setPlaceholderString($str) { $this->placeholder=$str; $this->setNeedsDisplay(); }
 	public function __construct($width=30, $stringValue = null, $name = null)
 	{
        		parent::__construct();
@@ -1598,6 +1612,7 @@ class NSTextView extends NSControl
 		{
 		// FIXME: doesn't this conflict with posting a changed string?
 		$this->string=$this->_persist("string", "", $string);
+		$this->setNeedsDisplay();
 		}
 	public function string() { return $this->string; }
 	public function mouseDown(NSEvent $event)
