@@ -873,7 +873,7 @@ class NSPopUpButton extends NSButton
 	public function setPullsDown($flag) { $this->pullsDown=$flag; }
 
 	public function addItemWithTitle($title) { $this->menu[]=$title; }
-	public function addItemWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
+	public function addItemsWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
 	public function insertItemWithTitleAtIndex($title, $index) { }
 	public function removeAllItems() { $this->menu=array(); }
 	public function removeItemWithTitle($title) { }
