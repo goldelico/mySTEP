@@ -414,7 +414,10 @@ _NSLog("sendAction $action to first responder");
 				}
 			if($noopen)
 				_404();	// simulate 404 error
-			header("Content-Type: image/".$pi['extension']);
+			if(in_array($pi['extension'], array("css", "js")))
+				header("Content-Type: text/".$pi['extension']);
+			else
+				header("Content-Type: image/".$pi['extension']);
 // NSLog($path);
 			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 			echo $file;	// provide requested contents to browser
@@ -673,7 +676,8 @@ class NSButton extends NSControl
 		{
 		html("<input");
 		parameter("id", $this->elementId);
-		parameter("class", "NSButton");
+// FIXME: if default button (shortcut "\r"): invert the selected state
+		parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		switch($this->buttonType)
 			{
 				case "Radio":
@@ -693,14 +697,8 @@ class NSButton extends NSControl
 						{ // use CSS or JS to change contents on hover
 						}
 			}
-// FIXME: if default button (shortcut "\r"): make it blue
 		if($this->isSelected())
-			{
 			parameter("checked", "checked");
-			parameter("style", "color:green;");
-			}
-		else
-			parameter("style", "color:red;");
 		html("/>");
 		switch($this->buttonType)
 			{
@@ -826,14 +824,12 @@ class NSMenuView extends NSMenu
 			html(">\n");
 			html("<tr");
 			parameter("class", "NSMenuItemView");
-			//		parameter("bgcolor", "LightSteelBlue");
 			html(">\n");
 			$index=0;
 			foreach($this->menuItems as $item)
 			{ // add menu buttons and switching logic
 				html("<td");
-				parameter("class", "NSMenuItem");
-				parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
+				parameter("class", "NSMenuItem ".($this->selectedItem == $index?"NSOnState":"NSOffState"));
 				html(">\n");
 				$item->setSelected($this->selectedItem == $index);
 				$item->draw();
@@ -1295,7 +1291,6 @@ class NSTabView extends NSControl
 		html("<tr>");
 		html("<td");
 		parameter("class", "NSTabViewItemsBar");
-		parameter("bgcolor", "LightSteelBlue");
 		html(">\n");
 		$index=0;
 		foreach($this->tabViewItems as $item)
@@ -1306,14 +1301,10 @@ class NSTabView extends NSControl
 // FIXME: use NSButton or NSMenuItem?
 			html("<input");
 			parameter("id", $this->elementId."-".$index);
-			parameter("class", "NSTabViewItemsButton");
+			parameter("class", "NSTabViewItemsButton ".($item == $this->selectedTabViewItem()?"NSOnState":"NSOffState"));
 			parameter("type", "submit");
 			parameter("name", $this->elementId."-".$index);
 			parameter("value", _htmlentities($item->label()));
-			if($item == $this->selectedTabViewItem())
-				parameter("style", "color:green;");
-			else
-				parameter("style", "color:red;");
 			html(">\n");
 			$index++;
 			}
@@ -1432,7 +1423,6 @@ class NSTableView extends NSControl
 		html(">\n");
 		html("<tr");
 		parameter("class", "NSHeaderView");
-		parameter("bgcolor", "LightSteelBlue");
 		html(">\n");
 		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
 		foreach($this->headers as $index => $header)
@@ -1441,7 +1431,6 @@ class NSTableView extends NSControl
 			parameter("id", $this->elementId."-".$index);
 			parameter("name", $header);
 			parameter("class", "NSTableHeaderCell");
-			parameter("bgcolor", "LightSteelBlue");
 			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
 			html(">\n");
 			html(_htmlentities($header));
@@ -1461,11 +1450,7 @@ class NSTableView extends NSControl
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column);
-				parameter("class", "NSTableCell");
-				if($row == $this->selectedRow)
-					parameter("bgcolor", "LightSteelBlue");	// selected
-				else
-					parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
+				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
 				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				html(">\n");
 				if($row < $rows)

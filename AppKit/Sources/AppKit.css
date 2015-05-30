@@ -3,3 +3,37 @@
  * (C) Golden Delicious Computers GmbH&Co. KG, 2014
  * All rights reserved.
  */
+
+/* NSTabView */
+td.NSTabViewItemsBar { background-color: LightSteelBlue }
+/*
+input.NSTabViewItemsButton.NSOnState { color: black; background-color: LightSteelBlue; }
+input.NSTabViewItemsButton.NSOffState { color: black; }
+input.NSTabViewItemsButton:hover { background-color: LightSteelBlue; }
+*/
+
+/* NSButton */
+/*
+input.NSButton.NSOnState { color:green; }
+input.NSButton.NSOffState { color:red; }
+input.NSButton.NSOnState:hover { color:blue; }
+input.NSButton.NSOffState:hover { color:blue; }
+*/
+
+/* all buttons */
+input.NSOnState { color: black; background-color: LightSteelBlue; }
+input.NSOffState { color: black; }
+input.NSOnState:hover { background-color: LightSteelBlue; }
+input.NSOnffState:hover { background-color: LightSteelBlue; }
+
+/* NSMenuView */
+table.NSMenuItemView { background-color: LightSteelBlue }
+td.NSMenuItem.NSOnState { background-color: blue }
+td.NSMenuItem.NSOffState { background-color: white }
+
+/* NSTableView */
+tr.NSHeaderView  { background-color: LightSteelBlue }
+th.NSTableHeaderCell { background-color: LightSteelBlue }
+td.NSTableCell.NSSelected { background-color: LightSteelBlue }
+td.NSTableCell.NSUnselected.NSEven { background-color: white }
+td.NSTableCell.NSUnselected.NSOdd { background-color: PaleTurquoise }
