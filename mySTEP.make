@@ -87,6 +87,12 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 
 endif
 
+# don't compile for MacOS (but copy/install) if called as build script phase from within Xcode
+
+ifneq ($(XCODE_VERSION_ACTUAL),)
+NOCOMPILE:=true
+endif
+
 ifeq ($(QuantumSTEP),)
 QuantumSTEP:=/usr/share/QuantumSTEP
 endif
