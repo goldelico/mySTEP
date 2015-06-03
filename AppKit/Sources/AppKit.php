@@ -552,8 +552,21 @@ class NSView extends NSResponder
 		{
 		return $this->needsDisplay;
 		}
-	public function isHidden() { return $this->hidden; }
-	public function setHidden($flag) { $this->hidden=$flag; $this->setNeedsDisplay(); }
+	public function isHidden()
+		{
+		if($this->hidden)
+			return true;
+		if(!is_null($this->superview()))
+			return $this->superview()->isHidden();
+		return false;
+		}
+	public function setHidden($flag)
+		{
+		if($flag == $this->hidden)
+			return;
+		$this->hidden=$flag;
+		$this->setNeedsDisplay();
+		}
 	public function display()
 		{ // draw subviews first
 		if($this->hidden)
@@ -655,14 +668,28 @@ class NSButton extends NSControl
 		}
 	public function setSelected($value)
 		{
+		if($value == $this->state)
+			return;
 		$this->state=$this->_persist("selected", $value);
 		$this->setNeedsDisplay();
 		}
 	public function description() { return parent::description()." ".$this->title; }
 	public function title() { return $this->title; }
-	public function setTitle($title) { $this->title=$title; $this->setNeedsDisplay(); }
+	public function setTitle($title)
+		{
+		if($title == $this->title)
+			return;
+		$this->title=$title;
+		$this->setNeedsDisplay();
+		}
 	public function alternateTitle() { return $this->altTitle; }
-	public function setAlternateTitle($title) { $this->altTitle=$title; $this->setNeedsDisplay(); }
+	public function setAlternateTitle($title)
+		{
+		if($title == $this->altTitle)
+			return;
+		$this->altTitle=$title;
+		$this->setNeedsDisplay();
+		}
 	public function state() { return $this->isSelected(); }
 	public function setState($s) { $this->setSelected($s); }
 	public function mouseDown(NSEvent $event)
@@ -876,7 +903,13 @@ class NSPopUpButton extends NSButton
 		}
 
 	public function pullsDown() { return $this->pullsDown; }
-	public function setPullsDown($flag) { $this->pullsDown=$flag; $this->setNeedsDisplay(); }
+	public function setPullsDown($flag)
+		{
+		if($flag == $this->pullsDown)
+			return;
+		$this->pullsDown=$flag;
+		$this->setNeedsDisplay();
+		}
 
 	public function addItemWithTitle($title) { $this->menu[]=$title; $this->setNeedsDisplay(); }
 	public function addItemsWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
@@ -1331,13 +1364,23 @@ class NSTabView extends NSControl
 class NSTableColumn extends NSObject
 {
 	protected $title;
-	protected $identifier;
+	protected $identifier="";
 	protected $width="*";
 	protected $isEditable=false;
+	protected $isHidden=false;
+	protected $align;	// data alignment
+	// could have a data cell...
 	// allow to define colspan and rowspan values
-	// allow to modify alignment
+	public function title() { return $this->title; }
+	public function setTitle($title) { $this->title=$title; }
 	public function identifier() { return $this->identifier; }
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
+	public function isHidden() { return $this->isHidden; }
+	public function setHidden($flag) { $this->isHidden=$flag; }
+	public function isEditable() { return $this->isEditable; }
+	public function setEditable($flag) { $this->isEditable=$flag; }
+	public function align() { return $this->align; }
+	public function setAlign($align) { $this->align=$align; }
 }
 
 // IDEA:
@@ -1346,7 +1389,7 @@ class NSTableColumn extends NSObject
 
 class NSTableView extends NSControl
 	{
-	protected $headers;
+	protected $columns;
 	protected $border=0;
 	protected $width="100%";
 	protected $delegate;
@@ -1359,7 +1402,6 @@ class NSTableView extends NSControl
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; $this->reloadData(); }
-	public function setHeaders($headers) { $this->headers=$headers; $this->reloadData(); }
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
@@ -1368,22 +1410,33 @@ class NSTableView extends NSControl
        		parent::__construct();
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->_persist("selectedRow", -1);
-		// FIXME: create array of NSTableColumn objects and set column title (value) + identifier (key) defaults from $headers array
-		$this->headers=$headers;
+		$this->columns=array();
+		foreach($headers as $title)
+			{
+			$col=new NSTableColumn();
+			$col->setTitle($title);
+			$col->setIdentifier($title);
+			$this->addColumn($col);
+			}
 		NSLog($this->classString());
 		}
 	public function reloadData() { $this->setNeedsDisplay(); }
 	public function columns()
 		{
-		return $this->headers;	// headers should be the headers of the columns...
+		return $this->columns;
 		}
-	public function setColumns($array)
+	public function setColumns($columns)
 		{
-		if(is_null($array))
+		if(is_null($columns))
 			return;
 		NSLog("set columns");
-		NSLog($array);
-		$this->headers=$array;
+		NSLog($columns);
+		$this->columns=$columns;
+		$this->reloadData();
+		}
+	public function addColumn(NSTableColumn $column)
+		{
+		$this->columns[]=$column;
 		$this->reloadData();
 		}
 	public function selectedRow()
@@ -1424,33 +1477,37 @@ class NSTableView extends NSControl
 		html("<tr");
 		parameter("class", "NSHeaderView");
 		html(">\n");
-		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
-		foreach($this->headers as $index => $header)
+		foreach($this->columns as $index => $column)
 			{
+			if($column->isHidden())
+				continue;
 			html("<th");
 			parameter("id", $this->elementId."-".$index);
-			parameter("name", $header);
+			parameter("name", $column->identifier());
 			parameter("class", "NSTableHeaderCell");
 			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
 			html(">\n");
-			html(_htmlentities($header));
+			html(_htmlentities($column->title()));
 			html("</th>\n");
 			}
 		html("</tr>\n");
 		$row=$this->firstVisibleRow;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
+			if($column->isHidden())
+				continue;
 			html("<tr");
 			parameter("id", $this->elementId."-".$row);
 			parameter("class", "NSTableRow");
 			// add id="even"/"odd" so that we can define bgcolor by CSS?
 			html(">\n");
-			foreach($this->headers as $index => $column)
+			foreach($this->columns as $index => $column)
 				{
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
-				parameter("name", $column);
+				parameter("name", $column->identifier());
 				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
+				// handle $column->align
 				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				html(">\n");
 				if($row < $rows)
@@ -1512,6 +1569,16 @@ class NSTextField extends NSControl
 // _NSLog("mouseDown");
 // _NSLog($this);
 		$this->sendAction();
+		}
+	public function display()
+		{
+		if($this->isHidden())
+			{ // persist stringValue even if text field is currently hidden
+			if($this->isEditable && $this->type != "password")
+				_persist($this->name, $this->stringValue);
+			return;
+			}
+		parent::display();
 		}
 	public function draw()
 		{
@@ -1595,6 +1662,8 @@ class NSTextView extends NSControl
 		}
 	public function setString($string)
 		{
+		if($string == $this->string)
+			return;	// no change
 		// FIXME: doesn't this conflict with posting a changed string?
 		$this->string=$this->_persist("string", "", $string);
 		$this->setNeedsDisplay();
