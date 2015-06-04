@@ -500,7 +500,8 @@ function NSHomeDirectoryForUser($user)
 function NSHomeDirectory()
 	{
 	$ud=NSUserDefaults::standardUserDefaults();
-	if(!isset($ud))
+	$user=$ud->objectForKey('login_user');
+	if(is_null($user))
 		return @"/";
 	return NSHomeDirectoryForUser($ud->user());
 	}
@@ -694,7 +695,7 @@ class NSFileManager extends NSObject
 	public function attributesOfItemAtPath($path)
 		{
 		$f=$this->fileSystemRepresentationWithPath($path);
-		NSLog("attributesOfItemAtPath($path) -> $f ");
+// _NSLog("attributesOfItemAtPath($path) -> $f ");
 		if(!file_exists($f))
 			return null;	// does not exist
 		$a=stat($f);
@@ -710,11 +711,12 @@ class NSFileManager extends NSObject
  */
 		$attribs[NSFileManager::NSFileName]=$path;
 		$attribs[NSFileManager::NSFileType]=is_dir($f)?NSFileManager::NSFileTypeDirectory:NSFileManager::NSFileTypeRegular;
-		NSLog($attribs);
+// _NSLog($attribs);
 		return $attribs;
 		}
 	public function setAttributesOfItemAtPath($path, $attributes)
 		{
+		_NSLog("setAttributesOfItemAtPath not implemented");
 		}
 	public function fileExistsAtPath($path)
 		{
@@ -724,9 +726,11 @@ class NSFileManager extends NSObject
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
 		{
 		$attr=$this->attributesOfItemAtPath($path);
+// _NSLog($attr);
 		if($attr == null)
 			return false;
 		$isDir=$attr[NSFileManager::NSFileType] == NSFileManager::NSFileTypeDirectory;
+// _NSLog("isdir $isDir");
 		return true;
 		}
 	// fixme: allow to control access rights by writing to .htaccess so that we can hide private files and directories from web-access
@@ -752,7 +756,7 @@ class NSFileManager extends NSObject
 	public function contentsOfDirectoryAtPath($path)
 		{ // return directory contents as array
 //			NSLog("contentsOfDirectoryAtPath($path)";
-		$dir=opendir($this->fileSystemRepresentation($path));
+		$dir=opendir($this->fileSystemRepresentationWithPath($path));
 		if(!$dir)
 			return NULL;
 		$files=array();
