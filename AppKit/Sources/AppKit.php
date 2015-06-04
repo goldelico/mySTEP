@@ -1368,7 +1368,7 @@ class NSTableColumn extends NSObject
 	protected $width="*";
 	protected $isEditable=false;
 	protected $isHidden=false;
-	protected $align;	// data alignment
+	protected $align="";
 	// could have a data cell...
 	// allow to define colspan and rowspan values
 	public function title() { return $this->title; }
@@ -1381,6 +1381,8 @@ class NSTableColumn extends NSObject
 	public function setEditable($flag) { $this->isEditable=$flag; }
 	public function align() { return $this->align; }
 	public function setAlign($align) { $this->align=$align; }
+	public function width() { return $this->width; }
+	public function setWidth($width) { $this->width=$width; }
 }
 
 // IDEA:
@@ -1439,6 +1441,11 @@ class NSTableView extends NSControl
 		$this->columns[]=$column;
 		$this->reloadData();
 		}
+	public function removeColumnAtIndex($index)
+		{
+		unset($this->columns[$index]);
+		$this->reloadData();
+		}
 	public function selectedRow()
 		{
 		return ($this->selectedRow<$this->numberOfRows())?$this->selectedRow:-1;
@@ -1486,6 +1493,7 @@ class NSTableView extends NSControl
 			parameter("name", $column->identifier());
 			parameter("class", "NSTableHeaderCell");
 			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
+			parameter("width", $column->width());
 			html(">\n");
 			html(_htmlentities($column->title()));
 			html("</th>\n");
@@ -1507,8 +1515,9 @@ class NSTableView extends NSControl
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
 				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
-				// handle $column->align
 				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
+				parameter("align", $column->align());
+				parameter("width", $column->width());
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
