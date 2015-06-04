@@ -246,62 +246,84 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
-	private static function readPropertyListElementFromStream($stream)
+	private static function readPropertyListElementFromStream($stream, $line="")
 		{ // read next element
-			$line=trim($thisline);
-				// this is a hack to read XML property lists
-			if(substr($line, 0, 6) == "<dict>")
+		while(!feof($stream) && $line == "")
+			{ // skip empty lines
+			$line=fgets($stream);
+			}
+// _NSLog($line);
+		$tline=trim($line);
+		if(substr($tline, 0, 6) == "<?xml " || substr($tline, 0, 10) == "<!DOCTYPE " || substr($tline, 0, 7) == "<plist ")
+			{ // skip
+			return self::readPropertyListElementFromStream($stream);
+			}
+		if(substr($tline, 0, 6) == "<dict>")
+			{
+			$ret=array();
+			while($line=fgets($stream))
 				{
-				$ret=array();
-				while($thisline=fgets($line))
+				if(substr(trim($line), -7) == "</dict>")
+					break;
+				$key=self::readPropertyListElementFromStream($stream, $line);
+				// check if <key> string
+				$value=self::readPropertyListElementFromStream($stream);
+				$ret[$key]=$value;
+				}
+// _NSLog($ret);
+			return $ret;
+			}
+		if(substr($tline, 0, 7) == "<array>")
+			{
+			$ret=array();
+			while($line=fgets($stream))
+				{
+				if(substr(trim($line), -9) == "</array>")
+					break;
+				$value=self::readPropertyListElementFromStream($stream, $line);
+				$ret[]=$value;
+				}
+			return $ret;
+			}
+		if(($iskey = substr($tline, 0, 5) == "<key>") || substr($tline, 0, 8) == "<string>")
+			{
+			// FIXME: we should only trim from the left!!!
+			// the problem is that we might see trim("  <string>something</string>")
+			$line=substr($line, $iskey?6:9);	// strip off <key> or <string>
+			$ret="";
+			while(true)
+				{
+				$tline=trim($line);
+// _NSLog("check </key>: ".substr($tline, -6));
+				if($iskey && substr($tline, -6) == "</key>")
 					{
-					$line=trim($thisline);
-					if(substr($line, 0, -7) == "</dict>")
-						break;
-					$key=readPropertyListElementFromStream($stream);
-					// check if string
-					$value=readPropertyListElementFromStream($stream);
-					$ret[$key]=$value;
+					$ret.=html_entity_decode(substr($line, 0, -7));	// append last fragment
+					break;
 					}
-				return $ret;
-				}
-			if(substr($line, 0, 8) == "<array>")
-				{
-				$ret=array();
-				while($thisline=fgets($line))
+// _NSLog("check </string>: ".substr($tline, -9));
+				if(!$iskey && substr($tline, -9) == "</string>")
 					{
-					$line=trim($thisline);
-					if(substr($line, 0, -9) == "</array>")
-						break;
-					$value=readPropertyListElementFromStream($stream);
-					$ret[]=$value;
+					$ret.=html_entity_decode(substr($line, 0, -10));	// append last fragment
+					break;
 					}
-				return $ret;
+				$ret.=$line;
+				if(feof($stream))
+					break;	// some error
+				$line=fgets($stream);
 				}
-			if(substr($line, 0, 5) == "<key>" || substr($line, 0, 8) == "<string>")
-				{
-				if(substr($line, 0, 5) == "<key>")
-					$thisline=substr($line, 6);
-				else
-					$thisline=substr($line, 8);
-				while(true)
-					{
-					$line=trim($thisline);
-					if(substr($line, 0, -6) == "</key>" || substr($line, 0, -9) == "</string>")
-						{
-						$ret.=html_entity_decode(substr(substr($line, 5), 0, -6));	// append last fragment
-						break;
-						}
-					$ret.=$thisline;
-					$thisline=fgets($line);
-					}
-				return $ret;
-				}
-			if(substr($line, 0, 8) == "<number>")
-				{
-				
-				}
-			// <data>, <date>, <true/>, <false>
+// _NSLog("<key> or <string>: ".$ret);
+			return $ret;
+			}
+		if(substr($line, 0, 8) == "<number>")
+			{
+			// get number until </number>
+			}
+		if(substr($line, 0, 7) == "<true/>")
+			return true;
+		if(substr($line, 0, 8) == "<false/>")
+			return false;
+		// <data>, <date>
+		return null;
 		}
 	public static function propertyListFromPath($path)
 		{
@@ -309,26 +331,35 @@ class NSPropertyListSerialization extends NSObject
 		NSLog("$filename =>");
 		$f=@fopen($filename, "r");	// open for reading
 		if($f)
-			{ // file exists and can be read
-				while($line=fgets($f))
-					{
-					$line=trim($line);
-					// FIXME: this is a simple hack to read XML property lists
-					// should be recursive and handle <dict> <array> <data> etc.
-					if(substr($line, 0, 5) == "<key>")
-						{
-						$key=html_entity_decode(substr(substr($line, 5), 0, -6));
-						continue;
-						}
-					if(substr($line, 0, 8) == "<string>")
-						{
-						// FIXME: handle multi-line strings
-						$val=html_entity_decode(substr(substr($line, 8), 0, -9));
-						$plist[$key]=$val;
-						}
-					}
-				fclose($f);
+			{ // new recursive reader
+			$plist=self::readPropertyListElementFromStream($f);
+			fclose($f);
 			}
+/* deprecated
+		else if($f)
+			{ // file exists and can be read
+			// FIXME: this is a simple hack to read simple XML property lists
+			while($line=fgets($f))
+				{
+				$line=trim($line);
+				if(substr($line, 0, 5) == "<key>")
+					{
+					$key=html_entity_decode(substr(substr($line, 5), 0, -6));
+					continue;
+					}
+				else if(substr($line, 0, 8) == "<string>")
+					{
+					// FIXME: handle multi-line strings
+					$val=html_entity_decode(substr(substr($line, 8), 0, -9));
+					$plist[$key]=$val;
+					}
+				else if(substr($line, 0, 7) == "<array>")
+					{
+					}
+				}
+			fclose($f);
+			}
+*/
 		if(isset($plist)) NSLog($plist);
 		return isset($plist)?$plist:null;
 		}
@@ -387,6 +418,7 @@ class NSBundle extends NSObject
 			NSLog($_SERVER);
 			if(isset($NSApp))
 				self::$mainBundle=NSBundle::bundleForClass($NSApp->delegate()->classString());	// assumes that the NSApp delegate belongs to the main bundle!
+			self::$mainBundle->loaded=true;
 			}
 		return self::$mainBundle;
 		}
@@ -405,13 +437,13 @@ class NSBundle extends NSObject
 		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($reflector->getFileName());	// path for .php file of given class
 		$path=dirname($path);	// Versions/A/php/Something.php // Contents/php/Something.php
 		$path=dirname($path);	// Versions/A/php // Contents/php
-NSLog($path);
+// _NSLog($path);
 		if(substr($path, -9) != "/Contents")
 			{ // appears to be a Framework bundle
 			$path=dirname($path);	// Versions/A
 			}
 		$path=dirname($path);	// Versions // Contents
-//		NSLog(" path $path");
+// _NSLog(" bundleForClass $class path $path");
 		return NSBundle::bundleWithPath($path);
 		}
 	public function infoDictionary()
@@ -420,8 +452,9 @@ NSLog($path);
 			{ // locate and load Info.plist
 				$plistPath=$this->resourcePath();
 				if(is_null($plistPath)) return null;	// there is no Info.plist
-				$plistPath.="/../Info.plist";
-				NSLog("read $plistPath");
+				$plistPath=dirname($plistPath);	// strip off /Resources
+				$plistPath.="/Info.plist";
+// _NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
 		return $this->infoDictionary;
@@ -689,7 +722,7 @@ class NSFileManager extends NSObject
 		{
 		global $ROOT;
 		if(substr($path, 0, strlen($ROOT)) == $ROOT)
-			return "/".substr($path, strlen($ROOT));	// strip off $ROOT prefix
+			return substr($path, strlen($ROOT));	// strip off $ROOT prefix
 		return $path;
 		}
 	public function attributesOfItemAtPath($path)
