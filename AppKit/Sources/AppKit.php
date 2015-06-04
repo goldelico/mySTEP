@@ -1850,6 +1850,7 @@ class NSWorkspace extends NSObject
 {
 	protected static $sharedWorkspace;
 	protected static $knownApplications;
+	protected static $knownSuffixes;
 	public static function sharedWorkspace()
 		{
 		if(!isset($sharedWorkspace))
@@ -1860,42 +1861,58 @@ class NSWorkspace extends NSObject
 		{
 		if(isset(self::$knownApplications))
 			return self::$knownApplications;	// already analysed
-		$appdirs=array("Applications", "Applications/Games", "Applications/Work", "Applications/Utilities", "System/Library/CoreServices");
+		$appdirs=array("/Applications", "/Applications/Games", "/Applications/Work", "/Applications/Utilities", "/System/Library/CoreServices", "/Developer/Applications", "/Internal/Applications");
 		self::$knownApplications=array();
+		$fm=NSFileManager::defaultManager();
 		foreach($appdirs as $dir)
 			{
-			global $ROOT;
-//			NSLog("$ROOT/$dir");
-			$f=opendir("$ROOT/$dir");
+// _NSLog("$dir");
+			// FIXME: implement NSFileManager directory enumerator
+			$f=opendir($fm->fileSystemRepresentationWithPath($dir));
 			if($f)
 				{
 				while($bundle=readdir($f))
 					{
-//					NSLog("knownApps check: $dir/$bundle");
+// _NSLog("knownApps check: $dir/$bundle");
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
 							// checks that the PHP executable exists
-							if(!NSWorkspace::sharedWorkspace()->isFilePackageAtPath("$ROOT/$dir/$bundle"))
+// _NSLog("candidate: $dir/$bundle");
+							if(!NSWorkspace::sharedWorkspace()->isFilePackageAtPath("$dir/$bundle"))
 								continue;	// is not a bundle
-							$name=substr($bundle, 0, strlen($bundle)-4);
-							self::$knownApplications[$bundle]=array(
-									"NSApplicationName" => $name,
-									"NSApplicationPath" => "$dir/$bundle",
-									"NSApplicationDomain" => $dir
-							);
-						// collect suffixes handled by this app
+// _NSLog("is bundle: $dir/$bundle");
+							$b=NSBundle::bundleWithPath("$dir/$bundle");
+							if(is_null($b->executablePath()))
+								continue;	// not a PHP executable
+// should we filter by specific user's permissions defined in the Info.plist?
+// _NSLog("is exectutable: $dir/$bundle");
+							$r=array(
+								"NSApplicationName" => $b->objectForInfoDictionaryKey("CFBundleName"),
+								"NSApplicationPath" => "$dir/$bundle",
+								"NSApplicationDomain" => $dir,
+								"NSApplicationBundle" => $b
+								);
+							self::$knownApplications[$bundle]=$r;
+							$ext=$b->objectForInfoDictionaryKey("CFBundleTypeExtensions");
+							if(!is_null($ext))
+								{
+								// FIXME: loop over multiple suffixes
+								$suffix=$ext;
+								// FIXME: handle multiple apps serving the same suffix
+								self::$knownSuffixes[$suffix]=$r;
+								}
 						}
 					}
 				closedir($f);
 				}
 			}
-//		NSLog($knownApplications);
+// _NSLog(self::$knownApplications);
 		return self::$knownApplications;
 		}
 	public function fullPathForApplication($name)
 		{
 		NSWorkspace::knownApplications();	// update list
-//		NSLog("fullPathForApplication: $name)";
+// _NSLog("fullPathForApplication: $name)";
 		if(isset(self::$knownApplications[$name]))
 			return self::$knownApplications[$name]["NSApplicationPath"];
 		NSLog("fullPathForApplication:$name not found");
@@ -1910,13 +1927,21 @@ class NSWorkspace extends NSObject
 		// else find application by suffix
 		}
 	public function openFile($file)
-		{
-		// locate application and open with passing the $file
+		{ // locate application and open with passing the $file
+		$ext="something";
+		// FIXME: allow to openFile("path.app");
+		if(!isset(self::$knownSuffixes[$ext]))
+			return false;	// unknown suffix
+		$app=self::$knownSuffixes[$ext];
+		// somehow launch $app
+		return true;
 		}
 	public function isFilePackageAtPath($path)
 		{
+// _NSLog("isFilePackageAtPath $path");
 		$fm=NSFileManager::defaultManager();
-		if($fm->fileExistsAtPathAndIsDirectory($path, $dir) && $dir && $fm->fileExistsAtPathAndIsDirectory($path."/Contents", $dir) && $dir)
+		// FIXME: should be true for framework bundles (detect by "$path/Version")
+		if($fm->fileExistsAtPathAndIsDirectory($path, $dir) && $dir && $fm->fileExistsAtPathAndIsDirectory("$path/Contents", $dir) && $dir)
 		   return true;
 		return false;
 		}
@@ -1938,7 +1963,7 @@ class WebView extends NSView
 		parameter("height", $this->height);
 		parameter("src", $this->url);
 		html(">");
-		NSGraphicsContext::currentContext()->text("your browser does not support iframes. Please use this link".$this->url);
+		NSGraphicsContext::currentContext()->text("your browser does not support iframes. Please use this link: ".$this->url);
 		html("</iframe>");
 		}
 
