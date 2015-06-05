@@ -721,8 +721,10 @@ class NSFileManager extends NSObject
 	public function stringWithFileSystemRepresentation($path)
 		{
 		global $ROOT;
+		if(substr($ROOT, -1) != "/")
+			_NSLog("invalid \$ROOT (should end in /): $ROOT");	// must end in /
 		if(substr($path, 0, strlen($ROOT)) == $ROOT)
-			return substr($path, strlen($ROOT));	// strip off $ROOT prefix
+			return "/".substr($path, strlen($ROOT));	// strip off $ROOT prefix
 		return $path;
 		}
 	public function attributesOfItemAtPath($path)
