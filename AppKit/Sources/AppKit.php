@@ -391,18 +391,18 @@ _NSLog("sendAction $action to first responder");
 				$bundle=NSBundle::bundleWithIdentifier($_GET['BUNDLE']);
 			else
 				$bundle=NSBundle::mainBundle();
-// NSLog($bundle);
-			$noopen= is_null($bundle);	// bundle not found
-// NSLog("noopen: $noopen\n");
+// _NSLog($bundle);
+			$noopen=is_null($bundle);	// bundle not found
+// _NSLog("noopen: $noopen\n");
 			if(!$noopen)
 				$path=$bundle->resourcePath()."/".$_GET['RESOURCE'];	// relative to Resources
 			else
 				$path="?";
-// NSLog("path: $path\n");
-			$noopen= $noopen || strpos("/".$path."/", "/../") !== FALSE;	// if someone tries ..
-// NSLog("noopen: $noopen\n");
-			$noopen= $noopen || !NSFileManager::defaultManager()->fileExistsAtPath($path);
-// NSLog("noopen: $noopen after fileExistsAtPath $path\n");
+// _NSLog("path: $path\n");
+			$noopen=$noopen || strpos("/".$path."/", "/../") !== FALSE;	// if someone tries ..
+// _NSLog("noopen: $noopen\n");
+			$noopen=$noopen || !NSFileManager::defaultManager()->fileExistsAtPath($path);
+// _NSLog("noopen: $noopen after fileExistsAtPath $path\n");
 			if(!$noopen)
 				{ // check if valid extension
 				$extensions=array("png", "jpg", "jpeg", "gif", "css", "js");
@@ -418,7 +418,7 @@ _NSLog("sendAction $action to first responder");
 				header("Content-Type: text/".$pi['extension']);
 			else
 				header("Content-Type: image/".$pi['extension']);
-// NSLog($path);
+// _NSLog($path);
 			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 			echo $file;	// provide requested contents to browser
 			exit;
