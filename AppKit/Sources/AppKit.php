@@ -1874,33 +1874,44 @@ class NSWorkspace extends NSObject
 				while($bundle=readdir($f))
 					{
 // _NSLog("knownApps check: $dir/$bundle");
-					if(substr($bundle, -4) == ".app")
-						{ // candidate
-							// checks that the PHP executable exists
+					if(substr($bundle, -4) != ".app")	// should we check that???
+						continue;
 // _NSLog("candidate: $dir/$bundle");
-							if(!NSWorkspace::sharedWorkspace()->isFilePackageAtPath("$dir/$bundle"))
-								continue;	// is not a bundle
+					if(!NSWorkspace::sharedWorkspace()->isFilePackageAtPath("$dir/$bundle"))
+						continue;	// is not a bundle
 // _NSLog("is bundle: $dir/$bundle");
-							$b=NSBundle::bundleWithPath("$dir/$bundle");
-							if(is_null($b->executablePath()))
-								continue;	// not a PHP executable
+					$b=NSBundle::bundleWithPath("$dir/$bundle");
+					if(is_null($b->executablePath()))
+						continue;	// not a PHP executable
 // should we filter by specific user's permissions defined in the Info.plist?
+					$privs=$b->objectForInfoDictionaryKey("Privileges");
+					if(!is_null($privs))
+						{ // requires any of some privileges
+						$ok=false;
+						foreach(explode(',', $privs) as $priv)
+							{
+							// check if current user has $priv
+							$ok=true;
+							break;
+							}
+						if(!$ok)
+							continue;	// user does not have sufficient privileges to "see" this bundle
+						}
 // _NSLog("is exectutable: $dir/$bundle");
-							$r=array(
-								"NSApplicationName" => $b->objectForInfoDictionaryKey("CFBundleName"),
-								"NSApplicationPath" => "$dir/$bundle",
-								"NSApplicationDomain" => $dir,
-								"NSApplicationBundle" => $b
-								);
-							self::$knownApplications[$bundle]=$r;
-							$ext=$b->objectForInfoDictionaryKey("CFBundleTypeExtensions");
-							if(!is_null($ext))
-								{
-								// FIXME: loop over multiple suffixes
-								$suffix=$ext;
-								// FIXME: handle multiple apps serving the same suffix
-								self::$knownSuffixes[$suffix]=$r;
-								}
+					$r=array(
+						"NSApplicationName" => $b->objectForInfoDictionaryKey("CFBundleName"),
+						"NSApplicationPath" => "$dir/$bundle",
+						"NSApplicationDomain" => $dir,
+						"NSApplicationBundle" => $b
+						);
+					self::$knownApplications[$bundle]=$r;
+					$ext=$b->objectForInfoDictionaryKey("CFBundleTypeExtensions");
+					if(!is_null($ext))
+						{
+						// FIXME: loop over multiple suffixes
+						$suffix=$ext;
+						// FIXME: handle multiple apps serving the same suffix
+						self::$knownSuffixes[$suffix]=$r;
 						}
 					}
 				closedir($f);
