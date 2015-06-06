@@ -1401,12 +1401,15 @@ class NSTableView extends NSControl
 	protected $selectedRow=-1;
 	protected $clickedRow;
 	protected $clickedColumn;
+	protected $doubleAction;
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; $this->reloadData(); }
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
+	public function doubleAction() { return $this->doubleAction; }
+	public function setDoubleAction($sel) { $this->doubleAction=$sel; }
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
        		parent::__construct();
@@ -1464,6 +1467,8 @@ class NSTableView extends NSControl
 		$this->clickedRow=$pos['y'];
 		if(false && $this->clickedRow == -1)
 			; // select column
+		// if this clickedRow is already selected we may have a double-click
+		// then call doubleAction (if defined) or check if NSTableColumn is editable
 		$this->selectRow($this->clickedRow);
 		}
 	public function display()
