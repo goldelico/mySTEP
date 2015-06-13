@@ -107,7 +107,6 @@ return c; \
  backgroundColorHint:(NSColor *) bg
 			 hotSpot:(NSPoint) spot;	// y axis is negative
 {
-	NSAssert(image, @"image for NSCursor");
 	if((self=[super init]))
 		{
 		_image=[image retain];	// nil image will create a "None" cursor
