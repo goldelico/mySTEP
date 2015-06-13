@@ -516,7 +516,7 @@ FT_Library _ftLibrary(void)
 			continue;	// we can handle fonts with postscript names only
 		if(!FT_IS_SCALABLE(face))
 			continue;	// must be scalable - FIXME: we could derive a NSFontSizeAttribute
-		family=[NSString stringWithCString:face->family_name];
+		family=[NSString stringWithUTF8String:face->family_name];
 		if(!face->style_name || strcmp(face->style_name, "Regular") == 0)
 			{ // style name N/A or "Regular"
 			style=@"";
@@ -524,7 +524,7 @@ FT_Library _ftLibrary(void)
 			}
 		else
 			{ // explicit style name available
-			style=[NSString stringWithCString:face->style_name];
+			style=[NSString stringWithUTF8String:face->style_name];
 			name=[NSString stringWithFormat:@"%@-%@", family, style];	// build display name
 			}
 		if(face->style_flags&FT_STYLE_FLAG_ITALIC)
@@ -545,21 +545,25 @@ FT_Library _ftLibrary(void)
 		if(FT_IS_FIXED_WIDTH(face))
 			traits |= NSFixedPitchFontMask;
 		FT_Set_Pixel_Sizes(face, 0, 24);	// render approx. 24x24 pixels
-		FT_Load_Glyph(face, FT_Get_Char_Index(face, 'x'), FT_LOAD_DEFAULT);	// draw a representative character
+		weight=0.0;
+		FT_Load_Glyph(face, FT_Get_Char_Index(face, 'x'), FT_LOAD_DEFAULT);	// load a representative character
 		cnt=face->glyph->bitmap.width*face->glyph->bitmap.rows;
 		if(cnt)
 			{
-			lweight=0;
-			while(cnt-- > 0)
-				lweight+=face->glyph->bitmap.buffer[cnt];	// sum up all shaded values
-			weight=(CGFloat)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
+			if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
+				NSLog(@"unhandled pixel mode: %d", face->glyph->bitmap.pixel_mode);
+			else
+				{ // count propoertion of white and black pixels
+				lweight=0;
+				while(cnt-- > 0)
+					lweight+=face->glyph->bitmap.buffer[cnt];	// sum up all shaded values
+				weight=(CGFloat)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
+				}
 			}
-		else
-			weight=0.0;
 #if 0
 		NSLog(@"add font %lu [%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
 #endif
-		postscriptName=[NSString stringWithCString:psname];
+		postscriptName=[NSString stringWithUTF8String:psname];
 		fontRecord=[NSMutableDictionary dictionaryWithObjectsAndKeys:
 			// official
 			family, NSFontFamilyAttribute,
