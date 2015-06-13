@@ -665,7 +665,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 					[r setSize:_size];	// resize representation(s)
 			}
 		if([_reps count])
-			_img.isValid = YES;	// any valid representation have been loaded
+			_img.isValid = YES;	// at least one valid representation has been loaded
 		}
 #if 0
 	NSLog(@"image valid %d", _img.isValid);
