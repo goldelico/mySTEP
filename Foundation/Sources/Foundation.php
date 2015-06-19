@@ -246,122 +246,44 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
-	private static function readPropertyListElementFromStream($stream, $line="")
-		{ // read next element
-		while(!feof($stream) && $line == "")
-			{ // skip empty lines
-			$line=fgets($stream);
-			}
-// _NSLog($line);
-		$tline=trim($line);
-		if(substr($tline, 0, 6) == "<?xml " || substr($tline, 0, 10) == "<!DOCTYPE " || substr($tline, 0, 7) == "<plist ")
-			{ // skip
-			return self::readPropertyListElementFromStream($stream);
-			}
-		if(substr($tline, 0, 6) == "<dict>")
+	private static function readPropertyListElementFromElement(SimpleXMLElement $xml)
+		{ // process XML property list entries
+//		_NSLog($xml->getName());
+		switch($xml->getName())
 			{
-			$ret=array();
-			while($line=fgets($stream))
-				{
-				if(substr(trim($line), -7) == "</dict>")
-					break;
-				$key=self::readPropertyListElementFromStream($stream, $line);
-				// check if <key> string
-				$value=self::readPropertyListElementFromStream($stream);
-				$ret[$key]=$value;
-				}
-// _NSLog($ret);
-			return $ret;
+			case "plist":	foreach($xml->children() as $key => $node)
+						return self::readPropertyListElementFromElement($node);
+			case "dict":	$dict=array();
+					foreach($xml->children() as $key => $node)
+						{
+						$val=self::readPropertyListElementFromElement($node);
+						if($key == "key")	// <key>
+							$k=$val;
+						else
+							$dict[$k]=$val;
+						}
+					return $dict;
+			case "array":	$array=array();
+					foreach($xml->children() as $key => $node)
+						$array[]=self::readPropertyListElementFromElement($node);	// append to array
+					return $array;
+			case "key":
+			case "string":	return $xml->__toString();	// return contents
+			case "number":	return 0+($xml->__toString());	// return contents
+			case "true":	return true;
+			case "false":	return false;
+			// date, data
 			}
-		if(substr($tline, 0, 7) == "<array>")
-			{
-			$ret=array();
-			while($line=fgets($stream))
-				{
-				if(substr(trim($line), -9) == "</array>")
-					break;
-				$value=self::readPropertyListElementFromStream($stream, $line);
-				$ret[]=$value;
-				}
-			return $ret;
-			}
-		if(($iskey = substr($tline, 0, 5) == "<key>") || substr($tline, 0, 8) == "<string>")
-			{
-			// FIXME: we should only trim from the left!!!
-			// the problem is that we might see trim("  <string>something</string>")
-			$line=substr($line, $iskey?6:9);	// strip off <key> or <string>
-			$ret="";
-			while(true)
-				{
-				$tline=trim($line);
-// _NSLog("check </key>: ".substr($tline, -6));
-				if($iskey && substr($tline, -6) == "</key>")
-					{
-					$ret.=html_entity_decode(substr($line, 0, -7));	// append last fragment
-					break;
-					}
-// _NSLog("check </string>: ".substr($tline, -9));
-				if(!$iskey && substr($tline, -9) == "</string>")
-					{
-					$ret.=html_entity_decode(substr($line, 0, -10));	// append last fragment
-					break;
-					}
-				$ret.=$line;
-				if(feof($stream))
-					break;	// some error
-				$line=fgets($stream);
-				}
-// _NSLog("<key> or <string>: ".$ret);
-			return $ret;
-			}
-		if(substr($line, 0, 8) == "<number>")
-			{
-			// get number until </number>
-			}
-		if(substr($line, 0, 7) == "<true/>")
-			return true;
-		if(substr($line, 0, 8) == "<false/>")
-			return false;
-		// <data>, <date>
-		return null;
+		return null;	// parse error
 		}
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 		NSLog("$filename =>");
-		$f=@fopen($filename, "r");	// open for reading
-		if($f)
-			{ // new recursive reader
-			$plist=self::readPropertyListElementFromStream($f);
-			fclose($f);
-			}
-/* deprecated
-		else if($f)
-			{ // file exists and can be read
-			// FIXME: this is a simple hack to read simple XML property lists
-			while($line=fgets($f))
-				{
-				$line=trim($line);
-				if(substr($line, 0, 5) == "<key>")
-					{
-					$key=html_entity_decode(substr(substr($line, 5), 0, -6));
-					continue;
-					}
-				else if(substr($line, 0, 8) == "<string>")
-					{
-					// FIXME: handle multi-line strings
-					$val=html_entity_decode(substr(substr($line, 8), 0, -9));
-					$plist[$key]=$val;
-					}
-				else if(substr($line, 0, 7) == "<array>")
-					{
-					}
-				}
-			fclose($f);
-			}
-*/
-		if(isset($plist)) NSLog($plist);
-		return isset($plist)?$plist:null;
+		$xml=@simplexml_load_file($filename);
+		if($xml === false)
+			return null;
+		return self::readPropertyListElementFromElement($xml);
 		}
 	private static function writePropertyListElementToFile(NSObject $element, $file)
 		{
