@@ -157,6 +157,11 @@ class NSObject /* root class */
 		return $this->classString();
 		}
 
+	public function __toString()
+		{ // to make it compatible to PHP strings
+		return $this->description();
+		}
+
 	public function valueForUndefinedKey($key)
 		{
 		// should raise NSUndefinedKeyException
@@ -165,7 +170,7 @@ class NSObject /* root class */
 
 	public function valueForKey($key)
 		{ // fetch instance variables by name
-		// FIXME: could also call a getter methods
+		// FIXME: could also call a getter method
 		// i.e. is$key and $key and _$key
 		$vars=get_object_vars($this);
 		if(isset($vars[$key]))
@@ -316,6 +321,7 @@ class NSBundle extends NSObject
 	protected static $mainBundle;
 	public static function bundleWithPath($path) 
 		{
+// FIXME: do we return null if there is no valid bundle?
 		NSLog("bundleWithPath: $path");
 		if(isset(self::$allBundlesByPath[$path]))
 			return self::$allBundlesByPath[$path];	// return bundle object we already know
@@ -355,7 +361,7 @@ class NSBundle extends NSObject
 			NSLog("I don't know class $class");
 			return null;
 			}
-//		NSLog("bundleForClass: $class");
+// _NSLog("bundleForClass: $class");
 		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($reflector->getFileName());	// path for .php file of given class
 		$path=dirname($path);	// Versions/A/php/Something.php // Contents/php/Something.php
 		$path=dirname($path);	// Versions/A/php // Contents/php
@@ -393,16 +399,17 @@ class NSBundle extends NSObject
 	public function resourcePath()
 		{
 		$fm=NSFileManager::defaultManager();
-		$p=$this->path."/Versions/Current/Resources"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->path."/Versions/Current/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
 		$p=$this->path."/Contents/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
 		return null;
 		}
 	public function pathForResourceOfType($name, $type)
 		{
+// _NSLog($this);
 		$p=$this->resourcePath();
 		if(is_null($p)) return null;
 		$fm=NSFileManager::defaultManager();
-		$p=$p."/$name";
+		$p=$p."$name";	// $p already ends in / suffix!
 		if($type != "")
 			$p.=".$type";	// given suffix
 		if($fm->fileExistsAtPath($p)) return $p;
