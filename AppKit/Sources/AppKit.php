@@ -176,16 +176,22 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		foreach($bundles as $bundle)
 			{
 			$res=$bundle->resourcePath();
+			if(is_null($res)) continue;	// has no resources
+// _NSLog("$res and $path");
+// _NSLog($bundle);
 			if(substr($path, 0, strlen($res)) == $res)
 				{ // we have found a bundle where this file is stored as a resource!
+// _NSLog("$res and $path");
 				$path=substr($path, strlen($res));	// strip off path prefix
+// _NSLog(strlen($res)." ".strlen($path)." ".$path);
 				$url="?RESOURCE=".rawurlencode($path);
-				if($bundle != NSBundle::mainBundle())
+				if($bundle !== NSBundle::mainBundle())
 					$url.="&BUNDLE=".rawurlencode($bundle->bundleIdentifier());
+// _NSLog($url);
 				return $url;
 				}
 			}
-//		_NSLog("can't publish $path");
+// _NSLog("can't publish $path");
 		return null;
 		}
 	
@@ -1060,6 +1066,7 @@ class NSImage extends NSObject
 			$this->name=$parts['filename'];
 			self::$images[$this->name]=$this;
 			}
+		return $this;
 		}
 	public function initByReferencingFile($path)
 		{
@@ -1087,6 +1094,7 @@ class NSImageView extends NSControl
 	public function setImage(NSImage $img=null)
 		{
 		$this->image=$img;
+// _NSLog($img);
 		$this->setNeedsDisplay();
 		}
 	public function draw()
@@ -1887,7 +1895,7 @@ class NSWorkspace extends NSObject
 // _NSLog("is bundle: $dir/$bundle");
 					$b=NSBundle::bundleWithPath("$dir/$bundle");
 					if(is_null($b->executablePath()))
-						continue;	// not a PHP executable
+						continue;	// no PHP executable
 // should we filter by specific user's permissions defined in the Info.plist?
 					$privs=$b->objectForInfoDictionaryKey("Privileges");
 					if(!is_null($privs))
@@ -1910,7 +1918,7 @@ class NSWorkspace extends NSObject
 						"NSApplicationBundle" => $b
 						);
 					self::$knownApplications[$bundle]=$r;
-					$ext=$b->objectForInfoDictionaryKey("CFBundleTypeExtensions");
+					$ext=$b->objectForInfoDictionaryKey('CFBundleTypeExtensions');
 					if(!is_null($ext))
 						{
 						// FIXME: loop over multiple suffixes
@@ -1922,6 +1930,7 @@ class NSWorkspace extends NSObject
 				closedir($f);
 				}
 			}
+// _NSLog(NSBundle::allBundles());
 // _NSLog(self::$knownApplications);
 		return self::$knownApplications;
 		}
@@ -1931,21 +1940,48 @@ class NSWorkspace extends NSObject
 // _NSLog("fullPathForApplication: $name)";
 		if(isset(self::$knownApplications[$name]))
 			return self::$knownApplications[$name]["NSApplicationPath"];
-		NSLog("fullPathForApplication:$name not found");
-		NSLog(self::$knownApplications);
+		_NSLog("fullPathForApplication:$name not found");
+		_NSLog(self::$knownApplications);
 		return null;
 		}
 	public function iconForFile($path)
-		{
-		return NSImage::imageNamed("NSApplication");	// default
-		// check if that is a bundle -> get through Info.plist / bundle
-		// $bundle->objectForInfoDictionaryKey('CFBundleIconFile');
+		{ // find the NSImage that represents the given file -- FIXME: incomplete
+		if($this->isFilePackageAtPath($path))
+			{
+			$bundle=NSBundle::bundleWithPath($path);
+			$icon=$bundle->objectForInfoDictionaryKey('CFBundleIconFile');
+//_NSLog("$icon for $path");
+			if(is_null($icon))
+				return NSImage::imageNamed("NSApplication");	// entry wasn't found
+			$file=$bundle->pathForResourceOfType($icon, "");
+// _NSLog($file);
+			if(is_null($file))
+				return NSImage::imageNamed("NSApplication");	// file wasn't found
+			$img=new NSImage();
+			return $img->initByReferencingFile($file);
+			}
+		$pi=pathinfo($file);
+		if(!isset($pi['extension']))
+			$ext="";
+		else
+			$ext=$pi['extension'];
+		if(!isset(self::$knownSuffixes[$ext]))
+			return NSImage::imageNamed("NSFile");	// unknown suffix
+		$app=self::$knownSuffixes[$ext];
+		$bundle=$app['NSApplicationBundle'];
+		$exts=$bundle->objectForInfoDictionaryKey('CFBundleTypeExtensions');
+_NSLog("find document icon by extensions");
+_NSLog($exts);
 		// else find application by suffix
+		return null;
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
-		$ext="something";
-		// FIXME: allow to openFile("path.app");
+		$pi=pathinfo($file);
+		if(!isset($pi['extension']))
+			$ext="";
+		else
+			$ext=$pi['extension'];
 		if(!isset(self::$knownSuffixes[$ext]))
 			return false;	// unknown suffix
 		$app=self::$knownSuffixes[$ext];
