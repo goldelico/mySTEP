@@ -76,6 +76,13 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	//	*((char **) (&png_ptr->io_ptr)) += length;
 }
 
+static void png_error_handler(png_structp png_ptr, png_const_charp error_message)
+{
+	// we should somehow store the error for later processing
+	NSLog(@"PNG error: %s", error_message);
+	//	longjmp(png_ptr->jmpbuf, 1);	// png_structp is opaque :(
+}
+
 + (NSArray *) imageRepsWithData:(NSData *)data
 {
 	GSBitmapImageRepPNG *imageRep;
@@ -84,7 +91,7 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	png_uint_32 y, width, height;
 	int num_pass, pass;
 	int bit_depth, color_type, intent;
-	unsigned int row_bytes;
+	unsigned long row_bytes;
 	int interlace_type, compression_type, filter_type;
 	const char *pin;
 	char *buffer;
@@ -97,7 +104,7 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 	read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
 	if(!read_ptr)
 		return nil;
-	png_set_error_fn(read_ptr, (png_voidp)NULL, NULL, NULL);	// use default implementation
+	png_set_error_fn(read_ptr, (png_voidp)NULL, png_error_handler, NULL);	// use default implementation for warnings
 	read_info_ptr = png_create_info_struct(read_ptr);
 	if (!read_info_ptr)
 		{
@@ -135,18 +142,18 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 		png_set_tRNS_to_alpha(read_ptr);	// with transparency to full alpha
 		alpha = YES;						// channels so the data will be
 		}									// available as RGBA quartets.
-    else
+	else
 		alpha = (color_type & PNG_COLOR_MASK_ALPHA) != 0;
 	// expand palette images to RGB, low-bit-depth grayscale, images to 8 bits, transparency chunks to full alpha channel.
-    if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8))
-        png_set_expand(read_ptr);
-    if (png_get_valid(read_ptr, read_info_ptr, PNG_INFO_tRNS))
-        png_set_expand(read_ptr);
-    if (bit_depth == 16)					// strip 16-bit-per-sample
-        png_set_strip_16(read_ptr);			// images to 8 bits per sample
-    if (color_type == PNG_COLOR_TYPE_GRAY
+	if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8))
+		png_set_expand(read_ptr);
+	if (png_get_valid(read_ptr, read_info_ptr, PNG_INFO_tRNS))
+		png_set_expand(read_ptr);
+	if (bit_depth == 16)					// strip 16-bit-per-sample
+		png_set_strip_16(read_ptr);			// images to 8 bits per sample
+	if (color_type == PNG_COLOR_TYPE_GRAY
 			|| color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(read_ptr);		// convert grayscale to RGB[A]
+		png_set_gray_to_rgb(read_ptr);		// convert grayscale to RGB[A]
 
 	if (png_get_sRGB(read_ptr, read_info_ptr, &intent))
 		png_set_gamma(read_ptr, screen_gamma, 0.45455);
@@ -736,18 +743,18 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 	cinfo.src->next_input_byte = [data bytes];
 	cinfo.src->bytes_in_buffer = [data length];
 
-    jpeg_read_header(&cinfo, TRUE);
+	jpeg_read_header(&cinfo, TRUE);
 
 	if(cinfo.jpeg_color_space == JCS_GRAYSCALE)
 		cinfo.out_color_space = JCS_GRAYSCALE;
 	else
-        cinfo.out_color_space = JCS_RGB;
-    cinfo.quantize_colors = FALSE;
-    cinfo.do_fancy_upsampling = FALSE;
-    cinfo.do_block_smoothing = FALSE;
+		cinfo.out_color_space = JCS_RGB;
+	cinfo.quantize_colors = FALSE;
+	cinfo.do_fancy_upsampling = FALSE;
+	cinfo.do_block_smoothing = FALSE;
 
 	jpeg_calc_output_dimensions(&cinfo);
-    jpeg_start_decompress(&cinfo);
+	jpeg_start_decompress(&cinfo);
 
 	imageRep = [[[self alloc] initWithBitmapDataPlanes: NULL
 									  pixelsWide: cinfo.image_width
@@ -761,11 +768,11 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 									  bitsPerPixel: 0] autorelease];
 //	imageRep->compression = info->compression;
 
-    buffer[0] = [imageRep bitmapData];
+	buffer[0] = [imageRep bitmapData];
 
-    while (cinfo.output_scanline < cinfo.output_height)
+	while (cinfo.output_scanline < cinfo.output_height)
 		{
-        jpeg_read_scanlines(&cinfo, buffer, (JDIMENSION)1);
+		jpeg_read_scanlines(&cinfo, buffer, (JDIMENSION)1);
 		buffer[0] += (cinfo.output_width * 3);		// data is in RGB planes
 		}											// so mult by row stride
 
@@ -791,43 +798,43 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 
 
 @interface NSData (ResourceManager)
-- (long) resourceType;
-- (unsigned long) resourceSize;
+- (int32_t) resourceType;
+- (uint32_t) resourceSize;
 - (NSData *) resourceData;		// full resource data (i.e. incl. 8 bytes header!)
 @end
 
 @interface NSData (ResourceManagerForICNS)
-- (NSData *) subResourceWithType:(long) type len:(unsigned long *) len;   // get subresource
+- (NSData *) subResourceWithType:(int32_t) type len:(uint32_t *) len;   // get subresource
 @end
 
 @implementation NSData (ResourceManager)
 
-- (long) resourceType;
+- (int32_t) resourceType;
 {
-	long type;
+	int32_t type;
 	if([self length] < sizeof(type))
 		return 0;	// file too short
 	[self getBytes:&type length:sizeof(type)];	// first 4 bytes
-	type=NSSwapBigLongToHost(type);	// is stored in big endian order (i.e. PowerPC) and may need to be swapped
+	type=NSSwapBigIntToHost(type);	// is stored in big endian order (i.e. PowerPC) and may need to be swapped
 #if 0
 	NSLog(@"resource type=%4c %08x", type, type);
 #endif
 	return type;
 }
 
-- (unsigned long) resourceSize; 
+- (uint32_t) resourceSize;
 {
-	unsigned long size=0;
+	uint32_t size=0;
 #if 0
-	NSLog(@"range=%@", NSStringFromRange(NSMakeRange(sizeof(long), sizeof(size))));
+	NSLog(@"range=%@", NSStringFromRange(NSMakeRange(sizeof(int32_t), sizeof(size))));
 #endif
-	if([self length] < sizeof(long)+sizeof(size))
+	if([self length] < sizeof(uint32_t)+sizeof(size))
 		return 0;	// file too short
-	[self getBytes:&size range:NSMakeRange(sizeof(long), sizeof(size))];	// second 4 bytes
-	size=NSSwapBigLongToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
+	[self getBytes:&size range:NSMakeRange(sizeof(int32_t), sizeof(size))];	// second 4 bytes
+	size=NSSwapBigIntToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
 	if(size > [self length])
 		{
-		NSLog(@"invalid resource: resource len=%lu/%lx > NSData len=%lu", size, size, (unsigned long)[self length]);
+		NSLog(@"invalid resource: resource len=%u/%x > NSData len=%u", size, size, (uint32_t)[self length]);
 		NSLog(@"NSData = %@", self);
 		}
 	return size;
@@ -835,26 +842,26 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 
 - (NSData *) resourceData;
 { // get data (without header)
-	return [self subdataWithRange:NSMakeRange(sizeof(long)+sizeof(unsigned long),
-											  [self resourceSize]-(sizeof(long)+sizeof(unsigned long)))];
+	return [self subdataWithRange:NSMakeRange(sizeof(int32_t)+sizeof(uint32_t),
+											  [self resourceSize]-(sizeof(int32_t)+sizeof(uint32_t)))];
 }
 
 @end
 
 @implementation NSData (ResourceManagerForICNS)
 
-- (NSData *) subResourceWithType:(long) t len:(unsigned long *) len;
+- (NSData *) subResourceWithType:(int32_t) t len:(uint32_t *) len;
 { // get named subresource (from catenated list of resources); return length of contents
-	unsigned off=0;
-	unsigned long size;
+	NSInteger off=0;
+	uint32_t size;
 	NSInteger cnt=[self length];
 	for(off=0; off < cnt; off+=size)
 		{
-		long type;
+		int32_t type;
 		[self getBytes:&type range:NSMakeRange(off, sizeof(type))];	// type
 		[self getBytes:&size range:NSMakeRange(off+sizeof(type), sizeof(size))];	// size
-		size=NSSwapBigLongToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
-		type=NSSwapBigLongToHost(type);
+		size=NSSwapBigIntToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
+		type=NSSwapBigIntToHost(type);
 		if(off+size > cnt)
 			{
 #if 0
@@ -932,8 +939,8 @@ static NSArray *__bitmapImageRepsICNS;
 	int i;
 	static struct
 		{
-			long rgb;
-			long mask;
+			int32_t rgb;
+			int32_t mask;
 			int width;
 			int height;
 			int depth;
@@ -974,10 +981,10 @@ static NSArray *__bitmapImageRepsICNS;
 		unsigned long wh2=wh+wh;
 		unsigned long wh3=wh2+wh;
 		unsigned long bytesPerRow;
-		unsigned long rgblen;	// size of RGB resource (incl. header!)
+		uint32_t rgblen;	// size of RGB resource (incl. header!)
 		unsigned char *bitmap;
 		NSData *rgb=[[data subResourceWithType:reps[i].rgb len:&rgblen] resourceData];
-		unsigned long masklen;	// size of mask resource (incl. header!)
+		uint32_t masklen;	// size of mask resource (incl. header!)
 		NSData *mask;
 		unsigned char *b;	// byte stream from rgb resource
 		unsigned long off;
