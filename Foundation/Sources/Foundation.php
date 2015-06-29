@@ -337,13 +337,13 @@ class NSBundle extends NSObject
 	public static function bundleWithPath($path) 
 		{
 // FIXME: do we return null if there is no valid bundle?
-		NSLog("bundleWithPath: $path");
+// _NSLog("bundleWithPath: $path");
 		if(isset(self::$allBundlesByPath[$path]))
 			return self::$allBundlesByPath[$path];	// return bundle object we already know
 		$r=new NSBundle($path);
 		$r->path=$path;
 		self::$allBundlesByPath[$path]=$r;
-		NSLog("bundleWithPath $path stored");
+// _NSLog("bundleWithPath $path stored");
 		return $r;
 		}
 	public static function allBundles()
@@ -354,13 +354,21 @@ class NSBundle extends NSObject
 		{
 		if(!isset(self::$mainBundle))
 			{
-			// FIXME: this requires us to use AppKit.php...
-			global $NSApp;
-			NSLog("mainBundle");
-			NSLog("class: ".$NSApp->classString());
-			NSLog($_SERVER);
-			if(isset($NSApp))
-				self::$mainBundle=NSBundle::bundleForClass($NSApp->delegate()->classString());	// assumes that the NSApp delegate belongs to the main bundle!
+// _NSLog($_SERVER['SCRIPT_FILENAME']);
+// _NSLog(realpath($_SERVER['SCRIPT_FILENAME']));
+			$path=realpath($_SERVER['SCRIPT_FILENAME']);	// Bundle/Contents/php/Something.php
+// _NSLog($path);
+			$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($path);	// use internal representation
+			$path=dirname($path);	// Bundle/Contents/php
+			$path=dirname($path);	// Bundle/Contents
+			if(substr($path, -9) != "/Contents")
+				{
+				_NSLog("not an application bundle: $path");
+				return null;
+				}
+			$path=dirname($path);	// Bundle/
+// _NSLog($path);
+			self::$mainBundle=NSBundle::bundleWithPath($path);
 			self::$mainBundle->loaded=true;
 			}
 		return self::$mainBundle;
@@ -377,15 +385,16 @@ class NSBundle extends NSObject
 			return null;
 			}
 // _NSLog("bundleForClass: $class");
-		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($reflector->getFileName());	// path for .php file of given class
-		$path=dirname($path);	// Versions/A/php/Something.php // Contents/php/Something.php
-		$path=dirname($path);	// Versions/A/php // Contents/php
+		$path=$reflector->getFileName();	// path for .php file of given class
+		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation();	// Bundle/Contents/php/Something.php
+		$path=dirname($path);	// Bundle/Versions/A/php // Bundle/Contents/php
+		$path=dirname($path);	// Bundle/Versions/A // Bundle/Contents
 // _NSLog($path);
 		if(substr($path, -9) != "/Contents")
 			{ // appears to be a Framework bundle
-			$path=dirname($path);	// Versions/A
+			$path=dirname($path);	// Bundle/Versions
 			}
-		$path=dirname($path);	// Versions // Contents
+		$path=dirname($path);	// Bundle
 // _NSLog(" bundleForClass $class path $path");
 		return NSBundle::bundleWithPath($path);
 		}
@@ -394,6 +403,7 @@ class NSBundle extends NSObject
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
 				$plistPath=$this->resourcePath();
+// _NSLog("resources $plistPath");
 				if(is_null($plistPath)) return null;	// there is no Info.plist
 				$plistPath=dirname($plistPath);	// strip off /Resources
 				$plistPath.="/Info.plist";
@@ -416,23 +426,29 @@ class NSBundle extends NSObject
 		$fm=NSFileManager::defaultManager();
 		$p=$this->path."/Versions/Current/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
 		$p=$this->path."/Contents/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
+// _NSLog("resourcePath for $p not found");
 		return null;
 		}
 	public function pathForResourceOfType($name, $type)
 		{
 // _NSLog($this);
-		$p=$this->resourcePath();
-		if(is_null($p)) return null;
 		$fm=NSFileManager::defaultManager();
-		$p=$p."$name";	// $p already ends in / suffix!
-		if($type != "")
-			$p.=".$type";	// given suffix
-		if($fm->fileExistsAtPath($p)) return $p;
+		$rp=$this->resourcePath();
+		if(is_null($rp)) return null;
+		$subdirs=array("English.lproj/", "");
+		foreach($subdirs as $dir)
+			{
+			$p=$rp.$dir.$name;	// $p or $dir already ends in / suffix!
+			if($type != "")
+				$p.=".".$type;	// given suffix
+			if($fm->fileExistsAtPath($p)) return $p;
+			}
 		return null;
 		}
 	public function objectForInfoDictionaryKey($key)
 		{
 		$dict=$this->infoDictionary();
+// _NSLog($dict);
 		return isset($dict[$key])?$dict[$key]:null;
 		}
 	public function bundleIdentifier()
@@ -441,7 +457,7 @@ class NSBundle extends NSObject
 		}
 	public static function bundleWithIdentifier($ident)
 		{
-NSLog("bundleWithIdentifier: $ident");
+// _NSLog("bundleWithIdentifier: $ident");
 		foreach (self::$allBundlesByPath as $bundle)
 			{
 			NSLog("try ".$bundle->bundleIdentifier());
