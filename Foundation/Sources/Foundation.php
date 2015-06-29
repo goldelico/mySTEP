@@ -220,6 +220,11 @@ class NSInvocation extends NSObject
 	protected $selector;
 	protected $arguments=array();
 
+	public function __construct()
+		{
+		parent::__construct();
+		}
+
 	public function invoke()
 		{
 		return $this->$target->$selector($args);
@@ -266,6 +271,10 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
+	public function __construct()
+		{
+		parent::__construct();
+		}
 	private static function readPropertyListElementFromElement(SimpleXMLElement $xml)
 		{ // process XML property list entries
 //		_NSLog($xml->getName());
@@ -334,6 +343,10 @@ class NSBundle extends NSObject
 	protected $infoDictionary;
 	protected $loaded=false;
 	protected static $mainBundle;
+	public function __construct()
+		{
+		parent::__construct();
+		}
 	public static function bundleWithPath($path) 
 		{
 // FIXME: do we return null if there is no valid bundle?
@@ -509,6 +522,10 @@ class NSUserDefaults extends NSObject
 	protected $searchList=array();
 	protected $volatileDomains=array();
 
+	public function __construct()
+		{
+		parent::__construct();
+		}
 	public static function standardUserDefaults()
 	{
 	if(!isset(self::$standardUserDefaults))
@@ -663,6 +680,10 @@ class NSFileManager extends NSObject
 	protected $user="";
 	protected $defaults;
 	protected $registeredDefaults=array();
+	public function __construct()
+		{
+		parent::__construct();
+		}
 	public static function defaultManager()
 	{
 		if(!isset(self::$defaultManager))
@@ -787,6 +808,10 @@ date_default_timezone_set("Europe/Berlin");
 class NSDate extends NSObject
 	{
 		protected $timestamp;
+	public function __construct()
+		{
+		parent::__construct();
+		}
 		public static function date() { $r=new NSDate; $r->timestamp=time(); }
 		public function description()
 			{
@@ -827,6 +852,10 @@ class NSDate extends NSObject
 class NSAttributedString extends NSObject
 	{
 		protected $html;
+	public function __construct()
+		{
+		parent::__construct();
+		}
 		public function setString($string) { $this->html=nl2br(htmlentities($string, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8')); }
 		public function string() { /* decode <br>, htmlentities and remove tags */ return $this->html; }
 		public function setHtmlString($string) { $this->html=$html; }
