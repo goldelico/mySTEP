@@ -162,6 +162,11 @@ class NSObject /* root class */
 		return $this->description();
 		}
 
+	public function respondsToSelector($selector)
+		{
+		return method_exists($this, $selector);
+		}
+
 	public function valueForUndefinedKey($key)
 		{
 		// should raise NSUndefinedKeyException
@@ -176,6 +181,16 @@ class NSObject /* root class */
 		if(isset($vars[$key]))
 			return $vars[$key];	// exists
 		return $this->valueForUndefinedKey($key);
+		}
+
+	public function setValueForKey($value, $key)
+		{ // set instance variables by name
+		$setter="set".ucfirst($key);		// make name of setter method
+_NSLog($setter);
+		if($this->respondsToSelector($setter))
+			$this->$setter($value);	// set object
+		else
+			; // check for variable
 		}
 
 // can check for existence by wrapping property_exists($this, $key)
