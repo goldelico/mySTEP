@@ -399,7 +399,7 @@ class NSBundle extends NSObject
 			}
 // _NSLog("bundleForClass: $class");
 		$path=$reflector->getFileName();	// path for .php file of given class
-		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation();	// Bundle/Contents/php/Something.php
+		$path=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($path);	// Bundle/Contents/php/Something.php
 		$path=dirname($path);	// Bundle/Versions/A/php // Bundle/Contents/php
 		$path=dirname($path);	// Bundle/Versions/A // Bundle/Contents
 // _NSLog($path);
