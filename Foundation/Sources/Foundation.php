@@ -674,6 +674,11 @@ class NSFileManager extends NSObject
 	public function fileSystemRepresentationWithPath($path)
 		{
 		global $ROOT;
+		if(!isset($ROOT))
+			{
+			_NSLog("fileSystemRepresentationWithPath: $ROOT is not set");
+			exit;
+			}
 		if(substr($path, 0, 1) == '/')
 			return $ROOT.$path;	// absolute path
 		return $path;
@@ -681,6 +686,12 @@ class NSFileManager extends NSObject
 	public function stringWithFileSystemRepresentation($path)
 		{
 		global $ROOT;
+		if(!isset($ROOT))
+			{
+			_NSLog("fileSystemRepresentationWithPath: $ROOT is not set");
+			exit;
+			}
+		$path=realpath($path);	// canonicalize
 		if(substr($ROOT, -1) != "/")
 			_NSLog("invalid \$ROOT (should end in /): $ROOT");	// must end in /
 		if(substr($path, 0, strlen($ROOT)) == $ROOT)
