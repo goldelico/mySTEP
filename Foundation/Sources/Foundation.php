@@ -424,11 +424,11 @@ class NSBundle extends NSObject
 		{
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
-				$plistPath=$this->resourcePath();
-// _NSLog("resources $plistPath");
-				if(is_null($plistPath)) return null;	// there is no Info.plist
-				$plistPath=dirname($plistPath);	// strip off /Resources
+				$plistPath=$this->_contentsPath();
+// _NSLog("contents $plistPath");
+				if(is_null($plistPath)) return null;	// there are no contents
 				$plistPath.="/Info.plist";
+				// can there be a localized Info.plist???
 // _NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
@@ -439,15 +439,22 @@ class NSBundle extends NSObject
 		$executable=$this->objectForInfoDictionaryKey('CFBundleExecutable');
 		if(is_null($executable)) return null;
 		$fm=NSFileManager::defaultManager();
-		$executable=$this->path."/Contents/php/".$executable.".php";
+		$executable=$this->_contentsPath()."/php/".$executable.".php";
 		if(!$fm->fileExistsAtPath($executable)) return null;	// there is no executable
 		return $executable;
+		}
+	public function _contentsPath()
+		{
+		$fm=NSFileManager::defaultManager();
+		$p=$this->path."/Versions/Current/"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->path."/Contents/"; if($fm->fileExistsAtPath($p)) return $p;
+// _NSLog("_contentsPath for $p not found");
+		return null;
 		}
 	public function resourcePath()
 		{
 		$fm=NSFileManager::defaultManager();
-		$p=$this->path."/Versions/Current/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
-		$p=$this->path."/Contents/Resources/"; if($fm->fileExistsAtPath($p)) return $p;
+		$p=$this->_contentsPath()."Resources/"; if($fm->fileExistsAtPath($p)) return $p;
 // _NSLog("resourcePath for $p not found");
 		return null;
 		}
