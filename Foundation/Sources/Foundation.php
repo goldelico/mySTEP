@@ -175,22 +175,31 @@ class NSObject /* root class */
 
 	public function valueForKey($key)
 		{ // fetch instance variables by name
-		// FIXME: could also call a getter method
-		// i.e. is$key and $key and _$key
+		$getter=$key;
+		if($this->respondsToSelector($getter))	// getter exists
+			return $this->$getter();	// call getter
+		// handle is$key and $key and _$key
 		$vars=get_object_vars($this);
 		if(isset($vars[$key]))
 			return $vars[$key];	// exists
-		return $this->valueForUndefinedKey($key);
+		else
+			return $this->valueForUndefinedKey($key);
+		}
+
+	public function setValueForUndefinedKey($value, $key)
+		{
+// _NSLog("setter for $key not found"); // check for variable
+		$this->$key=$value;	// try to set directly
 		}
 
 	public function setValueForKey($value, $key)
 		{ // set instance variables by name
 		$setter="set".ucfirst($key);		// make name of setter method
-_NSLog($setter);
+// _NSLog($setter);
 		if($this->respondsToSelector($setter))
 			$this->$setter($value);	// set object
 		else
-			; // check for variable
+			$this->setValueForUndefinedKey($value, $key); // can be overwritten
 		}
 
 // can check for existence by wrapping property_exists($this, $key)
