@@ -241,7 +241,6 @@ class NSResponder extends NSObject
 class NSApplication extends NSResponder
 {
 	// FIXME: part of this belongs to NSWorkspace!?!
-	protected $name;
 	protected $argv;	// arguments (?)
 	protected $delegate;
 	protected $mainWindow;
@@ -272,75 +271,82 @@ class NSApplication extends NSResponder
 		$this->open("settings.app");
 	}
 	
-	public function __construct($name)
+	public function __construct()
 		{
 		global $NSApp;
 		parent::__construct();
+// _NSLog("__contruct");
 		if(isset($NSApp))
 			{
-			NSLog("NSApplication is already defined (".($NSApp->name).")");
+			_NSLog('$NSApp is already defined');
 			exit;
 			}
 		$NSApp=$this;
-		$this->name=$name;
-		$NSApp->mainMenu=new NSMenuView(true);	// create horizontal menu bar
+		}
+
+	public function awakeFromNib()
+		{
+// _NSLog("NSApplication awakeFromNib");
+
+		$this->mainMenu=new NSMenuView(true);	// create horizontal menu bar
 		
 		// we should either load or extend that
 
 		$item=new NSMenuItemView("System");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("About", "orderFrontAboutPanel", $NSApp);
-		$submenu->addMenuItemWithTitleAndAction("Settings", "openSettings", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("About", "orderFrontAboutPanel", $this);
+		$submenu->addMenuItemWithTitleAndAction("Settings", "openSettings", $this);
 		$submenu->addMenuItemSeparator();
 		// make this switch between Login... // Logout...
 		$ud=NSUserDefaults::standardUserDefaults();
 		if(isset($ud))
-			$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $NSApp);
+			$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $this);
 		else
-			$submenu->addMenuItemWithTitleAndAction("Login...", "login", $NSApp);
+			$submenu->addMenuItemWithTitleAndAction("Login...", "login", $this);
 
-		$item=new NSMenuItemView($this->name);
+		$appname=NSBundle::mainBundle()->objectForInfoDictionaryKey("CFBundleName");
+		$item=new NSMenuItemView($appname);
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("Quit", "terminate", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Quit", "terminate", $this);
 
 		$item=new NSMenuItemView("File");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("New", "newDocument", $NSApp);
-		$submenu->addMenuItemWithTitleAndAction("Open", "openDocument", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("New", "newDocument", $this);
+		$submenu->addMenuItemWithTitleAndAction("Open", "openDocument", $this);
 		$submenu->addMenuItemSeparator();
-		$submenu->addMenuItemWithTitleAndAction("Save", "saveDocument", $NSApp);
+		$submenu->addMenuItemWithTitleAndAction("Save", "saveDocument", $this);
 
 		$item=new NSMenuItemView("Edit");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("Undo", "undo", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Undo", "undo", $this);
 
 		$item=new NSMenuItemView("View");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("View", "undo", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("View", "undo", $this);
 
 		$item=new NSMenuItemView("Window");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("Window", "undo", $NSApp);
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Window", "undo", $this);
 
 		$item=new NSMenuItemView("Help");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
-		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("Help", "help", $NSApp);
-		
+		$this->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Help", "help", $this);
 		}
+
 	public function open($app, $args=array())
 		{ // switch to a different app
 		$bundle=NSWorkspace::fullPathForApplication($app);
@@ -364,6 +370,7 @@ class NSApplication extends NSResponder
 		}
 	public function terminate()
 		{
+// FIXME:
 		if($this->name == "Palmtop")
 			$this->open("loginwindow.app");
 		else
@@ -457,28 +464,6 @@ _NSLog("sendAction $action to first responder");
 		}
 }
 	
-function NSApplicationMain($name)
-{
-	global $NSApp;
-	global $ROOT;
-	if(!isset($ROOT))
-		{
-		echo '$ROOT is not set globally!';
-		exit;
-		}
-NSLog("_POST:");
-NSLog($_POST);
-	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
-	new NSApplication($name);
-	$NSApp->setDelegate(new AppController);	// this should be loaded from the NIB file!
-	// FIXME: shouldn't we better implement some objc_sendMsg($NSApp->delegate() "awakeFromNib", args...)?
-	if(method_exists($NSApp->delegate(), "awakeFromNib"))
-		$NSApp->delegate()->awakeFromNib();
-	if(method_exists($NSApp->delegate(), "didFinishLoading"))
-		$NSApp->delegate()->didFinishLoading();
-	$NSApp->run();
-}
-
 class NSColor extends NSObject
 	{
 	protected $rgb;
@@ -529,6 +514,13 @@ class NSView extends NSResponder
 		$this->setNeedsDisplay();
 		}
 	public function subviews() { return $this->subviews; }
+	public function setSubviews($views)
+		{
+		foreach($this->subviews as $subview)
+			$this->_removeSubView($subview);	// remove old
+		foreach($views as $subview)
+			$this->addSubview($subview);	// add new
+		}
 	public function addSubview(NSView $view)
 		{
 		$this->subviews[]=$view;
@@ -605,8 +597,8 @@ class NSView extends NSResponder
 
 class NSControl extends NSView
 	{
-	protected $action;	// function name
-	protected $target;	// object
+	protected $action="";	// function name
+	protected $target=null;	// object
 	protected $tag=0;
 	public function __construct()
 		{ // must explicitly call!
@@ -698,6 +690,7 @@ class NSButton extends NSControl
 		}
 	public function state() { return $this->isSelected(); }
 	public function setState($s) { $this->setSelected($s); }
+	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
 		// NSLog($event);
@@ -1107,32 +1100,33 @@ class NSImageView extends NSControl
 
 class NSCollectionView extends NSControl
 {
-	protected $colums=5;
+	protected $colums=1;
 	protected $border=0;
 	protected $width="100%";
 	public function content() { return $this->subviews(); }
 	public function setContent($items)
 		{
 		foreach($this->subviews() as $item)
-			$item->removeFromSuperview();	// remove from hierarchy
+			$item->removeFromSuperview();	// remove existing items from hierarchy
 		foreach($items as $item)
-			$this->addSubview($item);
+			$this->addSubview($item);	// add new ones to hierarchy
 		}
 	public function addCollectionViewItem($item)
 		{ // alternate function name
 			$this->addSubview($item);
 		}
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
+	public function setColumns($columns) { $this->columns=0+$columns; $this->setNeedsDisplay(); }
 
 // allow to define colspan and rowspan objects
 // allow to modify alignment
 
-	public function __construct($cols=5, $items=array())
+	public function __construct($cols=1, $objects=null)
 		{
 		parent::__construct();
 		$this->columns=$cols;
-		$this->setContent($items);
-// NSLog("NSCollectionView cols=$cols rows=".(count($item)+$cols-1)/$cols);
+		if($objects)
+_NSLog("NSCollectionView with 2 parameters is deprecated");
 		}
 	public function mouseDown(NSEvent $event)
 		{
@@ -1174,32 +1168,17 @@ class NSCollectionView extends NSControl
 
 class NSBox extends NSControl
 {
-	protected $colums=1;
 	protected $border=0;
 	protected $width="100%";
-	public function content() { return $this->subviews(); }
-	public function setContent($items)
-		{
-		foreach($this->subviews() as $item)
-			$item->removeFromSuperview();	// remove from hierarchy
-		foreach($items as $item)
-			$this->addSubview($item);
-		}
-	public function addCollectionViewItem($item)
-		{ // alternate function name
-			$this->addSubview($item);
-		}
 	public function setBorder($border) { $this->border=0+$border; }
 
 // allow to define colspan and rowspan objects
 // allow to modify alignment
 
-	public function __construct($cols=1, $items=array())
+	public function __construct($cols=1)
 		{
 		parent::__construct();
 		$this->columns=$cols;
-		$this->setContent($items);
-// NSLog("NSCollectionView cols=$cols rows=".(count($item)+$cols-1)/$cols);
 		}
 	public function mouseDown(NSEvent $event)
 		{
@@ -1212,18 +1191,12 @@ class NSBox extends NSControl
 		parameter("class", "NSBox");
 		parameter("id", $this->elementId);
 		html(">\n");
-		$col=1;
 		foreach($this->subviews as $item)
 			{
 			html("<div");
 			parameter("class", "NSBoxItem");
 			html(">\n");
 			$item->display();
-			$col++;
-			if($col > $this->columns)
-				{
-				$col=1;
-				}
 			}
 		html("</div>\n");
 		}
@@ -1241,6 +1214,7 @@ class NSTabViewItem extends NSObject
 	protected $view;
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
+	public function setLabel($label) { $this->label=$label; }
 	public function setView(NSView $view) { $this->view=$view; }
 	public function __construct($label, NSView $view)
 		{
@@ -1414,6 +1388,7 @@ class NSTableView extends NSControl
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; $this->reloadData(); }
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
+	public function setVisibleRows($rows) { $this->visibleRows=0+$rows; $this->setNeedsDisplay(); }
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
 	public function doubleAction() { return $this->doubleAction; }
@@ -1741,7 +1716,7 @@ class NSWindow extends NSResponder
 		global $NSApp;
 		parent::__construct();
 		$this->setContentView(new NSView());
-		if($NSApp->mainWindow() == NULL)
+		if($NSApp->mainWindow() == null)
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
 		}
@@ -2019,6 +1994,162 @@ class WebView extends NSView
 		html("</iframe>");
 		}
 
+}
+
+class NSNib extends NSObject
+{
+	protected $objects;
+	protected $objectDicts;
+	protected $connections;
+
+	public function initWithNibAndBundle($name, $bundle)
+	{
+// _NSLog($name);
+		$nibfile=$bundle->pathForResourceOfType($name, "pnib");
+// _NSLog($nibfile);
+		$plist=NSPropertyListSerialization::propertyListFromPath($nibfile);
+// _NSLog($this->plist);
+		if(is_null($plist))
+			return null;	// could not open or parse
+		$this->objectDicts=$plist['objects'];
+		$this->connections=$plist['connections'];
+		$this->objects=array();
+		return $this;
+	}
+
+	private function instantiateObject($objdict, $nametable)
+		{
+		if(!isset($objdict['class']))
+			return;
+		$class=$objdict['class'];
+		if(!$class)
+			return null;	// can't instantiate
+// _NSLog($objdict);
+		// Obj-C uses alloc+init to provide a singleton for NSApplication!
+		if(isset($objdict['objectname']))
+			{
+			$name=$objdict['objectname'];
+// _NSLog($name);
+// _NSLog($nametable[$name]);
+			if(isset($nametable[$name]))
+				$object=$nametable[$name];	// use externally provided object
+			else
+				$object=new $class();	// create a new instance
+			$this->objects[$name]=$object;	// store reference in object table
+			}
+		else
+			$object=new $class();
+// _NSLog($object);
+		// init object
+		foreach($objdict as $key => $value)
+			{
+// _NSLog($key);
+			switch($key)
+				{
+				case 'class':
+				case 'objectname':
+					// PHP treats continue like break in switch() - but we want to continue the foreach loop
+					continue 2;	// already processed
+				case 'contentView':
+				case 'subviews':
+					{ // special case: decode subview and subviews array
+// _NSLog($value);
+					if(isset($value['class']))
+						$v=$this->instantiateObject($value, $nametable);	// single subview
+					else
+					foreach($value as $subview)
+						$v[]=$this->instantiateObject($subview, $nametable);	// array of subviews
+					$value=$v;
+// _NSLog($v);
+					}
+				}
+			$object->setValueForKey($value, $key);	// set value as defined by plist
+			}
+// _NSLog($object);
+		return $object;
+		}
+
+	public function instantiateNibWithExternalNameTable($nametable)
+	{
+		foreach($this->objectDicts as $value)
+			{ // create objects
+			$this->instantiateObject($value, $nametable);
+			}
+//_NSLog($this->objects);
+		foreach($this->connections as $value)
+			{ // connect objects
+// _NSLog("connect");
+// _NSLog($value);
+			$source=$this->objects[$value['source']];	// look up by name
+			$target=isset($value['target'])?$this->objects[$value['target']]:null;	// allows to specify first responder
+			if(isset($value['action']))
+				{ // source.target/action = target/action
+				$source->setActionAndTarget($value['action'], $target);
+				}
+			else
+				{ // source.key = target
+				$source->setValueForKey($target, $value['key']);
+				}
+			}
+// _NSLog($this->objects);
+		foreach($this->objects as $object)
+			{ // awake objects
+			if($object->respondsToSelector("awakeFromNib"))
+				$object->awakeFromNib();
+			}
+		return;
+	}
+}
+
+/* main function */
+
+function NSApplicationMain($name)
+{
+	global $NSApp;
+	global $ROOT;
+	if(!isset($ROOT))
+		{
+		echo '$ROOT is not set globally!';
+		exit;
+		}
+NSLog("_POST:");
+NSLog($_POST);
+	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
+	$mainBundle=NSBundle::mainBundle();
+	$pclass=$mainBundle->principalClass();
+	if(!$pclass)
+		{
+_NSLog("bundle has no principal class");
+/*
+		_NSLog($mainBundle);
+		exit;
+*/
+		$pclass="NSApplication";	// default
+		}
+	$NSApp=new $pclass($name);
+	$loaded=false;
+	$nibname=$mainBundle->objectForInfoDictionaryKey("NSMainNibFile");
+	if($nibname)
+		{
+		$nib=new NSNib();
+		$nib=$nib->initWithNibAndBundle($nibname, $mainBundle);
+		if(!is_null($nib))
+			{
+			$nib->instantiateNibWithExternalNameTable(array("NSOwner" => $NSApp));	// load nib with NSApp object as NSOwner
+			$loaded=true;
+			}
+		}
+	if(!$loaded)
+		{ // define default (there is no awakeFromNib!)
+// _NSLog("no PNIB");
+// exit;
+		$NSApp->setDelegate(new AppController());	// assume that a class AppController exists
+		}
+	$delegate=$NSApp->delegate();
+	if(is_object($delegate) && $delegate->respondsToSelector("didFinishLoading"))
+		$delegate->didFinishLoading();
+// _NSLog($NSApp);
+	$NSApp->run();
 }
 
 // EOF
