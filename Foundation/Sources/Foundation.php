@@ -154,6 +154,7 @@ class NSObject /* root class */
 
 	public function description()
 		{ // simple description is class name
+		return print_r($this, true);	// show in readable form
 		return $this->classString();
 		}
 
@@ -799,7 +800,7 @@ class NSFileManager extends NSObject
 	public function contentsOfDirectoryAtPath($path)
 		{ // return directory contents as array
 //			NSLog("contentsOfDirectoryAtPath($path)";
-		$dir=opendir($this->fileSystemRepresentationWithPath($path));
+		$dir=@opendir($this->fileSystemRepresentationWithPath($path));
 		if(!$dir)
 			return NULL;
 		$files=array();
