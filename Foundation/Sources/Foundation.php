@@ -154,7 +154,6 @@ class NSObject /* root class */
 
 	public function description()
 		{ // simple description is class name
-		return print_r($this, true);	// show in readable form
 		return $this->classString();
 		}
 
