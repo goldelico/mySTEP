@@ -1075,9 +1075,10 @@ class NSImageView extends NSControl
 
 class NSCollectionView extends NSControl
 {
-	protected $colums=1;
+	protected $columns=1;
 	protected $border=0;
 	protected $width="100%";
+// control alignment of elements, e.g. left, centered, right
 	public function content() { return $this->subviews(); }
 	public function setContent($items)
 		{
@@ -1096,7 +1097,7 @@ class NSCollectionView extends NSControl
 // allow to define colspan and rowspan objects
 // allow to modify alignment
 
-	public function __construct($cols=1, $objects=null)
+	public function __construct($cols=0, $objects=null)
 		{
 		parent::__construct();
 		$this->columns=$cols;
@@ -1110,15 +1111,30 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		{
 		if($this->hidden)
 			return;
-		html("<table");
-		parameter("class", "NSCollectionView");
-		parameter("id", $this->elementId);
-		parameter("border", $this->border);
-		parameter("width", $this->width);
-		html(">\n");
+		if($this->columns > 0)
+			{
+			html("<table");
+			parameter("class", "NSCollectionView");
+			parameter("id", $this->elementId);
+			parameter("border", $this->border);
+			parameter("width", $this->width);
+			html(">\n");
+			}
 		$col=1;
 		foreach($this->subviews as $item)
 			{
+			if($this->columns == 0)
+				{
+				html("<span");
+				parameter("class", "NSCollectionView");
+				parameter("id", $this->elementId);
+				parameter("column", $col++);
+				parameter("style", "display: inline-block");
+				html(">\n");
+				$item->display();
+				html("</span>");
+				continue;
+				}
 			if($col == 1)
 				html("<tr>");
 			html("<td");
@@ -1133,6 +1149,8 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				$col=1;
 				}
 			}
+		if($this->columns == 0)
+			return;
 		if($col > 1)
 			{ // handle missing colums
 				html("</tr>\n");
