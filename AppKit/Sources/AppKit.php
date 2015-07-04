@@ -191,7 +191,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 				return $url;
 				}
 			}
-// _NSLog("can't publish $path");
+_NSLog("can't publish $path");
 		return null;
 		}
 	
@@ -240,8 +240,6 @@ class NSResponder extends NSObject
 
 class NSApplication extends NSResponder
 {
-	// FIXME: part of this belongs to NSWorkspace!?!
-	protected $argv;	// arguments (?)
 	protected $delegate;
 	protected $mainWindow;
 	protected $mainMenu;
@@ -266,11 +264,6 @@ class NSApplication extends NSResponder
 		$this->queuedEvent=$event;
 		}
 
-	public function openSettings(NSResponder $sender)
-	{
-		$this->open("settings.app");
-	}
-	
 	public function __construct()
 		{
 		global $NSApp;
@@ -288,10 +281,12 @@ class NSApplication extends NSResponder
 		{
 // _NSLog("NSApplication awakeFromNib");
 
-		$this->mainMenu=new NSMenuView(true);	// create horizontal menu bar
+		if($this->mainMenu)
+			return;	// already loaded
 		
-		// we should either load or extend that
+		// we should load the menu from the NIB as well!
 
+		$this->mainMenu=new NSMenuView(true);	// create horizontal menu bar
 		$item=new NSMenuItemView("System");
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
@@ -301,10 +296,11 @@ class NSApplication extends NSResponder
 		$submenu->addMenuItemSeparator();
 		// make this switch between Login... // Logout...
 		$ud=NSUserDefaults::standardUserDefaults();
-		if(isset($ud))
-			$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $this);
-		else
+		$user=$ud->objectForKey('login_user');
+		if(is_null($user))
 			$submenu->addMenuItemWithTitleAndAction("Login...", "login", $this);
+		else
+			$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $this);
 
 		$appname=NSBundle::mainBundle()->objectForInfoDictionaryKey("CFBundleName");
 		$item=new NSMenuItemView($appname);
@@ -347,27 +343,6 @@ class NSApplication extends NSResponder
 		$submenu->addMenuItemWithTitleAndAction("Help", "help", $this);
 		}
 
-	public function open($app, $args=array())
-		{ // switch to a different app
-		$bundle=NSWorkspace::fullPathForApplication($app);
-		if(!is_null($bundle))
-			{
-			NSLog("open: ".$bundle->description());
-// ask $bundle->executablePath;
-			$executablePath=NSHTMLGraphicsContext::currentContext()->externalURLForPath($bundle->executablePath());
-//			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
-			$delim='?';
-			foreach($args as $key => $value)
-				{ // append arguments - if specified
-				$executablePath.=$delim.rawurlencode($key)."=".rawurlencode($value);
-				$delim='&';
-				}
-// how can we pass arbitrary parameters to their NSApplication $argv???
-			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
-			exit;
-			}
-		NSLog("$app not found");
-		}
 	public function terminate()
 		{
 // FIXME:
@@ -1911,6 +1886,9 @@ class NSWorkspace extends NSObject
 		}
 	public function fullPathForApplication($name)
 		{
+// FIXME: should work with or w/o .app suffix!
+		if(substr($name, 0, 1) == "/")
+			return $name;	// already a full path
 		NSWorkspace::knownApplications();	// update list
 // _NSLog("fullPathForApplication: $name)";
 		if(isset(self::$knownApplications[$name]))
@@ -1952,16 +1930,72 @@ _NSLog($exts);
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
-		$pi=pathinfo($file);
-		if(!isset($pi['extension']))
-			$ext="";
-		else
-			$ext=$pi['extension'];
-		if(!isset(self::$knownSuffixes[$ext]))
-			return false;	// unknown suffix
-		$app=self::$knownSuffixes[$ext];
-		// somehow launch $app
-		return true;
+		return $this->openFileWithApplication($file);
+		}
+	public function openFileWithApplication($file, $app=null)
+		{
+// _NSLog("openFile $file with $app");
+		if(is_null($file))
+			{
+			$file=$app;
+			$app=null;
+			}
+		else if(is_null($app))
+			{ // search by file suffix
+			$pi=pathinfo($file);
+			if(!isset($pi['extension']))
+				$ext="";
+			else
+				$ext=$pi['extension'];
+// _NSLog("launch by extension '$ext'");
+			if($ext == "app")
+				return $this->openApplicationWithArguments($file);	// $file is the app
+			if(!isset(self::$knownSuffixes[$ext]))
+				{
+// _NSLog("unknown extension '$ext'");
+				return false;	// unknown suffix
+				}
+			$app=self::$knownSuffixes[$ext]['NSApplicationPath'];
+			}
+		return $this->openApplicationWithArguments($app, array($file));
+		}
+	public function openApplicationWithArguments($app, $args=array())
+		{ // switch to a different app
+		$bundle=NSBundle::bundleWithPath($this->fullPathForApplication($app));
+// _NSLog($bundle);
+		if(!is_null($bundle))
+			{
+/*
+   redirect browser to the URL of the application
+   i.e. map local bundle path to external URL
+   problem: this might even be a different domain!
+   where do we get the base URL from?
+   do we allow to specify the URL in the Info.plist?
+   No - because the mapping of external domains to the file hierarchy is deployment specific
+      unless we run everything from a single domain (then we can just use a relative URL)
+   So we must somehow have a database for this mapping
+*/
+
+// _NSLog("open: ".$bundle->description());
+			$exec=$bundle->executablePath();
+// _NSLog("open: ".$exec);
+		//	$url=NSHTMLGraphicsContext::currentContext()->externalURLForPath($exec);
+			$url=$exec;
+			$delim='?';
+			foreach($args as $key => $value)
+				{ // append arguments - if specified
+				$url.=$delim.rawurlencode($key)."=".rawurlencode($value);
+				$delim='&';
+				}
+// _NSLog("new URL: $url");
+			header("location: ".$url);	// how to handle special characters here? rawurlencode?
+			exit;
+			}
+		NSLog("$app not found");
+		}
+	public function openSettings(NSResponder $sender)
+		{
+		$this->openFile("/System/Library/CoreServices/Settings.app");
 		}
 	public function isFilePackageAtPath($path)
 		{
