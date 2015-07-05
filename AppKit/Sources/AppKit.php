@@ -1741,6 +1741,12 @@ class NSWindow extends NSResponder
 		parameter("name", "generator");
 		parameter("content", "mySTEP.php");
 		html(">\n");
+
+		html("<meta");
+		parameter("name", "viewport");
+		parameter("width", "width=device-width");	// iOS specific setup
+		html(">\n");
+
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
 		if(isset($r))
 			{
@@ -1918,13 +1924,19 @@ class NSWorkspace extends NSObject
 	public function iconForFile($path)
 		{ // find the NSImage that represents the given file -- FIXME: incomplete
 		if($this->isFilePackageAtPath($path))
-			{
+			{ // path represents a bundle
 			$bundle=NSBundle::bundleWithPath($path);
 			$icon=$bundle->objectForInfoDictionaryKey('CFBundleIconFile');
 //_NSLog("$icon for $path");
 			if(is_null($icon))
 				return NSImage::imageNamed("NSApplication");	// entry wasn't found
 			$file=$bundle->pathForResourceOfType($icon, "");
+			if(is_null($file))
+				$file=$bundle->pathForResourceOfType($icon, "png");
+			if(is_null($file))
+				$file=$bundle->pathForResourceOfType($icon, "jpg");
+			if(is_null($file))
+				$file=$bundle->pathForResourceOfType($icon, "gif");
 // _NSLog($file);
 			if(is_null($file))
 				return NSImage::imageNamed("NSApplication");	// file wasn't found
