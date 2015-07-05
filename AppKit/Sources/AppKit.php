@@ -1744,7 +1744,7 @@ class NSWindow extends NSResponder
 
 		html("<meta");
 		parameter("name", "viewport");
-		parameter("width", "width=device-width");	// iOS specific setup
+		parameter("content", "width=device-width");	// iOS specific setup
 		html(">\n");
 
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
