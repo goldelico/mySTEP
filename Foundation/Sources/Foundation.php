@@ -427,7 +427,7 @@ class NSBundle extends NSObject
 				$plistPath=$this->_contentsPath();
 // _NSLog("contents $plistPath");
 				if(is_null($plistPath)) return null;	// there are no contents
-				$plistPath.="/Info.plist";
+				$plistPath.="Info.plist";
 				// can there be a localized Info.plist???
 // _NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
@@ -439,12 +439,12 @@ class NSBundle extends NSObject
 		$executable=$this->objectForInfoDictionaryKey('CFBundleExecutable');
 		if(is_null($executable)) return null;
 		$fm=NSFileManager::defaultManager();
-		$executable=$this->_contentsPath()."/php/".$executable.".php";
+		$executable=$this->_contentsPath()."php/".$executable.".php";
 		if(!$fm->fileExistsAtPath($executable)) return null;	// there is no executable
 		return $executable;
 		}
 	public function _contentsPath()
-		{
+		{ // note: already has / suffix!
 		$fm=NSFileManager::defaultManager();
 		$p=$this->path."/Versions/Current/"; if($fm->fileExistsAtPath($p)) return $p;
 		$p=$this->path."/Contents/"; if($fm->fileExistsAtPath($p)) return $p;
