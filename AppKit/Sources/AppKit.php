@@ -1958,6 +1958,43 @@ _NSLog($exts);
 		// else find application by suffix
 		return null;
 		}
+	private function _scanDirectoryForExecutable($real, $symbolic, $exec)
+		{ // scan for executable at the end of a symlink
+_NSLog("try $real for $symbolic");
+		$d=@opendir($real);
+		if($d)
+			{
+			while($sub=readdir($d))
+				{
+				if(substr($sub, 0, 1) == ".")
+					continue;	// skip hidden files and directories
+				if($sub == "bin" || $sub == "gcc" || $sub == "build")
+					continue;	// special cases to prune the search
+				if($sub == "Versions" || $sub == "Resources" || $sub == "Headers")
+					continue;	// skip Frameworks
+				if($sub == "Contents")
+					$sub.="/php";	// go down straight to the php executable
+				$p=realpath($real."/".$sub);	// follow symlinks
+				if(is_dir($p))
+					{ // recursion
+// FIXME: we can check bundles for executablePath
+					$r=$this->_scanDirectoryForExecutable($p, $symbolic."/".$sub, $exec);
+					if($r)
+						{ // found
+						closedir($d);
+						return $r;
+						}
+					continue;
+					}
+				if($p == $exec)
+					{ // file found!
+					return $symbolic."/".$sub;	// return symbolic path
+					}
+				}
+			closedir($d);
+			}
+		return "";	// not found
+		}
 	public function _externalURLForPath($path)
 		{ // translate executable path into external URL
 		/* This depends heavily on the http server setup
@@ -1987,18 +2024,18 @@ _NSLog("find external URL for $exec");
 				if(substr($rule, 0, 1) == '#')
 					continue;	// ignore
 				$info=preg_split('/\s+/', $rule);
-// _NSLog($info);
-				$docroot=realpath($info[1]);
-				_NSLog("try $docroot");
-				if(substr($exec, 0, strlen($docroot)) == $docroot)
+_NSLog($info);
+				$docroot=realpath($info[1]);	// is already a host filesystemRepresentation
+				$path=$this->_scanDirectoryForExecutable($docroot, $info[0], $exec);
+				if($path)
 					{ // found
-					$path=$info[0].substr($exec, strlen($docroot));	// form URL
-// _NSLog("found $path");
+_NSLog("found $path");
+					// strip off last component if we match any index file (assumes that only one index file exists)
 					break;
 					}
 				}
 			}
-		return $path;	// no translation found - will lead to a 404 error
+		return "not found";	// no translation found - will lead to a 404 error
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
