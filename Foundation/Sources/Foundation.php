@@ -716,9 +716,11 @@ class NSFileManager extends NSObject
 			_NSLog("fileSystemRepresentationWithPath: $ROOT is not set");
 			exit;
 			}
+		if(substr($ROOT, -1) != "/")
+			_NSLog("invalid \$ROOT (must end in /): $ROOT");	// must end in /
 		if(substr($path, 0, 1) == '/')
-			return $ROOT.$path;	// absolute path
-		return $path;
+			return substr($ROOT, 0, strlen($ROOT)-1).$path;	// absolute path - but don't duplicate the /
+		return $path;	// relative path
 		}
 	public function stringWithFileSystemRepresentation($path)
 		{
@@ -730,9 +732,9 @@ class NSFileManager extends NSObject
 			}
 		$path=realpath($path);	// canonicalize
 		if(substr($ROOT, -1) != "/")
-			_NSLog("invalid \$ROOT (should end in /): $ROOT");	// must end in /
+			_NSLog("invalid \$ROOT (must end in /): $ROOT");	// must end in /
 		if(substr($path, 0, strlen($ROOT)) == $ROOT)
-			return "/".substr($path, strlen($ROOT));	// strip off $ROOT prefix
+			return substr($path, strlen($ROOT)-1);	// strip off $ROOT prefix but keep /
 		return $path;
 		}
 	public function attributesOfItemAtPath($path)
