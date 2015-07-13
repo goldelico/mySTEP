@@ -2013,7 +2013,7 @@ _NSLog($exts);
 		$fm=NSFileManager::defaultManager();
 		$exec=$fm->fileSystemRepresentationWithPath($path);
 		$rules=$fm->fileSystemRepresentationWithPath("/Library/Preferences/WebServer/".$_SERVER['SERVER_ADDR'].".txt");
-_NSLog("find external URL for $exec");
+// _NSLog("find external URL for $exec");
 // _NSLog($rules);
 		$rules=@file($rules, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		if($rules !== false)
