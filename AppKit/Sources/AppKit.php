@@ -1960,7 +1960,7 @@ _NSLog($exts);
 		}
 	private function _scanDirectoryForExecutable($real, $symbolic, $exec)
 		{ // scan for executable at the end of a symlink
-_NSLog("try $real for $symbolic");
+// _NSLog("try $real for $symbolic");
 		$d=@opendir($real);
 		if($d)
 			{
@@ -1977,7 +1977,6 @@ _NSLog("try $real for $symbolic");
 				$p=realpath($real."/".$sub);	// follow symlinks
 				if(is_dir($p))
 					{ // recursion
-// FIXME: we can check bundles for executablePath
 					$r=$this->_scanDirectoryForExecutable($p, $symbolic."/".$sub, $exec);
 					if($r)
 						{ // found
@@ -2024,12 +2023,12 @@ _NSLog("find external URL for $exec");
 				if(substr($rule, 0, 1) == '#')
 					continue;	// ignore
 				$info=preg_split('/\s+/', $rule);
-_NSLog($info);
+// _NSLog($info);
 				$docroot=realpath($info[1]);	// is already a host filesystemRepresentation
 				$path=$this->_scanDirectoryForExecutable($docroot, $info[0], $exec);
 				if($path)
 					{ // found
-_NSLog("found $path");
+// _NSLog("found $path");
 					// strip off last component if we match any index file (assumes that only one index file exists)
 					break;
 					}
