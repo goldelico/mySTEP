@@ -1958,6 +1958,48 @@ _NSLog($exts);
 		// else find application by suffix
 		return null;
 		}
+	public function _externalURLForPath($path)
+		{ // translate executable path into external URL
+		/* This depends heavily on the http server setup
+		   as well as on symlinks on the file system
+		   Therefore we can't automate it and need a
+		   host specific configuration file.
+		   This file is stored at /Library/Preferences/WebServer/$ip.txt
+		   The file describes the mapping from external URLs to files/directories on this server
+		   including the default index files.
+
+		   Format:
+		   http(s)://thedomain/subpath file-path index-file1 index-file2 ...
+		   # comment
+
+		   The file-path is a fileSystemRepresentation.
+		*/
+		$fm=NSFileManager::defaultManager();
+		$exec=$fm->fileSystemRepresentationWithPath($path);
+		$rules=$fm->fileSystemRepresentationWithPath("/Library/Preferences/WebServer/".$_SERVER['SERVER_ADDR'].".txt");
+_NSLog("find external URL for $exec");
+// _NSLog($rules);
+		$rules=@file($rules, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+		if($rules !== false)
+			{ // did load rules - try to translate
+			foreach($rules as $rule)
+				{
+				if(substr($rule, 0, 1) == '#')
+					continue;	// ignore
+				$info=preg_split('/\s+/', $rule);
+// _NSLog($info);
+				$docroot=realpath($info[1]);
+				_NSLog("try $docroot");
+				if(substr($exec, 0, strlen($docroot)) == $docroot)
+					{ // found
+					$path=$info[0].substr($exec, strlen($docroot));	// form URL
+// _NSLog("found $path");
+					break;
+					}
+				}
+			}
+		return $path;	// no translation found - will lead to a 404 error
+		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
 		return $this->openFileWithApplication($file);
@@ -2009,8 +2051,7 @@ _NSLog($exts);
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
-		//	$url=NSHTMLGraphicsContext::currentContext()->externalURLForPath($exec);
-			$url=$exec;
+			$url=$this->_externalURLForPath($exec);
 			$delim='?';
 			foreach($args as $key => $value)
 				{ // append arguments - if specified
