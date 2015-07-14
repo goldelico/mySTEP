@@ -800,6 +800,7 @@ class NSFileManager extends NSObject
 		}
 	public function contentsOfDirectoryAtPath($path)
 		{ // return directory contents as array
+		// FIXME: use scandir?
 //			NSLog("contentsOfDirectoryAtPath($path)";
 		$dir=@opendir($this->fileSystemRepresentationWithPath($path));
 		if(!$dir)
@@ -811,8 +812,17 @@ class NSFileManager extends NSObject
 		return $r;
 		}
 	public function subpathsAtPath($path)
-		{
-		// read recursive as array
+		{ // read recursively into array
+		$result=array();
+		$files=$this->contentsOfDirectoryAtPath($path);
+		foreach($files as $file)
+			{
+			if($file == "." || $file == "..")
+				continue;	// skip
+			$file=$path."/".$file;
+			// check for directory recursion
+			}
+		return $result;
 		}
 /*
 createDirectoryAtPath:withIntermediateDirectories:attributes:error:
@@ -894,6 +904,16 @@ function htmlstr($string)
 	return $a;
 	}
 
+function NSMakePoint($x, $y)
+	{
+	return array('x'=>$x, 'y'=>$y);
+	}
+
+function NSMakeSize($width, $height)
+	{
+	return array('width'=>$width, 'height'=>$height);
+	}
+
 function NSMakeRect($x, $y, $width, $height)
 	{
 	return array('x'=>$x, 'y'=>$y, 'width'=>$width, 'height'=>$height);
@@ -908,6 +928,8 @@ function NSMaxY($rect) { return $rect['y']+$rect['height']; };
 function NSWidth($rect) { return $rect['width']; };
 function NSHeight($rect) { return $rect['height']; };
 function NSIsEmptyRect($rect) { return $rect['width'] == 0 || $rect['height'] == 0; };
+function NSSize($rect) { return NSMakeSize($rect['width'], $rect['height']); };
+function NSPoint($rect) { return NSMakePoint($rect['x'], $rect['y']); };
 // function NSStringFromRect($rect)
 
 // EOF
