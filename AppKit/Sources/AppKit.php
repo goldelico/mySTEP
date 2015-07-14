@@ -473,6 +473,7 @@ class NSView extends NSResponder
 		}
 	public function frame() { return $this->frame; }
 	public function setFrame($frame) { $this->frame=$frame; }
+	public function setFrameSize($size) { $this->frame['width']=$size['width']; $this->frame['height']=$size['height']; }
 	public function window() { return $this->window; }
 	public function setWindow(NSWindow $window=null)
 		{
@@ -960,7 +961,6 @@ class NSImage extends NSObject
 		{
 		$width=$array['width'];
 		$height=$array['height'];
-		$this->setNeedsDisplay();
 		}
 	public static function imageNamed($name)
 		{
@@ -992,7 +992,7 @@ class NSImage extends NSObject
 			}
 		else
 			parameter("alt", _htmlentities("unnamed image"));
-		parameter("style", "{ width:"._htmlentities($this->width).", height:"._htmlentities($this->height)."}");
+		parameter("style", "width:"._htmlentities($this->width)."px; height:"._htmlentities($this->height)."px;");
 		html(">\n");
 		}
 	public function setName($name)
@@ -1051,6 +1051,7 @@ class NSImage extends NSObject
 class NSImageView extends NSControl
 {
 	protected $image;
+	protected $resize=false;
 	public function __construct()
 		{
 		parent::__construct();
@@ -1065,11 +1066,20 @@ class NSImageView extends NSControl
 // _NSLog($img);
 		$this->setNeedsDisplay();
 		}
+	public function setFrameSize($size)
+		{
+		parent::setFrameSize($size);
+		$this->resize=true;
+		}
 	public function draw()
 		{
 //		NSLog($this->image);
 		if(isset($this->image))
+			{
+			if($this->resize)
+				$this->image->setSize(NSSize($this->frame));
 			$this->image->composite();
+			}
 		}
 }
 
