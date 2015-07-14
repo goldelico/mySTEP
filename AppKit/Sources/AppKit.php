@@ -1958,9 +1958,10 @@ _NSLog($exts);
 		// else find application by suffix
 		return null;
 		}
-	private function _scanDirectoryForExecutable($real, $symbolic, $exec)
+	private function _scanDirectoryForExecutable($real, $symbolic, $exec, $indexes=array())
 		{ // scan for executable at the end of a symlink
-// _NSLog("try $real for $symbolic");
+ // _NSLog("try $real for $symbolic");
+		$r=array();
 		$d=@opendir($real);
 		if($d)
 			{
@@ -1968,31 +1969,45 @@ _NSLog($exts);
 				{
 				if(substr($sub, 0, 1) == ".")
 					continue;	// skip hidden files and directories
-				if($sub == "bin" || $sub == "gcc" || $sub == "build")
-					continue;	// special cases to prune the search
-				if($sub == "Versions" || $sub == "Resources" || $sub == "Headers")
-					continue;	// skip Frameworks
-				if($sub == "Contents")
-					$sub.="/php";	// go down straight to the php executable
-				$p=realpath($real."/".$sub);	// follow symlinks
+				switch($sub)
+					{
+					case "bin":
+					case "gcc":
+					case "build":
+						continue 2;	// special cases to prune the search
+					case "Versions":
+					case "Resources":
+					case "Headers":
+						continue 2;	// skip Frameworks
+// FIXME: we should check if the realpath is still within $ROOT tree
+					case "Network":
+					case "Volumes":
+					case "Sources":
+// what about Users?
+						continue 2;	// skip other area with links
+					case "Contents":
+						$sub.="/php";	// go down straight to the php executable
+						break;
+					}
+				$p=realpath("$real/$sub");	// follow symlinks
 				if(is_dir($p))
 					{ // recursion
-					$r=$this->_scanDirectoryForExecutable($p, $symbolic."/".$sub, $exec);
-					if($r)
-						{ // found
-						closedir($d);
-						return $r;
-						}
+					$r=array_merge($r, $this->_scanDirectoryForExecutable($p, $symbolic."/".$sub, $exec, $indexes));
 					continue;
 					}
+// _NSLog("compare $p = $exec");
 				if($p == $exec)
 					{ // file found!
-					return $symbolic."/".$sub;	// return symbolic path
+// _NSLog("found $symbolic/$sub");
+					if(in_array($sub, $indexes))
+						$r[]="$symbolic";	// index file found
+					else
+						$r[]="$symbolic/$sub";	// full symbolic path
 					}
 				}
 			closedir($d);
 			}
-		return "";	// not found
+		return $r;
 		}
 	public function _externalURLForPath($path)
 		{ // translate executable path into external URL
@@ -2008,7 +2023,7 @@ _NSLog($exts);
 		   http(s)://thedomain/subpath file-path index-file1 index-file2 ...
 		   # comment
 
-		   The file-path is a fileSystemRepresentation.
+		   The file-path is already a fileSystemRepresentation.
 		*/
 		$fm=NSFileManager::defaultManager();
 		$exec=$fm->fileSystemRepresentationWithPath($path);
@@ -2025,12 +2040,19 @@ _NSLog($exts);
 				$info=preg_split('/\s+/', $rule);
 // _NSLog($info);
 				$docroot=realpath($info[1]);	// is already a host filesystemRepresentation
-				$path=$this->_scanDirectoryForExecutable($docroot, $info[0], $exec);
-				if($path)
+				$paths=$this->_scanDirectoryForExecutable($docroot, $info[0], $exec, array_slice($info, 2));
+				if(count($paths) > 0)
 					{ // found
-// _NSLog("found $path");
-					// strip off last component if we match any index file (assumes that only one index file exists)
-					break;
+					$shortest="";
+// _NSLog($paths);
+					foreach($paths as $path)
+						{
+// _NSLog("path: $path");
+						if(!$shortest || strlen($path) < strlen($shortest))
+							$shortest=$path;
+						}
+// _NSLog("shortest: $shortest");
+					return $shortest;
 					}
 				}
 			}
