@@ -950,17 +950,15 @@ class NSImage extends NSObject
 	protected static $images=array();
 	protected $url;
 	protected $name;
-	protected $width=32;
-	protected $height=32;
+	protected $size=0;
 	public function size()
 		{
 		// load and analyse if needed
-		return array('width' => $width, 'height' => $height);
+		return $this->size;
 		}
 	public function setSize($array)
 		{
-		$width=$array['width'];
-		$height=$array['height'];
+		$this->size=$array;
 		}
 	public static function imageNamed($name)
 		{
@@ -992,7 +990,8 @@ class NSImage extends NSObject
 			}
 		else
 			parameter("alt", _htmlentities("unnamed image"));
-		parameter("style", "width:"._htmlentities($this->width)."px; height:"._htmlentities($this->height)."px;");
+		if(NSWidth($this->size) != 0.0)
+			parameter("style", "width:".NSWidth($this->size)."px; height:".NSHeight($this->size)."px;");
 		html(">\n");
 		}
 	public function setName($name)
