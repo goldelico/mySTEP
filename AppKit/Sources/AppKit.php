@@ -407,6 +407,10 @@ _NSLog("sendAction $action to first responder");
 			else
 				header("Content-Type: image/".$pi['extension']);
 // _NSLog($path);
+
+// FIXME: this is too simple and does not work: https://css-tricks.com/snippets/php/intelligent-php-cache-control/
+
+			header("Cache-Control: store,cache,max-age=".(1*3600));	// cache for 1 hour
 			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 			echo $file;	// provide requested contents to browser
 			exit;
