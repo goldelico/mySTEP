@@ -373,6 +373,7 @@ _NSLog("sendAction $action to first responder");
 		{
 		if(isset($_GET['RESOURCE']))
 			{ // serve some resource file
+			$fm=NSFileManager::defaultManager();
 			NSBundle::mainBundle();
 			NSBundle::bundleForClass($this->classString());
 			if(isset($_GET['BUNDLE']))
@@ -389,7 +390,7 @@ _NSLog("sendAction $action to first responder");
 // _NSLog("path: $path\n");
 			$noopen=$noopen || strpos("/".$path."/", "/../") !== FALSE;	// if someone tries ..
 // _NSLog("noopen: $noopen\n");
-			$noopen=$noopen || !NSFileManager::defaultManager()->fileExistsAtPath($path);
+			$noopen=$noopen || !$fm->fileExistsAtPath($path);
 // _NSLog("noopen: $noopen after fileExistsAtPath $path\n");
 			if(!$noopen)
 				{ // check if valid extension
@@ -407,12 +408,18 @@ _NSLog("sendAction $action to first responder");
 			else
 				header("Content-Type: image/".$pi['extension']);
 // _NSLog($path);
-
-// FIXME: this is too simple and does not work: https://css-tricks.com/snippets/php/intelligent-php-cache-control/
-
-			header("Cache-Control: store,cache,max-age=".(1*3600));	// cache for 1 hour
-			$file=file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
-			echo $file;	// provide requested contents to browser
+			$ttl=1*60*60;	// cache for 1 hour
+			// should use $fm->attributesOfItemAtPath($path)
+			$mtime=filemtime($fm->fileSystemRepresentationWithPath($path));
+			header("Expires: ".gmdate("D, d M Y H:i:s", time()+$ttl)." GMT");
+			header("Last-Modified: ".gmdate("D, d M Y H:i:s", $mtime)." GMT");
+			header("Cache-Control: public, max-age=$ttl");
+			// header("Cache-Control: pre-check=$ttl", false);	// IE5...
+			if($_SERVER['REQUEST_METHOD'] == "GET")
+				{ // emit requested contents to browser (otherwise we do not need to read+echo the file)
+				$file=$fm->contentsAtPath($path);
+				echo $file;
+				}
 			exit;
 			}
 		do
