@@ -693,22 +693,27 @@ class NSButton extends NSControl
 		parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		switch($this->buttonType)
 			{
+// if checkbox/radio action is defined -> add onclick handler
 				case "Radio":
 					parameter("type", "radio");
 		// if Radio Button take elementId of parent so that radio buttons are grouped correctly!
 					parameter("name", $this->elementId."-ck");
+					if(!is_null($this->target) && !is_null($this->action))
+						parameter("onclick", "e('".$this->elementId."');s()");
 					break;
 				case "CheckBox":
 					parameter("type", "checkbox");
 					parameter("name", $this->elementId."-ck");
+					if(!is_null($this->target) && !is_null($this->action))
+						parameter("onclick", "e('".$this->elementId."');s()");
 					break;
 				default:
 					parameter("type", "submit");
 					parameter("name", $this->elementId."-ck");
 					parameter("value", _htmlentities($this->title));
-					if(isset($this->altTitle))
-						{ // use CSS or JS to change contents on hover
-						}
+			}
+		if(isset($this->altTitle))
+			{ // use CSS to change contents on hover
 			}
 		if($this->isSelected())
 			parameter("checked", "checked");
