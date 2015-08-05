@@ -223,6 +223,74 @@ function NSStringFromClass($class)
 	return $class;	// is already a string...
 	}
 
+class NSArray extends NSObject
+{
+	protected $array;
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->array=array();
+	}
+
+	public function __destruct()
+	{
+		parent::__destruct();
+	}
+
+	public function indexForObject(NSObject $object)
+	{
+		return array_keys($this->array, $object, false)[0];
+	}
+
+	public function count()
+	{
+		return count($this->array);
+	}
+
+	public function objectAtIndex($index)
+	{
+		$this->array[$index];
+	}
+
+	public function indexForObjectIdenticalTo(NSObject $object)
+	{
+		return array_keys($this->array, $object, true)[0];
+	}
+
+}
+
+class NSMutableArray extends NSArray
+{
+	public function exchangeObjectAtIndexWithObjectAtIndex($i1, $i2)
+	{
+		$temp=$this->array[$i1];
+		$this->array[$i1]=$this->array[$i2];
+		$this->array[$i2]=$temp;
+	}
+
+	public function insertObjectAtIndex(NSObject $object, $index)
+	{
+		array_splice($this->array, $index, 0, array($object));
+	}
+
+	public function addObject(NSObject $object)
+	{
+		$this->array[]=$object;
+	}
+
+	public function lastObject()
+	{
+		return array_pop($this->array);
+	}
+
+	public function removeObjectAtIndex($index)
+	{
+		array_splice($this->array, $index, 1);
+	}
+
+}
+
 class NSInvocation extends NSObject
 	{
 	protected $target;
