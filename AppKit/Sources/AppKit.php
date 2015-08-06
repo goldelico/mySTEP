@@ -964,12 +964,23 @@ class NSComboBox extends NSControl
 class NSImage extends NSObject
 {
 	protected static $images=array();
+	protected $gd;	// GD image (if created)
 	protected $url;
 	protected $name;
 	protected $size=0;
+	public function _gd() { $this->size(); return $this->gd; }
 	public function size()
 		{
-		// load and analyse if needed
+		if(!isset($this->gd))
+			{
+			$c=parse_url($this->url);
+			// FIXME: check for file://
+			$data=NSFileManager::defaultManager()->contentsAtPath($c['path']);
+			$this->gd=imagecreatefromstring($data);
+			if($this->gd === false)
+				_NSLog("can't open ".$this->url);
+			$this->size=NSMakeSize(imagesx($this->gd), imagesy($this->gd));
+			}
 		return $this->size;
 		}
 	public function setSize($array)
@@ -998,7 +1009,14 @@ class NSImage extends NSObject
 		html("<img");
 //		parameter("id", $this->elementId);
 		// FIXME: if we don't know the url but a path -> make a data: URL
-		parameter("src", _htmlentities($this->url));
+		$c=parse_url($this->url);
+		if(isset($c['scheme']) && $c['scheme'] == "file")
+			{ // make external ref to internal file
+			$url=NSHTMLGraphicsContext::currentContext()->externalURLForPath($c['path']);
+			parameter("src", _htmlentities($url));
+			}
+		else
+			parameter("src", _htmlentities($this->url));
 		if(isset($this->name))
 			{
 			parameter("name", _htmlentities($this->name));
@@ -1053,13 +1071,7 @@ class NSImage extends NSObject
 		}
 	public function initByReferencingFile($path)
 		{
-		$url=NSHTMLGraphicsContext::currentContext()->externalURLForPath($path);
-		if(!is_null($url))
-			return $this->initByReferencingURL($url);
-		// FIXME: could try to use data: scheme
-		// or we could simply store the file path so that we can process the image in memory
-		// and create data: only during composite()
-		return null;	// don't know how to reference externally
+		return $this->initByReferencingURL("file://$path");
 		}
 }
 
