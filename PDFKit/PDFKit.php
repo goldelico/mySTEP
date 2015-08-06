@@ -12,6 +12,19 @@ require_once "$ROOT/Internal/Frameworks/EzPDF.framework/Versions/Current/php/cla
 
 if($GLOBALS['debug']) echo "<h1>PDFKit.framework</h1>";
 
+// FIXME: handle Unicode translation
+
+const para="\247";	// paragraph
+const ae="\344";
+const oe="\366";
+const ue="\374";
+const ss="\337";
+const AE="\304";
+const OE="\326";
+const UE="\334";
+// const eur="\200"; // there is no EUR symbol in ISO Latin-1
+const eur="EUR";
+
 class PDFPage extends NSObject
 {
 	private static $ezpdf;
@@ -33,8 +46,8 @@ class PDFPage extends NSObject
 		return $this;
 	}
 
-	function selectFont($fontName, $encoding='', $set=1)
-	{
+	function selectFont($fontName)
+	{ // try to handle UNICODE encoding
 		$b=NSBundle::bundleForClass('Cpdf');	// locate font description file in Ezpdf.framework bundle
 		$fpath=$b->pathForResourceOfType($fontName, "afm");
 		if(is_null($fpath))
@@ -43,7 +56,7 @@ class PDFPage extends NSObject
 			return;
 			}
 		$fpath=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($fpath);	// use internal representation
-		self::$ezpdf->selectFont($fpath, $encoding, $set);
+		self::$ezpdf->selectFont($fpath, array(/*"encoding"=>"StandardEncoding",*/ "differences" => array((eur+0) => "Euro")));
 	}
 
 	function setColor(NSColor $color)
@@ -139,8 +152,11 @@ class PDFPage extends NSObject
 
 	function drawImageInRect(NSImage $image, $rect)
 	{
-		// get image data
-		self::$ezpdf->addJpegImage_common($data, NSMinX($rect), NSMinY($rect), NSWidth($rect), NSHeight($rect), $image->width(), $image->height(), $image->channels());
+		$data=$image->_gd();	// GD reference
+		$size=$image->size();
+		$width=NSWidth($rect);
+		$height=NSHeight($rect);
+		self::$ezpdf->addImage($data, NSMinX($rect), NSMinY($rect), NSWidth($rect), NSHeight($rect), $width, $height);
 	}
 
 	public static function dataRepresentation()
@@ -218,7 +234,6 @@ class PDFDocument extends NSObject
 		$pclass=$this->pageClass();
 		$page=new $pclass;
 		$page=$page->initWithDocument($this);
-// _NSLog($page);
 		$this->insertPageAtIndex($page, $this->pageCount());	// append new page
 	}
 
