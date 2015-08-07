@@ -40,22 +40,33 @@ class PDFPage extends NSObject
 	{ // override to add background for all pages
 		$this->document=$document;
 		if(!isset(self::$ezpdf))
-			self::$ezpdf=new Cpdf($document->pageSize());
+			{
+			$ps=$document->pageSize();
+			self::$ezpdf=new Cpdf(array(NSMinX($ps), NSMinY($ps), NSWidth($ps), NSHeight($ps)));
+			$this->setFont('Helvetica');
+			}
 		else
 			self::$ezpdf->newPage();
 		return $this;
 	}
 
-	function selectFont($fontName)
+	function setFontSize($fontSize=12.0)
+	{
+		$this->fontSize=$fontSize;
+	}
+
+	function setFont($fontName)
 	{ // try to handle UNICODE encoding
 		$b=NSBundle::bundleForClass('Cpdf');	// locate font description file in Ezpdf.framework bundle
-		$fpath=$b->pathForResourceOfType($fontName, "afm");
-		if(is_null($fpath))
+		$fpath=$b->pathForResourceOfType("fonts/$fontName", "afm");
+		if(!$fpath)
 			{
 			_NSLog("can't find font metrics: $fontName");
 			return;
 			}
-		$fpath=NSFileManager::defaultManager()->stringWithFileSystemRepresentation($fpath);	// use internal representation
+// _NSLog("fpath $fpath");
+		$fpath=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($fpath);	// use internal representation
+// _NSLog("fpath $fpath");
 		self::$ezpdf->selectFont($fpath, array(/*"encoding"=>"StandardEncoding",*/ "differences" => array((eur+0) => "Euro")));
 	}
 
@@ -101,11 +112,6 @@ class PDFPage extends NSObject
 		$this->justification=$justification;
 	}
 
-	function setFontSize($fontSize=12.0)
-	{
-		$this->fontSize=$fontSize;
-	}
-
 	function setLineSpacing($lineSpacing=1.1)
 	{
 		$this->lineSpacing=$lineSpacing;
@@ -118,36 +124,40 @@ class PDFPage extends NSObject
 
 	// handle attributed strings to define line spacing, fonts etc.
 
-	function drawTextAtPoint($text, $rect /* , $attributes */)
-	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position
-		// FIXME: can we return still unprinted text if height limit is reached?
-		// can we simply modify the returned rect to show the still available subrect?
+	function drawTextAtPoint($text, &$rect /* , $attributes */)
+	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
+// _NSLog("drawTextAtPoint: $text");
+// _NSLog($rect);
 		$width=NSWidth($rect);
 		$height=NSHeight($rect);
 		if($width <= 0.0) $width=99999999.9;
 		if($height <= 0.0) $height=99999999.9;
 		$lines=explode("\n", $text);
-		$y=NSMinY($point);
+		$py=NSHeight($this->document->pageSize());
+		$x=NSMinX($rect);
+		$ymin=$y=$py-NSMinY($rect);	// flip coordinates: take (0,0) as top left corner of paper
 		for($i=0; $i<count($lines); $i++)
 			{
 			$line=$lines[$i];
 			while(true)
 				{
-				if($y >= NSMinY($point)+$height)
-					{ // no room
+// _NSLog(($y-$this->fontSize)." ".($ymin-$height));
+				if($y-$this->fontSize < $ymin-$height)
+					{ // no room for another line
 					$lines[$i]=$line;	// what is not printed on this line
 					break;
 					}
-				$line=$pdf->addTextWrap(NSMinX($point), $y, $width, $this->fontSize, $line, 0.0);
+// _NSLog("addTextWrap x=$x y=$y w=$width s=$this->fontSize l=$line j=$this->justification a=$this->angle");
+				$line=self::$ezpdf->addTextWrap($x, $y, $width, $this->fontSize, $line, $this->justification, $this->angle);
 				$y -= $this->lineSpacing*$this->fontSize;
-				if(!$line)
-					break;	// done
+				if($line == "")
+					break;	// done with this line
 				}
 			}
 		if(NSHeight($rect) > 0)
 			$rect['height']-=$y-NSMinY($rect);	// reduce by amount we have printed
-		$rect['y']=$y;	// next line
-		return implode("\n", array_slice($lines, $i));	// return what has not been processed
+		$rect['y']=$py-$y;	// where next line can start
+		return implode("\n", array_slice($lines, $i));	// return text that has not been processed
 	}
 
 	function drawImageInRect(NSImage $image, $rect)
@@ -156,7 +166,8 @@ class PDFPage extends NSObject
 		$size=$image->size();
 		$width=NSWidth($rect);
 		$height=NSHeight($rect);
-		self::$ezpdf->addImage($data, NSMinX($rect), NSMinY($rect), NSWidth($rect), NSHeight($rect), $width, $height);
+		$py=NSHeight($this->document->pageSize());
+		self::$ezpdf->addImage($data, NSMinX($rect), $py-NSMinY($rect), NSWidth($rect), NSHeight($rect), $width, $height);
 	}
 
 	public static function dataRepresentation()
@@ -235,6 +246,7 @@ class PDFDocument extends NSObject
 		$page=new $pclass;
 		$page=$page->initWithDocument($this);
 		$this->insertPageAtIndex($page, $this->pageCount());	// append new page
+		return $page;
 	}
 
 	function pageSize()
