@@ -87,6 +87,14 @@ class PDFPage extends NSObject
 		self::$ezpdf->line(NSMinX($start), NSMinY($start), NSMinX($end), NSMinY($end));
 	}
 
+	function strokeRect($rect)
+	{
+		$this->strokeLine(NSMakePoint(NSMinX($rect), NSMinY($rect)), NSMakePoint(NSMaxX($rect), NSMinY($rect)));
+		$this->strokeLine(NSMakePoint(NSMaxX($rect), NSMinY($rect)), NSMakePoint(NSMaxX($rect), NSMaxY($rect)));
+		$this->strokeLine(NSMakePoint(NSMaxX($rect), NSMaxY($rect)), NSMakePoint(NSMinX($rect), NSMaxY($rect)));
+		$this->strokeLine(NSMakePoint(NSMinX($rect), NSMaxY($rect)), NSMakePoint(NSMinX($rect), NSMinY($rect)));
+	}
+
 	function setLineStyle($width=1, $cap='', $join='', $dash='', $phase=0)
 	{
 		self::$ezpdf->setLineStyle($width, $cap, $join, $dash, $phase);
@@ -124,31 +132,36 @@ class PDFPage extends NSObject
 
 	// handle attributed strings to define line spacing, fonts etc.
 
-	function drawTextAtPoint($text, &$rect /* , $attributes */)
+	function drawTextInRect($text, &$rect /* , $attributes */)
 	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
 // _NSLog("drawTextAtPoint: $text");
 // _NSLog($rect);
+	// FIXME: EUR symbol?
+		$text=iconv("UTF-8", "CP1252", $text);
 		$width=NSWidth($rect);
 		$height=NSHeight($rect);
 		if($width <= 0.0) $width=99999999.9;
 		if($height <= 0.0) $height=99999999.9;
+$this->strokeRect($rect);
 		$lines=explode("\n", $text);
 		$py=NSHeight($this->document->pageSize());
 		$x=NSMinX($rect);
-		$ymin=$y=$py-NSMinY($rect);	// flip coordinates: take (0,0) as top left corner of paper
+		$y=NSMaxY($rect);	// start point
+//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
+		$ymin=$y-$height;
 		for($i=0; $i<count($lines); $i++)
 			{
 			$line=$lines[$i];
 			while(true)
 				{
 // _NSLog(($y-$this->fontSize)." ".($ymin-$height));
-				if($y-$this->fontSize < $ymin-$height)
+				if($y-$this->fontSize < $ymin)
 					{ // no room for another line
 					$lines[$i]=$line;	// what is not printed on this line
 					break;
 					}
 // _NSLog("addTextWrap x=$x y=$y w=$width s=$this->fontSize l=$line j=$this->justification a=$this->angle");
-				$line=self::$ezpdf->addTextWrap($x, $y, $width, $this->fontSize, $line, $this->justification, $this->angle);
+				$line=self::$ezpdf->addTextWrap($x, $y-$this->fontSize, $width, $this->fontSize, $line, $this->justification, $this->angle);
 				$y -= $this->lineSpacing*$this->fontSize;
 				if($line == "")
 					break;	// done with this line
@@ -156,7 +169,8 @@ class PDFPage extends NSObject
 			}
 		if(NSHeight($rect) > 0)
 			$rect['height']-=$y-NSMinY($rect);	// reduce by amount we have printed
-		$rect['y']=$py-$y;	// where next line can start
+//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
+		$rect['y']=$y;	// where next line can start
 		return implode("\n", array_slice($lines, $i));	// return text that has not been processed
 	}
 
@@ -165,9 +179,14 @@ class PDFPage extends NSObject
 		$data=$image->_gd();	// GD reference
 		$size=$image->size();
 		$width=NSWidth($rect);
+		if($width <= 0.0) $width=NSWidth($image->size());
 		$height=NSHeight($rect);
-		$py=NSHeight($this->document->pageSize());
-		self::$ezpdf->addImage($data, NSMinX($rect), $py-NSMinY($rect), NSWidth($rect), NSHeight($rect), $width, $height);
+		if($height <= 0.0) $height=NSHeight($image->size());
+		$x=NSMinX($rect);
+		$y=NSMinY($rect);
+//		$py=NSHeight($this->document->pageSize());
+//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
+		self::$ezpdf->addImage($data, $x, $y-$height, $width, $height);
 	}
 
 	public static function dataRepresentation()
