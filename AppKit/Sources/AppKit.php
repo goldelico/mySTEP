@@ -83,10 +83,6 @@ function text($html)
 
 $persist=array();
 
-// FIXME: make this a public function of NSWindow and $persist a local variable of it
-// because it is more or less persisting values through the server in a html-response + browser-reload sequence
-// the problem becomes that $view->_persist can only be called if it is attached to a NSWindow!
-
 function _persist($object, $default, $value=null)
 {
 	global $persist;	// will come back as $_POST[] next time (+ values from <input>)
@@ -890,7 +886,18 @@ class NSPopUpButton extends NSButton
 		{
 		parent::__construct("");
 		$this->menu=array();
-		$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
+		$title=_persist($this->elementId, "");	// read selected item title
+		if($title != "")
+			{
+			global $NSApp;
+			_persist($this->elementId, "", "");	// don't really persist
+// _NSLog($title);
+			$event=new NSEvent($this, 'NSMouseDown');
+			$event->setPosition(array('title' => $title));	// we do not know the index yet!
+			$NSApp->queueEvent($event); // queue a mouseDown event for us so that we can decode later
+			}
+		else
+			$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
 		}
 
 	public function pullsDown() { return $this->pullsDown; }
@@ -911,7 +918,12 @@ class NSPopUpButton extends NSButton
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
 	public function indexOfSelectedItem() { return $this->selectedItemIndex; }
 	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
-	public function selectItemAtIndex($index) { $this->selectedItemIndex=$this->_persist("selectedIndex", $index); $this->setNeedsDisplay(); }
+	public function selectItemAtIndex($index)
+		{
+		$this->selectedItemIndex=$this->_persist("selectedIndex", $index);
+// _NSLog("selectItemAtIndex -> ".$this->selectedItemIndex);
+		$this->setNeedsDisplay();
+		}
 	public function selectItemWithTitle($title) { $this->selectItemAtIndex($this->indexOfItemWithTitle($title)); }
 	public function menu() { return $this->menu; }
 	public function itemArray() { return $this->menu; }
@@ -922,38 +934,46 @@ class NSPopUpButton extends NSButton
 		}
 	public function indexOfItemWithTitle($title)
 		{ // search by title
+// _NSLog("indexOfItemWithTitle($title)");
+//_NSLog("count()=".count($this->menu));
 		for($idx=0; $idx<count($this->menu); $idx++)
+			{
+// _NSLog($this->menu[$idx]." == ".$title);
 			if($this->menu[$idx] == $title)
 				return $idx;
-		return null;
-		}
-
-		public function draw()
-			{
-			NSGraphicsContext::currentContext()->text($this->title);
-			html("<select");
-			parameter("id", $this->elementId);
-			parameter("class", "NSPopUpButton");
-			parameter("name", $this->elementId);
-// FIXME: handle selection
-			parameter("onclick", "e('".$this->elementId."');s()");
-			parameter("size", 1);	// make a popup not a combo-box
-			html(">\n");
-			$index=0;
-			foreach($this->menu as $item)
-				{ // add options
-				html("<option");
-				parameter("class", "NSMenuItem");
-				if($index == $this->selectedItemIndex)
-					parameter("selected", "selected");	// mark menu title as selected
-				html(">");
-				text($item);	// draws the title
-				html("</option>\n");
-				$index++;
-				}
-			html("</select>\n");
 			}
-
+		return -1;
+		}
+	public function mouseDown(NSEvent $event)
+		{
+		$pos=$event->position();
+		$this->selectItemAtIndex($this->indexOfItemWithTitle($pos['title']));
+		$this->sendAction();
+		}
+	public function draw()
+		{
+		NSGraphicsContext::currentContext()->text($this->title);
+		html("<select");
+		parameter("id", $this->elementId);
+		parameter("class", "NSPopUpButton");
+		parameter("name", $this->elementId);
+		parameter("onclick", "s('NSPopUpButton');");
+		parameter("size", 1);	// to make it a popup and not a combo-box
+		html(">\n");
+		$index=0;
+		foreach($this->menu as $item)
+			{ // add options
+			html("<option");
+			parameter("class", "NSMenuItem");
+			if($index == $this->selectedItemIndex)
+				parameter("selected", "selected");	// mark menu title as selected
+			html(">");
+			text($item);	// draws the title
+			html("</option>\n");
+			$index++;
+			}
+		html("</select>\n");
+		}
 	}
 
 class NSComboBox extends NSControl
@@ -967,7 +987,7 @@ class NSImage extends NSObject
 	protected $gd;	// GD image (if created)
 	protected $url;
 	protected $name;
-	protected $size=0;
+	protected $size=null;
 	public function _gd() { $this->size(); return $this->gd; }
 	public function size()
 		{
