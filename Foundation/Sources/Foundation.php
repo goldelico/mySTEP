@@ -798,12 +798,14 @@ class NSFileManager extends NSObject
 			_NSLog("fileSystemRepresentationWithPath: $ROOT is not set");
 			exit;
 			}
-		$path=realpath($path);	// canonicalize
+		$rpath=realpath($path);	// canonicalize
+		if($rpath === false)
+			return $path;	// can't find out
 		if(substr($ROOT, -1) != "/")
 			_NSLog("invalid \$ROOT (must end in /): $ROOT");	// must end in /
-		if(substr($path, 0, strlen($ROOT)) == $ROOT)
-			return substr($path, strlen($ROOT)-1);	// strip off $ROOT prefix but keep /
-		return $path;
+		if(substr($rpath, 0, strlen($ROOT)) == $ROOT)
+			return substr($rpath, strlen($ROOT)-1);	// strip off $ROOT prefix but keep /
+		return $rpath;
 		}
 	public function attributesOfItemAtPath($path)
 		{
