@@ -1638,7 +1638,6 @@ class NSTextField extends NSControl
 			parameter("size", $this->width);
 			if($this->placeholder)
 				parameter("placeholder", $this->placeholder);
-			parameter("size", $this->width);
 			// FIXME: _setName should allow to set a global name, e.g. "username" or "password"
 			parameter("name", $this->name);
 			if($this->type != "password")
@@ -1812,13 +1811,15 @@ class NSWindow extends NSResponder
 				{
 				html("<link");
 				parameter("rel", "stylesheet");
-				parameter("href", $r);
+				parameter("href", htmlentities($r));
 				parameter("type", "text/css");
 				html(">\n");
 				}
 			}
 		// onclick handlers should only be used if necessary since they require JavaScript enabled
-		html("<script>");
+		html("<script");
+		paramter("type", "text/javascript");
+		html(">");
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
 		html("function r(v){document.forms[0].clickedRow.value=v;};");
 		html("function c(v){document.forms[0].clickedColumn.value=v;}");
