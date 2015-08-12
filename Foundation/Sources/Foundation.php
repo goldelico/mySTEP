@@ -615,7 +615,8 @@ class NSUserDefaults extends NSObject
 	if(!isset(self::$standardUserDefaults))
 		{
 		$defaults=new NSUserDefaults();	// create empty defaults
-		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
+		$NSApplicationDomain=NSBundle::mainBundle()->bundleIdentifier();
+//		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
 		$defaults->setVolatileDomainForName($_GET, NSArgumentDomain);
 		$defaults->setVolatileDomainForName(array(), NSRegistrationDomain);
 		$defaults->setSearchList(array(NSArgumentDomain, $NSApplicationDomain, NSGlobalDomain, /* languages, */ NSRegistrationDomain));
@@ -738,7 +739,8 @@ class NSUserDefaults extends NSObject
 
 	public function setObjectForKey($key, $val)
 	{ // write to persistent domain of bundle
-		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
+		$NSApplicationDomain=NSBundle::mainBundle()->bundleIdentifier();
+//		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
 		$r=$this->persistentDomainForName($NSApplicationDomain);
 		$r[$key]=$val;	// change
 		$r=$this->setPersistentDomainForName($r, $NSApplicationDomain);
