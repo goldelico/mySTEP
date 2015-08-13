@@ -372,6 +372,7 @@ _NSLog("sendAction $action to first responder");
 			$fm=NSFileManager::defaultManager();
 			NSBundle::mainBundle();
 			NSBundle::bundleForClass($this->classString());
+// _NSLog($_GET['BUNDLE']);
 			if(isset($_GET['BUNDLE']))
 				$bundle=NSBundle::bundleWithIdentifier($_GET['BUNDLE']);
 			else
@@ -1818,7 +1819,7 @@ class NSWindow extends NSResponder
 			}
 		// onclick handlers should only be used if necessary since they require JavaScript enabled
 		html("<script");
-		paramter("type", "text/javascript");
+		parameter("type", "text/javascript");
 		html(">");
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
 		html("function r(v){document.forms[0].clickedRow.value=v;};");
