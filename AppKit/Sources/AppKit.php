@@ -239,7 +239,7 @@ class NSApplication extends NSResponder
 	protected $delegate;
 	protected $mainWindow;
 	protected $mainMenu;
-	protected $queuedEvent;
+	protected $eventQueue=array();
 
 	public function _url()
 		{ // the URL of the script we are currently running
@@ -255,9 +255,9 @@ class NSApplication extends NSResponder
 	public function setMainMenu(NSMenu $m=null) { $this->mainMenu=$m; }
 
 	public function queueEvent(NSEvent $event)
-		{
-		NSLog("queueEvent: ".$event->description());
-		$this->queuedEvent=$event;
+		{ // there may be multiple mouse-down events (for NSPopUpButton!)
+// _NSLog("queueEvent: ".$event->description());
+		$this->eventQueue[]=$event;
 		}
 
 	public function __construct()
@@ -439,8 +439,8 @@ _NSLog("sendAction $action to first responder");
 				$this->queueEvent($event);
 				}
 			_persist('NSEvent', "", "");	// reset
-			if(isset($this->queuedEvent))
-				$this->mainWindow->sendEvent($this->queuedEvent);
+			foreach($this->eventQueue as $event)
+				$this->mainWindow->sendEvent($event);	// deliver all events
 			$this->mainWindow->display();
 			// could we run an AJAX loop here?
 			} while(false);	// not really a loop in a http response...
@@ -621,7 +621,7 @@ class NSButton extends NSControl
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
-//		NSLog("NSButton $newtitle ".$this->elementId);
+// _NSLog("NSButton $newtitle ".$this->elementId);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		$this->state=$this->_persist("selected", 0);
@@ -629,7 +629,7 @@ class NSButton extends NSControl
 			{
 			global $NSApp;
 			$this->_persist("ck", "", "");	// unset
-			NSLog($this->classString());
+// _NSLog("ck: ".$this->classString());
 			switch($type)
 				{
 				case "CheckBox":
@@ -677,7 +677,7 @@ class NSButton extends NSControl
 	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
-		// NSLog($event);
+		// _NSLog($event);
 		// NSLog($this);
 		// if radio button or checkbox, watch for value
 		$this->sendAction();
