@@ -25,6 +25,10 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
+const NSLeftAlignment="left";
+const NSCenterAlignment="center";
+const NSRightAlignment="right";
+
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
 // these functions should be used internally only!
@@ -481,7 +485,7 @@ class NSView extends NSResponder
 		}
 	public function frame() { return $this->frame; }
 	public function setFrame($frame) { $this->frame=$frame; }
-	public function setFrameSize($size) { $this->frame['width']=$size['width']; $this->frame['height']=$size['height']; }
+	public function setFrameSize($size) { $this->frame['width']=NSWidth($size); $this->frame['height']=NSHeight($size); }
 	public function window() { return $this->window; }
 	public function setWindow(NSWindow $window=null)
 		{
@@ -584,6 +588,7 @@ class NSControl extends NSView
 	protected $action="";	// function name
 	protected $target=null;	// object
 	protected $tag=0;
+	protected $align="";
 	public function __construct()
 		{ // must explicitly call!
 		parent::__construct();
@@ -605,6 +610,8 @@ NSLog($this->description()." sendAction $action");
 		}
 	public function setTag($val) { $this->tag=$val; }
 	public function tag() { return $this; }
+	public function align() { return $this->align; }
+	public function setAlign($align) { $this->align=$align; }
 	}
 
 class NSMatrix extends NSControl
@@ -992,21 +999,35 @@ class NSImage extends NSObject
 	public function _gd() { $this->size(); return $this->gd; }
 	public function size()
 		{
-		if(!isset($this->gd))
-			{
+		if(is_null($this->size) && !isset($this->gd))
+			{ // not explicitly set and not (yet) derived
 			$c=parse_url($this->url);
-			// FIXME: check for file://
-			$data=NSFileManager::defaultManager()->contentsAtPath($c['path']);
-			$this->gd=imagecreatefromstring($data);
-			if($this->gd === false)
-				_NSLog("can't open ".$this->url);
-			$this->size=NSMakeSize(imagesx($this->gd), imagesy($this->gd));
+// _NSLog($c);
+			if($c['scheme'] == "file")
+				{ // FIXME: check for file://
+// _NSLog($c['path']);
+				$data=NSFileManager::defaultManager()->contentsAtPath($c['path']);
+// _NSLog($data);
+				$this->gd=imagecreatefromstring($data);
+				if($this->gd === false)
+					{
+					_NSLog("can't open ".$this->url);
+					$this->size=NSMakeSize(32, 32);
+					}
+				else
+					$this->size=NSMakeSize(imagesx($this->gd), imagesy($this->gd));
+				}
+			else
+				$this->size=NSMakeSize(0, 0);	// unknown
+// _NSLog($this->size);
+
 			}
 		return $this->size;
 		}
-	public function setSize($array)
+	public function setSize($size)
 		{
-		$this->size=$array;
+// _NSLog($size);
+		$this->size=$size;
 		}
 	public static function imageNamed($name)
 		{
@@ -1045,8 +1066,9 @@ class NSImage extends NSObject
 			}
 		else
 			parameter("alt", _htmlentities("unnamed image"));
-		if(NSWidth($this->size) != 0.0)
-			parameter("style", "width:".NSWidth($this->size)."px; height:".NSHeight($this->size)."px;");
+		$size=$this->size();
+		if(NSWidth($size) != 0.0)
+			parameter("style", "width:".NSWidth($size)."px; height:".NSHeight($size)."px;");
 		html(">\n");
 		}
 	public function setName($name)
@@ -1116,11 +1138,14 @@ class NSImageView extends NSControl
 		}
 	public function setFrameSize($size)
 		{
+// _NSLog("setFrameSize($size)");
 		parent::setFrameSize($size);
 		$this->resize=true;
+// _NSLog($this);
 		}
 	public function draw()
 		{
+// _NSLog($this);
 //		NSLog($this->image);
 		if(isset($this->image))
 			{
@@ -1197,6 +1222,8 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				html("<tr>");
 			html("<td");
 			parameter("class", "NSCollectionViewItem");
+			if($this->align)
+				parameter("align", $this->align);
 			html(">\n");
 			$item->display();
 			html("</td>");
