@@ -1031,6 +1031,8 @@ class NSImage extends NSObject
 		}
 	public static function imageNamed($name)
 		{
+		if($name == "NSApplication")	// replace by icon defined in Info.plist
+			$name=NSBundle::mainBundle()->objectForInfoDictionaryKey('CFBundleIconFile');
 		if(isset(self::$images[$name]))
 			return self::$images[$name];	// known
 		$image=new NSImage();	// create
