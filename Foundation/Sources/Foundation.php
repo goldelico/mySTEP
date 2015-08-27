@@ -868,6 +868,7 @@ class NSFileManager extends NSObject
 		}
 	public function contentsAtPath($path)
 		{
+// _NSLog("read ".NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 		return file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 		}
 	public function contentsOfDirectoryAtPath($path)
@@ -991,18 +992,22 @@ function NSMakeRect($x, $y, $width, $height)
 	return array('x'=>$x, 'y'=>$y, 'width'=>$width, 'height'=>$height);
 	}
 
+// can be applied to points, sizes and rects
 function NSMinX($rect) { return $rect['x']; };
 function NSMinY($rect) { return $rect['y']; };
-function NSMidX($rect) { return $rect['x']+0.5*$rect['width']; };
-function NSMidY($rect) { return $rect['y']+0.5*$rect['height']; };
-function NSMaxX($rect) { return $rect['x']+$rect['width']; };
-function NSMaxY($rect) { return $rect['y']+$rect['height']; };
 function NSWidth($rect) { return $rect['width']; };
 function NSHeight($rect) { return $rect['height']; };
-function NSIsEmptyRect($rect) { return $rect['width'] == 0 || $rect['height'] == 0; };
-function NSSize($rect) { return NSMakeSize($rect['width'], $rect['height']); };
-function NSPoint($rect) { return NSMakePoint($rect['x'], $rect['y']); };
-// function NSStringFromRect($rect)
+
+// derived values
+function NSMidX($rect) { return NSMinX($rect)+0.5*NSWidth($rect); };
+function NSMidY($rect) { return NSMinY($rect)+0.5*NSHeight($rect); };
+function NSMaxX($rect) { return NSMinX($rect)+NSWidth($rect); };
+function NSMaxY($rect) { return NSMinY($rect)+NSHeight($rect); };
+function NSIsEmptyRect($rect) { return NSWidth($rect) == 0 || NSHeight($rect) == 0; };
+function NSSize($rect) { return NSMakeSize(NSWidth($rect), NSHeight($rect)); };
+function NSPoint($rect) { return NSMakePoint(NSMinX($rect), NSMinY($rect)); };
+
+// function NSStringFromRect($rect) { return "{ ".NSStringFromPoint($rect).", ".NSStringFromSize($rect)." }"; }
 
 // EOF
 ?>
