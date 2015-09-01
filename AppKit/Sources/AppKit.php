@@ -1476,6 +1476,8 @@ class NSTableView extends NSControl
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
        		parent::__construct();
+		if(!is_array($headers))
+			_NSLog('please specify column headers of new NSTableView($headers) as array()');
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->_persist("selectedRow", -1);
 		$this->columns=array();
