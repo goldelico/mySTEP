@@ -335,6 +335,7 @@
 		EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSSystemDirectories.h; path = Sources/NSSystemDirectories.h; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
+		EE51D7921C0DF3B800D588D6 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions-jessie/x86_64-apple-darwin13.4.0/gcc/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.9.2/include/objc"; sourceTree = "<group>"; };
 		EE59B9BE156247E700754103 /* Foundation.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = Foundation.php; path = Sources/Foundation.php; sourceTree = "<group>"; };
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
 		EE6D869D15222673004F9394 /* NSJSONSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSJSONSerialization.h; path = Sources/NSJSONSerialization.h; sourceTree = "<group>"; };
@@ -352,7 +353,6 @@
 		EE81F9780962EBEC00F9F896 /* NSCompoundPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompoundPredicate.h; path = Sources/NSCompoundPredicate.h; sourceTree = "<group>"; };
 		EE81F9F40962EFD200F9F896 /* NSCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompatibility.h; path = Sources/NSCompatibility.h; sourceTree = "<group>"; };
 		EE81FA1F0962F0EC00F9F896 /* NSDebug.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSDebug.h; path = Sources/NSDebug.h; sourceTree = "<group>"; };
-		EE84E14710DBC2BC00BD95A6 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions/x86_64-apple-darwin10.8.0/gcc/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.6.3/include/objc"; sourceTree = SOURCE_ROOT; };
 		EE8B85B512A2649E00224CBA /* Foundation.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Foundation.qcodeproj; sourceTree = "<group>"; };
 		EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNodeOptions.h; path = Sources/NSXMLNodeOptions.h; sourceTree = "<group>"; };
 		EE8EFA4909605809006CCB63 /* NSPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPredicate.h; path = Sources/NSPredicate.h; sourceTree = "<group>"; };
@@ -520,6 +520,7 @@
 		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
 		EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
+		EED9CA041C0DF431003E0719 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions-wheezy/x86_64-apple-darwin13.4.0/gcc/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.6.3/include/objc"; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -541,7 +542,8 @@
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE8B85B512A2649E00224CBA /* Foundation.qcodeproj */,
-				EE84E14710DBC2BC00BD95A6 /* objc */,
+				EED9CA041C0DF431003E0719 /* objc */,
+				EE51D7921C0DF3B800D588D6 /* objc */,
 				EE59B9C2156247F400754103 /* Web */,
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,

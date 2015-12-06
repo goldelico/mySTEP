@@ -49,10 +49,16 @@
 
 // libobjc interface
 
-// common
-
 #include <objc/objc.h>
+
+// new objc API available since gcc 4.6
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#include <objc/runtime.h>
+// check with #ifdef __GNU_LIBOBJC__
+#else
 #include <objc/objc-api.h>
+#endif
+
 #ifdef __APPLE__
 #undef __OBJC2__	/* avoid problems with objc/Protocol.h on Xcode SDK */
 #endif
@@ -60,7 +66,7 @@
 
 // new types that might appear in the AppKit API of 10.5
 
-#if 0	// 64 bit processor
+#if __LP64__	// 64 bit processor
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
 typedef double CGFloat;
@@ -102,11 +108,13 @@ typedef struct __CGEvent *CGEventRef;
 #ifdef __linux__			
 // those from gcc but not available on MacOS X
 
+#include <objc/thr.h>
+
+#ifndef __NEW_OBJC_API
 #include <objc/encoding.h>
 #include <objc/sarray.h>
-#include <objc/thr.h>
-#include <objc/objc-api.h>
 #include <objc/objc-list.h>
+#endif
 
 // we don't have Obj-C 2.0 GC yet
 
