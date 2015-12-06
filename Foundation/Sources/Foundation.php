@@ -869,7 +869,7 @@ class NSFileManager extends NSObject
 	public function contentsAtPath($path)
 		{
 // _NSLog("read ".NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
-		return file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
+		return @file_get_contents(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path));
 		}
 	public function contentsOfDirectoryAtPath($path)
 		{ // return directory contents as array
