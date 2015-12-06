@@ -84,6 +84,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   build:		build everything (outer level)
 #   build_deb:	called recursively to build for a specific debian architecture
 #   clean:		clears build directory (not for subprojects)
+#   deug:		print all variable
 
 endif
 
@@ -105,7 +106,7 @@ INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote bundle headers
+.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote bundle headers
 
 # configure Embedded System if undefined
 
@@ -142,7 +143,7 @@ TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
-CC := LANG=C $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
+CC := LANG=C $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
@@ -248,8 +249,12 @@ build:	build_subprojects build_doxy build_architectures make_php install_local d
 endif
 	date
 
-clean:	# also clean for subprojects???
+clean:	# also clean recursively for subprojects???
 	rm -rf build
+
+debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
+	$(for v,$(V), \
+	$(warning $v = $($v)))
 
 ### check for debian meta package creation
 ### copy/install $DATA and $FILES
