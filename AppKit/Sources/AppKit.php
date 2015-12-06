@@ -589,10 +589,13 @@ class NSControl extends NSView
 	protected $target=null;	// object
 	protected $tag=0;
 	protected $align="";
+	protected $enabled=true;
 	public function __construct()
 		{ // must explicitly call!
 		parent::__construct();
 		}
+	public function isEnabled() { return $this->enabled; }
+	public function setEnabled($flag) { $this->enabled=$flag; }
 	public function sendAction($action=null, NSObject $target=null)
 		{
 		global $NSApp;
@@ -612,11 +615,6 @@ NSLog($this->description()." sendAction $action");
 	public function tag() { return $this; }
 	public function align() { return $this->align; }
 	public function setAlign($align) { $this->align=$align; }
-	}
-
-class NSMatrix extends NSControl
-	{ // matrix of several buttons - radio buttons are grouped
-	// make click on a radio button tribber our action+target
 	}
 
 class NSButton extends NSControl
@@ -700,10 +698,24 @@ class NSButton extends NSControl
 // if checkbox/radio action is defined -> add onclick handler
 				case "Radio":
 					parameter("type", "radio");
-		// if Radio Button take elementId of parent so that radio buttons are grouped correctly!
-					parameter("name", $this->elementId."-ck");
-					if(!is_null($this->target) && !is_null($this->action))
-						parameter("onclick", "e('".$this->elementId."');s()");
+					$super=$this->superview();
+					if($super->classString() == "NSMatrix")
+						{
+						parameter("name", $super->elementId."-ck");
+						if($super->getRowColumnOfCell($row, $column, $this))
+							{
+							if(is_null($super->action()))
+								parameter("onclick", "e('".$super->elementId."');"."r($row);"."c($column)");	// don't submit
+							else
+								parameter("onclick", "e('".$super->elementId."');"."r($row);"."c($column)".";s()");
+							}
+						}
+					else
+						{ // stand-alone
+						parameter("name", $this->elementId."-ck");
+						if(!is_null($this->target) && !is_null($this->action))
+							parameter("onclick", "e('".$this->elementId."');s()");
+						}
 					break;
 				case "CheckBox":
 					parameter("type", "checkbox");
@@ -1164,6 +1176,7 @@ class NSCollectionView extends NSControl
 	protected $border=0;
 	protected $width="100%";
 // control alignment of elements, e.g. left, centered, right
+
 	public function content() { return $this->subviews(); }
 	public function setContent($items)
 		{
@@ -1245,6 +1258,89 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		html("</table>\n");
 		}
 }
+
+class NSMatrix extends NSControl
+	{ // matrix of several buttons - radio buttons are grouped
+	protected $columns=1;
+	protected $rows=1;
+	protected $border=0;
+	protected $width="100%";
+
+	public function numberOfColumns() { $this->columns; }
+	public function numberOfRows() { $this->rows; }
+	public function setColumns($columns) { $this->columns=0+$columns; $this->setNeedsDisplay(); }
+
+	public function __construct($cols=1)
+		{
+		parent::__construct();
+		$this->columns=$cols;
+		}
+
+	// make click on a radio button trigger our action+target
+	// handle row/column index of cells - for click
+	// handle current selection
+
+	public function getRowColumnOfCell(&$row, &$col, $cell)
+		{
+		$row=1;
+		$col=1;
+		foreach($this->subviews as $item)
+			{
+			if($item == $cell)
+				return true;
+			$col++;
+			if($col > $this->columns)
+				{
+				$row++;
+				$col=1;
+				}
+			}
+		return false;
+		}
+
+	public function display()
+		{
+		if($this->hidden)
+			return;
+		html("<table");
+		parameter("class", "NSMatrixView");
+		parameter("id", $this->elementId);
+		parameter("border", $this->border);
+		parameter("width", $this->width);
+		html(">\n");
+		$this->rows=1;
+		$col=1;
+		foreach($this->subviews as $item)
+			{
+			if($col == 1)
+				html("<tr>");
+			html("<td");
+			parameter("class", "NSMatrixItem");
+			if($this->align)
+				parameter("align", $this->align);
+			html(">\n");
+			// set selected if $col and $row matches
+			// handle radio button behaviour
+			$item->display();
+			html("</td>");
+			$col++;
+			if($col > $this->columns)
+				{
+				html("</tr>\n");
+				$this->rows++;
+				$col=1;
+				}
+			}
+		if($this->columns == 0)
+			return;
+		if($col > 1)
+			{ // handle missing colums
+				html("</tr>\n");
+				$this->rows++;
+			}
+		html("</table>\n");
+		}
+	}
 
 class NSBox extends NSControl
 {
@@ -1960,20 +2056,20 @@ class NSWorkspace extends NSObject
 					$b=NSBundle::bundleWithPath("$dir/$bundle");
 					if(is_null($b->executablePath()))
 						continue;	// no PHP executable
-// should we filter by specific user's permissions defined in the Info.plist?
+					/* control which apps the user may see - could also be handled by more sophisticated file access checks */
 					$privs=$b->objectForInfoDictionaryKey("Privileges");
-					if(!is_null($privs))
-						{ // requires any of some privileges
-						$ok=false;
-						foreach(explode(',', $privs) as $priv)
-							{
-							// check if current user has $priv
-							$ok=true;
-							break;
-							}
-						if(!$ok)
-							continue;	// user does not have sufficient privileges to "see" this bundle
+					if(is_null($privs))
+						$privs=array("root");	// root user required by default
+					$ok=false;
+					foreach(explode(',', $privs) as $priv)
+						{
+						// check if current user has $priv
+						// Hm. this basically requires to "know" the UserManager class and database
+						$ok=true;
+						break;
 						}
+					if(!$ok)
+						continue;	// user does not have sufficient privileges to "see" this bundle
 // _NSLog("is exectutable: $dir/$bundle");
 					$r=array(
 						"NSApplicationName" => $b->objectForInfoDictionaryKey("CFBundleName"),
