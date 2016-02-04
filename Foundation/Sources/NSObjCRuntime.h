@@ -54,6 +54,7 @@
 // new objc API available since gcc 4.6
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #include <objc/runtime.h>
+#define __NEW_OBJC_API
 // check with #ifdef __GNU_LIBOBJC__
 #else
 #include <objc/objc-api.h>
@@ -132,17 +133,17 @@ typedef struct __CGEvent *CGEventRef;
 #include <objc/objc-runtime.h>
 #include <sys/malloc.h>
 
-#define arglist_t marg_list
-#define retval_t void *
+//#define arglist_t marg_list
+//#define retval_t void *
 
 #define objc_malloc(A) malloc(A)
 #define objc_free(A) free(A)
 #define objc_calloc(A, B) calloc((A), (B))
 #define objc_realloc(A, B) realloc((A), (B))
 
-#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
-#define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
-#define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
+//#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
+//#define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
+//#define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
 
 int objc_alignof_type(const char *type);
 int objc_sizeof_type(const char *type);
@@ -168,7 +169,7 @@ const char *objc_skip_typespec (const char *type);
 #define class_get_class_method(CLASS, SELECTOR) (void *)(class_getClassMethod(CLASS, SELECTOR)->method_imp)
 #define class_get_instance_method(CLASS, SELECTOR) (void *)(class_getInstanceMethod(CLASS, SELECTOR)->method_imp)
 #define class_get_meta_class(CLASS) Nil
-#define class_get_super_class(CLASS) Nil
+//#define class_getSuperclass(CLASS) Nil
 #define class_get_instance_size(CLASS) 10
 #define class_get_version(CLASS) 1
 #define class_is_class(CLASS) YES
@@ -178,7 +179,7 @@ const char *objc_skip_typespec (const char *type);
 #define CLS_ISCLASS(PTR) NO
 #define CLS_ISMETA(PTR) NO
 
-#define object_get_class(OBJECT) Nil
+//#define object_get_class(OBJECT) Nil
 #define object_is_instance(OBJECT) YES
 #define object_is_class(OBJECT) NO
 #define object_get_class_name(OBJECT) "class name"
@@ -390,20 +391,20 @@ extern NSString *NSStringFromSelector(SEL aSelector);
 extern NSString *NSStringFromClass(Class aClass);
 extern NSString *NSStringFromProtocol(Protocol *protocol);
 extern const char *NSGetSizeAndAlignment(const char *typePtr,
-										 unsigned int *sizep,
-										 unsigned int *alignp);
+										 NSUInteger *sizep,
+										 NSUInteger *alignp);
 
 extern void NSLog (NSString *format, ...);
 extern void NSLogv(NSString *format, va_list args);
 
-unsigned NSPageSize(void);
-unsigned NSLogPageSize(void);
-unsigned NSRoundDownToMultipleOfPageSize(unsigned bytes);
-unsigned NSRoundUpToMultipleOfPageSize(unsigned bytes);
-unsigned NSRealMemoryAvailable();
-void *NSAllocateMemoryPages(unsigned bytes);
-void NSDeallocateMemoryPages(void *ptr, unsigned bytes);
-void NSCopyMemoryPages(const void *source, void *dest, unsigned bytes);
+// extern unsigned NSPageSize(void);
+// extern unsigned NSLogPageSize(void);
+extern NSUInteger NSRoundDownToMultipleOfPageSize(NSUInteger bytes);
+extern NSUInteger NSRoundUpToMultipleOfPageSize(NSUInteger bytes);
+extern NSUInteger NSRealMemoryAvailable();
+// extern void *NSAllocateMemoryPages(unsigned bytes);
+extern void NSDeallocateMemoryPages(void *ptr, NSUInteger bytes);
+extern void NSCopyMemoryPages(const void *source, void *dest, NSUInteger bytes);
 
 #ifdef DEBUG
 #define NSDebugLog(format, args...)	NSLog(format, args...)
@@ -420,7 +421,7 @@ extern NSRecursiveLock *__NSGlobalLock;
 static INLINE BOOL
 _classIsKindOfClass(Class c, Class aClass)
 {
-	for (;c != Nil; c = class_get_super_class(c))
+	for (;c != Nil; c = class_getSuperclass(c))
 		if (c == aClass)
 			return YES;
 

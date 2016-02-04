@@ -176,7 +176,7 @@ enum {
 }
 
 - (void) encodeArrayOfObjCType:(const char*)type
-						 count:(unsigned int)count
+						 count:(NSUInteger)count
 						 at:(const void*)array
 {
 unsigned i, offset, item_size = objc_sizeof_type(type);
@@ -710,7 +710,7 @@ NSData *data = [NSData dataWithContentsOfFile:path];
 }
 
 - (void) decodeArrayOfObjCType:(const char*)type
-						 count:(unsigned int)count
+						 count:(NSUInteger)count
 						 at:(void*)array
 {
 int i, offset, item_size = objc_sizeof_type(type);
@@ -1061,7 +1061,7 @@ NSString *className = NSMapGet(classAlias, nameInArchive);
     NSMapInsert(classAlias, nameInArchive, trueName);
 }
 
-- (int) versionForClassName:(NSString*)className
+- (NSInteger) versionForClassName:(NSString*)className
 {
     return [(id)NSMapGet(classVersions, className) version];
 }

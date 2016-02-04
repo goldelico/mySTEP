@@ -239,7 +239,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./CoreRFID.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./CoreRFID.qcodeproj";
 		};
 		EEE59D541260DA84001E3A11 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

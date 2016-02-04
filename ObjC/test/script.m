@@ -1,4 +1,4 @@
-#!/usr/share/QuantumSTEP/Developer/bin/objc
+#!/usr/local/QuantumSTEP/Developer/bin/objc
 /*
  * this is an Obj-C script
  * i.e. a source file that can simply be called

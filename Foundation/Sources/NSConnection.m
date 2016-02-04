@@ -132,7 +132,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 static NSHashTable *_allConnections;	// used as a cache
 static id _currentConversation;
 
-static unsigned int _sequence;	// global sequence number
+static NSUInteger _sequence;	// global sequence number
 
 + (NSArray *) allConnections;
 {
@@ -529,7 +529,7 @@ static unsigned int _sequence;	// global sequence number
 {
 	return [NSString stringWithFormat:@"%p:%@\n  recv=%@\n  send=%@\n  root=%@\n  delegate=%@\n  modes=%@\n  runLoops=%@\n  req=%.2lf\n  reply=%.2lf\n  flags:%@%@%@",
 			self,
-			NSStringFromClass(isa),
+			NSStringFromClass(object_getClass(self)),
 			_receivePort,
 			_sendPort,
 			_rootObject,
@@ -823,7 +823,7 @@ static unsigned int _sequence;	// global sequence number
 	[i _log:@"sendInvocation"];	// log incl. stack
 	{
 	NSMethodSignature *sig=[i methodSignature];
-	unsigned int cnt=[sig numberOfArguments];
+	NSUInteger cnt=[sig numberOfArguments];
 	int j;
 	for(j=0; j<cnt; j++)
 		{
@@ -954,7 +954,7 @@ static unsigned int _sequence;	// global sequence number
 { // request received on this connection
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	unsigned int flags;
-	unsigned int seq;
+	NSUInteger seq;
 #if 0
 	NSLog(@"%p: handlePortCoder: %@", self, coder);
 #endif
@@ -977,7 +977,7 @@ static unsigned int _sequence;	// global sequence number
 		case FLAGS_RESPONSE:	// response received
 			_repliesReceived++;
 			NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
-			NSLog(@"%p: response queued %d", self, seq);
+			NSLog(@"%p: response queued %lu", self, (unsigned long)seq);
 			break;
 		default:
 			NSLog(@"%p: unknown flags received: %08x", self, flags);

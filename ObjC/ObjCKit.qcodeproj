@@ -35,5 +35,5 @@ export SOURCES+=" build/ObjCKit.build/Development/ObjCKit.build/DerivedSources/s
 export SOURCES+=" build/ObjCKit.build/Development/ObjCKit.build/DerivedSources/y.tab.m"
 export WRAPPER_EXTENSION="framework"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
+[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/local/QuantumSTEP
 /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION

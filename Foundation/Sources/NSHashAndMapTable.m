@@ -203,7 +203,7 @@ __NSCheckMapTableFull(NSMapTable* table)
 @end
 
 NSHashTable *
-NSCreateHashTable(NSHashTableCallBacks callBacks, unsigned capacity)
+NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity)
 {
 	//	NSHashTable *table = objc_malloc(sizeof(NSHashTable));
 	NSHashTable *table = [[NSHashTable alloc] initWithOptions:0	capacity:capacity];
@@ -313,7 +313,7 @@ NSCompareHashTables(NSHashTable *table1, NSHashTable *table2)
     return YES;;
 }	
 
-unsigned 											// return Number of Items
+NSUInteger 											// return Number of Items
 NSCountHashTable(NSHashTable *table)			{ return table->itemsCount;	}
 
 void *
@@ -721,7 +721,7 @@ NSCompareMapTables(NSMapTable *table1, NSMapTable *table2)
     return YES;
 }
 // Return Number of Items 
-unsigned 
+NSUInteger
 NSCountMapTable(NSMapTable *table)			{ return table->itemsCount; }
 
 BOOL 

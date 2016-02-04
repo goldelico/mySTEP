@@ -206,7 +206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./ScreenSaver.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./ScreenSaver.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

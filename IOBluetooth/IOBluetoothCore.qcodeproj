@@ -37,5 +37,5 @@ export SOURCES+=" OBEXSession.h"
 export SOURCES+=" IOBluetooth-Info.plist"
 export WRAPPER_EXTENSION="framework"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

@@ -23,7 +23,7 @@
 - (void) deserializeObjectAt:(id*)object
 				  ofObjCType:(const char *)type
 					fromData:(NSData*)data
-					atCursor:(unsigned*)cursor;
+					atCursor:(NSUInteger*)cursor;
 - (void) serializeObjectAt:(id*)object
 				ofObjCType:(const char *)type
 				  intoData:(NSMutableData*)data;
@@ -31,22 +31,22 @@
 
 @interface NSData (NSSerialization)
 
-- (unsigned int) deserializeAlignedBytesLengthAtCursor:(unsigned int*)cursor;
+- (NSUInteger) deserializeAlignedBytesLengthAtCursor:(NSUInteger*)cursor;
 - (void) deserializeBytes:(void*)buffer
-				   length:(unsigned int)bytes
-				 atCursor:(unsigned int*)cursor;
+				   length:(NSUInteger)bytes
+				 atCursor:(NSUInteger*)cursor;
 - (void) deserializeDataAt:(void*)data
 				ofObjCType:(const char*)type
-				  atCursor:(unsigned int*)cursor
+				  atCursor:(NSUInteger*)cursor
 				   context:(id <NSObjCTypeSerializationCallBack>)callback;
-- (int) deserializeIntAtCursor:(unsigned int*)cursor;
-- (int) deserializeIntAtIndex:(unsigned int)location;
+- (int) deserializeIntAtCursor:(NSUInteger*)cursor;
+- (int) deserializeIntAtIndex:(NSUInteger)location;
 - (void) deserializeInts:(int*)intBuffer
-				   count:(unsigned int)numInts
-				atCursor:(unsigned int*)cursor;
+				   count:(NSUInteger)numInts
+				atCursor:(NSUInteger*)cursor;
 - (void) deserializeInts:(int*)intBuffer
-				   count:(unsigned int)numInts
-				 atIndex:(unsigned int)index;
+				   count:(NSUInteger)numInts
+				 atIndex:(NSUInteger)index;
 
 @end
 
@@ -54,16 +54,16 @@
 
 /* deprecated in Mac OS X v10.2 */
 
-- (void) serializeAlignedBytesLength:(unsigned int)aLength;
+- (void) serializeAlignedBytesLength:(NSUInteger)aLength;
 - (void) serializeDataAt:(const void*)data
 			  ofObjCType:(const char*)type
 				 context:(id <NSObjCTypeSerializationCallBack>)callback;
 - (void) serializeInt:(int)value;
-- (void) serializeInt:(int)value atIndex:(unsigned int)location;
-- (void) serializeInts:(int*)intBuffer count:(unsigned int)numInts;
+- (void) serializeInt:(int)value atIndex:(NSUInteger)location;
+- (void) serializeInts:(int*)intBuffer count:(NSUInteger)numInts;
 - (void) serializeInts:(int*)intBuffer
-				 count:(unsigned int)numInts
-			   atIndex:(unsigned int)location;
+				 count:(NSUInteger)numInts
+			   atIndex:(NSUInteger)location;
 
 @end
 
@@ -79,13 +79,13 @@
 @interface NSDeserializer : NSObject
 
 + (id) deserializePropertyListFromData:(NSData *) data
-							  atCursor:(unsigned int *) cursor
+							  atCursor:(NSUInteger *) cursor
 							  mutableContainers:(BOOL) flag;
 + (id) deserializePropertyListFromData:(NSData *) data
 					 mutableContainers:(BOOL) flag;
 + (id) deserializePropertyListLazilyFromData:(NSData *) data
-									atCursor:(unsigned *) cursor
-									length:(unsigned) length
+									atCursor:(NSUInteger *) cursor
+									length:(NSUInteger) length
 									mutableContainers:(BOOL) flag;
 @end
 

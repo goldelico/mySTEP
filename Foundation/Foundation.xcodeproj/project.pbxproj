@@ -1154,7 +1154,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0620;
 			};
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "Foundation" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1456,7 +1456,7 @@
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "Foundation-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Library/Frameworks;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = (
@@ -1508,7 +1508,7 @@
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "Foundation-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Library/Frameworks;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = (
@@ -1558,7 +1558,7 @@
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = "Foundation-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Library/Frameworks;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = (

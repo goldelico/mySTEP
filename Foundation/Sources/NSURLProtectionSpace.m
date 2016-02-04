@@ -15,7 +15,7 @@
 - (NSString *) authenticationMethod; { return _authenticationMethod; }
 - (NSString *) host; { return _host; }
 - (BOOL) isProxy; { return _proxyType != nil; }
-- (int) port; { return _port; }
+- (NSInteger) port; { return _port; }
 - (NSString *) protocol; { return _protocol; }
 - (NSString *) proxyType; { return _proxyType; }
 - (NSString *) realm; { return _realm; }
@@ -39,7 +39,7 @@
 }
 
 - (id) initWithProxyHost:(NSString *) host
-					port:(int) port
+					port:(NSInteger) port
 					type:(NSString *) type
 				   realm:(NSString *) realm
 	authenticationMethod:(NSString *) method;

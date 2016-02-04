@@ -1,4 +1,4 @@
-#!/usr/share/QuantumSTEP/Developer/bin/objc
+#!/usr/local/QuantumSTEP/Developer/bin/objc
 /*
  * print hello world!
  */

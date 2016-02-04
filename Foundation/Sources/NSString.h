@@ -221,9 +221,6 @@ extern NSString *NSParseErrorException;
 			  freeWhenDone:(BOOL) flag;
 - (id) initWithCharacters:(const unichar *) chars
 				   length:(NSUInteger) length;
-- (id) initWithCharactersNoCopy:(unichar *) chars
-						 length:(NSUInteger) length
-				   freeWhenDone:(BOOL) flag;
 - (id) initWithContentsOfFile:(NSString *) path;
 - (id) initWithContentsOfFile:(NSString *) path
 					 encoding:(NSStringEncoding) enc

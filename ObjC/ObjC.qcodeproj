@@ -7,5 +7,5 @@ export INSTALL_PATH="/Developer"
 export PRODUCT_NAME="objc"
 export SOURCES="main.m"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 /usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

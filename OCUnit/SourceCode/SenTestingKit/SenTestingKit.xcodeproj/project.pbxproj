@@ -734,7 +734,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./SenTestingKitTest.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./SenTestingKitTest.qcodeproj\n";
 		};
 		EEDB2D1216972E830011D22A /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -748,7 +748,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./SenTestingKit_UnitTests.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./SenTestingKit_UnitTests.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

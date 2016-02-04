@@ -84,9 +84,15 @@ class NSMailDelivery extends NSObject
 			{
 			// extract attachments from $body
 			$msg=$body;
-			// build MIME headers/sections
+			// build additional MIME headers/sections
 
 /*****
+
+NOTE: this is now wrong with latest PHP. Only the first Content-Type: multipart/alternative can be in the headers
+part. Everthing else must be in $body.
+
+I.e. we scan the body for attachments and add them
+
 		//add From: header
 		$headers  = "From: service@$httpdomain\n";
 		$headers .= "Bcc: sales@$httpdomain\n";	// make us always receive a copy...
@@ -151,7 +157,7 @@ class NSMailDelivery extends NSObject
 
 *****/
 			}
-		return mail($headers['To'] , $headers['Subject'], $msg);
+		return mail($headers['To'], $headers['Subject'], $msg);
 	}
 
 }

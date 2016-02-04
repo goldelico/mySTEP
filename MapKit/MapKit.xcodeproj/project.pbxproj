@@ -452,7 +452,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./MapKit.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./MapKit.qcodeproj";
 		};
 		EE92258013617BB00010C76C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -465,7 +465,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./MapKitTest.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./MapKitTest.qcodeproj\n";
 		};
 		EEAA841913688AF9000E2336 /* Copy to Library */ = {
 			isa = PBXShellScriptBuildPhase;

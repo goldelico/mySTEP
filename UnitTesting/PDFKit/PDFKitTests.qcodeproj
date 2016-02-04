@@ -6,7 +6,7 @@ export FRAMEWORKS="SenTestingKit"
 export FRAMEWORKS+=" PDFKit"
 export INSTALL_PATH="/Library/UnitTests"
 export PRODUCT_NAME="PDFKit"
-export ROOT="/usr/share/QuantumSTEP"
+export ROOT="/usr/local/QuantumSTEP"
 export WRAPPER_EXTENSION="octest"
 
 #exit
@@ -36,5 +36,5 @@ export WRAPPER_EXTENSION="octest"
 #export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 /usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

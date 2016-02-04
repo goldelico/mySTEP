@@ -73,7 +73,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) FILES
 #   (*) DATA
 #  download and test (postprocess 2)
-#   () EMBEDDED_ROOT - root on embedded device (default /usr/share/QuantumSTEP)
+#   () EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
 #   * INSTALL_PATH
 #   - INSTALL
 #   (+) DEPLOY
@@ -95,11 +95,11 @@ NOCOMPILE:=true
 endif
 
 ifeq ($(QuantumSTEP),)
-QuantumSTEP:=/usr/share/QuantumSTEP
+QuantumSTEP:=/usr/local/QuantumSTEP
 endif
 
 ifeq ($(EMBEDDED_ROOT),)
-EMBEDDED_ROOT:=/usr/share/QuantumSTEP
+EMBEDDED_ROOT:=/usr/local/QuantumSTEP
 endif
 
 INSTALL:=true

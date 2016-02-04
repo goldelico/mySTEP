@@ -193,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./ImageKit.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./ImageKit.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

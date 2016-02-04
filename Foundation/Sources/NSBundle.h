@@ -58,7 +58,7 @@ enum {
     NSMutableSet *_bundleClasses;				// list of class names (if known)
     NSMutableDictionary *_searchPaths;			// cache
 	NSMutableArray *_localizations;				// cache
-	NSMutableArray *_preferredLocalizations;	// cache
+	NSArray *_preferredLocalizations;	// cache
 	Class _principalClass;
     NSDictionary *_infoDict;
 	unsigned int _bundleType;

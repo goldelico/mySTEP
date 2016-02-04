@@ -506,8 +506,8 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
@@ -532,8 +532,8 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
@@ -556,8 +556,8 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;

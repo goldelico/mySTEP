@@ -193,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./SecurityInterface.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./SecurityInterface.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -55,7 +55,7 @@ static NSString *__charSetPath = @"CharacterSets";
 
 + (id) allocWithZone:(NSZone *) z
 { // Provide a default object for alloc
-	return NSAllocateObject([NSBitmapCharSet self], 0, z);
+	return (id) NSAllocateObject([NSBitmapCharSet self], 0, z);
 }
 
 + (NSCharacterSet *) _bitmapForSet:(NSString *)setname number:(int)number
@@ -341,7 +341,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 + (id) allocWithZone:(NSZone *) z
 { // Provide a default object for allocation
-	return NSAllocateObject([NSMutableBitmapCharSet self], 0, z);
+	return (id) NSAllocateObject([NSMutableBitmapCharSet self], 0, z);
 }
  
 + (NSCharacterSet *) characterSetWithBitmapRepresentation:(NSData *)data

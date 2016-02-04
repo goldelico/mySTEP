@@ -809,8 +809,8 @@ GSGetEncodingName(NSStringEncoding encoding)
 }
 
 const char *NSGetSizeAndAlignment(const char *typePtr,
-								  unsigned int *sizep,
-								  unsigned int *alignp)
+								  NSUInteger *sizep,
+								  NSUInteger *alignp)
 {
 	*sizep=objc_sizeof_type(typePtr);
 	*alignp=objc_aligned_size(typePtr);
@@ -852,13 +852,13 @@ const char *NSGetSizeAndAlignment(const char *typePtr,
 // to avoid repeated calls to
 static unsigned _pageSize = 0;					// getpagesize() system call
 
-unsigned										// Return the number of bytes 
+NSUInteger										// Return the number of bytes
 NSPageSize (void)								// in a memory page.
 {
 	return (!_pageSize) ? (_pageSize = (unsigned) getpagesize()) : _pageSize;
 }
 
-unsigned									
+NSUInteger
 NSLogPageSize (void)							// Return log base 2 of the 
 {												// number of bytes in a memory 
 	unsigned tmp_page_size = NSPageSize();			// page.
@@ -870,22 +870,22 @@ NSLogPageSize (void)							// Return log base 2 of the
 	return log;
 }
 
-unsigned
-NSRoundDownToMultipleOfPageSize (unsigned bytes)
+NSUInteger
+NSRoundDownToMultipleOfPageSize (NSUInteger bytes)
 {												// Round BYTES down to the 
 	unsigned a = NSPageSize();						// nearest multiple of the 
 	// memory page size, and return 
 	return (bytes / a) * a;						// it.
 }
 // Round BYTES up to nearest 
-unsigned										// multiple of the memory page
-NSRoundUpToMultipleOfPageSize (unsigned bytes)	// size, and return it.
+NSUInteger										// multiple of the memory page
+NSRoundUpToMultipleOfPageSize (NSUInteger bytes)	// size, and return it.
 {
 	unsigned a = NSPageSize();
 	return ((bytes % a) ? ((bytes / a + 1) * a) : bytes);
 }
 
-unsigned NSRealMemoryAvailable()
+NSUInteger NSRealMemoryAvailable()
 {
 #ifdef __linux__
 #if __TYPICALLY_SOMETHING_LIKE__
@@ -926,7 +926,7 @@ unsigned NSRealMemoryAvailable()
 #endif
 }
 
-void *NSAllocateMemoryPages (unsigned bytes)
+void *NSAllocateMemoryPages (NSUInteger bytes)
 {
 	void *where;
 #if __mach__
@@ -941,7 +941,7 @@ void *NSAllocateMemoryPages (unsigned bytes)
 #endif
 }
 
-void NSDeallocateMemoryPages (void *ptr, unsigned bytes)
+void NSDeallocateMemoryPages (void *ptr, NSUInteger bytes)
 {
 #if __mach__
 	vm_deallocate (mach_task_self (), ptr, bytes);
@@ -951,7 +951,7 @@ void NSDeallocateMemoryPages (void *ptr, unsigned bytes)
 }
 
 void
-NSCopyMemoryPages (const void *source, void *dest, unsigned bytes)
+NSCopyMemoryPages (const void *source, void *dest, NSUInteger bytes)
 {
 #if __mach__
 	kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);

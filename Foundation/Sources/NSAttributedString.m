@@ -141,12 +141,12 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self, 0, z);
+	return (id) NSAllocateObject(self, 0, z);
 }
 
 + (id) alloc
 {
-	return NSAllocateObject(self, 0, NSDefaultMallocZone());
+	return (id) NSAllocateObject(self, 0, NSDefaultMallocZone());
 }
 
 - (id) initWithAttributedString:(NSAttributedString *) astring;
@@ -273,7 +273,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[super dealloc];
 }
 
-- (unsigned int) length						{ return [_string length]; }
+- (NSUInteger) length						{ return [_string length]; }
 
 - (NSString *) string
 { 
@@ -283,7 +283,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	return _string;
 }
 
-- (NSDictionary *) attributesAtIndex:(unsigned int)index
+- (NSDictionary *) attributesAtIndex:(NSUInteger)index
 					  effectiveRange:(NSRange *)aRange
 {
 	unsigned cnt=[self length];
@@ -293,7 +293,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	return _attributesAtIndexEffectiveRange( index, aRange, cnt, _attributes, _locations, NULL);
 }
 
-- (NSDictionary *) attributesAtIndex:(unsigned int)index 
+- (NSDictionary *) attributesAtIndex:(NSUInteger)index
 			   longestEffectiveRange:(NSRange *)aRange 
 							 inRange:(NSRange)rangeLimit
 {
@@ -330,7 +330,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 }
 
 - (id) attribute:(NSString *)attributeName 
-		 atIndex:(unsigned int)index 
+		 atIndex:(NSUInteger)index
   effectiveRange:(NSRange *)aRange
 {
 	NSDictionary *tmpDictionary;
@@ -347,7 +347,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 }
 
 - (id) attribute:(NSString *)attributeName 
-		 atIndex:(unsigned int)index 
+		 atIndex:(NSUInteger)index
 longestEffectiveRange:(NSRange *)aRange 
 		 inRange:(NSRange)rangeLimit
 {
@@ -792,7 +792,7 @@ longestEffectiveRange:(NSRange *)aRange
 }
 
 - (void) insertAttributedString:(NSAttributedString *)attributedString 
-						atIndex:(unsigned int)index
+						atIndex:(NSUInteger)index
 {
 	[self replaceCharactersInRange:NSMakeRange(index,0) withAttributedString:attributedString];
 }

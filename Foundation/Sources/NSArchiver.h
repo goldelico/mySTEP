@@ -57,9 +57,9 @@ extern NSString * NSInconsistentArchiveException;
 @interface NSUnarchiver : NSCoder
 {
     NSData *rdata;
-    unsigned cursor;
+    NSUInteger cursor;
     IMP readIMP;				// read function of encodingFormat
-    unsigned archiverVersion;	// archiver's version that wrote the data
+    NSUInteger archiverVersion;	// archiver's version that wrote the data
     NSMapTable *objects;		// decoded objects: key -> object
     NSMapTable *classes;		// decoded classes: key -> class info
     NSMapTable *pointers;		// decoded pointers: key -> pointer

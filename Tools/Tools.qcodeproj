@@ -22,5 +22,5 @@ export SOURCES+=" say.qcodeproj"
 export SOURCES+=" scselect.qcodeproj"
 export SOURCES+=" scutil.qcodeproj"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

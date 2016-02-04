@@ -62,5 +62,5 @@ export SOURCES+=" UnitTesting/UnitTests.qcodeproj"
 export SOURCES+=" IOBluetooth/IOBluetoothUI.qcodeproj"
 export SOURCES+=" CoreRFID/RFIDProbe/RFIDProbe.qcodeproj"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

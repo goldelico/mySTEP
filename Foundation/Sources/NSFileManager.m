@@ -792,7 +792,7 @@ static NSFileManager *__fm = nil;
 				virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
 				//			fprintf(stderr, "virtualRoot=%p\n", virtualRoot);
 				if(!virtualRoot)
-					virtualRoot=@"/usr/share/QuantumSTEP";		// default
+					virtualRoot=@"/usr/local/QuantumSTEP";		// default
 #if 0
 				NSLog(@"virtualRoot=%@", virtualRoot);
 #endif

@@ -433,7 +433,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./IOBlueToothCore.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./IOBlueToothCore.qcodeproj";
 		};
 		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -474,7 +474,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./IOBlueToothUI.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./IOBlueToothUI.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -138,7 +138,7 @@ static const float pi = 3.1415926535897932384626433;
 	return new;
 }
 
-- (void) scaleBy:(float)scale
+- (void) scaleBy:(CGFloat)scale
 {
 	if(scale == 1.0)
 		return;	// ignore
@@ -150,7 +150,7 @@ static const float pi = 3.1415926535897932384626433;
 	check();
 }
 
-- (void) scaleXBy:(float)sx yBy:(float)sy
+- (void) scaleXBy:(CGFloat)sx yBy:(CGFloat)sy
 {
 	if(_isIdentity && sx == 1.0)
 		{
@@ -186,7 +186,7 @@ static const float pi = 3.1415926535897932384626433;
 	check();
 }
 
-- (void) translateXBy:(float)deltaX yBy:(float)deltaY
+- (void) translateXBy:(CGFloat)deltaX yBy:(CGFloat)deltaY
 {
 	if(_isIdentity)
 		{
@@ -206,7 +206,7 @@ static const float pi = 3.1415926535897932384626433;
 	check();
 }
 
-- (void) rotateByRadians:(float)angleRad
+- (void) rotateByRadians:(CGFloat)angleRad
 {
 	float newA, newC, newB, newD;
 	float sine, cosine;
@@ -226,7 +226,7 @@ static const float pi = 3.1415926535897932384626433;
 	check();
 }
 
-- (void) rotateByDegrees:(float)angle
+- (void) rotateByDegrees:(CGFloat)angle
 {
 	static const float deg2rad = 3.1415926535897932384626433/180.0;
 	[self rotateByRadians:angle*deg2rad];

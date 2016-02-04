@@ -570,7 +570,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./Tools.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./Tools.qcodeproj\n";
 		};
 		EE144F2F0A14E6C300C93F94 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -583,7 +583,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./open.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./open.qcodeproj\n";
 		};
 		EE196B880D44E89E0074ED1A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -596,7 +596,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./abook.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./abook.qcodeproj\n";
 		};
 		EE1D41C10995026500DDE5E0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -609,7 +609,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./defaults.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./defaults.qcodeproj\n";
 		};
 		EE291C610AD7BD50004A1CA6 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -622,7 +622,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./scutil.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./scutil.qcodeproj\n";
 		};
 		EE2BCBB7114790C1006D06ED /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -635,7 +635,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./PlistBuddy.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./PlistBuddy.qcodeproj\n";
 		};
 		EE3254140A53225D0057B3B1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -648,7 +648,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./scselect.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./scselect.qcodeproj\n";
 		};
 		EE93E7780A239FE8008A5E48 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -661,7 +661,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./plutil.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./plutil.qcodeproj\n";
 		};
 		EE9788950AA70E53007ECDE1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -674,7 +674,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./say.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./say.qcodeproj\n";
 		};
 		EEACC95D0FFFE045007DA855 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -687,7 +687,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./mdo.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./mdo.qcodeproj\n";
 		};
 		EECF948F0F529F75003AF020 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -700,7 +700,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\t# project root\n./ibtool.qcodeproj\n";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\t# project root\n./ibtool.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

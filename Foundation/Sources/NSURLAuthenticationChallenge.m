@@ -31,7 +31,7 @@
 
 - (id) initWithProtectionSpace:(NSURLProtectionSpace *) space
 			proposedCredential:(NSURLCredential *) credential
-		  previousFailureCount:(int) count
+		  previousFailureCount:(NSInteger) count
 			   failureResponse:(NSURLResponse *) response
 						 error:(NSError *) error
 						sender:(id <NSURLAuthenticationChallengeSender>) sender;
@@ -59,7 +59,7 @@
 	[super dealloc];
 }
 
-- (int) previousFailureCount; { return _previousFailureCount; }
+- (NSInteger) previousFailureCount; { return _previousFailureCount; }
 - (NSURLCredential *) proposedCredential; { return _proposedCredential; }
 - (NSURLProtectionSpace *) protectionSpace; { return _protectionSpace; }
 - (id <NSURLAuthenticationChallengeSender>) sender; { return _sender; }

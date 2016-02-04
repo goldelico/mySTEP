@@ -29,7 +29,7 @@
 }
 
 - (void) encodeArrayOfObjCType:(const char*)type
-						 count:(unsigned int)count
+						 count:(NSUInteger)count
 							at:(const void*)array
 {
 	unsigned	i;
@@ -41,7 +41,7 @@
 }
 
 - (void) decodeArrayOfObjCType:(const char*)type
-						 count:(unsigned)count
+						 count:(NSUInteger)count
 							at:(void*)address
 {
 	unsigned	i;
@@ -132,7 +132,7 @@
 
 // #pragma mark core encoding
 
-- (void) encodeBytes:(const void *)address length:(unsigned)numBytes;
+- (void) encodeBytes:(const void *)address length:(NSUInteger)numBytes;
 {
 	// could encode as NSData object
 	SUBCLASS;
@@ -145,7 +145,7 @@
 
 // #pragma mark core decoding
 
-- (void *) decodeBytesWithReturnedLength:(unsigned *)numBytes;
+- (void *) decodeBytesWithReturnedLength:(NSUInteger *)numBytes;
 {
 	// could decode NSData object and extract data
 	SUBCLASS;
@@ -174,7 +174,7 @@
 - (void) encodeFloat:(float) value forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeDouble:(double) value forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeConditionalObject:(id) object forKey:(NSString *) key; { SUBCLASS }
-- (void) encodeBytes:(const unsigned char *) bytes length:(unsigned int) len forKey:(NSString *) key; { SUBCLASS }
+- (void) encodeBytes:(const unsigned char *) bytes length:(NSUInteger) len forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeBool:(BOOL) value forKey:(NSString *) key; { SUBCLASS }
 
 // #pragma mark keyed decoding must be implemented in subclass if available
@@ -189,7 +189,7 @@
 - (int32_t) decodeInt32ForKey:(NSString *) key; { SUBCLASS; return 0; }
 - (float) decodeFloatForKey:(NSString *) key; { SUBCLASS; return 0.0; }
 - (double) decodeDoubleForKey:(NSString *) key; { SUBCLASS; return 0.0; }
-- (const unsigned char *) decodeBytesForKey:(NSString *) key returnedLength:(unsigned *) num; { SUBCLASS; return NULL; }
+- (const unsigned char *) decodeBytesForKey:(NSString *) key returnedLength:(NSUInteger *) num; { SUBCLASS; return NULL; }
 - (BOOL) decodeBoolForKey:(NSString *) key; { SUBCLASS; return NO; }
 - (BOOL) containsValueForKey:(NSString *) key; { SUBCLASS; return NO; }
 

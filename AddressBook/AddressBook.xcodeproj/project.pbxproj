@@ -234,7 +234,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./AddressBook.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./AddressBook.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

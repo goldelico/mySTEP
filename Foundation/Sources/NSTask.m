@@ -492,7 +492,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	if(__childExitCount != 0)	// system() may disturb our counter
 		{
 		NSLog(@"did probably loose %d SIGCHLD notification(s)", __childExitCount);
-		NSLog(@"  tasklist count=%d", [__taskList count]);
+		NSLog(@"  tasklist count=%lu", (unsigned long)[__taskList count]);
 		NSLog(@"  tasklist=%@", __taskList);
 		}
 #endif

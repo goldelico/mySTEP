@@ -5,5 +5,5 @@ export PRODUCT_NAME="plutil"
 export SOURCES="plutil.m"
 
 
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
+[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/local/QuantumSTEP
 /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION

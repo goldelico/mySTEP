@@ -98,7 +98,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	if (tv && tv->pool_cache_count)					// pool is available return it
 		return pop_pool_from_cache (tv);		// instead of alloc'ing a new
 
-	return NSAllocateObject(self, 0, z);
+	return (id) NSAllocateObject(self, 0, z);
 }
 
 + (id) new
@@ -159,7 +159,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 		NSAutoreleasePool *arp = [NSAutoreleasePool new];
 
 		if (anObj)
-			NSLog(@"autorelease called without pool for object (%x) \
+			NSLog(@"autorelease called without pool for object (%@) \
 					of class %s\n", anObj, 
 					[NSStringFromClass([anObj class]) cString]);
 		else

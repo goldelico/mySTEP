@@ -67,7 +67,7 @@ typedef struct
 @interface NSInvocation : NSObject <NSCoding>
 {
 	NSMethodSignature *_sig;
-	arglist_t _argframe;	// stack frame - or local buffer for return value and arguments
+	/* arglist_t */ void * _argframe;	// stack frame - or local buffer for return value and arguments
 	const char *_rettype;	// cached
 	const char *_types;	// cached
 	int _numArgs;	// cached

@@ -194,7 +194,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./RFIDProbe.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./RFIDProbe.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

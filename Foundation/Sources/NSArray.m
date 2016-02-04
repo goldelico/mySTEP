@@ -191,12 +191,12 @@ static Class __stringClass = Nil;
 		[NSException raise:NSInvalidArgumentException 
 					 format:@"arrayWithObject:nil"];
 
-	return [[[self alloc] initWithObjects:&anObject count:1] autorelease];
+	return [[(NSArray *)[self alloc] initWithObjects:&anObject count:1] autorelease];
 }
 
-+ (id) arrayWithObjects:(id*)objects count:(unsigned)count
++ (id) arrayWithObjects:(id*)objects count:(NSUInteger)count
 {
-	return [[[self alloc] initWithObjects: objects count: count] autorelease];
+	return [[(NSArray *)[self alloc] initWithObjects: objects count: count] autorelease];
 }
 
 + (id) arrayWithObjects: firstObject, ...
@@ -217,7 +217,7 @@ int count;
 		k[count++] = obj;
 	va_end(va);
 
-    array = [[self alloc] initWithObjects:k count:count];
+    array = [(NSArray *)[self alloc] initWithObjects:k count:count];
 
     objc_free(k);
 
@@ -292,7 +292,7 @@ int count;
 
 - (id) init { return [self initWithObjects: NULL count: 0]; }
 
-- (id) initWithObjects:(id*)objects count:(unsigned)count
+- (id) initWithObjects:(id*)objects count:(NSUInteger)count
 {
 	if (count > 0)									// designated initializer
 		{
@@ -330,8 +330,8 @@ int count;
 	[super dealloc];
 }
 
-- (unsigned) count					{ return _count; }
-- (unsigned) hash					{ return _count; }	// different size means different
+- (NSUInteger) count					{ return _count; }
+- (NSUInteger) hash					{ return _count; }	// different size means different
 - (id *) _contents					{ return _contents; }
 
 - (id) lastObject
@@ -339,7 +339,7 @@ int count;
 	return (_count == 0) ? nil : _contents[_count-1];
 }
 
-- (id) objectAtIndex:(unsigned)idx
+- (id) objectAtIndex:(NSUInteger)idx
 {
 	if (idx >= _count)
 		{
@@ -348,7 +348,7 @@ int count;
 			return nil;
 #endif
 #if 1	// useful for debugging...
-		NSLog(@"index %u out of bounds (%u) of %@", idx, _count, self);
+		NSLog(@"index %lu out of bounds (%u) of %@", (unsigned long)idx, _count, self);
 #endif
 		[NSException raise:NSRangeException format:@"objectAtIndex: Index out of bounds"];
 		}
@@ -394,9 +394,10 @@ int count;
 
 - (id) copyWithZone:(NSZone *) zone														// NSCopying
 {
-id oldObjects[_count], newObjects[_count], newArray;
-BOOL needCopy = NO;
-unsigned i;
+	id oldObjects[_count], newObjects[_count];
+	NSArray *newArray;
+	BOOL needCopy = NO;
+	NSUInteger i;
 
 	[self getObjects: oldObjects];
 	for (i = 0; i < _count; i++)
@@ -429,7 +430,7 @@ unsigned i;
 
 - (NSArray*) arrayByAddingObject:(id)anObject
 {
-	unsigned c = _count + 1;
+	NSUInteger c = _count + 1;
 	id objects[c];
 
 	[self getObjects: objects];
@@ -440,7 +441,7 @@ unsigned i;
 
 - (NSArray*) arrayByAddingObjectsFromArray:(NSArray*)anotherArray
 {
-	unsigned c = _count + [anotherArray count];
+	NSUInteger c = _count + [anotherArray count];
 	id objects[c];
 
 	[self getObjects: objects];
@@ -461,9 +462,9 @@ unsigned i;
 	memcpy(aBuffer, _contents + r.location, r.length * sizeof(id*));
 }
 
-- (unsigned) indexOfObjectIdenticalTo:(id)anObject
+- (NSUInteger) indexOfObjectIdenticalTo:(id)anObject
 {
-	unsigned i;
+	NSUInteger i;
 
 	for (i = 0; i < _count; i++)
 		if (anObject == _contents[i])
@@ -472,9 +473,9 @@ unsigned i;
 	return NSNotFound;
 }
 
-- (unsigned) indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
+- (NSUInteger) indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
 {
-	unsigned i, e = MIN(NSMaxRange(aRange), _count);
+	NSUInteger i, e = MIN(NSMaxRange(aRange), _count);
 
 	for (i = aRange.location; i < e; i++)
 		if (anObject == _contents[i])
@@ -483,9 +484,9 @@ unsigned i;
 	return NSNotFound;
 }
 
-- (unsigned) indexOfObject:(id)anObject
+- (NSUInteger) indexOfObject:(id)anObject
 {
-	unsigned i;
+	NSUInteger i;
 
 	if (anObject == nil)
 		return NSNotFound;
@@ -511,9 +512,9 @@ unsigned i;
 	return NSNotFound;
 }
 
-- (unsigned) indexOfObject:(id)anObject inRange:(NSRange)aRange
+- (NSUInteger) indexOfObject:(id)anObject inRange:(NSRange)aRange
 {
-	unsigned i, e = MIN(NSMaxRange(aRange), _count);
+	NSUInteger i, e = MIN(NSMaxRange(aRange), _count);
 
 	for (i = aRange.location; i < e; i++)
 		{
@@ -680,7 +681,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 }
 
 - (NSString*) descriptionWithLocale:(id)locale
-							 indent:(unsigned int)level
+							 indent:(NSUInteger)level
 {
 	NSMutableString	*result;
 	unsigned indentSize;
@@ -795,7 +796,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 @implementation NSMutableArray
 
-- (id) initWithCapacity:(unsigned)cap
+- (id) initWithCapacity:(NSUInteger)cap
 {
 	_capacity = (cap == 0) ? 1 : cap;
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
@@ -806,7 +807,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 	return self;
 }
 
-- (id) initWithObjects:(id*)objects count:(unsigned)count
+- (id) initWithObjects:(id*)objects count:(NSUInteger)count
 {										
 	unsigned i;
 	_capacity = (count == 0) ? 1 : count;
@@ -868,7 +869,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 	_contents[_count++] = [anObject retain];
 }
 
-- (void) insertObject:(id)anObject atIndex:(unsigned)idx
+- (void) insertObject:(id)anObject atIndex:(NSUInteger)idx
 {
 	if (!anObject)
 		[NSException raise: NSInvalidArgumentException
@@ -892,7 +893,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 	_contents[idx] = [anObject retain]; 
 }
 
-- (void) replaceObjectAtIndex:(unsigned)idx withObject:(id)anObject
+- (void) replaceObjectAtIndex:(NSUInteger)idx withObject:(id)anObject
 {
 	if (anObject == nil)
 		[NSException raise: NSInvalidArgumentException
@@ -909,7 +910,7 @@ unsigned i = range.location, j;				// beyond end of array then return
     _contents[idx] = anObject;
 }
 
-- (void) exchangeObjectAtIndex:(unsigned) i1 withObjectAtIndex:(unsigned) i2;
+- (void) exchangeObjectAtIndex:(NSUInteger) i1 withObjectAtIndex:(NSUInteger) i2;
 {
 	id tmp;
 	if (i1 >= _count || i2 >= _count)
@@ -956,7 +957,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 		}
 }
 
-- (void) removeObjectAtIndex:(unsigned)idx
+- (void) removeObjectAtIndex:(NSUInteger)idx
 {
 	id o;
 	
@@ -1013,7 +1014,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 @implementation NSMutableArray (NonCore)
 
-+ (id) arrayWithCapacity:(unsigned)numItems
++ (id) arrayWithCapacity:(NSUInteger)numItems
 {
 	return [[[self alloc] initWithCapacity:numItems] autorelease];
 }
@@ -1080,8 +1081,8 @@ unsigned i = range.location, j;				// beyond end of array then return
 	[_contents[_count] release];
 }
 
-- (void) removeObjectsFromIndices:(unsigned *) indices 
-					   numIndices:(unsigned) count
+- (void) removeObjectsFromIndices:(NSUInteger *) indices
+					   numIndices:(NSUInteger) count
 {
 	while (count--)
 		[self removeObjectAtIndex:indices[count]];

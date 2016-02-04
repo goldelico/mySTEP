@@ -225,7 +225,7 @@ static Class _doClass;
 	return _remote == other->_remote;	// same reference
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 { // if the objects are the same they must have the same hash value! - if they are different, some overlap is allowed
 	NSLog(@"hash %p", self);
 	if(_local)
@@ -248,7 +248,7 @@ static Class _doClass;
 - (id) initWithLocal:(id)localObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
 	id remoteObjectId;
-	static unsigned int nextReference=1;	// shared between all connections and unique for this address space
+	static NSUInteger nextReference=1;	// shared between all connections and unique for this address space
 	NSDistantObject *proxy;
 	if(!aConnection || !localObject)
 		{
@@ -280,8 +280,8 @@ static Class _doClass;
 	NSHashInsertKnownAbsent(distantObjects, self);
 	NSMapInsertKnownAbsent(distantObjectsByRef, (void *) _remote, self);
 #if 1
-	NSLog(@"new local proxy (ref=%u) initialized: %@", _remote, self);
-	NSLog(@"distantObjects: %u byRef: %u", NSCountHashTable(distantObjects), NSCountMapTable(distantObjectsByRef));
+	NSLog(@"new local proxy (ref=%@) initialized: %@", _remote, self);
+	NSLog(@"distantObjects: %u byRef: %lu", NSCountHashTable(distantObjects), (unsigned long)NSCountMapTable(distantObjectsByRef));
 #endif
 	
 	// FIXME: life cycle management is still broken
@@ -371,7 +371,7 @@ static Class _doClass;
 				NSLog(@"replace (ref=%u) by connection %@", ref, c);
 #endif
 				[self release];	// release newly allocated object
-				return [c retain];	// refers to the connection object
+				return (id) [c retain];	// refers to the connection object
 				}
 			proxy=NSMapGet(distantObjectsByRef, (void *) _remote);
 #if 1
@@ -609,6 +609,8 @@ static Class _doClass;
 {
 #ifndef __APPLE__
 	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
+#else
+	return NO;
 #endif
 }
 

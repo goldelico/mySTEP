@@ -368,12 +368,12 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 									locale: dictionary] autorelease];
 }
 
-+ (id) dateWithYear:(int)year
-			  month:(unsigned int)month
-			  day:(unsigned int)day
-			  hour:(unsigned int)hour
-			  minute:(unsigned int)minute
-			  second:(unsigned int)second
++ (id) dateWithYear:(NSInteger)year
+			  month:(NSUInteger)month
+			  day:(NSUInteger)day
+			  hour:(NSUInteger)hour
+			  minute:(NSUInteger)minute
+			  second:(NSUInteger)second
 			  timeZone:(NSTimeZone *)aTimeZone
 {
 	return [[[NSCalendarDate alloc] initWithYear: year
@@ -688,12 +688,12 @@ BOOL zoneByAbbreviation = YES;
 	return self;
 }
 
-- (id) initWithYear:(int)year
-			  month:(unsigned int)month
-			  day:(unsigned int)day
-			  hour:(unsigned int)hour
-			  minute:(unsigned int)minute
-			  second:(unsigned int)second
+- (id) initWithYear:(NSInteger)year
+			  month:(NSUInteger)month
+			  day:(NSUInteger)day
+			  hour:(NSUInteger)hour
+			  minute:(NSUInteger)minute
+			  second:(NSUInteger)second
 			  timeZone:(NSTimeZone *)aTimeZone
 {
 int	c, a = [self _absoluteGregorianDay: day month: month year: year];
@@ -780,7 +780,7 @@ NSTimeInterval s;
 	return self;
 }
 
-- (int) dayOfCommonEra
+- (NSInteger) dayOfCommonEra
 {										// Get reference date in terms of days
 double a = (_secondsSinceRef+[time_zone secondsFromGMT]) / 86400.0;
 int r;
@@ -791,7 +791,7 @@ int r;
 	return r;
 }
 
-- (int) dayOfMonth
+- (NSInteger) dayOfMonth
 {
 int m, d, y, a = [self dayOfCommonEra];
 
@@ -800,7 +800,7 @@ int m, d, y, a = [self dayOfCommonEra];
 	return d;
 }
 
-- (int) dayOfWeek
+- (NSInteger) dayOfWeek
 {												// The era started on a sunday.
 int d = [self dayOfCommonEra];					// Did we always have a seven 
 												// day week? Did we lose week 
@@ -811,7 +811,7 @@ int d = [self dayOfCommonEra];					// Did we always have a seven
 	return d;
 }
 
-- (int) dayOfYear
+- (NSInteger) dayOfYear
 {
 int m, d, y, days, i, a = [self dayOfCommonEra];
 
@@ -823,7 +823,7 @@ int m, d, y, days, i, a = [self dayOfCommonEra];
 	return days;
 }
 
-- (int) hourOfDay
+- (NSInteger) hourOfDay
 {
 int h;
 double a, d = [self dayOfCommonEra];
@@ -840,7 +840,7 @@ double a, d = [self dayOfCommonEra];
 	return h;
 }
 
-- (int) minuteOfHour
+- (NSInteger) minuteOfHour
 {
 int h, m;
 double a, b, d = [self dayOfCommonEra];
@@ -858,7 +858,7 @@ double a, b, d = [self dayOfCommonEra];
 	return m;
 }
 
-- (int) monthOfYear
+- (NSInteger) monthOfYear
 {
 int m, d, y, a = [self dayOfCommonEra];
 
@@ -867,7 +867,7 @@ int m, d, y, a = [self dayOfCommonEra];
 	return m;
 }
 
-- (int) secondOfMinute
+- (NSInteger) secondOfMinute
 {
 int h, m, s;
 double a, b, c, d = [self dayOfCommonEra];
@@ -888,7 +888,7 @@ double a, b, c, d = [self dayOfCommonEra];
 	return s;
 }
 
-- (int) yearOfCommonEra
+- (NSInteger) yearOfCommonEra
 {										// Get reference date in terms of days
 int a = (_secondsSinceRef+[time_zone secondsFromGMT]) / 86400;
 int m, d, y;
@@ -1162,12 +1162,12 @@ int m, d, y;
 	time_zone = [aTimeZone _timeZoneDetailForDate: self];
 }
 
-- (NSCalendarDate *) dateByAddingYears:(int)years
-								months:(int)months
-								  days:(int)days
-								 hours:(int)hours
-							   minutes:(int)minutes
-							   seconds:(int)seconds
+- (NSCalendarDate *) dateByAddingYears:(NSInteger)years
+								months:(NSInteger)months
+								  days:(NSInteger)days
+								 hours:(NSInteger)hours
+							   minutes:(NSInteger)minutes
+							   seconds:(NSInteger)seconds
 {
 	int i, year, month, day, hour, minute, second;
 	

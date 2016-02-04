@@ -257,7 +257,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = /usr/share/QuantumSTEP/System/Library/PrivateFrameworks;
+				INSTALL_PATH = /usr/local/QuantumSTEP/System/Library/PrivateFrameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = "-lsqlite3";
 				PRODUCT_NAME = CoreDataBase;
@@ -280,7 +280,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = /usr/share/QuantumSTEP/System/Library/PrivateFrameworks;
+				INSTALL_PATH = /usr/local/QuantumSTEP/System/Library/PrivateFrameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = "-lsqlite3";
 				PRODUCT_NAME = CoreDataBase;

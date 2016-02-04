@@ -427,6 +427,7 @@ enum _INVOCATION_MODE {
 - (struct NSArgumentInfo *) _methodInfo;	// recalculate method info
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 - (unsigned) _getArgumentQualifierAtIndex:(int) index;
+typedef void *arglist_t, *retval_t;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
@@ -449,20 +450,20 @@ enum _INVOCATION_MODE {
 @interface NSInvocation (NSPrivate)
 
 /* interface used to implement forward:: to call forwardInvocation */
-- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame;
-- (retval_t) _returnValue;
+// - (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame;
+// - (retval_t) _returnValue;
 - (void) _releaseArguments;	// used by -dealloc
 - (void) _log:(NSString *) str;
 
 @end
 
 @interface NSObject (NSObjCRuntime)		// special private method called by runtime
-- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;
+// - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;
 @end
 
 @interface NSProxy (NSPrivate)
 + (void) load;
-- (NSString*) descriptionWithLocale:(id)locale indent:(unsigned int)indent;
+- (NSString*) descriptionWithLocale:(id)locale indent:(NSUInteger)indent;
 - (NSString*) descriptionWithLocale:(id)locale;
 - (id) notImplemented:(SEL)aSel;
 @end

@@ -7,5 +7,5 @@ export SOURCES="CoreLocationDaemon.m"
 export SOURCES+=" CoreLocationDaemon-Info.plist"
 export WRAPPER_EXTENSION="app"
 
-[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/share/QuantumSTEP"
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

@@ -393,7 +393,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\t# here we would have to define all -I and -D\nPREPROCESS=\"cc -E -P\"\t# this variant applies the default definitions and search paths of gcc\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc -c\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
+			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\t# here we would have to define all -I and -D\nPREPROCESS=\"cc -E -P\"\t# this variant applies the default definitions and search paths of gcc\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc -c\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/local/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
 		};
 		EE8B94D8153DC9D0009770D4 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -575,7 +575,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -597,7 +597,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -618,7 +618,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Developer/bin;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,

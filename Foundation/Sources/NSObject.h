@@ -127,7 +127,7 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 #ifdef __linux__
 	if (CLS_ISCLASS (aClass))
 		{
-		unsigned size = aClass->instance_size + sizeof(struct _object_layout);
+		unsigned size = class_getInstanceSize(aClass)+extra;
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
 #if 1	// if we trace object allocation
@@ -173,18 +173,19 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 #endif
 }
 
-static inline NSObject *NSCopyObject(NSObject *obj, unsigned int extraBytes, NSZone *zone)
+static inline NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
 {
 	id newobject=nil;
 #ifdef __linux__
-	int size = ((id)obj)->class_pointer->instance_size + sizeof(struct _object_layout) + extraBytes;
+	unsigned size = class_getInstanceSize(object_getClass(obj))+extraBytes;
 	if ((newobject = NSZoneMalloc(zone, size)) != nil)
 		{
+#warning check me!
 		newobject = (id)&((_object_layout)newobject)[1];
 		newobject->class_pointer = ((id)obj)->class_pointer;	// same as original
-		}
 	// fprintf(stderr, "%08x [%s copyObject:%d]\n", new, aClass->name, size);
-	memcpy(newobject, obj, ((id)obj)->class_pointer->instance_size);
+		memcpy(newobject, obj, size);
+		}
 #endif
 	return newobject;
 }

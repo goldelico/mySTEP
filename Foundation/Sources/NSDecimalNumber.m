@@ -639,13 +639,13 @@ static NSDecimalNumber *one;
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
-- (NSDecimalNumber*) decimalNumberByRaisingToPower: (unsigned)power
+- (NSDecimalNumber*) decimalNumberByRaisingToPower: (NSUInteger)power
 {
 	return [self decimalNumberByRaisingToPower: power 
 								  withBehavior: [[self class] defaultBehavior]];
 }
 
-- (NSDecimalNumber*) decimalNumberByRaisingToPower: (unsigned)power 
+- (NSDecimalNumber*) decimalNumberByRaisingToPower: (NSUInteger)power
 									  withBehavior: (id <NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
@@ -761,7 +761,7 @@ static NSDecimalNumber *one;
 				decimal.validNumber=NO;
 			}
 		[self release];
-		return [[NSDecimalNumber alloc] initWithDecimal:decimal];
+		return (id) [[NSDecimalNumber alloc] initWithDecimal:decimal];
 		}
 	return NIMP;
 }

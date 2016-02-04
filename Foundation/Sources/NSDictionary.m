@@ -145,7 +145,7 @@ id key, value;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(_dictClass, 0, z);
+	return (id) NSAllocateObject(_dictClass, 0, z);
 }
 
 + (id) dictionary
@@ -173,9 +173,9 @@ id key, value;
 
 + (id) dictionaryWithObjects:(id*)objects 
 					 forKeys:(id*)keys 
-					 count:(unsigned int)count;
+					 count:(NSUInteger)count;
 {
-    return [[[self alloc] initWithObjects:objects 
+    return [[[self alloc] initWithObjects:objects
 						  forKeys:keys 
 						  count:count] autorelease];
 }
@@ -371,11 +371,11 @@ id *mkeys, *mobjs;
 
 - (id) initWithObjects:(id*)objects 
 			   forKeys:(id*)keys 
-			   count:(unsigned int)count				{ return SUBCLASS }
+			   count:(NSUInteger)count				{ return SUBCLASS }
 - (NSEnumerator*) keyEnumerator							{ return SUBCLASS }
 - (id) objectForKey:(id)aKey							{ return SUBCLASS }
 
-- (unsigned int) count									{ SUBCLASS return 0; }
+- (NSUInteger) count									{ SUBCLASS return 0; }
 
 - (NSArray*) allKeys
 {
@@ -469,7 +469,7 @@ id keys, key;										// Comparing Dictionaries
 }
 
 - (NSString*) descriptionWithLocale:(id)locale
-							 indent:(unsigned int)indent
+							 indent:(NSUInteger)indent
 {
 	id pool, key, value, keys, kd, vd;
 	NSMutableString *desc;
@@ -584,7 +584,7 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
     return [self isEqualToDictionary:anObject];
 }
 
-- (unsigned) hash					{ return [self count]; }
+- (NSUInteger) hash					{ return [self count]; }
 - (id) copyWithZone:(NSZone *) zone							{ return [self retain]; }
 
 - (id) mutableCopyWithZone:(NSZone *) zone
@@ -656,11 +656,11 @@ id key, value;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self, 0, z);
+	return (id) NSAllocateObject(self, 0, z);
 }
 - (id) init							{ return [self initWithDictionary:nil]; }
 
-- (id) initWithObjects:(id*)objects forKeys:(id*)keys count:(unsigned int)count
+- (id) initWithObjects:(id*)objects forKeys:(id*)keys count:(NSUInteger)count
 {
     table = NSCreateMapTable(NSObjectMapKeyCallBacks,
 							 NSObjectMapValueCallBacks, (count * 4) / 3);
@@ -704,7 +704,7 @@ id key, keys = [dictionary keyEnumerator];
 }
 
 - (id) objectForKey:(id)aKey		{ return (NSObject*)NSMapGet(table,aKey); }
-- (unsigned int) count				{ return NSCountMapTable(table); }
+- (NSUInteger) count				{ return NSCountMapTable(table); }
 - (NSMapEnumerator) _keyEnumerator	{ return NSEnumerateMapTable(table); }
 
 @end /* NSConcreteDictionary */
@@ -722,16 +722,16 @@ id key, keys = [dictionary keyEnumerator];
 #if 0
 	NSLog(@"NSMutableDictionary alloc _mutableDictClass=%@", NSStringFromClass(_mutableDictClass));
 #endif
-	return NSAllocateObject(_mutableDictClass, 0, z);
+	return (id) NSAllocateObject(_mutableDictClass, 0, z);
 }
 
-+ (id) dictionaryWithCapacity:(unsigned int)aNumItems
++ (id) dictionaryWithCapacity:(NSUInteger)aNumItems
 {
     return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
 - (void) addEntriesFromDictionary:(NSDictionary*)otherDictionary; { SUBCLASS; }
-- (id) initWithCapacity:(unsigned int)aNumItems; { return SUBCLASS; }
+- (id) initWithCapacity:(NSUInteger)aNumItems; { return SUBCLASS; }
 - (void) removeAllObjects; { SUBCLASS; }
 - (void) removeObjectForKey:(id)theKey; { SUBCLASS; }
 - (void) removeObjectsForKeys:(NSArray *)keyArray; { SUBCLASS; }

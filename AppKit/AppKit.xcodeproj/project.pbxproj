@@ -2270,7 +2270,7 @@
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				DYLIB_INSTALL_NAME_BASE = /usr/local/QuantumSTEP/System/Library/Frameworks;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2351,7 +2351,7 @@
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				DYLIB_INSTALL_NAME_BASE = /usr/local/QuantumSTEP/System/Library/Frameworks;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
@@ -2429,7 +2429,7 @@
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = /usr/share/QuantumSTEP/System/Library/Frameworks;
+				DYLIB_INSTALL_NAME_BASE = /usr/local/QuantumSTEP/System/Library/Frameworks;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_VERSION = A;
@@ -2498,7 +2498,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
@@ -2526,7 +2526,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
@@ -2551,7 +2551,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = NibTest/Info.cocoa.plist;
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
@@ -2755,8 +2755,8 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = AppKitNibTestX11;
@@ -2791,8 +2791,8 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = AppKitNibTestX11;
@@ -2825,8 +2825,8 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-rpath",
-					/usr/share/QuantumSTEP/System/Library/Frameworks,
-					/usr/share/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
+					/usr/local/QuantumSTEP/System/Library/Frameworks,
+					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = AppKitNibTestX11;
@@ -2853,7 +2853,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
@@ -2878,7 +2878,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";
@@ -2901,7 +2901,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "NibTest/AppKitNibTest-Info.plist";
-				INSTALL_PATH = /usr/share/QuantumSTEP/Applications/Test;
+				INSTALL_PATH = /usr/local/QuantumSTEP/Applications/Test;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "";

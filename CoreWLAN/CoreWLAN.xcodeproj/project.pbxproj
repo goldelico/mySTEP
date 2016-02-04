@@ -225,7 +225,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/share/QuantumSTEP\n./CoreWLAN.qcodeproj";
+			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./CoreWLAN.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

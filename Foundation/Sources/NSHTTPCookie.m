@@ -86,7 +86,7 @@ NSString *NSHTTPCookieVersion=@"Version";
 - (NSArray *) portList; { return [[_properties objectForKey:NSHTTPCookiePort] componentsSeparatedByString:@","]; }
 - (NSDictionary *) properties; { return _properties; }
 - (NSString *) value; { return [_properties objectForKey:NSHTTPCookieValue]; }
-- (unsigned) version; { return [[_properties objectForKey:NSHTTPCookieVersion] unsignedIntValue]; }
+- (NSUInteger) version; { return [[_properties objectForKey:NSHTTPCookieVersion] unsignedIntValue]; }
 
 - (id) initWithProperties:(NSDictionary *) properties;
 {
