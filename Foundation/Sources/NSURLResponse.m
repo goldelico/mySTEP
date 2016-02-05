@@ -35,7 +35,7 @@ static NSDictionary *_mimeExtensions;
 
 - (id) initWithURL:(NSURL *) URL
 		  MIMEType:(NSString *) MIMEType
-	expectedContentLength:(int) length 
+	expectedContentLength:(NSInteger) length
   textEncodingName:(NSString *) name;
 {
 #if 0
@@ -102,7 +102,7 @@ static NSDictionary *_mimeExtensions;
 
 @implementation NSHTTPURLResponse
 
-+ (NSString *) localizedStringForStatusCode:(int) code;
++ (NSString *) localizedStringForStatusCode:(NSInteger) code;
 {
 	return [NSString stringWithFormat:@"Status code %d", code];
 }
@@ -185,7 +185,7 @@ static NSDictionary *_mimeExtensions;
 	return _headerFields;
 }
 
-- (int) statusCode;
+- (NSInteger) statusCode;
 {
 	return _statusCode;
 }

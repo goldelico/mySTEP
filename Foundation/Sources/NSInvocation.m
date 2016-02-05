@@ -119,7 +119,7 @@
 
 // Access message elements.
 
-- (void) getArgument:(void*) buffer atIndex:(int) index
+- (void) getArgument:(void*) buffer atIndex:(NSInteger) index
 {
 #if 0
 	NSLog(@"invocation argument index (%d of %d)", index, _numArgs);
@@ -141,7 +141,7 @@
 #endif		
 }
 
-- (void) setArgument:(void*) buffer atIndex:(int) index
+- (void) setArgument:(void*) buffer atIndex:(NSInteger) index
 {
 #if 0
 	NSLog(@"setArgument: %p atIndex:%d", buffer, index);
@@ -222,6 +222,8 @@
 		{ // still undefined
 			[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke: %@", self];
 		}
+#else
+	imp=NULL;
 #endif
 #if 0
 	NSLog(@"imp = %p", imp);

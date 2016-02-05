@@ -812,7 +812,7 @@ static NSFileManager *__fm = nil;
 }
 
 - (NSString *) stringWithFileSystemRepresentation:(const char*)string
-										   length:(unsigned int)len
+										   length:(NSUInteger)len
 {
 #if __mySTEP__
 	if(len > 0 && string[0] == '/')

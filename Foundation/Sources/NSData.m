@@ -870,30 +870,6 @@ static IMP appendImp;
 	return [[NSDataStatic alloc] initWithBytesNoCopy:bytes length:length]; // static data
 }
 
-- (unsigned char) _deserializeTypeTagAtCursor:(NSUInteger*)cursor
-{
-	unsigned char result;
-
-	[self deserializeDataAt: (void*)&result
-		  ofObjCType: @encode(unsigned char) 
-		  atCursor: cursor
-		  context: nil];
-
-	return result;
-}
-
-- (unsigned) _deserializeCrossRefAtCursor:(NSUInteger*)cursor
-{
-	unsigned result;
-
-	[self deserializeDataAt: (void*)&result
-		  ofObjCType: @encode(unsigned) 
-		  atCursor: cursor
-		  context: nil];
-
-	return result;
-}
-
 - (id) initWithContentsOfFile:(NSString *)path options:(NSUInteger)mask error:(NSError **)errorPtr;
 {
 	return [self initWithContentsOfURL:[NSURL fileURLWithPath:path] options:mask error:errorPtr];
@@ -1264,21 +1240,6 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 			[NSException raise: NSGenericException
 						 format: @"Unknown type to deserialize - '%s'", type];
 		}
-}
-
-- (unsigned char) _deserializeTypeTagAtCursor:(NSUInteger*)cursor
-{
-    if (*cursor >= length)
-		[NSException raise: NSRangeException
-					 format: @"_deserializeTypeTagAtCursor Range: (%u, 1) Size: %d", *cursor, length];
-    return ((unsigned char*)bytes)[(*cursor)++];
-}
-
-- (unsigned) _deserializeCrossRefAtCursor:(NSUInteger*)cursor
-{
-	NSUInteger ni;
-    getBytes((void*)&ni, bytes, sizeof(ni), length, cursor);
-    return (unsigned)NSSwapBigIntToHost(ni);
 }
 
 @end
@@ -1726,7 +1687,7 @@ struct shmid_ds	buf;
 //
 //*****************************************************************************
 
-+ (id) dataWithShmID:(int)anID length:(unsigned)length
++ (id) dataWithShmID:(int)anID length:(NSUInteger)length
 {
 #if	HAVE_SHMCTL
   return [[[NSMutableDataShared alloc] initWithShmID: anID length: length]
@@ -1737,7 +1698,7 @@ struct shmid_ds	buf;
 #endif
 }
 
-+ (id) dataWithSharedBytes:(const void*)sbytes length:(unsigned)length
++ (id) dataWithSharedBytes:(const void*)sbytes length:(NSUInteger)length
 {
 #if	HAVE_SHMCTL
   return [[[NSMutableDataShared alloc] initWithBytes: sbytes length: length]

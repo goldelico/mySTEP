@@ -57,7 +57,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSLog(@"file=%@", file);
 	NSLog(@"line=%d", line);
 #endif
-	NSLog(@"Assertion failed: %@; method: %@ file: %@ line: %d", description, NSStringFromSelector(sel), file, line);
+	NSLog(@"Assertion failed: %@; method: %@ file: %@ line: %ld", description, NSStringFromSelector(sel), file, (long)line);
 #if 1
     abort();
 #endif
@@ -77,7 +77,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSLog(@"file=%@", file);
 	NSLog(@"line=%d", line);
 #endif
-	NSLog(@"Assertion failed: %@; function: %@ file: %@ line: %d", description, name, file, line);
+	NSLog(@"Assertion failed: %@; function: %@ file: %@ line: %ld", description, name, file, (long)line);
 #if 1
     abort();
 #endif

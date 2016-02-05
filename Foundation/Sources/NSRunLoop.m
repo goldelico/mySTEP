@@ -763,7 +763,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 - (void) performSelector:(SEL)aSelector
 				  target:target
 				argument:argument
-				   order:(unsigned int)order
+				   order:(NSUInteger)order
 				   modes:(NSArray*)modes
 {
 	_NSRunLoopPerformer *item;
@@ -820,7 +820,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 	if(watchers)
 		{ // remove first one only!
-			unsigned int idx=[watchers indexOfObjectIdenticalTo:watcher];
+			NSUInteger idx=[watchers indexOfObjectIdenticalTo:watcher];
 			if(idx != NSNotFound)
 				[watchers removeObjectAtIndex:idx];	// remove only one instance!
 		}
@@ -849,7 +849,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 	if(watchers)
 		{ // remove first one only!
-			unsigned int idx=[watchers indexOfObjectIdenticalTo:watcher];
+			NSUInteger idx=[watchers indexOfObjectIdenticalTo:watcher];
 			if(idx != NSNotFound)
 				[watchers removeObjectAtIndex:idx];	// remove only one instance!
 		}

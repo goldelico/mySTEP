@@ -207,7 +207,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 }
 
 - (void) dequeueNotificationsMatching:(NSNotification*)notification
-						 coalesceMask:(unsigned int)coalesceMask
+						 coalesceMask:(NSUInteger)coalesceMask
 {												 
 	_NSQueueRegistration *item;					// Inserting and Removing
 	_NSQueueRegistration *next;					// Notifications From a Queue
@@ -225,8 +225,8 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
     for (item = _asapQueue->tail; item; item = next) 
 		{
 		next = item->next;
-		if ((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
-			!(coalesceMask & NSNotificationCoalescingOnSender) || (object == item->object))
+		if (((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
+			!(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
 			{
 			_NSRemoveFromQueue(_asapQueue, item);
 			continue;
@@ -236,8 +236,8 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
     for (item = _idleQueue->tail; item; item = next)
 		{
 		next = item->next;
-		if ((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
-			!(coalesceMask & NSNotificationCoalescingOnSender) || (object == item->object)) 
+		if (((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
+			!(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
 			{
 			_NSRemoveFromQueue(_asapQueue, item);
 			continue;
@@ -257,7 +257,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 
 - (void) enqueueNotification:(NSNotification*)notification
 				postingStyle:(NSPostingStyle)postingStyle
-				coalesceMask:(unsigned int)coalesceMask
+				coalesceMask:(NSUInteger)coalesceMask
 				forModes:(NSArray*)modes
 {
 #if 0

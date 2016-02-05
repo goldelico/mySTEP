@@ -281,7 +281,7 @@ static Class _doClass;
 	NSMapInsertKnownAbsent(distantObjectsByRef, (void *) _remote, self);
 #if 1
 	NSLog(@"new local proxy (ref=%@) initialized: %@", _remote, self);
-	NSLog(@"distantObjects: %u byRef: %lu", NSCountHashTable(distantObjects), (unsigned long)NSCountMapTable(distantObjectsByRef));
+	NSLog(@"distantObjects: %lu byRef: %lu", (unsigned long)NSCountHashTable(distantObjects), (unsigned long)NSCountMapTable(distantObjectsByRef));
 #endif
 	
 	// FIXME: life cycle management is still broken
@@ -353,7 +353,7 @@ static Class _doClass;
 	NSLog(@"NSDistantObject initWithCoder:%@", coder);
 #endif
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&ref];
-	_remote=(id) ref;
+	_remote=(id) (NSUInteger)ref;
 	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
 //	[coder decodeValueOfObjCType:@encode(char) at:&flag2];	// latest unit testing shows that there is no flag2!?!
 #if 1
@@ -582,7 +582,7 @@ static Class _doClass;
 			NSLog(@"md=%p", md);
 			if(md)
 				{
-				NSLog(@"md->sel=%p %s", md->name, md->name);		// SEL
+				NSLog(@"md->sel=%p %s", md->name, sel_getName(md->name));		// SEL
 				NSLog(@"md->types=%p %s", md->types, md->types);	// char *				
 				}
 #endif

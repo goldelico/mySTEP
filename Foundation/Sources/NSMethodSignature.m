@@ -534,7 +534,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 
 #define NEED_INFO() if(info == NULL) [self _methodInfo]
 
-- (unsigned) frameLength
+- (NSUInteger) frameLength
 {
 	NEED_INFO();
 	// FIXME: this should probably be the stackframe length + what additional arguments and return value need
@@ -542,7 +542,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return argFrameLength;
 }
 
-- (const char *) getArgumentTypeAtIndex:(unsigned) index
+- (const char *) getArgumentTypeAtIndex:(NSUInteger) index
 {
 	NEED_INFO();	// make sure numArgs and type is defined
 	if(index >= numArgs)
@@ -556,7 +556,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return (info[0].qual & _F_ONEWAY) ? YES : NO;
 }
 
-- (unsigned) methodReturnLength
+- (NSUInteger) methodReturnLength
 {
 	NEED_INFO();
 	return info[0].size;
@@ -568,7 +568,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
     return info[0].type;
 }
 
-- (unsigned) numberOfArguments
+- (NSUInteger) numberOfArguments
 {
 	NEED_INFO();
 	return numArgs /* -1 if we change the index to count from 0 */;
@@ -665,7 +665,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		if(selector && af[i] == selector) note=[note stringByAppendingString:@" _cmd"];
 //		if(&((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@" argp"];
 		if((char *) &af[i] == ((char *) _argframe)+len) note=[note stringByAppendingString:@" <<- END"];
-		NSLog(@"arg[%2d]:%08x %+4d %+4d %08x %12ld %12g %12lg%@", i, 
+		NSLog(@"arg[%2d]:%p %+4ld %+4ld %p %12ld %12g %12lg%@", i,
 			  &af[i],
 			  (char *) &af[i] - (char *) &af[0],
 			  (char *) &af[i] - (char *) f->fp,
@@ -904,7 +904,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		{ // retain/copy C-strings if needed
 			if(buffer && *(char **)buffer == *(char **)addr)
 				return;	// no need to change
-			if((*(char **)addr) && mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
+			if(((*(char **)addr) && mode == _INVOCATION_ARGUMENT_SET_RETAINED) || mode == _INVOCATION_ARGUMENT_RELEASE)
 				{
 #if 1
 				NSLog(@"_setArgument free old %s", *(char **)addr);
@@ -1343,7 +1343,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	struct stackframe *f=(struct stackframe *) _argframe;
 	NEED_INFO();	// make sure that argFrameLength is defined correctly
 #if 1
-	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength+EXTRA);
+	NSLog(@"doing __builtin_apply(%p, %p, %d)", imp, _argframe, argFrameLength+EXTRA);
 #endif
 	if(sizeof(f->copied) > 0)
 		// make the first ireg dependend on sizeof(copied)-sizeof(iregs)

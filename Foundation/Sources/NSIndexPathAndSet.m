@@ -27,13 +27,13 @@ static NSIndexPath *_root;
 		return [NSString stringWithFormat:@"%u", _index];	// first
 }
 
-+ (NSIndexPath *) indexPathWithIndex:(unsigned) idx;
++ (NSIndexPath *) indexPathWithIndex:(NSUInteger) idx;
 {
 	return [self indexPathWithIndexes:&idx length:1];
 }
 
-+ (NSIndexPath *) indexPathWithIndexes:(unsigned *) idx
-								length:(unsigned) len;
++ (NSIndexPath *) indexPathWithIndexes:(NSUInteger *) idx
+								length:(NSUInteger) len;
 {
 	return [[[self alloc] initWithIndexes:idx length:len] autorelease];
 }
@@ -65,14 +65,14 @@ static NSIndexPath *_root;
 	return NSOrderedSame;	// all the same
 }
 
-- (void) getIndexes:(unsigned *) idx;
+- (void) getIndexes:(NSUInteger *) idx;
 {
 	if(_parent)
 		[_parent getIndexes:idx];	// fill prefix part
 	idx[_length]=_index;
 }
 
-- (unsigned) indexAtPosition:(unsigned) pos;
+- (NSUInteger) indexAtPosition:(NSUInteger) pos;
 { 
 	if(pos > _length)
 		return NSNotFound;
@@ -81,7 +81,7 @@ static NSIndexPath *_root;
 	return _index;
 }
 
-- (NSIndexPath *) indexPathByAddingIndex:(unsigned) idx;
+- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger) idx;
 {
 	NSEnumerator *e=[_children objectEnumerator];	// optimize by using NSMapTable!
 	NSIndexPath *child;
@@ -107,14 +107,14 @@ static NSIndexPath *_root;
 	return _parent;
 }
 
-- (unsigned) length; { return _length; }
+- (NSUInteger) length; { return _length; }
 
-- (id) initWithIndex:(unsigned) index;
+- (id) initWithIndex:(NSUInteger) index;
 {
 	return [self initWithIndexes:&index length:1];
 }
 
-- (id) initWithIndexes:(unsigned *) idx length:(unsigned) len;
+- (id) initWithIndexes:(NSUInteger *) idx length:(NSUInteger) len;
 {
 	if(!_root)
 		_root=self;	// first call: make us the root object
@@ -155,7 +155,7 @@ static NSIndexPath *_root;
 @implementation NSIndexSet
 
 + (id) indexSet; { return [[self new] autorelease]; }
-+ (id) indexSetWithIndex:(unsigned int) value; { return [[[self alloc] initWithIndex:value] autorelease]; }
++ (id) indexSetWithIndex:(NSUInteger) value; { return [[[self alloc] initWithIndex:value] autorelease]; }
 + (id) indexSetWithIndexesInRange:(NSRange) range; { return [[[self alloc] initWithIndexesInRange:range] autorelease]; }
 
 - (id) copyWithZone:(NSZone *) zone;
@@ -187,7 +187,7 @@ static NSIndexPath *_root;
 - (NSString *) description;
 {
 	NSString *r=nil;
-	unsigned int i;
+	NSUInteger i;
 	if(_nranges == 0)
 		return @"<empty>";	// empty indexset
 	for(i=0; i<_nranges; i++)
@@ -200,7 +200,7 @@ static NSIndexPath *_root;
 	return r;
 }
 
-- (id) initWithIndex:(unsigned int) value; { return [self initWithIndexesInRange:NSMakeRange(value, 1)]; }
+- (id) initWithIndex:(NSUInteger) value; { return [self initWithIndexesInRange:NSMakeRange(value, 1)]; }
 
 - (id) initWithIndexesInRange:(NSRange) range;
 {
@@ -248,7 +248,7 @@ static NSIndexPath *_root;
 
 - (BOOL) isEqualToIndexSet:(NSIndexSet *) other;
 { // segments must be identical since we don't allow overlapping subranges adjacent segments
-	unsigned int i;
+	NSUInteger i;
 	if(_nranges != other->_nranges)
 		return NO;
 	for(i=0; i<_nranges; i++)
@@ -259,9 +259,9 @@ static NSIndexPath *_root;
 	return YES;
 }
 
-- (BOOL) containsIndex:(unsigned int) value;
+- (BOOL) containsIndex:(NSUInteger) value;
 {
-	unsigned int i;
+	NSUInteger i;
 	for(i=0; i<_nranges; i++)
 		{
 		if(NSLocationInRange(value, _indexRanges[i]))
@@ -278,7 +278,7 @@ static NSIndexPath *_root;
 
 - (BOOL) containsIndexesInRange:(NSRange) range;
 { // there must be a segment that completely overlaps with range (there can't be two because they should have been merged!)
-	unsigned int i;
+	NSUInteger i;
 	// we could even search faster by splitting the total set of ranges in halves because they are sorted
 	for(i=0; i<_nranges; i++)
 		{
@@ -290,7 +290,7 @@ static NSIndexPath *_root;
 
 - (BOOL) intersectsIndexesInRange:(NSRange) range;
 { // if any index is in the set
-	unsigned int i;
+	NSUInteger i;
 	for(i=0; i<_nranges; i++)
 		{
 		if(NSIntersectionRange(range, _indexRanges[i]).length != 0)
@@ -299,9 +299,9 @@ static NSIndexPath *_root;
 	return NO;
 }
 
-- (unsigned int) count;
+- (NSUInteger) count;
 {
-	unsigned int i;
+	NSUInteger i;
 	if(!_count1)
 		{ // value should be cached!
 		_count1=1;	// one more...
@@ -311,27 +311,27 @@ static NSIndexPath *_root;
 	return _count1-1;
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 { // hashing must be fast!
 	if(!_count1) [self count];	// recache
 	return _count1;	// should be a good indicator...
 }
 
-- (unsigned int) firstIndex;
+- (NSUInteger) firstIndex;
 {
 	if(_nranges == 0) return NSNotFound;
 	return _indexRanges[0].location;
 }
 
-- (unsigned int) lastIndex;
+- (NSUInteger) lastIndex;
 {
 	if(_nranges == 0) return NSNotFound;
 	return NSMaxRange(_indexRanges[_nranges-1])-1;	// last index
 }
 
-- (unsigned int) indexGreaterThanIndex:(unsigned int) value;
+- (NSUInteger) indexGreaterThanIndex:(NSUInteger) value;
 {
-	unsigned int i=0;
+	NSUInteger i=0;
 	while(i<_nranges)
 		{
 		if(_indexRanges[i].location > value)
@@ -343,9 +343,9 @@ static NSIndexPath *_root;
 	return NSNotFound;
 }
 
-- (unsigned int) indexGreaterThanOrEqualToIndex:(unsigned int) value;
+- (NSUInteger) indexGreaterThanOrEqualToIndex:(NSUInteger) value;
 {
-	unsigned int i=0;
+	NSUInteger i=0;
 	while(i<_nranges)
 		{
 		if(_indexRanges[i].location > value)
@@ -357,9 +357,9 @@ static NSIndexPath *_root;
 	return NSNotFound;
 }
 
-- (unsigned int) indexLessThanIndex:(unsigned int) value;
+- (NSUInteger) indexLessThanIndex:(NSUInteger) value;
 {
-	unsigned int i=_nranges;
+	NSUInteger i=_nranges;
 	while(i-- > 0)
 		{
 		if(NSMaxRange(_indexRanges[i]) <= value)
@@ -370,9 +370,9 @@ static NSIndexPath *_root;
 	return NSNotFound;
 }
 
-- (unsigned int) indexLessThanOrEqualToIndex:(unsigned int) value;
+- (NSUInteger) indexLessThanOrEqualToIndex:(NSUInteger) value;
 {
-	unsigned int i=_nranges;
+	NSUInteger i=_nranges;
 	while(i-- > 0)
 		{
 		if(NSMaxRange(_indexRanges[i]) <= value)
@@ -383,18 +383,18 @@ static NSIndexPath *_root;
 	return NSNotFound;
 }
 
-- (unsigned int) getIndexes:(unsigned int *) buffer
-				   maxCount:(unsigned int) cnt
+- (NSUInteger) getIndexes:(NSUInteger *) buffer
+				   maxCount:(NSUInteger) cnt
 			   inIndexRange:(NSRangePointer) indexRange;
 {
-	unsigned int i;
-	unsigned c0=cnt;
+	NSUInteger i;
+	NSUInteger c0=cnt;
 	if(!indexRange)
 		{ // unlimited
 		for(i=0; i<_nranges && cnt > 0; i++)
 			{
-			unsigned int val=_indexRanges[i].location;
-			unsigned int last=NSMaxRange(_indexRanges[i]);
+			NSUInteger val=_indexRanges[i].location;
+			NSUInteger last=NSMaxRange(_indexRanges[i]);
 			while(val < last && cnt > 0)
 				*buffer++=val++, cnt--;
 			}
@@ -405,8 +405,8 @@ static NSIndexPath *_root;
 			; // find first relevant block
 		for(; i<_nranges && cnt > 0; i++)
 			{ // extract next index block
-			unsigned int val=_indexRanges[i].location;
-			unsigned int last=NSMaxRange(_indexRanges[i]);
+			NSUInteger val=_indexRanges[i].location;
+			NSUInteger last=NSMaxRange(_indexRanges[i]);
 			if(val < indexRange->location)
 				val=indexRange->location;	// don't start before requested range
 			if(last > NSMaxRange(*indexRange))
@@ -439,7 +439,7 @@ static NSIndexPath *_root;
 
 @implementation NSMutableIndexSet
 
-- (id) initWithIndex:(unsigned int) value;
+- (id) initWithIndex:(NSUInteger) value;
 {
 	self=[super initWithIndex:value];
 	if(self)
@@ -483,7 +483,7 @@ static NSIndexPath *_root;
 
 - (void) _addIndexesInRanges:(NSRangePointer) ranges count:(unsigned) count;
 {
-	unsigned int i=0, j;
+	NSUInteger i=0, j;
 	for(j=0; j<count; j++)
 		{
 		NSRange range=ranges[j];
@@ -500,7 +500,7 @@ static NSIndexPath *_root;
 					{ // merge with all following ranges that are now covered
 					_indexRanges[i]=NSUnionRange(_indexRanges[i], _indexRanges[i+1]);	// extend as/if necessary
 #if 1
-					NSLog(@"memmove(%d, %d, %d) of %d", i+1, i+2, _nranges-i-2, _nranges);
+					NSLog(@"memmove(%lu, %lu, %lu) of %d", i+1, i+2, _nranges-i-2, _nranges);
 #endif
 					memmove(&_indexRanges[i+1], &_indexRanges[i+2], sizeof(_indexRanges[0])*(_nranges-i-2));	// delete range that has been merged
 					_nranges--;	// one less!
@@ -535,7 +535,7 @@ loop: ;
 #endif
 }
 
-- (void) addIndex:(unsigned int) value;
+- (void) addIndex:(NSUInteger) value;
 {
 	NSRange range=NSMakeRange(value, 1);
 	[self _addIndexesInRanges:&range count:1];
@@ -551,9 +551,9 @@ loop: ;
 	[self _addIndexesInRanges:&range count:1];
 }
 
-- (void) _removeIndexesInRanges:(NSRangePointer) ranges count:(unsigned) count;
+- (void) _removeIndexesInRanges:(NSRangePointer) ranges count:(NSUInteger) count;
 {
-	unsigned int i=0, j;
+	NSUInteger i=0, j;
 	for(j=0; j<count; j++)
 		{
 		NSRange range=ranges[j];
@@ -608,7 +608,7 @@ loop: ;
 #endif
 }
 
-- (void) removeIndex:(unsigned int) value;
+- (void) removeIndex:(NSUInteger) value;
 {
 	NSRange range=NSMakeRange(value, 1);
 	[self _removeIndexesInRanges:&range count:1];
@@ -629,7 +629,7 @@ loop: ;
 	_nranges=0;
 }
 
-- (void) shiftIndexesStartingAtIndex:(unsigned int) index by:(int) delta;
+- (void) shiftIndexesStartingAtIndex:(NSUInteger) index by:(NSInteger) delta;
 {
 	if(delta < 0)
 		[self removeIndexesInRange:NSMakeRange(index-delta, delta)];	// ensure they don't exist

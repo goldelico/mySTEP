@@ -272,7 +272,7 @@ id key, value;
 - (id) initWithDictionary:(NSDictionary*)dictionary copyItems:(BOOL)flag
 {
 NSEnumerator *keye = [dictionary keyEnumerator];
-unsigned count = [dictionary count];
+NSUInteger count = [dictionary count];
 id *keys = objc_malloc(sizeof(id) * count);
 id *values = objc_malloc(sizeof(id) * count);
 id key;
@@ -344,7 +344,7 @@ int count;
 
 - (id) initWithObjects:(NSArray*)objects forKeys:(NSArray*)keys
 {
-unsigned int i, count = [objects count];
+NSUInteger i, count = [objects count];
 id *mkeys, *mobjs;
 
     if (count != [keys count])
@@ -468,13 +468,13 @@ id keys, key;										// Comparing Dictionaries
     return YES;
 }
 
-- (NSString*) descriptionWithLocale:(id)locale
+- (NSString *) descriptionWithLocale:(id)locale
 							 indent:(NSUInteger)indent
 {
 	id pool, key, value, keys, kd, vd;
 	NSMutableString *desc;
 	NSString *indentation /*, *format */;
-	unsigned indent1 = indent + 4;
+	NSUInteger indent1 = indent + 4;
 	NSEnumerator *e;
 	const char *s;
 
@@ -745,12 +745,12 @@ id key, keys = [dictionary keyEnumerator];
 
 // why do we need that? Perhaps if someone is calling [[self class] dictionaryWithCapacity]
 
-+ (id) dictionaryWithCapacity:(unsigned int)aNumItems
++ (id) dictionaryWithCapacity:(NSUInteger)aNumItems
 {
     return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
-- (id) initWithCapacity:(unsigned int)aNumItems
+- (id) initWithCapacity:(NSUInteger)aNumItems
 {
 #if 0
 	NSLog(@"NSConcreteMutableDictionary initWithCapacity:%d", aNumItems);

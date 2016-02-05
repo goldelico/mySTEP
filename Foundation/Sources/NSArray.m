@@ -579,7 +579,7 @@ static int compare_function(id elem1, id elem2, void* comparator)
     return [self sortedArrayUsingFunction:compare_function context:(void*)comparator];
 }
 
-- (NSArray*) sortedArrayUsingFunction:(int(*)(id,id,void*))comparator 
+- (NSArray*) sortedArrayUsingFunction:(NSInteger(*)(id,id,void*))comparator
 							  context:(void*)context
 {
 SEL s = @selector(sortUsingFunction:context:);

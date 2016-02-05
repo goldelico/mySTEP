@@ -93,10 +93,15 @@
 	
 	return YES;
 }
-// Returns YES if no more characters remain to 
-- (BOOL) isAtEnd				// be scanned.  Returns YES if all characters
-{								// remaining to be scanned are to be skipped.
-	BOOL ret;						// Returns NO if there are chars left to scan.
+
+// Returns YES if no more characters remain to
+// be scanned.  Returns YES if all characters
+// remaining to be scanned are to be skipped.
+// Returns NO if there are chars left to scan.
+
+- (BOOL) isAtEnd
+{
+	BOOL ret;
 	unsigned int save_scanLocation = scanRange.location;
 	if (scanRange.location >= len)
 		return YES;
@@ -104,18 +109,30 @@
 	if(!ret)
 		scanRange.location = save_scanLocation;		// restore
 	return ret;
-}								// private actual scanInt: performs all except  
+}
+
+// private actual scanInt: performs all except
 // for the initial skip.  This method may move 
 // the scan location even if a valid integer is 
 // not scanned. Based on the strtol code from 
 // the GNU C library. A little simpler since we 
-// deal only with base 10.  FIXME: I don't use 
-- (BOOL) _scanInt: (int*)value	// decimalDigitCharacterSet since it includes
-{								// many more characters than the ASCII digits.
-	unsigned int num = 0;			// I don't know how to convert those other
-	BOOL negative = NO;				// characters, so I ignore them for now.  For 
-	BOOL overflow = NO;				// the same reason, I don't try to support all
-	BOOL got_digits = NO;			// the possible Unicode plus and minus chars. 
+// deal only with base 10.  FIXME: I don't use
+// decimalDigitCharacterSet since it includes
+// many more characters than the ASCII digits.
+// I don't know how to convert those other
+// characters, so I ignore them for now.  For
+// the same reason, I don't try to support all
+// the possible Unicode plus and minus chars.
+
+// FIXME: sizeof(NSInteger) may be > sizeof(int)!
+// therefore, _scanInt: should go to NSInteger and scanInt: should truncate
+
+- (BOOL) _scanInt: (int*)value
+{
+	unsigned int num = 0;
+	BOOL negative = NO;
+	BOOL overflow = NO;
+	BOOL got_digits = NO;
 	const unsigned int limit = UINT_MAX / 10;
 	
 	switch ([string characterAtIndex:scanRange.location])	// Check for sign
@@ -176,15 +193,18 @@
 - (BOOL) scanInteger: (NSInteger *)value						// Scan an int into value.
 {
 	unsigned int saveScanLocation = scanRange.location;
-	
-	if ([self _skipToNextField] && [self _scanInt: value])
+	int val;
+	if ([self _skipToNextField] && [self _scanInt: &val])
+		{
+		*value=val;
 		return YES;
+		}
 	scanRange.location = saveScanLocation;
 	
 	return NO;
 }
 
-- (BOOL) scanHexInt:(unsigned *) value;
+- (BOOL) scanHexInt:(unsigned int *) value;
 {												// Scan an unsigned int of the 
 	unsigned int num = 0;							// given radix into value.
 	unsigned int numLimit, digitLimit, digitValue, radix;
@@ -628,11 +648,11 @@
 }
 // Returns the string being scanned
 - (NSString *) string			{ return string; }
-- (unsigned) scanLocation		{ return scanRange.location; }	
+- (NSUInteger) scanLocation		{ return scanRange.location; }
 // char index at 
 // which next scan 
 // will begin
-- (void) setScanLocation:(unsigned int)anIndex				 
+- (void) setScanLocation:(NSUInteger)anIndex
 {															// set char index 
 	scanRange.location = anIndex;							// at which next
 }															// scan will begin

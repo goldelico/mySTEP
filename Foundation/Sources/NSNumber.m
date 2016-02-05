@@ -314,13 +314,13 @@ return [[[TYPE alloc] INIT:VALUE] autorelease]; }
 	return [super isEqual: other];
 }
 							// Because of the rule that two numbers which are 
-- (unsigned) hash			// the same according to [-isEqual:] must generate
+- (NSUInteger) hash			// the same according to [-isEqual:] must generate
 {							// the same hash, we must generate the hash from
 union {						// the most general representation of the number.
     double d;
     unsigned char c[sizeof(double)];
 } val;
-unsigned hash = 0;
+NSUInteger hash = 0;
 int i;
 
 	val.d = [self doubleValue];

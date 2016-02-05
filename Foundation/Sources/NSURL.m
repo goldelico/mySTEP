@@ -357,7 +357,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				  (base&&base->path)?base->path:""
 				  );
 #endif
-			if(!rel->hasNoPath &&(rel->scheme || (base && base->scheme)) || (rel->path && rel->path[0] != 0))
+			if((!rel->hasNoPath &&(rel->scheme || (base && base->scheme))) || (rel->path && rel->path[0] != 0))
 				{
 #if 0
 				NSLog(@"c1: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
@@ -1097,7 +1097,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	[aCoder encodeObject: _baseURL];
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	if(!myData->absolute)
 		[self absoluteString];	// process and cache

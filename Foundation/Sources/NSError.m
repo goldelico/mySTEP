@@ -32,12 +32,12 @@ NSString *NSURLErrorDomain				=@"NSURLErrorDomain";
 
 @implementation NSError
 
-+ (id) errorWithDomain:(NSString *) domain code:(int) code userInfo:(NSDictionary *) dict;
++ (id) errorWithDomain:(NSString *) domain code:(NSInteger) code userInfo:(NSDictionary *) dict;
 {
 	return [[[self alloc] initWithDomain:domain code:code userInfo:dict] autorelease];
 }
 
-- (int) code; { return _code; }
+- (NSInteger) code; { return _code; }
 - (NSString *) domain; { return _domain; }
 - (NSDictionary *) userInfo; { return _dict; }
 
@@ -54,7 +54,7 @@ NSString *NSURLErrorDomain				=@"NSURLErrorDomain";
 	return [NSString stringWithFormat:@"Error %@ (%d) - %@", _domain, _code, _dict];
 }
 
-- (id) initWithDomain:(NSString *) domain code:(int) code userInfo:(NSDictionary *) dict;
+- (id) initWithDomain:(NSString *) domain code:(NSInteger) code userInfo:(NSDictionary *) dict;
 {
 	self=[super init];
 	if(self)

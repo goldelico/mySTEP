@@ -243,7 +243,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 	return obj ? [obj floatValue] : 0.0;
 }
 
-- (int) integerForKey:(NSString *)defaultName
+- (NSInteger) integerForKey:(NSString *)defaultName
 {
 	id obj = [self stringForKey:defaultName];
 	return obj ? [obj intValue] : 0;
@@ -320,9 +320,9 @@ static NSUserDefaults *__sharedDefaults = nil;
 	[self setObject:[NSString stringWithFormat:@"%g", value] forKey:defaultName];
 }
 
-- (void) setInteger:(int)value forKey:(NSString *)defaultName
+- (void) setInteger:(NSInteger)value forKey:(NSString *)defaultName
 {
-	[self setObject:[NSString stringWithFormat:@"%d", value] forKey:defaultName];
+	[self setObject:[NSString stringWithFormat:@"%ld", (long)value] forKey:defaultName];
 }
 
 - (void) setObject:(id)value forKey:(NSString *)defaultName

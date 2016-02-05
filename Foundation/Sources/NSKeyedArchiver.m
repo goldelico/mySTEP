@@ -966,7 +966,7 @@ etc.
 }
 
 - (const unsigned char *) decodeBytesForKey:(NSString *)key
-							 returnedLength:(unsigned *)lengthp;
+							 returnedLength:(NSUInteger *)lengthp;
 {
 	id obj=[self decodeObjectForKey:key];
 #if 0

@@ -189,7 +189,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	int fd;
 	NSData *r=nil;
 	unsigned char *buffer;
-	unsigned int len;
+	NSUInteger len;
 	if([_inputStream getBuffer:&buffer length:&len])
 		return [NSData dataWithBytes:buffer length:len];	// buffer was directly available
 	fd=[_inputStream _readFileDescriptor];
@@ -207,11 +207,11 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 #define FRAGMENT (10*1024)
 
-- (NSData *) readDataOfLength:(unsigned int) length;
+- (NSData *) readDataOfLength:(NSUInteger) length;
 {
 	unsigned char *buffer=NULL;
-	unsigned long bufpos=0;
-	unsigned int ulen;
+	NSUInteger bufpos=0;
+	NSUInteger ulen;
 	int len;
 #if 0
 	NSLog(@"NSFileHandle: readDataOfLength %u", length);
@@ -507,7 +507,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 				return;
 			}
 		}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
+	NSLog(@"An error %@ occurred on the event %lu of stream %@ of %@", [stream streamError], (unsigned long)event, stream, self);
 }
 				
 @end // NSFileHandle

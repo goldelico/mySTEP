@@ -27,7 +27,7 @@
 #import "NSPrivate.h"
 
 // Class variables
-static NSLock *__hostCacheLock = nil;
+static NSConditionLock *__hostCacheLock = nil;
 static BOOL __hostCacheEnabled = YES;
 static NSMutableDictionary *__hostCache = nil;
 
@@ -172,7 +172,7 @@ static NSMutableDictionary *__hostCache = nil;
 	is for all hosts to hash to the same value - which makes it very
 	inefficient to store them in a set, dictionary, map or hash table.
 */
-- (unsigned) hash
+- (NSUInteger) hash
 {
 	return 1;
 }

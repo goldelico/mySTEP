@@ -97,7 +97,7 @@ struct DNSHeader
 			bytes++, len--;
 		key=[[NSString _stringWithUTF8String:(char *) kp length:bytes-kp] lowercaseString];	// key isn't case sensitive
 #if 1
-		NSLog(@"key=%@ len=%d", key, bytes-kp);
+		NSLog(@"key=%@ len=%ld", key, bytes-kp);
 #endif
 		if(len > 0 && *bytes == '=')
 			{ // with value
@@ -172,7 +172,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event;
 {
 #if 1
-	NSLog(@"NSNetService stream:%@ handleEvent:%d", stream, event);
+	NSLog(@"NSNetService stream:%@ handleEvent:%lu", stream, (unsigned long)event);
 #endif
 	if(stream == _inputStream)
 		{
@@ -240,7 +240,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 #if 1
 						NSLog(@"type=%d", type);
 						NSLog(@"class=%d", class);
-						NSLog(@"ttl=%d", ttl);
+						NSLog(@"ttl=%lu", ttl);
 						NSLog(@"rdlen=%d", rdlen);
 #endif
 						if(rdlen+pos <= len)
@@ -274,7 +274,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 				break;
 			}
 		}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
+	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [stream streamError], (unsigned long)event, stream, self);
 }
 
 - (NSArray *) addresses; { return _addresses; }

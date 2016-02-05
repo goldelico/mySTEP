@@ -116,8 +116,8 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 // + (NSString *) _stringWithFormat:(NSString*)format arguments:(va_list)args;
 + (NSString *) _string:(void *) bytes withEncoding:(NSStringEncoding) encoding length:(int) len;
-+ (NSString *) _stringWithUTF8String:(const char *) bytes length:(unsigned) len;
-+ (id) _initWithUTF8String:(const char *) bytes length:(unsigned) len;
++ (NSString *) _stringWithUTF8String:(const char *) bytes length:(NSUInteger) len;
++ (id) _initWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 - (int) _baseLength;			// methods for working with decomposed strings
 - (NSString *) _stringByExpandingXMLEntities;
 - (NSString *) _unicharString;	// convert CString into unichar string
@@ -126,23 +126,23 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 @interface GSCString : GSBaseCString
 {
+	NSUInteger _hash;
 	BOOL _freeWhenDone;
-	unsigned _hash;
 }
 @end
 
 @interface GSString : NSString 
 {
 	unichar *_uniChars;
+	NSUInteger _hash;
 	BOOL _freeWhenDone;
-	unsigned _hash;
 }
 @end
 
 
 @interface GSMutableString : GSString
 {
-	unsigned int _capacity;
+	NSUInteger _capacity;
 }
 @end
 
@@ -153,7 +153,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 @interface NSSet (NSPrivate)
 
 - (NSString*)descriptionWithLocale:(id)locale
-							indent:(unsigned int)level;
+							indent:(NSUInteger)level;
 - (id)initWithObject:(id)firstObj arglist:(va_list)arglist;
 
 @end
@@ -170,11 +170,11 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 }
 
 - (id)init;
-- (id)initWithObjects:(id*)objects count:(unsigned int)count;
+- (id)initWithObjects:(id*)objects count:(NSUInteger)count;
 - (id)initWithSet:(NSSet *)set copyItems:(BOOL)flag;
 
 	// Accessing keys and values
-- (unsigned int)count;
+- (NSUInteger)count;
 - (id)member:(id)anObject;
 - (NSEnumerator *)objectEnumerator;
 
@@ -190,11 +190,11 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 }
 
 - (id)init;
-- (id)initWithObjects:(id*)objects count:(unsigned int)count;
+- (id)initWithObjects:(id*)objects count:(NSUInteger)count;
 - (id)initWithSet:(NSSet *)set copyItems:(BOOL)flag;
 
 	// Accessing keys and values
-- (unsigned int)count;
+- (NSUInteger)count;
 - (id)member:(id)anObject;
 - (NSEnumerator *)objectEnumerator;
 
@@ -213,7 +213,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 //
 // used for NSText
 //
-- (BOOL) scanRadixUnsignedInt:(unsigned int *)value;
+- (BOOL) scanRadixUnsignedInt:(NSUInteger *)value;
 + (id) _scannerWithString:(NSString*)aString 
 					  set:(NSCharacterSet*)aSet 
 			  invertedSet:(NSCharacterSet*)anInvSet;
@@ -221,7 +221,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 - (NSRange) _scanSetCharacters;
 - (NSRange) _scanNonSetCharacters;
 - (BOOL) _isAtEnd;
-- (void) _setScanLocation:(unsigned) aLoc;
+- (void) _setScanLocation:(NSUInteger) aLoc;
 
 @end
 
@@ -271,16 +271,16 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSCFType : NSObject
 { // used to read CF$UID values from (binary) keyedarchived property list
-	unsigned value;
+	NSUInteger value;
 }
 
-+ (id) CFUIDwithValue:(unsigned) val;
-- (unsigned) uid;
++ (id) CFUIDwithValue:(NSUInteger) val;
+- (NSUInteger) uid;
 
 @end
 
 @interface NSCoder (NSPrivate)
-- (id) _dereference:(unsigned int) idx;
+- (id) _dereference:(NSUInteger) idx;
 // - (NSArray *) _decodeArrayOfObjectsForKey:(NSString *) name;
 - (id) _decodeObjectForRepresentation:(id) obj;
 @end
@@ -343,7 +343,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSPortMessage (NSPrivate)
 
-+ (NSData *) _machMessageWithId:(unsigned)msgid forSendPort:(NSPort *)sendPort receivePort:(NSPort *)receivePort components:(NSArray *)components;
++ (NSData *) _machMessageWithId:(NSUInteger)msgid forSendPort:(NSPort *)sendPort receivePort:(NSPort *)receivePort components:(NSArray *)components;
 - (id) initWithMachMessage:(void *) buffer;
 - (void) _setReceivePort:(NSPort *) p;
 - (void) _setSendPort:(NSPort *) p;
@@ -355,18 +355,15 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 // mySTEP Extensions
 
 #if 0
-+ (id) dataWithShmID:(int)anID length:(unsigned) length;
-+ (id) dataWithSharedBytes:(const void*)sbytes length:(unsigned) length;
-+ (id) dataWithStaticBytes:(const void*)sbytes length:(unsigned) length;
++ (id) dataWithShmID:(int)anID length:(NSUInteger ) length;
++ (id) dataWithSharedBytes:(const void*)sbytes length:(NSUInteger ) length;
++ (id) dataWithStaticBytes:(const void*)sbytes length:(NSUInteger ) length;
 #endif
 
 - (void *) _autoFreeBytesWith0:(BOOL) flag;		// return a "autofreed" copy - optionally with a trailing 0
 
 - (id) _initWithBase64String:(NSString *) str;
 - (NSString *) _base64String;
-
-- (unsigned char) _deserializeTypeTagAtCursor:(unsigned*)cursor;
-- (unsigned) _deserializeCrossRefAtCursor:(unsigned*)cursor;
 
 - (NSData *) _inflate;
 
@@ -377,8 +374,8 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 // Capacity management - mySTEP gives you control over the size of
 // the data buffer as well as the 'length' of valid data in it.
-- (unsigned int) capacity;
-- (id) setCapacity: (unsigned int)newCapacity;
+- (NSUInteger) capacity;
+- (id) setCapacity: (NSUInteger)newCapacity;
 
 - (int) shmID;	/* Shared memory ID for data buffer (if any)	*/
 
@@ -386,8 +383,6 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 		//	-serializeCrossRef:
 		//	These methods are provided in order to give the mySTEP 
 		//	version of NSArchiver maximum possible performance.
-- (void) serializeTypeTag: (unsigned char)tag;
-- (void) serializeCrossRef: (unsigned)xref;
 
 @end
 
@@ -425,8 +420,8 @@ enum _INVOCATION_MODE {
 @interface NSMethodSignature (NSPrivate)
 
 - (struct NSArgumentInfo *) _methodInfo;	// recalculate method info
-- (unsigned) _getArgumentLengthAtIndex:(int) index;
-- (unsigned) _getArgumentQualifierAtIndex:(int) index;
+- (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
+- (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
 typedef void *arglist_t, *retval_t;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 
@@ -515,7 +510,7 @@ typedef void *arglist_t, *retval_t;
 
 @interface NSDistantObjectRequest (NSUndocumented)
 // undocumented initializer - see http://opensource.apple.com/source/objc4/objc4-208/runtime/objc-sel.m
-- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
+- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(NSUInteger) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 @end
 
 @interface NSConnection (NSUndocumented)
@@ -532,10 +527,10 @@ typedef void *arglist_t, *retval_t;
 - (void) handlePortCoder:(NSPortCoder *) coder;
 - (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
 - (void) dispatchInvocation:(NSInvocation *) i;
-- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(unsigned int) seq imports:(NSArray *) imports;
+- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(NSUInteger) seq imports:(NSArray *) imports;
 - (void) finishEncoding:(NSPortCoder *) coder;
-- (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
-- (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
+- (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(NSUInteger) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
+- (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(NSUInteger) seq coder:(NSCoder *) coder;
 - (BOOL) hasRunloop:(NSRunLoop *) obj;
 - (void) _incrementLocalProxyCount;
 - (void) _decrementLocalProxyCount;
@@ -584,16 +579,16 @@ typedef void *arglist_t, *retval_t;
 {
 	NSData *_data;
 	unsigned const char *_buffer;
-	unsigned long _position;
-	unsigned long _capacity;
+	NSUInteger _position;
+	NSUInteger _capacity;
 }
 @end
 
 @interface _NSBufferOutputStream : NSOutputStream
 {
 	unsigned char *_buffer;
-	unsigned long _position;
-	unsigned long _capacity;
+	NSUInteger _position;
+	NSUInteger _capacity;
 }
 @end
 

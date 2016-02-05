@@ -46,7 +46,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 @implementation NSStream
 
 + (void) getStreamsToHost:(NSHost *) host
-					 port:(int) port 
+					 port:(NSInteger) port
 			  inputStream:(NSInputStream **) inp 
 			 outputStream:(NSOutputStream **) outp;
 {
@@ -214,14 +214,14 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return YES;
 }
 
-- (BOOL) getBuffer:(unsigned char **) buffer length:(unsigned int *) len;
+- (BOOL) getBuffer:(unsigned char **) buffer length:(NSUInteger *) len;
 {
 	return NO;
 }
 
-- (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	unsigned n=read(_fd, buffer, len);
+	NSInteger n=read(_fd, buffer, len);
 	if(n < 0)
 		return n;	// error
 	if(n == 0)
@@ -296,9 +296,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
  }
  */
 
-- (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	unsigned n;
+	NSInteger n;
 	if(_output->ssl)
 		n=SSL_read(_output->ssl, buffer, len);
 	else
@@ -341,16 +341,16 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) hasBytesAvailable; { return _position < _capacity; }
 
-- (BOOL) getBuffer:(unsigned char **) buffer length:(unsigned int *) len;
+- (BOOL) getBuffer:(unsigned char **) buffer length:(NSUInteger *) len;
 {
 	*buffer=(unsigned char *) (_buffer+_position);
 	*len=_capacity-_position;
 	return YES;
 }
 
-- (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	long remain=_capacity-_position;
+	NSInteger remain=_capacity-_position;
 	if(len > remain)
 		len=remain;	// limit
 	memcpy(buffer, _buffer+_position, len);
@@ -394,7 +394,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		}
 }
 
-+ (id) outputStreamToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
++ (id) outputStreamToBuffer:(unsigned char *) buffer capacity:(NSUInteger) len;
 {
 	return [[[self alloc] initToBuffer:buffer capacity:len] autorelease];
 }
@@ -451,7 +451,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return [[_NSMemoryOutputStream alloc] initToMemory];
 }
 
-- (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
+- (id) initToBuffer:(unsigned char *) buffer capacity:(NSUInteger) len;
 {
 	[self release];
 	return [[_NSBufferOutputStream alloc] initToBuffer:buffer capacity:len];
@@ -474,9 +474,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) hasSpaceAvailable; { return _streamStatus != NSStreamStatusClosed; }	// how to check?
 
-- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	unsigned n=write(_fd, buffer, len);
+	NSInteger n=write(_fd, buffer, len);
 	if(n < 0)
 		{
 #if 1
@@ -522,7 +522,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 @implementation _NSBufferOutputStream
 
-- (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
+- (id) initToBuffer:(unsigned char *) buffer capacity:(NSUInteger) len;
 {
 	if((self=[super init]))
 		{
@@ -540,9 +540,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) hasSpaceAvailable; { return _position < _capacity; }
 
-- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	unsigned room=_capacity-_position;
+	NSInteger room=_capacity-_position;
 	if(room > len)
 		room=len;	// limit to request
 	memcpy(_buffer+_position, buffer, room);
@@ -595,7 +595,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) hasSpaceAvailable; { return YES; }	// grows as long as we can get memory...
 
-- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
 	if(_position + len > _capacity)
 		_buffer=objc_realloc(_buffer, _capacity=2*_capacity+len);	// enlarge buffer
@@ -652,7 +652,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
 #if 1
-		NSLog(@"status %d for %@", _streamStatus, self);
+		NSLog(@"status %lu for %@", (unsigned long)_streamStatus, self);
 #endif
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
@@ -750,11 +750,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		[super _writeFileDescriptorReady];
 }
 
-- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
 	if(ssl)
 		{
-		unsigned n;
+		NSInteger n;
 		n=SSL_write(ssl, buffer, len);	// SSL
 		return n;
 		}

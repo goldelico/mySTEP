@@ -185,7 +185,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	[super dealloc];
 }
 
-- (void) release
+- (oneway void) release
 {
 	if(_isValid && [self retainCount] == 1)
 		{
@@ -276,12 +276,12 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		}
 }
 
-- (unsigned) reservedSpaceLength; { return 0; }
+- (NSUInteger) reservedSpaceLength; { return 0; }
 
 - (BOOL) sendBeforeDate:(NSDate *)limitDate
 			 components:(NSMutableArray *)components
 				   from:(NSPort *)receivePort
-			   reserved:(unsigned)headerSpaceReserved;
+			   reserved:(NSUInteger)headerSpaceReserved;
 { // default message id
 	return [self sendBeforeDate:limitDate
 						  msgid:0	// default message
@@ -291,14 +291,14 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 }
 
 - (BOOL) sendBeforeDate:(NSDate *)limitDate
-				  msgid:(unsigned)msgid
+				  msgid:(NSUInteger)msgid
 			 components:(NSMutableArray *)components
 				   from:(NSPort *)receivePort
-			   reserved:(unsigned)headerSpaceReserved;	// ignored...
+			   reserved:(NSUInteger)headerSpaceReserved;	// ignored...
 { // make us generically work as an NSPort based on UNIX file descriptors (sockets)
 	NSRunLoop *loop=[NSRunLoop currentRunLoop];
 #if 1
-	NSLog(@"### %@ sendBeforeDate:%@ msgid:%u components:%@ from:%@ reserved:%u", self, limitDate, msgid, components, receivePort, headerSpaceReserved);
+	NSLog(@"### %@ sendBeforeDate:%@ msgid:%lu components:%@ from:%@ reserved:%lu", self, limitDate, (unsigned long)msgid, components, receivePort, (unsigned long)headerSpaceReserved);
 #endif
 	if(!_isValid)
 		[NSException raise:NSInvalidSendPortException format:@"invalidated: %@", self];
@@ -313,7 +313,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
 	[_sendData retain];	// NSRunLoop may autorelease pools before everything is sent! Will be released in _writeFileDescriptorReady
 #if 1
-	NSLog(@"### send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd, self);
+	NSLog(@"### send length=%lu data=%@ to fd=%d on %@", (unsigned long)[_sendData length], _sendData, _sendfd, self);
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
@@ -685,7 +685,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	if(cached)
 		{ // we already have a socket with these specific properties ("data")
 #if 1
-			NSLog(@"### substitute by cached socket: %@ %d+1", cached, [self retainCount]);
+			NSLog(@"### substitute by cached socket: %@ %lu+1", cached, (unsigned long)[self retainCount]);
 #endif
 			if(cached != self)
 				{ // substitute
@@ -1127,7 +1127,7 @@ struct PortFlags {
 	uint8_t len;
 };
 
-+ (NSData *) _machMessageWithId:(unsigned) msgid forSendPort:(NSPort *)sendPort receivePort:(NSPort *)receivePort components:(NSArray *)components
++ (NSData *) _machMessageWithId:(NSUInteger) msgid forSendPort:(NSPort *)sendPort receivePort:(NSPort *)receivePort components:(NSArray *)components
 { // encode components as a binary message
 	struct PortFlags port;
 	NSMutableData *d=[NSMutableData dataWithCapacity:64+16*[components count]];	// some reasonable initial allocation
@@ -1315,7 +1315,7 @@ struct PortFlags {
 					}
 					default: {
 #if 1
-						NSLog(@"unexpected record type %u at pos=%u", record.type, bp-(char *) buffer);
+						NSLog(@"unexpected record type %u at pos=%ld", record.type, bp-(char *) buffer);
 #endif
 						[self release];
 						return nil;
@@ -1346,7 +1346,7 @@ struct PortFlags {
 		{
 		_recv=[anotherPort retain];
 		_send=[aPort retain];
-		_components=[items retain];
+		_components=(NSMutableArray *)[items retain];
 		}
 	return self;
 }

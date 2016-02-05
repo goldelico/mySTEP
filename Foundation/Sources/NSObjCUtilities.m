@@ -621,7 +621,7 @@ NSString *
 NSStringFromSelector(SEL aSelector)
 {
 	if (aSelector != (SEL)0)
-		return [NSString stringWithUTF8String:(const char *) sel_get_name(aSelector)];
+		return [NSString stringWithUTF8String:(const char *) sel_getName(aSelector)];
 	return nil;
 }
 

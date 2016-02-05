@@ -627,7 +627,7 @@
 }
 
 + (NSPredicate *) predicateWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *) right
-									 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(unsigned) opts;
+									 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(NSUInteger) opts;
 {
 	return [[[self alloc] initWithLeftExpression:left rightExpression:right
 										modifier:modifier type:type options:opts] autorelease];
@@ -649,7 +649,7 @@
 }
 
 - (id) initWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *)right
-					 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(unsigned) opts;
+					 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(NSUInteger) opts;
 {
 	if((self=[super init]))
 		{
@@ -686,7 +686,7 @@
 }
 
 - (NSExpression *) leftExpression; { return _left; }
-- (unsigned) options; { return _options; }
+- (NSUInteger) options; { return _options; }
 - (NSPredicateOperatorType) predicateOperatorType; { return _type; }
 - (NSExpression *) rightExpression; { return _right; }
 

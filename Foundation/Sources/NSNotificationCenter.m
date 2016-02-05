@@ -57,7 +57,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (unsigned) hash
 {
-	return ((long)observer >> 4)+ __NSHashCString(NULL,sel_get_name(selector));
+	return ((long)observer >> 4)+ __NSHashCString(NULL,sel_getName(selector));
 }
 
 - (NSString *) description;

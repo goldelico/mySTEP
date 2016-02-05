@@ -110,7 +110,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 
 - (id) init							{ return [self initWithCondition: 0]; }
 
-- (id) initWithCondition:(int)value					// Designated initializer 
+- (id) initWithCondition:(NSInteger)value					// Designated initializer
 {
 	self=[super init];	
 	
@@ -141,9 +141,9 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 	[super dealloc];
 }
 									// Return the current condition of the lock
-- (int) condition				{ return _conditionValue; }
+- (NSInteger) condition				{ return _conditionValue; }
 
-- (void) lockWhenCondition:(int)value
+- (void) lockWhenCondition:(NSInteger)value
 {
 #ifndef __APPLE__
 	if ((_mutex)->owner == objc_thread_id())
@@ -160,7 +160,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 #endif
 }
 
-- (void) unlockWithCondition:(int)value
+- (void) unlockWithCondition:(NSInteger)value
 {
 #ifndef __APPLE__
 	int depth = objc_mutex_trylock (_mutex);
@@ -198,7 +198,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 #endif
 }
 
-- (BOOL) tryLockWhenCondition:(int)value	// tryLock message will check for 
+- (BOOL) tryLockWhenCondition:(NSInteger)value	// tryLock message will check for
 {											// recursive locks
 	if ([self tryLock])						// Can we even get the lock?
 		{
@@ -212,7 +212,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 }
 									// Acquiring the lock with a date condition
 - (BOOL) lockBeforeDate:(NSDate *)limit			{ NIMP return NO; }
-- (BOOL) lockWhenCondition:(int)condition
+- (BOOL) lockWhenCondition:(NSInteger)condition
                 beforeDate:(NSDate *)limit		{ NIMP return NO; }
 
 													// NSLocking protocol

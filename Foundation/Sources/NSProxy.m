@@ -46,8 +46,8 @@
 #endif
 }
 
-+ (unsigned) retainCount		{ return UINT_MAX; }
-- (unsigned int) retainCount	{ return (((_object_layout)(self))[-1].retained)+1; }
++ (NSUInteger) retainCount		{ return UINT_MAX; }
+- (NSUInteger) retainCount	{ return (((_object_layout)(self))[-1].retained)+1; }
 
 // NOTE: it appears that init is not defined on OSX!
 
@@ -65,7 +65,7 @@
 	return self;
 }
 
-- (void) release
+- (oneway void) release
 {
 	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
 			{
@@ -105,7 +105,7 @@
 	return NO;
 }
 
-- (NSString*) descriptionWithLocale:(id)locale indent:(unsigned int)indent;
+- (NSString*) descriptionWithLocale:(id)locale indent:(NSUInteger)indent;
 { // called in decription of NSArray etc. - don't bother the distant object with that
 	return [self descriptionWithLocale:locale];
 }
@@ -179,7 +179,7 @@
 }
 
 - (BOOL) isProxy							{ return YES; }
-- (unsigned int) hash						{ return (unsigned int)self; }
+- (NSUInteger) hash						{ return (unsigned int)self; }
 
 // which of these should be forwarded as well?
 
@@ -189,7 +189,7 @@
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
 { // default implementation raises exception
-	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
+	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_getName(_cmd)];
 	return nil;
 }
 

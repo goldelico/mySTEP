@@ -345,7 +345,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
     }
 }
 
-- (int) groupingLevel
+- (NSInteger) groupingLevel
 {
   PrivateUndoGroup	*g = (PrivateUndoGroup*)_group;
   int			level = 0;
@@ -399,7 +399,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
     }
 }
 
-- (unsigned int) levelsOfUndo
+- (NSUInteger) levelsOfUndo
 {
   return _levelsOfUndo;
 }
@@ -564,7 +564,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
     }
 }
 
-- (void) setLevelsOfUndo: (unsigned)num
+- (void) setLevelsOfUndo: (NSUInteger)num
 {
   _levelsOfUndo = num;
   if (num > 0)

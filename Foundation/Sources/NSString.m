@@ -421,7 +421,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [[[self alloc] initWithString: aString] autorelease];
 }
 
-+ (id) stringWithCharacters:(const unichar*)chars length:(unsigned int)length
++ (id) stringWithCharacters:(const unichar*)chars length:(NSUInteger)length
 {
 #if 0
 	NSLog(@"%@ stringWithCharacters:%p length:%u", NSStringFromClass([self class]), chars, length);
@@ -532,7 +532,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 					  length:(unsigned int)length
 				freeWhenDone:(BOOL)flag			{ return SUBCLASS }
 
-- (id) initWithCharacters:(const unichar*)chars length:(unsigned int)length
+- (id) initWithCharacters:(const unichar*)chars length:(NSUInteger)length
 {
 	unichar	*s = objc_malloc(sizeof(unichar)*length);
 	if(!s)
@@ -552,14 +552,14 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithBytes:(const void *)bytes
-			  length:(unsigned)length
+			  length:(NSUInteger)length
 			encoding:(NSStringEncoding)enc;
 {
 	return [self initWithData:[NSData dataWithBytes:bytes length:length] encoding:enc];
 }
 
 - (id) initWithBytesNoCopy:(void *)bytes
-					length:(unsigned)length
+					length:(NSUInteger)length
 				  encoding:(NSStringEncoding)enc
 			  freeWhenDone:(BOOL)flag;
 {
@@ -826,7 +826,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(!d)
 		{
 		objc_free(s);
-		NSLog(@"initWithData:encoding: encoding %d undefined", encoding);
+		NSLog(@"initWithData:encoding: encoding %lu undefined", (unsigned long)encoding);
 		[self release];
 		return nil;
 		}
@@ -836,7 +836,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self initWithCharactersNoCopy:s length:sp-s freeWhenDone:YES];
 }
 
-- (unsigned) maximumLengthOfBytesUsingEncoding:(NSStringEncoding)enc;
+- (NSUInteger) maximumLengthOfBytesUsingEncoding:(NSStringEncoding)enc;
 { // estimate depending on encoding (make it long enough for all cases) in O(1) time
 	if(enc == NSUnicodeStringEncoding)
 		return 2*[self length]+2+1;
@@ -904,7 +904,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [[self dataUsingEncoding:enc allowLossyConversion:NO] _autoFreeBytesWith0:YES];	// convert and return 0-terminated string
 }
 
-- (BOOL) getCString:(char *)buffer maxLength:(unsigned)maxLength encoding:(NSStringEncoding)enc;
+- (BOOL) getCString:(char *)buffer maxLength:(NSUInteger)maxLength encoding:(NSStringEncoding)enc;
 { // encode to buffer
 	uniencoder e=encodeuni(enc);		// get appropriate encoder function
 	unsigned char *bp;
@@ -975,11 +975,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) copyWithZone:(NSZone *) z					{ return [self retain]; }
-- (unsigned int) length								{ return _count; }
+- (NSUInteger) length								{ return _count; }
 - (NSString*) description							{ return self; }
 - (const char *) cString							{ SUBCLASS return 0; }
 - (unsigned int) cStringLength						{ SUBCLASS return 0; }
-- (unichar) characterAtIndex:(unsigned int)index	{ SUBCLASS return 0; }
+- (unichar) characterAtIndex:(NSUInteger)index	{ SUBCLASS return 0; }
 - (void) getCharacters:(unichar*)buffer				{ SUBCLASS }
 - (void) getCharacters:(unichar*)buffer 
 				 range:(NSRange)aRange				{ SUBCLASS }
@@ -992,7 +992,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	  remainingRange:NULL];
 }
 
-- (void) getCString:(char*)buffer maxLength:(unsigned int)maxLength
+- (void) getCString:(char*)buffer maxLength:(NSUInteger)maxLength
 {
 	[self getCString:buffer 
 		   maxLength:maxLength 
@@ -1001,13 +1001,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (void) getCString:(char *) buffer
-		  maxLength:(unsigned int) maxLength
+		  maxLength:(NSUInteger) maxLength
 			  range:(NSRange) aRange
 	 remainingRange:(NSRange *)leftoverRange
 { // FIX ME adjust range for composite sequence
 	uniencoder e;
 	unsigned char *bp;
-	int i = aRange.location;
+	NSUInteger i = aRange.location;
 #if OLD
 	if(aRange.location > len)
 		[NSException raise: NSRangeException format:@"Invalid location."];
@@ -1042,11 +1042,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 }
 
-- (unsigned) lengthOfBytesUsingEncoding:(NSStringEncoding)enc;
+- (NSUInteger) lengthOfBytesUsingEncoding:(NSStringEncoding)enc;
 { // determine exact length in O(n) time
 	uniencoder e=encodeuni(enc);		// get appropriate encoder function
-	unsigned long len=0;
-	int i;
+	NSUInteger len=0;
+	NSUInteger i;
 	unsigned char buf[8], *bp;
 	if(!e)
 		return 0;	// unknown encoding
@@ -1140,7 +1140,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return array;
 }
 
-- (NSString*) substringFromIndex:(unsigned int)index
+- (NSString*) substringFromIndex:(NSUInteger)index
 {
 	return [self substringWithRange:((NSRange){index, _count - index})];
 }
@@ -1164,7 +1164,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 									 freeWhenDone: YES] autorelease];
 }
 
-- (NSString*) substringToIndex:(unsigned int)index
+- (NSString*) substringToIndex:(NSUInteger)index
 {
 	return [self substringWithRange:((NSRange){0, index})];;
 }
@@ -1637,7 +1637,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return (NSRange){NSNotFound, 0};
 }
 
-- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(unsigned int)anIndex
+- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger)anIndex
 {								
 	unsigned int end, start = anIndex;						// Determining Composed Character Sequences
 	while (uni_isnonsp([self characterAtIndex: start]) && start > 0)
@@ -1796,14 +1796,14 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self isEqual:obj];
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	if (_count)
 		{
 		unichar *source, *p, *target, *spoint, *tpoint;
 		unichar *dpoint, *first, *second, tmp;
-		unsigned ret = 0, char_count = 0;
-		int count, len2, len;
+		NSUInteger ret = 0, char_count = 0;
+		NSUInteger count, len2, len;
 		BOOL notdone;
 		
 		len = (_count > NSHashStringLength) ? NSHashStringLength : _count;
@@ -1876,13 +1876,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		// 
 		
 		if (ret == 0)				// The hash caching in our concrete string classes uses zero to denote an empty cache value, so we MUST NOT return a hash of zero.
-			ret = (unsigned int) -1; 
+			ret = (NSUInteger) -1;
 		objc_free(source);
 		objc_free(target);
 		return ret;  
 		} 
 	else
-		return (unsigned int) -2;						// Hash for an empty string.
+		return (NSUInteger) -2;						// Hash for an empty string.
 }
 
 - (BOOL) hasPrefix:(NSString*)aString
@@ -2030,8 +2030,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSRange) paragraphRangeForRange:(NSRange)aRange
 {
-	unsigned int startIndex;
-	unsigned int lineEndIndex;
+	NSUInteger startIndex;
+	NSUInteger lineEndIndex;
 	[self getParagraphStart: &startIndex 
 						end: &lineEndIndex 
 				contentsEnd: NULL
@@ -2041,8 +2041,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSRange) lineRangeForRange:(NSRange)aRange
 {
-	unsigned int startIndex;
-	unsigned int lineEndIndex;
+	NSUInteger startIndex;
+	NSUInteger lineEndIndex;
 	[self getLineStart: &startIndex 
 				   end: &lineEndIndex 
 		   contentsEnd: NULL
@@ -2050,17 +2050,17 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return (NSRange){startIndex, lineEndIndex - startIndex};
 }
 
-- (void) getParagraphStart:(unsigned int *)startIndex
-					   end:(unsigned int *)lineEndIndex
-			   contentsEnd:(unsigned int *)contentsEndIndex
+- (void) getParagraphStart:(NSUInteger *)startIndex
+					   end:(NSUInteger *)lineEndIndex
+			   contentsEnd:(NSUInteger *)contentsEndIndex
 				  forRange:(NSRange)aRange
 {
 	NIMP;
 }
 
-- (void) getLineStart:(unsigned int *)startIndex
-				  end:(unsigned int *)lineEndIndex
-		  contentsEnd:(unsigned int *)contentsEndIndex
+- (void) getLineStart:(NSUInteger *)startIndex
+				  end:(NSUInteger *)lineEndIndex
+		  contentsEnd:(NSUInteger *)contentsEndIndex
 			 forRange:(NSRange)aRange
 {
 	unichar thischar;
@@ -2258,7 +2258,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return atoi(s) != 0;	// also accept 0 and 1
 }
 
-- (unsigned int) completePathIntoString:(NSString**)outputName
+- (NSUInteger) completePathIntoString:(NSString**)outputName
 						  caseSensitive:(BOOL)flag
 					   matchesIntoArray:(NSArray**)outputArray
 							filterTypes:(NSArray*)filterTypes
@@ -2314,7 +2314,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (const char*) fileSystemRepresentation		{ return [[NSFileManager defaultManager] fileSystemRepresentationWithPath:self]; }
 
-- (BOOL) getFileSystemRepresentation:(char*)buffer maxLength:(unsigned int)size
+- (BOOL) getFileSystemRepresentation:(char*)buffer maxLength:(NSUInteger)size
 {
 	const char *ptr = [[NSFileManager defaultManager] fileSystemRepresentationWithPath:self];
 	
@@ -2876,10 +2876,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return o;
 }
 
-- (NSString *) stringByPaddingToLength:(unsigned)len withString:(NSString *) pad startingAtIndex:(unsigned) index;
+- (NSString *) stringByPaddingToLength:(NSUInteger)len withString:(NSString *) pad startingAtIndex:(NSUInteger) index;
 {
-	unsigned count=[self length];
-	unsigned pcount;
+	NSUInteger count=[self length];
+	NSUInteger pcount;
 	NSMutableString *r;
 	// assert that index < pcount!
 	if(count == len)
@@ -2991,7 +2991,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return NSAllocateObject(_mutableStringClass, 0, z);
 }
 
-+ (NSMutableString*) stringWithCapacity:(unsigned)capacity
++ (NSMutableString*) stringWithCapacity:(NSUInteger)capacity
 {
 	return [[[self alloc] initWithCapacity:capacity] autorelease];
 }
@@ -3010,12 +3010,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (void) appendFormat:(NSString*)format, ...;		{ SUBCLASS; }
 - (void) appendString:(NSString*)aString;			{ SUBCLASS; }
 - (void) deleteCharactersInRange:(NSRange)range;	{ SUBCLASS; }
-- (id) initWithCapacity:(unsigned)capacity;			{ return SUBCLASS; }
-- (void) insertString:(NSString*)aString atIndex:(unsigned)index;	{ SUBCLASS; }
+- (id) initWithCapacity:(NSUInteger)capacity;			{ return SUBCLASS; }
+- (void) insertString:(NSString*)aString atIndex:(NSUInteger)index;	{ SUBCLASS; }
 - (void) replaceCharactersInRange:(NSRange)range withString:(NSString*)aString; { SUBCLASS; }
-- (unsigned int) replaceOccurrencesOfString: (NSString*)replace
+- (NSUInteger) replaceOccurrencesOfString: (NSString*)replace
 								 withString: (NSString*)by
-									options: (unsigned int)opts
+									options: (NSUInteger)opts
 									  range: (NSRange)searchRange				{ SUBCLASS; return 0; }
 - (void) setString:(NSString*)aString;											{ SUBCLASS; }
 
@@ -3223,12 +3223,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return ((mi == _count) && (si == aString->_count)) ? YES : NO;
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	return _hash == 0 ? (_hash = _strHashImp(self,@selector(hash))) : _hash;
 }
 
-- (unichar) characterAtIndex:(unsigned int)index
+- (unichar) characterAtIndex:(NSUInteger)index
 {
 	if (index >= _count)
 		[NSException raise: NSRangeException format:@"Invalid index."];
@@ -3583,7 +3583,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	buffer[_count] = '\0';
 }
 
-- (void) getCString:(char*)buffer maxLength:(unsigned int)maxLength
+- (void) getCString:(char*)buffer maxLength:(NSUInteger)maxLength
 {
 	if (maxLength > _count)
 		maxLength = _count;
@@ -3622,7 +3622,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	buffer[len] = '\0';
 }
 
-- (unichar) characterAtIndex:(unsigned int)index
+- (unichar) characterAtIndex:(NSUInteger)index
 {
 	unidecoder d=decodeuni(__cStringEncoding);		// get appropriate encoder function
 	unsigned char *c;
@@ -3630,7 +3630,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if (index >= _count)
 		[NSException raise: NSRangeException 
 					format: @"in %s, index %d is out of range", 
-		 sel_get_name(_cmd), index];
+		 sel_getName(_cmd), index];
 	// CHECKME/FIXME: this does not work for UTF8 as defaultCStringEncoding
 	c=(unsigned char *) _cString+index;
 	return (*d)(&c);
@@ -3645,7 +3645,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #endif
 	if(!d)
 		{
-		NSLog(@"invalid default C string encoding %d", __cStringEncoding);
+		NSLog(@"invalid default C string encoding %lu", (unsigned long)__cStringEncoding);
 		return;
 		}
 	p=(unsigned char *) _cString;
@@ -3742,7 +3742,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(byteString[length] != 0)
 		{
 		NSLog(@"warning: initWithCStringNoCopy is not 0-terminated: %p[%u]", byteString, length);
-		NSLog(@"warning: initWithCStringNoCopy is not 0-terminated: %.*s", byteString, length);
+		NSLog(@"warning: initWithCStringNoCopy is not 0-terminated: %.*s", length, byteString);
 		}
 	_count = length;
 	_cString = byteString;
@@ -3789,7 +3789,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 													freeWhenDone: YES];
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	return _hash == 0 ? (_hash = _strHashImp(self,@selector(hash))) : _hash;
 }

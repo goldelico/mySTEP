@@ -124,7 +124,7 @@ va_list va;
     return set;
 }
 
-+ (id) setWithObjects:(id*)objects count:(unsigned int)count
++ (id) setWithObjects:(id*)objects count:(NSUInteger)count
 {
     return [[[self alloc] initWithObjects:objects count:count] autorelease];
 }
@@ -136,11 +136,11 @@ va_list va;
 
 - (id) init												{ return SUBCLASS }
 - (id) initWithObjects:(id*)objects 
-				 count:(unsigned int)count 				{ return SUBCLASS }
+				 count:(NSUInteger)count 				{ return SUBCLASS }
 
 - (id) initWithArray:(NSArray*)array
 {
-	int i, n = [array count];
+	NSUInteger i, n = [array count];
 	id *objects = objc_malloc(sizeof(id)*n);
 
     for (i = 0; i < n; i++)
@@ -232,7 +232,7 @@ id array, key, keys = [self objectEnumerator];
     return [self member:anObject] ? YES : NO;
 }
 
-- (unsigned int) count									{ SUBCLASS return 0; }
+- (NSUInteger) count									{ SUBCLASS return 0; }
 - (id) member:(id)anObject								{ return SUBCLASS }
 - (NSEnumerator*) objectEnumerator						{ return SUBCLASS }
 
@@ -321,13 +321,13 @@ id key, keys = [self objectEnumerator];
 }
 
 - (NSString*) descriptionWithLocale:(id)locale
-							 indent:(unsigned int)indent;
+							 indent:(NSUInteger)indent;
 {
 NSMutableString *description = [NSMutableString stringWithCString:"(\n"];
-unsigned int indent1 = indent + 4;
+NSUInteger indent1 = indent + 4;
 NSMutableString *indentation = [NSString stringWithFormat:
 						[NSString stringWithFormat:@"%%%dc", indent1], ' '];
-unsigned int count = [self count];
+NSUInteger count = [self count];
 SEL sel = @selector(appendString:);
 IMP imp = [description methodForSelector:sel];
 
@@ -379,7 +379,7 @@ IMP imp = [description methodForSelector:sel];
     return description;
 }
 
-- (unsigned) hash							{ return [self count]; }
+- (NSUInteger) hash							{ return [self count]; }
 
 - (BOOL) isEqual:(id)anObject
 {
@@ -465,12 +465,12 @@ IMP imp = [description methodForSelector:sel];
 							0, z);
 }
 
-+ (id) setWithCapacity:(unsigned)numItems
++ (id) setWithCapacity:(NSUInteger)numItems
 {
     return [[[[self class] alloc] initWithCapacity:numItems] autorelease];
 }
 
-- (id) initWithCapacity:(unsigned)numItems				{ return SUBCLASS }
+- (id) initWithCapacity:(NSUInteger)numItems				{ return SUBCLASS }
 - (void) addObject:(id)object							{ SUBCLASS }
 - (void) removeObject:(id)object						{ SUBCLASS }
 
@@ -544,7 +544,7 @@ id key, en = [self objectEnumerator];
     return self;
 }
 
-- (id) initWithObjects:(id*)objects count:(unsigned int)count
+- (id) initWithObjects:(id*)objects count:(NSUInteger)count
 {
 unsigned i;
 
@@ -573,7 +573,7 @@ id obj, en = [set objectEnumerator];
 }
 
 - (id) copyWithZone:(NSZone *) z						{ return [self retain]; }
-- (unsigned int) count			{ return NSCountHashTable(table); }
+- (NSUInteger) count			{ return NSCountHashTable(table); }
 - (id) member:(id)anObject		{ return (NSObject*)NSHashGet(table,anObject);}
 
 - (NSEnumerator *) objectEnumerator
@@ -603,9 +603,9 @@ id obj, en = [set objectEnumerator];
     return self;
 }
 
-- (id) initWithObjects:(id*)objects count:(unsigned int)count
+- (id) initWithObjects:(id*)objects count:(NSUInteger)count
 {
-	unsigned i;
+	NSUInteger i;
 	table = NSCreateHashTable(NSObjectHashCallBacks, count);
     for (i = 0; i < count; i++)
 		NSHashInsert(table, objects[i]);
@@ -626,7 +626,7 @@ id obj, en = [set objectEnumerator];
     return self;
 }
 
-- (id) initWithCapacity:(unsigned int)numItems
+- (id) initWithCapacity:(NSUInteger)numItems
 {
 	table = NSCreateHashTable(NSObjectHashCallBacks, numItems);
 	return self;
@@ -652,7 +652,7 @@ id obj, en = [set objectEnumerator];
 - (void) addObject:(id)object		{ NSHashInsert(table, object); }
 - (void) removeObject:(id)object	{ NSHashRemove(table, object); }
 - (void) removeAllObjects			{ NSResetHashTable(table); }
-- (unsigned int) count				{ return NSCountHashTable(table); }
+- (NSUInteger) count				{ return NSCountHashTable(table); }
 
 - (void) __setObjectEnumerator:(void*)en;					// Private methods
 {
@@ -672,7 +672,7 @@ id obj, en = [set objectEnumerator];
 - (id) init						{ return [self initWithCapacity:0]; }
 
 - (id) initWithObjects:(id*)objects 
-				 count:(unsigned int)count
+				 count:(NSUInteger)count
 {
 	unsigned int i;
 	for(i=0; i<count; i++)
@@ -698,7 +698,7 @@ id obj, en = [set objectEnumerator];
     return self;
 }
 
-- (id) initWithCapacity:(unsigned int)aNumItems
+- (id) initWithCapacity:(NSUInteger)aNumItems
 {
 	table = NSCreateMapTable(NSObjectMapKeyCallBacks,
 							 NSIntMapValueCallBacks,
@@ -717,7 +717,7 @@ id obj, en = [set objectEnumerator];
     return [[NSCountedSet alloc] initWithSet:self];
 }
 
-- (unsigned int) count					{ return NSCountMapTable(table); }
+- (NSUInteger) count					{ return NSCountMapTable(table); }
 
 - (id) member:(id)anObject
 {
@@ -726,7 +726,7 @@ id k, v;
     return NSMapMember(table,(void*)anObject,(void**)&k, (void**)&v) ? k : nil;
 }
 
-- (unsigned) countForObject:(id)anObject
+- (NSUInteger) countForObject:(id)anObject
 {
     return (unsigned)(unsigned long)NSMapGet(table, anObject);
 }
@@ -746,7 +746,7 @@ id k, v;
 - (void) removeAllObjects				{ NSResetMapTable(table); }
 
 - (NSString*) descriptionWithLocale:(id)locale
-							 indent:(unsigned int)level;
+							 indent:(NSUInteger)level;
 {
 int count = [self count];
 NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:count];

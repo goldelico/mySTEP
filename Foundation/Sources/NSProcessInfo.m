@@ -155,7 +155,7 @@ static id __processInfo = nil;
 // disable release
 - (id) autorelease						{ return self; }
 - (id) retain							{ return self; }
-- (void) release						{ return; }
+- (oneway void) release						{ return; }
 - (NSUInteger) processorCount;			{ return 1; }
 - (unsigned long long) physicalMemory;	{ return 0; }
 - (NSUInteger) activeProcessorCount;	{ return 1; }

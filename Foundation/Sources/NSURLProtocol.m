@@ -185,7 +185,7 @@ static NSMutableArray *_registeredClasses;
 		{ // here we are called for a subclass
 			_request=[request copy];	// save a copy of the request
 			_cachedResponse=[cachedResponse retain];
-			_client=[(NSObject *) client retain];	// we must retain the client (or it may disappear while we still receive data)
+			[(NSObject *) (_client=client) retain];	// we must retain the client (or it may disappear while we still receive data)
 		}
 #if 0
 	NSLog(@"  -> %@", self);
@@ -280,7 +280,7 @@ static NSMutableDictionary *_httpConnections;
 {
 #if 1
 	NSLog(@"dealloc %@", self);
-	NSLog(@"  connections: %d", [_httpConnections count]);
+	NSLog(@"  connections: %lu", (unsigned long)[_httpConnections count]);
 #endif
 	NSAssert([_requestQueue count] == 0, @"unprocessed requests left over!");	// otherwise we loose requests
 	[_currentRequest _setConnection:nil];	// has been processed
@@ -390,7 +390,7 @@ static NSMutableDictionary *_httpConnections;
 	NSString *header;
 	NSCachedURLResponse *cachedResponse;
 	[_currentRequest release];	// release any done request
-	_currentRequest=[protocol retain];
+	_currentRequest=(_NSHTTPURLProtocol *)[protocol retain];
 	[_requestQueue removeObjectAtIndex:0];	// remove from queue
 	if(!_outputStream && ![self connectToServer])	// connect to server
 		{
@@ -759,7 +759,7 @@ static NSMutableDictionary *_httpConnections;
 		default:
 		break;
 	}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [_inputStream streamError], event, _inputStream, self);
+	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [_inputStream streamError], (unsigned long)event, _inputStream, self);
 	[_currentRequest didFailWithError:[_inputStream streamError]];
 	[self endOfUseability];
 }
@@ -903,7 +903,7 @@ static NSMutableDictionary *_httpConnections;
 		default:
 		break;
 	}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [_outputStream streamError], event, _outputStream, self);
+	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [_outputStream streamError], (unsigned long)event, _outputStream, self);
 	[_currentRequest didFailWithError:[_outputStream streamError]];
 	[self endOfUseability];
 }
@@ -1190,7 +1190,7 @@ static NSMutableDictionary *_httpConnections;
 		NSLog(@"An event occurred on the output stream.");
 		// if successfully opened, send out FTP request header
 		}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
+	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [stream streamError], (unsigned long)event, stream, self);
 	[_client URLProtocol:self didFailWithError:[stream streamError]];
 	_client=nil;
 }

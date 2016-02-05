@@ -478,7 +478,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 
 // used to pass CF$UID values from (binary) keyedarchived property list
 
-+ (id) CFUIDwithValue:(unsigned) val;
++ (id) CFUIDwithValue:(NSUInteger) val;
 {
 	NSCFType *c=[[self new] autorelease];
 	if(c)
@@ -486,7 +486,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 	return c;
 }
 
-- (unsigned) uid; { return value; }
+- (NSUInteger) uid; { return value; }
 
 - (NSString *) description; { return [NSString stringWithFormat:@"NSCFType (%u)", value]; }
 
@@ -681,13 +681,13 @@ inline static unsigned _binaryLen(_NSBinaryPropertyList *self)
 static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off)
 { // read object
 	unsigned char byte;
-	int len;
+	NSInteger len;
 #if 0
 	NSLog(@"_binaryObject offset=%lu", off);
 #endif
 	if(off < sizeof(BPMAGIC)-1 || off >= self->length)
 		{ // not precise but clearly invalid
-		NSLog(@"_binaryObject(..., invalid off=%lu) length=%ld", off, self->length);
+		NSLog(@"_binaryObject(..., invalid off=%lu) length=%u", off, self->length);
 		return nil;	// some error
 		}
 	// here, we should check if we already have loaded this object and don't need to create a new instance

@@ -48,7 +48,7 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
 	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@" (unknown class)";
-	fprintf(stderr, "zombied obj=%p sel=%s obj=%s\n", s, sel_get_name(aSel), [s UTF8String]);
+	fprintf(stderr, "zombied obj=%p sel=%s obj=%s\n", s, sel_getName(aSel), [s UTF8String]);
 	NSLog(@"Trying to send selector -%@ to deallocated object: %p %@", NSStringFromSelector(aSel), self, s);
 	[NSException raise:NSInternalInconsistencyException format:@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s];
 	abort();
@@ -125,7 +125,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 		}
 }
 
-+ (void) setVersion:(int)aVersion
++ (void) setVersion:(NSInteger)aVersion
 {
 	if(aVersion < 0)
 		[self _error:"%s +setVersion: may not set a negative version", object_get_class_name(self)];
@@ -135,7 +135,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 + (id) alloc						{ return [self allocWithZone:NSDefaultMallocZone()]; }
 + (id) allocWithZone:(NSZone *) z;	{ return NSAllocateObject(self, 0, z?z:NSDefaultMallocZone()); }
 + (id) new							{ return [[self allocWithZone:NSDefaultMallocZone()] init]; }
-+ (int) version						{ return class_get_version(self); }
++ (NSInteger) version				{ return class_get_version(self); }
 + (void) poseAsClass:(Class)aClass	{ class_pose_as(self, aClass); }
 + (Class) class						{ return self; }
 - (Class) class						{ return object_get_class(self); }
@@ -286,8 +286,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (id) autorelease					{ return self; }
 + (id) retain						{ return self; }
 + (oneway void) release				{ return; }
-+ (unsigned int) retainCount			{ return UINT_MAX; }
-- (unsigned int) retainCount			{ return (((_object_layout)(self))[-1].retained)+1; }
++ (NSUInteger) retainCount			{ return UINT_MAX; }
+- (NSUInteger) retainCount			{ return (((_object_layout)(self))[-1].retained)+1; }
 
 - (id) autorelease
 {
@@ -334,7 +334,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #else
 			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
-			isa=__zombieClass;	// make us a zombie object
+			_setClass(self, __zombieClass);	// make us a zombie object
 			[arp release];
 			NSZombieEnabled=YES;
 			}
@@ -369,7 +369,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	return _classIsKindOfClass([self class], aClass);
 }
 
-- (unsigned) hash						{ return (unsigned)self; }
+- (NSUInteger) hash						{ return (NSUInteger)self; }
 - (BOOL) isEqual:(id)anObject			{ return (self == anObject); }
 - (BOOL) isMemberOfClass:(Class)aClass	{ return [self class] == aClass; }
 - (BOOL) isProxy						{ return NO; }
@@ -488,6 +488,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #endif
 	// CHECKME: should we also check for Protocols?
     return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : (NSMethodSignature *) nil;
+#else
+	return nil;
 #endif
 }
 
@@ -537,6 +539,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
+#else
+	return nil;
 #endif
 }
 

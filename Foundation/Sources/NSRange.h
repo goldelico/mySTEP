@@ -30,14 +30,14 @@
 
 typedef struct _NSRange
 {
-	unsigned int location;
-	unsigned int length;
+	NSUInteger location;
+	NSUInteger length;
 } NSRange, *NSRangePointer;
 
 static inline unsigned
 NSMaxRange(NSRange range) 
 {
-	unsigned int r=range.location + range.length;
+	NSUInteger r=range.location + range.length;
 #if LIMITED_NSMaxRange
 	if(r < range.location || r < range.length)
 		return UINT_MAX;	// range overflow

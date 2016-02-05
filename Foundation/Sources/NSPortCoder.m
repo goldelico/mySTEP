@@ -291,7 +291,7 @@ const char *objc_skip_typespec (const char *type)
 }
 
 - (void) encodeArrayOfObjCType:(const char*) type
-						 count:(unsigned int) count
+						 count:(NSUInteger) count
 							at:(const void*) array
 {
 	int size=objc_sizeof_type(type);
@@ -411,7 +411,7 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeObject:obj];
 }
 
-- (void) encodeBytes:(const void *) address length:(unsigned) numBytes;
+- (void) encodeBytes:(const void *) address length:(NSUInteger) numBytes;
 {
 	[self _encodeInteger:numBytes];
 	[[_components objectAtIndex:0] appendBytes:address length:numBytes];	// encode data
@@ -616,7 +616,7 @@ const char *objc_skip_typespec (const char *type)
 }
 
 - (void) decodeArrayOfObjCType:(const char*)type
-						 count:(unsigned)count
+						 count:(NSUInteger)count
 							at:(void*)array
 {
 	int size=objc_sizeof_type(type);
@@ -643,7 +643,7 @@ const char *objc_skip_typespec (const char *type)
 	return [[self decodeRetainedObject] autorelease];
 }
 
-- (void *) decodeBytesWithReturnedLength:(unsigned *) numBytes;
+- (void *) decodeBytesWithReturnedLength:(NSUInteger *) numBytes;
 {
 	NSData *d=[self decodeDataObject];	// will be autoreleased
 	if(numBytes)
@@ -686,7 +686,7 @@ const char *objc_skip_typespec (const char *type)
 			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
 			if(flag)
 				{
-				unsigned int len;
+				NSUInteger len;
 				char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
 				// check if last byte is 00
 				NSString *s=[NSString stringWithUTF8String:str];
@@ -702,7 +702,7 @@ const char *objc_skip_typespec (const char *type)
 			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
 			if(flag)
 				{
-				unsigned int len;
+				NSUInteger len;
 				char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
 				// check if last byte is really 00
 				NSString *s=[NSString stringWithUTF8String:str];
@@ -766,7 +766,7 @@ const char *objc_skip_typespec (const char *type)
 		case _C_ATOM:
 		case _C_CHARPTR: {
 			BOOL flag;
-			unsigned numBytes;
+			NSUInteger numBytes;
 			void *addr;
 			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
 			if(flag)
@@ -844,7 +844,7 @@ const char *objc_skip_typespec (const char *type)
 	}
 }
 
-- (int) versionForClassName:(NSString *) className
+- (NSInteger) versionForClassName:(NSString *) className
 { // can be called within initWithCoder to find out which version(s) to decode
 	NSNumber *version;
 #if 1
@@ -882,7 +882,7 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	[i getReturnValue:buffer];	// get value
-	NSLog(@"encodeReturnValue %08x (%d)", *(unsigned long *) buffer, [sig methodReturnLength]);
+	NSLog(@"encodeReturnValue %08lx (%lu)", *(unsigned long *) buffer, (unsigned long)[sig methodReturnLength]);
 	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	objc_free(buffer);
 }
@@ -1055,7 +1055,7 @@ const char *objc_skip_typespec (const char *type)
 	if(!obj)
 		[NSException raise:NSGenericException format:@"decodeRetainedObject: class %@ not instantiated %@", NSStringFromClass(class), [self _location]];
 #if 1
-	NSLog(@"decoded object=%p refcnt=%u", obj, [obj retainCount]);
+	NSLog(@"decoded object=%p refcnt=%lu", obj, (unsigned long)[obj retainCount]);
 #endif
 	return obj;
 }
