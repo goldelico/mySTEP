@@ -2059,7 +2059,7 @@ class NSWorkspace extends NSObject
 					/* control which apps the user may see - could also be handled by more sophisticated file access checks */
 					$privs=$b->objectForInfoDictionaryKey("Privileges");
 					if(is_null($privs))
-						$privs=array("root");	// root user required by default
+						$privs="root";	// no Privileges means this app requires root user by default
 					$ok=false;
 					foreach(explode(',', $privs) as $priv)
 						{
