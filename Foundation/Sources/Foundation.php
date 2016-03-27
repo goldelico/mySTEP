@@ -766,10 +766,16 @@ class NSFileManager extends NSObject
 	const NSFileType="NSFileType";
 	const NSFileTypeDirectory="NSFileTypeDirectory";
 	const NSFileTypeRegular="NSFileTypeRegular";
+	const NSFileSize="NSFileSize";
+	const NSFileCreationDate="NSFileCreationDate";
+	const NSFileModificationDate="NSFileModificationDate";
+	const NSFilePosixPermissions="NSFilePosixPermissions";
+
 	protected static $defaultManager;
 	protected $user="";
 	protected $defaults;
 	protected $registeredDefaults=array();
+
 	public function __construct()
 		{
 		parent::__construct();
@@ -822,6 +828,7 @@ class NSFileManager extends NSObject
 		$a=stat($f);
 		if($a === false)
 			return null;
+// _NSLog($a);
 		$attribs=array();
 /*
  * collect real file access permissions as defined by file system, local and global .htaccess etc.
@@ -829,10 +836,28 @@ class NSFileManager extends NSObject
  * user:
  * group:
  * other: defines access as through web server
+
+    [dev] => 16777220
+    [ino] => 39319525
+    [mode] => 16877
+    [nlink] => 8
+    [uid] => 503
+    [gid] => 503
+    [rdev] => 0
+    [size] => 272
+    [atime] => 1459098675
+    [mtime] => 1441134056
+    [ctime] => 1459098674
+    [blksize] => 4096
+    [blocks] => 0
+
  */
 		$attribs[NSFileManager::NSFileName]=$path;
 		$attribs[NSFileManager::NSFileType]=is_dir($f)?NSFileManager::NSFileTypeDirectory:NSFileManager::NSFileTypeRegular;
 // _NSLog($attribs);
+		$attribs[NSFileManager::NSFileSize]=$a['size'];
+		$attribs[NSFileManager::NSFileCreationDate]=$a['ctime'];
+		$attribs[NSFileManager::NSFileModificationDate]=$a['mtime'];
 		return $attribs;
 		}
 	public function setAttributesOfItemAtPath($path, $attributes)
