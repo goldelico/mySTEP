@@ -382,14 +382,18 @@ class NSPropertyListSerialization extends NSObject
 			}
 		return null;	// parse error
 		}
-	public static function propertyListFromPath($path)
+	public static function _propertyListFromPath($filename)
 		{
-		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 		NSLog("$filename =>");
 		$xml=@simplexml_load_file($filename);
 		if($xml === false)
 			return null;
 		return self::readPropertyListElementFromElement($xml);
+		}
+	public static function propertyListFromPath($path)
+		{
+		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
+		return self::_propertyListFromPath($filename);
 		}
 	private static function writePropertyListElementToFile(NSObject $element, $file)
 		{
