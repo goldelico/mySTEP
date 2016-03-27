@@ -2064,7 +2064,7 @@ class NSWorkspace extends NSObject
 					foreach(explode(',', $privs) as $priv)
 						{
 						// check if current user has $priv
-						// Hm. this basically requires to "know" the UserManager class and database
+						// Hm. this basically requires to "know" the UserManager class and database here!!!
 						$ok=true;
 						break;
 						}
@@ -2197,52 +2197,39 @@ _NSLog($exts);
 		}
 	public function _externalURLForPath($path)
 		{ // translate executable path into external URL
-		/* This depends heavily on the http server setup
-		   as well as on symlinks on the file system
-		   Therefore we can't automate it and need a
-		   host specific configuration file.
-		   This file is stored at /Library/Preferences/WebServer/$ip.txt
-		   The file describes the mapping from external URLs to files/directories on this server
-		   including the default index files.
-
-		   Format:
-		   http(s)://thedomain/subpath file-path index-file1 index-file2 ...
-		   # comment
-
-		   The file-path is already a fileSystemRepresentation.
-		*/
 		$fm=NSFileManager::defaultManager();
 		$exec=$fm->fileSystemRepresentationWithPath($path);
-		$rules=$fm->fileSystemRepresentationWithPath("/Library/Preferences/WebServer/".$_SERVER['SERVER_ADDR'].".txt");
-// _NSLog("find external URL for $exec");
-// _NSLog($rules);
-		$rules=@file($rules, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-		if($rules !== false)
-			{ // did load rules - try to translate
-			foreach($rules as $rule)
+		$exec=realpath($exec);	// expand symlinks
+		$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
+// _NSLog($plist);
+		if($plist)
+			{
+			$servers=$plist['server-setup'];	// get mapping pairs
+			$shortest="";
+			foreach($servers as $server)
 				{
-				if(substr($rule, 0, 1) == '#')
-					continue;	// ignore
-				$info=preg_split('/\s+/', $rule);
-// _NSLog($info);
-				$docroot=realpath($info[1]);	// is already a host filesystemRepresentation
-				$paths=$this->_scanDirectoryForExecutable($docroot, $info[0], $exec, array_slice($info, 2));
-				if(count($paths) > 0)
-					{ // found
-					$shortest="";
+// _NSLog($server);
+				$external=$server['web'];	// external root URL
+				$internal=$server['directory'];	// internal root
+				$internal=realpath($internal);	// expand symlinks
+// _NSLog("$exec vs. $internal -> $external");
+				$paths=$this->_scanDirectoryForExecutable($internal, $external, $exec, array("index.html", "index.php"));
 // _NSLog($paths);
-					foreach($paths as $path)
-						{
+				foreach($paths as $path)
+					{
 // _NSLog("path: $path");
-						if(!$shortest || strlen($path) < strlen($shortest))
-							$shortest=$path;
-						}
-// _NSLog("shortest: $shortest");
-					return $shortest;
+					if(!$shortest || strlen($path) < strlen($shortest))
+						$shortest=$path;
 					}
 				}
+// _NSLog("shortest: $shortest");
+			if($shortest)
+				return $shortest;
 			}
-		return "not found";	// no translation found - will lead to a 404 error
+		else
+			NSLog("no /Library/WebServer/mapping.plist available");
+// _NSLog("not found: file://localhost$exec");
+		return "unknown:/$exec";
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
@@ -2281,17 +2268,6 @@ _NSLog($exts);
 // _NSLog($bundle);
 		if(!is_null($bundle))
 			{
-/*
-   redirect browser to the URL of the application
-   i.e. map local bundle path to external URL
-   problem: this might even be a different domain!
-   where do we get the base URL from?
-   do we allow to specify the URL in the Info.plist?
-   No - because the mapping of external domains to the file hierarchy is deployment specific
-      unless we run everything from a single domain (then we can just use a relative URL)
-   So we must somehow have a database for this mapping
-*/
-
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
