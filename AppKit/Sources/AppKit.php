@@ -24,6 +24,7 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
+require_once "$ROOT/Internal/Frameworks/UserManager.framework/Versions/Current/php/UserManager.php";
 
 const NSLeftAlignment="left";
 const NSCenterAlignment="center";
