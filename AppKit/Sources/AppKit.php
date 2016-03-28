@@ -1621,6 +1621,9 @@ class NSTableView extends NSControl
 		// if ! extend -> delete previous otherwise merge into set
 		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
 		$this->setNeedsDisplay();
+		$delegate=$this->delegate();
+		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
+			$delegate->selectionDidChange($this);
 		}
 	public function mouseDown(NSEvent $event)
 		{
