@@ -223,14 +223,33 @@ function NSStringFromClass($class)
 	return $class;	// is already a string...
 	}
 
+class NSString extends NSObject
+{
+	protected $string;
+
+	public function __construct($string="")
+	{
+		parent::__construct();
+		$this->string=$string;
+	}
+
+	public function hasPrefix(NSString $str)
+	{
+	}
+
+	public function hasSuffix(NSString $str)
+	{
+	}
+}
+
 class NSArray extends NSObject
 {
 	protected $array;
 
-	public function __construct()
+	public function __construct($array=array())
 	{
 		parent::__construct();
-		$this->array=array();
+		$this->array=$array;
 	}
 
 	public function __destruct()
@@ -798,6 +817,8 @@ class NSFileManager extends NSObject
 			}
 		if(substr($ROOT, -1) != "/")
 			_NSLog("invalid \$ROOT (must end in /): $ROOT");	// must end in /
+		if(substr($path, 0, 5) == '/tmp/' && substr($path, 5, 2) != '..')	// FIXME: protected against /tmp/../anything
+			return $path;	// map directly to host
 		if(substr($path, 0, 1) == '/')
 			return substr($ROOT, 0, strlen($ROOT)-1).$path;	// absolute path - but don't duplicate the /
 		return $path;	// relative path
@@ -937,40 +958,51 @@ date_default_timezone_set("Europe/Berlin");
 
 class NSDate extends NSObject
 	{
-		protected $timestamp;
-	public function __construct()
+	protected $timestamp;
+
+	public function __construct($timestamp=time())
 		{
 		parent::__construct();
+		$this->timestamp=$timestamp;
 		}
-		public static function date() { $r=new NSDate; $r->timestamp=time(); }
-		public function description()
-			{
-			// return formatted string
-			}
+
+	public static function date() { $r=new NSDate(); return $r; }
+
+	public function description()
+		{
+		// return formatted string
+		}
+
 	public function dateWithString($str)
 		{ // YYYY-MM-DD HH:MM:SS ±HHMM
 		
 		}
+
 	public function dateWithTimeIntervalSince1970($interval)
 		{
 		
 		}
+
 	public function dateWithTimeIntervalSinceNow()
 		{
 		
 		}
+
 	public function dateWithTimeIntervalSinceReferenceDate()
 		{
 		
 		}
+
 	public function timeIntervalSinceReference1970()
 		{
 		return $timestamp;
 		}
+
 	public function timeIntervalSinceNow()
 		{
 		
 		}
+
 	public function timeIntervalSinceReferenceDate()
 		{
 		
@@ -981,7 +1013,8 @@ class NSDate extends NSObject
 
 class NSAttributedString extends NSObject
 	{
-		protected $html;
+	protected $html;
+
 	public function __construct()
 		{
 		parent::__construct();
