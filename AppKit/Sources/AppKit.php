@@ -1625,6 +1625,7 @@ class NSTableView extends NSControl
 	protected $visibleRows=0;	// 0 = infinite
 	protected $firstVisibleRow=0;
 	protected $selectedRow=-1;
+	protected $selectedColumn=-1;
 	protected $clickedRow;
 	protected $clickedColumn;
 	protected $doubleAction;
@@ -1644,6 +1645,7 @@ class NSTableView extends NSControl
 			_NSLog('please specify column headers of new NSTableView($headers) as array()');
 		$this->visibleRows=$visibleRows;
 		$this->selectedRow=$this->_persist("selectedRow", -1);
+		$this->selectedColumn=$this->_persist("selectedColumn", -1);
 		$this->columns=array();
 		foreach($headers as $title)
 			{
@@ -1681,6 +1683,10 @@ class NSTableView extends NSControl
 	public function selectedRow()
 		{
 		return ($this->selectedRow<$this->numberOfRows())?$this->selectedRow:-1;
+		}
+	public function selectedColumn()
+		{
+		return ($this->selectedColumn<$this->numberOfColumns())?$this->selectedColumn:-1;
 		}
 	public function selectRow($row, $extend=false)
 		{
