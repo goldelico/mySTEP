@@ -1262,43 +1262,108 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		}
 }
 
+// FIXME: handle multiple selections...
+
 class NSMatrix extends NSControl
 	{ // matrix of several buttons - radio buttons are grouped
 	protected $columns=1;
-	protected $rows=1;
+	protected $selectedColumn=-1;
+	protected $selectedRow=-1;
+	protected $clickedColumn=-1;
+	protected $clickedRow=-1;
 	protected $border=0;
 	protected $width="100%";
+	protected $currentCell;
+	protected $currentRow;
+	protected $currentColumn;
 
-	public function numberOfColumns() { $this->columns; }
-	public function numberOfRows() { $this->rows; }
+	public function numberOfColumns() { return $this->columns; }
+	public function numberOfRows() { return (count($this->subviews)+$this->columns-1)/$this->columns; }
 	public function setColumns($columns) { $this->columns=0+$columns; $this->setNeedsDisplay(); }
+
+	public function selectedRow()
+		{
+		return ($this->selectedRow<$this->numberOfRows())?$this->selectedRow:-1;
+		}
+
+	public function selectedColumn()
+		{
+		return ($this->selectedColumn<$this->numberOfColumns())?$this->selectedColumn:-1;
+		}
 
 	public function __construct($cols=1)
 		{
 		parent::__construct();
 		$this->columns=$cols;
+		$this->selectedRow=$this->_persist("selectedRow", -1);
+		$this->selectedColumn=$this->_persist("selectedColumn", -1);
+// _NSLog("init $this->elementId: $this->selectedRow / $this->selectedColumn");
 		}
 
-	// make click on a radio button trigger our action+target
-	// handle row/column index of cells - for click
-	// handle current selection
-
 	public function getRowColumnOfCell(&$row, &$col, $cell)
-		{
-		$row=1;
-		$col=1;
+		{ // here we use 0..n-1 coordinates!
+		if($cell === $this->currentCell)
+			{ // same as last time...
+			$row=$this->currentRow;
+			$col=$this->currentColumn;
+			return true;
+			}
+		$row=0;
+		$col=0;
 		foreach($this->subviews as $item)
 			{
 			if($item == $cell)
+				{
+				$this->currentRow=$row;
+				$this->currentColumn=$col;
+				$this->currentCell=$cell;
 				return true;
+				}
 			$col++;
-			if($col > $this->columns)
+			if($col >= $this->columns)
 				{
 				$row++;
-				$col=1;
+				$col=0;
 				}
 			}
 		return false;
+		}
+
+	public function cellAtRowColumn($row, $column)
+		{
+		if($row < 0 || $row >= $this->numberOfRows())
+			return null;
+		if($column < 0 || $column >= $this->columns)
+			return null;
+		$idx=$row*$this->columns+$column;
+		return $this->subviews[$idx];
+		}
+
+	public function selectedCell()
+		{
+		return $this->cellAtRowColumn($this->selectedRow, $this->selectedColumn);
+		}
+
+	public function selectRowColumn($row, $column)
+		{
+// _NSLog("select old $this->elementId: $this->selectedRow / $this->selectedColumn");
+		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
+		$this->selectedColumn=$this->_persist("selectedColumn", -1, $column);
+// _NSLog("select new $this->elementId: $this->selectedRow / $this->selectedColumn");
+		$item=$this->cellAtRowColumn($row, $column);
+		if(!is_null($item))
+			$item->setState(true);	// set item selected
+		$this->setNeedsDisplay();
+		}
+
+	public function mouseDown(NSEvent $event)
+		{
+		$pos=$event->position();
+		$this->clickedColumn=$pos['x'];
+		$this->clickedRow=$pos['y'];
+// _NSLog("mouseDown $this->elementId: $this->clickedRow / $this->clickedColumn");
+		$this->selectRowColumn($this->clickedRow, $this->clickedColumn);
+		$this->sendAction();
 		}
 
 	public function display()
@@ -1311,35 +1376,35 @@ class NSMatrix extends NSControl
 		parameter("border", $this->border);
 		parameter("width", $this->width);
 		html(">\n");
-		$this->rows=1;
-		$col=1;
+		$row=0;
+		$col=0;
 		foreach($this->subviews as $item)
 			{
-			if($col == 1)
+			if($col == 0)
 				html("<tr>");
 			html("<td");
 			parameter("class", "NSMatrixItem");
 			if($this->align)
 				parameter("align", $this->align);
 			html(">\n");
-			// set selected if $col and $row matches
-			// handle radio button behaviour
+			$item->setState($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected
+			$this->currentCell=$item;	// use cache when calling getRowColumnOfCell from within $item->display()
+			$this->currentRow=$row;
+			$this->currentColumn=$col;
 			$item->display();
 			html("</td>");
 			$col++;
-			if($col > $this->columns)
+			if($col >= $this->columns)
 				{
 				html("</tr>\n");
-				$this->rows++;
-				$col=1;
+				$row++;
+				$col=0;
 				}
 			}
-		if($this->columns == 0)
-			return;
 		if($col > 1)
 			{ // handle missing colums
+				// &nbsp; ?
 				html("</tr>\n");
-				$this->rows++;
 			}
 		html("</table>\n");
 		}
