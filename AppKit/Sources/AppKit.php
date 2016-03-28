@@ -612,10 +612,12 @@ NSLog($this->description()." sendAction $action");
 		$this->action=$action;
 		$this->target=$target;
 		}
+	public function action() { return $this->action; }
+	public function target() { return $this->target; }
 	public function setTag($val) { $this->tag=$val; }
 	public function tag() { return $this; }
-	public function align() { return $this->align; }
 	public function setAlign($align) { $this->align=$align; }
+	public function align() { return $this->align; }
 	}
 
 class NSButton extends NSControl
