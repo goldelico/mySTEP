@@ -960,9 +960,11 @@ class NSDate extends NSObject
 	{
 	protected $timestamp;
 
-	public function __construct($timestamp=time())
+	public function __construct($timestamp=null)
 		{
 		parent::__construct();
+		if(is_null($timestamp))
+			$timestamp=time();
 		$this->timestamp=$timestamp;
 		}
 
