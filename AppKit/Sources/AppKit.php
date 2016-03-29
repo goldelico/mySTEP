@@ -2136,14 +2136,20 @@ class NSWorkspace extends NSObject
 					/* control which apps the user may see - could also be handled by more sophisticated file access checks */
 					$privs=$b->objectForInfoDictionaryKey("Privileges");
 					if(is_null($privs))
-						$privs="root";	// no Privileges means this app requires root user by default
+						$privs="admin";	// no Privileges means this app requires "admin" rights by default, i.e. is almost hidden
 					$ok=false;
+					// $ok=true;
+					$um=UserManager::sharedUserManager();
+					$userprivs=$um->privileges();
+// _NSLog($um->privileges());
 					foreach(explode(',', $privs) as $priv)
 						{
-						// check if current user has $priv
-						// Hm. this basically requires to "know" the UserManager class and database here!!!
-						$ok=true;
-						break;
+// _NSLog($priv);
+						if($priv == "public" || in_array($priv, $userprivs))
+							{ // yes, user has sufficient privilege(s) for this app
+							$ok=true;
+							break;
+							}
 						}
 					if(!$ok)
 						continue;	// user does not have sufficient privileges to "see" this bundle
