@@ -2312,7 +2312,7 @@ _NSLog($exts);
 		else
 			NSLog("no /Library/WebServer/mapping.plist available");
 // _NSLog("not found: file://localhost$exec");
-		return "unknown:/$exec";
+		return null;	// can't translate
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
@@ -2355,17 +2355,21 @@ _NSLog($exts);
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
 			$url=$this->_externalURLForPath($exec);
-			$delim='?';
-			foreach($args as $key => $value)
-				{ // append arguments - if specified
-				$url.=$delim.rawurlencode($key)."=".rawurlencode($value);
-				$delim='&';
-				}
+			if(!is_null($url))
+				{
+				$delim='?';
+				foreach($args as $key => $value)
+					{ // append arguments - if specified
+					$url.=$delim.rawurlencode($key)."=".rawurlencode($value);
+					$delim='&';
+					}
 // _NSLog("new URL: $url");
-			header("location: ".$url);	// how to handle special characters here? rawurlencode?
-			exit;
+				header("location: ".$url);	// how to handle special characters here? rawurlencode?
+				exit;
+				}
 			}
 		NSLog("$app not found");
+		return false;
 		}
 	public function openSettings(NSResponder $sender)
 		{
