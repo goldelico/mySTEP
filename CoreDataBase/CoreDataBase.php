@@ -741,6 +741,22 @@ NSLog("can't process for CSV file: $sql");
 		return null;
 	}
 
+	public function insert($table, $values, &$error)
+	{ // insert record (NSDictionary with appropriate column names)
+		$query="INSERT INTO ".quoteIdent($table);
+		$query.=" SET ";
+		$first=true;
+		foreach($values as $column => $value)
+			{
+			if(!$first)
+				$query.=",";
+			$query.=" ".quoteIdent($column)." = ".quote($value);
+			$first=false;
+			}
+// _NSLog("insert: $query");
+		return $this->db->query($query, $error) !== false;
+	}
+
 	public function __construct()
 	{
 	parent::__construct();
