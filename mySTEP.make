@@ -564,7 +564,7 @@ make_binary:
 endif
 
 make_php: bundle
-# make PHP
+	# PHPSRCS: $(PHPSRCS)
 	for PHP in $(PHPSRCS); do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
 		done
@@ -953,6 +953,7 @@ endif
 	# CSRCS: $(CSRCS)
 	# LEXSRCS: $(LEXSRCS)
 	# YACCSRCS: $(YACCSRCS)
+	# PHPSRCS: $(PHPSRCS)
 	# OBJECTS: $(OBJECTS)
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
