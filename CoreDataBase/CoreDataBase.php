@@ -382,11 +382,11 @@ class SQL extends NSObject
 			// FIXME: should only remove the /
 			if(isset($c['path']))
 				$this->dbname=basename($c['path']);
-			$this->db=mysqli_connect("p:".$c['host'], $c['user'], $c['pass'], $this->dbname, ini_get("mysqli.default_port"), $socket);
+			$this->db=@mysqli_connect("p:".$c['host'], $c['user'], $c['pass'], $this->dbname, ini_get("mysqli.default_port"), $socket);
 			if(mysqli_connect_errno())
 				{
-				NSLog(mysqli_connect_error());
-				// set error
+				$error=mysqli_connect_error();
+				NSLog($error);
 				return false;
 				}
 			$this->query("SET NAMES 'utf8'", $error);
