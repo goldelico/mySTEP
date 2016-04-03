@@ -4,11 +4,9 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # This file is part of mySTEP
 #
-# Last Change: $Id: mySTEP.make 3263 2014-04-07 09:44:11Z hns $
-#
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2014
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2016
 # This document is licenced using LGPL
 #
 # Requires Xcode 3.2 or later
