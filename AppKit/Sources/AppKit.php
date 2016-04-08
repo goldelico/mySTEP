@@ -636,7 +636,7 @@ class NSButton extends NSControl
 // _NSLog("NSButton $newtitle ".$this->elementId);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
-		$this->state=$this->_persist("selected", 0);
+		$this->state=$this->_persist("state", NSOffState);
 		if(!is_null($this->_persist("ck", null)))
 			{
 			global $NSApp;
@@ -646,7 +646,7 @@ class NSButton extends NSControl
 				{
 				case "CheckBox":
 				case "Radio":
-					$this->state=true;
+					$this->state=NSOnState;
 					break;	// don't assume a button that has been clicked
 			// FIXME: multiple buttons may have -ck set (the button pressed and several checkboxes)
 			// => use ck only for checkboxes? and not as "click"???
@@ -658,14 +658,11 @@ class NSButton extends NSControl
 		}
 	public function isSelected()
 		{
-		return $this->state;
+		return $this->state == NSOnState;
 		}
 	public function setSelected($value)
 		{
-		if($value == $this->state)
-			return;
-		$this->state=$this->_persist("selected", $value);
-		$this->setNeedsDisplay();
+		$this->setState($value?NSOnState:NSOffState);
 		}
 	public function description() { return parent::description()." ".$this->title; }
 	public function title() { return $this->title; }
@@ -684,8 +681,14 @@ class NSButton extends NSControl
 		$this->altTitle=$title;
 		$this->setNeedsDisplay();
 		}
-	public function state() { return $this->isSelected(); }
-	public function setState($s) { $this->setSelected($s); }
+	public function state() { return $this->state; }
+	public function setState($value)
+		{
+		if($value == $this->state)
+			return;
+		$this->state=$this->_persist("state", $value);
+		$this->setNeedsDisplay();
+		}
 	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
@@ -1356,7 +1359,7 @@ class NSMatrix extends NSControl
 // _NSLog("select new $this->elementId: $this->selectedRow / $this->selectedColumn");
 		$item=$this->cellAtRowColumn($row, $column);
 		if(!is_null($item))
-			$item->setState(true);	// set item selected
+			$item->setSelected(true);	// set item selected
 		$this->setNeedsDisplay();
 		}
 
@@ -1391,7 +1394,7 @@ class NSMatrix extends NSControl
 			if($this->align)
 				parameter("align", $this->align);
 			html(">\n");
-			$item->setState($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected
+			$item->setSelected($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected
 			$this->currentCell=$item;	// use cache when calling getRowColumnOfCell from within $item->display()
 			$this->currentRow=$row;
 			$this->currentColumn=$col;
