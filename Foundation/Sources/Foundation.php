@@ -779,17 +779,17 @@ class NSUserDefaults extends NSObject
 	public function setStringForKey($key, $val) { $this->setObjectForKey($key, $val); }
 }
 
+const NSFileName="NSFileName";
+const NSFileType="NSFileType";
+const NSFileTypeDirectory="NSFileTypeDirectory";
+const NSFileTypeRegular="NSFileTypeRegular";
+const NSFileSize="NSFileSize";
+const NSFileCreationDate="NSFileCreationDate";
+const NSFileModificationDate="NSFileModificationDate";
+const NSFilePosixPermissions="NSFilePosixPermissions";
+
 class NSFileManager extends NSObject
 	{
-	const NSFileName="NSFileName";
-	const NSFileType="NSFileType";
-	const NSFileTypeDirectory="NSFileTypeDirectory";
-	const NSFileTypeRegular="NSFileTypeRegular";
-	const NSFileSize="NSFileSize";
-	const NSFileCreationDate="NSFileCreationDate";
-	const NSFileModificationDate="NSFileModificationDate";
-	const NSFilePosixPermissions="NSFilePosixPermissions";
-
 	protected static $defaultManager;
 	protected $user="";
 	protected $defaults;
@@ -873,12 +873,12 @@ class NSFileManager extends NSObject
     [blocks] => 0
 
  */
-		$attribs[NSFileManager::NSFileName]=$path;
-		$attribs[NSFileManager::NSFileType]=is_dir($f)?NSFileManager::NSFileTypeDirectory:NSFileManager::NSFileTypeRegular;
+		$attribs[NSFileName]=$path;
+		$attribs[NSFileType]=is_dir($f)?NSFileTypeDirectory:NSFileTypeRegular;
 // _NSLog($attribs);
-		$attribs[NSFileManager::NSFileSize]=$a['size'];
-		$attribs[NSFileManager::NSFileCreationDate]=$a['ctime'];
-		$attribs[NSFileManager::NSFileModificationDate]=$a['mtime'];
+		$attribs[NSFileSize]=$a['size'];
+		$attribs[NSFileCreationDate]=$a['ctime'];
+		$attribs[NSFileModificationDate]=$a['mtime'];
 		return $attribs;
 		}
 	public function setAttributesOfItemAtPath($path, $attributes)
@@ -896,7 +896,7 @@ class NSFileManager extends NSObject
 // _NSLog($attr);
 		if($attr == null)
 			return false;
-		$isDir=$attr[NSFileManager::NSFileType] == NSFileManager::NSFileTypeDirectory;
+		$isDir=$attr[NSFileType] == NSFileTypeDirectory;
 // _NSLog("isdir $isDir");
 		return true;
 		}
