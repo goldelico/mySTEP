@@ -22,6 +22,10 @@ if(false && $_SERVER['SERVER_PORT'] != 443)
 	exit;
 }
 
+const NSOnState=1;
+const NSOffState=0;
+const NSMixedState=-1;
+
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 require_once "$ROOT/Internal/Frameworks/UserManager.framework/Versions/Current/php/UserManager.php";
