@@ -243,6 +243,8 @@ class _CSV
 	public function numberOfColumns() { return count($this->columns); }
 	public function numberOfRows() { return count($this->rows); }
 
+/* do we need this??? - why does it not depend on $table? */
+
 	public function selectFirstWhereColumnIsValue($column, $value)
 	{ // SELECT * WHERE column = value
 //		echo "SELECT * WHERE $column = $value\n";
@@ -321,6 +323,15 @@ class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
 		while($row=$this->nextObject())
 			$result[]=$row[$column];
 		return $result;
+	}
+
+	public function fields()
+	{ // get field names
+		$finfo = mysqli_fetch_fields($this->result);
+		$f=array();
+		foreach ($finfo as $val)
+			$f[]=$val->name;
+		return $f;
 	}
 }
 
