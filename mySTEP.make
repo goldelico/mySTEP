@@ -280,6 +280,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 		echo "*** building for $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		echo "$$DEBIAN_ARCH" done; \
 		done
 endif
 endif
@@ -664,11 +665,13 @@ DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
 # allow to disable building debian packages
 
 build_deb: make_bundle make_exec make_binary build_debian_packages
+	echo build_deb done
 
 build_debian_packages: \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+	echo build_debian_packages done
 
 # FIXME: use different /tmp/data subdirectories for each running make
 # NOTE: don't include /tmp here to protect against issues after typos
