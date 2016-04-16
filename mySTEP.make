@@ -80,7 +80,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # targets
 #   build:		build everything (outer level)
-#   build_deb:	called recursively to build for a specific debian architecture
+#   build_deb:		called recursively to build for a specific debian architecture
 #   clean:		clears build directory (not for subprojects)
 #   deug:		print all variable
 
@@ -280,6 +280,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 		echo "*** building for $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		echo "recursive make finished"; \
 		done
 endif
 endif
@@ -740,7 +741,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
@@ -783,7 +784,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
 	# strip all executables down so that they can be linked
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
