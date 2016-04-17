@@ -1417,6 +1417,14 @@ class NSMatrix extends NSControl
 		}
 	}
 
+class NSForm extends NSMatrix
+{
+	public function __construct()
+		{
+		parent::__construct(2);
+		}
+}
+
 class NSBox extends NSControl
 {
 	protected $border=0;
@@ -1461,18 +1469,26 @@ class NSSegmentedControl extends NSControl
 
 class NSTabViewItem extends NSObject
 	{
+	protected $identifier;
 	protected $label;
 	protected $view;
+	public function identifier() { return $this->label; }
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
+	public function setIdentifier($identifier) { $this->identifier=$identifier; }
 	public function setLabel($label) { $this->label=$label; }
 	public function setView(NSView $view) { $this->view=$view; }
 	public function __construct($label, NSView $view)
 		{
 //		parent::__construct();
+		$this->identifier=$label;	// use same...
 		$this->label=$label;
 		$this->view=$view;
 		}
+	/* AppKit.php extension */
+	protected $isHidden;
+	public function isHidden() { return $this->isHidden; }
+	public function setHidden($flag) { $this->isHidden=$flag; }
 	}
 
 class NSTabView extends NSControl
@@ -1494,6 +1510,7 @@ class NSTabView extends NSControl
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function tabViewItems() { return $this->tabViewItems; }
+	public function tabViewItemAtIndex($i) { return $this->tabViewItems[$i]; }
 	public function addTabViewItem(NSTabViewItem $item)
 		{
 		if(!is_null($this->_persist(count($this->tabViewItems), null)))
@@ -1525,21 +1542,38 @@ class NSTabView extends NSControl
 			}
 		return -1;
 		}
+	public function indexOfTabViewItemWithIdentifier($identifier)
+		{
+		$index=0;
+		foreach($this->tabViewItems as $i)
+			{
+			if($i->identifier() == $identifier)
+				return $index;
+			$index++;			
+			}
+		return -1;
+		}
 	public function selectTabViewItemAtIndex($index)
 		{
 		if($index < 0 || $index >= count($this->tabViewItems))
 			return;	// ignore (or could rise an exception)
+		if($this->tabViewItems[$index]->isHidden())
+			return;	// can't select (or we might be able to unhide a tab by a fake POST)
 		NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
-			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[index]))
-				return;	// don't select
+			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[$index]))
+				return;	// reject selection
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
-			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
+			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[$index]);
 		$this->selectedIndex=$this->_persist("selectedIndex", 0, $index);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		NSLog("selectTabViewItemAtIndex $index done");
 		$this->setNeedsDisplay();
+		}
+	public function selectTabViewItemWithIdentifier($identifier)
+		{
+		$this->selectTabViewItemAtIndex($this->indexOfTabViewItemWithIdentifier($identifier));
 		}
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
@@ -1561,17 +1595,20 @@ class NSTabView extends NSControl
 		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
+			if(!$item->isHidden())
+				{
 // FIXME: buttons must be able to change state!
 // i.e. these buttons should be made in a way that calling their action
 // will make selectTabViewItemAtIndex being called
 // FIXME: use NSButton or NSMenuItem?
-			html("<input");
-			parameter("id", $this->elementId."-".$index);
-			parameter("class", "NSTabViewItemsButton ".($item == $this->selectedTabViewItem()?"NSOnState":"NSOffState"));
-			parameter("type", "submit");
-			parameter("name", $this->elementId."-".$index);
-			parameter("value", _htmlentities($item->label()));
-			html(">\n");
+				html("<input");
+				parameter("id", $this->elementId."-".$index);
+				parameter("class", "NSTabViewItemsButton ".($item == $this->selectedTabViewItem()?"NSOnState":"NSOffState"));
+				parameter("type", "submit");
+				parameter("name", $this->elementId."-".$index);
+				parameter("value", _htmlentities($item->label()));
+				html(">\n");
+				}
 			$index++;
 			}
 		html("</td>");
