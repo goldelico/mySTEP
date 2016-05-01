@@ -256,6 +256,12 @@ class NSApplication extends NSResponder
 		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] != $rp ? ":".$_SERVER['SERVER_PORT'] : "").$_SERVER['REQUEST_URI'];
 		}
 
+	public function description()
+		{
+		// add mainBundle productName
+		return $this->_url();
+		}
+
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function mainWindow() { return $this->mainWindow; }
