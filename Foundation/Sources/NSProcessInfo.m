@@ -79,7 +79,8 @@ static id __processInfo = nil;
 	free(malloc(8192));	// segfaults???
 #endif
 	
-	for (count = 0; env[count]; count++);				// Count the evironment variables.
+	for (count = 0; env[count]; count++)
+		; // Count the evironment variables.
 	
 	{
 		NSString **keys = malloc (count * sizeof(keys[0]));				// Copy the environment variables				

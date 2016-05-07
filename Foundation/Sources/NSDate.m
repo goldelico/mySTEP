@@ -830,7 +830,7 @@ double a, d = [self dayOfCommonEra];
 
 	d -= GREGORIAN_REFERENCE;
 	d *= 86400;
-	a = abs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
+	a = fabs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
 	a = a / 3600;
 	h = (int)a;
 										// There is a small chance of getting
@@ -847,7 +847,7 @@ double a, b, d = [self dayOfCommonEra];
 
 	d -= GREGORIAN_REFERENCE;
 	d *= 86400;
-	a = abs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
+	a = fabs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
 	b = a / 3600;
 	h = (int)b;
 	h = h * 3600;
@@ -874,7 +874,7 @@ double a, b, c, d = [self dayOfCommonEra];
 
 	d -= GREGORIAN_REFERENCE;
 	d *= 86400;
-	a = abs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
+	a = fabs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
 	b = a / 3600;
 	h = (int)b;
 	h = h * 3600;
@@ -1407,7 +1407,7 @@ int m, d, y;
 	
 	d -= GREGORIAN_REFERENCE;				// Calc hour, minute, and seconds
 	d *= 86400;
-	a = abs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
+	a = fabs(d - (_secondsSinceRef+[time_zone secondsFromGMT]));
 	b = a / 3600;
 	*hour = (int)b;
 	h = *hour;

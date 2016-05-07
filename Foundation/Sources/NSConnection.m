@@ -71,7 +71,7 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 
 @implementation NSDistantObjectRequest (NSUndocumented)
 
-- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
+- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(NSUInteger) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 { // private initializer
 	if((self=[super init]))
 		{
@@ -545,7 +545,7 @@ static NSUInteger _sequence;	// global sequence number
 
 - (void) invalidate;
 {
-	unsigned int cnt;
+	NSUInteger cnt;
 #if 0
 	NSLog(@"invalidate %p:%@ (_isValid=%d)", self, self, _isValid);
 #endif

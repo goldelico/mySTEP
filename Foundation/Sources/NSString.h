@@ -194,7 +194,7 @@ extern NSString *NSParseErrorException;
 - (void) getCString:(char *) buffer maxLength:(NSUInteger) maxLength;
 - (BOOL) getCString:(char *) buffer maxLength:(NSUInteger) maxLength encoding:(NSStringEncoding) enc;
 - (void) getCString:(char *) buffer
-		  maxLength:(unsigned int) maxLength
+		  maxLength:(NSUInteger) maxLength
 			  range:(NSRange) aRange
 	 remainingRange:(NSRange *) leftoverRange;
 - (void) getLineStart:(NSUInteger *) startIndex
@@ -338,7 +338,7 @@ extern NSString *NSParseErrorException;
 - (void) replaceCharactersInRange:(NSRange) range withString:(NSString *) aString;
 - (NSUInteger) replaceOccurrencesOfString:(NSString *) replace
 							   withString:(NSString *) by
-								  options:(unsigned int) opts
+								  options:(NSUInteger) opts
 									range:(NSRange) searchRange;
 - (void) setString:(NSString *) aString;
 

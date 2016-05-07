@@ -411,7 +411,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(_strClass, 0, z);
+	return (NSString *) NSAllocateObject(_strClass, 0, z);
 }
 
 + (id) string		{ return [[self new] autorelease]; }
@@ -504,7 +504,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return ret;
 }
 
-+ (NSString *) _stringWithUTF8String:(const char *) bytes length:(unsigned) len;
++ (NSString *) _stringWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 {
 	return [[[self alloc] _initWithUTF8String:bytes length:len] autorelease];
 }
@@ -2988,7 +2988,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(_mutableStringClass, 0, z);
+	return (NSMutableString *) NSAllocateObject(_mutableStringClass, 0, z);
 }
 
 + (NSMutableString*) stringWithCapacity:(NSUInteger)capacity
@@ -3031,7 +3031,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self, 0, z);
+	return (GSString *) NSAllocateObject(self, 0, z);
 }
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
@@ -3049,7 +3049,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				freeWhenDone:(BOOL)flag
 { // replace with CString
 	[self release];
-	return [[GSCString alloc] initWithCStringNoCopy:byteString
+	return (GSString *) [[GSCString alloc] initWithCStringNoCopy:byteString
 											 length:length
 									   freeWhenDone: flag];
 }
@@ -3103,7 +3103,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #if 0
 			NSLog(@"  hash %u", _hash);
 #endif
-			if ((c != _constantStringClass) && (_hash != [obj hash]))
+			if ((c != _constantStringClass) && (_hash != [(NSString *) obj hash]))
 				return NO;
 #if 0
 			NSLog(@"  _count %u vs. count %u", _count, ((NSString*)obj)->_count);
@@ -3732,7 +3732,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self, 0, z);
+	return (GSCString *) NSAllocateObject(self, 0, z);
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString			// OPENSTEP designated 
@@ -3755,7 +3755,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				   freeWhenDone:(BOOL)flag
 {
 	[self release];
-	return [[GSString alloc] initWithCharactersNoCopy: chars
+	return (GSCString *) [[GSString alloc] initWithCharactersNoCopy: chars
 											   length: length
 										 freeWhenDone: flag];
 }

@@ -1372,7 +1372,7 @@ next:
 			[s appendFormat:@"<!DOCTYPE %@>\n", @"plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\""];
 			[s appendFormat:@"<plist version=\"%@\">\n", @"1.0"];
 			if(![self _appendStringTo:s fromXMLPropertyListElement:plist errorDescription:errorString])
-				return NO;
+				return nil;
 			[s appendString:@"</plist>\n"];
 			return s;
 			}

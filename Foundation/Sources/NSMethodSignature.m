@@ -838,7 +838,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return self;
 }
 
-- (unsigned) _getArgumentLengthAtIndex:(int) index;
+- (NSUIntgeger) _getArgumentLengthAtIndex:(NSInteger) index;
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
@@ -846,7 +846,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return info[index+1].size;
 }
 
-- (unsigned) _getArgumentQualifierAtIndex:(int) index;
+- (NSUIntgeger) _getArgumentQualifierAtIndex:(NSInteger) index;
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
@@ -866,7 +866,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	return addr + info.offset;
 }
 
-- (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
+- (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(NSInteger) index;
 { // extract argument from frame
 	char *addr;
 	NEED_INFO();
@@ -890,7 +890,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 	return info[index+1].type;
 }
 
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
+- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
 {
 	char *addr;
 	NEED_INFO();

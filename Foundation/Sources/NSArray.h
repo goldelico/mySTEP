@@ -84,7 +84,7 @@
 - (NSEnumerator *) reverseObjectEnumerator;
 - (void) setValue:(id) value forKey:(NSString *) key;
 - (NSData *) sortedArrayHint;
-- (NSArray *) sortedArrayUsingFunction:(int (*)(id, id, void*)) comparator 
+- (NSArray *) sortedArrayUsingFunction:(NSInteger (*)(id, id, void*)) comparator
 							   context:(void *) context;
 - (NSArray *) sortedArrayUsingFunction:(int (*)(id, id, void*)) comparator 
 							   context:(void *) context

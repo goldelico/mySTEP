@@ -87,7 +87,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 }
 
 - (id) init;
-- (unsigned int) count;
+- (NSUInteger) count;
 - (void) addObjectsToList:(NSMutableArray*)list;
 - (void) addObserver:(id)observer selector:(SEL)selector;
 - (void) removeObserver:(id)observer;
@@ -182,9 +182,9 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (id) listToNotifyForObject:(id)object
 {
-id reg = nil;
-int count;
-id list;
+GSNoteObjectObservers reg = nil;
+NSUInteger count;
+NSMutableArray list;
     
     if (object)
 		reg = (id)NSMapGet(objectObservers, object);
@@ -373,7 +373,7 @@ GSNoteDictionary *reg;
 + (void) initialize
 {
     if (_defaultDistributedCenter == nil) 
-		_defaultDistributedCenter = [[self notificationCenterForType:NSLocalNotificationCenterType] retain];
+		_defaultDistributedCenter = (NSDistributedNotificationCenter *) [[self notificationCenterForType:NSLocalNotificationCenterType] retain];
 }
 
 + (id) defaultCenter			{ return _defaultDistributedCenter; }

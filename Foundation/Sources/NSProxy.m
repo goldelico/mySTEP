@@ -22,7 +22,7 @@
 
 @implementation NSProxy
 
-+ (id) allocWithZone:(NSZone *) z;	{ return NSAllocateObject(self, 0, z?z:NSDefaultMallocZone()); }
++ (id) allocWithZone:(NSZone *) z;	{ return (NSProxy *) NSAllocateObject(self, 0, z?z:NSDefaultMallocZone()); }
 + (id) alloc					{ return [self allocWithZone:NSDefaultMallocZone()]; }
 - (NSZone *) zone;				{ return NSDefaultMallocZone(); }	// no zones implemented
 + (void) release				{ return; }

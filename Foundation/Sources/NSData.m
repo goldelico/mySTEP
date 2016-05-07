@@ -92,7 +92,7 @@ static IMP appendImp;
 @interface	NSDataStatic : NSData
 {
 	void *bytes;
-	unsigned int length;
+	NSUInteger length;
 }
 @end
 
@@ -103,8 +103,8 @@ static IMP appendImp;
 
 @interface	NSMutableDataMalloc : NSDataMalloc
 {
-	unsigned capacity;
-	unsigned growth;
+	NSUInteger capacity;
+	NSUInteger growth;
 }
 // Increase capacity to at least the specified minimum value. 
 - (void) _grow:(unsigned)minimum;
@@ -1084,8 +1084,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 			{
 			int offset = 0;
 	
-			while (*type != _C_STRUCT_E && *type++ != '='); // skip "<name>="
-				for (;;) 
+			while (*type != _C_STRUCT_E && *type++ != '=')
+				; // skip "<name>="
+			for (;;)
 					{
 					[self deserializeDataAt: ((char*)data) + offset
 						  ofObjCType: type
@@ -1431,7 +1432,7 @@ void* b;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject([NSDataMappedFile class], 0, z);
+	return (NSDataMappedFile *) NSAllocateObject([NSDataMappedFile class], 0, z);
 }
 
 - (void) dealloc
@@ -1449,19 +1450,20 @@ void* b;
 {
 	int fd;
 	const char *p;
+	NSInteger l;
 	if(!path)
 		{ [self release]; return nil; }
 	p=[path fileSystemRepresentation];
 	if((fd = open(p, O_RDONLY)) < 0)
 		return GSError(self, @"NSDataMappedFile -initWithContentsOfMappedFile: unable to open %s - %s", p, strerror(errno));
 											// Find size of file to be mapped.
-	if((length = lseek(fd, 0, SEEK_END)) < 0)
+	if((l = lseek(fd, 0, SEEK_END)) < 0)
 		{
 		close(fd);
 		return GSError(self, @"NSDataMappedFile -initWithContentsOfMappedFile:\
 					 unable to seek to sof %s - %s", p, strerror(errno));
 		}
-
+	length = l;
 	if(lseek(fd, 0, SEEK_SET) != 0)		// Position at start of file.
 		{
 		close(fd);

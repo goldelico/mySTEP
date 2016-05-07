@@ -30,7 +30,7 @@
 
 typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 
-@interface NSSetEnumerator : NSObject
+@interface NSSetEnumerator : NSEnumerator
 {
     id set;
     SetEnumMode	mode;
@@ -41,7 +41,6 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 }
 
 - (id) initWithSet:(NSSet*)_set mode:(SetEnumMode)_mode;
-- (id) nextObject;
 
 @end
 
@@ -93,7 +92,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject((self==[NSSet class]) ? (id) [NSConcreteSet class] : (id) self,
+	return (NSSet *) NSAllocateObject((self==[NSSet class]) ? (id) [NSConcreteSet class] : (id) self,
 							0, z);
 }
 
@@ -461,7 +460,7 @@ IMP imp = [description methodForSelector:sel];
 
 + (id) allocWithZone:(NSZone *) z
 {
-    return NSAllocateObject((self == [NSMutableSet class]) ? (id) [NSConcreteMutableSet class] : (id) self,
+    return (NSMutableSet *) NSAllocateObject((self == [NSMutableSet class]) ? (id) [NSConcreteMutableSet class] : (id) self,
 							0, z);
 }
 
@@ -578,7 +577,7 @@ id obj, en = [set objectEnumerator];
 
 - (NSEnumerator *) objectEnumerator
 {
-	return [[[NSSetEnumerator alloc] initWithSet:self 
+	return (NSEnumerator *) [[[NSSetEnumerator alloc] initWithSet:self
 									 mode:setEnumHash] autorelease];
 }
 
@@ -645,7 +644,7 @@ id obj, en = [set objectEnumerator];
 
 - (NSEnumerator *) objectEnumerator
 {
-    return [[[NSSetEnumerator alloc] initWithSet:self 
+    return (NSEnumerator *) [[[NSSetEnumerator alloc] initWithSet:self
 									 mode:setEnumHash] autorelease];
 }
 
@@ -733,7 +732,7 @@ id k, v;
 
 - (NSEnumerator *) objectEnumerator
 {
-    return [[[NSSetEnumerator alloc] initWithSet:self 
+    return (NSEnumerator *) [[[NSSetEnumerator alloc] initWithSet:self
 									 mode:setEnumMap] autorelease];
 }
 

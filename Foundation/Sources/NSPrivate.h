@@ -118,7 +118,7 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 + (NSString *) _string:(void *) bytes withEncoding:(NSStringEncoding) encoding length:(int) len;
 + (NSString *) _stringWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 + (id) _initWithUTF8String:(const char *) bytes length:(NSUInteger) len;
-- (int) _baseLength;			// methods for working with decomposed strings
+- (NSUInteger) _baseLength;			// methods for working with decomposed strings
 - (NSString *) _stringByExpandingXMLEntities;
 - (NSString *) _unicharString;	// convert CString into unichar string
 
@@ -423,9 +423,9 @@ enum _INVOCATION_MODE {
 - (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
 - (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
 typedef void *arglist_t, *retval_t;
-- (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
+- (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(NSInteger) index;
 
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index retainMode:(enum _INVOCATION_MODE) mode;
+- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
 
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
@@ -525,7 +525,7 @@ typedef void *arglist_t, *retval_t;
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 - (void) sendInvocation:(NSInvocation *) i;
 - (void) handlePortCoder:(NSPortCoder *) coder;
-- (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
+- (void) handleRequest:(NSPortCoder *) coder sequence:(NSInteger) seq;
 - (void) dispatchInvocation:(NSInvocation *) i;
 - (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(NSUInteger) seq imports:(NSArray *) imports;
 - (void) finishEncoding:(NSPortCoder *) coder;
@@ -534,8 +534,8 @@ typedef void *arglist_t, *retval_t;
 - (BOOL) hasRunloop:(NSRunLoop *) obj;
 - (void) _incrementLocalProxyCount;
 - (void) _decrementLocalProxyCount;
-- (void) addClassNamed:(char *) name version:(int) version;
-- (int) versionForClassNamed:(NSString *) className;
+- (void) addClassNamed:(char *) name version:(NSInteger) version;
+- (NSInteger) versionForClassNamed:(NSString *) className;
 
 @end
 
@@ -556,8 +556,8 @@ typedef void *arglist_t, *retval_t;
 
 - (void) _sendEvent:(NSStreamEvent) event;
 - (void) _sendError:(NSError *) err;
-- (void) _sendErrorWithDomain:(NSString *)domain code:(int)code;
-- (void) _sendErrorWithDomain:(NSString *)domain code:(int)code userInfo:(NSDictionary *) dict;
+- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code;
+- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
 
 @end
 

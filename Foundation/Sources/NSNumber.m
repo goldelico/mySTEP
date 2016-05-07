@@ -73,7 +73,7 @@ PRIVATE_NUMBER_CLASS_INTERFACE_(GSULongLongNumber,unsigned long long)
 #if 0
 	NSLog(@"%@ alloc", NSStringFromClass([self class]));
 #endif
-	return NSAllocateObject(self, 0, NSDefaultMallocZone());
+	return (GSConcreteNumber *) NSAllocateObject(self, 0, NSDefaultMallocZone());
 }
 
 - (void) dealloc

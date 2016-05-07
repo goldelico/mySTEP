@@ -500,15 +500,17 @@ unichar uni_tolower(unichar ch)
 {
 	int r;
 	int count = 0;
-	while(((r = ch - t_tolower[count++][0]) > 0) && (count < t_len_tolower));
-		return r ? ch : t_tolower[--count][1];
+	while(((r = ch - t_tolower[count++][0]) > 0) && (count < t_len_tolower))
+		;
+	return r ? ch : t_tolower[--count][1];
 }
  
 unichar uni_toupper(unichar ch)
 {
 	int r, count = 0;
-	while(((r = ch - t_toupper[count++][0]) > 0) && (count < t_len_toupper));
-		return r ? ch : t_toupper[--count][1];
+	while(((r = ch - t_toupper[count++][0]) > 0) && (count < t_len_toupper))
+		;
+	return r ? ch : t_toupper[--count][1];
  }
 
 unsigned char uni_cop(unichar u)
