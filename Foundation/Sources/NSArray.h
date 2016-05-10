@@ -86,7 +86,7 @@
 - (NSData *) sortedArrayHint;
 - (NSArray *) sortedArrayUsingFunction:(NSInteger (*)(id, id, void*)) comparator
 							   context:(void *) context;
-- (NSArray *) sortedArrayUsingFunction:(int (*)(id, id, void*)) comparator 
+- (NSArray *) sortedArrayUsingFunction:(NSInteger (*)(id, id, void*)) comparator
 							   context:(void *) context
 							      hint:(NSData *) hint;
 - (NSArray *) sortedArrayUsingSelector:(SEL) comparator;
@@ -136,7 +136,7 @@
 - (void) removeObjectsInRange:(NSRange) aRange;
 - (void) replaceObjectsAtIndexes:(NSIndexSet *) indexes withObjects:(NSArray *) objects;
 - (void) setArray:(NSArray *) otherArray;
-- (void) sortUsingFunction:(int(*)(id,id,void*)) compare 
+- (void) sortUsingFunction:(NSInteger(*)(id,id,void*)) compare
 				   context:(void *) context;
 - (void) sortUsingSelector:(SEL) aSelector;
 

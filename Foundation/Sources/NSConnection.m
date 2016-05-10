@@ -988,7 +988,7 @@ static NSUInteger _sequence;	// global sequence number
 	[arp release];
 }
 
-- (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
+- (void) handleRequest:(NSPortCoder *) coder sequence:(NSInteger) seq;
 { // what can/should we do with the sequence number? This is used to keep the order when queueing requests
 	NSInvocation *inv;
 	NSException *exception;	// exception response (an NSException created in the current ARP)
@@ -1132,7 +1132,7 @@ static NSUInteger _sequence;	// global sequence number
 #endif
 }
 
-- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(unsigned int) seq imports:(NSArray *) imports
+- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(NSUInteger) seq imports:(NSArray *) imports
 {
 	NSMethodSignature *sig=[result methodSignature];
 	BOOL isOneway=[sig isOneway];
@@ -1190,7 +1190,7 @@ static NSUInteger _sequence;	// global sequence number
 #endif
 }
 
-- (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
+- (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(NSUInteger) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
 {
 	BOOL r=[coder verifyWithDelegate:_delegate];
 #if 0
@@ -1208,7 +1208,7 @@ static NSUInteger _sequence;	// global sequence number
 	return r;
 }
 
-- (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
+- (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(NSUInteger) seq coder:(NSCoder *) coder;
 {
 	SEL sel=[invocation selector];
 	// it looks like special rules for 2 selectors...
@@ -1234,12 +1234,12 @@ static NSUInteger _sequence;	// global sequence number
 	return [_runLoops indexOfObjectIdenticalTo:obj] != NSNotFound;
 }
 
-- (void) addClassNamed:(char *) name version:(int) version
+- (void) addClassNamed:(char *) name version:(NSInteger) version
 {
-	NSLog(@"-[NSConnection addClassNamed:%s version:%d]", name, version);
+	NSLog(@"-[NSConnection addClassNamed:%s version:%ld]", name, (long)version);
 }
 
-- (int) versionForClassNamed:(NSString *) className
+- (NSInteger) versionForClassNamed:(NSString *) className
 {
 	Class class;
 	NSNumber *version;

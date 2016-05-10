@@ -838,7 +838,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return self;
 }
 
-- (NSUIntgeger) _getArgumentLengthAtIndex:(NSInteger) index;
+- (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
@@ -846,7 +846,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	return info[index+1].size;
 }
 
-- (NSUIntgeger) _getArgumentQualifierAtIndex:(NSInteger) index;
+- (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
 {
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
@@ -874,7 +874,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, info[index+1]);
 #if 1
-	NSLog(@"_getArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type);
+	NSLog(@"_getArgument[%ld]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s", (long)index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
@@ -898,7 +898,7 @@ static inline void *_getArgumentAddress(arglist_t frame, struct NSArgumentInfo i
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, info[index+1]);
 #if 1
-	NSLog(@"_setArgument[%d]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s mode=%d", index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type, 1);
+	NSLog(@"_setArgument[%ld]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s mode=%d", (long)index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type, 1);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
 		{ // retain/copy C-strings if needed

@@ -1005,7 +1005,7 @@ NSStringFromMapTable(NSMapTable *table)
 unsigned 
 __NSHashObject(void *table, const void *anObject)
 {
-    return (unsigned)[(id)anObject hash];
+    return (unsigned)[(NSObject *)anObject hash];
 }
 
 unsigned 

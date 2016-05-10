@@ -788,7 +788,7 @@ MC42NjY2NjY2OQA=
 etc.
 */
 
-- (id) _dereference:(unsigned int) idx
+- (id) _dereference:(NSUInteger) idx
 { // handle indirect references through NSCFType/CF$UID - cache so that each object is instantiated only once
 //	NSAutoreleasePool *arp;
 	id obj, newObj;

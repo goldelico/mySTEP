@@ -108,7 +108,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
     [super dealloc];
 }
 
-- (unsigned int) count				{ return NSCountHashTable(observerItems); }
+- (NSUInteger) count				{ return NSCountHashTable(observerItems); }
 
 - (void) addObjectsToList:(NSMutableArray*)list
 {
@@ -182,9 +182,9 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (id) listToNotifyForObject:(id)object
 {
-GSNoteObjectObservers reg = nil;
-NSUInteger count;
-NSMutableArray list;
+	GSNoteObjectObservers *reg = nil;
+	NSUInteger count;
+	NSMutableArray *list;
     
     if (object)
 		reg = (id)NSMapGet(objectObservers, object);

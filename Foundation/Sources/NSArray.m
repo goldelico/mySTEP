@@ -569,9 +569,9 @@ unsigned i = _count;
 		[_contents[i] performSelector:aSelector withObject:argument];
 }
 
-static int compare_function(id elem1, id elem2, void* comparator)
+static NSInteger compare_function(id elem1, id elem2, void* comparator)
 {
-    return (int)(long)[elem1 performSelector:comparator withObject:elem2];
+    return (NSInteger)[elem1 performSelector:comparator withObject:elem2];
 }
 
 - (NSArray*) sortedArrayUsingSelector:(SEL)comparator
@@ -593,7 +593,7 @@ NSArray *sortedArray = [NSArray arrayWithArray: self];
 
 - (NSData*) sortedArrayHint				{ return nil; }
 
-- (NSArray*) sortedArrayUsingFunction:(int(*)(id,id,void*))comparator 
+- (NSArray*) sortedArrayUsingFunction:(NSInteger(*)(id,id,void*))comparator
 							  context:(void*)context
 							  hint:(NSData*)hint
 {
@@ -1336,13 +1336,13 @@ jump_over:;
 							// good value for stride factor is not well
 #define STRIDE_FACTOR 3		// understood 3 is a fairly good choice (Sedgewick)
 
-- (void) sortUsingFunction:(int(*)(id,id,void*))compare context:(void*)context
+- (void) sortUsingFunction:(NSInteger(*)(id,id,void*))compare context:(void*)context
 {
 	unsigned c, d, stride = 1;							// Shell sort algorithm 
 													// from SortingInAction, a
 	if(_count > 20) 
 		{ // use quick sort instead 
-		qsort3(_contents, _count, sizeof(_contents[0]), compare, context); 
+		qsort3(_contents, _count, sizeof(_contents[0]), (int(*)(id,id,void*))compare, context);
 		return; 
 		}
 	while (stride <= _count)						// NeXT example
@@ -1376,9 +1376,9 @@ jump_over:;
 		}	}	}
 }
 
-static int selector_compare(id elem1, id elem2, void* comparator)
+static NSInteger selector_compare(id elem1, id elem2, void* comparator)
 {
-    return (int)(long)[elem1 performSelector:(SEL)comparator withObject:elem2];
+    return (NSInteger)(long)[elem1 performSelector:(SEL)comparator withObject:elem2];
 }
 
 - (void) sortUsingSelector:(SEL)comparator

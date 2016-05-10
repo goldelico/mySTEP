@@ -141,7 +141,7 @@ typedef struct __CGEvent *CGEventRef;
 #define objc_calloc(A, B) calloc((A), (B))
 #define objc_realloc(A, B) realloc((A), (B))
 
-//#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
+#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
 //#define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
 //#define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
 
