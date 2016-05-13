@@ -234,8 +234,8 @@ endif
 # default is to build for all
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-# try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-DEBIAN_ARCHITECTURES=macos armel armhf i386 # mipsel: -ltiff is broken
+# should try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
+DEBIAN_ARCHITECTURES=macos armel armhf i386 mipsel
 endif
 
 # this is the default/main target on the outer level
