@@ -40,7 +40,7 @@
 + (BOOL) respondsToSelector:(SEL)aSelector
 {
 #ifndef __APPLE__
-	return (class_get_class_method(self, aSelector) != METHOD_NULL);
+	return (class_get_class_method(self, aSelector) != NULL);
 #else
 	return NO;
 #endif
@@ -241,7 +241,7 @@
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
-	return (class_get_instance_method([self class], aSelector) != METHOD_NULL);
+	return (class_get_instance_method([self class], aSelector) != NULL);
 //	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
 //	return NO;
 }

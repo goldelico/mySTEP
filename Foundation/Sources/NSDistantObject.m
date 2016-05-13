@@ -608,7 +608,7 @@ static Class _doClass;
 + (BOOL) respondsToSelector:(SEL)aSelector;
 {
 #ifndef __APPLE__
-	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
+	return (class_get_instance_method(self, aSelector) != NULL);
 #else
 	return NO;
 #endif
@@ -619,7 +619,7 @@ static Class _doClass;
 + (BOOL) instancesRespondToSelector:(SEL)aSelector;
 { // CHECKME: how can we know that?
 #ifndef __APPLE__
-	if(class_get_instance_method(self, aSelector) != METHOD_NULL)
+	if(class_get_instance_method(self, aSelector) != NULL)
 		return YES;	// this is a method of NSDistantObject
 	// we don't know a remote object or protocols here!
 #endif

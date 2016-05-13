@@ -176,7 +176,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 + (BOOL) instancesRespondToSelector:(SEL)aSelector
 {
 #ifndef __APPLE__
-	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
+	return (class_get_instance_method(self, aSelector) != NULL);
 #else
 	return NO;
 #endif
@@ -382,7 +382,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #endif
 #ifndef __APPLE__
 	if (object_is_instance(self))
-		return (class_get_instance_method(object_get_class(self), aSelector) != METHOD_NULL);
+		return (class_get_instance_method(object_get_class(self), aSelector) != NULL);
 #if 0
 	NSLog(@"respondsToSelector +%@", NSStringFromSelector(aSelector));
 	NSLog(@"self: %@", self);
@@ -395,7 +395,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSLog(@"+hasAlpha: %p", class_get_class_method((Class)self, @selector(hasAlpha)));
 	NSLog(@"+hasAlpha: %p", class_get_class_method(object_get_meta_class((Class) self), @selector(hasAlpha)));
 #endif
-	return (class_get_class_method(object_get_meta_class((Class) self), aSelector) != METHOD_NULL);
+	return (class_get_class_method(object_get_meta_class((Class) self), aSelector) != NULL);
 #else
 	return NULL;
 #endif
@@ -721,9 +721,9 @@ va_list ap;
 - (BOOL) respondsTo:(SEL)aSel
 {
 	if (CLS_ISCLASS(((Class)self)->class_pointer))
-		return (class_get_instance_method([self class], aSel) != METHOD_NULL);
+		return (class_get_instance_method([self class], aSel) != NULL);
 
-	return (class_get_class_method([self class], aSel) != METHOD_NULL);
+	return (class_get_class_method([self class], aSel) != NULL);
 }
 
 + (BOOL) conformsTo:(Protocol*)aProtocol

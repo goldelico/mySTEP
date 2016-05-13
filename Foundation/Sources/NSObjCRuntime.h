@@ -186,7 +186,6 @@ const char *objc_skip_typespec (const char *type);
 #define object_get_super_class(OBJECT) (Class) Nil
 
 #define method_get_imp(METHOD) METHOD
-#define METHOD_NULL ((IMP) NULL)
 
 #define sel_get_typed_uid(name, types) ((SEL)name)
 #define sel_get_any_uid(name) ((SEL)name)
