@@ -24,7 +24,14 @@ class NSPreferencePane extends NSObject
 		$this->mainView=new NSextField();
 		$this->mainView->setAttributedStringValue("loadMainView of ".$this->bundle->description()." is not overwritten");
 		}
-	public function mainView() { return $this->mainView; }
+	public function mainView()
+		{
+		return $this->mainView;
+		}
+	public function mainViewDidLoad()
+		{ // override to initialize with current preference settings
+		return;
+		}
 	}
 
 // EOF
