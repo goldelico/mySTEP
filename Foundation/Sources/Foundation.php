@@ -639,7 +639,6 @@ class NSUserDefaults extends NSObject
 		{
 		$defaults=new NSUserDefaults();	// create empty defaults
 		$NSApplicationDomain=NSBundle::mainBundle()->bundleIdentifier();
-//		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
 		$defaults->setVolatileDomainForName($_GET, NSArgumentDomain);
 		$defaults->setVolatileDomainForName(array(), NSRegistrationDomain);
 		$defaults->setSearchList(array(NSArgumentDomain, $NSApplicationDomain, NSGlobalDomain, /* languages, */ NSRegistrationDomain));
@@ -763,7 +762,6 @@ class NSUserDefaults extends NSObject
 	public function setObjectForKey($key, $val)
 	{ // write to persistent domain of bundle
 		$NSApplicationDomain=NSBundle::mainBundle()->bundleIdentifier();
-//		$NSApplicationDomain="org.quantumstep.mySTEP";	// should fetch bundle identifier of Application
 		$r=$this->persistentDomainForName($NSApplicationDomain);
 		$r[$key]=$val;	// change
 		$r=$this->setPersistentDomainForName($r, $NSApplicationDomain);
@@ -1010,6 +1008,40 @@ class NSDate extends NSObject
 		
 		}
 	}
+
+class NSProcessInfo extends NSObject
+{
+	protected static $processInfo;
+	public static function processInfo()
+	{
+		if(!isset(self::$processInfo))
+			{
+			self::$processInfo=new NSProcessInfo();
+			}
+		return self::$processInfo;
+	}
+	public function globallyUniqueString()
+	{ // inspired by PHP Manual examples
+		global $_SERVER;
+		$ip=$_SERVER['SERVER_ADDR'];
+		$server="";
+		$part=explode('.', $ip);
+		for ($i=0; $i<=count($part)-1; $i++)
+			$server.=substr("0".dechex($part[$i]),-2);
+		$ip=$_SERVER['REMOTE_ADDR'];
+		$client="";
+		$part=explode('.', $ip);
+		for ($i=0; $i<=count($part)-1; $i++)
+			$client.=substr("0".dechex($part[$i]),-2);
+		$t=explode(" ", microtime());
+		return sprintf('%08s-%08s-%08s-%04s-%04x%04x',
+			$server,
+			$client,
+			substr("00000000".dechex($t[1]),-8),   // get 8HEX of unixtime
+			substr("0000".dechex(round($t[0]*65536)),-4), // get 4HEX of microtime
+			mt_rand(0,0xffff), mt_rand(0,0xffff));
+	}
+}
 
 // until we do better, we use a html string to represent attributes
 
