@@ -616,7 +616,7 @@ function NSHomeDirectory()
 	$user=$ud->objectForKey('login_user');
 	if(is_null($user))
 		return @"/";
-	return NSHomeDirectoryForUser($ud->user());
+	return NSHomeDirectoryForUser($user);
 	}
 
 const NSGlobalDomain = "NSGlobalDomain";
