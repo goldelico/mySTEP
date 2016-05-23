@@ -250,10 +250,10 @@ class NSApplication extends NSResponder
 	protected $mainMenu;
 	protected $eventQueue=array();
 
-	public function _url()
+	public function _url($withrequest=true)
 		{ // the URL of the script we are currently running
-		$rp=empty($_SERVER['HTTPS'])?443 : 80; // default remote port
-		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] != $rp ? ":".$_SERVER['SERVER_PORT'] : "").$_SERVER['REQUEST_URI'];
+		$rp=empty($_SERVER['HTTPS'])?80 : 443; // default remote port
+		return (!empty($_SERVER['HTTPS'])?"https://":"http://").$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] != $rp ? ":".$_SERVER['SERVER_PORT'] : "").($withrequest?$_SERVER['REQUEST_URI']:"");
 		}
 
 	public function description()
@@ -380,6 +380,12 @@ _NSLog("sendAction $action to first responder");
 		else
 			_NSLog(/*$target->description().*/"target does no handle $action");
 		}
+	public function updateWindows()
+		{
+		if(method_exists($this->delegate, "updateWindows"))
+			$this->delegate->updateWindows();
+		$this->mainWindow->display();
+		}
 	public function run()
 		{
 		if(isset($_GET['RESOURCE']))
@@ -456,7 +462,7 @@ _NSLog("sendAction $action to first responder");
 			_persist('NSEvent', "", "");	// reset
 			foreach($this->eventQueue as $event)
 				$this->mainWindow->sendEvent($event);	// deliver all events
-			$this->mainWindow->display();
+			$this->updateWindows();
 			// could we run an AJAX loop here?
 			} while(false);	// not really a loop in a http response...
 		}
@@ -2098,6 +2104,11 @@ class NSWindow extends NSResponder
 		// $target=$event->window->hitTest($event);
 		$target=$event->target();
 		$target->mouseDown($event);
+		}
+	public function update()
+		{
+		// should send NSWindowDidUpdateNotification
+		return;
 		}
 	public function display() 
 		{
