@@ -473,6 +473,17 @@ class NSColor extends NSObject
 		}
 	}
 
+class NSCell extends NSObject
+	{
+	protected $controlView;
+	public function controlView() { return $this->controlView; }
+	public function setControlView($controlView) { $this->controlView=$controlView; }
+	public function drawCell()
+		{ // overwrite in subclass
+		return;
+		}
+	}
+
 class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $frame;
@@ -601,6 +612,7 @@ class NSControl extends NSView
 	protected $tag=0;
 	protected $align="";
 	protected $enabled=true;
+	protected $cell;
 	public function __construct()
 		{ // must explicitly call!
 		parent::__construct();
@@ -628,6 +640,10 @@ NSLog($this->description()." sendAction $action");
 	public function tag() { return $this; }
 	public function setAlign($align) { $this->align=$align; }
 	public function align() { return $this->align; }
+	public function draw()
+		{
+		$this->cell->drawCell();
+		}
 	}
 
 class NSButton extends NSControl
@@ -1278,7 +1294,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 // FIXME: handle multiple selections...
 
 class NSMatrix extends NSControl
-	{ // matrix of several buttons - radio buttons are grouped
+	{ // matrix of several buttons or fields - radio buttons are grouped
 	protected $columns=1;
 	protected $selectedColumn=-1;
 	protected $selectedRow=-1;
@@ -1423,11 +1439,59 @@ class NSMatrix extends NSControl
 		}
 	}
 
+class NSFormCell extends NSView /* NSCell - but then we can't addSubview() */
+{
+	protected $label;
+	protected $value;
+	public function __construct()
+		{
+		$this->label=new NSTextField();
+		$this->label->setAttributedStringValue("Label:");
+		$this->addSubview($this->label);
+		$this->value=new NSTextField();
+		$this->addSubview($this->value);
+		}
+	public function setTitle($string)
+		{
+		$this->label->setAttributedStringValue($string);
+		}
+	public function setStringValue($string)
+		{
+		$this->value->setStringValue($string);
+		}
+	public function setPlaceholderString($string)
+		{
+		$this->value->setPlaceholderString($string);
+		}
+	public function setEditable($flag)
+		{
+		$this->value->setEditable($flag);
+		}
+	public function stringValue()
+		{
+		return $this->value->stringValue();
+		}
+	public function setSelected($status)
+		{
+		}
+	public function setToolTip($str)
+		{
+		$this->value->setToolTip($str);
+		}
+}
+
 class NSForm extends NSMatrix
 {
 	public function __construct()
 		{
-		parent::__construct(2);
+		parent::__construct(1);	// 1 column matrix
+		}
+	public function addEntry($title)
+		{
+		$cell=new NSFormCell();
+		$cell->setTitle($title);
+		$this->addSubview($cell);
+		return $cell;
 		}
 }
 
@@ -1645,8 +1709,10 @@ class NSTableColumn extends NSObject
 	protected $isEditable=false;
 	protected $isHidden=false;
 	protected $align="";
-	// could have a data cell...
+	protected $headerCell;
+	protected $dataCell;
 	// allow to define colspan and rowspan values
+
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function identifier() { return $this->identifier; }
@@ -1815,8 +1881,9 @@ class NSTableView extends NSControl
 				if($row < $rows)
 					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-					// we should insert that into the $column->cell
+					// we should insert that into the $column->cell->setObjectValue
 					// $item->draw();
+					// so that we can use the cell's style & editing capabilities
 					html(_htmlentities($item));
 					}
 				else
