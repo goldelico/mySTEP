@@ -170,7 +170,7 @@ extern NSString *NSParseErrorException;
 - (NSArray *) componentsSeparatedByCharactersInSet:(NSCharacterSet *) set;
 - (NSArray *) componentsSeparatedByString:(NSString *) separator;
 - (const char *) cString;								// C Strings
-- (unsigned int) cStringLength;
+- (NSUInteger) cStringLength;
 - (const char *) cStringUsingEncoding:(NSStringEncoding) encoding;
 - (NSData *) dataUsingEncoding:(NSStringEncoding) encoding;
 - (NSData *) dataUsingEncoding:(NSStringEncoding) encoding

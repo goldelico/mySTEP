@@ -54,6 +54,8 @@ struct NSArgumentInfo
 	// ffi type
 };
 
+#if FIXMEFIXME
+
 /*
  * define architecture specific values and fixes
  *
@@ -530,6 +532,8 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 
 #endif
 
+#endif // FIXMEFIXME
+
 @implementation NSMethodSignature
 
 #define NEED_INFO() if(info == NULL) [self _methodInfo]
@@ -640,6 +644,8 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 }
 
 @end
+
+#if FIXMEFIXME
 
 @implementation NSMethodSignature (NSPrivate)
 
@@ -1354,4 +1360,6 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, struct 
 	return wrapped_builtin_apply(imp, _argframe, argFrameLength+EXTRA, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 
-@end  /* NSMethodSignature (mySTEP) */
+@end  /* NSMethodSignature (NSPrivate) */
+
+#endif // FIXMEFIXME

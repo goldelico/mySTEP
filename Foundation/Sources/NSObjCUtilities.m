@@ -172,12 +172,14 @@ void objc_invalidate_dtable(Class class)
 #if 0
 	fprintf(stderr, "invalidate dtable for %s\n", object_get_class_name(class));
 #endif
-    if (class->dtable == objc_get_uninstalled_dtable()) 
+#if FIXME
+    if (class->dtable == objc_get_uninstalled_dtable())
 		return;
     sarray_free(class->dtable);
     __objc_install_premature_dtable(class);
     for (s = class->subclass_list; s; s=s->sibling_class)
 		objc_invalidate_dtable(s);	// recursive
+#endif
 }
 
 int objc_initialize_loading(FILE *errorStream)
@@ -204,10 +206,11 @@ int objc_initialize_loading(FILE *errorStream)
 
 void objc_load_callback(Class class, Category *category)
 {
-#if 0
+#if 1
 	fprintf(stderr, "objc_load_callback(%s, %p)\n", object_get_class_name(class), category);
 #endif
-    if (class != Nil && category != (Category *) NULL) 		// Invalidate the dtable, so it 
+#if FIXME
+    if (class != Nil && category != (Category *) NULL) 		// Invalidate the dtable, so it
 		{									// will be rebuilt correctly
 			objc_invalidate_dtable(class);
 			objc_invalidate_dtable(class->class_pointer);
@@ -215,7 +218,8 @@ void objc_load_callback(Class class, Category *category)
 	
     if (objc_loadmodule_callback)
 		(*objc_loadmodule_callback)(class, category);	// pass to user provided callback (_bundleLoadCallback)
-#if 0
+#endif
+#if 1
 	fprintf(stderr, "objc_load_callback done\n");
 #endif
 }
@@ -229,7 +233,7 @@ long objc_load_module(const char *filename,
 	typedef void (*void_fn)();
 	dl_handle_t handle;
 	
-#if 0
+#if 1
 	fprintf(stderr, "objc_load_module %s\n", filename);
 #endif
 	
@@ -274,7 +278,7 @@ long objc_load_module(const char *filename,
 	
     _objc_load_callback = NULL;
     objc_loadmodule_callback = NULL;
-#if 0
+#if 1
 	fprintf(stderr, "objc_load_module: successfully loaded\n");
 #endif
 	

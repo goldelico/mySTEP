@@ -208,9 +208,7 @@
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke NULL selector: %@", self];
 	
 #ifndef __APPLE__
-	imp = method_get_imp(object_is_instance(target) ?
-						 class_get_instance_method(((struct objc_class *) target )->class_pointer, selector)
-						 : class_get_class_method(((struct objc_class *) target )->class_pointer, selector));
+	imp = class_getMethodImplementation(target, selector);
 	if(imp == NULL)
 		{ // If fast lookup failed, we may be forwarding or something ...
 #if 0

@@ -978,7 +978,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSUInteger) length								{ return _count; }
 - (NSString*) description							{ return self; }
 - (const char *) cString							{ SUBCLASS return 0; }
-- (unsigned int) cStringLength						{ SUBCLASS return 0; }
+- (NSUInteger) cStringLength						{ SUBCLASS return 0; }
 - (unichar) characterAtIndex:(NSUInteger)index	{ SUBCLASS return 0; }
 - (void) getCharacters:(unichar*)buffer				{ SUBCLASS }
 - (void) getCharacters:(unichar*)buffer 
@@ -2702,7 +2702,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 // private methods for Unicode level 3 implementation
-- (int) _baseLength					{ return 0; } 
+- (NSUInteger) _baseLength					{ return 0; }
 
 // FIXME: we could define a NSPathComponentsString which has a NSMutableArray iVar
 // to speed up successive path operations on the components
@@ -3071,15 +3071,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #endif
 	if (obj == self)
 		return YES;
-#ifndef __APPLE__
-	if((obj != nil) && CLS_ISCLASS(((Class)obj)->class_pointer))
-		c = ((Class)obj)->class_pointer;
-	else
-		return NO;	// is nil or has no class
-#else
-	c = Nil;	// make apple gcc happy
-#endif
-	
+	c = object_getClass(obj);	// peer class
 #if 0
 	NSLog(@"++ 1 %@ %p", c, c);
 	NSLog(@"++ 2 %@ %p", _constantStringClass, _constantStringClass);
@@ -3138,19 +3130,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (BOOL) isEqualToString:(NSString *)aString
 {
 	unsigned int mi = 0, si = 0;
-	Class c;
 	NSAutoreleasePool *pool;
-	
+	Class c;
+
 	if (aString == self)
 		return YES;
-#ifndef __APPLE__
-	if((aString != nil) && CLS_ISCLASS(((Class)aString)->class_pointer))
-		c = ((Class)aString)->class_pointer;
-	else
-		return NO;
-#else
-	c=Nil;	// make apple gcc happy
-#endif
+	c = object_getClass(aString);	// peer class
 	
 	if (_hash == 0)
 		_hash = _strHashImp(self, @selector(hash));
@@ -3294,11 +3279,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return _cString;
 }
 
-- (unsigned int) cStringLength			{ return _count; }		// may depend on default encoding!
+- (NSUInteger) cStringLength			{ return _count; }		// may depend on default encoding!
 - (NSStringEncoding) fastestEncoding	{ return NSUnicodeStringEncoding; }
 - (NSStringEncoding) smallestEncoding	{ return NSUnicodeStringEncoding; }
 
-- (int) _baseLength
+- (NSUInteger) _baseLength
 { // private method for Unicode level 3 implementation
 	int count = 0;
 	int blen = 0;
@@ -3573,8 +3558,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (const char *) cString { return _cString; }
 
-- (unsigned int) cStringLength		{ return _count; }
-- (int) _baseLength					{ return _count; } 
+- (NSUInteger) cStringLength		{ return _count; }
+- (NSUInteger) _baseLength					{ return _count; }
 
 - (void) getCString:(char*)buffer
 {
@@ -3592,7 +3577,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (void) getCString:(char*)buffer
-		  maxLength:(unsigned int)maxLength
+		  maxLength:(NSUInteger)maxLength
 			  range:(NSRange)aRange
 	 remainingRange:(NSRange*)leftoverRange
 {
@@ -3762,7 +3747,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) initWithString:(NSString*)string
 {
-	unsigned length = [string cStringLength];
+	NSUInteger length = [string cStringLength];
 	char *buf = objc_malloc(length+1);  						// getCString appends a nul
 	if(!buf)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -3796,117 +3781,102 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (BOOL) isEqual:(id)obj
 { // self is a C string (other side must be convertible)
+	Class c;
 	if (obj == self)
 		return YES;
-#ifndef __APPLE__
-	
-	if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
-		{
-		Class c = ((Class)obj)->class_pointer;
-		
-		if (c == _cStringClass)
-			{ // compare two C strings
-				if (_count != ((NSString*)obj)->_count)
-					return NO;
-				if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
-					return YES;	// byte sequence is the same
-				if (_hash == 0)
-					_hash = _strHashImp(self, @selector(hash));
-				if (((GSCString*)obj)->_hash == 0)
-					((GSCString*)obj)->_hash =_strHashImp(obj,@selector(hash));
-				if (_hash != ((GSCString*)obj)->_hash)
-					return NO;
-				return YES;
-			}
-		else
-			if(c == _constantStringClass) 
-				{ // compare to a constant C string
-					if(_count != ((NSString*)obj)->_count)
-						return NO;
-					if(memcmp(_cString, ((NSString*)obj)->_cString,_count) != 0)
-						return NO;
-					return YES;
+	c = object_getClass(obj);	// peer class
+	if (c == _cStringClass)
+		{ // compare two C strings
+		if (_count != ((NSString*)obj)->_count)
+		return NO;
+		if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
+		return YES;	// byte sequence is the same
+		if (_hash == 0)
+		_hash = _strHashImp(self, @selector(hash));
+		if (((GSCString*)obj)->_hash == 0)
+		((GSCString*)obj)->_hash =_strHashImp(obj,@selector(hash));
+		if (_hash != ((GSCString*)obj)->_hash)
+		return NO;
+		return YES;
+		}
+	else if(c == _constantStringClass)
+		{ // compare to a constant C string
+		if(_count != ((NSString*)obj)->_count)
+		return NO;
+		if(memcmp(_cString, ((NSString*)obj)->_cString,_count) != 0)
+		return NO;
+		return YES;
+		}
+	if (c && _classIsKindOfClass(c, _nsStringClass))
+		{ // compare to a unicode string
+		if(!((NSString*)obj)->_cString)
+			{
+			if(((NSString*)obj)->_count > 0)
+				{
+				NS_DURING
+					[obj cString];				// convert to a C str (if possible)
+				NS_HANDLER
+					return NO;	// we were not able to convert the other string to a C string - so they can't be equal
+				NS_ENDHANDLER
 				}
-		if (_classIsKindOfClass(c, _nsStringClass))
-			{ // compare to a unicode string
-				if(!((NSString*)obj)->_cString)			
-					{										 
-						if(((NSString*)obj)->_count > 0)
-							{
-							NS_DURING
-							[obj cString];				// convert to a C str (if possible)
-							NS_HANDLER
-							return NO;	// we were not able to convert the other string to a C string - so they can't be equal
-							NS_ENDHANDLER
-							}
-						else							// str but does not yet have a
-							return NO;					// C str backing, create it
-					}
-				if (_count != ((NSString*)obj)->_count)
-					return NO;
-				if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
-					return YES;
-			}	}
-#endif
-	
+			else							// str but does not yet have a
+				return NO;					// C str backing, create it
+			}
+		}
+	if (_count != ((NSString*)obj)->_count)
+		return NO;
+	if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
+		return YES;
 	return NO;
 }
 
 - (BOOL) isEqualToString:(NSString*)aString
 {
+	Class c;
 	if (aString == self)
 		return YES;
-	
-	if ((aString != nil) && (CLS_ISCLASS(((Class)aString)->class_pointer))) 
+	c = object_getClass(aString);	// peer class
+
+	if (c == _cStringClass)
 		{
-#ifndef __APPLE__
-		
-		Class c = ((Class)aString)->class_pointer;
-		
-		if (c == _cStringClass) 
-			{
-			GSCString *other = (GSCString*)aString;
+		GSCString *other = (GSCString*)aString;
 			
-			if (_count != aString->_count)
-				return NO;
-			if (_hash == 0)
-				_hash = _strHashImp(self, @selector(hash));
-			if (other->_hash == 0)
-				other->_hash = _strHashImp(aString, @selector(hash));
-			if (_hash != other->_hash)
-				return NO;
-			
-			return (memcmp(_cString,aString->_cString,_count) != 0) ? NO : YES;
-			}
-		else
-			if (c == _constantStringClass) 
-				{
-				if (_count != aString->_count)
-					return NO;
-				if(memcmp(_cString, aString->_cString, _count) != 0)
-					return NO;
-				return YES;
-				}
-#endif
 		if (_count != aString->_count)
 			return NO;
-		if(!aString->_cString)			
-			{										 
-				if(aString->_count > 0)	
-					{
-					NS_DURING
-					[aString cString];				// if an object is a unichar str but does not yet have a C str backing, create one
-					NS_HANDLER
-					return NO;	// we were not able to convert the other string to a C string - so it can't be equal
-					NS_ENDHANDLER
-					}
-				else
-					return NO;
-			}
-		if (memcmp(_cString, aString->_cString, _count) == 0)
-			return YES;
+		if (_hash == 0)
+			_hash = _strHashImp(self, @selector(hash));
+		if (other->_hash == 0)
+			other->_hash = _strHashImp(aString, @selector(hash));
+		if (_hash != other->_hash)
+			return NO;
+			
+		return (memcmp(_cString,aString->_cString,_count) != 0) ? NO : YES;
 		}
-	
+	else if (c == _constantStringClass)
+		{
+		if (_count != aString->_count)
+			return NO;
+		if(memcmp(_cString, aString->_cString, _count) != 0)
+			return NO;
+		return YES;
+		}
+	if (_count != aString->_count)
+		return NO;
+	if(!aString->_cString)
+		{
+			if(aString->_count > 0)
+				{
+				NS_DURING
+					[aString cString];				// if an object is a unichar str but does not yet have a C str backing, create one
+				NS_HANDLER
+					return NO;	// we were not able to convert the other string to a C string - so it can't be equal
+				NS_ENDHANDLER
+				}
+			else
+				return NO;
+		}
+	if (memcmp(_cString, aString->_cString, _count) == 0)
+		return YES;
 	return NO;
 }
 
@@ -3917,7 +3887,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (NSStringEncoding) smallestEncoding		{ return __cStringEncoding; }
-- (int) _baseLength							{ return _count; } 
+- (NSUInteger) _baseLength							{ return _count; }
 
 @end /* GSCString */
 
@@ -3947,38 +3917,35 @@ int __CFConstantStringClassReference [];
 
 - (BOOL) isEqual:(id)obj
 { // self is a constant C string
+	Class c;
+
 	if (obj == self)
 		return YES;
-#ifndef __APPLE__
-	
-	if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
+	c = object_getClass(obj);	// peer class
+
+	if (c == _cStringClass || c == _constantStringClass)
 		{
-		Class c = ((Class)obj)->class_pointer;
+		if(_count != ((NSString*)obj)->_count)
+			return NO;
+		if(memcmp(_cString, ((NSString*)obj)->_cString, _count) != 0)
+			return NO;
+		return YES;
+		}
 		
-		if (c == _cStringClass || c == _constantStringClass) 
+	if (_classIsKindOfClass(c, _nsStringClass))
+		{
+		if (_count != ((NSString*)obj)->_count)
+			return NO;
+		if(!((NSString*)obj)->_cString)
 			{
-			if(_count != ((NSString*)obj)->_count)
-				return NO;
-			if(memcmp(_cString, ((NSString*)obj)->_cString, _count) != 0)
-				return NO;
-			return YES;
+				if(((NSString*)obj)->_count > 0)
+					[obj cString];				// if an object is a unichar
+				else							// str but does not yet have a
+					return YES;	/* both are empty */	// C str backing, create it
 			}
-		
-		if (_classIsKindOfClass(c, _nsStringClass))
-			{
-			if (_count != ((NSString*)obj)->_count)
-				return NO;
-			if(!((NSString*)obj)->_cString)			
-				{										 
-					if(((NSString*)obj)->_count > 0)	
-						[obj cString];				// if an object is a unichar
-					else							// str but does not yet have a
-						return YES;	/* both are empty */	// C str backing, create it
-				}
-			if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
-				return YES;
-			}	}
-#endif
+		if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
+			return YES;
+		}
 	return NO;
 }
 

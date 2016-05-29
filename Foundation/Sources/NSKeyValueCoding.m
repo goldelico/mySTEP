@@ -85,9 +85,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		type=[sig methodReturnType];
 		msg = objc_msg_lookup(self, s);
 #else
-		struct objc_method *m = (object_is_instance(self) 
-								 ? class_get_instance_method([self class], s)
-								 : class_get_class_method([self class], s));
+#if FIXME
+		imp = class_getMethodImplementation(self, s);
 		sc=[self class];
 		struct objc_protocol_list *protocols = sc?sc->protocols:NULL;
 		msg=m?m->method_imp:NULL;
@@ -96,14 +95,21 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 			// do we need to scan through protocols?
 			NSLog(@"not scanning protocols for valueForKey:%@", str);
 #endif
+#endif
 //		NSLog(@"IMP = %p", msg);
 		if (!msg)
 			return [self _error:"unknown getter %s", sel_getName(s)];
 		}
 	else if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
+			Ivar *ivar;	// name, type, offset
+
 		struct objc_class *class;
 		const char *varName=[str UTF8String];
+
+			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
+
+#if FIXME
 		for(class=sc; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
@@ -127,7 +133,9 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 					break;	// fall through
 				}
 			}
+#endif
 		}
+
 //	NSLog(@"valueForKey type %s", type?type:"not found");
 	if(!type)
 		return [self valueForUndefinedKey:str];	// was not found
@@ -232,6 +240,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 #endif
 	if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{
+#if FIXME
 		// FIXME: we should walk the tree for each variant!
 		// FIXME: here, we must remove the trailing ":"
 		struct objc_class *class;
@@ -301,6 +310,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 					}
 				}
 			}
+#endif
 		}
 	objc_free(selName);
 	[self setValue:(id) val forUndefinedKey:str];

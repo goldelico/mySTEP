@@ -520,7 +520,7 @@
 		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
 		EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
-		EED9CA041C0DF431003E0719 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions-wheezy/x86_64-apple-darwin13.4.0/gcc/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.6.3/include/objc"; sourceTree = "<group>"; };
+		EED9CA041C0DF431003E0719 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions-jessie/x86_64-apple-darwin15.0.0/gcc/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.9.2/include/objc"; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -1213,7 +1213,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo $CFLAGS\nQuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./Foundation.qcodeproj\n";
+			shellScript = "echo $CFLAGS\n./Foundation.qcodeproj\n";
 		};
 		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1226,7 +1226,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# this shell script identifies all fpu calls in all frameworks and applications\n\nROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\ncd $ROOT\n\nARCHITECTURE=arm-quantumstep-linux-gnu\n# ARCHITECTURE=arm-hardfloat-linux-gnu\n# ARCHITECTURE=arm-softfloat-linux-gnueabi\nCOMPILER=gcc-2.95.3-glibc-2.2.2\nTOOLCHAIN=$SYSTEM_DEVELOPER_DIR/Xtoolchain/native/$COMPILER/$ARCHITECTURE/$ARCHITECTURE\n\nfind Applications Developer Library System/Library \\( -name *.framework -o -name *.app \\) -print -prune | while read file\ndo\n\tcase $file in\n\t\t*.app )\n\t\t\tbinary=$file/Contents/$ARCHITECTURE/*\n\t\t\t;;\n\t\t*.framework )\n\t\t\tbinary=$file/Versions/current/$ARCHITECTURE/*.so\n\t\t\t;;\n\t\t* )\n\t\t\techo $file has no binaries\n\t\t\t;;\n\tesac\n\t$TOOLCHAIN/bin/nm -u $binary\ndone | sort | uniq\n\nexit 0";
+			shellScript = "# this shell script identifies all fpu calls in all frameworks and applications\n\necho deprecated\n\nexit\n\nROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\ncd $ROOT\n\nARCHITECTURE=arm-quantumstep-linux-gnu\n# ARCHITECTURE=arm-hardfloat-linux-gnu\n# ARCHITECTURE=arm-softfloat-linux-gnueabi\nCOMPILER=gcc-2.95.3-glibc-2.2.2\nTOOLCHAIN=$SYSTEM_DEVELOPER_DIR/Xtoolchain/native/$COMPILER/$ARCHITECTURE/$ARCHITECTURE\n\nfind Applications Developer Library System/Library \\( -name *.framework -o -name *.app \\) -print -prune | while read file\ndo\n\tcase $file in\n\t\t*.app )\n\t\t\tbinary=$file/Contents/$ARCHITECTURE/*\n\t\t\t;;\n\t\t*.framework )\n\t\t\tbinary=$file/Versions/current/$ARCHITECTURE/*.so\n\t\t\t;;\n\t\t* )\n\t\t\techo $file has no binaries\n\t\t\t;;\n\tesac\n\t$TOOLCHAIN/bin/nm -u $binary\ndone | sort | uniq\n\nexit 0";
 		};
 		EEBBA9211413B9340006097A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

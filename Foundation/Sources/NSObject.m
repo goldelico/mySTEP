@@ -16,7 +16,9 @@
 #include <time.h>
 #include <sys/time.h>
 
+#ifdef __APPLE__
 #include <objc/objc-api.h>
+#endif
 
 #import "NSPrivate.h"
 #import <Foundation/NSObject.h>
@@ -112,7 +114,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
       	autorelease_imp =[autorelease_class methodForSelector:autorelease_sel];
 		// Create the global lock
 		__NSGlobalLock = [[NSRecursiveLock alloc] init];
-		__zombieClass=objc_lookup_class("_NSZombie");
+		__zombieClass=objc_lookUpClass("_NSZombie");
 		z=getenv("NSZombieEnabled");	// made compatible to http://developer.apple.com/technotes/tn2004/tn2124.html
 		if(z && (strcmp(z, "YES") == 0 || strcmp(z, "yes") == 0 || atoi(z) == 1))
 			NSZombieEnabled=YES;
@@ -138,9 +140,9 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 + (NSInteger) version				{ return class_get_version(self); }
 + (void) poseAsClass:(Class)aClass	{ class_pose_as(self, aClass); }
 + (Class) class						{ return self; }
-- (Class) class						{ return object_get_class(self); }
-+ (Class) superclass				{ return class_get_super_class(self); }
-- (Class) superclass				{ return object_get_super_class(self); }
+- (Class) class						{ return object_getClass(self); }
++ (Class) superclass				{ return class_getSuperclass(self); }
+- (Class) superclass				{ return class_getSuperclass(object_getClass(self)); }
 
 + (BOOL) isSubclassOfClass:(Class)aClass;
 	{
@@ -148,7 +150,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 		{
 		if(self == aClass)
 			return YES;
-		self=class_get_super_class(self);
+		self=class_getSuperclass(self);
 		}
 	return NO;
 	}
@@ -175,11 +177,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	return (class_get_instance_method(self, aSelector) != NULL);
-#else
-	return NO;
-#endif
+	return class_respondsToSelector(self, aSelector);
 }
 
 /**
@@ -215,27 +213,10 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 + (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
-	struct objc_protocol_list* proto_list;
 #if 0 && !defined(__APPLE__)
 	fprintf(stderr, "+[%s conformsToProtocol: %s]\n", class_get_class_name(self), [aProtocol name]);
 #endif
-#ifndef __APPLE__
-	for(proto_list = ((struct objc_class*)self)->protocols;
-		 proto_list; proto_list = proto_list->next)
-		{
-		unsigned int i;		
-		for(i = 0; i < proto_list->count; i++)
-			{
-//			if ([proto_list->list[i] conformsTo:aProtocol]) // that one crashes for unknown reasons
-			if(objectConformsTo(proto_list->list[i], aProtocol))
-				return YES;
-			}
-		}
-	return object_get_super_class(self) && [object_get_super_class(self) conformsToProtocol: aProtocol];
-
-#else
-	return NO;
-#endif
+	return class_conformsToProtocol(self, aProtocol);
 }
 
 - (BOOL) conformsToProtocol:(Protocol*)aProtocol
@@ -246,22 +227,12 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 + (IMP) instanceMethodForSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	return (IMP)method_get_imp(class_get_instance_method(self, aSelector));
-#else
-	return NULL;
-#endif
+	return class_getMethodImplementation(self, aSelector);
 }
   
 - (IMP) methodForSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	return (IMP)(method_get_imp(object_is_instance(self)
-                         ? class_get_instance_method(isa, aSelector)
-                         : class_get_class_method(isa, aSelector)));
-#else
-	return NULL;
-#endif
+	return class_getMethodImplementation(object_getClass(self), aSelector);
 }
 
 - (id) awakeAfterUsingCoder:(NSCoder*)aDecoder			{ return self; }
@@ -334,7 +305,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #else
 			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
-			_setClass(self, __zombieClass);	// make us a zombie object
+			object_setClass(self, __zombieClass);	// make us a zombie object
 			[arp release];
 			NSZombieEnabled=YES;
 			}
@@ -380,25 +351,19 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #if 0
 	NSLog(@"respondsToSelector %@", NSStringFromSelector(aSelector));
 #endif
-#ifndef __APPLE__
-	if (object_is_instance(self))
-		return (class_get_instance_method(object_get_class(self), aSelector) != NULL);
 #if 0
 	NSLog(@"respondsToSelector +%@", NSStringFromSelector(aSelector));
 	NSLog(@"self: %@", self);
-	NSLog(@"class: %@", object_get_class(self));	// is the same
+	NSLog(@"class: %@", object_getClass(self));	// is the same
 //	NSLog(@"meta: %@", object_get_meta_class((Class) self));	// is the same
-	NSLog(@"-method: %p", class_get_instance_method(object_get_class(self), aSelector));
-	NSLog(@"+method: %p", class_get_class_method((Class)self, aSelector));
-	NSLog(@"+method: %p", class_get_class_method(object_get_meta_class((Class) self), aSelector));
-	NSLog(@"-hasAlpha: %p", class_get_instance_method(object_get_class(self), @selector(hasAlpha)));
-	NSLog(@"+hasAlpha: %p", class_get_class_method((Class)self, @selector(hasAlpha)));
-	NSLog(@"+hasAlpha: %p", class_get_class_method(object_get_meta_class((Class) self), @selector(hasAlpha)));
+	NSLog(@"-method: %p", class_getInstanceMethod(object_getClass(self), aSelector));
+	NSLog(@"+method: %p", class_getClassMethod((Class)self, aSelector));
+	NSLog(@"+method: %p", class_getInstanceMethod(object_getClass((Class) self), aSelector));
+	NSLog(@"-hasAlpha: %p", class_getInstanceMethod(object_getClass(self), @selector(hasAlpha)));
+	NSLog(@"+hasAlpha: %p", class_getClassMethod((Class)self, @selector(hasAlpha)));
+	NSLog(@"+hasAlpha: %p", class_getInstanceMethod(object_getClass((Class) self), @selector(hasAlpha)));
 #endif
-	return (class_get_class_method(object_get_meta_class((Class) self), aSelector) != NULL);
-#else
-	return NULL;
-#endif
+	return class_respondsToSelector(object_getClass(self), aSelector);
 }
 
 - (void) forwardInvocation:(NSInvocation*)anInvocation
@@ -479,27 +444,21 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 + (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	struct objc_method *m = class_get_instance_method(self, aSelector);
+	Method m=class_getInstanceMethod(self, aSelector);
 #if 0
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	NSLog(@" -> %s", m->method_types);
 	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	// CHECKME: should we also check for Protocols?
-    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : (NSMethodSignature *) nil;
-#else
-	return nil;
-#endif
+    return m ? [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)] : (NSMethodSignature *) nil;
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
 {
-#ifndef __APPLE__
-	struct objc_method *m = (object_is_instance(self) 
-													 ? class_get_instance_method([self class], aSelector)
-													 : class_get_class_method([self class], aSelector));
-	const char *types=m?m->method_types:NULL;	// default (if we have an implementation)
+	Method m=class_getInstanceMethod(object_getClass(self), aSelector);
+	const char *types=m?method_getTypeEncoding(m):NULL;	// default (if we have an implementation)
+#if FIXME
 	Class c = object_get_class(self);
 	struct objc_protocol_list	*protocols = c?c->protocols:NULL;
 	for(; protocols; protocols = protocols?protocols->next:protocols)
@@ -529,6 +488,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 									}
 						}
 			}
+#endif	// FIXME
 #if 1
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	if(types)
@@ -536,12 +496,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	else
 		NSLog(@" -> selector not found.");
 	if(m)
-		NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
+		NSLog(@"  self=%@ IMP=%p", self, method_getImplementation(m));
 #endif
 	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
-#else
-	return nil;
-#endif
 }
 
 - (id) forwardingTargetForSelector:(SEL) sel;
@@ -715,15 +672,12 @@ va_list ap;
 
 + (BOOL) instancesRespondTo:(SEL)aSel
 {
-	return [self instancesRespondToSelector:aSel];
+	return class_respondsToSelector(object_getClass(self), aSel);
 }
 
 - (BOOL) respondsTo:(SEL)aSel
 {
-	if (CLS_ISCLASS(((Class)self)->class_pointer))
-		return (class_get_instance_method([self class], aSel) != NULL);
-
-	return (class_get_class_method([self class], aSel) != NULL);
+	return class_respondsToSelector([self class], aSel);
 }
 
 + (BOOL) conformsTo:(Protocol*)aProtocol
