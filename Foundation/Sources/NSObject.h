@@ -125,7 +125,7 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 {
 	id newobject=nil;
 #ifdef __linux__
-	if (CLS_ISCLASS (aClass))
+	if ([aClass isClass])
 		{
 		unsigned size = class_getInstanceSize(aClass)+extra;
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)

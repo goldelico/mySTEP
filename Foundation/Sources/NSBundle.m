@@ -928,7 +928,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 	// theCategory->category_name
 	// theCategory->class_name
 #if 0
-	fprintf(stderr, "_bundleLoadCallback(%s, %s)\n", object_get_class_name(theClass), theCategory?"Category":""/*theCategory?(theCategory->category_name):"---"*/);
+	fprintf(stderr, "_bundleLoadCallback(%s, %s)\n", class_getName(theClass), theCategory?"Category":""/*theCategory?(theCategory->category_name):"---"*/);
 #endif
 	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
 	if(!theCategory)								// Don't store categories
@@ -939,7 +939,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 	// this may trigger +initialize for some classes that have already been loded
 	// while others are not yet initialized here!!!
 	else
-		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%s is not a class, theCategory=%08x", __loadingBundle, object_get_class_name(theClass), theCategory);
+		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%s is not a class, theCategory=%08x", __loadingBundle, class_getName(theClass), theCategory);
 #endif
 #if 0
 	fprintf(stderr, "_bundleLoadCallback done\n");

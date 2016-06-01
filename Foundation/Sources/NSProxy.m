@@ -28,22 +28,18 @@
 + (void) release				{ return; }
 + (id) autorelease				{ return self; }
 + (id) retain					{ return self; }
-+ (Class) superclass			{ return class_get_super_class(self); }
++ (Class) superclass			{ return class_getSuperclass(self); }
 + (Class) class					{ return self; }
 + (void) load					{ return; }
 
 + (NSString *) description
 {
-	return [NSString stringWithFormat: @"<@class %s>", object_get_class_name(self)];
+	return [NSString stringWithFormat: @"<@class %s>", class_getName(self)];
 }
 
 + (BOOL) respondsToSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	return (class_get_class_method(self, aSelector) != NULL);
-#else
-	return NO;
-#endif
+	return (class_getClassMethod(self, aSelector) != NULL);
 }
 
 + (NSUInteger) retainCount		{ return UINT_MAX; }
@@ -54,8 +50,8 @@
 - (id) init						{ return self; }
 - (id) copyWithZone:(NSZone *) zone	{ return [self retain]; }
 - (id) self						{ return self; }
-- (Class) superclass			{ return object_get_super_class(self);}
-- (Class) class					{ return object_get_class(self); }
+- (Class) superclass			{ return class_getSuperclass(object_getClass(self)); }
+- (Class) class					{ return object_getClass(self); }
 - (void) dealloc				{ NSDeallocateObject((NSObject*)self); }
 - (void) finalize			{ return; }
 
@@ -167,7 +163,7 @@
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** %@[%@ %@]: not implemented",
-						object_is_instance(self)?@"-":@"+",
+						[self isInstance]?@"-":@"+",
 		NSStringFromClass([self class]),
 		NSStringFromSelector(cmd)];
 	return nil;
@@ -203,7 +199,7 @@
 		{
 		[NSException raise: NSGenericException 
 					 format: @"invalid selector passed to %s",
-						sel_get_name(_cmd)];
+						sel_getName(_cmd)];
 		return nil;
 		}
 	return (*msg)(self, aSelector);
@@ -217,7 +213,7 @@
 		{
 		[NSException raise: NSGenericException
 					 format: @"invalid selector passed to %s",
-								sel_get_name(_cmd)];
+								sel_getName(_cmd)];
 		return nil;
 		}
 	return (*msg)(self, aSelector, anObject);
@@ -233,7 +229,7 @@
 		{
 		[NSException raise: NSGenericException
 					 format: @"invalid selector passed to %s",
-							sel_get_name(_cmd)];
+							sel_getName(_cmd)];
 		return nil;
 		}
 	return (*msg)(self, aSelector, anObject, anotherObject);
@@ -241,8 +237,8 @@
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
-	return (class_get_instance_method([self class], aSelector) != NULL);
-//	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
+	return (class_getInstanceMethod(self, aSelector) != NULL);
+//	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_getName(_cmd)];
 //	return NO;
 }
 #endif

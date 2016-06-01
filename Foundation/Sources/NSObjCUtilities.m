@@ -170,7 +170,7 @@ void objc_invalidate_dtable(Class class)
 {
 	Class s;
 #if 0
-	fprintf(stderr, "invalidate dtable for %s\n", object_get_class_name(class));
+	fprintf(stderr, "invalidate dtable for %s\n", class_getName(class));
 #endif
 #if FIXME
     if (class->dtable == objc_get_uninstalled_dtable())
@@ -207,7 +207,7 @@ int objc_initialize_loading(FILE *errorStream)
 void objc_load_callback(Class class, Category *category)
 {
 #if 1
-	fprintf(stderr, "objc_load_callback(%s, %p)\n", object_get_class_name(class), category);
+	fprintf(stderr, "objc_load_callback(%s, %p)\n", class_getName(class), category);
 #endif
 #if FIXME
     if (class != Nil && category != (Category *) NULL) 		// Invalidate the dtable, so it
@@ -261,7 +261,9 @@ long objc_load_module(const char *filename,
 #if 0
 	fprintf(stderr, "objc_load_module: linked\n");
 #endif
+#if FIXME
     __dynamicModules = list_cons(handle, __dynamicModules);
+#endif
 #if 0
 	fprintf(stderr, "objc_load_module: after list_cons\n");
 #endif
@@ -637,7 +639,7 @@ NSSelectorFromString(NSString *aSelectorName)
 		const char *selName = [aSelectorName UTF8String];
 //		SEL s = sel_get_any_uid(selName);
 		// FIXME: how can we translate/register arbitrary selectors for DO?
-		SEL s = sel_register_name(selName);
+		SEL s = sel_registerName(selName);
 		if(!s)
 			NSLog(@"NSSelectorFromString(): can't find SEL %@", aSelectorName);
 		return s;
@@ -649,7 +651,7 @@ NSString *
 NSStringFromClass(Class aClass)
 {
 	if (aClass != Nil)
-		return [NSString stringWithUTF8String:(const char *) class_get_class_name(aClass)];
+		return [NSString stringWithUTF8String:class_getName(aClass)];
 	return nil;
 }
 
@@ -659,7 +661,7 @@ NSClassFromString(NSString *aClassName)
 	if (aClassName != nil)
 		{
 		const char *className = [aClassName UTF8String];
-		Class c = objc_lookup_class(className);
+		Class c = objc_getClass(className);
 		if(!c)
 			NSLog(@"NSClassFromString(): can't find Class %@", aClassName);
 		return c;
@@ -1047,13 +1049,13 @@ void __NSPrintAllocationCount(void)
 							continue;
 						}
 					if(cnt->instances > 0)	// this does not print alloc/peak but we don't want to see it on the screen - just in the files
-						fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_get_class_name(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
+						fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_getName(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
 					total += cnt->instances;
-					sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
+					sprintf(name, "/tmp/%u/%s", getpid(), class_getName(key));
 					file=fopen(name, "a");
 					if(file)
 						{
-						fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+						fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_getName(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
 						fclose(file);
 						}
 					cnt->linstances=cnt->instances;	// to allow to compare to last print

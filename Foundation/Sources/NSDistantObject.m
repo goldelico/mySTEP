@@ -119,15 +119,11 @@
 
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
-#ifndef __APPLE__
-	struct objc_method_description *r=class_get_instance_method(self, sel);
+	struct objc_method_description *r=method_getDescription(class_getInstanceMethod(self, sel));
 #if 0
 	r.types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
 #endif
 	return r;
-#else
-	return NULL;
-#endif
 }
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
@@ -143,7 +139,7 @@
 	r->name=sel_registerName(sel_getName(sel));
 	return r;
 #else
-	struct objc_method_description *r=class_get_instance_method(self->isa, sel);
+	struct objc_method_description *r=method_getDescription(class_getClassMethod(self, sel));
 #if 1
 	NSLog(@"- methodDescriptionForSelector:'%@'", NSStringFromSelector(sel));
 #endif
@@ -156,15 +152,6 @@
 
 // this is listed in http://www.opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
 
-+ (const char *) _localClassNameForClass;
-{
-#ifdef __APPLE__
-	return object_getClassName(self);
-#else
-	return class_get_class_name(self);
-#endif
-}
-
 // What is this good for? It is called by Cocoa remote clients
 // Maybe we can/should ask the NSPortCoder for translations?
 // but NSCoder and NSPortCoder has no -classNameEncodedForTrueClassName, only an NSArchiver
@@ -172,11 +159,7 @@
 - (const char *) _localClassNameForClass;
 {
 	const char *n;
-#ifdef __APPLE__
 	n=object_getClassName(self);
-#else
-	n=class_get_class_name(isa);
-#endif
 #if 1
 	NSLog(@"_localClassNameForClass -> %p %s", n, n);
 #endif	
@@ -607,22 +590,16 @@ static Class _doClass;
 
 + (BOOL) respondsToSelector:(SEL)aSelector;
 {
-#ifndef __APPLE__
-	return (class_get_instance_method(self, aSelector) != NULL);
-#else
-	return NO;
-#endif
+	return (class_getInstanceMethod(self, aSelector) != NULL);
 }
 
 // this is officially only available in NSObject class (not protocol!)
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector;
 { // CHECKME: how can we know that?
-#ifndef __APPLE__
-	if(class_get_instance_method(self, aSelector) != NULL)
+	if(class_getInstanceMethod(self, aSelector) != NULL)
 		return YES;	// this is a method of NSDistantObject
 	// we don't know a remote object or protocols here!
-#endif
 	return NO;
 }
 

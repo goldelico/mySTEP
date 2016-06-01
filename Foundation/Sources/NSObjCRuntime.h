@@ -41,7 +41,7 @@
 #include <sys/stat.h>
 
 #ifndef mySTEP_MAJOR_VERSION
-#define mySTEP_MAJOR_VERSION	2
+#define mySTEP_MAJOR_VERSION	3
 #define mySTEP_MINOR_VERSION	0
 #endif
 
@@ -141,10 +141,6 @@ typedef struct __CGEvent *CGEventRef;
 #define objc_calloc(A, B) calloc((A), (B))
 #define objc_realloc(A, B) realloc((A), (B))
 
-#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
-//#define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
-//#define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
-
 int objc_alignof_type(const char *type);
 int objc_sizeof_type(const char *type);
 int objc_aligned_size(const char *type);
@@ -165,6 +161,11 @@ const char *objc_skip_typespec (const char *type);
 #define objc_thread_detach(SELECTOR, THREAD, ARG) NULL
 #define objc_thread_exit()
 
+#if OLD_GNU_COMPATIBILITY
+
+//#define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
+//#define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
+#define objc_get_class(NAME) ((Class)objc_lookUpClass((const char *) NAME))
 #define class_get_class_name(CLASS) class_getImageName(CLASS)
 #define class_get_class_method(CLASS, SELECTOR) (void *)(class_getClassMethod(CLASS, SELECTOR)->method_imp)
 #define class_get_instance_method(CLASS, SELECTOR) (void *)(class_getInstanceMethod(CLASS, SELECTOR)->method_imp)
@@ -195,6 +196,8 @@ const char *objc_skip_typespec (const char *type);
 #define sel_get_type(X) "x"
 #define sel_types_match(A, B) NO
 #define sel_register_typed_name(NAME, TYPE) ((SEL)name)
+
+#endif
 
 typedef void *objc_mutex_t;
 typedef void *objc_condition_t;

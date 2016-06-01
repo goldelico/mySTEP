@@ -550,6 +550,8 @@ static IMP appendImp;
 	return [self writeToFile:[url path] atomically:useAuxiliaryFile];
 }
 
+///// FIXME: deprecated???
+
 														// Deserializing Data
 - (NSUInteger) deserializeAlignedBytesLengthAtCursor:(NSUInteger*)cursor
 {												
@@ -782,9 +784,9 @@ static IMP appendImp;
 				types[t] = '\0';
 		
 				if (t) 
-					sel = sel_get_typed_uid(name, types);
+					sel = sel_getTypedSelector(name);
 				else 
-					sel = sel_get_any_typed_uid(name);
+					sel = sel_registerName(name);
 				if (sel == 0) 
 					[NSException raise: NSInternalInconsistencyException
 								 format: @"can't find sel with name '%s' "
@@ -1226,9 +1228,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 				types[lt] = '\0';
 		
 				if (lt)
-					sel = sel_get_typed_uid(name, types);
+					sel = sel_getTypedSelector(name);
 				else
-					sel = sel_get_any_typed_uid(name);
+					sel = sel_registerName(name);
 				if (sel == 0)
 					[NSException raise: NSInternalInconsistencyException
 								 format: @"can't find sel with name '%s' "
@@ -2106,7 +2108,7 @@ NSUInteger l;
 		}
         case _C_CLASS: 
 			{
-				const char *name = *(Class*)data ? class_get_class_name(*(Class*)data) : "";
+				const char *name = *(Class*)data ? class_getName(*(Class*)data) : "";
 				unsigned ln = strlen(name);
 				unsigned minimum = length + ln + sizeof(unsigned);
 				unsigned ni;
@@ -2129,7 +2131,7 @@ NSUInteger l;
 				const char *name = *(SEL*)data ? sel_getName(*(SEL*)data) : "";
 				unsigned ln = strlen(name);
 				const char *types = *(SEL*)data ? 
-					(const char*) sel_get_type(*(SEL*)data) : "";
+					(const char*) sel_getTypeEncoding(*(SEL*)data) : "";
 				unsigned lt = strlen(types);
 				unsigned minimum = length + ln + lt + 2*sizeof(unsigned);
 				unsigned ni;

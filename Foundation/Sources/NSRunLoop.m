@@ -251,7 +251,7 @@
 				argument:(id)anArgument
 { 
 #if 0
-	NSLog(@"%s == %s?", sel_get_name(aSelector), sel_get_name(selector));
+	NSLog(@"%s == %s?", sel_getName(aSelector), sel_getName(selector));
 	NSLog(@"%@ == %@?", target, aTarget);
 	NSLog(@"%@ == %@?", argument, anArgument);
 #endif

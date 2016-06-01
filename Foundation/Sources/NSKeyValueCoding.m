@@ -110,7 +110,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
 
 #if FIXME
-		for(class=sc; class != Nil; class = class_get_super_class(class))
+		for(class=sc; class != Nil; class = class_getSuperClass(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
 			if((ivars = class->ivars))
@@ -183,6 +183,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int preflen, char *name)
 {
 	struct objc_ivar *ivar;
+#if FIXME
 	for(; class != Nil; class = class_get_super_class(class))
 		{ // walk upwards through class tree
 		struct objc_ivar_list *ivars;
@@ -202,6 +203,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 				}
 			}
 		}
+#endif
 	return NULL;	// not found
 }
 

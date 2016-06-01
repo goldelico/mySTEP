@@ -130,15 +130,15 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 + (void) setVersion:(NSInteger)aVersion
 {
 	if(aVersion < 0)
-		[self _error:"%s +setVersion: may not set a negative version", object_get_class_name(self)];
-	class_set_version(self, aVersion);
+		[self _error:"%s +setVersion: may not set a negative version", class_getName(self)];
+	class_setVersion(self, aVersion);
 }
 
 + (id) alloc						{ return [self allocWithZone:NSDefaultMallocZone()]; }
 + (id) allocWithZone:(NSZone *) z;	{ return NSAllocateObject(self, 0, z?z:NSDefaultMallocZone()); }
 + (id) new							{ return [[self allocWithZone:NSDefaultMallocZone()] init]; }
-+ (NSInteger) version				{ return class_get_version(self); }
-+ (void) poseAsClass:(Class)aClass	{ class_pose_as(self, aClass); }
++ (NSInteger) version				{ return class_getVersion(self); }
++ (void) poseAsClass:(Class)aClass	{ NIMP; /* class_pose_as(self, aClass); */ }
 + (Class) class						{ return self; }
 - (Class) class						{ return object_getClass(self); }
 + (Class) superclass				{ return class_getSuperclass(self); }
@@ -167,12 +167,12 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%s <%p>", object_get_class_name(self), self];
+	return [NSString stringWithFormat:@"%s <%p>", class_getName(self), self];
 }
 
 + (NSString *) description
 {
-	return [NSString stringWithFormat: @"<@class %s>", object_get_class_name(self)];
+	return [NSString stringWithFormat: @"<@class %s>", class_getName(self)];
 }
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector
@@ -213,8 +213,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 + (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
-#if 0 && !defined(__APPLE__)
-	fprintf(stderr, "+[%s conformsToProtocol: %s]\n", class_get_class_name(self), [aProtocol name]);
+#if 0
+	fprintf(stderr, "+[%s conformsToProtocol: %s]\n", class_getName(self), [aProtocol name]);
 #endif
 	return class_conformsToProtocol(self, aProtocol);
 }
@@ -375,7 +375,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"NSObject %@[%@ %@]: selector not recognized", 
-						object_is_instance(self)?@"-":@"+",
+						[self isInstance]?@"-":@"+",
 						NSStringFromClass([self class]), 
 						NSStringFromSelector(aSelector)];
 }
@@ -385,7 +385,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** subclass %@ should override %@%@",
 						NSStringFromClass([self class]),
-						object_is_instance(self)?@"-":@"+",
+						[self isInstance]?@"-":@"+",
 						NSStringFromSelector(cmd)];
 	return nil;
 }
@@ -394,7 +394,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** %@[%@ %@]: not implemented",
-						object_is_instance(self)?@"-":@"+",
+						[self isInstance]?@"-":@"+",
 						NSStringFromClass([self class]),
 						NSStringFromSelector(cmd)];
 	return nil;
@@ -406,7 +406,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s", sel_get_name(_cmd)];
+		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector);
 #else
@@ -420,7 +420,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s",sel_get_name(_cmd)];
+		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, anObject);
 #else
@@ -434,7 +434,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s",sel_get_name(_cmd)];
+		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, object1, object2);
 #else
@@ -459,7 +459,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	Method m=class_getInstanceMethod(object_getClass(self), aSelector);
 	const char *types=m?method_getTypeEncoding(m):NULL;	// default (if we have an implementation)
 #if FIXME
-	Class c = object_get_class(self);
+	Class c = object_getClass(self);
 	struct objc_protocol_list	*protocols = c?c->protocols:NULL;
 	for(; protocols; protocols = protocols?protocols->next:protocols)
 			{ // loop through protocol lists to find if they define our selector with more details
@@ -645,98 +645,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 @implementation NSObject (NEXTSTEP_MISC)			// NEXTSTEP Object class 
 													// compatibility & misc
-#if OLD
-
-- (id) _error:(const char *)aString, ...
-{
-char fmtStr[] = "error: %s (%s)\n%s\n";
-int a = strlen((char*)fmtStr);
-int b = strlen((char*)object_get_class_name(self));
-char fmt[(a + b + ((aString != NULL) ? strlen((char*)aString) : 0) + 8)];
-va_list ap;
-
-	sprintf(fmt, fmtStr, object_get_class_name(self),
-						 object_is_instance(self) ? "instance" : "class",
-						 (aString != NULL) ? aString : "");
-	va_start(ap, aString);
-	objc_verror (self, 0, fmt, ap);					// What should `code' 
-	va_end(ap);										// argument be?  Current 0.
-	
-	return nil;
-}
-
-- (BOOL) isMemberOf:(Class)aClassObject
-{
-	return [self isMemberOfClass:aClassObject];
-}
-
-+ (BOOL) instancesRespondTo:(SEL)aSel
-{
-	return class_respondsToSelector(object_getClass(self), aSel);
-}
-
-- (BOOL) respondsTo:(SEL)aSel
-{
-	return class_respondsToSelector([self class], aSel);
-}
-
-+ (BOOL) conformsTo:(Protocol*)aProtocol
-{
-	return [self conformsToProtocol:aProtocol];
-}
-
-- (BOOL) conformsTo:(Protocol*)aProtocol
-{
-	return [self conformsToProtocol:aProtocol];
-}
-
-+ (IMP) instanceMethodFor:(SEL)aSel
-{
-	return [self instanceMethodForSelector:aSel];
-}
-
-- (BOOL) isMetaClass				{ return NO; }
-- (BOOL) isClass					{ return object_is_class(self); }
-- (BOOL) isInstance					{ return object_is_instance(self); }
-
-- (BOOL) isMemberOfClassNamed:(const char *)aClassName
-{
-	return ((aClassName!=NULL)
-			&&!strcmp(class_get_class_name([self class]), aClassName));
-}
-
-+ (struct objc_method_description *) descriptionForInstanceMethod:(SEL)aSel
-{
-	return ((struct objc_method_description *) 
-			class_get_instance_method(self, aSel));
-}
-
-- (struct objc_method_description *) descriptionForMethod:(SEL)aSel
-{
-	return ((struct objc_method_description *) (object_is_instance(self)
-								? class_get_instance_method([self class], aSel)
-								: class_get_class_method([self class], aSel)));
-}
-
-// CHECKME: is this an official method?
-
-- (Class) transmuteClassTo:(Class)aClassObject
-{
-Class old_isa = nil;
-
-	if (object_is_instance(self) && (class_is_class(aClassObject)))
-      if(class_get_instance_size(aClassObject) == class_get_instance_size(isa))
-        if ([self isKindOfClass:aClassObject])
-			{
-            old_isa = isa;
-            isa = aClassObject;
-			}
-
-	return old_isa;
-}
-
-#endif
-
 - (int) compare:(id)anObject
 {
 	if ([self isEqual:anObject])
