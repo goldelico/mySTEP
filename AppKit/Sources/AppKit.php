@@ -658,6 +658,7 @@ class NSButton extends NSControl
 	protected $altTitle;
 	protected $state;
 	protected $buttonType;
+	protected $keyEquivalent;	// set to "\r" to make it the default button
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
@@ -725,12 +726,17 @@ class NSButton extends NSControl
 		// if radio button or checkbox, watch for value
 		$this->sendAction();
 	}
+	public function keyEquivalent() { return $this->keyEquivalent; }
+	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
 	public function draw()
 		{
 		html("<input");
 		parameter("id", $this->elementId);
 // FIXME: if default button (shortcut "\r"): invert the selected state
-		parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
+		if($this->keyEquivalent == "\r")
+			parameter("class", "NSButton ".(!$this->isSelected()?"NSOnState":"NSOffState"));
+		else
+			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		switch($this->buttonType)
 			{
 // if checkbox/radio action is defined -> add onclick handler
@@ -2185,6 +2191,15 @@ class NSWindow extends NSResponder
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
 		parameter("enctype", NSHTMLGraphicsContext::encoding);
 		html(">\n");
+		// scan whole tree for first non-hidden NSButton with $this->keyEquivalent() == "\r" and title() != ""
+		if(false)
+			{ // define default button if Enter is pressed in some text field
+			html("<input");
+			parameter("type", "hidden");
+			parameter("name", $button->elementId()."-ck");
+			parameter("value", _htmlentities($button->title()));
+			html(">\n");
+			}
 		html("<input");
 		parameter("type", "hidden");
 		parameter("name", "NSEvent");
