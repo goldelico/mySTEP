@@ -104,7 +104,7 @@ INSTALL:=true
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php install_local deploy_remote launch_remote bundle headers
+.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers
 
 # configure Embedded System if undefined
 
@@ -243,7 +243,7 @@ endif
 ifeq ($(NOCOMPILE),true)
 build:	build_subprojects build_doxy install_local
 else
-build:	build_subprojects build_doxy build_architectures make_php install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy build_architectures make_php make_sh install_local deploy_remote launch_remote
 endif
 	date
 
@@ -566,7 +566,13 @@ make_php: bundle
 	# PHPSRCS: $(PHPSRCS)
 	for PHP in $(PHPSRCS); do \
 		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
-		done
+	done
+
+make_sh: bundle
+	# SHSRCS: $(SHSRCS)
+	for SH in $(SHSRCS); do \
+		cp -p "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
+	done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
