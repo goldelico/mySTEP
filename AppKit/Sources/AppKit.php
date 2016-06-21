@@ -539,6 +539,13 @@ class NSView extends NSResponder
 		}
 	public function addSubview(NSView $view)
 		{
+		if($this === $view || !is_null($view->superview()))
+			{
+			_NSLog("bug - trying to add to a second parent view");
+			_NSLog($this);
+			_NSLog($view);
+			return;
+			}
 		$this->subviews[]=$view;
 		$view->_setSuperView($this);
 		$view->setWindow($this->window);
