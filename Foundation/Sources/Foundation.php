@@ -1043,6 +1043,104 @@ class NSProcessInfo extends NSObject
 	}
 }
 
+class NSTask extends NSObject
+{
+	protected $pid;
+	protected $launched=false;
+	protected $launchPath="/bin/unknown";
+	protected $directory=null;
+	protected $arguments=array();
+	protected $stdin=null;
+	protected $stdout=null;
+	protected $stderr=null;
+
+	public function __construct($identifier="NSTask")
+		{
+		// check if identifier is already known
+		// yes: fetch pid
+		// check if process is still running
+		// if no, trigger termination handler (later) and remove identifier
+		}
+
+	public function arguments() { return $this->arguments; }
+	public function setArguments($args) { $this->arguments=$args; }
+	public function currentDirectoryPath() { return $this->directory; }
+	public function setCurrentDirectoryPath($dir) { $this->directory=$dir; }
+	public function launchPath() { return $this->launchPath; }
+	public function setLaunchPath($path) { $this->launchPath=$path; }
+	public function processIdentifier() { return $this->pid; }
+	public function terminate() { $this->interrupt(9); }
+	public function standardInputFile() { return $this->stdin; }
+	public function setStandardInputFile($file) { $this->stdin=$file; }
+	public function standardOutputFile() { return $this->stdout; }
+	public function setStandardOutputFile($file) { $this->stdout=$file; }
+	public function standardErrorFile() { return $this->stderr; }
+	public function setStandardErrorFile($file) { $this->stderr=$file; }
+
+	public function isRunning()
+		{
+_NSLog("isRunning? ".$this->pid);
+		if(!$this->launched)
+			return 0;	// wasn't launched yet
+		// check if we were just launched - pid may not yet been found
+		// could also try "kill -0 $PID"
+		exec("ps -p ".$this->pid." >/dev/null 2>&1", $status);
+// _NSLog($output);
+_NSLog($status);
+		return $status == 0;	// 0 is ok
+		}
+
+	public function launch()
+		{
+		if($this->launched)
+			{
+_NSLog("task already launched");
+			return false;	// already running
+			}
+		$fm=NSFileManager::defaultManager();
+		// FIXME: handle proper quoting so that we can pass ' and \
+		if(!is_null($this->directory))
+			$cmd="cd '".$fm->fileSystemRepresentationWithPath($this->directory)."' && ";
+		else
+			$cmd="";
+		$cmd.="'".$fm->fileSystemRepresentationWithPath($this->launchPath)."'";
+		foreach($this->arguments as $arg)
+			$cmd.=" '".$arg."'";
+		if(is_null($this->stdin))
+			$cmd.=" </dev/null";
+		else
+			$cmd.=" <'".$fm->fileSystemRepresentationWithPath($this->stdin)."'";
+		if(is_null($this->stdout))
+			$cmd.=" >/dev/null";
+		else
+			$cmd.=" >'".$fm->fileSystemRepresentationWithPath($this->stdout)."'";
+		if(is_null($this->stderr))
+			$cmd.=" 2>/dev/null";
+		else if($this->stderr == $this->stdout)
+			$cmd.=" 2>&1";
+		else
+			$cmd.=" 2>'".$fm->fileSystemRepresentationWithPath($this->stderr)."'";
+		$cmd.=" & echo $!";	// return process id
+_NSLog("exec $cmd");
+		exec($cmd, $r);
+_NSLog($r);
+		// error handling
+		$this->pid=$r[0];
+		$this->launched=true;
+		return true;
+		}
+
+	public function interrupt($signal=15)
+		{
+		if(!$this->launched)
+			return false;	// wasn't set
+		$cmd="kill $signal ".$this->pid;
+_NSLog("exec $cmd");
+		system($cmd);
+		return true;
+		}
+}
+
 // until we do better, we use a html string to represent attributes
 
 class NSAttributedString extends NSObject
