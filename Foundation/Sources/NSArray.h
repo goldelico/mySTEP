@@ -34,7 +34,7 @@
 {
 	@public
 	id *_contents;
-	unsigned int _count;
+	NSUInteger _count;
 }
 
 - (id) initWithObjects:(id *) objects count:(NSUInteger) count;
@@ -99,7 +99,7 @@
 
 @interface NSMutableArray : NSArray
 {
-	unsigned int _capacity;
+	NSUInteger _capacity;
 //	unsigned int _mutationSequence;	// used to detect mutation in enumerator
 }
 

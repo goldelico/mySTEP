@@ -1,18 +1,18 @@
-/* 
-   NSArray.m
+/*
+ NSArray.m
 
-   Array object which stores other objects.
+ Array object which stores other objects.
 
-   Copyright (C) 1995, 1996 Free Software Foundation, Inc.
-   
-   Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	March 1995
-   mySTEP:	Felipe A. Rodriguez <far@pcmagic.net>
-   Date:	Mar 1999
+ Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Date:	March 1995
+ mySTEP:	Felipe A. Rodriguez <far@pcmagic.net>
+ Date:	Mar 1999
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #include <string.h>
 #include <limits.h>
@@ -39,7 +39,7 @@ static Class __stringClass = Nil;
 
 //*****************************************************************************
 //
-// 		NSArrayEnumeratorReverse, NSArrayEnumerator 
+// 		NSArrayEnumeratorReverse, NSArrayEnumerator
 //
 //*****************************************************************************
 
@@ -49,7 +49,7 @@ static Class __stringClass = Nil;
 @interface NSArrayEnumeratorReverse : NSEnumerator
 {
 	NSArray *_array;
-	int _index;
+	NSInteger _index;
 }
 @end
 
@@ -76,7 +76,7 @@ static Class __stringClass = Nil;
 
 - (void) _reset
 {
-	_index = _array->_count - 1;	
+	_index = _array->_count - 1;
 }
 
 - (void) dealloc
@@ -132,7 +132,7 @@ static Class __stringClass = Nil;
 
 - (void) _reset
 {
-	_index = 0;	
+	_index = 0;
 }
 
 - (id) nextObject
@@ -153,10 +153,10 @@ static Class __stringClass = Nil;
 
 //*****************************************************************************
 //
-// 		NSArray 
+// 		NSArray
 //
 //*****************************************************************************
-
+
 @implementation NSArray
 
 + (void) initialize
@@ -188,8 +188,8 @@ static Class __stringClass = Nil;
 + (id) arrayWithObject:(id)anObject
 {
 	if (anObject == nil)
-		[NSException raise:NSInvalidArgumentException 
-					 format:@"arrayWithObject:nil"];
+		[NSException raise:NSInvalidArgumentException
+					format:@"arrayWithObject:nil"];
 
 	return [[(NSArray *)[self alloc] initWithObjects:&anObject count:1] autorelease];
 }
@@ -201,25 +201,25 @@ static Class __stringClass = Nil;
 
 + (id) arrayWithObjects: firstObject, ...
 {
-id obj, *k, array;
-va_list va;
-int count;
-    
-    va_start(va, firstObject);
-    for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++); 
+	id obj, *k, array;
+	va_list va;
+	NSUInteger count;
+
+	va_start(va, firstObject);
+	for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++);
 	va_end(va);
 
 	if (!OBJC_MALLOC(k, id, count))
 		[NSException raise: NSMallocException format:@"malloc failed in NSArray -initWithObjects:"];
 
 	va_start(va, firstObject);
-	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id)) 
+	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id))
 		k[count++] = obj;
 	va_end(va);
 
-    array = [(NSArray *)[self alloc] initWithObjects:k count:count];
+	array = [(NSArray *)[self alloc] initWithObjects:k count:count];
 
-    objc_free(k);
+	objc_free(k);
 
 	return [array autorelease];
 }
@@ -228,17 +228,17 @@ int count;
 {
 	id obj;
 	va_list va;
-	int count;
-    
-    va_start(va, firstObject);
-    for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++); 
+	NSUInteger count;
+
+	va_start(va, firstObject);
+	for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++);
 	va_end(va);
 
 	if ((_contents = objc_malloc(sizeof(id) * count)) == 0)
 		[NSException raise: NSMallocException format:@"malloc failed in NSArray -initWithObjects:"];
 
 	va_start(va, firstObject);
-	for (_count = 0, obj = firstObject; obj; obj = va_arg(va, id)) 
+	for (_count = 0, obj = firstObject; obj; obj = va_arg(va, id))
 		_contents[_count++] = [obj retain];
 	va_end(va);
 
@@ -253,14 +253,14 @@ int count;
 	if(!o)
 		return nil;
 	o=[NSPropertyListSerialization propertyListFromData:o
-										mutabilityOption:[self class] == __arrayClass?NSPropertyListImmutable:NSPropertyListMutableContainers
+									   mutabilityOption:[self class] == __arrayClass?NSPropertyListImmutable:NSPropertyListMutableContainers
 												 format:&fmt
 									   errorDescription:&err];
 	[err autorelease];
 	if(!o)
 		[NSException raise: NSParseErrorException format: @"NSArray %@ for file %@", err, fileName];
 	if(![o isKindOfClass:__arrayClass])
-		[NSException raise: NSParseErrorException 
+		[NSException raise: NSParseErrorException
 					format: @"%@ does not contain a %@ property list", fileName, NSStringFromClass([self class])];
 	return [self initWithArray:o];
 }
@@ -280,14 +280,14 @@ int count;
 	if(!o)
 		[NSException raise: NSParseErrorException format: @"NSArray %@ for URL %@", err, url];
 	if(![o isKindOfClass:__arrayClass])
-		[NSException raise: NSParseErrorException 
+		[NSException raise: NSParseErrorException
 					format: @"%@ does not contain a %@ property list", url, NSStringFromClass([self class])];
 	return [self initWithArray:o];
 }
 
 - (id) initWithArray:(NSArray*)array
 {
-    return [self initWithObjects:array->_contents count:array->_count];
+	return [self initWithObjects:array->_contents count:array->_count];
 }
 
 - (id) init { return [self initWithObjects: NULL count: 0]; }
@@ -308,7 +308,7 @@ int count;
 				_count = i;
 				[self release];
 				[NSException raise: NSInvalidArgumentException
-							 format: @"NSArray initWithObjects: Tried to add nil"];
+							format: @"NSArray initWithObjects: Tried to add nil"];
 				}
 			}
 		_count = count;
@@ -406,13 +406,13 @@ int count;
 		if (newObjects[i] != oldObjects[i])
 			needCopy = YES;
 		}
-	if (needCopy || [self isKindOfClass: __mutableArrayClass])									
+	if (needCopy || [self isKindOfClass: __mutableArrayClass])
 		{													// a deep copy is
-		newArray = [[self class] alloc];					// required
-		if(_count > 0)
-			newArray = [newArray initWithObjects:newObjects count:_count];
-		else
-			newArray = [newArray init];
+			newArray = [[self class] alloc];					// required
+			if(_count > 0)
+				newArray = [newArray initWithObjects:newObjects count:_count];
+			else
+				newArray = [newArray init];
 		}
 	else
 		newArray = [self retain];
@@ -423,8 +423,8 @@ int count;
 	return newArray;
 }
 
-- (id) mutableCopyWithZone:(NSZone *) zone 
-{ // NSMutableCopying a shallow copy 
+- (id) mutableCopyWithZone:(NSZone *) zone
+{ // NSMutableCopying a shallow copy
 	return [[__mutableArrayClass alloc] initWithArray:self];
 }
 
@@ -447,7 +447,7 @@ int count;
 	[self getObjects: objects];
 	[anotherArray getObjects: &objects[_count]];
 
-    return [NSArray arrayWithObjects: objects count: c];
+	return [NSArray arrayWithObjects: objects count: c];
 }
 
 - (void) getObjects:(id*)aBuffer
@@ -491,16 +491,16 @@ int count;
 	if (anObject == nil)
 		return NSNotFound;
 
-	if (_count > 8)							// For large arrays, speed things 
+	if (_count > 8)							// For large arrays, speed things
 		{									// up a bit by caching the method.
-		SEL	sel = @selector(isEqual:);
-		BOOL (*imp)(id,SEL,id);
+			SEL	sel = @selector(isEqual:);
+			BOOL (*imp)(id,SEL,id);
 
-		imp = (BOOL (*)(id,SEL,id))[anObject methodForSelector: sel];
+			imp = (BOOL (*)(id,SEL,id))[anObject methodForSelector: sel];
 
-		for (i = 0; i < _count; i++)
-			if ((*imp)(anObject, sel, _contents[i]))
-				return i;
+			for (i = 0; i < _count; i++)
+				if ((*imp)(anObject, sel, _contents[i]))
+					return i;
 		}
 	else
 		{
@@ -542,8 +542,8 @@ int count;
 
 - (BOOL) isEqualToArray:(NSArray*)otherArray
 {
-unsigned i;
- 
+	NSUInteger i;
+
 	if (_count != [otherArray count])
 		return NO;
 	for (i = 0; i < _count; i++)
@@ -555,7 +555,7 @@ unsigned i;
 
 - (void) makeObjectsPerformSelector:(SEL)aSelector
 {
-unsigned i = _count;
+	NSUInteger i = _count;
 
 	while (i-- > 0)
 		[_contents[i] performSelector: aSelector];
@@ -563,7 +563,7 @@ unsigned i = _count;
 
 - (void) makeObjectsPerformSelector:(SEL)aSelector withObject:argument
 {
-unsigned i = _count;
+	NSUInteger i = _count;
 
 	while (i-- > 0)
 		[_contents[i] performSelector:aSelector withObject:argument];
@@ -571,20 +571,20 @@ unsigned i = _count;
 
 static NSInteger compare_function(id elem1, id elem2, void* comparator)
 {
-    return (NSInteger)[elem1 performSelector:comparator withObject:elem2];
+	return (NSInteger)[elem1 performSelector:comparator withObject:elem2];
 }
 
 - (NSArray*) sortedArrayUsingSelector:(SEL)comparator
 {
-    return [self sortedArrayUsingFunction:compare_function context:(void*)comparator];
+	return [self sortedArrayUsingFunction:compare_function context:(void*)comparator];
 }
 
 - (NSArray*) sortedArrayUsingFunction:(NSInteger(*)(id,id,void*))comparator
 							  context:(void*)context
 {
-SEL s = @selector(sortUsingFunction:context:);
-IMP im = [NSMutableArray instanceMethodForSelector: s];
-NSArray *sortedArray = [NSArray arrayWithArray: self];
+	SEL s = @selector(sortUsingFunction:context:);
+	IMP im = [NSMutableArray instanceMethodForSelector: s];
+	NSArray *sortedArray = [NSArray arrayWithArray: self];
 
 	(*im)(sortedArray, s, comparator, context);
 
@@ -597,14 +597,14 @@ NSArray *sortedArray = [NSArray arrayWithArray: self];
 							  context:(void*)context
 							  hint:(NSData*)hint
 {
-    return [self sortedArrayUsingFunction:comparator context:context];
+	return [self sortedArrayUsingFunction:comparator context:context];
 }
 
 - (NSString*) componentsJoinedByString:(NSString*)separator
 {
-unsigned i;
-id s = [NSMutableString stringWithCapacity:2]; 			// arbitrary capacity
-  
+	NSUInteger i;
+	id s = [NSMutableString stringWithCapacity:2]; 			// arbitrary capacity
+
 	if (_count < 1)
 		return s;
 
@@ -620,14 +620,14 @@ id s = [NSMutableString stringWithCapacity:2]; 			// arbitrary capacity
 
 - (NSArray*) pathsMatchingExtensions:(NSArray*)extensions
 {
-unsigned i;
-NSMutableArray *a = [NSMutableArray arrayWithCapacity: 1];
+	NSUInteger i;
+	NSMutableArray *a = [NSMutableArray arrayWithCapacity: 1];
 
 	for (i = 0; i < _count; i++)
 		{
 		id o = _contents[i];
 		if ([o isKindOfClass: __stringClass] && [extensions containsObject: [o pathExtension]])
-				[a addObject: o];
+			[a addObject: o];
 		}
 
 	return a;
@@ -635,7 +635,7 @@ NSMutableArray *a = [NSMutableArray arrayWithCapacity: 1];
 
 - (id) firstObjectCommonWithArray:(NSArray*)otherArray
 {
-unsigned i;
+	NSUInteger i;
 
 	for (i = 0; i < _count; i++)
 		if ([otherArray containsObject:_contents[i]])
@@ -646,14 +646,14 @@ unsigned i;
 
 - (NSArray*) subarrayWithRange:(NSRange)range
 {
-unsigned c = _count - 1;					// If array is empty or start is
-unsigned i = range.location, j;				// beyond end of array then return 
-											// an empty array
+	NSUInteger c = _count - 1;					// If array is empty or start is
+	NSUInteger i = range.location, j;				// beyond end of array then return
+												// an empty array
 	if ((_count == 0) || (range.location > c))
 		return [NSArray array];
 
-	j = NSMaxRange(range);							// Check if length extends			
-	j = (j > c) ? c : j - 1;						// beyond end of array				
+	j = NSMaxRange(range);							// Check if length extends
+	j = (j > c) ? c : j - 1;						// beyond end of array
 
 	return [NSArray arrayWithObjects: _contents+i count: j-i+1];
 }
@@ -684,76 +684,76 @@ unsigned i = range.location, j;				// beyond end of array then return
 							 indent:(NSUInteger)level
 {
 	NSMutableString	*result;
-	unsigned indentSize;
-	unsigned indentBase;
+	NSUInteger indentSize;
+	NSUInteger indentBase;
 	NSMutableString	*iBaseString;
 	NSMutableString	*iSizeString;
 	NSAutoreleasePool *arp = [NSAutoreleasePool new];
-	unsigned count;
-	unsigned i;
+	NSUInteger count;
+	NSUInteger i;
 	// Indentation is at four space
 	// intervals using tab characters
-	// to replace multiples of eight 
-    indentBase = level << 2;				// spaces.
-    count = indentBase >> 3;				// Calc the size of the strings  
-    if ((indentBase % 4) == 0) 				// needed to achieve this and
+	// to replace multiples of eight
+	indentBase = level << 2;				// spaces.
+	count = indentBase >> 3;				// Calc the size of the strings
+	if ((indentBase % 4) == 0) 				// needed to achieve this and
 		indentBase = count;					// build strings to make up the
-    else 									// indentation.
+	else 									// indentation.
 		indentBase = count + 4;
-	
-    iBaseString = [NSMutableString stringWithCapacity: indentBase];
-    for (i = 1; i < count; i++) 
+
+	iBaseString = [NSMutableString stringWithCapacity: indentBase];
+	for (i = 1; i < count; i++)
 		[iBaseString appendString: @"\t"];
-	
-	//    if (count != indentBase) 
+
+	//    if (count != indentBase)
 	//		[iBaseString appendString: @"    "];
-	
-    level++;
-    indentSize = level << 2;
-    count = indentSize >> 3;
-    if ((indentSize % 4) == 0) 
+
+	level++;
+	indentSize = level << 2;
+	count = indentSize >> 3;
+	if ((indentSize % 4) == 0)
 		indentSize = count;
-    else 
+	else
 		indentSize = count + 4;
-	
-    iSizeString = [NSMutableString stringWithCapacity: indentSize];
-    for (i = 1; i < count; i++) 
+
+	iSizeString = [NSMutableString stringWithCapacity: indentSize];
+	for (i = 1; i < count; i++)
 		[iSizeString appendString: @"\t"];
-	
-	//    if (count != indentSize) 
+
+	//    if (count != indentSize)
 	//		[iSizeString appendString: @"    "];
-	
-    count = _count;	
-    result = [[NSMutableString alloc] initWithCapacity:20*count];
+
+	count = _count;
+	result = [[NSMutableString alloc] initWithCapacity:20*count];
 	[result appendString: count < 3?@"(":@"(\n"];
-    for (i = 0; i < count; i++)
+	for (i = 0; i < count; i++)
 		{
 		id item = [self objectAtIndex:i];
 		const char *s;
-		
+
 		if(!item)
 			continue;	// should not be possible - but just to be safe!
 #if 0
 		fprintf(stderr, "NSArray descriptionWithLocale item %d %p\n", i, item);
 #endif
-		if (![item isKindOfClass: __stringClass]) 
-			{ 
-			if ([item respondsToSelector: 
-				@selector(descriptionWithLocale:indent:)]) 
-				item = [item descriptionWithLocale: locale indent: level];
-			else 
-				{
-				if([item respondsToSelector:@selector(descriptionWithLocale:)]) 
-					item = [item descriptionWithLocale: locale];
-				else 
-					item = [item description];
-				}
+		if (![item isKindOfClass: __stringClass])
+			{
+				if ([item respondsToSelector:
+					 @selector(descriptionWithLocale:indent:)])
+					item = [item descriptionWithLocale: locale indent: level];
+				else
+					{
+					if([item respondsToSelector:@selector(descriptionWithLocale:)])
+						item = [item descriptionWithLocale: locale];
+					else
+						item = [item description];
+					}
 			}
-		
+
 		s = [item UTF8String];					// if str with whitespc add quotes
 		if((*s != '{' && *s != '(' && *s != '<') && (strpbrk(s, " %-\t") != NULL))
-			item = [NSString stringWithFormat:@"\"%@\"", item]; 
-		
+			item = [NSString stringWithFormat:@"\"%@\"", item];
+
 		[result appendString: iSizeString];
 		[result appendString: item];
 		if(count < 3)
@@ -761,9 +761,9 @@ unsigned i = range.location, j;				// beyond end of array then return
 			if(i < count - 1)
 				[result appendString: @", "];
 			}
-		else if(i == count - 1) 
+		else if(i == count - 1)
 			[result appendString: @"\n"];
-		else 
+		else
 			[result appendString: @",\n"];
 		}
 	[result appendString: iBaseString];
@@ -790,10 +790,10 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 //*****************************************************************************
 //
-// 		NSMutableArray 
+// 		NSMutableArray
 //
 //*****************************************************************************
-
+
 @implementation NSMutableArray
 
 - (id) initWithCapacity:(NSUInteger)cap
@@ -802,14 +802,14 @@ unsigned i = range.location, j;				// beyond end of array then return
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
 		{
 		[self release];
-		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWithCapacity:"];		
+		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWithCapacity:"];
 		}
 	return self;
 }
 
 - (id) initWithObjects:(id*)objects count:(NSUInteger)count
-{										
-	unsigned i;
+{
+	NSUInteger i;
 	_capacity = (count == 0) ? 1 : count;
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
 		{
@@ -854,7 +854,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 		return;
 #endif
 		[NSException raise: NSInvalidArgumentException
-					 format: @"NSMutableArray addObject: Tried to add nil to %@", self];
+					format: @"NSMutableArray addObject: Tried to add nil to %@", self];
 		}
 	if (_count >= _capacity)
 		{
@@ -873,60 +873,60 @@ unsigned i = range.location, j;				// beyond end of array then return
 {
 	if (!anObject)
 		[NSException raise: NSInvalidArgumentException
-					 format: @"Tried to insert nil into %@", self];
+					format: @"Tried to insert nil into %@", self];
 
 	if (idx > _count)
-		[NSException raise: NSRangeException 
-			format: @"insertObject:atIndex:, index %d is out of range", idx];
+		[NSException raise: NSRangeException
+					format: @"insertObject:atIndex:, index %d is out of range", idx];
 
 	if (_count == _capacity)
 		{ // needs more space
-		id *ptr;
-		unsigned newcapacity = 2*_count+2;	// exponentially grow
-		if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
-			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
-		_capacity = newcapacity;
-		_contents = ptr;
+			id *ptr;
+			unsigned newcapacity = 2*_count+2;	// exponentially grow
+			if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
+				[NSException raise: NSMallocException format: @"Unable to grow %@", self];
+			_capacity = newcapacity;
+			_contents = ptr;
 		}
 	memmove(&_contents[idx+1], &_contents[idx], sizeof(_contents[0])*(_count-idx));
 	_count++;
-	_contents[idx] = [anObject retain]; 
+	_contents[idx] = [anObject retain];
 }
 
 - (void) replaceObjectAtIndex:(NSUInteger)idx withObject:(id)anObject
 {
 	if (anObject == nil)
 		[NSException raise: NSInvalidArgumentException
-					 format: @"Tried to replace with nil (index=%u): %@", idx, self];
+					format: @"Tried to replace with nil (index=%u): %@", idx, self];
 	if (idx >= _count)
-		[NSException raise: NSRangeException 
-					 format: @"in replaceObjectAtIndex:withObject:, \
-					 index %d is out of range: %@", idx, self];
+		[NSException raise: NSRangeException
+					format: @"in replaceObjectAtIndex:withObject:, \
+		 index %d is out of range: %@", idx, self];
 
 	if(_contents[idx] == anObject)
 		return;	// already the same object
 	[anObject retain];
-    [_contents[idx] release];
-    _contents[idx] = anObject;
+	[_contents[idx] release];
+	_contents[idx] = anObject;
 }
 
 - (void) exchangeObjectAtIndex:(NSUInteger) i1 withObjectAtIndex:(NSUInteger) i2;
 {
 	id tmp;
 	if (i1 >= _count || i2 >= _count)
-		[NSException raise: NSRangeException 
+		[NSException raise: NSRangeException
 					format: @"in exchangeObjectAtIndex:withObjectAtIndex:, index %d, %d is out of range", i1, i2];
-	
-    tmp = _contents[i1];
-    _contents[i1] = _contents[i2];
-    _contents[i2] = tmp;
+
+	tmp = _contents[i1];
+	_contents[i1] = _contents[i2];
+	_contents[i2] = tmp;
 }
 
 - (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange)aRange
 {
-	unsigned i = MIN(NSMaxRange(aRange), _count);
+	NSUInteger i = MIN(NSMaxRange(aRange), _count);
 	id o;
-	
+
 	while (i-- > aRange.location)
 		{
 		if ((o = _contents[i]) == anObject)
@@ -940,9 +940,9 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeObjectIdenticalTo:(id) anObject
 { // remove all occurrences!
-	unsigned i = _count;
+	NSUInteger i = _count;
 	id o;
-	
+
 	while (i-- > 0)
 		{
 		if ((o = _contents[i]) == anObject)
@@ -960,11 +960,11 @@ unsigned i = range.location, j;				// beyond end of array then return
 - (void) removeObjectAtIndex:(NSUInteger)idx
 {
 	id o;
-	
+
 	if (idx >= _count)
 		[NSException raise: NSRangeException
 					format:@"removeObjectAtIndex: %d is out of range", idx];
-	
+
 	o = _contents[idx];
 	_count--;
 	memmove(&_contents[idx], &_contents[idx+1], sizeof(_contents[0])*(_count-idx));
@@ -996,9 +996,9 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeObject:(id) anObject inRange:(NSRange)aRange
 {
-	unsigned i = MIN(NSMaxRange(aRange), _count);
+	NSUInteger i = MIN(NSMaxRange(aRange), _count);
 	id o;
-	
+
 	while (i-- > aRange.location)
 		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
@@ -1023,9 +1023,9 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeObject:(id) anObject
 { // removes all occurrences!
-	unsigned i = _count;
+	NSUInteger i = _count;
 	id o;
-	
+
 	while (i-- > 0)
 		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
@@ -1053,7 +1053,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) addObjectsFromArray:(NSArray*)otherArray
 {
-	unsigned i, c = [otherArray count];
+	NSUInteger i, c = [otherArray count];
 	for (i = 0; i < c; i++)
 		[self addObject: [otherArray objectAtIndex: i]];
 }
@@ -1066,7 +1066,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeAllObjects
 {
-	unsigned i;
+	NSUInteger i;
 	for(i=0; i < _count; i++)
 		[_contents[i] release];
 	_count = 0;
@@ -1090,23 +1090,23 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeObjectsInArray:(NSArray*)otherArray
 {
-	unsigned i, c = [otherArray count];
+	NSUInteger i, c = [otherArray count];
 	for (i = 0; i < c; i++)
 		[self removeObject:[otherArray objectAtIndex:i]];
 }
 
 - (void) removeObjectsInRange:(NSRange)aRange
 {
-	unsigned i = MIN(NSMaxRange(aRange), [self count]);
+	NSUInteger i = MIN(NSMaxRange(aRange), [self count]);
 	while (i-- > aRange.location)
 		[self removeObjectAtIndex: i];
 }
 
 /*
-qsort is taken from GNU C Library (also LGPL)
-This file is part of the GNU C Library.
-Written by Douglas C. Schmidt (schmidt@ics.uci.edu).
- 
+ qsort is taken from GNU C Library (also LGPL)
+ This file is part of the GNU C Library.
+ Written by Douglas C. Schmidt (schmidt@ics.uci.edu).
+
  Adapted to mySTEP by H. N. Schaller
  FIXME: improve further since we know SIZE=sizeof(id) - this can be used to optimize the SWAP macro and reduce argument passing
 
@@ -1120,25 +1120,25 @@ Written by Douglas C. Schmidt (schmidt@ics.uci.edu).
 #define SWAP(a, b, size)			      \
 do									      \
 {									      \
-	register size_t __size = (size);					      \
-		register char *__a = (a), *__b = (b);				      \
-			do								      \
-				{								      \
-					char __tmp = *__a;						      \
-						*__a++ = *__b;						      \
-							*__b++ = __tmp;						      \
-				} while (--__size > 0);						      \
+register size_t __size = (size);					      \
+register char *__a = (a), *__b = (b);				      \
+do								      \
+{								      \
+char __tmp = *__a;						      \
+*__a++ = *__b;						      \
+*__b++ = __tmp;						      \
+} while (--__size > 0);						      \
 } while (0)
 
 /* Discontinue quicksort algorithm when partition gets below this size.
-This particular magic number was chosen to work best on a Sun 4/260. */
+ This particular magic number was chosen to work best on a Sun 4/260. */
 #define MAX_THRESH 4
 
 /* Stack node declarations used to store unfulfilled partition obligations. */
 typedef struct
 {
-    char *lo;
-    char *hi;
+	char *lo;
+	char *hi;
 } stack_node;
 
 /* The next 4 #defines implement a very fast in-line stack abstraction. */
@@ -1149,41 +1149,41 @@ typedef struct
 
 
 /* Order size using quicksort.  This implementation incorporates
-four optimizations discussed in Sedgewick:
+ four optimizations discussed in Sedgewick:
 
-1. Non-recursive, using an explicit stack of pointer that store the
-next array partition to sort.  To save time, this maximum amount
-of space required to store an array of MAX_INT is allocated on the
-stack.  Assuming a 32-bit integer, this needs only 32 *
-sizeof(stack_node) == 136 bits.  Pretty cheap, actually.
+ 1. Non-recursive, using an explicit stack of pointer that store the
+ next array partition to sort.  To save time, this maximum amount
+ of space required to store an array of MAX_INT is allocated on the
+ stack.  Assuming a 32-bit integer, this needs only 32 *
+ sizeof(stack_node) == 136 bits.  Pretty cheap, actually.
 
-2. Chose the pivot element using a median-of-three decision tree.
-This reduces the probability of selecting a bad pivot value and
-eliminates certain extraneous comparisons.
+ 2. Chose the pivot element using a median-of-three decision tree.
+ This reduces the probability of selecting a bad pivot value and
+ eliminates certain extraneous comparisons.
 
-3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
-insertion sort to order the MAX_THRESH items within each partition.
-This is a big win, since insertion sort is faster for small, mostly
-sorted array segments.
+ 3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
+ insertion sort to order the MAX_THRESH items within each partition.
+ This is a big win, since insertion sort is faster for small, mostly
+ sorted array segments.
 
-4. The larger of the two sub-partitions is always pushed onto the
-stack first, with the algorithm then concentrating on the
-smaller partition.  This *guarantees* no more than log (n)
-stack size is needed (actually O(1) in this case)!  */
+ 4. The larger of the two sub-partitions is always pushed onto the
+ stack first, with the algorithm then concentrating on the
+ smaller partition.  This *guarantees* no more than log (n)
+ stack size is needed (actually O(1) in this case)!  */
 
 void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, id, void *), void *context)
 {
 	register char *base_ptr = (char *) pbase;
-	
+
 	/* Allocating SIZE bytes for a pivot buffer facilitates a better
-	algorithm below since we can do comparisons directly on the pivot. */
+	 algorithm below since we can do comparisons directly on the pivot. */
 	char *pivot_buffer = (char *) alloca(size);
 	const size_t max_thresh = MAX_THRESH * size;
-	
+
 	if (total_elems == 0)
 		/* Avoid lossage with unsigned arithmetic below.  */
 		return;
-	
+
 	if (total_elems > MAX_THRESH)
 		{
 		char *lo = base_ptr;
@@ -1191,21 +1191,21 @@ void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, i
 		/* Largest size needed for 32-bit int!!! */
 		stack_node stack[STACK_SIZE];
 		stack_node *top = stack + 1;
-		
+
 		while (STACK_NOT_EMPTY)
 			{
 			char *left_ptr;
 			char *right_ptr;
-			
+
 			char *pivot = pivot_buffer;
-			
+
 			/* Select median value from among LO, MID, and HI. Rearrange
 				LO and HI so the three values are sorted. This lowers the
 				probability of picking a pathological pivot value and
 				skips a comparison for both the LEFT_PTR and RIGHT_PTR. */
-			
+
 			char *mid = lo + size * ((hi - lo) / size >> 1);
-			
+
 			if ((*cmp) (*(id *) mid, *(id *) lo, context) < 0)
 				SWAP (mid, lo, size);
 			if ((*cmp) (*(id *) hi, *(id *) mid, context) < 0)
@@ -1214,44 +1214,44 @@ void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, i
 				goto jump_over;
 			if ((*cmp) (*(id *) mid, *(id *) lo, context) < 0)
 				SWAP (mid, lo, size);
-jump_over:;
+			jump_over:;
 			memcpy (pivot, mid, size);
 			pivot = pivot_buffer;
-			
+
 			left_ptr  = lo + size;
 			right_ptr = hi - size;
-			
+
 			/* Here's the famous ``collapse the walls'' section of quicksort.
 				Gotta like those tight inner loops!  They are the main reason
 				that this algorithm runs much faster than others. */
 			do
 				{
-					while ((*cmp) (*(id *) left_ptr, *(id *) pivot, context) < 0)
-						left_ptr += size;
-					
-					while ((*cmp) (*(id *) pivot, *(id *) right_ptr, context) < 0)
-						right_ptr -= size;
-					
-					if (left_ptr < right_ptr)
-						{
-						SWAP (left_ptr, right_ptr, size);
-						left_ptr += size;
-						right_ptr -= size;
-						}
-					else if (left_ptr == right_ptr)
-						{
-						left_ptr += size;
-						right_ptr -= size;
-						break;
-						}
+				while ((*cmp) (*(id *) left_ptr, *(id *) pivot, context) < 0)
+					left_ptr += size;
+
+				while ((*cmp) (*(id *) pivot, *(id *) right_ptr, context) < 0)
+					right_ptr -= size;
+
+				if (left_ptr < right_ptr)
+					{
+					SWAP (left_ptr, right_ptr, size);
+					left_ptr += size;
+					right_ptr -= size;
+					}
+				else if (left_ptr == right_ptr)
+					{
+					left_ptr += size;
+					right_ptr -= size;
+					break;
+					}
 				}
 			while (left_ptr <= right_ptr);
-			
+
 			/* Set up pointers for next iteration.  First determine whether
 				left and right partitions are below the threshold size.  If so,
 				ignore one or both.  Otherwise, push the larger partition's
 				bounds on the stack and continue sorting the smaller one. */
-			
+
 			if ((size_t) (right_ptr - lo) <= max_thresh)
 				{
 				if ((size_t) (hi - left_ptr) <= max_thresh)
@@ -1278,112 +1278,114 @@ jump_over:;
 				}
 			}
 		}
-	
+
 	/* Once the BASE_PTR array is partially sorted by quicksort the rest
 		is completely sorted using insertion sort, since this is efficient
 		for partitions below MAX_THRESH size. BASE_PTR points to the beginning
 		of the array to sort, and END_PTR points at the very last element in
 		the array (*not* one beyond it!). */
-	
+
 #define min(x, y) ((x) < (y) ? (x) : (y))
-	
+
 	{
-		char *const end_ptr = &base_ptr[size * (total_elems - 1)];
-		char *tmp_ptr = base_ptr;
-		char *thresh = min(end_ptr, base_ptr + max_thresh);
-		register char *run_ptr;
-		
-		/* Find smallest element in first threshold and place it at the
-			array's beginning.  This is the smallest array element,
-			and the operation speeds up insertion sort's inner loop. */
-		
-		for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
-			if ((*cmp) (*(id *) run_ptr, *(id *) tmp_ptr, context) < 0)
-				tmp_ptr = run_ptr;
-		
-		if (tmp_ptr != base_ptr)
-			SWAP (tmp_ptr, base_ptr, size);
-		
-		/* Insertion sort, running from left-hand-side up to right-hand-side.  */
-		
-		run_ptr = base_ptr + size;
-		while ((run_ptr += size) <= end_ptr)
+	char *const end_ptr = &base_ptr[size * (total_elems - 1)];
+	char *tmp_ptr = base_ptr;
+	char *thresh = min(end_ptr, base_ptr + max_thresh);
+	register char *run_ptr;
+
+	/* Find smallest element in first threshold and place it at the
+	 array's beginning.  This is the smallest array element,
+	 and the operation speeds up insertion sort's inner loop. */
+
+	for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
+		if ((*cmp) (*(id *) run_ptr, *(id *) tmp_ptr, context) < 0)
+			tmp_ptr = run_ptr;
+
+	if (tmp_ptr != base_ptr)
+		SWAP (tmp_ptr, base_ptr, size);
+
+	/* Insertion sort, running from left-hand-side up to right-hand-side.  */
+
+	run_ptr = base_ptr + size;
+	while ((run_ptr += size) <= end_ptr)
+		{
+		tmp_ptr = run_ptr - size;
+		while ((*cmp) (*(id *) run_ptr, *(id *) tmp_ptr, context) < 0)
+			tmp_ptr -= size;
+
+		tmp_ptr += size;
+		if (tmp_ptr != run_ptr)
 			{
-			tmp_ptr = run_ptr - size;
-			while ((*cmp) (*(id *) run_ptr, *(id *) tmp_ptr, context) < 0)
-				tmp_ptr -= size;
-			
-			tmp_ptr += size;
-			if (tmp_ptr != run_ptr)
+			char *trav;
+
+			trav = run_ptr + size;
+			while (--trav >= run_ptr)
 				{
-				char *trav;
-				
-				trav = run_ptr + size;
-				while (--trav >= run_ptr)
-					{
-					char c = *trav;
-					char *hi, *lo;
-					
-					for (hi = lo = trav; (lo -= size) >= tmp_ptr; hi = lo)
-						*hi = *lo;
-					*hi = c;
-					}
+				char c = *trav;
+				char *hi, *lo;
+
+				for (hi = lo = trav; (lo -= size) >= tmp_ptr; hi = lo)
+					*hi = *lo;
+				*hi = c;
 				}
 			}
+		}
 	}
 }
 
-							// good value for stride factor is not well
+// good value for stride factor is not well
 #define STRIDE_FACTOR 3		// understood 3 is a fairly good choice (Sedgewick)
 
 - (void) sortUsingFunction:(NSInteger(*)(id,id,void*))compare context:(void*)context
 {
-	unsigned c, d, stride = 1;							// Shell sort algorithm 
-													// from SortingInAction, a
-	if(_count > 20) 
-		{ // use quick sort instead 
-		qsort3(_contents, _count, sizeof(_contents[0]), (int(*)(id,id,void*))compare, context);
-		return; 
+	NSUInteger c, d, stride = 1;							// Shell sort algorithm
+														// from SortingInAction, a
+	if(_count > 20)
+		{ // use quick sort instead
+			qsort3(_contents, _count, sizeof(_contents[0]), (int(*)(id,id,void*))compare, context);
+			return;
 		}
 	while (stride <= _count)						// NeXT example
 		stride = stride * STRIDE_FACTOR + 1;
 
-	while(stride > (STRIDE_FACTOR - 1)) 			// loop to sort for each 
+	while(stride > (STRIDE_FACTOR - 1)) 			// loop to sort for each
 		{											// value of stride
-		stride = stride / STRIDE_FACTOR;
-		for (c = stride; c < _count; c++) 
-			{
-			BOOL found = NO;
+			stride = stride / STRIDE_FACTOR;
+			for (c = stride; c < _count; c++)
+				{
+				BOOL found = NO;
 
-			if (stride > c)
-				break;
-			d = c - stride;
-			while (!found) 							// move to left until the 
-				{									// correct place is found
-				id a = _contents[d + stride];
-				id b = _contents[d];
+				if (stride > c)
+					break;
+				d = c - stride;
+				while (!found) 							// move to left until the
+					{									// correct place is found
+						id a = _contents[d + stride];
+						id b = _contents[d];
 
-				if ((*compare)(a, b, context) == NSOrderedAscending) 
-					{
-					_contents[d + stride] = b;		// swap values
-					_contents[d] = a;
-					if (stride > d)
-						break;
-					d -= stride;					// jump by stride factor
+						if ((*compare)(a, b, context) == NSOrderedAscending)
+							{
+							_contents[d + stride] = b;		// swap values
+							_contents[d] = a;
+							if (stride > d)
+								break;
+							d -= stride;					// jump by stride factor
+							}
+						else
+							found = YES;
 					}
-				else 
-					found = YES;
-		}	}	}
+				}
+		}
 }
 
 static NSInteger selector_compare(id elem1, id elem2, void* comparator)
 {
-    return (NSInteger)(long)[elem1 performSelector:(SEL)comparator withObject:elem2];
+	return (NSInteger)(long)[elem1 performSelector:(SEL)comparator withObject:elem2];
 }
 
 - (void) sortUsingSelector:(SEL)comparator
 {
-    [self sortUsingFunction:selector_compare context:(void*)comparator];
+	[self sortUsingFunction:selector_compare context:(void*)comparator];
 }
 
 @end /* NSMutableArray */

@@ -1,16 +1,16 @@
-/* 
-   NSDictionary.m
+/*
+ NSDictionary.m
 
-   Associate a unique key with a value
+ Associate a unique key with a value
 
-   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-   All rights reserved.
+ Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+ All rights reserved.
 
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+ Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
-   This file is part of the mySTEP Library and is provided under the 
-   terms of the libFoundation BSD type license (See the Readme file).
-*/
+ This file is part of the mySTEP Library and is provided under the
+ terms of the libFoundation BSD type license (See the Readme file).
+ */
 
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSDictionary.h>
@@ -36,7 +36,7 @@ static Class _mutableDictClass;
 
 @interface NSConcreteDictionary : NSDictionary
 {
-    NSMapTable *table;
+	NSMapTable *table;
 }
 
 - (NSMapEnumerator) _keyEnumerator;
@@ -48,14 +48,14 @@ static Class _mutableDictClass;
 
 //*****************************************************************************
 //
-// 		NSDictionary Enumerators 
+// 		NSDictionary Enumerators
 //
 //*****************************************************************************
 
 @interface NSDictionaryObjectEnumerator : NSObject
 {
-    NSDictionary *_dict;
-    NSEnumerator *_keys;
+	NSDictionary *_dict;
+	NSEnumerator *_keys;
 }
 
 + (id) enumeratorWithDictionary:(NSDictionary*)dict;
@@ -67,19 +67,19 @@ static Class _mutableDictClass;
 
 + (id) enumeratorWithDictionary:(NSDictionary*)dict
 {
-NSDictionaryObjectEnumerator *e = [self new];
+	NSDictionaryObjectEnumerator *e = [self new];
 
-    e->_dict = [dict retain];
-    e->_keys = [[dict keyEnumerator] retain];
+	e->_dict = [dict retain];
+	e->_keys = [[dict keyEnumerator] retain];
 
-    return [e autorelease];
+	return [e autorelease];
 }
 
 - (void) dealloc
 {
-    [_dict release];
-    [_keys release];
-    [super dealloc];
+	[_dict release];
+	[_keys release];
+	[super dealloc];
 }
 
 - (id) nextObject			{ return [_dict objectForKey:[_keys nextObject]]; }
@@ -89,8 +89,8 @@ NSDictionaryObjectEnumerator *e = [self new];
 
 @interface GSDictionaryKeyEnumerator : NSObject
 {
-    NSDictionary *_dict;
-    NSMapEnumerator	_enumerator;
+	NSDictionary *_dict;
+	NSMapEnumerator	_enumerator;
 }
 
 + (id) enumeratorWithDictionary:(NSDictionary*)dict;
@@ -102,33 +102,33 @@ NSDictionaryObjectEnumerator *e = [self new];
 
 + (id) enumeratorWithDictionary:(NSDictionary*)dict
 {
-GSDictionaryKeyEnumerator *e = [self new];
+	GSDictionaryKeyEnumerator *e = [self new];
 
-    e->_dict = [dict retain];
-    e->_enumerator = [(NSConcreteDictionary*)dict _keyEnumerator];
+	e->_dict = [dict retain];
+	e->_enumerator = [(NSConcreteDictionary*)dict _keyEnumerator];
 
-    return [e autorelease];
+	return [e autorelease];
 }
 
 - (void) dealloc
 {
-    [_dict release];
-    [super dealloc];
+	[_dict release];
+	[super dealloc];
 }
 
 - (id) nextObject
 {
-id key, value;
+	id key, value;
 
-    return NSNextMapEnumeratorPair(&_enumerator, (void**)&key, 
-									(void**)&value) == YES ? key : nil;
+	return NSNextMapEnumeratorPair(&_enumerator, (void**)&key,
+								   (void**)&value) == YES ? key : nil;
 }
 
 @end /* GSDictionaryKeyEnumerator */
 
 //*****************************************************************************
 //
-// 		NSDictionary 
+// 		NSDictionary
 //
 //*****************************************************************************
 
@@ -150,7 +150,7 @@ id key, value;
 
 + (id) dictionary
 {
-    return [[[self alloc] initWithDictionary:nil] autorelease];
+	return [[[self alloc] initWithDictionary:nil] autorelease];
 }
 
 + (id) dictionaryWithContentsOfFile:(NSString*)path
@@ -168,16 +168,16 @@ id key, value;
 
 + (id) dictionaryWithObjects:(NSArray*)objects forKeys:(NSArray*)keys
 {
-    return [[[self alloc] initWithObjects:objects forKeys:keys] autorelease];
+	return [[[self alloc] initWithObjects:objects forKeys:keys] autorelease];
 }
 
-+ (id) dictionaryWithObjects:(id*)objects 
-					 forKeys:(id*)keys 
-					 count:(NSUInteger)count;
++ (id) dictionaryWithObjects:(id*)objects
+					 forKeys:(id*)keys
+					   count:(NSUInteger)count;
 {
-    return [[[self alloc] initWithObjects:objects
-						  forKeys:keys 
-						  count:count] autorelease];
+	return [[[self alloc] initWithObjects:objects
+								  forKeys:keys
+									count:count] autorelease];
 }
 
 + (id) dictionaryWithObjectsAndKeys:(id)firstObject, ...
@@ -185,43 +185,43 @@ id key, value;
 	id obj, *k, *v, dic;
 	va_list va;
 	int count;
-    
-    va_start(va, firstObject);
-    for (count = 1, obj = firstObject; obj != nil; obj = va_arg(va, id), count++)
+
+	va_start(va, firstObject);
+	for (count = 1, obj = firstObject; obj != nil; obj = va_arg(va, id), count++)
 		{
 		if (!va_arg(va,id))
 			[NSException raise: NSInvalidArgumentException
-						 format: @"-dictionaryWithObjectsAndKeys:... tried to add nil key to dictionary"];
+						format: @"-dictionaryWithObjectsAndKeys:... tried to add nil key to dictionary"];
 		}
 	va_end(va);
 
-    k = objc_malloc(sizeof(id) * count);
-    v = objc_malloc(sizeof(id) * count);
-    
+	k = objc_malloc(sizeof(id) * count);
+	v = objc_malloc(sizeof(id) * count);
+
 	va_start(va, firstObject);
-	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id)) 
+	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id))
 		{
 		k[count] = va_arg(va, id);
 		v[count++] = obj;
 		}
 	va_end(va);
 
-    dic = [[self alloc] initWithObjects:v forKeys:k count:count];
+	dic = [[self alloc] initWithObjects:v forKeys:k count:count];
 
-    objc_free(k);
-    objc_free(v);
+	objc_free(k);
+	objc_free(v);
 
-    return [dic autorelease];
+	return [dic autorelease];
 }
 
 + (id) dictionaryWithDictionary:(NSDictionary*)aDict
 {
-    return [[[self alloc] initWithDictionary:aDict] autorelease];
+	return [[[self alloc] initWithDictionary:aDict] autorelease];
 }
 
 + (id) dictionaryWithObject:object forKey:key
 {
-    return [[[self alloc] initWithObjects:&object forKeys:&key count:1] autorelease];
+	return [[[self alloc] initWithObjects:&object forKeys:&key count:1] autorelease];
 }
 
 - (id) initWithContentsOfFile:(NSString*)fileName
@@ -240,11 +240,11 @@ id key, value;
 									   errorDescription:&err];
 #if 0
 	NSLog(@" err: %@", err);
-#endif	
+#endif
 	if(!o)
 		[NSException raise: NSParseErrorException format:@"NSDictionary %@ for file %@", err, fileName];
 	if(![o isKindOfClass:_dictClass])
-		[NSException raise: NSParseErrorException 
+		[NSException raise: NSParseErrorException
 					format: @"%@ does not contain a %@ property list", fileName, NSStringFromClass([self class])];
 	return [self initWithDictionary:o];
 }
@@ -264,23 +264,23 @@ id key, value;
 	if(!o)
 		[NSException raise: NSParseErrorException format: @"NSDictionary %@ for URL %@", err, url];
 	if(![o isKindOfClass:_dictClass])
-		[NSException raise: NSParseErrorException 
+		[NSException raise: NSParseErrorException
 					format: @"%@ does not contain a property list: %@", url, NSStringFromClass([self class])];
 	return [self initWithDictionary:o];
 }
 
 - (id) initWithDictionary:(NSDictionary*)dictionary copyItems:(BOOL)flag
 {
-NSEnumerator *keye = [dictionary keyEnumerator];
-NSUInteger count = [dictionary count];
-id *keys = objc_malloc(sizeof(id) * count);
-id *values = objc_malloc(sizeof(id) * count);
-id key;
-    
-    count = 0;
+	NSEnumerator *keye = [dictionary keyEnumerator];
+	NSUInteger count = [dictionary count];
+	id *keys = objc_malloc(sizeof(id) * count);
+	id *values = objc_malloc(sizeof(id) * count);
+	id key;
+
+	count = 0;
 	if (flag)
 		{
-		while ((key = [keye nextObject])) 
+		while ((key = [keye nextObject]))
 			{
 			keys[count] = [[key copy] autorelease];
 			values[count] = [dictionary objectForKey:key];
@@ -290,88 +290,88 @@ id key;
 		}
 	else
 		{
-		while ((key = [keye nextObject])) 
+		while ((key = [keye nextObject]))
 			{
 			keys[count] = key;
 			values[count] = [dictionary objectForKey:key];
 			count++;
 			}
 		}
-    [self initWithObjects:values forKeys:keys count:count];
-    
-    objc_free(keys);
-    objc_free(values);
+	[self initWithObjects:values forKeys:keys count:count];
 
-    return self;
+	objc_free(keys);
+	objc_free(values);
+
+	return self;
 }
 
 - (id) initWithDictionary:(NSDictionary*)dictionary
 {
-    return [self initWithDictionary:dictionary copyItems:NO];
+	return [self initWithDictionary:dictionary copyItems:NO];
 }
 
 - (id) initWithObjectsAndKeys:(id)firstObject,...
 {
-id obj, *k, *v;
-va_list va;
-int count;
-    
-    va_start(va, firstObject);
-    for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++) 
+	id obj, *k, *v;
+	va_list va;
+	int count;
+
+	va_start(va, firstObject);
+	for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++)
 		if (!va_arg(va, id))
 			[NSException raise: NSInvalidArgumentException
-						 format: @"Tried to add nil key to dictionary"];
+						format: @"Tried to add nil key to dictionary"];
 	va_end(va);
 
-    k = objc_malloc(sizeof(id) * count);
-    v = objc_malloc(sizeof(id) * count);
-    
+	k = objc_malloc(sizeof(id) * count);
+	v = objc_malloc(sizeof(id) * count);
+
 	va_start(va, firstObject);
-	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id)) 
+	for (count = 0, obj = firstObject; obj; obj = va_arg(va, id))
 		{
 		k[count] = va_arg(va, id);
 		v[count++] = obj;
 		}
 	va_end(va);
 
-    [self initWithObjects:v forKeys:k count:count];
+	[self initWithObjects:v forKeys:k count:count];
 
-    objc_free(k);
-    objc_free(v);
+	objc_free(k);
+	objc_free(v);
 
-    return self;
+	return self;
 }
 
 - (id) initWithObjects:(NSArray*)objects forKeys:(NSArray*)keys
 {
-NSUInteger i, count = [objects count];
-id *mkeys, *mobjs;
+	NSUInteger i, count = [objects count];
+	id *mkeys, *mobjs;
 
-    if (count != [keys count])
+	if (count != [keys count])
 		[NSException raise: NSInvalidArgumentException
-					 format: @"NSDictionary initWithObjects:forKeys must \
-		    					have both arguments of the same size"];
+					format: @"NSDictionary initWithObjects:forKeys must \
+		 have both arguments of the same size"];
 
-    mkeys = objc_malloc(sizeof(id) * count);
-    mobjs = objc_malloc(sizeof(id) * count);
+	mkeys = objc_malloc(sizeof(id) * count);
+	mobjs = objc_malloc(sizeof(id) * count);
 
-    for (i = 0; i < count; i++) 
+	for (i = 0; i < count; i++)
 		{
 		mkeys[i] = [keys objectAtIndex:i];
 		mobjs[i] = [objects objectAtIndex:i];
 		}
 
-    [self initWithObjects:mobjs forKeys:mkeys count:count];
-    
-    objc_free(mkeys);
-    objc_free(mobjs);
+	[self initWithObjects:mobjs forKeys:mkeys count:count];
 
-    return self;
+	objc_free(mkeys);
+	objc_free(mobjs);
+
+	return self;
 }
 
-- (id) initWithObjects:(id*)objects 
-			   forKeys:(id*)keys 
-			   count:(NSUInteger)count				{ return SUBCLASS }
+- (id) initWithObjects:(id*)objects
+			   forKeys:(id*)keys
+				 count:(NSUInteger)count				{ return SUBCLASS }
 - (NSEnumerator*) keyEnumerator							{ return SUBCLASS }
 - (id) objectForKey:(id)aKey							{ return SUBCLASS }
 
@@ -384,10 +384,10 @@ id *mkeys, *mobjs;
 	id key, value;
 	NSMutableArray *keys=[NSMutableArray arrayWithCapacity:count];
 
-    while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
-			[keys addObject:key];
+	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
+		[keys addObject:key];
 
-   return keys;	// should be made immutable
+	return keys;	// should be made immutable
 }
 
 - (NSArray *) keysSortedByValueUsingSelector:(SEL) comp
@@ -405,7 +405,7 @@ id *mkeys, *mobjs;
 	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
 		if ([value isEqual:object])
 			[keys addObject:key];
-    return keys;
+	return keys;
 }
 
 - (NSArray*) allValues
@@ -415,15 +415,15 @@ id *mkeys, *mobjs;
 	id key, value;
 	NSMutableArray *values=[NSMutableArray arrayWithCapacity:count];
 
-    while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
-			[values addObject:value];
+	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
+		[values addObject:value];
 
-    return values;
+	return values;
 }
 
 - (NSEnumerator*) objectEnumerator
 {
-    return [NSDictionaryObjectEnumerator enumeratorWithDictionary:self];
+	return [NSDictionaryObjectEnumerator enumeratorWithDictionary:self];
 }
 
 - (void) getObjects:(id *) objects andKeys:(id *) keys;
@@ -439,37 +439,37 @@ id *mkeys, *mobjs;
 	int count = [keys count];
 	id *objs = objc_malloc(sizeof(id)*count);
 	id ret;
-	
-	for (count--; count >= 0; count--) 
-			{
-				id ret = [self objectForKey:[keys objectAtIndex:count]];
-				objs[count] = ret ? ret : notFoundObj;
-			}
-	
+
+	for (count--; count >= 0; count--)
+		{
+		id ret = [self objectForKey:[keys objectAtIndex:count]];
+		objs[count] = ret ? ret : notFoundObj;
+		}
+
 	ret = [[[NSArray alloc] initWithObjects:objs count:count] autorelease];
 	objc_free(objs);
-	
+
 	return ret;
 }
 
 - (BOOL) isEqualToDictionary:(NSDictionary*)other
 {
-id keys, key;										// Comparing Dictionaries
+	id keys, key;										// Comparing Dictionaries
 
-    if( other == self )
+	if( other == self )
 		return YES;
-    if ([self count] != [other count] || other == nil)
+	if ([self count] != [other count] || other == nil)
 		return NO;
-    keys = [self keyEnumerator];
-    while ((key = [keys nextObject]))
+	keys = [self keyEnumerator];
+	while ((key = [keys nextObject]))
 		if ([[self objectForKey:key] isEqual:[other objectForKey:key]]==NO)
-	    	return NO;
+			return NO;
 
-    return YES;
+	return YES;
 }
 
 - (NSString *) descriptionWithLocale:(id)locale
-							 indent:(NSUInteger)indent
+							  indent:(NSUInteger)indent
 {
 	id pool, key, value, keys, kd, vd;
 	NSMutableString *desc;
@@ -478,40 +478,40 @@ id keys, key;										// Comparing Dictionaries
 	NSEnumerator *e;
 	const char *s;
 
-    if(!([self count])) 
+	if(!([self count]))
 		return @"{}";   // empty dictionary
 
 	desc = [NSMutableString stringWithString:@"{\n"];
 	indentation = [@"" stringByPaddingToLength:indent withString:@" " startingAtIndex:0];
-//	NSLog(@"indentation=*%@*", indentation);
+	//	NSLog(@"indentation=*%@*", indentation);
 
 	pool = [NSAutoreleasePool new];
 	keys = [[self allKeys] sortedArrayUsingSelector:@selector(compare:)];
-    e = [keys objectEnumerator];
-    while((key = [e nextObject])) 
+	e = [keys objectEnumerator];
+	while((key = [e nextObject]))
 		{
 		if ([key respondsToSelector:@selector(descriptionWithLocale:indent:)])
 			kd = [key descriptionWithLocale:locale indent:indent1];
-		else 
+		else
 			if ([key respondsToSelector:@selector(descriptionWithLocale:)])
 				kd = [key descriptionWithLocale:locale];
 			else
 				kd = [key description];
-											// if str with whitespc add quotes
+		// if str with whitespc add quotes
 		if(strpbrk([kd UTF8String], " %-\t") != NULL)
 			kd = [NSString stringWithFormat: @"\"%@\"", kd];
 
 		value = [self objectForKey:key];
 		if([value respondsToSelector:@selector(descriptionWithLocale:indent:)])
 			vd = [value descriptionWithLocale:locale indent:indent1];
-		else 
+		else
 			if ([value respondsToSelector:@selector(descriptionWithLocale:)])
 				vd = [value descriptionWithLocale: locale];
 			else
 				vd = [value description];
 
 		s = [vd UTF8String];					// if str with whitespc add quotes
-		/// BUG: this doesn't work properly if vd was a NSStrings beginning with { ( or < !!!
+												/// BUG: this doesn't work properly if vd was a NSStrings beginning with { ( or < !!!
 		if(*s != '{' && *s != '(' && *s != '<')
 			if((strpbrk(s, " %-\t") != NULL))
 				vd = [NSString stringWithFormat: @"\"%@\"", vd];
@@ -519,44 +519,44 @@ id keys, key;										// Comparing Dictionaries
 		[desc appendFormat:@"%@    %@ = %@;\n", indentation, kd, vd];
 		}
 	[desc appendFormat:@"%@}", indentation];
-    [pool release];
-    return desc;
+	[pool release];
+	return desc;
 }
 
 - (NSString*) descriptionInStringsFileFormat
 {
-id key, value;
-NSEnumerator *enumerator;
-NSMutableString *description = [[NSMutableString new] autorelease];
-id pool = [NSAutoreleasePool new];
-NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
+	id key, value;
+	NSEnumerator *enumerator;
+	NSMutableString *description = [[NSMutableString new] autorelease];
+	id pool = [NSAutoreleasePool new];
+	NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
 
-    [keys sortUsingSelector:@selector(compare:)];
-    enumerator = [keys objectEnumerator];
+	[keys sortUsingSelector:@selector(compare:)];
+	enumerator = [keys objectEnumerator];
 
-    while((key = [enumerator nextObject])) 
+	while((key = [enumerator nextObject]))
 		{
 		value = [self objectForKey:key];
 		[description appendFormat:@"%@ = %@\n", key, value];
 		}
-    [pool release];
+	[pool release];
 
-    return description;
+	return description;
 }
 
 - (NSString*) descriptionWithLocale:(id)locale
 {
-    return [self descriptionWithLocale:locale indent:0];
+	return [self descriptionWithLocale:locale indent:0];
 }
 
 - (NSString*) description
 {
-    return [self descriptionWithLocale:nil indent:0];
+	return [self descriptionWithLocale:nil indent:0];
 }
 
 - (NSString*) stringRepresentation
 {
-    return [self descriptionWithLocale:nil indent:0];
+	return [self descriptionWithLocale:nil indent:0];
 }
 
 - (BOOL) writeToFile:(NSString*)path atomically:(BOOL)useAuxiliaryFile
@@ -564,7 +564,7 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
 	NSString *error;
 	// optionally use NSPropertyListBinaryFormat_v1_0
 	NSData *desc=[NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
-//	NSString *desc=[self descriptionInStringsFileFormat];
+	//	NSString *desc=[self descriptionInStringsFileFormat];
 #if 0
 	NSLog(@"writeToFile:%@ %@", path, desc);
 #endif
@@ -581,7 +581,7 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
 	if ([anObject isKindOfClass:[NSDictionary class]] == NO)
 		return NO;
 
-    return [self isEqualToDictionary:anObject];
+	return [self isEqualToDictionary:anObject];
 }
 
 - (NSUInteger) hash					{ return [self count]; }
@@ -589,19 +589,19 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
 
 - (id) mutableCopyWithZone:(NSZone *) zone
 {
-    return [[NSMutableDictionary alloc] initWithDictionary:self];
+	return [[NSMutableDictionary alloc] initWithDictionary:self];
 }
 
 - (Class) classForCoder				{ return [NSDictionary class]; }
 
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {
-int count = [self count];
-NSEnumerator *enumerator = [self keyEnumerator];
-id key, value;
+	int count = [self count];
+	NSEnumerator *enumerator = [self keyEnumerator];
+	id key, value;
 
-    [aCoder encodeValueOfObjCType:@encode(int) at:&count];
-    while((key = [enumerator nextObject])) 
+	[aCoder encodeValueOfObjCType:@encode(int) at:&count];
+	while((key = [enumerator nextObject]))
 		{
 		value = [self objectForKey:key];
 		[aCoder encodeObject:key];
@@ -621,7 +621,7 @@ id key, value;
 #endif
 		return [self initWithObjects:[aDecoder decodeObjectForKey:@"NS.objects"] forKeys:[aDecoder decodeObjectForKey:@"NS.keys"]];
 		}
-    [aDecoder decodeValueOfObjCType:@encode(int) at:&count];
+	[aDecoder decodeValueOfObjCType:@encode(int) at:&count];
 #if 0
 	NSLog(@"NSDictionary initWithCoder count=%d", count);
 #endif
@@ -641,14 +641,14 @@ id key, value;
 		objc_free(keys);
 		objc_free(values);
 		}
-    return self;
+	return self;
 }
 
 @end /* NSDictionary */
 
 //*****************************************************************************
 //
-// 		NSConcreteDictionary 
+// 		NSConcreteDictionary
 //
 //*****************************************************************************
 
@@ -662,45 +662,45 @@ id key, value;
 
 - (id) initWithObjects:(id*)objects forKeys:(id*)keys count:(NSUInteger)count
 {
-    table = NSCreateMapTable(NSObjectMapKeyCallBacks,
+	table = NSCreateMapTable(NSObjectMapKeyCallBacks,
 							 NSObjectMapValueCallBacks, (count * 4) / 3);
-    if (!count)
+	if (!count)
 		return self;
-    while(count--) 
+	while(count--)
 		{
 		if (!keys[count] || !objects[count])
 			[NSException raise: NSInvalidArgumentException
-						 format: @"Tried to add nil object to dictionary"];
+						format: @"Tried to add nil object to dictionary"];
 		NSMapInsert(table, keys[count], objects[count]);
 		}
 
-    return self;
+	return self;
 }
 
 - (id) initWithDictionary:(NSDictionary*)dictionary
 {
-id key, keys = [dictionary keyEnumerator];
+	id key, keys = [dictionary keyEnumerator];
 
-    table = NSCreateMapTable(NSObjectMapKeyCallBacks,
-							NSObjectMapValueCallBacks, 
-							([dictionary count] * 4) / 3);
-	    
-    while ((key = [keys nextObject]))
+	table = NSCreateMapTable(NSObjectMapKeyCallBacks,
+							 NSObjectMapValueCallBacks,
+							 ([dictionary count] * 4) / 3);
+
+	while ((key = [keys nextObject]))
 		NSMapInsert(table, key, [dictionary objectForKey:key]);
-    
-    return self;
+
+	return self;
 }
 
 - (void) dealloc
 {
-    if (table)
+	if (table)
 		NSFreeMapTable(table);
-    [super dealloc];
+	[super dealloc];
 }
 
 - (NSEnumerator *) keyEnumerator				// Accessing keys and values
 {
-    return [GSDictionaryKeyEnumerator enumeratorWithDictionary:self];
+	return [GSDictionaryKeyEnumerator enumeratorWithDictionary:self];
 }
 
 - (id) objectForKey:(id)aKey		{ return (NSObject*)NSMapGet(table,aKey); }
@@ -711,7 +711,7 @@ id key, keys = [dictionary keyEnumerator];
 
 //*****************************************************************************
 //
-// 		NSMutableDictionary, NSConcreteMutableDictionary 
+// 		NSMutableDictionary, NSConcreteMutableDictionary
 //
 //*****************************************************************************
 
@@ -727,7 +727,7 @@ id key, keys = [dictionary keyEnumerator];
 
 + (id) dictionaryWithCapacity:(NSUInteger)aNumItems
 {
-    return [[[self alloc] initWithCapacity:aNumItems] autorelease];
+	return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
 - (void) addEntriesFromDictionary:(NSDictionary*)otherDictionary; { SUBCLASS; }
@@ -747,7 +747,7 @@ id key, keys = [dictionary keyEnumerator];
 
 + (id) dictionaryWithCapacity:(NSUInteger)aNumItems
 {
-    return [[[self alloc] initWithCapacity:aNumItems] autorelease];
+	return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
 - (id) initWithCapacity:(NSUInteger)aNumItems
@@ -756,21 +756,21 @@ id key, keys = [dictionary keyEnumerator];
 	NSLog(@"NSConcreteMutableDictionary initWithCapacity:%d", aNumItems);
 #endif
 	table = NSCreateMapTable(NSObjectMapKeyCallBacks,
-							NSObjectMapValueCallBacks, 
-							(aNumItems * 4) / 3);
-    return self;
+							 NSObjectMapValueCallBacks,
+							 (aNumItems * 4) / 3);
+	return self;
 }
 
 - (id) init	{ return [self initWithCapacity:0]; }
 
 - (id) copyWithZone:(NSZone *) zone
 {
-    return [[NSDictionary alloc] initWithDictionary:self copyItems:YES];
+	return [[NSDictionary alloc] initWithDictionary:self copyItems:YES];
 }
 
 - (void) setObject:(id)anObject forKey:(id)aKey
 { // Modifying a dictionary (basic function)
-    if (!aKey)
+	if (!aKey)
 		{
 #if 1
 		NSLog(@"Tried to add nil key to dictionary %@ for object %@", self, anObject);
@@ -778,7 +778,7 @@ id key, keys = [dictionary keyEnumerator];
 		[NSException raise: NSInvalidArgumentException
 					format: @"Tried to add nil key to dictionary %@ for object %@", self, anObject];
 		}
-    if (!anObject)
+	if (!anObject)
 		{
 #if 1
 		NSLog(@"Tried to add nil object to dictionary %@ for Key %@", self, aKey);
@@ -787,16 +787,16 @@ id key, keys = [dictionary keyEnumerator];
 		anObject=[NSNull null];
 #else
 		[NSException raise: NSInvalidArgumentException
-					 format: @"Tried to add nil object to dictionary %@ forKey %@", self, aKey];
+					format: @"Tried to add nil object to dictionary %@ forKey %@", self, aKey];
 #endif
 		}
-    NSMapInsert(table, aKey, anObject);
+	NSMapInsert(table, aKey, anObject);
 }
 
 - (void) addEntriesFromDictionary:(NSDictionary*)otherDict
 {
 	id key, nodes = [otherDict keyEnumerator];			// Add and Remove Entries
-    while ((key = [nodes nextObject]))
+	while ((key = [nodes nextObject]))
 		[self setObject:[otherDict objectForKey:key] forKey:key];
 }
 
@@ -813,8 +813,8 @@ id key, keys = [dictionary keyEnumerator];
 
 - (void) setDictionary:(NSDictionary*)otherDictionary
 {
-    [self removeAllObjects];
-    [self addEntriesFromDictionary:otherDictionary];
+	[self removeAllObjects];
+	[self addEntriesFromDictionary:otherDictionary];
 }
 
 - (Class) classForCoder					{ return [NSMutableDictionary class]; }

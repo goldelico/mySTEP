@@ -86,14 +86,22 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 
 + (void) initialize
 {
+#if 0
 	fprintf(stderr, "NSAutoreleasePool +initialize self=%p class=%s\n", self, class_getName(self));
-	fprintf(stderr, "NSAutoreleasePool class=%p class=%s\n", [NSObject class], class_getName([NSObject class]));
+	fprintf(stderr, "NSAutoreleasePool +class=%p class=%s\n", [NSAutoreleasePool class], class_getName([NSAutoreleasePool class]));
+#endif
 	if (self == [NSAutoreleasePool class])
 		{
 		NSThread *mt=[NSThread new];
+#if 0
 		fprintf(stderr, "main thread %p\n", mt);
+		fprintf(stderr, "  threadvars %p\n", &mt->_autorelease_vars);
+		fprintf(stderr, "  cache count %d\n", (&mt->_autorelease_vars)->pool_cache_count);
+#endif
 		objc_thread_set_data(mt);	// configure the main thread
+#if 0
 		fprintf(stderr, "current thread %p\n", objc_thread_get_data());
+#endif
 		__allocImp = [self methodForSelector: @selector(allocWithZone:)];
 		__initImp = [self instanceMethodForSelector: @selector(init)];
 		}
@@ -102,10 +110,11 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 + (id) allocWithZone:(NSZone *) z
 {				
 	struct autorelease_thread_vars *tv = THREAD_VARS;
-
+#if 0
 	fprintf(stderr, "NSAutoreleasePool +allocWithZone tv=%p\n", tv);
+	fprintf(stderr, "  threadvars %p\n", tv);
 	fprintf(stderr, "  cache count %d\n", tv->pool_cache_count);
-
+#endif
 	// if an existing autorelease pool is available return it
 	// instead of allocating a new
 
@@ -192,7 +201,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 #endif
 	if (!__autoreleaseEnabled)		// do nothing if global, static variable 
 		return;						// AUTORELEASE_ENABLED is not set
-#if 0
+#if 1
 	fprintf(stderr, "autorelease %p\n", anObj);
 #endif
 	if (_released_count >= __poolCountThreshold)
@@ -232,6 +241,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 
 - (void) _dealloc							// actually dealloc this auto pool
 {
+	// FIXME: this should be part of drain!
 	struct autorelease_array_list *a;
 #if 0
 	fprintf(stderr, "ARP dealloc %p\n", self);
@@ -247,20 +257,55 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 
 - (void) dealloc
 {
-	struct autorelease_array_list *released;
 	struct autorelease_thread_vars *tv;
-	NSAutoreleasePool **cp;	
+	NSAutoreleasePool **cp;
+#if 1
+	fprintf(stderr, "arp drain %p - initial memory=%d\n", self, NSRealMemoryAvailable());
+#endif
 	// If there are NSAutoreleasePools below us in the
 	// stack of NSAutoreleasePools, then deallocate
-	// them also.  The (only) way we could get in this 
+	// them also.  The (only) way we could get in this
 	// situation (in correctly written programs, that
 	// don't release NSAutoreleasePools in weird ways),
 	// is if an exception threw us up the stack.
+	if (_child)
+		[_child dealloc];
+	[self drain];
+	tv = THREAD_VARS;							// Uninstall ourselves as the
+	cp = &(tv->current_pool);					// current pool; install our
+	*cp = _parent;								// parent pool
+	if (*cp)
+		(*cp)->_child = nil;
+
+	// FIXME: the [self _dealloc] should be part of -drain!
+
+	if(tv->thread_in_dealloc)					// cleanup if thread in dealloc
+		{
+		[self _dealloc];						// actually dealloc self
+		if(!(_parent))							// if no parent we are top pool
+			{
+			while(tv->pool_cache_count)			// release inactive pools in
+				{								// the pools stack cache
+					id pool = pop_pool_from_cache(tv);
+					[pool _dealloc];
+				}
+			if (tv->pool_cache)
+				objc_free(tv->pool_cache);
+			}
+		}
+	else										// Don't deallocate self, just
+		push_pool_to_cache (tv, self);			// push to cache for later use
 #if 0
-	fprintf(stderr, "arp dealloc %p - initial memory=%d\n", self, NSRealMemoryAvailable());
+	fprintf(stderr, "arp drain -    done memory=%d\n", NSRealMemoryAvailable());
 #endif
-	if (_child)	
-		[_child dealloc];	
+	return;
+	[super dealloc];	// make compiler happy
+}
+
+- (void) drain;
+{
+	struct autorelease_array_list *released;
+	// FIXME: check if already drained!
 	released = _released_head;
 	while(released)
 		{
@@ -282,40 +327,8 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 			}
 		released = released->next;
 		}
-
-	tv = THREAD_VARS;							// Uninstall ourselves as the
-	cp = &(tv->current_pool);					// current pool; install our
-	*cp = _parent;								// parent pool
-	if (*cp)
-		(*cp)->_child = nil;
-
-	if(tv->thread_in_dealloc)					// cleanup if thread in dealloc
-		{
-		[self _dealloc];						// actually dealloc self
-		if(!(_parent))							// if no parent we are top pool
-			{
-			while(tv->pool_cache_count)			// release inactive pools in
-				{								// the pools stack cache
-				id pool = pop_pool_from_cache(tv);
-				[pool _dealloc];
-				}
-			if (tv->pool_cache)
-				objc_free(tv->pool_cache);
-			}
-		}
-	else										// Don't deallocate self, just
-		push_pool_to_cache (tv, self);			// push to cache for later use
-#if 0
-	fprintf(stderr, "arp dealloc -    done memory=%d\n", NSRealMemoryAvailable());
-#endif
-	return;
-	[super dealloc];	// make compiler happy
-}
-
-- (void) drain;
-{
-	// we should move all from dealloc here so that dealloc simply calls [self drain]; [super dealloc]
-	NIMP;
+	// CHECKME: is ARP memory deallocated correctly?
+	_released_head=NULL;
 }
 
 - (id) retain

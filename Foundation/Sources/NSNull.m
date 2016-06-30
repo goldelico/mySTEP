@@ -1,28 +1,28 @@
 /** Implementation for NSNull for GNUStep
-   Copyright (C) 2000 Free Software Foundation, Inc.
+ Copyright (C) 2000 Free Software Foundation, Inc.
 
-   Written by:  Richard Frith-Macdonald <rfm@gnu.org>
-   Date: 2000
-   
-   This file is part of the GNUstep Base Library.
+ Written by:  Richard Frith-Macdonald <rfm@gnu.org>
+ Date: 2000
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
-   
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-   
-   You should have received a copy of the GNU Library General Public
-   License along with this library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+ This file is part of the GNUstep Base Library.
 
-   <title>NSNull class reference</title>
-   $Date: 2002/08/20 10:22:04 $ $Revision: 1.5 $
-   */
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
+
+ You should have received a copy of the GNU Library General Public
+ License along with this library; if not, write to the Free
+ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+
+ <title>NSNull class reference</title>
+ $Date: 2002/08/20 10:22:04 $ $Revision: 1.5 $
+ */
 #import <Foundation/NSObject.h>
 #import <Foundation/NSNull.h>
 
@@ -50,17 +50,17 @@ static NSNull	*null = 0;
  */
 + (NSNull*) null
 {
-  return null;
+	return null;
 }
 
 - (id) autorelease
 {
-  return self;
+	return self;
 }
 
 - (id) copyWithZone: (NSZone*)z
 {
-  return self;
+	return self;
 }
 
 - (void) dealloc
@@ -75,15 +75,15 @@ static NSNull	*null = 0;
 
 - (id) initWithCoder: (NSCoder*)aCoder
 {
-  return self;
+	return self;
 }
 
 - (BOOL) isEqual: (id)other
 {
-  if (other == self)
-    return YES;
-  else
-    return NO;
+	if (other == self)
+		return YES;
+	else
+		return NO;
 }
 
 - (oneway void) release
@@ -92,7 +92,7 @@ static NSNull	*null = 0;
 
 - (id) retain
 {
-  return self;
+	return self;
 }
 @end
 

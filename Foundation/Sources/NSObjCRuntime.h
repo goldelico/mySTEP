@@ -371,9 +371,9 @@ typedef struct obj_layout_unpadded			// Define a structure to hold data locally 
 
 // Now do the REAL version - using the other version to determine what padding if any is required to get the alignment of the structure correct.
 
-typedef struct _object_layout 
+typedef struct _object_layout
 {
-	unsigned retained;
+	NSUInteger retained;
 	char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
 	// the bytes defined by NSObject follow here
 } *_object_layout;

@@ -1,16 +1,16 @@
-/* 
-   NSObject.m
+/*
+ NSObject.m
 
-   Implementation of NSObject
+ Implementation of NSObject
 
-   Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
-   
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	August 1994
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+
+ Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Date:	August 1994
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #define REPORT_OBJECT_INITIALIZE 1
 
@@ -81,7 +81,7 @@ NSDecrementExtraRefCountWasZero(id anObject) 			// reference count
 void
 NSIncrementExtraRefCount(id anObject)	{ ((_object_layout)(anObject))[-1].retained++; }
 
-										// The Class responsible for handling 
+// The Class responsible for handling
 static id autorelease_class = nil;		// autorelease's.  This does not need
 static SEL autorelease_sel;				// mutex protection, since it is simply
 static IMP autorelease_imp = 0;			// a pointer that gets read and set.
@@ -103,8 +103,10 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (void) initialize
 {
+#if 0
 	fprintf(stderr, "NSObject +initialize self=%p class=%s\n", self, class_getName(self));
 	fprintf(stderr, "NSObject class=%p class=%s\n", [NSObject class], class_getName([NSObject class]));
+#endif
 	if(!autorelease_sel && self == [NSObject class])
 		{
 		char *z;
@@ -185,8 +187,8 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 }
 
 /**
-* Returns a flag to say whether the receiving class conforms to aProtocol
-**/
+ * Returns a flag to say whether the receiving class conforms to aProtocol
+ **/
 
 /* Testing protocol conformance */
 // this should be the method [Protocol * conformsTo:(Protocol *)aProtocolObject]
@@ -225,7 +227,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
-//	NSLog(@"-[%@ conformsToProtocol:aProtocol]", self);
+	//	NSLog(@"-[%@ conformsToProtocol:aProtocol]", self);
 	return [[self class] conformsToProtocol:aProtocol];
 }
 
@@ -233,7 +235,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	return class_getMethodImplementation(self, aSelector);
 }
-  
+
 - (IMP) methodForSelector:(SEL)aSelector
 {
 	return class_getMethodImplementation(object_getClass(self), aSelector);
@@ -292,26 +294,26 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		{
 		if(NSZombieEnabled)
 			{ // enabling this keeps the object in memory and remembers the object description
-			NSAutoreleasePool *arp=[NSAutoreleasePool new];
-			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
-			if(!__zombieMap)
-				__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
-											 NSObjectMapValueCallBacks, 200);
+				NSAutoreleasePool *arp=[NSAutoreleasePool new];
+				NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
+				if(!__zombieMap)
+					__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+												 NSObjectMapValueCallBacks, 200);
 #if 0	// debugging some issue
-			if([self isKindOfClass:[NSTask class]])
-				NSLog(@"zombiing %p: %@", self, [self description]);
+				if([self isKindOfClass:[NSTask class]])
+					NSLog(@"zombiing %p: %@", self, [self description]);
 #endif
 #if 1
-			fprintf(stderr, "zombiing %p: %s\n", self, [[self description] UTF8String]);	// NSLog() would recursively call -[NSObject release]
+				fprintf(stderr, "zombiing %p: %s\n", self, [[self description] UTF8String]);	// NSLog() would recursively call -[NSObject release]
 #endif
 #if 1
-			NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
+				NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
 #else
-			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
+				NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
-			object_setClass(self, __zombieClass);	// make us a zombie object
-			[arp release];
-			NSZombieEnabled=YES;
+				object_setClass(self, __zombieClass);	// make us a zombie object
+				[arp release];
+				NSZombieEnabled=YES;
 			}
 		else
 			{
@@ -359,7 +361,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSLog(@"respondsToSelector +%@", NSStringFromSelector(aSelector));
 	NSLog(@"self: %@", self);
 	NSLog(@"class: %@", object_getClass(self));	// is the same
-//	NSLog(@"meta: %@", object_get_meta_class((Class) self));	// is the same
+												//	NSLog(@"meta: %@", object_get_meta_class((Class) self));	// is the same
 	NSLog(@"-method: %p", class_getInstanceMethod(object_getClass(self), aSelector));
 	NSLog(@"+method: %p", class_getClassMethod((Class)self, aSelector));
 	NSLog(@"+method: %p", class_getInstanceMethod(object_getClass((Class) self), aSelector));
@@ -378,19 +380,19 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (void) doesNotRecognizeSelector:(SEL)aSelector
 {
 	[NSException raise:NSInvalidArgumentException
-				format:@"NSObject %@[%@ %@]: selector not recognized", 
-						class_isMetaClass(object_getClass(self))?@"+":@"-",
-						NSStringFromClass([self class]), 
-						NSStringFromSelector(aSelector)];
+				format:@"NSObject %@[%@ %@]: selector not recognized",
+	 class_isMetaClass(object_getClass(self))?@"+":@"-",
+	 NSStringFromClass([self class]),
+	 NSStringFromSelector(aSelector)];
 }
 
 - (id) _subclass:(SEL) cmd;
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** subclass %@ should override %@%@",
-						class_isMetaClass(object_getClass([self class]))?@"+":@"-",
-						[self isInstance]?@"-":@"+",
-						NSStringFromSelector(cmd)];
+	 class_isMetaClass(object_getClass([self class]))?@"+":@"-",
+	 [self isInstance]?@"-":@"+",
+	 NSStringFromSelector(cmd)];
 	return nil;
 }
 
@@ -398,9 +400,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** %@[%@ %@]: not implemented",
-						class_isMetaClass(object_getClass(self))?@"+":@"-",
-						NSStringFromClass([self class]),
-						NSStringFromSelector(cmd)];
+	 class_isMetaClass(object_getClass(self))?@"+":@"-",
+	 NSStringFromClass([self class]),
+	 NSStringFromSelector(cmd)];
 	return nil;
 }
 
@@ -455,7 +457,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	// CHECKME: should we also check for Protocols?
-    return m ? [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)] : (NSMethodSignature *) nil;
+	return m ? [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)] : (NSMethodSignature *) nil;
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
@@ -466,32 +468,32 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	Class c = object_getClass(self);
 	struct objc_protocol_list	*protocols = c?c->protocols:NULL;
 	for(; protocols; protocols = protocols?protocols->next:protocols)
-			{ // loop through protocol lists to find if they define our selector with more details
-				unsigned int i = 0;
+		{ // loop through protocol lists to find if they define our selector with more details
+			unsigned int i = 0;
 #if 1
-				NSLog(@"trying protocol list %p (count=%d)", protocols, protocols->count);
+			NSLog(@"trying protocol list %p (count=%d)", protocols, protocols->count);
 #endif
-				for(i=0; i < protocols->count; i++)
-						{ // loop through individual protocols
-							Protocol *p = protocols->list[i];
-							struct objc_method_description *desc= (c == (Class)self) ? [p descriptionForClassMethod: aSelector] : [p descriptionForInstanceMethod: aSelector];
+			for(i=0; i < protocols->count; i++)
+				{ // loop through individual protocols
+					Protocol *p = protocols->list[i];
+					struct objc_method_description *desc= (c == (Class)self) ? [p descriptionForClassMethod: aSelector] : [p descriptionForInstanceMethod: aSelector];
 #if 1
-							NSLog(@"try protocol %s", [p name]);
+					NSLog(@"try protocol %s", [p name]);
 #endif
-							if(desc)
-									{ // found
-										// NOTE: here we could also do duplication and contradiction checks
+					if(desc)
+						{ // found
+						  // NOTE: here we could also do duplication and contradiction checks
 #if 1
-										NSLog(@"found");
-										if(types)
-											NSLog(@"signature %s replaced by %s from protocol %s", types, desc->types, [p name]);
+							NSLog(@"found");
+							if(types)
+								NSLog(@"signature %s replaced by %s from protocol %s", types, desc->types, [p name]);
 #endif
-										types = desc->types;	// overwrite
-										protocols = NULL;	// this will break the outer loop as well
-										break;	// done with both loops
-									}
+							types = desc->types;	// overwrite
+							protocols = NULL;	// this will break the outer loop as well
+							break;	// done with both loops
 						}
-			}
+				}
+		}
 #endif	// FIXME
 #if 1
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
@@ -516,14 +518,14 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 // you should not empty the ARP within a loop!
 
 - (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
-																	 objects:(id *) stackbuf
-																		 count:(NSUInteger) len;
+								   objects:(id *) stackbuf
+									 count:(NSUInteger) len;
 {
 	id *s0=stackbuf;
 	if(state->state != 0x55aa5a5a || !state->itemsPtr)	// some safety if zeroing was forgotten
 		{ // assume we have not been initialized
-		state->itemsPtr=(id *) [(NSArray *) self objectEnumerator];	// misuse the items pointer for a primitive NSEnumerator...
-		state->state=0x55aa5a5a;
+			state->itemsPtr=(id *) [(NSArray *) self objectEnumerator];	// misuse the items pointer for a primitive NSEnumerator...
+			state->state=0x55aa5a5a;
 		}
 	while(len-- > 0)
 		{
@@ -557,16 +559,16 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 /* convert runtime forwarding arguments into NSInvocation */
 
 /* basically we come here by:
- 
+
  static id __objc_word_forward (id rcv, SEL op, ...)
 	{
 	void *args, *res;
 	args = __builtin_apply_args ();
 	res = __objc_forward (rcv, op, args);
 	if (res)
-		__builtin_return (res);
+ __builtin_return (res);
 	else
-		return res;
+ return res;
  }
 
  static retval_t __objc_forward (id object, SEL sel, arglist_t args)
@@ -575,17 +577,17 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	static SEL frwd_sel = 0;
 
 	if (! frwd_sel)
-		frwd_sel = sel_get_any_uid ("forward::");
+ frwd_sel = sel_get_any_uid ("forward::");
 
 	if (__objc_responds_to (object, frwd_sel))
-		{
-		imp = get_imp (object->class_pointer, frwd_sel);
-		return (*imp) (object, frwd_sel, sel, args);
-		}
+ {
+ imp = get_imp (object->class_pointer, frwd_sel);
+ return (*imp) (object, frwd_sel, sel, args);
+ }
 	...
 
  so we are called here between __builtin_apply_args() and __builtin_return()
-*/
+ */
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
@@ -600,7 +602,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSLog(@"  sel=%p %s", aSel, sel_getName(aSel));
 	NSLog(@"  &r=%p", &r);	// local stack within forward::
 	NSLog(@"  frame=%p", argFrame);
-#endif	
+#endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSObject forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
@@ -626,13 +628,13 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		}
 	else
 		{ // ask forwardingTarget
-		id target=[self forwardingTargetForSelector:aSel];
-		if(target != self)
-			[inv setTarget:target];	// update target
-		[self forwardInvocation:inv];
+			id target=[self forwardingTargetForSelector:aSel];
+			if(target != self)
+				[inv setTarget:target];	// update target
+			[self forwardInvocation:inv];
 #if 1
-		NSLog(@"invocation forwarded. Now returning result");
-		[ms _logFrame:argFrame target:self selector:_cmd];
+			NSLog(@"invocation forwarded. Now returning result");
+			[ms _logFrame:argFrame target:self selector:_cmd];
 #endif
 		}
 	[inv autorelease];		// don't release immediately since r is pointer to an iVar of NSInvocation (!)
@@ -647,7 +649,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 /// should we get rid of this (compiler option??)
 
-@implementation NSObject (NEXTSTEP_MISC)			// NEXTSTEP Object class 
+@implementation NSObject (NEXTSTEP_MISC)			// NEXTSTEP Object class
 													// compatibility & misc
 - (int) compare:(id)anObject
 {

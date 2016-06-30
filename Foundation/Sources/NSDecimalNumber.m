@@ -1,29 +1,29 @@
-/** 
-NSDecimalNumber class
-Copyright (C) 2000 Free Software Foundation, Inc.
+/**
+ NSDecimalNumber class
+ Copyright (C) 2000 Free Software Foundation, Inc.
 
-Written by: Fred Kiefer <FredKiefer@gmx.de>
-Created: July 2000
+ Written by: Fred Kiefer <FredKiefer@gmx.de>
+ Created: July 2000
 
-This file is part of the GNUstep Base Library.
+ This file is part of the GNUstep Base Library.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
 
-You should have received a copy of the GNU Library General Public
-License along with this library; if not, write to the Free
-Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+ You should have received a copy of the GNU Library General Public
+ License along with this library; if not, write to the Free
+ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 
-<title>NSDecimalNumber class reference</title>
-$Date: 2004/06/22 22:40:37 $ $Revision: 1.11 $
-*/
+ <title>NSDecimalNumber class reference</title>
+ $Date: 2004/06/22 22:40:37 $ $Revision: 1.11 $
+ */
 
 #import <Foundation/NSException.h>
 #import <Foundation/NSDecimal.h>
@@ -45,81 +45,81 @@ static NSDecimalNumberHandler *handler;
 									 raiseOnOverflow: YES
 									raiseOnUnderflow: YES
 								 raiseOnDivideByZero: YES];
-	
+
 	return handler;
 }
 
-+ (id) decimalNumberHandlerWithRoundingMode: (NSRoundingMode)roundingMode 
++ (id) decimalNumberHandlerWithRoundingMode: (NSRoundingMode)roundingMode
 									  scale: (short)scale
-						   raiseOnExactness: (BOOL)raiseOnExactness 
-							raiseOnOverflow: (BOOL)raiseOnOverflow 
+						   raiseOnExactness: (BOOL)raiseOnExactness
+							raiseOnOverflow: (BOOL)raiseOnOverflow
 						   raiseOnUnderflow: (BOOL)raiseOnUnderflow
 						raiseOnDivideByZero: (BOOL)raiseOnDivideByZero
 {
-	return AUTORELEASE([[self alloc] initWithRoundingMode: roundingMode 
-													scale: scale 
+	return AUTORELEASE([[self alloc] initWithRoundingMode: roundingMode
+													scale: scale
 										 raiseOnExactness: raiseOnExactness
-										  raiseOnOverflow: raiseOnOverflow 
+										  raiseOnOverflow: raiseOnOverflow
 										 raiseOnUnderflow: raiseOnUnderflow
 									  raiseOnDivideByZero: raiseOnDivideByZero]);
 }
 
-- (id) initWithRoundingMode: (NSRoundingMode)roundingMode 
-					  scale: (short)scale 
+- (id) initWithRoundingMode: (NSRoundingMode)roundingMode
+					  scale: (short)scale
 		   raiseOnExactness: (BOOL)raiseOnExactness
-			raiseOnOverflow: (BOOL)raiseOnOverflow 
+			raiseOnOverflow: (BOOL)raiseOnOverflow
 		   raiseOnUnderflow: (BOOL)raiseOnUnderflow
 		raiseOnDivideByZero: (BOOL)raiseOnDivideByZero
 {
 	_roundingMode = roundingMode;
 	_scale = scale;
 	_raiseOnExactness = raiseOnExactness;
-	_raiseOnOverflow = raiseOnOverflow; 
+	_raiseOnOverflow = raiseOnOverflow;
 	_raiseOnUnderflow = raiseOnUnderflow;
 	_raiseOnDivideByZero = raiseOnDivideByZero;
-	
+
 	return self;
 }
 
-- (NSDecimalNumber*) exceptionDuringOperation: (SEL)method 
-										error: (NSCalculationError)error 
-								  leftOperand: (NSDecimalNumber*)leftOperand 
+- (NSDecimalNumber*) exceptionDuringOperation: (SEL)method
+										error: (NSCalculationError)error
+								  leftOperand: (NSDecimalNumber*)leftOperand
 								 rightOperand: (NSDecimalNumber*)rightOperand
 {
 	switch (error)
-		{
+	{
 		case NSCalculationNoError: return nil;
-		case NSCalculationUnderflow: 
-			if (_raiseOnUnderflow)
-				// FIXME: What exception to raise?
-				[NSException raise: @"NSDecimalNumberException"
-							format: @"Underflow"];
-			else
-				return [NSDecimalNumber minimumDecimalNumber];
-			break;
-		case NSCalculationOverflow: 
-			if (_raiseOnOverflow)
-				[NSException raise: @"NSDecimalNumberException"
-							format: @"Overflow"];
-			else
-				return [NSDecimalNumber maximumDecimalNumber];
-			break;
-		case NSCalculationLossOfPrecision: 
-			if (_raiseOnExactness)
-				[NSException raise: @"NSDecimalNumberException"
-							format: @"Loss of precision"];
-			else
-				return nil;
-			break;
-		case NSCalculationDivideByZero: 
-			if (_raiseOnDivideByZero)
-				[NSException raise: @"NSDecimalNumberException"
-							format: @"Divide by zero"];
-			else
-				return [NSDecimalNumber notANumber];
-			break;
-		}
-	
+		case NSCalculationUnderflow:
+		if (_raiseOnUnderflow)
+			// FIXME: What exception to raise?
+			[NSException raise: @"NSDecimalNumberException"
+						format: @"Underflow"];
+		else
+			return [NSDecimalNumber minimumDecimalNumber];
+		break;
+		case NSCalculationOverflow:
+		if (_raiseOnOverflow)
+			[NSException raise: @"NSDecimalNumberException"
+						format: @"Overflow"];
+		else
+			return [NSDecimalNumber maximumDecimalNumber];
+		break;
+		case NSCalculationLossOfPrecision:
+		if (_raiseOnExactness)
+			[NSException raise: @"NSDecimalNumberException"
+						format: @"Loss of precision"];
+		else
+			return nil;
+		break;
+		case NSCalculationDivideByZero:
+		if (_raiseOnDivideByZero)
+			[NSException raise: @"NSDecimalNumberException"
+						format: @"Divide by zero"];
+		else
+			return [NSDecimalNumber notANumber];
+		break;
+	}
+
 	return nil;
 }
 
@@ -163,7 +163,7 @@ static NSDecimalNumber *one;
 + (void) initialize
 {
 	NSDecimal d;
-	
+
 	d.validNumber = NO;
 	notANumber = [[self alloc] initWithDecimal: d];
 	NSDecimalMax(&d);
@@ -197,7 +197,7 @@ static NSDecimalNumber *one;
 + (void) setDefaultBehavior: (id <NSDecimalNumberBehaviors>)behavior
 {
 	// Reuse the handler from the class NSDecimalNumberHandler
-	// Might give interessting result on this class as behavior may came 
+	// Might give interessting result on this class as behavior may came
 	// from a different class
 	ASSIGN(handler, behavior);
 }
@@ -231,11 +231,11 @@ static NSDecimalNumber *one;
 	return AUTORELEASE([[self alloc] initWithDecimal: decimal]);
 }
 
-+ (NSDecimalNumber*) decimalNumberWithMantissa: (unsigned long long)mantissa 
++ (NSDecimalNumber*) decimalNumberWithMantissa: (unsigned long long)mantissa
 									  exponent: (short)exponent
 									isNegative: (BOOL)isNegative
 {
-	return AUTORELEASE([[self alloc] initWithMantissa: mantissa 
+	return AUTORELEASE([[self alloc] initWithMantissa: mantissa
 											 exponent: exponent
 										   isNegative: isNegative]);
 }
@@ -245,7 +245,7 @@ static NSDecimalNumber *one;
 	return AUTORELEASE([[self alloc] initWithString: numericString]);
 }
 
-+ (NSDecimalNumber*) decimalNumberWithString: (NSString*)numericString 
++ (NSDecimalNumber*) decimalNumberWithString: (NSString*)numericString
 									  locale: (NSDictionary*)locale
 {
 	return AUTORELEASE([[self alloc] initWithString: numericString
@@ -253,14 +253,14 @@ static NSDecimalNumber *one;
 }
 
 /**
-* Inefficient ... quick hack by converting double value to string,
+ * Inefficient ... quick hack by converting double value to string,
  * then initialising from string.
  */
 - (id) initWithBytes: (const void*)value objCType: (const char*)type
 {
 	double	tmp;
 	NSString	*s;
-	
+
 	memcpy(&tmp, value, sizeof(tmp));
 	s = [[NSString alloc] initWithFormat: @"%g", tmp];
 	self = [self initWithString: s];
@@ -274,27 +274,27 @@ static NSDecimalNumber *one;
 	return self;
 }
 
-- (id) initWithMantissa: (unsigned long long)mantissa 
-			   exponent: (short)exponent 
+- (id) initWithMantissa: (unsigned long long)mantissa
+			   exponent: (short)exponent
 			 isNegative: (BOOL)flag
 {
 	NSDecimal decimal;
-	
+
 	NSDecimalFromComponents(&decimal, mantissa, exponent, flag);
 	return [self initWithDecimal: decimal];
 }
 
 - (id) initWithString: (NSString*)numberValue
 {
-	return [self initWithString: numberValue 
+	return [self initWithString: numberValue
 						 locale: nil];
 }
 
-- (id) initWithString: (NSString*)numberValue 
+- (id) initWithString: (NSString*)numberValue
 			   locale: (NSDictionary*)locale
 {
 	NSDecimal decimal;
-	
+
 	NSDecimalFromString(&decimal, numberValue, locale);
 	return [self initWithDecimal: decimal];
 }
@@ -331,7 +331,7 @@ static NSDecimalNumber *one;
 - (id) initWithFloat: (float)value
 {
 	double	d = (double)value;
-	
+
 	return [self initWithBytes: &d objCType: "d"];
 }
 
@@ -447,7 +447,7 @@ static NSDecimalNumber *one;
 - (NSDecimal) decimalValue
 {
 	NSDecimal decimal;
-	
+
 	NSDecimalCopy(&decimal, &data);
 	return decimal;
 }
@@ -468,37 +468,37 @@ static NSDecimalNumber *one;
 }
 
 /**
-* Get the approximate value of the decimal number into a buffer
+ * Get the approximate value of the decimal number into a buffer
  * as a double.
  */
 - (void) getValue: (void*)buffer
 {
 	double	tmp = NSDecimalDouble(&data);
-	
+
 	memcpy(buffer, &tmp, sizeof(tmp));
 }
 
 - (NSComparisonResult) compare: (NSNumber*)decimalNumber
 {
 	// well, we should compare with the lower precision of both?
-//	if ([decimalNumber isMemberOfClass: [self class]])
+	//	if ([decimalNumber isMemberOfClass: [self class]])
 	//	{
-		NSDecimal d1 = [self decimalValue];
-		NSDecimal d2 = [(NSDecimalNumber*)decimalNumber decimalValue];
-		
-		return NSDecimalCompare(&d1, &d2);
-//		}
-//	else
-//		return [super compare: decimalNumber];
+	NSDecimal d1 = [self decimalValue];
+	NSDecimal d2 = [(NSDecimalNumber*)decimalNumber decimalValue];
+
+	return NSDecimalCompare(&d1, &d2);
+	//		}
+	//	else
+	//		return [super compare: decimalNumber];
 }
 
 - (NSDecimalNumber*) decimalNumberByAdding: (NSDecimalNumber*)decimalNumber
 {
-	return [self decimalNumberByAdding: decimalNumber 
+	return [self decimalNumberByAdding: decimalNumber
 						  withBehavior: [[self class] defaultBehavior]];
 }
 
-- (NSDecimalNumber*) decimalNumberByAdding: (NSDecimalNumber*)decimalNumber 
+- (NSDecimalNumber*) decimalNumberByAdding: (NSDecimalNumber*)decimalNumber
 							  withBehavior: (id<NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
@@ -506,24 +506,24 @@ static NSDecimalNumber *one;
 	NSDecimal d2 = [decimalNumber decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
+
 	error = NSDecimalAdd(&result, &d1, &d2, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: decimalNumber];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberBySubtracting: (NSDecimalNumber*)decimalNumber
 {
-	return [self decimalNumberBySubtracting: decimalNumber 
+	return [self decimalNumberBySubtracting: decimalNumber
 							   withBehavior: [[self class] defaultBehavior]];
 }
 
@@ -535,30 +535,30 @@ static NSDecimalNumber *one;
 	NSDecimal d2 = [decimalNumber decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
+
 	error = NSDecimalSubtract(&result, &d1, &d2, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: decimalNumber];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberByMultiplyingBy:
-	(NSDecimalNumber*)decimalNumber
+(NSDecimalNumber*)decimalNumber
 {
-	return [self decimalNumberByMultiplyingBy: decimalNumber 
+	return [self decimalNumberByMultiplyingBy: decimalNumber
 								 withBehavior: [[self class] defaultBehavior]];
 }
 
 - (NSDecimalNumber*) decimalNumberByMultiplyingBy:
-	(NSDecimalNumber*)decimalNumber 
+(NSDecimalNumber*)decimalNumber
 									 withBehavior: (id <NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
@@ -566,28 +566,28 @@ static NSDecimalNumber *one;
 	NSDecimal d2 = [decimalNumber decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
+
 	error = NSDecimalMultiply(&result, &d1, &d2, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: decimalNumber];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberByDividingBy: (NSDecimalNumber*)decimalNumber
 {
-	return [self decimalNumberByDividingBy: decimalNumber 
+	return [self decimalNumberByDividingBy: decimalNumber
 							  withBehavior: [[self class] defaultBehavior]];
 }
 
-- (NSDecimalNumber*) decimalNumberByDividingBy: (NSDecimalNumber*)decimalNumber 
+- (NSDecimalNumber*) decimalNumberByDividingBy: (NSDecimalNumber*)decimalNumber
 								  withBehavior: (id <NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
@@ -595,53 +595,53 @@ static NSDecimalNumber *one;
 	NSDecimal d2 = [decimalNumber decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
+
 	error = NSDecimalDivide(&result, &d1, &d2, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: decimalNumber];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberByMultiplyingByPowerOf10: (short)power
 {
-	return [self decimalNumberByMultiplyingByPowerOf10: power 
+	return [self decimalNumberByMultiplyingByPowerOf10: power
 										  withBehavior: [[self class] defaultBehavior]];
 }
 
-- (NSDecimalNumber*) decimalNumberByMultiplyingByPowerOf10: (short)power 
+- (NSDecimalNumber*) decimalNumberByMultiplyingByPowerOf10: (short)power
 											  withBehavior: (id <NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
 	NSDecimal d1 = [self decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
-	error = NSDecimalMultiplyByPowerOf10(&result, &d1, 
+
+	error = NSDecimalMultiplyByPowerOf10(&result, &d1,
 										 power, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: nil];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberByRaisingToPower: (NSUInteger)power
 {
-	return [self decimalNumberByRaisingToPower: power 
+	return [self decimalNumberByRaisingToPower: power
 								  withBehavior: [[self class] defaultBehavior]];
 }
 
@@ -652,43 +652,43 @@ static NSDecimalNumber *one;
 	NSDecimal d1 = [self decimalValue];
 	NSCalculationError error;
 	NSDecimalNumber *res;
-	
-	error = NSDecimalPower(&result, &d1, 
+
+	error = NSDecimalPower(&result, &d1,
 						   power, [behavior roundingMode]);
 	if (error)
 		{
-		res = [behavior exceptionDuringOperation: _cmd 
-										   error: error 
-									 leftOperand: self 
+		res = [behavior exceptionDuringOperation: _cmd
+										   error: error
+									 leftOperand: self
 									rightOperand: nil];
 		if (res != nil)
 			return res;
 		}
-	
+
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 - (NSDecimalNumber*) decimalNumberByRoundingAccordingToBehavior:
-	(id <NSDecimalNumberBehaviors>)behavior
+(id <NSDecimalNumberBehaviors>)behavior
 {
 	NSDecimal result;
 	NSDecimal d1 = [self decimalValue];
-	
+
 	NSDecimalRound(&result, &d1, [behavior scale], [behavior roundingMode]);
 	return [NSDecimalNumber decimalNumberWithDecimal: result];
 }
 
 
 // Methods for NSDecimalNumberBehaviors
-- (NSDecimalNumber*) exceptionDuringOperation: (SEL)method 
-										error: (NSCalculationError)error 
-								  leftOperand: (NSDecimalNumber*)leftOperand 
+- (NSDecimalNumber*) exceptionDuringOperation: (SEL)method
+										error: (NSCalculationError)error
+								  leftOperand: (NSDecimalNumber*)leftOperand
 								 rightOperand: (NSDecimalNumber*)rightOperand
 {
 	return [[[self class] defaultBehavior] exceptionDuringOperation: method
-													 error: error 
-											   leftOperand: leftOperand 
-											  rightOperand: rightOperand];
+															  error: error
+											   leftOperand: leftOperand
+													   rightOperand: rightOperand];
 }
 
 - (NSRoundingMode) roundingMode
@@ -747,7 +747,7 @@ static NSDecimalNumber *one;
 			const char *bytes=[mantissa bytes];
 			if(decimal.length == 0)
 				decimal.length=2*[mantissa length];	// 2 digits per byte
-			// CHECKME and handle different endian values
+													// CHECKME and handle different endian values
 			while(i<decimal.length)
 				{
 				decimal.cMantissa[i++]=(*bytes>>4)&0x0f;
@@ -757,7 +757,7 @@ static NSDecimalNumber *one;
 			}
 		else
 			{ // compact
-				// FIXME!!!
+			  // FIXME!!!
 				decimal.validNumber=NO;
 			}
 		[self release];
@@ -770,7 +770,7 @@ static NSDecimalNumber *one;
 
 @implementation NSNumber (NSDecimalNumber)
 /** Returns an NSDecimal representation of the number. Float and double
-values may not be converted exactly */
+ values may not be converted exactly */
 - (NSDecimal) decimalValue
 {
 	double num;
