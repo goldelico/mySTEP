@@ -360,7 +360,7 @@ if (temp) \
 
 typedef struct obj_layout_unpadded			// Define a structure to hold data locally before the start of each object
 {
-    unsigned retained;
+	unsigned retained;
 } unp;
 
 #define	UNP sizeof(unp)
@@ -427,7 +427,7 @@ _classIsKindOfClass(Class c, Class aClass)
 		if (c == aClass)
 			return YES;
 
-    return NO;
+	return NO;
 }
 
 // helper for doing timing measurements

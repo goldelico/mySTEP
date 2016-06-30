@@ -19,6 +19,8 @@
 #ifndef _mySTEP_H_NSObject
 #define _mySTEP_H_NSObject
 
+#define TRACE_OBJECT_ALLOCATION	0
+
 // import everything we need from the basic runtime system (incl. POSIX headers)
 
 #import <Foundation/NSObjCRuntime.h>
@@ -68,7 +70,7 @@
 
 @interface NSObject <NSObject, NSCoding>
 {												
-    Class isa;	// pointer to instance's class structure
+	Class isa;	// pointer to instance's class structure
 }
 
 + (id) alloc;
@@ -107,16 +109,16 @@
 
 @end
 
-#ifdef __mySTEP__
+extern unsigned long __NSAllocatedObjects;
+#ifdef TRACE_OBJECT_ALLOCATION
 struct __NSAllocationCount
 {
-	unsigned long alloc;				// number of +alloc
-	unsigned long instances;		// number of instances (balance of +alloc and -dealloc)
-	unsigned long linstances;		// last number of instances (when we did print the last time)
-	unsigned long peak;					// maximum instances
+	NSUInteger alloc;				// number of +alloc
+	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
+	NSUInteger linstances;		// last number of instances (when we did print the last time)
+	NSUInteger peak;					// maximum instances
 	// could also count/balance retains&releases ??
 };
-extern unsigned long __NSAllocatedObjects;
 @class NSMapTable;
 extern NSMapTable *__NSAllocationCountTable;
 #endif
@@ -125,25 +127,27 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 {
 	id newobject=nil;
 #ifdef __linux__
-	if ([aClass isClass])
+	fprintf(stderr, "NSAllocateObject: aClass = %p %s\n", aClass, class_getName(aClass));
+	if (class_isMetaClass(object_getClass(aClass)))
 		{
-		unsigned size = class_getInstanceSize(aClass)+extra;
+		NSUInteger size = class_getInstanceSize(aClass)+extra;
+		fprintf(stderr, "  size=%d\n", size);
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
-#if 1	// if we trace object allocation
-				extern void __NSCountAllocate(Class aClass);
-//				fprintf(stderr, "NSAllocateObject -> %p [%s alloc]\n", &((_object_layout)newobject)[1], aClass->name);
-				__NSCountAllocate(aClass);
+#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
+			extern void __NSCountAllocate(Class aClass);
+fprintf(stderr, "NSAllocateObject -> %p [%s alloc]\n", &((_object_layout)newobject)[1], class_getName(aClass));
+			__NSCountAllocate(aClass);
 #endif
-				memset (newobject, 0, size);
+			memset (newobject, 0, size);
 			newobject = (id)&((_object_layout)newobject)[1];
 #ifdef __mySTEP__
 			newobject->class_pointer = aClass;
 #endif
 			}
-//				fprintf(stderr, "%08x [%s alloc:%d]\n", newobject, aClass->name, size);
-			__NSAllocatedObjects++;	// one more
-	}
+fprintf(stderr, "%p [%s alloc:%d]\n", newobject, class_getName(aClass), size);
+		__NSAllocatedObjects++;	// one more
+		}
 #endif
 	return newobject;
 }
@@ -158,7 +162,7 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 #if 0
 		fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, anObject->isa->name);
 #endif
-#if 1	// if we trace object allocation
+#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
 			{
 			extern void __NSCountDeallocate(Class aClass);
 			__NSCountDeallocate([anObject class]);
@@ -177,7 +181,7 @@ static inline NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZon
 {
 	id newobject=nil;
 #ifdef __linux__
-	unsigned size = class_getInstanceSize(object_getClass(obj))+extraBytes;
+	NSUInteger size = class_getInstanceSize(object_getClass(obj))+extraBytes;
 	if ((newobject = NSZoneMalloc(zone, size)) != nil)
 		{
 #warning check me!

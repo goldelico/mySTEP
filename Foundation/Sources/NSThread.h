@@ -43,11 +43,11 @@
 			// Total number of objects autoreleased since the
 			// thread was started, or since 
 			// -resetTotalAutoreleasedObjects was called in this thread
-			unsigned total_objects_count;
+			NSUInteger total_objects_count;
 			
 			id *pool_cache;			// A cache of NSAutoreleasePool's already alloc'ed
-			int pool_cache_size;	// Caching old pools instead of dealloc / realloc
-			int pool_cache_count;	// saves time
+			NSInteger pool_cache_size;	// Caching old pools instead of dealloc / realloc
+			NSInteger pool_cache_count;	// saves time
 			
 			BOOL thread_in_dealloc;
 		} _autorelease_vars;

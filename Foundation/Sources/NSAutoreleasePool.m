@@ -43,8 +43,10 @@ static IMP __initImp;
 								// be adjusted with -setPoolCountThreshhold 
 static unsigned __poolCountThreshold = UINT_MAX;
 
-				// access to thread variables belonging to NSAutoreleasePool.
-#define THREAD_VARS (&(((NSThread*)objc_thread_get_data())->_autorelease_vars))
+// access to thread variables belonging to NSAutoreleasePool.
+
+#define CURRENT_THREAD ((NSThread*)objc_thread_get_data())
+#define THREAD_VARS (&(CURRENT_THREAD->_autorelease_vars))
 
 								// Functions for managing a per-thread cache of 
 								// NSAutoreleasedPool's already alloc'ed.  The 
@@ -61,14 +63,14 @@ init_pool_cache (struct autorelease_thread_vars *tv)
 static void
 push_pool_to_cache (struct autorelease_thread_vars *tv, id p)
 {
+	fprintf(stderr, "NSAutoreleasePool push_pool_to_cache tv=%p p=%p\n", tv, p);
 	if (!tv->pool_cache)
 		init_pool_cache (tv);
-	else 
-		if (tv->pool_cache_count == tv->pool_cache_size)
-			{
-			tv->pool_cache_size *= 2;
-			OBJC_REALLOC (tv->pool_cache, id, tv->pool_cache_size);
-			}
+	else if (tv->pool_cache_count == tv->pool_cache_size)
+		{
+		tv->pool_cache_size *= 2;
+		OBJC_REALLOC (tv->pool_cache, id, tv->pool_cache_size);
+		}
 
 	tv->pool_cache[tv->pool_cache_count++] = p;
 }
@@ -76,6 +78,7 @@ push_pool_to_cache (struct autorelease_thread_vars *tv, id p)
 static id
 pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {
+	fprintf(stderr, "NSAutoreleasePool pop_pool_from_cache tv=%p\n", tv);
 	return tv->pool_cache[--(tv->pool_cache_count)];
 }
 
@@ -83,9 +86,14 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 
 + (void) initialize
 {
+	fprintf(stderr, "NSAutoreleasePool +initialize self=%p class=%s\n", self, class_getName(self));
+	fprintf(stderr, "NSAutoreleasePool class=%p class=%s\n", [NSObject class], class_getName([NSObject class]));
 	if (self == [NSAutoreleasePool class])
 		{
-		objc_thread_set_data([NSThread new]);	// configure the main thread
+		NSThread *mt=[NSThread new];
+		fprintf(stderr, "main thread %p\n", mt);
+		objc_thread_set_data(mt);	// configure the main thread
+		fprintf(stderr, "current thread %p\n", objc_thread_get_data());
 		__allocImp = [self methodForSelector: @selector(allocWithZone:)];
 		__initImp = [self instanceMethodForSelector: @selector(init)];
 		}
@@ -94,18 +102,27 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 + (id) allocWithZone:(NSZone *) z
 {				
 	struct autorelease_thread_vars *tv = THREAD_VARS;
-												// if an existing autorelease  
-	if (tv && tv->pool_cache_count)					// pool is available return it
-		return pop_pool_from_cache (tv);		// instead of alloc'ing a new
+
+	fprintf(stderr, "NSAutoreleasePool +allocWithZone tv=%p\n", tv);
+	fprintf(stderr, "  cache count %d\n", tv->pool_cache_count);
+
+	// if an existing autorelease pool is available return it
+	// instead of allocating a new
+
+	if (tv && tv->pool_cache_count)
+
+		return pop_pool_from_cache (tv);
 
 	return (id) NSAllocateObject(self, 0, z);
 }
 
+#if 0
 + (id) new
 {
 	id arp = (*__allocImp)(self, @selector(allocWithZone:), NSDefaultMallocZone());
 	return (*__initImp)(arp, @selector(init));
 }
+#endif
 
 // this are private methods!
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
@@ -191,10 +208,10 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 			}
 		else								// We are at the end of the chain, 
 			{								// and need to allocate a new one.
-	  		struct autorelease_array_list *new_released;
-	 		unsigned new_size = _released->size * 2;
-	  
-	  		new_released = (struct autorelease_array_list*)
+			struct autorelease_array_list *new_released;
+			unsigned new_size = _released->size * 2;
+
+			new_released = (struct autorelease_array_list*)
 					objc_malloc(sizeof(struct autorelease_array_list) 
 									+ (new_size * sizeof(id)));
 			new_released->next = NULL;
@@ -244,7 +261,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 #endif
 	if (_child)	
 		[_child dealloc];	
-    released = _released_head;
+	released = _released_head;
 	while(released)
 		{
 		id *p=released->objects;
@@ -267,9 +284,9 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 		}
 
 	tv = THREAD_VARS;							// Uninstall ourselves as the
-    cp = &(tv->current_pool);					// current pool; install our 
-    *cp = _parent;								// parent pool
-    if (*cp)
+	cp = &(tv->current_pool);					// current pool; install our
+	*cp = _parent;								// parent pool
+	if (*cp)
 		(*cp)->_child = nil;
 
 	if(tv->thread_in_dealloc)					// cleanup if thread in dealloc
@@ -287,7 +304,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 			}
 		}
 	else										// Don't deallocate self, just
-    	push_pool_to_cache (tv, self);			// push to cache for later use
+		push_pool_to_cache (tv, self);			// push to cache for later use
 #if 0
 	fprintf(stderr, "arp dealloc -    done memory=%d\n", NSRealMemoryAvailable());
 #endif

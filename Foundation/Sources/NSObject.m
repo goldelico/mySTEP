@@ -12,6 +12,8 @@
    under the terms of the GNU Library General Public License.
 */ 
 
+#define REPORT_OBJECT_INITIALIZE 1
+
 #include <limits.h>
 #include <time.h>
 #include <sys/time.h>
@@ -92,7 +94,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (void) load
 {
-#if 0
+#if 1
 	struct timeval tp;
 	gettimeofday(&tp, NULL);
 	fprintf(stderr, "did +load NSObject: %.24s.%06lu\n", ctime(&tp.tv_sec), (unsigned long) tp.tv_usec);
@@ -101,17 +103,19 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (void) initialize
 {
+	fprintf(stderr, "NSObject +initialize self=%p class=%s\n", self, class_getName(self));
+	fprintf(stderr, "NSObject class=%p class=%s\n", [NSObject class], class_getName([NSObject class]));
 	if(!autorelease_sel && self == [NSObject class])
 		{
 		char *z;
-#if 0
+#if REPORT_OBJECT_INITIALIZE
 		struct timeval tp;
 		gettimeofday(&tp, NULL);
 		fprintf(stderr, "start +initialize NSObject: %.24s.%06lu\n", ctime(&tp.tv_sec), (unsigned long) tp.tv_usec);
 #endif
 		autorelease_class = [NSAutoreleasePool class];
 		autorelease_sel = @selector(addObject:);
-      	autorelease_imp =[autorelease_class methodForSelector:autorelease_sel];
+		autorelease_imp =[autorelease_class methodForSelector:autorelease_sel];
 		// Create the global lock
 		__NSGlobalLock = [[NSRecursiveLock alloc] init];
 		__zombieClass=objc_lookUpClass("_NSZombie");
@@ -120,7 +124,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 			NSZombieEnabled=YES;
 		if(NSZombieEnabled)
 			fprintf(stderr, "### NSZombieEnabled == YES! This disables memory deallocation ###\n");
-#if 0
+#if REPORT_OBJECT_INITIALIZE
 		gettimeofday(&tp, NULL);
 		fprintf(stderr, "finished +initialize NSObject: %.24s.%06lu\n", ctime(&tp.tv_sec), (unsigned long) tp.tv_usec);
 #endif
@@ -145,7 +149,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 - (Class) superclass				{ return class_getSuperclass(object_getClass(self)); }
 
 + (BOOL) isSubclassOfClass:(Class)aClass;
-	{
+{
 	while(self != Nil)
 		{
 		if(self == aClass)
@@ -153,7 +157,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 		self=class_getSuperclass(self);
 		}
 	return NO;
-	}
+}
 
 - (id) init							{ return self; }
 - (id) self							{ return self; }
@@ -167,7 +171,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%s <%p>", class_getName(self), self];
+	return [NSString stringWithFormat:@"%s <%p>", class_getName([self class]), self];
 }
 
 + (NSString *) description
@@ -375,7 +379,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"NSObject %@[%@ %@]: selector not recognized", 
-						[self isInstance]?@"-":@"+",
+						class_isMetaClass(object_getClass(self))?@"+":@"-",
 						NSStringFromClass([self class]), 
 						NSStringFromSelector(aSelector)];
 }
@@ -384,7 +388,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** subclass %@ should override %@%@",
-						NSStringFromClass([self class]),
+						class_isMetaClass(object_getClass([self class]))?@"+":@"-",
 						[self isInstance]?@"-":@"+",
 						NSStringFromSelector(cmd)];
 	return nil;
@@ -394,7 +398,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** %@[%@ %@]: not implemented",
-						[self isInstance]?@"-":@"+",
+						class_isMetaClass(object_getClass(self))?@"+":@"-",
 						NSStringFromClass([self class]),
 						NSStringFromSelector(cmd)];
 	return nil;

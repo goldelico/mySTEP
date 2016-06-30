@@ -39,34 +39,34 @@ is_prime(unsigned n)
 	// maxDivisor = ceil(sqrt(n));
 	// we could also use Newton-Iteration: maxDivisor=(maxDivisor+n/maxDivisor)/2; (start with maxDivisor=n/3)
 	// but that might be slower since it involves integer divisions
-    for(maxDivisor = 2, n2 = 4; n2 <= n; maxDivisor <<= 1, n2 <<= 2)
+for(maxDivisor = 2, n2 = 4; n2 <= n; maxDivisor <<= 1, n2 <<= 2)
 		;
 #if 0
 	fprintf(stderr, "n=%u maxdivisor=%u n2=%u\n", n, maxDivisor, n2);
 #endif
 	for(divisor = 3; divisor <= maxDivisor; divisor+=2)
-        if(n % divisor == 0)
-            return NO;
+		if(n % divisor == 0)
+			return NO;
 #if 0
 	fprintf(stderr, "is_prime(%u)!\n", n);	
 #endif
-    return YES;
+	return YES;
 }
 
 static unsigned 
 nextPrime(unsigned old_value)
 {
 	unsigned i, new_value = old_value | 1;	// make odd
-    for(i = new_value; i >= new_value; i += 2)
-        if(is_prime(i))
-            return i;
+	for(i = new_value; i >= new_value; i += 2)
+		if(is_prime(i))
+				return i;
 	return old_value;
 }
 
 static void 								
 __NSCheckHashTableFull(NSHashTable* table)					// Check if node 
 {															// table is full.
-    if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
+	if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
 		{
 		unsigned newSize = nextPrime((table->hashSize * 4) / 3);
 		if(newSize != table->hashSize)
@@ -77,7 +77,7 @@ __NSCheckHashTableFull(NSHashTable* table)					// Check if node
 static void 
 __NSCheckMapTableFull(NSMapTable* table)
 {
-    if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
+	if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
 		{
 		unsigned newSize = nextPrime((table->hashSize * 4) / 3);
 		if(newSize != table->hashSize)
@@ -104,7 +104,7 @@ __NSCheckMapTableFull(NSMapTable* table)
 		nodes = objc_calloc(hashSize, sizeof(void*));
 		itemsCount = 0;
 		}
-    return self;
+	return self;
 }
 
 - (id) copyWithZone:(NSZone *) z; { return NSCopyHashTable(self); }
@@ -215,23 +215,23 @@ NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity)
 	//  table->hashSize = capacity;
 	//  table->nodes = objc_calloc(table->hashSize, sizeof(void*));
 	//  table->itemsCount = 0;
-    table->callbacks = callBacks;
-    if (table->callbacks.hash == NULL)
+	table->callbacks = callBacks;
+	if (table->callbacks.hash == NULL)
 		table->callbacks.hash = 
-	    (unsigned(*)(NSHashTable*, const void*))__NSHashPointer;
-    if (table->callbacks.isEqual == NULL)
+		(unsigned(*)(NSHashTable*, const void*))__NSHashPointer;
+	if (table->callbacks.isEqual == NULL)
 		table->callbacks.isEqual = 
 		(BOOL(*)(NSHashTable*, const void*, const void*)) __NSComparePointers;
-    if (table->callbacks.retain == NULL)
+	if (table->callbacks.retain == NULL)
 		table->callbacks.retain = 
-	    (void(*)(NSHashTable*, const void*))__NSRetainNothing;
-    if (table->callbacks.release == NULL)
+		(void(*)(NSHashTable*, const void*))__NSRetainNothing;
+	if (table->callbacks.release == NULL)
 		table->callbacks.release = 
-	    (void(*)(NSHashTable*, void*))__NSReleaseNothing;
-    if (table->callbacks.describe == NULL)
+		(void(*)(NSHashTable*, void*))__NSReleaseNothing;
+	if (table->callbacks.describe == NULL)
 		table->callbacks.describe = 
-	    (NSString*(*)(NSHashTable*, const void*))__NSDescribePointers;
-    return table;
+		(NSString*(*)(NSHashTable*, const void*))__NSDescribePointers;
+	return table;
 }
 
 NSHashTable *
@@ -240,7 +240,7 @@ NSCopyHashTable(NSHashTable *table)
 	NSHashTable *new;
 	struct _NSHashNode *oldnode, *newnode;
 	unsigned i;
-    
+
 	new = [[NSHashTable alloc] initWithOptions:0 capacity:table->hashSize];
 	/*
 	 new = objc_malloc(sizeof(NSHashTable));
@@ -248,9 +248,9 @@ NSCopyHashTable(NSHashTable *table)
 	 new->itemsCount = table->itemsCount;
 	 new->nodes = objc_calloc(new->hashSize, sizeof(void*));
 	 */
-    new->callbacks = table->callbacks;
-    
-    for (i = 0; i < new->hashSize; i++) 
+	new->callbacks = table->callbacks;
+
+	for (i = 0; i < new->hashSize; i++)
 		{
 		for (oldnode = table->nodes[i]; oldnode; oldnode = oldnode->next) 
 			{
@@ -260,8 +260,8 @@ NSCopyHashTable(NSHashTable *table)
 			new->nodes[i] = newnode;
 			table->callbacks.retain(new, oldnode->key);
 			}	}
-    
-    return new;
+
+	return new;
 }
 
 void 
@@ -278,7 +278,7 @@ NSResetHashTable(NSHashTable *table)
 {
 	unsigned i;
 	
-    for(i = 0; i < table->hashSize; i++) 
+	for(i = 0; i < table->hashSize; i++)
 		{
 		struct _NSHashNode *next, *node;
 		
@@ -292,7 +292,7 @@ NSResetHashTable(NSHashTable *table)
 			node = next;
 			}	}
 	
-    table->itemsCount = 0;
+	table->itemsCount = 0;
 }
 
 BOOL 
@@ -300,17 +300,17 @@ NSCompareHashTables(NSHashTable *table1, NSHashTable *table2)
 {
 	unsigned i;												// Compare Two Tables
 	struct _NSHashNode *node1;
-    
-    if (table1->hashSize != table2->hashSize)
+
+	if (table1->hashSize != table2->hashSize)
 		return NO;
-    for (i = 0; i < table1->hashSize; i++)
+	for (i = 0; i < table1->hashSize; i++)
 		{ 
 			for (node1 = table1->nodes[i]; node1; node1 = node1->next) 
 				if (NSHashGet(table2, node1->key) == NULL)
 					return NO;
 		}
 	
-    return YES;;
+	return YES;;
 }	
 
 NSUInteger 											// return Number of Items
@@ -612,33 +612,33 @@ NSCreateMapTable(NSMapTableKeyCallBacks keyCallbacks,
 	//    table->hashSize = capacity;
 	//    table->nodes = objc_calloc(table->hashSize, sizeof(void*));
 	//    table->itemsCount = 0;
-    table->keyCallbacks = keyCallbacks;
-    table->valueCallbacks = valueCallbacks;
-    if (table->keyCallbacks.hash == NULL)
+	table->keyCallbacks = keyCallbacks;
+	table->valueCallbacks = valueCallbacks;
+	if (table->keyCallbacks.hash == NULL)
 		table->keyCallbacks.hash = 
 		(unsigned(*)(NSMapTable*, const void*))__NSHashPointer;
-    if (table->keyCallbacks.isEqual == NULL)
+	if (table->keyCallbacks.isEqual == NULL)
 		table->keyCallbacks.isEqual = 
 		(BOOL(*)(NSMapTable*, const void*, const void*)) __NSComparePointers;
-    if (table->keyCallbacks.retain == NULL)
+	if (table->keyCallbacks.retain == NULL)
 		table->keyCallbacks.retain = 
-	    (void(*)(NSMapTable*, const void*))__NSRetainNothing;
-    if (table->keyCallbacks.release == NULL)
+		(void(*)(NSMapTable*, const void*))__NSRetainNothing;
+	if (table->keyCallbacks.release == NULL)
 		table->keyCallbacks.release = 
-	    (void(*)(NSMapTable*, void*))__NSReleaseNothing;
-    if (table->keyCallbacks.describe == NULL)
+		(void(*)(NSMapTable*, void*))__NSReleaseNothing;
+	if (table->keyCallbacks.describe == NULL)
 		table->keyCallbacks.describe = 
-	    (NSString*(*)(NSMapTable*, const void*))__NSDescribePointers;
-    if (table->valueCallbacks.retain == NULL)
+		(NSString*(*)(NSMapTable*, const void*))__NSDescribePointers;
+	if (table->valueCallbacks.retain == NULL)
 		table->valueCallbacks.retain = 
-	    (void(*)(NSMapTable*, const void*))__NSRetainNothing;
-    if (table->valueCallbacks.release == NULL)
+		(void(*)(NSMapTable*, const void*))__NSRetainNothing;
+	if (table->valueCallbacks.release == NULL)
 		table->valueCallbacks.release = 
-	    (void(*)(NSMapTable*, void*))__NSReleaseNothing;
-    if (table->valueCallbacks.describe == NULL)
+		(void(*)(NSMapTable*, void*))__NSReleaseNothing;
+	if (table->valueCallbacks.describe == NULL)
 		table->valueCallbacks.describe = 
-	    (NSString*(*)(NSMapTable*, const void*))__NSDescribePointers;
-    return table;
+		(NSString*(*)(NSMapTable*, const void*))__NSDescribePointers;
+	return table;
 }
 
 NSMapTable *

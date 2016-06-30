@@ -163,7 +163,7 @@
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** %@[%@ %@]: not implemented",
-						[self isInstance]?@"-":@"+",
+					class_isMetaClass(object_getClass(self))?@"+":@"-",
 		NSStringFromClass([self class]),
 		NSStringFromSelector(cmd)];
 	return nil;

@@ -25,8 +25,8 @@
 static /*volatile*/ void
 _NSFoundationUncaughtExceptionHandler(NSException *exception)
 {
-    NSLog(@"Uncaught exception %@, reason: %@", [exception name], [exception reason]);
-    abort();
+	NSLog(@"Uncaught exception %@, reason: %@", [exception name], [exception reason]);
+	abort();
 }
 
 @implementation NSAssertionHandler
@@ -48,9 +48,9 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 {
 	NSString *description;
 	va_list args;
-    va_start(args, desc);
+	va_start(args, desc);
 	description = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
-    va_end(args);
+	va_end(args);
 #if 0
 	NSLog(@"desc=%@", desc);
 	NSLog(@"description=%@", description);
@@ -59,7 +59,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 #endif
 	NSLog(@"Assertion failed: %@; method: %@ file: %@ line: %ld", description, NSStringFromSelector(sel), file, (long)line);
 #if 1
-    abort();
+	abort();
 #endif
 	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@; method: %@ file: %@ line: %d", description, NSStringFromSelector(sel), file, line];
 }
@@ -68,9 +68,9 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 {
 	NSString *description;
 	va_list args;
-    va_start(args, desc);
+	va_start(args, desc);
 	description = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
-    va_end(args);
+	va_end(args);
 #if 0
 	NSLog(@"desc=%@", desc);
 	NSLog(@"description=%@", description);
@@ -79,7 +79,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 #endif
 	NSLog(@"Assertion failed: %@; function: %@ file: %@ line: %ld", description, name, file, (long)line);
 #if 1
-    abort();
+	abort();
 #endif
 	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@; function: %@ file: %@ line: %d", description, name, file, line];
 }
@@ -92,7 +92,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 							 reason:(NSString *)reason
 							 userInfo:(NSDictionary *)userInfo 
 {
-    return [[[self alloc] initWithName:name 
+	return [[[self alloc] initWithName:name
 						  reason:reason
 						  userInfo:userInfo] autorelease];
 }
@@ -100,9 +100,9 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 + (/*volatile*/ void) raise:(NSString *)name format:(NSString *)format,...
 {
 	va_list args;
-    va_start(args, format);
-    [self raise:name format:format arguments:args];
-    va_end(args);
+	va_start(args, format);
+	[self raise:name format:format arguments:args];
+	va_end(args);
 	// FIXME: This probably doesn't matter,
 	// but va_end won't get called
 }
@@ -114,7 +114,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSString *reason = [[NSString alloc] initWithFormat:format arguments:argList];
 	NSException *except = [self exceptionWithName:name reason:reason userInfo:nil];
 	[reason release];
-    [except raise];
+	[except raise];
 }
 
 - (NSArray *) callStackReturnAddresses;
@@ -127,13 +127,13 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 			 reason:(NSString *)reason
 			 userInfo:(NSDictionary *)userInfo 
 {
-    if((self = [super init]))
+	if((self = [super init]))
 		{
 		e_name = [name retain];
 		e_reason = [reason retain];
 		e_info = [userInfo retain];
 		}
-    return self;
+	return self;
 }
 
 - (void) dealloc
@@ -161,12 +161,12 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 #if 1
 	NSLog(@"-[NSException raise] %@", self);
 #endif
-    if (_NSUncaughtExceptionHandler == NULL)
-        _NSUncaughtExceptionHandler = _NSFoundationUncaughtExceptionHandler;
-    thread = [NSThread currentThread];
-    handler = thread->_exception_handler;
-    if (handler == NULL)
-    	_NSUncaughtExceptionHandler(self);
+	if (_NSUncaughtExceptionHandler == NULL)
+		_NSUncaughtExceptionHandler = _NSFoundationUncaughtExceptionHandler;
+	thread = [NSThread currentThread];
+	handler = thread->_exception_handler;
+	if (handler == NULL)
+		_NSUncaughtExceptionHandler(self);
 	else
 		{
 		thread->_exception_handler = handler->next;
@@ -183,17 +183,17 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {
-    [aCoder encodeObject:e_name]; 
-    [aCoder encodeObject:e_reason]; 
-    [aCoder encodeObject:e_info]; 
+	[aCoder encodeObject:e_name];
+	[aCoder encodeObject:e_reason];
+	[aCoder encodeObject:e_info];
 }
 
 - (id) initWithCoder:(NSCoder *) aDecoder
 {
-    e_name = [[aDecoder decodeObject] retain];
-    e_reason = [[aDecoder decodeObject] retain];
-    e_info = [[aDecoder decodeObject] retain];
-    return self;
+	e_name = [[aDecoder decodeObject] retain];
+	e_reason = [[aDecoder decodeObject] retain];
+	e_info = [[aDecoder decodeObject] retain];
+	return self;
 }
 
 - (id) copyWithZone:(NSZone *) zone	{ return [self retain]; }		// NSCopying
@@ -204,15 +204,13 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 
 void _NSAddHandler2(NSHandler2 *handler)
 {
-	// NSThread *thread=(id) objc_thread_get_data();
 	NSThread *thread = [NSThread currentThread];
-    handler->next = thread->_exception_handler;
-    thread->_exception_handler = handler;
+	handler->next = thread->_exception_handler;
+	thread->_exception_handler = handler;
 }
 
 void _NSRemoveHandler2(NSHandler2 *handler)
 {
-	// NSThread *thread=(id) objc_thread_get_data();
 	NSThread *thread = [NSThread currentThread];
-    thread->_exception_handler = thread->_exception_handler->next;
+	thread->_exception_handler = thread->_exception_handler->next;
 }

@@ -80,10 +80,10 @@ typedef enum _NSThreadPriority
 		}
 
 	while (delay > 0)									// sleep may return 
-    	{												// early because of
-      	sleep(delay);									// signals
-      	delay = [date timeIntervalSinceNow];
-    	}
+		{												// early because of
+		sleep(delay);									// signals
+		delay = [date timeIntervalSinceNow];
+		}
 	// FIXME: use usleep() for sub-seconds precision
 }
 

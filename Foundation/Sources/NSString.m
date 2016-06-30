@@ -537,12 +537,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	unichar	*s = objc_malloc(sizeof(unichar)*length);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
-    if(chars)
+	if(chars)
 		memcpy(s, chars, sizeof(unichar)*length);
 #if 0
 	NSLog(@"%@ initWithCharacters:%p length:%u (s=%p)", NSStringFromClass([self class]), chars, length, s);
 #endif
-    return [self initWithCharactersNoCopy:s length:length freeWhenDone:YES];
+	return [self initWithCharactersNoCopy:s length:length freeWhenDone:YES];
 }
 
 - (id) initWithCString:(const char *)cstring

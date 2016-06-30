@@ -676,10 +676,8 @@ NSClassFromString(NSString *aClassName)
 NSString *
 NSStringFromProtocol(Protocol *aProtocol)
 {
-#ifndef __APPLE__
 	if (aProtocol != (Protocol*)0)
-		return [NSString stringWithUTF8String:(const char*)[aProtocol name]];
-#endif
+		return [NSString stringWithUTF8String:protocol_getName(aProtocol)];
 	return nil;
 }
 
@@ -987,6 +985,9 @@ void __NSCountAllocate(Class aClass)
 		return;
 	if(!__NSAllocationCountTable)
 		{
+		fprintf(stderr, "!__NSAllocationCountTable\n");
+		fprintf(stderr, "  aClass = %p %s\n", aClass, class_getName(aClass));
+		fprintf(stderr, "  [NSMapTable class] = %p %s\n", [NSMapTable class], class_getName([NSMapTable class]));
 		if(aClass == [NSMapTable class])
 			return;		// avoid recursion for allocating the __NSAllocationCountTable
 		__NSAllocationCountTable = NSCreateMapTable (NSNonOwnedPointerMapKeyCallBacks, NSOwnedPointerMapValueCallBacks, 0);	// create table
