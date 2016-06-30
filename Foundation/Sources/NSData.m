@@ -141,7 +141,7 @@ static IMP appendImp;
 #if 0
 	NSLog(@"NData initialize");
 #endif
-    if (self == [NSData class]) 
+	if (self == [NSData class])
 		{
 		dataMalloc = [NSDataMalloc class];
 		mutableDataMalloc = [NSMutableDataMalloc class];
@@ -167,7 +167,7 @@ static IMP appendImp;
 
 + (id) dataWithBytes:(const void*)bytes length:(NSUInteger)length
 {
-   return [[[dataMalloc alloc] initWithBytes:bytes length:length] autorelease];
+	return [[[dataMalloc alloc] initWithBytes:bytes length:length] autorelease];
 }
 
 + (id) dataWithBytesNoCopy:(void*)bytes length:(NSUInteger)length
@@ -495,34 +495,40 @@ static IMP appendImp;
 	FILE *f;
 	int c;
 
-	// library recommends to use mkstemp()
-	
-							// Use the path name of the destination file as a
-							// prefix for the mktemp() call so that we can be
-	if (useAuxiliaryFile)	// sure that both files are on the same filesystem
-		{					// and the subsequent rename() will work. 
+	// Use the path name of the destination file as a
+	// prefix for the mktemp() call so that we can be
+	// sure that both files are on the same filesystem
+	// and the subsequent rename() will work.
+	if (useAuxiliaryFile)
+		{
+		int fd;
 		strcpy(p, r);
 		strcat(p, ".XXXXXX");
-		if (mktemp(p) == 0)
+		if ((fd = mkstemp(p)) < 0)
 			{
 			NSLog(@"mktemp (%s) failed - %s", p, strerror(errno));
 			return NO;
 			}
+		fchmod(fd, 0644);	// make it readable by default
+		f = fdopen(fd, "w");
 		}
 	else
+		{
 		strcpy(p, r);
-													// Open the file (whether
-	if ((f = fopen(p, "w")) == NULL)				// tmp or real) for writing  					 
+		f = fopen(p, "w");
+		}
+	if (f == NULL)
 		{
 		NSLog(@"fopen(%s, \"w\") failed - %s", p, strerror(errno));
 		return NO;
-		}					// Now we try and write the NSData's bytes to the 
-							// file.  Here `c' is the number of bytes which 
-							// were successfully written to the file in the 
-							// fwrite() call.
+		}
+	// Now we try and write the NSData's bytes to the
+	// file.  Here `c' is the number of bytes which
+	// were successfully written to the file in the
+	// fwrite() call.
 	c = fwrite([self bytes], sizeof(char), [self length], f);
 
-	if (c < [self length])         
+	if (c < [self length])
 		{										// failed to write all of data
 		NSLog(@"fwrite (%s) failed - %s", p, strerror(errno));
 		return NO;
@@ -540,7 +546,7 @@ static IMP appendImp;
 		return NO;
 		}
 
-	return YES;														// success
+	return YES;	// success
 }
 
 - (BOOL) writeToURL:(NSURL*)url atomically:(BOOL)useAuxiliaryFile;
