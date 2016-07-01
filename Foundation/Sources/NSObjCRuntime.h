@@ -329,8 +329,8 @@ extern BOOL sel_isEqual(SEL a, SEL b);	// we must declare the function for Debia
 //
 //	ASSIGN(object,value) assignes the value to the object
 //	with appropriate retain and release operations.
-//  note: value may be an expression that allocates/copies etc. new objects - must be called only once!
-//  note: retain first if we assign the same value as we have already assigned!
+//	note: value may be an expression that allocates/copies etc. new objects - must be called only once!
+//	note: retain first if we assign the same value as we have already assigned!
 //
 #ifndef ASSIGN
 #define	ASSIGN(object,value) ({ id temp=(value); \
@@ -353,17 +353,17 @@ if (temp) \
 
 //*****************************************************************************
 //
-// 		Define a wrapper structure around each NSObject to store the
-//		reference count locally. 
+//		Define a wrapper structure around each NSObject to store the
+//		reference count locally.
 //
 //*****************************************************************************
 
-typedef struct obj_layout_unpadded			// Define a structure to hold data locally before the start of each object
+typedef struct	// Define a structure to hold data locally before the start of each object
 {
-	unsigned retained;
-} unp;
+	NSUInteger retained;
+} _unp;
 
-#define	UNP sizeof(unp)
+#define	UNP sizeof(_unp)
 #ifdef ALIGN
 #undef ALIGN
 #endif
@@ -404,7 +404,7 @@ extern void NSLogv(NSString *format, va_list args);
 extern NSUInteger NSRoundDownToMultipleOfPageSize(NSUInteger bytes);
 extern NSUInteger NSRoundUpToMultipleOfPageSize(NSUInteger bytes);
 extern NSUInteger NSRealMemoryAvailable();
-// extern void *NSAllocateMemoryPages(unsigned bytes);
+extern void *NSAllocateMemoryPages(NSUInteger bytes);
 extern void NSDeallocateMemoryPages(void *ptr, NSUInteger bytes);
 extern void NSCopyMemoryPages(const void *source, void *dest, NSUInteger bytes);
 

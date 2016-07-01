@@ -109,34 +109,40 @@
 
 @end
 
-extern unsigned long __NSAllocatedObjects;
+extern NSUInteger __NSAllocatedObjects;
 #ifdef TRACE_OBJECT_ALLOCATION
 struct __NSAllocationCount
 {
-	NSUInteger alloc;				// number of +alloc
+	NSUInteger alloc;			// number of +alloc
 	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
 	NSUInteger linstances;		// last number of instances (when we did print the last time)
-	NSUInteger peak;					// maximum instances
+	NSUInteger peak;			// maximum instances
 	// could also count/balance retains&releases ??
 };
 @class NSMapTable;
 extern NSMapTable *__NSAllocationCountTable;
 #endif
 
-static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)							// object allocation
+static INLINE NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// object allocation
 {
 	id newobject=nil;
-#if 1
+#if 0
 	fprintf(stderr, "NSAllocateObject: aClass = %p %s\n", aClass, class_getName(aClass));
 #endif
-#if 1
+#if 0
 	fprintf(stderr, "  class_isMetaClass = %d\n", class_isMetaClass(aClass));
 	fprintf(stderr, "  object_getClass = %p\n", object_getClass(aClass));
 	fprintf(stderr, "  class_isMetaClass(object_getClass) = %d\n", class_isMetaClass(object_getClass(aClass)));
+	fprintf(stderr, "  class_getInstanceSize = %ld\n", class_getInstanceSize(aClass));
 #endif
 	if (class_isMetaClass(object_getClass(aClass)))
 		{
 		NSUInteger size = sizeof(_object_layout) + class_getInstanceSize(aClass) + extra;
+#if 1
+		// FIXME: this is a hack - there is a mismatch between sizeof(_object_layout) and what is really needed
+		// so let's waste a little memory until we find out how much we really need to allocate
+		size += 16;
+#endif
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
 #if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
@@ -158,7 +164,7 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 	return newobject;
 }
 
-static inline void NSDeallocateObject(NSObject *anObject)					// object deallocation
+static INLINE void NSDeallocateObject(NSObject *anObject)					// object deallocation
 {
 	extern Class __zombieClass;
 	if (anObject != nil)
@@ -179,7 +185,7 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 		}
 }
 
-static inline NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
+static INLINE NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
 {
 	id newobject=nil;
 	NSUInteger size = sizeof(_object_layout) + class_getInstanceSize(object_getClass((id)obj)) /* + extra */;
@@ -187,7 +193,7 @@ static inline NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZon
 		{
 		newobject = (id)&((_object_layout)newobject)[1];
 #if 1
-		fprintf(stderr, "%p [%s copyObject:%ul]\n", newobject, class_getName(object_getClass((id)obj)), size);
+		fprintf(stderr, "%p [%s copyObject:%lu]\n", newobject, class_getName(object_getClass((id)obj)), size);
 #endif
 		object_setClass(newobject, object_getClass((id)obj));	// same as original
 		memcpy(newobject, obj, size);

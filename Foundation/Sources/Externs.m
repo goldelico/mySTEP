@@ -9,7 +9,7 @@
 //	creating the potential for deadlock.
 //
 NSRecursiveLock *__NSGlobalLock = nil;
-unsigned long __NSAllocatedObjects;		// counter for object allocation
+NSUInteger __NSAllocatedObjects;		// counter for object allocation
 NSMapTable *__NSAllocationCountTable;	// maps class records to allocation counters
 
 													// NSThread Notifications
