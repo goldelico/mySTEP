@@ -1079,7 +1079,7 @@ class NSTask extends NSObject
 
 	public function isRunning()
 		{
-_NSLog("isRunning? ".$this->pid);
+// _NSLog("isRunning? ".$this->pid);
 		if(!$this->launched)
 			return 0;	// wasn't launched yet
 		// check if we were just launched - pid may not yet been found
@@ -1121,9 +1121,9 @@ _NSLog("task already launched");
 		else
 			$cmd.=" 2>'".$fm->fileSystemRepresentationWithPath($this->stderr)."'";
 		$cmd.=" & echo $!";	// return process id
-_NSLog("exec $cmd");
+// _NSLog("exec $cmd");
 		exec($cmd, $r);
-_NSLog($r);
+// _NSLog($r);
 		// error handling
 		$this->pid=$r[0];
 		$this->launched=true;
@@ -1135,7 +1135,7 @@ _NSLog($r);
 		if(!$this->launched)
 			return false;	// wasn't set
 		$cmd="kill $signal ".$this->pid;
-_NSLog("exec $cmd");
+// _NSLog("exec $cmd");
 		system($cmd);
 		return true;
 		}
