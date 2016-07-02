@@ -348,7 +348,7 @@ static Class __stringClass = Nil;
 			return nil;
 #endif
 #if 1	// useful for debugging...
-		NSLog(@"index %lu out of bounds (%u) of %@", (unsigned long)idx, _count, self);
+		NSLog(@"index %lu out of bounds (%lu) of %@", (unsigned long)idx, (unsigned long)_count, self);
 #endif
 		[NSException raise:NSRangeException format:@"objectAtIndex: Index out of bounds"];
 		}

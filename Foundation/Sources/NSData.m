@@ -761,7 +761,7 @@ static IMP appendImp;
 
 				[self deserializeBytes:name length:n atCursor:cursor];
 				name[n] = '\0';
-				if ((c = objc_get_class(name)) == 0) 
+				if ((c = objc_lookUpClass(name)) == 0)
 					[NSException raise: NSInternalInconsistencyException
 								 format: @"can't find class - %s", name];
 

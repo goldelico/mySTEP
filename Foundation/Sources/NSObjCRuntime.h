@@ -156,8 +156,8 @@ const char *objc_skip_typespec (const char *type);
 #define objc_load_module(NAME, FILE, CALLBACK, HEADER, DEBUG) (0)
 #define objc_dynamic_find_file(ADDRESS) (0)
 
-#define objc_thread_set_data(THREAD)
-#define objc_thread_get_data() (0)
+#define objc_thread_set_data(THREAD) fprintf(stderr, "can't objc_thread_set_data for %p\n", THREAD)
+#define objc_thread_get_data() (fprintf(stderr, "can't objc_thread_get_data\n"), NULL)
 #define objc_thread_detach(SELECTOR, THREAD, ARG) NULL
 #define objc_thread_exit()
 

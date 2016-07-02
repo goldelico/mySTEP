@@ -128,12 +128,12 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	[_delegate stream:self handleEvent:NSStreamEventErrorOccurred];
 }
 
-- (void) _sendErrorWithDomain:(NSString *)domain code:(int)code userInfo:(NSDictionary *) dict;
+- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
 {
 	[self _sendError:[NSError errorWithDomain:domain code:code userInfo:dict]];
 }
 
-- (void) _sendErrorWithDomain:(NSString *)domain code:(int)code;
+- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code;
 {
 	[self _sendError:[NSError errorWithDomain:domain code:code userInfo:nil]];
 }

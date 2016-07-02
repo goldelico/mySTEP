@@ -391,7 +391,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** subclass %@ should override %@%@",
 	 class_isMetaClass(object_getClass([self class]))?@"+":@"-",
-	 [self isInstance]?@"-":@"+",
 	 NSStringFromSelector(cmd)];
 	return nil;
 }

@@ -68,6 +68,7 @@
 - (id) initWithCoder:(NSCoder *) aDecoder;
 @end
 
+__attribute__((objc_root_class))
 @interface NSObject <NSObject, NSCoding>
 {												
 	Class isa;	// pointer to instance's class structure

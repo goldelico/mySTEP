@@ -520,7 +520,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self == [NSTimeZone class]?[GSConcreteTimeZone class]:(Class) self, 0, z);
+	return (id)NSAllocateObject(self == [NSTimeZone class]?[GSConcreteTimeZone class]:(Class) self, 0, z);
 }
 
 - (void) dealloc;

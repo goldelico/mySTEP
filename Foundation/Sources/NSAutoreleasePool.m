@@ -139,6 +139,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 #endif
 
 // this are private methods!
+// CHECKME: do we still need this?
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
 + (void) setPoolCountThreshhold:(unsigned)c	{ __poolCountThreshold = c; }
 + (void) enableDoubleReleaseCheck:(BOOL)en	{ }

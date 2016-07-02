@@ -23,6 +23,7 @@
 
 @class NSDictionary;
 
+__attribute__((objc_root_class))
 @interface NSProxy <NSObject>	// is a root class
 {
     Class isa;
