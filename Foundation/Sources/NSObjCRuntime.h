@@ -54,6 +54,7 @@
 // new objc API available since gcc 4.6
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #include <objc/runtime.h>
+#define OBJC_ROOT_CLASS
 #define __NEW_OBJC_API
 // check with #ifdef __GNU_LIBOBJC__
 #else
@@ -62,6 +63,7 @@
 
 #ifdef __APPLE__
 #undef __OBJC2__	/* avoid problems with objc/Protocol.h on Xcode SDK */
+#else
 #endif
 #include <objc/Protocol.h>
 
@@ -357,26 +359,6 @@ if (temp) \
 //		reference count locally.
 //
 //*****************************************************************************
-
-typedef struct	// Define a structure to hold data locally before the start of each object
-{
-	NSUInteger retained;
-} _unp;
-
-#define	UNP sizeof(_unp)
-#ifdef ALIGN
-#undef ALIGN
-#endif
-#define	ALIGN __alignof__(double)	
-
-// Now do the REAL version - using the other version to determine what padding if any is required to get the alignment of the structure correct.
-
-typedef struct _object_layout
-{
-	NSUInteger retained;
-	char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
-	// the bytes defined by NSObject follow here
-} *_object_layout;
 
 @class NSArchiver;
 @class NSCoder;

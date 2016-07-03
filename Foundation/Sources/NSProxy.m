@@ -43,7 +43,7 @@
 }
 
 + (NSUInteger) retainCount		{ return UINT_MAX; }
-- (NSUInteger) retainCount	{ return (((_object_layout)(self))[-1].retained)+1; }
+- (NSUInteger) retainCount		{ return NSGetExtraRefCount(self)+1; }
 
 // NOTE: it appears that init is not defined on OSX!
 
@@ -63,18 +63,13 @@
 
 - (oneway void) release
 {
-	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
-			{
-				((_object_layout)(self))[-1].retained--;
-				[self dealloc];
-			}
-	else
-		((_object_layout)(self))[-1].retained--;
+	if (NSDecrementExtraRefCountWasZero(self) == 0)				// if ref count becomes zero (was 1)
+		[self dealloc];
 }
 
 - (id) retain
 {
-	((_object_layout)(self))[-1].retained++;
+	NSIncrementExtraRefCount(self);
 	return self;
 }
 

@@ -20,7 +20,7 @@ NSString *NSKeyValueChangeNewKey=@"NSKeyValueChangeNewKey";
 NSString *NSKeyValueChangeOldKey=@"NSKeyValueChangeOldKey";
 NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 
-__attribute__((objc_root_class))
+OBJC_ROOT_CLASS
 @interface _NSObjectObserver	// root class object that does not recognize any method
 {
 	NSObject *_realobject;

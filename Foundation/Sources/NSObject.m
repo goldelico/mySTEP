@@ -41,6 +41,121 @@ BOOL NSHangOnUncaughtException=NO;
 BOOL NSEnableAutoreleasePool=YES;
 BOOL NSAutoreleaseFreedObjectCheckEnabled=NO;
 
+/* basic object memory allocation and refcount */
+
+typedef struct	// Define a structure to hold data locally before the start of each object
+{
+	NSUInteger retained;
+} _unp;
+
+#define	UNP sizeof(_unp)
+#ifdef ALIGN
+#undef ALIGN
+#endif
+#define	ALIGN __alignof__(double)
+
+// Now do the REAL version - using the other version to determine what padding if any is required to get the alignment of the structure correct.
+
+typedef struct _object_layout
+{
+	NSUInteger retained;
+	char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
+	// the bytes defined by NSObject follow here
+} *_object_layout;
+
+NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// object allocation
+{
+	id newobject=nil;
+#if 0
+	fprintf(stderr, "NSAllocateObject: aClass = %p %s\n", aClass, class_getName(aClass));
+#endif
+#if 0
+	fprintf(stderr, "  class_isMetaClass = %d\n", class_isMetaClass(aClass));
+	fprintf(stderr, "  object_getClass = %p\n", object_getClass(aClass));
+	fprintf(stderr, "  class_isMetaClass(object_getClass) = %d\n", class_isMetaClass(object_getClass(aClass)));
+	fprintf(stderr, "  class_getInstanceSize = %ld\n", class_getInstanceSize(aClass));
+#endif
+	if (class_isMetaClass(object_getClass(aClass)))
+		{
+		NSUInteger size = sizeof(_object_layout) + class_getInstanceSize(aClass) + extra;
+#if 1
+		// FIXME: this is a hack - there is a mismatch between sizeof(_object_layout) and what is really needed
+		// so let's waste a little memory until we find out how much we really need to allocate
+		size += 16;
+#endif
+		if ((newobject = NSZoneMalloc(zone, size)) != nil)
+			{
+#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
+			extern void __NSCountAllocate(Class aClass);
+			__NSCountAllocate(aClass);
+#endif
+			memset (newobject, 0, size);
+			newobject = (id)&((_object_layout)newobject)[1];
+			object_setClass(newobject, aClass);	// install class pointer
+#if 0
+			fprintf(stderr, "NSAllocateObject(%lu) -> %p [%s alloc]\n", size, &((_object_layout)newobject)[1], class_getName(aClass));
+#endif
+			}
+#if 1
+		fprintf(stderr, "%p [%s alloc:%lu]\n", newobject, class_getName(aClass), size);
+#endif
+		__NSAllocatedObjects++;	// one more
+		}
+	return newobject;
+}
+
+void NSDeallocateObject(NSObject *anObject)					// object deallocation
+{
+	extern Class __zombieClass;
+	if (anObject != nil)
+		{
+		_object_layout o = &((_object_layout)anObject)[-1];
+#if 1
+		fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, class_getName(object_getClass(anObject)));
+#endif
+#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
+			{
+			extern void __NSCountDeallocate(Class aClass);
+			__NSCountDeallocate([anObject class]);
+			}
+#endif
+		object_setClass((id)anObject, __zombieClass);	// install zombie class pointer
+		objc_free(o);
+		__NSAllocatedObjects--;	// one less
+		}
+}
+
+NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
+{
+	id newobject=nil;
+	NSUInteger size = sizeof(_object_layout) + class_getInstanceSize(object_getClass((id)obj)) /* + extra */;
+	if ((newobject = NSZoneMalloc(zone, size)) != nil)
+		{
+		newobject = (id)&((_object_layout)newobject)[1];
+#if 1
+		fprintf(stderr, "%p [%s copyObject:%lu]\n", newobject, class_getName(object_getClass((id)obj)), size);
+#endif
+		object_setClass(newobject, object_getClass((id)obj));	// same as original
+		memcpy(newobject, obj, size);
+		}
+	return newobject;
+}
+
+NSUInteger NSGetExtraRefCount(id anObject)
+{
+	return ((_object_layout)(anObject))[-1].retained;
+}
+
+BOOL													// Increment, decrement
+NSDecrementExtraRefCountWasZero(id anObject) 			// reference count
+{
+	return (((_object_layout)(anObject))[-1].retained-- == 0 ? YES : NO);
+}
+
+void
+NSIncrementExtraRefCount(id anObject)	{ ((_object_layout)(anObject))[-1].retained++; }
+
+OBJC_ROOT_CLASS
 @interface _NSZombie	// internal root class which does not recognize any method
 @end
 
@@ -72,14 +187,6 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 
 @end
 
-BOOL													// Increment, decrement
-NSDecrementExtraRefCountWasZero(id anObject) 			// reference count
-{
-	return (((_object_layout)(anObject))[-1].retained-- == 0 ? YES : NO);
-}
-
-void
-NSIncrementExtraRefCount(id anObject)	{ ((_object_layout)(anObject))[-1].retained++; }
 
 // The Class responsible for handling
 static id autorelease_class = nil;		// autorelease's.  This does not need
@@ -264,7 +371,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (id) retain						{ return self; }
 + (oneway void) release				{ return; }
 + (NSUInteger) retainCount			{ return UINT_MAX; }
-- (NSUInteger) retainCount			{ return (((_object_layout)(self))[-1].retained)+1; }
+- (NSUInteger) retainCount			{ return NSGetExtraRefCount(self)+1; }
 
 - (id) autorelease
 {
@@ -277,7 +384,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #if 0 && defined(__mySTEP__)
 	free(malloc(128));	// segfaults???
 #endif
-	if(((_object_layout)(self))[-1].retained != -1)
+	if(NSGetExtraRefCount(self) != -1)
 		{
 		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc]");
 		abort();	// this is a severe bug
@@ -290,7 +397,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (oneway void) release
 {
-	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
+	if (NSGetExtraRefCount(self) == 0)				// if ref count becomes zero (was 1)
 		{
 		if(NSZombieEnabled)
 			{ // enabling this keeps the object in memory and remembers the object description
@@ -321,12 +428,12 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			if([self isKindOfClass:[NSData class]])
 				fprintf(stderr, "dealloc %p\n", self);	// NSLog() would recursively call -[NSObject release]
 #endif
-			((_object_layout)(self))[-1].retained--;
+			NSDecrementExtraRefCountWasZero(self);
 			[self dealloc];		// go through the dealloc hierarchy
 			}
 		}
 	else
-		((_object_layout)(self))[-1].retained--;
+		NSDecrementExtraRefCountWasZero(self);
 }
 
 - (void) finalize
@@ -336,8 +443,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) retain
 {
-	NSAssert(((_object_layout)(self))[-1].retained+1 != 0, @"don't retain object that is already deallocated");
-	((_object_layout)(self))[-1].retained++;
+	NSAssert(NSGetExtraRefCount(self)+1 != 0, @"don't retain object that is already deallocated");
+	NSIncrementExtraRefCount(self);
 	return self;
 }
 
