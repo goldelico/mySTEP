@@ -35,7 +35,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 }
 
 - (void) setValue:(id) val forKeyPath:(NSString *) str;
-{ 
+{
 	id o=self;
 	NSArray *path=[str componentsSeparatedByString:@"."];
 	NSEnumerator *e=[path objectEnumerator];
@@ -56,6 +56,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 }
 
 // FIXME: we should define a cache to map the key to the IMP/relative address and necessary type conversions
+// NOTE: this is a primitive implementaion which only sometimes works correctly
 
 - (id) valueForKey:(NSString *) str;
 {
@@ -167,7 +168,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	strcat(selName+3, ":");	// append a :
 	NSAssert(strlen(selName) < len, @"buffer overflow");
 	s=sel_registerName(selName);
-#if 0
+#if 1
 	NSLog(@"%p %@: setValue:forKey:%@ val=%@", self, self, str, val);
 	NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
 #endif
@@ -180,6 +181,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 			[self setNilValueForKey:str];
 		else
 			[self performSelector:s withObject:val];
+		return;
 		}
 #if 0
 	NSLog(@"object does not respond to setter");
@@ -194,7 +196,10 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		}
 	//	NSLog(@"valueForKey type %s", type?type:"not found");
 	if(!type)
+		{
+		objc_free(selName);
 		return [self setValue:val forUndefinedKey:str];	// was not found
+		}
 	switch(*type)	// FIXME: check parameter type!!!
 	{
 		case _C_ID:
@@ -202,7 +207,11 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 			if(msg)
 				(*(void (*)(id, SEL, id)) msg)(self, s, val);
 			else
-				*(id *) addr = val;	// set object value
+				{
+				[*(id *) addr autorelease];
+				*(id *) addr = [val retain];	// set object value
+				}
+			objc_free(selName);
 			return;
 		case _C_CHR:
 		case _C_UCHR:
@@ -211,6 +220,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 				(*(void (*)(id, SEL, char)) msg)(self, s, [val boolValue]);
 			else
 				*(char *) addr = [val boolValue];
+			objc_free(selName);
 			return;
 		}
 		case _C_INT:
@@ -219,12 +229,14 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 			if(msg)
 				(*(void (*)(id, SEL, int)) msg)(self, s, [val intValue]);
 			else
-				*(char *) addr = [val intValue];
+				*(int *) addr = [val intValue];
+			objc_free(selName);
 			return;
 			}
 		// FIXME: handle other types
 	}
 	objc_free(selName);
+	NSLog(@"setValue:forKey:%@ does not address an object that we can convert (type=%s)", str, type);
 	[self setValue:(id) val forUndefinedKey:str];
 }
 
