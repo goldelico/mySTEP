@@ -81,7 +81,7 @@ int main(int argc, const char *argv[])
 				   "than your own.\n\n");
 			printf(
 				   "defaults -u user ...\n"
-				   "    operate for specific user (needs read/write access to Library/Preferences folder).\n"
+				   "    operate for specific user (needs read/write access to Library/Preferences folder).\n\n"
 				   );
 			printf(
 				   "defaults read [ domain [ key] ]\n"
