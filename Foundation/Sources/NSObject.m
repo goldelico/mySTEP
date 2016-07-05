@@ -13,6 +13,7 @@
  */
 
 #define REPORT_OBJECT_INITIALIZE 1
+#define TRACE_OBJECT_ALLOCATION	1
 
 #include <limits.h>
 #include <time.h>
@@ -63,6 +64,19 @@ typedef struct _object_layout
 	// the bytes defined by NSObject follow here
 } *_object_layout;
 
+#ifdef TRACE_OBJECT_ALLOCATION
+struct __NSAllocationCount
+{
+	NSUInteger alloc;			// number of +alloc
+	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
+	NSUInteger linstances;		// last number of instances (when we did print the last time)
+	NSUInteger peak;			// maximum instances
+								// could also count/balance retains&releases ??
+};
+@class NSMapTable;
+extern NSMapTable *__NSAllocationCountTable;
+#endif
+
 NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// object allocation
 {
 	id newobject=nil;
@@ -74,6 +88,7 @@ NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// obj
 	fprintf(stderr, "  object_getClass = %p\n", object_getClass(aClass));
 	fprintf(stderr, "  class_isMetaClass(object_getClass) = %d\n", class_isMetaClass(object_getClass(aClass)));
 	fprintf(stderr, "  class_getInstanceSize = %ld\n", class_getInstanceSize(aClass));
+	fprintf(stderr, "  sizeof(_object_layout) = %ld\n", sizeof(_object_layout));
 #endif
 	if (class_isMetaClass(object_getClass(aClass)))
 		{
@@ -96,7 +111,7 @@ NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// obj
 			fprintf(stderr, "NSAllocateObject(%lu) -> %p [%s alloc]\n", size, &((_object_layout)newobject)[1], class_getName(aClass));
 #endif
 			}
-#if 1
+#if 0
 		fprintf(stderr, "%p [%s alloc:%lu]\n", newobject, class_getName(aClass), size);
 #endif
 		__NSAllocatedObjects++;	// one more
@@ -110,7 +125,7 @@ void NSDeallocateObject(NSObject *anObject)					// object deallocation
 	if (anObject != nil)
 		{
 		_object_layout o = &((_object_layout)anObject)[-1];
-#if 1
+#if 0
 		fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, class_getName(object_getClass(anObject)));
 #endif
 #if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
@@ -132,7 +147,7 @@ NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
 	if ((newobject = NSZoneMalloc(zone, size)) != nil)
 		{
 		newobject = (id)&((_object_layout)newobject)[1];
-#if 1
+#if 0
 		fprintf(stderr, "%p [%s copyObject:%lu]\n", newobject, class_getName(object_getClass((id)obj)), size);
 #endif
 		object_setClass(newobject, object_getClass((id)obj));	// same as original
@@ -514,44 +529,32 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) performSelector:(SEL)aSelector
 {
-#ifndef __APPLE__
-	IMP msg = objc_msg_lookup(self, aSelector);
+	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector);
-#else
-	return nil;
-#endif
 }
 
 - (id) performSelector:(SEL)aSelector withObject:anObject
 {
-#ifndef __APPLE__
-	IMP msg = objc_msg_lookup(self, aSelector);
+	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, anObject);
-#else
-	return nil;
-#endif
 }
 
 - (id) performSelector:(SEL)aSelector withObject:object1 withObject:object2
 {
-#ifndef __APPLE__
-	IMP msg = objc_msg_lookup(self, aSelector);
+	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
 		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, object1, object2);
-#else
-	return nil;
-#endif
 }
 
 + (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector
@@ -613,11 +616,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
 }
 
-- (id) forwardingTargetForSelector:(SEL) sel;
-{
-	return self;
-}
-
 // inofficial default implementation
 // it simply wraps the standard NSEnumerator
 // NSFastEnumerationState must have been zeroed before first call!
@@ -645,6 +643,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	return 0;
 }
 
+- (id) forwardingTargetForSelector:(SEL) sel;
+{
+	return self;
+}
+
 + (BOOL) resolveInstanceMethod:(SEL) sel
 {
 	return NO;
@@ -658,9 +661,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 @end
 
 @implementation NSObject (NSObjCRuntime)					// special
-
-- (BOOL) resolveClassMethod:(SEL) sel; { return NO; }
-- (BOOL) resolveInstanceMethod:(SEL) sel; { return NO; }
 
 /* convert runtime forwarding arguments into NSInvocation */
 
@@ -759,6 +759,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 													// compatibility & misc
 - (int) compare:(id)anObject
 {
+	if (self == anObject)
+		return YES;
+
 	if ([self isEqual:anObject])
 		return 0;
 

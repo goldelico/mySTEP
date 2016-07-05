@@ -3155,9 +3155,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(!_cString)
 				{
 				NS_DURING
-				[self cString];	// may fail with character conversion error!
+					[self cString];	// this may fail with character conversion error!
 				NS_HANDLER
-				return NO;	// failed - i.e. we have some non-convertible characters
+					return NO;	// failed - i.e. we have some non-convertible characters so we can't be equal
 				NS_ENDHANDLER
 				}
 			return memcmp(_cString, aString->_cString, _count) == 0;

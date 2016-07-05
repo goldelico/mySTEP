@@ -19,13 +19,10 @@
 #ifndef _mySTEP_H_NSObject
 #define _mySTEP_H_NSObject
 
-#define TRACE_OBJECT_ALLOCATION	1
-
 // import everything we need from the basic runtime system (incl. POSIX headers)
 
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSZone.h>
-
 
 @protocol NSObject
 
@@ -111,18 +108,6 @@ OBJC_ROOT_CLASS
 @end
 
 extern NSUInteger __NSAllocatedObjects;
-#ifdef TRACE_OBJECT_ALLOCATION
-struct __NSAllocationCount
-{
-	NSUInteger alloc;			// number of +alloc
-	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
-	NSUInteger linstances;		// last number of instances (when we did print the last time)
-	NSUInteger peak;			// maximum instances
-	// could also count/balance retains&releases ??
-};
-@class NSMapTable;
-extern NSMapTable *__NSAllocationCountTable;
-#endif
 
 NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone);	// object allocation
 void NSDeallocateObject(NSObject *anObject);	// object deallocation
