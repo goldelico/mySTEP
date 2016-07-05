@@ -265,7 +265,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {
 	struct autorelease_thread_vars *tv;
 	NSAutoreleasePool **cp;
-#if 1
+#if 0
 	fprintf(stderr, "arp drain %p - initial memory=%lu\n", self, NSRealMemoryAvailable());
 #endif
 	// If there are NSAutoreleasePools below us in the
@@ -301,7 +301,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 		}
 	else										// Don't deallocate self, just
 		push_pool_to_cache (tv, self);			// push to cache for later use
-#if 1
+#if 0
 	fprintf(stderr, "arp drain -    done memory=%lu\n", NSRealMemoryAvailable());
 #endif
 	return;
