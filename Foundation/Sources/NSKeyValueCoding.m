@@ -16,8 +16,6 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 
 @implementation NSObject (NSKeyValueCoding)
 
-#ifndef __APPLE__
-
 + (BOOL) accessInstanceVariablesDirectly;
 {
 	return YES;	// default is YES
@@ -62,14 +60,13 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 - (id) valueForKey:(NSString *) str;
 {
 	SEL s;
-	IMP msg;
+	IMP msg=NULL;
 	const char *type=NULL;
 	void *addr;	// address of return value
 	Class sc;
 	// FIXME: should also try to look for getter methods like <key>, _<key>, is<Key>, get<Key> etc.
 #if 1
 	NSLog(@"valueForKey: %@", str);
-	NSLog(@"selector: %@", NSStringFromSelector(s));
 #endif
 	/* if(found in cache)
 	 get msg, type, addr from cache
@@ -78,8 +75,14 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	 add to cache
 	 -> handle valueForUndefinedKey key special case so that we don't search again if we know
 	 }*/
+
+	/* check for is+str and _str */
+
 	if((s=NSSelectorFromString(str)) && [self respondsToSelector:s])
 		{
+#if 1
+		NSLog(@"selector: %@", NSStringFromSelector(s));
+#endif
 #if 0
 		NSMethodSignature *sig=[self methodSignatureForSelector:s];	// FIXME: this can be pretty slow!
 		type=[sig methodReturnType];
@@ -102,40 +105,12 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		}
 	else if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
-			Ivar *ivar;	// name, type, offset
-
-		struct objc_class *class;
-		const char *varName=[str UTF8String];
-
+			const char *varName=[str UTF8String];
+			Ivar ivar = object_getInstanceVariable(self, varName, NULL);
+			addr = ((char *) self) + ivar_getOffset(ivar);
+			type = ivar_getTypeEncoding(ivar);
 			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
-
-#if FIXME
-		for(class=sc; class != Nil; class = class_getSuperClass(class))
-			{ // walk upwards through class tree
-			struct objc_ivar_list *ivars;
-			if((ivars = class->ivars))
-				{ // go through instance variables
-				int i;
-				for(i = 0; i < ivars->ivar_count; i++) 
-					{
-					struct objc_ivar ivar = ivars->ivar_list[i];
-					if(!ivar.ivar_name)
-						continue;	// no name - skip
-					if(strcmp(ivar.ivar_name, varName) == 0 || (ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0)) 
-						{
-						msg=NULL;
-						type=ivar.ivar_type;
-						addr=((char *)self) + ivar.ivar_offset;
-						break;	// found
-						}
-					}
-				if(i < ivars->ivar_count)
-					break;	// fall through
-				}
-			}
-#endif
 		}
-
 //	NSLog(@"valueForKey type %s", type?type:"not found");
 	if(!type)
 		return [self valueForUndefinedKey:str];	// was not found
@@ -170,58 +145,28 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	return [self valueForUndefinedKey:str];	// was not found	
 }
 
-#if NEW
-
-/*
- use as
- if((ivar=_findIvar([self class], "_", 1, name)) == NULL)
-	if((ivar=_findIvar([self class], "_isa", 1, name)) == NULL)
-		return not found;
- ...
- */
-
-static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int preflen, char *name)
-{
-	struct objc_ivar *ivar;
-#if FIXME
-	for(; class != Nil; class = class_get_super_class(class))
-		{ // walk upwards through class tree
-		struct objc_ivar_list *ivars;
-		int i;
-		if((ivars = class->ivars))
-			{
-			for(i = 0; i < ivars->ivar_count; i++) 
-				{ // check _key
-				ivar=&ivars->ivar_list[i];
-#if 0
-				NSLog(@"check %s = %s", ivar->ivar_name, varName);
-#endif
-				if(!ivar->ivar_name)
-					continue;	// no name - skip
-				if(strncmp(ivar->ivar_name, prefix, preflen) == 0 && strcmp(ivar->ivar_name+preflen, name) == 0)
-					return ivar;	// found
-				}
-			}
-		}
-#endif
-	return NULL;	// not found
-}
-
-#endif
-
 - (void) setValue:(id) val forKey:(NSString *) str;
 {
-	const char *varName=[str cString];
-	int len=3+strlen(varName)+1+1;	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
-	char *selName=objc_malloc(len);
 	SEL s;
+	IMP msg=NULL;
+	const char *type=NULL;
+	void *addr;	// address of return value
 	Class sc;
+	const char *varName=[str UTF8String];
+	int len=3+strlen(varName)+1+1;	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
+	char *selName;
+	if(!val)
+		{
+		[self setNilValueForKey:str];
+		return;
+		}
+	selName=objc_malloc(len);
 	strcpy(selName, "set");
 	strcpy(selName+3, varName);	// append
 	selName[3]=toupper(selName[3]);	// capitalize the first letter following "set"
 	strcat(selName+3, ":");	// append a :
 	NSAssert(strlen(selName) < len, @"buffer overflow");
-	s=sel_get_any_uid(selName);
+	s=sel_registerName(selName);
 #if 0
 	NSLog(@"%p %@: setValue:forKey:%@ val=%@", self, self, str, val);
 	NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
@@ -235,85 +180,50 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 			[self setNilValueForKey:str];
 		else
 			[self performSelector:s withObject:val];
-		return;
 		}
 #if 0
 	NSLog(@"object does not respond to setter");
 #endif
-	if([(sc=[self class]) accessInstanceVariablesDirectly])
-		{
-#if FIXME
-		// FIXME: we should walk the tree for each variant!
-		// FIXME: here, we must remove the trailing ":"
-		struct objc_class *class;
-		for(class=sc; class != Nil; class = class_get_super_class(class))
-			{ // walk upwards through class tree
-			struct objc_ivar_list *ivars;
-			struct objc_ivar ivar;
-			if((ivars = class->ivars))
-				{ // go through instance variables in this order: _<key>, _is<Key>, <key>, or is<Key>
-				int i;
-				for(i = 0; i < ivars->ivar_count; i++) 
-					{ // check _key
-					ivar = ivars->ivar_list[i];
-#if 0
-					NSLog(@"check %s = %s", ivar.ivar_name, varName);
-#endif
-					if(!ivar.ivar_name) continue;	// no name - skip
-					if(ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0) break;	// found
-					}
-				if(i == ivars->ivar_count)
-					{
-					for(i = 0; i < ivars->ivar_count; i++)
-						{ // check _isKey
-						ivar = ivars->ivar_list[i];
-#if 0
-						NSLog(@"check %s = %s", ivar.ivar_name, selName+3);
-#endif
-						if(!ivar.ivar_name) continue;	// no name - skip
-						if(ivar.ivar_name[0]=='_' && ivar.ivar_name[1]=='i' && ivar.ivar_name[2]=='s' && strcmp(ivar.ivar_name+3, selName+3) == 0) break;	// found
-						}
-					}
-				if(i == ivars->ivar_count)
-					{
-					for(i = 0; i < ivars->ivar_count; i++)
-						{ // check key
-						ivar = ivars->ivar_list[i];
-#if 0
-						NSLog(@"check %s = %s", ivar.ivar_name, varName);
-#endif
-						if(!ivar.ivar_name) continue;	// no name - skip
-						if(strcmp(ivar.ivar_name, varName) == 0) break;	// found
-						}
-					}
-				if(i == ivars->ivar_count) 
-					{
-					for(i = 0; i < ivars->ivar_count; i++)
-						{ // check isKey
-						ivar = ivars->ivar_list[i];
-#if 0
-						NSLog(@"check %s = %s", ivar.ivar_name, selName+3);
-#endif
-						if(!ivar.ivar_name) continue;	// no name - skip
-						if(ivar.ivar_name[0]=='i' &&ivar.ivar_name[1]=='s' && strcmp(ivar.ivar_name+2, selName+3) == 0) break;	// found
-						}
-					}
-				if(i < ivars->ivar_count) 
-					{ // found
-					  // FIXME: should take a look at ivar_type to be an id or call a converter
-					id *vp=(id *) (((char *)self) + ivar.ivar_offset);
-					[*vp autorelease];
-					*vp=[val retain];
-#if 0
-					NSLog(@"found matching ivar: %s[%d] %p", ivar.ivar_name, ivar.ivar_offset, vp);
-#endif
-					objc_free(selName);
-					return;
-					}
-				}
-			}
-#endif
+	else if([(sc=[self class]) accessInstanceVariablesDirectly])
+		{ // not disabled: try to access instance variable directly
+			const char *varName=[str UTF8String];
+			Ivar ivar = object_getInstanceVariable(self, varName, NULL);
+			addr = ((char *) self) + ivar_getOffset(ivar);
+			type = ivar_getTypeEncoding(ivar);
+			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
 		}
+	//	NSLog(@"valueForKey type %s", type?type:"not found");
+	if(!type)
+		return [self setValue:val forUndefinedKey:str];	// was not found
+	switch(*type)	// FIXME: check parameter type!!!
+	{
+		case _C_ID:
+		case _C_CLASS:
+			if(msg)
+				(*(void (*)(id, SEL, id)) msg)(self, s, val);
+			else
+				*(id *) addr = val;	// set object value
+			return;
+		case _C_CHR:
+		case _C_UCHR:
+		{
+			if(msg)
+				(*(void (*)(id, SEL, char)) msg)(self, s, [val boolValue]);
+			else
+				*(char *) addr = [val boolValue];
+			return;
+		}
+		case _C_INT:
+		case _C_UINT:
+			{
+			if(msg)
+				(*(void (*)(id, SEL, int)) msg)(self, s, [val intValue]);
+			else
+				*(char *) addr = [val intValue];
+			return;
+			}
+		// FIXME: handle other types
+	}
 	objc_free(selName);
 	[self setValue:(id) val forUndefinedKey:str];
 }
@@ -371,8 +281,6 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 - (NSMutableArray *) mutableArrayValueForKeyPath:(NSString *) str; { return NIMP; }
 - (NSMutableSet *) mutableSetValueForKey:(NSString *) key; { return NIMP; }
 - (NSMutableSet *) mutableSetValueForKeyPath:(NSString *) keyPath; { return NIMP; }
-
-#endif
 
 @end
 
