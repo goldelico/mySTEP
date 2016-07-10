@@ -29,6 +29,7 @@ OBJC_ROOT_CLASS
 
 @implementation _NSObjectObserver
 
+#if OLD
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // state changes result from calling a method. Therefore, we intercept all method calls, record state and issue notifications
 	retval_t r;
@@ -62,6 +63,7 @@ OBJC_ROOT_CLASS
 #endif
 	return r;
 }
+#endif
 
 - (void) dealloc;
 { // do differently

@@ -741,16 +741,13 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 				if ([item respondsToSelector:
 					 @selector(descriptionWithLocale:indent:)])
 					item = [item descriptionWithLocale: locale indent: level];
+				else if([item respondsToSelector:@selector(descriptionWithLocale:)])
+					item = [item descriptionWithLocale: locale];
 				else
-					{
-					if([item respondsToSelector:@selector(descriptionWithLocale:)])
-						item = [item descriptionWithLocale: locale];
-					else
-						item = [item description];
-					}
+					item = [item description];
 			}
 
-		s = [item UTF8String];					// if str with whitespc add quotes
+		s = [item UTF8String];		// if str with whitespc add quotes
 		if((*s != '{' && *s != '(' && *s != '<') && (strpbrk(s, " %-\t") != NULL))
 			item = [NSString stringWithFormat:@"\"%@\"", item];
 

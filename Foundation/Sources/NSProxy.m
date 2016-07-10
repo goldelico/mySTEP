@@ -117,6 +117,7 @@
 				format:@"NSProxy can't forwardInvocation:%@", anInvocation];
 }
 
+#if OLD
 // convert runtime forwarding arguments into NSInvocation
 
 - (retval_t) forward:(SEL) aSel :(arglist_t) argFrame
@@ -146,6 +147,7 @@
 #endif
 	return [inv _returnValue];	// this also invalidates the argFrame
 }
+#endif
 
 - (BOOL) isKindOfClass:(Class)aClass
 {

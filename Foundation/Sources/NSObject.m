@@ -179,6 +179,7 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 
 @implementation _NSZombie
 
+#if 0
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
 	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@" (unknown class)";
@@ -188,6 +189,7 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 	abort();
 	return NULL;
 }
+#endif
 
 #if 0
 - (BOOL) isKindOfClass:(Class)aClass
@@ -660,6 +662,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 @end
 
+#if OLD
+
 @implementation NSObject (NSObjCRuntime)					// special
 
 /* convert runtime forwarding arguments into NSInvocation */
@@ -752,6 +756,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 }
 
 @end
+#endif
 
 /// should we get rid of this (compiler option??)
 

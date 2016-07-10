@@ -407,8 +407,17 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 @interface NSMethodSignature (NSUndocumented)
 
 - (NSString *) _typeString;		// full method type
+- (struct NSArgumentInfo *) _argInfo:(unsigned) index;
+- (void *) _frameDescriptor;	// recalculate method info
 
 @end
+
+@interface NSMethodSignature (NSPrivate)
+
+- (struct NSArgumentInfo *) _methodInfo;
+- (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
+- (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
+- (const char *) _getArgument:(void *) buffer fromFrame:(void *) _argframe atIndex:(NSInteger) index;
 
 enum _INVOCATION_MODE {
 	_INVOCATION_ARGUMENT_SET_NOT_RETAINED = NO,	// don't retain/copy/release
@@ -417,22 +426,13 @@ enum _INVOCATION_MODE {
 	_INVOCATION_ARGUMENT_RETAIN,	// retain current value (but ignore _buffer)
 };
 
-@interface NSMethodSignature (NSPrivate)
-
-- (struct NSArgumentInfo *) _methodInfo;	// recalculate method info
-- (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
-- (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
-typedef void *arglist_t, *retval_t;
-- (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(NSInteger) index;
-
-- (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
-
-- (arglist_t) _allocArgFrame:(arglist_t) frame;
-- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe;
-- (retval_t) _returnValue:(arglist_t) frame retbuf:(char [32]) _r;
+- (void) _setArgument:(void *) buffer forFrame:(void *) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
+- (void *) _allocArgFrame:(void *) frame;
+- (BOOL) _call:(void *) imp frame:(void *) _argframe;
+- (void *) _returnValue:(void *) frame retbuf:(char [32]) _r;
 - (id) _initWithObjCTypes:(const char *) t;
 - (const char *) _methodTypes;		// full method type string
-- (void) _logFrame:(arglist_t) _argframe target:(id) target selector:(SEL) selector;
+- (void) _logFrame:(void *) _argframe target:(id) target selector:(SEL) selector;
 
 @end
 
@@ -445,15 +445,10 @@ typedef void *arglist_t, *retval_t;
 @interface NSInvocation (NSPrivate)
 
 /* interface used to implement forward:: to call forwardInvocation */
-// - (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame;
-// - (retval_t) _returnValue;
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(void *) argFrame;
 - (void) _releaseArguments;	// used by -dealloc
 - (void) _log:(NSString *) str;
 
-@end
-
-@interface NSObject (NSObjCRuntime)		// special private method called by runtime
-// - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;
 @end
 
 @interface NSProxy (NSPrivate)
@@ -461,10 +456,6 @@ typedef void *arglist_t, *retval_t;
 - (NSString*) descriptionWithLocale:(id)locale indent:(NSUInteger)indent;
 - (NSString*) descriptionWithLocale:(id)locale;
 - (id) notImplemented:(SEL)aSel;
-@end
-
-@interface NSProxy (NSObjCRuntime)					// special
-- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;	// private method called by runtime
 @end
 
 /* the following methods appear to originate in libobjc (Object and Protocol) and not by Foundation (NSObject)

@@ -1,26 +1,26 @@
-/* 
-   NSMethodSignature.h
+/*
+ NSMethodSignature.h
 
-   Interface for NSMethodSignature
+ Interface for NSMethodSignature
 
-   Copyright (C) 1995, 1998 Free Software Foundation, Inc.
+ Copyright (C) 1995, 1998 Free Software Foundation, Inc.
 
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	1995
-   Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	1998
-   
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
- 
-   Fabian Spillner, May 2008 - API revised to be compatible to 10.5
- 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
- 
-   Refer to http://gcc.gnu.org/onlinedocs/gcc-4.0.2/gcc/Type-encoding.html#Type-encoding how gcc encodes types
+ Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Date:	1995
+ Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
+ Date:	1998
 
-   on Cocoa this appears to reside in CoreFoundation.framework
-*/ 
+ H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+ Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+
+ Refer to http://gcc.gnu.org/onlinedocs/gcc-4.0.2/gcc/Type-encoding.html#Type-encoding how gcc encodes types
+
+ on Cocoa this appears to reside in CoreFoundation.framework
+ */
 
 #ifndef _mySTEP_H_NSMethodSignature
 #define _mySTEP_H_NSMethodSignature
@@ -29,10 +29,10 @@
 
 @interface NSMethodSignature : NSObject
 {
-    char *methodTypes;		// ObjCTypes
-    unsigned argFrameLength;
-    unsigned numArgs;
-    struct NSArgumentInfo *info;	// forward reference for struct definition
+	char *methodTypes;		// ObjCTypes
+	unsigned argFrameLength;
+	unsigned numArgs;
+	struct NSArgumentInfo *info;	// forward reference for private struct definition
 	void *internal1;	// may be used to reference ffi_cif
 	void *internal2;	// may be used to reference ffi_type
 }

@@ -1,23 +1,23 @@
-/* 
-    NSInvocation.h
+/*
+ NSInvocation.h
 
-    Object rendering of an Obj-C message (action).
+ Object rendering of an Obj-C message (action).
 
-    Copyright (C) 1998 Free Software Foundation, Inc.
+ Copyright (C) 1998 Free Software Foundation, Inc.
 
-    Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-    Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   
-    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
- 
-    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
- 
-    This file is part of the mySTEP Library and is provided
-    under the terms of the GNU Library General Public License.
- 
-    on Cocoa this appears to reside in CoreFoundation.framework
+ Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
 
-*/ 
+ H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+ Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+
+ on Cocoa this appears to reside in CoreFoundation.framework
+
+ */
 
 #ifndef _mySTEP_H_NSInvocation
 #define _mySTEP_H_NSInvocation
@@ -26,30 +26,30 @@
 
 enum _NSObjCValueType
 {
-    NSObjCNoType		= 0,
-    NSObjCVoidType		= 'v',
-    NSObjCCharType		= 'c',
-    NSObjCShortType		= 's',
-    NSObjCLongType		= 'l',
-    NSObjCLonglongType	= 'q',
-    NSObjCFloatType		= 'f',
-    NSObjCDoubleType	= 'd',
-    NSObjCBoolType		= 'B',
-    NSObjCSelectorType	= ':',
-    NSObjCObjectType	= '@',
-    NSObjCStructType	= '{',
-    NSObjCPointerType	= '^',
-    NSObjCStringType	= '*',
-    NSObjCArrayType		= '[',
-    NSObjCUnionType		= '(',
-    NSObjCBitfield		= 'b'
+	NSObjCNoType		= 0,
+	NSObjCVoidType		= 'v',
+	NSObjCCharType		= 'c',
+	NSObjCShortType		= 's',
+	NSObjCLongType		= 'l',
+	NSObjCLonglongType	= 'q',
+	NSObjCFloatType		= 'f',
+	NSObjCDoubleType	= 'd',
+	NSObjCBoolType		= 'B',
+	NSObjCSelectorType	= ':',
+	NSObjCObjectType	= '@',
+	NSObjCStructType	= '{',
+	NSObjCPointerType	= '^',
+	NSObjCStringType	= '*',
+	NSObjCArrayType		= '[',
+	NSObjCUnionType		= '(',
+	NSObjCBitfield		= 'b'
 };
 
 typedef struct
 {
-    enum _NSObjCValueType type;
-    union {
-    	char charValue;
+	enum _NSObjCValueType type;
+	union {
+		char charValue;
 		short shortValue;
 		long longValue;
 		long long longlongValue;
@@ -61,19 +61,19 @@ typedef struct
 		void *pointerValue;
 		void *structLocation;
 		char *cStringLocation;
-    } value;
+	} value;
 } NSObjCValue;
 
 @interface NSInvocation : NSObject <NSCoding>
 {
 	NSMethodSignature *_sig;
-	/* arglist_t */ void * _argframe;	// stack frame - or local buffer for return value and arguments
+	void * _argframe;	// stack frame - or local buffer for return value and arguments
 	const char *_rettype;	// cached
 	const char *_types;	// cached
 	int _numArgs;	// cached
 	unsigned int _returnLength;	// cached
 	char _retbuf[32];	// should be big enough for a retval_t
-	// FIXME: should we use bitfields
+						// FIXME: should we use bitfields
 	BOOL _argframeismalloc;		// _argframe has been malloc'ed locally
 	BOOL _argsRetained;			// (id) arguments have been retained
 	BOOL _validReturn;			// setReturn or invoke has been called

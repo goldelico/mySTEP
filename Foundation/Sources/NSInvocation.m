@@ -364,7 +364,7 @@
 
 // this is called from NSObject/NSProxy from the forward:: method
 
-- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(void *) argFrame
 {
 #if 0
 	NSLog(@"NSInovcation _initWithMethodSignature:%@ andArgFrame:%p", aSignature, argFrame);
@@ -417,6 +417,7 @@
 		}
 }
 
+#if OLD
 - (retval_t) _returnValue;
 { // encode the return value so that it can be passed back to the libobjc forward:: method
 	retval_t retval;
@@ -442,5 +443,6 @@
 #endif
 	return retval;
 }
+#endif
 
 @end
