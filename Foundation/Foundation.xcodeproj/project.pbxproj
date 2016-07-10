@@ -1460,7 +1460,10 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					"/opt/local/lib/libffi-3.2.1/include",
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
@@ -1512,7 +1515,10 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					"/opt/local/lib/libffi-3.2.1/include",
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
@@ -1562,7 +1568,10 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					"/opt/local/lib/libffi-3.2.1/include",
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
