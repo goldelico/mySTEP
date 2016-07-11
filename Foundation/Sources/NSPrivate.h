@@ -429,10 +429,10 @@ enum _INVOCATION_MODE {
 - (void) _setArgument:(void *) buffer forFrame:(void *) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
 - (void *) _allocArgFrame:(void *) frame;
 - (BOOL) _call:(void *) imp frame:(void *) _argframe;
-- (void *) _returnValue:(void *) frame retbuf:(char [32]) _r;
 - (id) _initWithObjCTypes:(const char *) t;
 - (const char *) _methodTypes;		// full method type string
 - (void) _logFrame:(void *) _argframe target:(id) target selector:(SEL) selector;
+- (void) _logMethodTypes;
 
 @end
 
@@ -444,7 +444,6 @@ enum _INVOCATION_MODE {
 
 @interface NSInvocation (NSPrivate)
 
-/* interface used to implement forward:: to call forwardInvocation */
 - (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(void *) argFrame;
 - (void) _releaseArguments;	// used by -dealloc
 - (void) _log:(NSString *) str;
