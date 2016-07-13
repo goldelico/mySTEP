@@ -16,6 +16,5 @@ export SOURCES+=" English.lproj/InfoPlist.strings"
 export SOURCES+=" Info.plist"
 export WRAPPER_EXTENSION="framework"
 
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/local/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

@@ -18,4 +18,4 @@ export SOURCES+=" Message/MessageTests.qcodeproj"
 export SOURCES+=" PDFKit/PDFKitTests.qcodeproj"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
