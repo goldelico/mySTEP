@@ -57,6 +57,7 @@ struct NSArgumentInfo
 };
 
 #define cif ((ffi_cif *)internal1)
+#define cif_types ((ffi_type **)internal2)
 
 static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void *user)
 {
@@ -548,10 +549,10 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 
 - (void) dealloc
 {
-	if(methodTypes)
-		objc_free((void*) methodTypes);
-	if(info)
-		objc_free((void*) info);
+	OBJC_FREE((void*) methodTypes);
+	OBJC_FREE((void*) info);
+	OBJC_FREE((void*) internal1);
+	OBJC_FREE((void*) internal2);
 	[super dealloc];
 }
 
@@ -610,22 +611,18 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 - (NSString *) _typeString	{ return [NSString stringWithUTF8String:methodTypes]; }
 
 - (struct NSArgumentInfo *) _argInfo:(unsigned) index
-{ // collect all information from methodTypes in a platform independent way and allocate integer, floating point registers and stack values
+{ // collect all information from methodTypes in a platform independent way
 	if(info == NULL)
 		{ // calculate method info
-#ifndef __APPLE__
 			const char *types = methodTypes;
 			int i=0;
-			int nextireg=offsetof(struct stackframe, iregs);	// first integer register offset
-			int nextfpreg=offsetof(struct stackframe, fpuregs);	// first fp register offset
-			int nextdpreg=nextfpreg;	// double precision offset
 			int allocArgs=6;	// this is usually enough, i.e. retval+self+_cmd+3 args
 			int needs;
 			argFrameLength=0;	// offset on stack
 #if 0
 			NSLog(@"methodInfo create for types %s", methodTypes);
 #endif
-			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
+			OBJC_MALLOC(info, struct NSArgumentInfo, allocArgs);
 			while(*types)
 				{ // process all types
 					const char *t;
@@ -633,7 +630,10 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 					NSLog(@"%d: %s", i, types);
 #endif
 					if(i >= allocArgs)
-						allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
+						{
+						allocArgs+=5;
+						OBJC_REALLOC(info, struct NSArgumentInfo, allocArgs);
+						}
 					types = next_arg(types, &info[i]);
 					if(!types)
 						break;	// some error
@@ -647,81 +647,9 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
-					info[i].isReg=NO;	// default is to pass-on-stack
-					if(info[i].align < MIN_ALIGN)
-						info[i].align=MIN_ALIGN;
-#if defined(i386)
-					// i386 has different alignment rules for structs and stack
-					// next_arg returns alignment for structs so we have to fix for stack
-					// http://www.wambold.com/Martin/writings/alignof.html
-					if(*t == _C_DBL)
-						info[i].align = __alignof__(float);
-#endif
-#if defined(__ARM_PCS_VFP)	// armhf - don't know/care about armel yet
-					if(*t == _C_LNG_LNG || *t == _C_ULNG_LNG)
-						info[i].align = __alignof__(long);
-#endif
-					if(i == 0)
-						{ // return value
-							if(!INDIRECT_RETURN(info[0]))
-								{ // keep as !byRef
-									i++;
-									continue;
-								}
-							info[0].byRef=YES;	// use register/stack to indirectly reference
-							needs=sizeof(void *);	// we need a struct pointer...
-						}
-					else
-						needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
-					if(*t == _C_FLT)
-						{ // try to put into FPU_REGISTER
-							if(nextfpreg + needs <= offsetof(struct stackframe, unused))
-								{ // yes, fits into the FPU register area
-									info[i].isReg=YES;
-									info[i].offset = nextfpreg;
-									if(nextfpreg == nextdpreg)
-										{
-										nextdpreg+=sizeof(double);
-										nextfpreg+=needs;
-										}
-									else
-										nextfpreg=nextdpreg;	// we did fill a gap before the next double register
-									i++;
-									continue;
-								}
-							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
-						}
-					else if(*t == _C_DBL)
-						{ // try to put into double precision FPU_REGISTER
-							if(nextdpreg + needs <= offsetof(struct stackframe, unused))
-								{ // yes, fits into the double precision FPU register area
-									info[i].isReg=YES;
-									info[i].offset = nextdpreg;
-									if(nextfpreg == nextdpreg)
-										nextfpreg+=needs;	// don't assign as fp registers
-									nextdpreg+=needs;
-									i++;
-									continue;
-								}
-							nextfpreg=offsetof(struct stackframe, unused);	// don't put more values into registers if any was on stack
-						}
-					else if(nextireg < offsetof(struct stackframe, fpuregs))
-						{ // yes, fits into the integer register area
-						  // make this all dependend on sizeof(copied)-sizeof(iregs)
-						  // so that we theoretically can specify more than one "real" register
-							if(nextireg == offsetof(struct stackframe, iregs))
-								{ // first register that is allocated is "real"
-									info[i].isReg=YES;
-									info[i].offset = nextireg;
-								}
-							else
-								info[i].offset = ROUND(nextireg - offsetof(struct stackframe, iregs[1]) - sizeof(((struct stackframe *) NULL)->copied), info[i].align);	// use negative offset relative to link register
-							nextireg+=needs;
-							if(nextireg > offsetof(struct stackframe, fpuregs))
-								argFrameLength+=nextireg-offsetof(struct stackframe, fpuregs); // handle overflow into real stack
-							i++;
-							continue;
-						}
+					if(info[i].align < sizeof(void *))
+						info[i].align=sizeof(void *);
+					needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
 					info[i].offset=ROUND(argFrameLength, info[i].align);	// offset relative to frame pointer
 					argFrameLength=info[i].offset+needs;
 					i++;
@@ -730,13 +658,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 #if 0
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
-#endif
 		}
-#if 0	// still needed?
-	if(!info[0].byRef)
-		info[0].offset=argFrameLength;	// unless returned indirectly through r0, place return value behind all arguments
-										// FIXME: how to return float values?
-#endif
 #if 1
 	[self _logMethodTypes];
 #endif
@@ -748,6 +670,18 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 - (void *) _frameDescriptor;
 {
 #ifndef __APPLE__
+	if(!cif)
+		{
+		int r;
+		int space;
+		int fill=0;
+		NEED_INFO();
+		OBJC_CALLOC(internal1, ffi_cif, 1);
+		OBJC_CALLOC(internal2, ffi_type, space=1+numArgs);
+		// translate types from string to cif types
+		if((r=ffi_prep_cif(cif, FFI_DEFAULT_ABI, numArgs, cif_types[0], &cif_types[1])) != FFI_OK)
+			[NSException raise: NSInvalidArgumentException format: @"Invalid types."];
+		}
 	return (void *) cif;
 #else
 	NIMP;
@@ -766,7 +700,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 #endif
 	if((self=[super init]))
 		{
-		methodTypes=objc_malloc(strlen(t)+1);
+		OBJC_MALLOC(methodTypes, char, strlen(t)+1);
 		// strip off embedded offsets, i.e. convert from gcc to OpenSTEP format?
 		strcpy(methodTypes, t);	// save unchanged
 #if 0
@@ -778,10 +712,10 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 
 - (const char *) _methodTypes	{ return methodTypes; }
 
-#if FIXMEFIXME
 
-- (void) _logFrame:(arglist_t) _argframe target:(id) target selector:(SEL) selector;
+- (void) _logFrame:(void *) _argframe target:(id) target selector:(SEL) selector;
 {
+#if FIXMEFIXME
 	int i;
 	struct stackframe *f=(struct stackframe *) _argframe;
 	void **af=(void **) _argframe;
@@ -807,8 +741,8 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 			  *(double *) &af[i],
 			  note);
 		}
-}
 #endif
+}
 
 - (void) _logMethodTypes;
 {
@@ -889,7 +823,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 #if 1
 				NSLog(@"_setArgument free old %s", *(char **)addr);
 #endif
-				objc_free(*(char **)addr);
+				OBJC_FREE(*(char **)addr);
 				}
 			if(buffer && (*(char **)buffer) && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
 				{
@@ -897,7 +831,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 #if 1
 				NSLog(@"_setArgument copy new %s", *(char **)buffer);
 #endif
-				tmp = objc_malloc(strlen(*(char **)buffer)+1);
+				OBJC_MALLOC(tmp, char, strlen(*(char **)buffer)+1);
 				strcpy(tmp, *(char **)buffer);
 				*(char **)buffer=tmp;
 				}
@@ -905,9 +839,9 @@ static inline void *_getArgumentAddress(void *frame, int i)
 				{
 				char *tmp;
 #if 1
-				NSLog(@"_setArgument copy current %@", *(id*)addr);
+				NSLog(@"_setArgument copy current %s", *(char **)addr);
 #endif
-				tmp = objc_malloc(strlen(*(char **)addr)+1);
+				OBJC_MALLOC(tmp, char, strlen(*(char **)buffer)+1);
 				strcpy(tmp, *(char **)addr);
 				*(char **)addr=tmp;
 				return;	// copy but ignore buffer
@@ -983,8 +917,8 @@ static inline void *_getArgumentAddress(void *frame, int i)
 			unsigned int len;
 			int i;
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
-			len=sizeof(void *) * numArgs + info[0].size; + argFrameLength;
-			frame=(void *) objc_calloc(len, sizeof(char));
+			len=sizeof(void *) * numArgs + info[0].size + argFrameLength;
+			OBJC_CALLOC(frame, char, len);
 #if 0
 			NSLog(@"allocated frame=%p..%p framelength=%d len=%d", frame, len + (char*) frame, argFrameLength, len);
 #endif
@@ -1001,6 +935,8 @@ static inline void *_getArgumentAddress(void *frame, int i)
 - (BOOL) _call:(void *) imp frame:(void *) _argframe;
 { // call implementation and pass values from argframe buffer
   // use ffi_arg type?
+	if(!cif)
+		[self _frameDescriptor];
 	ffi_call(cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
 	return YES;
 }

@@ -414,7 +414,6 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSMethodSignature (NSPrivate)
 
-- (struct NSArgumentInfo *) _methodInfo;
 - (NSUInteger) _getArgumentLengthAtIndex:(NSInteger) index;
 - (NSUInteger) _getArgumentQualifierAtIndex:(NSInteger) index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(void *) _argframe atIndex:(NSInteger) index;

@@ -47,9 +47,18 @@
 
 + (NSInteger) writeJSONObject:(id) obj toStream:(NSOutputStream *) stream options:(NSJSONWritingOptions) opt error:(NSError **) error;
 {
-	// get data and write to stream
-	NIMP;
-	return nil;
+	NSData *data=[self dataWithJSONObject:obj options:opt error:error];
+	NSInteger r;
+	if(!data)
+		return 0;	// nothing can be written
+	r=[stream write:[data bytes] maxLength:[data length]];
+	if(r < 0)
+		{
+		if(error)
+			*error=[stream streamError];
+		return 0;
+		}
+	return r;
 }
 
 @end
