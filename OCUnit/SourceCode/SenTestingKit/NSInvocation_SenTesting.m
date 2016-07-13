@@ -31,7 +31,7 @@
 #import "NSInvocation_SenTesting.h"
 #import "SenTestingUtilities.h"
 #if defined(GNU_RUNTIME) || defined(__mySTEP__)
-#include <objc/objc-api.h>
+// #include <objc/objc-api.h>
 #else /* NeXT RUNTIME */
 #import <objc/objc-class.h>
 #endif

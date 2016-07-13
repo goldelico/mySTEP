@@ -30,10 +30,8 @@
 
 #import <Foundation/Foundation.h>
 #import <objc/objc.h>
-#if defined (GNUSTEP)
+#if defined (GNUSTEP) || defined (__mySTEP__)
 #import <objc/runtime.h>
-#elif defined (__mySTEP__)
-/* import nothing */
 #else
 #import <objc/objc-class.h>
 #endif

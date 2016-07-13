@@ -34,21 +34,17 @@
 
 + (id) instanceInvocationEnumeratorForClass:(Class) aClass
 {
-    return [[[self alloc] initForClass:aClass] autorelease];
+	return [[[self alloc] initForClass:aClass] autorelease];
 }
 
 
 - (void) goNextMethodList
 {
 #if defined (GNUSTEP) || defined(__mySTEP__)
-   if (iterator == NULL)
-     mlist = iterator = class->methods;
-   else
-     mlist = iterator = mlist->method_next;
 #else
-    mlist = class_nextMethodList (class, &iterator);
+	mlist = class_nextMethodList (class, &iterator);
+	count = (mlist != NULL) ? mlist->method_count - 1 : -1;
 #endif
-    count = (mlist != NULL) ? mlist->method_count - 1 : -1;
 }
 
 
@@ -65,6 +61,27 @@
 
 - (id) nextObject
 {
+#if defined (GNUSTEP) || defined(__mySTEP__)
+	NSInvocation *invocation;
+	SEL nextSelector;
+	if (iterator == NULL)
+		mlist = iterator = (void *) class_copyMethodList(class, (unsigned int *) &count);	// initialize
+	else if(count > 0)
+		// FIXME: shouldn't this be ((Method *) iterator)++
+		// but compiler rejects because it is not an lvalue
+		iterator++, count--;
+	else
+		{ // end of list
+		if(mlist)
+			free(mlist);
+		mlist=NULL;
+		return nil;
+		}
+	nextSelector=method_getName(*(Method *)iterator);
+	invocation=[NSInvocation invocationWithMethodSignature:[class instanceMethodSignatureForSelector:nextSelector]];
+	[invocation setSelector:nextSelector];
+	return invocation;
+#else
     if (mlist == NULL) {
         return nil;
     }
@@ -74,11 +91,7 @@
         if (count == -1) {
             [self goNextMethodList];
         }
-#if defined (GNUSTEP) || defined(__mySTEP__)
-        if (sel_is_mapped(nextSelector)) {
-#else
         if (sel_isMapped(nextSelector)) {
-#endif
 //			NSLog(@"SenTestInvocationEnumerator nextObject: create invocation for %@", NSStringFromSelector(nextSelector));
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[class instanceMethodSignatureForSelector:nextSelector]];
             [invocation setSelector:nextSelector];
@@ -88,6 +101,7 @@
             return [self nextObject];
         }
     }
+#endif
 }
 
 - (NSArray *) allObjects
