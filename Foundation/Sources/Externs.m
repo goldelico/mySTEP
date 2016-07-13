@@ -10,7 +10,6 @@
 //
 NSRecursiveLock *__NSGlobalLock = nil;
 NSUInteger __NSAllocatedObjects;		// counter for object allocation
-NSMapTable *__NSAllocationCountTable;	// maps class records to allocation counters
 
 													// NSThread Notifications
 NSString *NSWillBecomeMultiThreadedNotification = @"NSWillBecomeMultiThreadedNotification";

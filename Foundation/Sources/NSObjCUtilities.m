@@ -23,6 +23,8 @@
  
  */ 
 
+#define TRACE_OBJECT_ALLOCATION	1
+
 #if __arm__
 #define atof _atof	// rename atof in loaded header file to handle automatic hard/softfloat
 #endif
@@ -968,6 +970,19 @@ NSCopyMemoryPages (const void *source, void *dest, NSUInteger bytes)
 
 #ifdef __mySTEP__
 // @class NSDataStatic;
+
+#ifdef TRACE_OBJECT_ALLOCATION
+struct __NSAllocationCount
+{
+	NSUInteger alloc;			// number of +alloc
+	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
+	NSUInteger linstances;		// last number of instances (when we did print the last time)
+	NSUInteger peak;			// maximum instances
+								// could also count/balance retains&releases ??
+};
+@class NSMapTable;
+NSMapTable *__NSAllocationCountTable;
+#endif
 
 void __NSCountAllocate(Class aClass)
 {

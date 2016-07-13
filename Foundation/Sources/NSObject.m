@@ -13,7 +13,6 @@
  */
 
 #define REPORT_OBJECT_INITIALIZE 1
-#define TRACE_OBJECT_ALLOCATION	1
 
 #include <limits.h>
 #include <time.h>
@@ -63,19 +62,6 @@ typedef struct _object_layout
 	char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
 	// the bytes defined by NSObject follow here
 } *_object_layout;
-
-#ifdef TRACE_OBJECT_ALLOCATION
-struct __NSAllocationCount
-{
-	NSUInteger alloc;			// number of +alloc
-	NSUInteger instances;		// number of instances (balance of +alloc and -dealloc)
-	NSUInteger linstances;		// last number of instances (when we did print the last time)
-	NSUInteger peak;			// maximum instances
-								// could also count/balance retains&releases ??
-};
-@class NSMapTable;
-extern NSMapTable *__NSAllocationCountTable;
-#endif
 
 NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// object allocation
 {

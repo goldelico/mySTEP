@@ -139,7 +139,7 @@ typedef struct __CGEvent *CGEventRef;
 //#define retval_t void *
 
 #define objc_malloc(A) malloc(A)
-#define objc_free(A) free(A)
+#define objc_free(A) { if(A) free(A); }
 #define objc_calloc(A, B) calloc((A), (B))
 #define objc_realloc(A, B) realloc((A), (B))
 
@@ -249,10 +249,12 @@ char *objc_dynamic_find_file(const void *address);
 	__a*((__v+__a-1)/__a); })
 
 #define OBJC_MALLOC(VAR, TYPE, NUM) \
-((VAR) = (TYPE *) objc_malloc ((unsigned)(NUM)*sizeof(TYPE))) 
+((VAR) = (TYPE *) objc_malloc ((unsigned)(NUM)*sizeof(TYPE)))
+#define OBJC_CALLOC(VAR, TYPE, NUM) \
+((VAR) = (TYPE *) objc_calloc ((unsigned)(NUM), sizeof(TYPE)))
 #define OBJC_REALLOC(VAR, TYPE, NUM) \
 ((VAR) = (TYPE *) objc_realloc ((VAR), (unsigned)(NUM)*sizeof(TYPE)))
-#define OBJC_FREE(PTR) objc_free (PTR)
+#define OBJC_FREE(PTR) { if(PTR) objc_free (PTR); }
 
 
 #ifndef	YES
