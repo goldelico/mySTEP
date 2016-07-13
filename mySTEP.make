@@ -361,7 +361,7 @@ INCLUDES := $(INCLUDES) \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(ARCHITECTURE),MacOS)
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 endif
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
