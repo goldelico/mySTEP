@@ -244,6 +244,10 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @end
 
+@interface NSNotification (NSPrivate)
+- (void) _makeSignalSafe;
+@end
+
 @interface NSNotificationQueue (NSPrivate)
 
 + (void) _runLoopIdle;

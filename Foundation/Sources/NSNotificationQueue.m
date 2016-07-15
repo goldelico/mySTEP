@@ -1,14 +1,14 @@
-/* 
-   NSNotificationQueue.m
+/*
+ NSNotificationQueue.m
 
-   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-   All rights reserved.
+ Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+ All rights reserved.
 
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+ Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
-   This file is part of the mySTEP Library and is provided under the 
-   terms of the libFoundation BSD type license (See the Readme file).
-*/
+ This file is part of the mySTEP Library and is provided under the
+ terms of the libFoundation BSD type license (See the Readme file).
+ */
 
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSNotificationQueue.h>
@@ -19,9 +19,9 @@
 #import <Foundation/NSThread.h>
 
 typedef struct _InstanceList {
-    struct _InstanceList *next;
-    struct _InstanceList *prev;
-    id queue;
+	struct _InstanceList *next;
+	struct _InstanceList *prev;
+	id queue;
 } _NSQueueInstanceList;
 
 typedef struct _NSNotificationQueue_t {
@@ -40,21 +40,21 @@ static NSNotificationQueue *__defaultQueue = nil;
 	Queue layout
 
 	Queue             Elem              Elem              Elem
-	  head ---------> prev -----------> prev -----------> prev --> nil
-			  nil <-- next <----------- next <----------- next
-	  tail --------------------------------------------->
-*/
+ head ---------> prev -----------> prev -----------> prev --> nil
+ nil <-- next <----------- next <----------- next
+ tail --------------------------------------------->
+ */
 
 
 @interface _NSQueueRegistration : NSObject
 {
 @public
-    _NSQueueRegistration *next;
-    _NSQueueRegistration *prev;
-    NSNotification *notification;
-    id name;
-    id object;
-    NSArray *modes;
+	_NSQueueRegistration *next;
+	_NSQueueRegistration *prev;
+	NSNotification *notification;
+	id name;
+	id object;
+	NSArray *modes;
 }
 
 @end
@@ -68,30 +68,35 @@ static NSNotificationQueue *__defaultQueue = nil;
 @end
 
 typedef struct _NSNotificationQueueList {
-    _NSQueueRegistration *head;
-    _NSQueueRegistration *tail;
+	_NSQueueRegistration *head;
+	_NSQueueRegistration *tail;
 } NSNotificationQueueList;
 
 @interface NSNotification (NSPrivate)
 
-- (void) _addToQueue:(NSNotificationQueueList *)queue 
-		 	forModes:(NSArray *)modes;
+- (void) _addToQueue:(NSNotificationQueueList *)queue
+			forModes:(NSArray *)modes;
 
 @end
 
 @implementation NSNotification (NSPrivate)
 
-- (void) _addToQueue:(NSNotificationQueueList *)queue 
-		 	forModes:(NSArray *)modes
+- (void) _makeSignalSafe
+{ /* avoid memory allocation when calling _addToQueue:forModes: */
+	if(!_queued)
+		_queued = [_NSQueueRegistration new];	/* pre-allocate */
+}
+
+- (void) _addToQueue:(NSNotificationQueueList *)queue
+			forModes:(NSArray *)modes
 {
 	if(!_queued)
 		_queued = [_NSQueueRegistration new];
-	else
-		if(((_NSQueueRegistration *)_queued)->notification != nil)
-			{
-			NSLog(@"warning: notification %@ to be queued is already in queue\n", self);
-			return;
-			}
+	else if(((_NSQueueRegistration *)_queued)->notification)
+		{
+		NSLog(@"warning: notification %@ to be queued is already in queue\n", self);
+		return;
+		}
 
 	((_NSQueueRegistration *)_queued)->notification = [self retain];
 	((_NSQueueRegistration *)_queued)->name = _name;
@@ -106,7 +111,7 @@ typedef struct _NSNotificationQueueList {
 		((_NSQueueRegistration *)_queued)->next->prev = _queued;
 	if (!queue->head)
 		queue->head = _queued;
-}		
+}
 
 @end
 
@@ -127,15 +132,15 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 #if 0
 	NSLog(@"_NSRemoveFromQueue: %@", item);
 #endif
-    if (item->prev)
+	if (item->prev)
 		item->prev->next = item->next;
-    else if ((queue->tail = item->next))
-	    item->next->prev = NULL;
+	else if ((queue->tail = item->next))
+		item->next->prev = NULL;
 
-    if (item->next)
+	if (item->next)
 		item->next->prev = item->prev;
-    else if ((queue->head = item->prev))
-	    item->prev->next = NULL;
+	else if ((queue->head = item->prev))
+		item->prev->next = NULL;
 
 	if (item->modes)
 		[item->modes release];
@@ -147,7 +152,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 
 + (void) initialize
 {
- 	if (!__defaultQueue)
+	if (!__defaultQueue)
 		__defaultQueue = [[self alloc] init];
 }
 
@@ -156,23 +161,23 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 - (id) init
 {
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    return [self initWithNotificationCenter: nc];
+	return [self initWithNotificationCenter: nc];
 }
 
 - (id) initWithNotificationCenter:(NSNotificationCenter*)notificationCenter
 {
 	_NSQueueInstanceList *regItem;
 
-    _center = [notificationCenter retain];					// init queue
-    _asapQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
-    _idleQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
+	_center = [notificationCenter retain];					// init queue
+	_asapQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
+	_idleQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
 
-    regItem = objc_calloc(1, sizeof(_NSQueueInstanceList));			// insert in global 
+	regItem = objc_calloc(1, sizeof(_NSQueueInstanceList));			// insert in global
 	regItem->next = __notificationQueues;					// list of queues
 	regItem->queue = self;
 	__notificationQueues = regItem;
 
-    return self;
+	return self;
 }
 
 - (void) dealloc
@@ -181,39 +186,39 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	_NSQueueRegistration *item;
 	_NSQueueInstanceList *queues = __notificationQueues;	// remove from class instances list
 
-    if (queues->queue == self)
-	    __notificationQueues = __notificationQueues->next;
-    else
+	if (queues->queue == self)
+		__notificationQueues = __notificationQueues->next;
+	else
 		{
 		for(regItem=__notificationQueues; regItem->next; regItem=regItem->next)
-			if (regItem->next->queue == self) 
+			if (regItem->next->queue == self)
 				{
 				theItem = regItem->next;
 				regItem->next = theItem->next;
 				objc_free(theItem);
 				break;
-		}		}
-															// release self
-    for (item = _asapQueue->head; item; item = item->prev)
+				}		}
+	// release self
+	for (item = _asapQueue->head; item; item = item->prev)
 		_NSRemoveFromQueue(_asapQueue, item);
-    objc_free(_asapQueue);
+	objc_free(_asapQueue);
 
-    for (item = _idleQueue->head; item; item=item->prev)
+	for (item = _idleQueue->head; item; item=item->prev)
 		_NSRemoveFromQueue(_idleQueue, item);
-    objc_free(_idleQueue);
+	objc_free(_idleQueue);
 
-    [_center release];
-    [super dealloc];
+	[_center release];
+	[super dealloc];
 }
 
 - (void) dequeueNotificationsMatching:(NSNotification*)notification
 						 coalesceMask:(NSUInteger)coalesceMask
-{												 
+{
 	_NSQueueRegistration *item;					// Inserting and Removing
 	_NSQueueRegistration *next;					// Notifications From a Queue
 	id name = [notification name];
 	id object = [notification object];
-										// find in ASAP notification in queue
+	// find in ASAP notification in queue
 #if 0
 	NSLog(@"dequeueNotificationsMatching:%@ coalesceMask: %u name: %@ object: %@",
 		  notification,
@@ -222,22 +227,22 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		  object);
 #endif
 	// find in asap notification queue
-    for (item = _asapQueue->tail; item; item = next) 
+	for (item = _asapQueue->tail; item; item = next)
 		{
 		next = item->next;
 		if (((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
-			!(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
+			 !(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
 			{
 			_NSRemoveFromQueue(_asapQueue, item);
 			continue;
 			}
 		}
 	// find in idle notification queue
-    for (item = _idleQueue->tail; item; item = next)
+	for (item = _idleQueue->tail; item; item = next)
 		{
 		next = item->next;
 		if (((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
-			!(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
+			 !(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
 			{
 			_NSRemoveFromQueue(_asapQueue, item);
 			continue;
@@ -246,19 +251,19 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 }
 
 - (void) enqueueNotification:(NSNotification*)notification
-				postingStyle:(NSPostingStyle)postingStyle	
+				postingStyle:(NSPostingStyle)postingStyle
 {
 	[self enqueueNotification:notification
-		  postingStyle:postingStyle
-		  coalesceMask:NSNotificationCoalescingOnName 
-						| NSNotificationCoalescingOnSender 
-		  forModes:nil];
+				 postingStyle:postingStyle
+				 coalesceMask:NSNotificationCoalescingOnName
+	 | NSNotificationCoalescingOnSender
+					 forModes:nil];
 }
 
 - (void) enqueueNotification:(NSNotification*)notification
 				postingStyle:(NSPostingStyle)postingStyle
 				coalesceMask:(NSUInteger)coalesceMask
-				forModes:(NSArray*)modes
+					forModes:(NSArray*)modes
 {
 #if 0
 	NSLog(@"enqueue:%@ postingStyle %u coalesceMask: %u forModes: %@",
@@ -267,22 +272,22 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		  coalesceMask,
 		  modes);
 #endif
-    if (coalesceMask != NSNotificationNoCoalescing)
-		[self dequeueNotificationsMatching:notification 
-			  coalesceMask:coalesceMask];
+	if (coalesceMask != NSNotificationNoCoalescing)
+		[self dequeueNotificationsMatching:notification
+							  coalesceMask:coalesceMask];
 
-    switch (postingStyle) 
-		{
+	switch (postingStyle)
+	{
 		case NSPostNow:
-			[self _postNotification:notification forModes:modes queue:NULL item:NULL];
-			break;
+		[self _postNotification:notification forModes:modes queue:NULL item:NULL];
+		break;
 		case NSPostASAP:
-			[notification _addToQueue:_asapQueue forModes:modes];
-			break;
+		[notification _addToQueue:_asapQueue forModes:modes];
+		break;
 		case NSPostWhenIdle:
-			[notification _addToQueue:_idleQueue forModes:modes];
-			break;
-		}
+		[notification _addToQueue:_idleQueue forModes:modes];
+		break;
+	}
 }
 
 - (void) _postNotification:(NSNotification*) notification
@@ -294,7 +299,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 #if 0
 	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
 #endif
-    if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
+	if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
 		{
 		[notification retain];
 		if(queue && item)
@@ -332,18 +337,18 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 #if 0
 	NSLog(@"_runLoopIdle mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
-    for (item = __notificationQueues; item; item = item->next)
+	for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			[item->queue _notifyIdle];
 }
 
 + (void) _runLoopASAP
 { // trigger the ASAP items
-	_NSQueueInstanceList *item;   
+	_NSQueueInstanceList *item;
 #if 0
 	NSLog(@"_runLoopASAP mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
-    for (item = __notificationQueues; item; item = item->next)
+	for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_asapQueue->head)
 			[item->queue _notifyASAP];
 }
