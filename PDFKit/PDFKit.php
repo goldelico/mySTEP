@@ -25,6 +25,11 @@ const UE="\334";
 // const eur="\200"; // there is no EUR symbol in ISO Latin-1
 const eur="EUR";
 
+function cm2pt($cm)
+{
+	return $cm*72/2.54;
+}
+
 class PDFPage extends NSObject
 {
 	private static $ezpdf;
@@ -194,11 +199,6 @@ $this->strokeRect($rect);
 // _NSLog(self::$ezpdf);
 		return self::$ezpdf->output();
 	}
-}
-
-function cm2pt($cm)
-{
-	return $cm*72/2.54;
 }
 
 class PDFDocument extends NSObject
