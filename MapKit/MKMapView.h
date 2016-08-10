@@ -64,7 +64,6 @@ typedef struct UIEdgeInsets
 	BOOL scrollEnabled;
 	BOOL userLocationVisible;
 	BOOL zoomEnabled;
-	BOOL showsUserLocation;
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a;

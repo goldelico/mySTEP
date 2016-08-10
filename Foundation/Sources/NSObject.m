@@ -86,10 +86,7 @@ NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// obj
 #endif
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
-#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
-			extern void __NSCountAllocate(Class aClass);
 			__NSCountAllocate(aClass);
-#endif
 			memset (newobject, 0, size);
 			newobject = (id)&((_object_layout)newobject)[1];
 			object_setClass(newobject, aClass);	// install class pointer
@@ -114,12 +111,7 @@ void NSDeallocateObject(NSObject *anObject)					// object deallocation
 #if 0
 		fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, class_getName(object_getClass(anObject)));
 #endif
-#if TRACE_OBJECT_ALLOCATION	// if we trace object allocation
-			{
-			extern void __NSCountDeallocate(Class aClass);
-			__NSCountDeallocate([anObject class]);
-			}
-#endif
+		__NSCountDeallocate([anObject class]);
 		object_setClass((id)anObject, __zombieClass);	// install zombie class pointer
 		objc_free(o);
 		__NSAllocatedObjects--;	// one less

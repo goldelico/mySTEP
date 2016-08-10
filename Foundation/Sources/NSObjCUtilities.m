@@ -1,27 +1,27 @@
-/* 
+/*
  NSUtilities.m
- 
+
  Copyright (C) 1996 Free Software Foundation, Inc.
- 
+
  Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
  Date:	August 1994
- 
+
  NSLog
  Author:	Adam Fedor <fedor@boulder.colorado.edu>
  Date:	November 1996
- 
+
  Default Encoding
  Author:	Stevo Crvenkovski <stevo@btinternet.com>
  Date:	December 1997
- 
+
  ARM Softfloat wrapper
  Author:	Nikolaus Schaller <hns@computer.org>
  Date:	2003 - August 2007
- 
+
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
- 
- */ 
+
+ */
 
 #define TRACE_OBJECT_ALLOCATION	1
 
@@ -68,19 +68,24 @@
 //
 //*****************************************************************************
 
-// From the objc runtime -- needed when invalidating the dtable 
+// FIXME: does the dtable still exist?
+
+// From the objc runtime -- needed when invalidating the dtable
 extern void __objc_install_premature_dtable(Class);
 //extern void sarray_free(struct sarray *);
 
-// objc-api.h: defines extern void (*_objc_load_callback)(Class class, Category* category);
+/* runtime.h defines:
+ * extern void (*_objc_load_callback)(Class class, struct objc_category * category);
+ * typedef struct objc_category *Category;
+ */
 
 // Our current callback function from objc_loadmodule
-void (*objc_loadmodule_callback)(Class, Category *) = 0;
+void (*objc_loadmodule_callback)(Class, Category) = NULL;
 
-// dynamic loader was sucessfully initialized. 
+// dynamic loader was sucessfully initialized.
 static BOOL	__dynamicLoaderInitialized = NO;
 
-// List of modules we have loaded (by handle) 
+// List of modules we have loaded (by handle)
 static struct objc_list *__dynamicModules = NULL;
 
 #define CTOR_LIST "__CTOR_LIST__"				// GNU name for the CTOR list
@@ -93,79 +98,80 @@ static struct objc_list *__dynamicModules = NULL;
 #define RTLD_NEXT 	((void *) -1l)
 #endif
 
-typedef void *dl_handle_t;						// Types defined appropriately 
+typedef void *dl_handle_t;						// Types defined appropriately
 typedef void *dl_symbol_t;						// for the dynamic linker
 
-// Do any initialization necessary.  Return 0 
+// Do any initialization necessary.  Return 0
 // on success (or if no initialization needed.
 
-static int __objc_dynamic_init(const char *exec_path)
+static int objc_dynamicInit(const char *exec_path)
 {
 	return 0;
 }
 
 // Link in module given by the name 'module'.
-// Return a handle which can be used to get 
+// Return a handle which can be used to get
 // information about the loded code. mode is ignored
 
-static dl_handle_t __objc_dynamic_link(const char *module, int mode, const char *debug_file)
+static dl_handle_t objc_dynamicLink(const char *module, int mode, const char *debug_file)
 {
 	dl_handle_t *ret;
-#if 0
-	fprintf(stderr, "__objc_dynamic_link(%s, %d, %s)\n", module, mode, debug_file);
+#if 1
+	fprintf(stderr, "objc_dynamicLink(%s, %d, %s)\n", module, mode, debug_file);
 #endif
 	ret=(dl_handle_t)dlopen(module, RTLD_LAZY | RTLD_GLOBAL);
-#if 0
-	fprintf(stderr, "__objc_dynamic_link => %08lx\n", (unsigned int) ret);
+#if 1
+	fprintf(stderr, "objc_dynamicLink => %08lx\n", (unsigned int) ret);
 #endif
 	return ret;
 }
 
-// remove the code from memory associated with 
+// remove the code from memory associated with
 // the module 'handle'
 
-static int __objc_dynamic_unlink(dl_handle_t handle)
+static int objc_dynamicUnlink(dl_handle_t handle)
 {
-    return dlclose(handle);
+	return dlclose(handle);
 }
 
-// Print error message prefaced by error_string 
+// Print error message prefaced by error_string
 // relevant to the last error encountered
 
-static void __objc_dynamic_error(FILE *error_stream, const char *error_string)
+static void objc_dynamicError(FILE *error_stream, const char *error_prefix)
 {
-    fprintf(error_stream, "%s:%s\n", error_string, dlerror());
+	if(error_stream)
+		fprintf(error_stream, "%s:%s\n", error_prefix, dlerror());
 }
 
-// Debugging define these if they are available 
+// Debugging define these if they are available
 
 static int __objc_dynamic_undefined_symbol_count(void)		{ return 0; }
 static char** __objc_dynamic_list_undefined_symbols(void)	{ return NULL; }
 
-// Check to see if there are any undefined 
+// Check to see if there are any undefined
 // symbols. Print them out.
 
 int objc_check_undefineds(FILE *errorStream)
 {
 	int i, count = __objc_dynamic_undefined_symbol_count();
-	
-	if (count != 0) 
+
+	if (count != 0)
 		{
-        char **undefs = __objc_dynamic_list_undefined_symbols();
-		
-        if (errorStream)
-	    	fprintf(errorStream, "Undefined symbols:\n");
-        for (i = 0; i < count; i++)
-            if (errorStream)
+		char **undefs = __objc_dynamic_list_undefined_symbols();
+
+		if (errorStream)
+			fprintf(errorStream, "Undefined symbols:\n");
+		for (i = 0; i < count; i++)
+			if (errorStream)
 				fprintf(errorStream, "  %s\n", undefs[i]);
-		
+
 		return 1;
-    	}
-	
+		}
+
 	return 0;
 }
 
-// Invalidate the dtable so it will be rebuild 
+// Invalidate the dtable so it will be rebuild
 // when a message is sent to the object
 
 void objc_invalidate_dtable(Class class)
@@ -175,121 +181,147 @@ void objc_invalidate_dtable(Class class)
 	fprintf(stderr, "invalidate dtable for %s\n", class_getName(class));
 #endif
 #if FIXME
-    if (class->dtable == objc_get_uninstalled_dtable())
+	if (class->dtable == objc_get_uninstalled_dtable())
 		return;
-    sarray_free(class->dtable);
-    __objc_install_premature_dtable(class);
-    for (s = class->subclass_list; s; s=s->sibling_class)
+	sarray_free(class->dtable);
+	__objc_install_premature_dtable(class);
+	for (s = class->subclass_list; s; s=s->sibling_class)
 		objc_invalidate_dtable(s);	// recursive
 #endif
 }
 
-int objc_initialize_loading(FILE *errorStream)
+// FIXME: not really used
+
+int objc_initializeLoading(FILE *errorStream)
 {
 	const char *path = [[[NSBundle mainBundle] bundlePath] fileSystemRepresentation];
-	
-    NSDebugLog(@"(objc-load): initializing dynamic loader for %s\n", path);
-	
-    if (__objc_dynamic_init(path)) 
+
+	NSDebugLog(@"(objc-load): initializing dynamic loader for %s\n", path);
+
+	if (objc_dynamicInit(path))
 		{
-		if (errorStream)
-			__objc_dynamic_error(errorStream, "Error init'ing dynamic linker");
+		objc_dynamicError(errorStream, "Error init'ing dynamic linker");
 		return 1;
-		} 
-	
+		}
+
 	__dynamicLoaderInitialized = YES;
-	
-    return 0;
+
+	return 0;
 }
 
-// A callback received from Object initializer 
-// (_objc_exec_class). Do what we need to do 
+// A callback received from Object initializer
+// (_objc_exec_class). Do what we need to do
 // and call our own callback.
 
-void objc_load_callback(Class class, Category *category)
+void objc_load_callback_function(Class class, struct objc_category *category)
 {
 #if 1
-	fprintf(stderr, "objc_load_callback(%s, %p)\n", class_getName(class), category);
+	fprintf(stderr, "objc_load_callback_function(%s, %p)\n", class_getName(class), category);
 #endif
 #if FIXME
-    if (class != Nil && category != (Category *) NULL) 		// Invalidate the dtable, so it
-		{									// will be rebuilt correctly
+	if (class != Nil && category) 		// Invalidate the dtable, so it will be rebuilt correctly
+		{
 			objc_invalidate_dtable(class);
 			objc_invalidate_dtable(class->class_pointer);
 		}
-	
-    if (objc_loadmodule_callback)
-		(*objc_loadmodule_callback)(class, category);	// pass to user provided callback (_bundleLoadCallback)
+
 #endif
+	if (objc_loadmodule_callback)
+		(*objc_loadmodule_callback)(class, (Category) category);	// pass to user provided callback (_bundleLoadCallback)
 #if 1
-	fprintf(stderr, "objc_load_callback done\n");
+	fprintf(stderr, "objc_load_callback_function done\n");
 #endif
 }
 
-long objc_load_module(const char *filename,
-					  FILE *errorStream,
-					  void (*loadCallback)(Class, Category*),
-					  void **header,
-					  char *debugFilename)
+int objc_loadModule(char *filename,
+					void (*loadCB)(Class, Category),
+					int *error					)
+{ // load a single module
+	char *modPtr[2] = { filename, NULL};
+	if(objc_loadModules(modPtr, stderr, loadCB, NULL, NULL) == 1)
+	   return 1;	// success
+	if(error) *error=1;
+	return 0;	// nok
+}
+
+long objc_loadModules (char *list[],
+					   void *errStream,
+					   void (*loadCB) (Class, Category),
+					   void **header,
+					   char *debugFilename)
 {
 	typedef void (*void_fn)();
 	dl_handle_t handle;
-	
-#if 1
-	fprintf(stderr, "objc_load_module %s\n", filename);
-#endif
-	
-    if (!__dynamicLoaderInitialized)
-        if (objc_initialize_loading(errorStream))
-            return 1;
-	
-    objc_loadmodule_callback = loadCallback;	// most probably _bundleLoadCallback
-    _objc_load_callback = objc_load_callback;	// install our callback into objc.so
-	
-    NSDebugLog(@"Debug (objc-load): Linking file %s\n", filename);
-#if 0
-	fprintf(stderr, "objc_load_module: Linking file %s\n", filename);
-#endif
-	// Link in the object file
-	if ((handle = __objc_dynamic_link(filename, 1, debugFilename)) == 0) 
+	char *filename;
+	long success=0;
+	while((filename=*list++))
 		{
 #if 1
-		fprintf(stderr, "objc_load_module: error linking file %s\n", filename);
+		fprintf(stderr, "objc_load_module %s\n", filename);
 #endif
-		if (errorStream)
-			__objc_dynamic_error(errorStream, "Error (objc-load)");
-		return 1;
-		}
+
+		if (!__dynamicLoaderInitialized && objc_initializeLoading(errStream))
+			return 0;	// failed to initialize
+
+		// module loading could be serialized by a lock
+		if(objc_loadmodule_callback)
+			{ // there is already a callback installed
+			NSLog(@"objc_loadModule already runing (threads?)");
+			return 0;
+			}
+		objc_loadmodule_callback = loadCB;	// most probably _bundleLoadCallback
+		_objc_load_callback = objc_load_callback_function;	// install our callback into objc.so
+
+		NSDebugLog(@"Debug (objc-load): Linking file %s\n", filename);
 #if 0
-	fprintf(stderr, "objc_load_module: linked\n");
+		fprintf(stderr, "objc_load_module: Linking file %s\n", filename);
+#endif
+		// Link in the object file
+		if ((handle = objc_dynamicLink(filename, 1, debugFilename)) == 0)
+			{
+#if 1
+			fprintf(stderr, "objc_load_module: error linking file %s\n", filename);
+#endif
+			objc_dynamicError(errStream, "Error (objc-load)");
+			return 0;
+			}
+#if 0
+		fprintf(stderr, "objc_load_module: linked\n");
 #endif
 #if FIXME
-    __dynamicModules = list_cons(handle, __dynamicModules);
+		__dynamicModules = list_cons(handle, __dynamicModules);
 #endif
 #if 0
-	fprintf(stderr, "objc_load_module: after list_cons\n");
+		fprintf(stderr, "objc_load_module: after list_cons\n");
 #endif
-	
-	// If there are any undefined symbols, we can't load the bundle
-	if (objc_check_undefineds(errorStream)) 
-		{
+
+		// If there are any undefined symbols, we can't load the bundle
+		if (objc_check_undefineds(errStream))
+			{
 #if 1
-		fprintf(stderr, "objc_load_module: has undefined symbols, can't really load\n");
+			fprintf(stderr, "objc_load_module: has undefined symbols, can't really load\n");
 #endif
-		__objc_dynamic_unlink(handle);
-		return 1;
+			objc_dynamicUnlink(handle);
+			return 1;
+			}
+
+		_objc_load_callback = NULL;
+		objc_loadmodule_callback = NULL;
+		success++;
+#if 1
+		fprintf(stderr, "objc_load_module: successfully loaded\n");
+#endif
 		}
-	
-    _objc_load_callback = NULL;
-    objc_loadmodule_callback = NULL;
-#if 1
-	fprintf(stderr, "objc_load_module: successfully loaded\n");
-#endif
-	
-    return 0;
+
+	return success;
 }
 
-char *objc_dynamic_find_file(const void *address)
+long objc_unloadModules(void *errStream, void (*unloadCb)(Class, Category))
+{
+	return 0;
+}
+
+char *objc_moduleForAddress(const void *address)
 {
 #ifdef __linux__	// not loaded by <dlfcn.h>
 	typedef struct
@@ -302,61 +334,64 @@ char *objc_dynamic_find_file(const void *address)
 	extern int dladdr(const void *__address, Dl_info *__info);
 #endif
 	Dl_info info;
-#if 0
-	if(dladdr(aClass, &info))	// find filename for address of class record
-		NSLog(@"Dl_info filename=%s", info.dli_fname);
-	else
-		NSLog(@"addr not found");
-#endif
 	if(dladdr(address, &info))	// find filename for address of class record
+		{
+#if 0
+		NSLog(@"objc_moduleForAddress filename=%s", info.dli_fname);
+#endif
 		return (char *) info.dli_fname;
+		}
+#if 1
+	NSLog(@"addr not found");
+#endif
 	return NULL;
 }
 
 #endif	// __linux__
 
+
 //*****************************************************************************
 //
-// 		NSRange - range functions 
+// 		NSRange - range functions
 //
 //*****************************************************************************
 
-NSRange 
+NSRange
 NSUnionRange(NSRange aRange, NSRange bRange)
 {
-	NSRange range;											// Compute a Range from 
-	// two other Ranges
+	NSRange range;											// Compute a Range from
+															// two other Ranges
 	range.location = MIN(aRange.location, bRange.location);
-    range.length = MAX(NSMaxRange(aRange),NSMaxRange(bRange)) - range.location;
-	
-    return range;
+	range.length = MAX(NSMaxRange(aRange),NSMaxRange(bRange)) - range.location;
+
+	return range;
 }
 
-NSRange 
+NSRange
 NSIntersectionRange (NSRange aRange, NSRange bRange)
 {
 	NSRange range;
-    
-    if (NSMaxRange(aRange) < bRange.location
+
+	if (NSMaxRange(aRange) < bRange.location
 		|| NSMaxRange(bRange) < aRange.location)
 		return NSMakeRange(0, 0);
-	
-    range.location = MAX(aRange.location, bRange.location);
+
+	range.location = MAX(aRange.location, bRange.location);
 	range.length = MIN(NSMaxRange(aRange),NSMaxRange(bRange)) - range.location;
-	
-    return range;
+
+	return range;
 }
 
 NSString *
 NSStringFromRange(NSRange range)
 {
-    return [NSString stringWithFormat:@"{ %u, %u }", range.location, range.length];
+	return [NSString stringWithFormat:@"{ %u, %u }", range.location, range.length];
 }
 
 NSRange NSRangeFromString(NSString *string)
 { // { location, length }
 	NSScanner *scanner = [NSScanner scannerWithString:string];
-	NSRange range={ 0, 0 };  
+	NSRange range={ 0, 0 };
 	[scanner scanString:@"{" intoString:NULL];	// skip
 	if([scanner scanInt:(int *) &range.location])		// try to read
 		{
@@ -368,12 +403,12 @@ NSRange NSRangeFromString(NSString *string)
 
 //*****************************************************************************
 //
-// 		NSUser functions 
+// 		NSUser functions
 //
 //*****************************************************************************
 
 NSString *
-NSUserName (void)							// Return user's login name as an 
+NSUserName (void)							// Return user's login name as an
 {											// NSString object.
 	struct passwd *pw;
 	NSString *uname;
@@ -389,7 +424,7 @@ NSString *NSFullUserName(void)
 { // return full user name
 	struct passwd *pw;
 	if ((pw = getpwnam([NSUserName() cString])) && pw->pw_gecos && *pw->pw_gecos != '\0')
-		return [[[NSString stringWithCString: pw->pw_gecos] componentsSeparatedByString:@","] objectAtIndex:0];	
+		return [[[NSString stringWithCString: pw->pw_gecos] componentsSeparatedByString:@","] objectAtIndex:0];
 	return @"N.N.";
 }
 
@@ -410,8 +445,8 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 	struct passwd *pwd=getpwnam([login_name UTF8String]);
 	endpwent();
 	/*
-	if(!pwd) return nil;
-	else 
+	 if(!pwd) return nil;
+	 else
 	 */
 	if(pwd && pwd->pw_uid == 0)
 		h=@"/";	// root user - FIXME
@@ -442,9 +477,9 @@ NSArray *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directory, NS
 #define ADD_PATH(mask, path) \
 if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:expandedPath=[path stringByExpandingTildeInPath]]) \
 [paths addObject: expandTilde?expandedPath:path];
-	
+
 	// we could read this from an NSDictionary in Info.plist ...
-	
+
 	switch (directory) {
 		case NSAllApplicationsDirectory:
 			ADD_PATH(NSUserDomainMask, @"~/Applications");
@@ -530,7 +565,7 @@ if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defa
 
 //*****************************************************************************
 //
-// 		NSLog 
+// 		NSLog
 //
 //*****************************************************************************
 
@@ -555,7 +590,7 @@ void NSLogv(NSString *format, va_list args)
 		const char *msg;
 		if(__doingNSLog)
 			{ // any of the NSString, NSCalendarDate, NSProcessInfo methods may have a debugging call to NSLog()
-				// may also occur if -description calls NSLog
+			  // may also occur if -description calls NSLog
 				fprintf(stderr, "recursive NSLog(\"%s\", ...)\n", [format UTF8String]);
 				return;
 			}
@@ -590,7 +625,7 @@ void NSLogv(NSString *format, va_list args)
 		}
 }
 
-void 
+void
 NSLog (NSString *format, ...)
 {
 	va_list ap;
@@ -599,18 +634,18 @@ NSLog (NSString *format, ...)
 	va_end (ap);
 }
 
-id 
+id
 GSError (id errorObject, NSString *format, ...)
 {
 	va_list ap;
-	
+
 	if (errorObject)
 		NSLog (@"GSError in %@", [errorObject description]);
 	va_start (ap, format);
 	NSLogv (format, ap);
 	va_end (ap);
 	[errorObject release];
-	
+
 	return nil;
 }
 
@@ -621,38 +656,37 @@ const char *_NSPrintForDebugger(id object)
 
 //*****************************************************************************
 //
-// 		NSObjCRuntime 
+// 		NSObjCRuntime
 //
 //*****************************************************************************
 
 NSString *
 NSStringFromSelector(SEL aSelector)
 {
-	if (aSelector != (SEL)0)
-		return [NSString stringWithUTF8String:(const char *) sel_getName(aSelector)];
+	if (aSelector)
+		return [NSString stringWithUTF8String:sel_getName(aSelector)];
 	return nil;
 }
 
 SEL
 NSSelectorFromString(NSString *aSelectorName)
 {
-	if (aSelectorName != nil)
+	const char *selName = [aSelectorName UTF8String];
+	if (selName)
 		{
-		const char *selName = [aSelectorName UTF8String];
-//		SEL s = sel_get_any_uid(selName);
 		// FIXME: how can we translate/register arbitrary selectors for DO?
 		SEL s = sel_registerName(selName);
-		if(!s)
-			NSLog(@"NSSelectorFromString(): can't find SEL %@", aSelectorName);
-		return s;
+		if(s)
+			return s;
 		}
+	NSLog(@"NSSelectorFromString(): can't find SEL %@", aSelectorName);
 	return (SEL)0;
 }
 
 NSString *
 NSStringFromClass(Class aClass)
 {
-	if (aClass != Nil)
+	if (aClass)
 		return [NSString stringWithUTF8String:class_getName(aClass)];
 	return nil;
 }
@@ -660,14 +694,14 @@ NSStringFromClass(Class aClass)
 Class
 NSClassFromString(NSString *aClassName)
 {
-	if (aClassName != nil)
+	const char *className = [aClassName UTF8String];
+	if (className)
 		{
-		const char *className = [aClassName UTF8String];
 		Class c = objc_getClass(className);
-		if(!c)
-			NSLog(@"NSClassFromString(): can't find Class %@", aClassName);
-		return c;
+		if(c)
+			return c;
 		}
+	NSLog(@"NSClassFromString(): can't find Class %@", aClassName);
 	return (Class)0;
 }
 
@@ -678,7 +712,7 @@ NSClassFromString(NSString *aClassName)
 NSString *
 NSStringFromProtocol(Protocol *aProtocol)
 {
-	if (aProtocol != (Protocol*)0)
+	if (aProtocol)
 		return [NSString stringWithUTF8String:protocol_getName(aProtocol)];
 	return nil;
 }
@@ -687,27 +721,29 @@ NSStringFromProtocol(Protocol *aProtocol)
  * Returns the protocol whose name is supplied in the
  * aProtocolName argument, or 0 if a nil string is supplied.
  */
-Protocol *   
+Protocol *
 NSProtocolFromString(NSString *aProtocolName)
 {
-	if (aProtocolName != nil)
+	const char *protocolName = [aProtocolName UTF8String];
+	if (protocolName)
 		{
-		const char *protocolName = [aProtocolName UTF8String];
-		// FIXME:	lookup
-//		Protocol c = objc_lookup_protocol(protocolName);
+		Protocol *p = objc_getProtocol(protocolName);
+		if(p)
+			return p;
 		}
-	return (Protocol*)0;
+	NSLog(@"NSProtocolFromString(): can't find Protocol %@", aProtocolName);
+	return (Protocol*) nil;
 }
 
 //*****************************************************************************
 //
-// 		Default Encoding 
+// 		Default Encoding
 //
 //*****************************************************************************
 
-struct _strenc_ { 
-	NSStringEncoding enc; 
-	char *ename; 
+struct _strenc_ {
+	NSStringEncoding enc;
+	char *ename;
 };
 const unsigned int str_encoding_table_size = 17;
 
@@ -733,26 +769,26 @@ const struct _strenc_ str_encoding_table[] =
 	{NSUnicodeStringEncoding, "NSUnicodeStringEncoding"}
 };
 
-NSStringEncoding 
+NSStringEncoding
 GSDefaultCStringEncoding()
 {
 	NSStringEncoding ret, tmp;
 	char *encoding = getenv("MYSTEP_STRING_ENCODING");
-	
+
 	if (encoding)
 		{
 		unsigned int count = 0;
 		const NSStringEncoding *available = [NSString availableStringEncodings];
-		
-		while ((count < str_encoding_table_size) 
+
+		while ((count < str_encoding_table_size)
 			   && strcmp(str_encoding_table[count].ename, encoding))
 			count++;
-		
+
 		if( !(count == str_encoding_table_size))
 			{
 			ret = str_encoding_table[count].enc;
-	  		if ((ret == NSUTF8StringEncoding) 
-				|| (ret == NSUnicodeStringEncoding) 
+			if ((ret == NSUTF8StringEncoding)
+				|| (ret == NSUnicodeStringEncoding)
 				|| (ret == NSSymbolStringEncoding))
 				{
 				fprintf(stderr, "WARNING: %s - encoding is not", encoding);
@@ -760,7 +796,7 @@ GSDefaultCStringEncoding()
 				fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
 				ret = NSASCIIStringEncoding;
 				}
-			else 								// encoding should be supported 
+			else 								// encoding should be supported
 				{								// but is it implemented?
 					count = 0;
 					tmp = 0;
@@ -782,18 +818,18 @@ GSDefaultCStringEncoding()
 						fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
 						ret = NSASCIIStringEncoding;
 						}	}	}
-		else 											// encoding not found 
+		else 											// encoding not found
 			{
 			fprintf(stderr,"WARNING: %s - encoding not supported.\n",encoding);
 			fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
 			ret = NSASCIIStringEncoding;
 			}	}
-	else 										// envirinment var not found 
+	else 										// envirinment var not found
 		{
 		//		fprintf(stderr, "WARNING: MYSTEP_STRING_ENCODING env var not found\n");
 		ret = NSASCIIStringEncoding;
 		}
-	
+
 	return ret;
 }
 
@@ -802,7 +838,7 @@ GSGetEncodingName(NSStringEncoding encoding)
 {
 	char *ret;
 	unsigned int count = 0;
-	
+
 	while ((count < str_encoding_table_size) &&
 		   !(str_encoding_table[count].enc == encoding))
 		count++;
@@ -810,7 +846,7 @@ GSGetEncodingName(NSStringEncoding encoding)
 		ret = str_encoding_table[count].ename;
 	else
 		ret = "Unknown encoding";
-	
+
 	return [NSString stringWithCString:ret];
 }
 
@@ -825,7 +861,7 @@ const char *NSGetSizeAndAlignment(const char *typePtr,
 
 //*****************************************************************************
 //
-// 		NSPageSize 
+// 		NSPageSize
 //
 //*****************************************************************************
 
@@ -854,7 +890,7 @@ const char *NSGetSizeAndAlignment(const char *typePtr,
 #if __mach__
 #define getpagesize vm_page_size
 #endif
-// Cache size of a memory page 
+// Cache size of a memory page
 // to avoid repeated calls to
 static unsigned _pageSize = 0;					// getpagesize() system call
 
@@ -865,25 +901,25 @@ NSPageSize (void)								// in a memory page.
 }
 
 NSUInteger
-NSLogPageSize (void)							// Return log base 2 of the 
-{												// number of bytes in a memory 
+NSLogPageSize (void)							// Return log base 2 of the
+{												// number of bytes in a memory
 	unsigned tmp_page_size = NSPageSize();			// page.
 	unsigned log = 0;
-	
+
 	while (tmp_page_size >>= 1)
 		log++;
-	
+
 	return log;
 }
 
 NSUInteger
 NSRoundDownToMultipleOfPageSize (NSUInteger bytes)
-{												// Round BYTES down to the 
-	unsigned a = NSPageSize();						// nearest multiple of the 
-	// memory page size, and return 
+{												// Round BYTES down to the
+	unsigned a = NSPageSize();						// nearest multiple of the
+													// memory page size, and return
 	return (bytes / a) * a;						// it.
 }
-// Round BYTES up to nearest 
+// Round BYTES up to nearest
 NSUInteger										// multiple of the memory page
 NSRoundUpToMultipleOfPageSize (NSUInteger bytes)	// size, and return it.
 {
@@ -912,7 +948,7 @@ NSUInteger NSRealMemoryAvailable()
 		char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
 	};
 #endif /* __TYPICALLY_SOMETHING_LIKE__ */
-	
+
 	struct sysinfo info;
 #if 0
 	sysinfo(&info);
@@ -937,7 +973,7 @@ void *NSAllocateMemoryPages (NSUInteger bytes)
 	void *where;
 #if __mach__
 	kern_return_t r = vm_allocate (mach_task_self(), &where, (vm_size_t) bytes, 1);
-	
+
 	return (r != KERN_SUCCESS) ? NULL : where;
 #else
 	if ((where = malloc (bytes)) == NULL)
@@ -961,7 +997,7 @@ NSCopyMemoryPages (const void *source, void *dest, NSUInteger bytes)
 {
 #if __mach__
 	kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
-	
+
 	NSParameterAssert (r == KERN_SUCCESS);
 #else
 	memcpy (dest, source, bytes);

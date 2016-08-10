@@ -9,7 +9,7 @@
 #import "MyDocument.h"
 #import <CoreLocation/CoreLocation.h>
 
-#if TARGET_OS_MAC 
+#if TARGET_OS_MAC
 // locally define methods missing on MacOS (only available in iOS or mySTEP)
 
 @interface CLLocationManager (iOSOnly)
@@ -26,14 +26,14 @@
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
-    
-        // Add your subclass-specific initialization here.
-        // If an error occurs here, send a [self release] message and return nil.
-    
-    }
-    return self;
+	self = [super init];
+	if (self) {
+
+		// Add your subclass-specific initialization here.
+		// If an error occurs here, send a [self release] message and return nil.
+
+	}
+	return self;
 }
 
 - (void) dealloc
@@ -45,9 +45,9 @@
 
 - (NSString *) windowNibName
 {
-    // Override returning the nib file name of the document
-    // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
-    return @"MyDocument";
+	// Override returning the nib file name of the document
+	// If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
+	return @"MyDocument";
 }
 
 - (void) windowControllerDidLoadNib:(NSWindowController *) aController
@@ -56,8 +56,8 @@
 	NSLog(@"windowControllerDidLoadNib");
 #endif
 	MKPlacemark *pmk;
-    [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
+	[super windowControllerDidLoadNib:aController];
+	// Add any code here that needs to be executed once the windowController has loaded the document's window.
 	pmk=[[MKPlacemark alloc] initWithCoordinate:(CLLocationCoordinate2D) { 31.134358, 29.979175 } addressDictionary:nil];
 	//	[pmk setTitle:@"Cheops Pyramid"];
 	[map addAnnotation:pmk];
@@ -73,13 +73,13 @@
 
 - (NSData *) dataOfType:(NSString *)typeName error:(NSError **)outError
 {
-    // Insert code here to write your document to data of the specified type. If the given outError != NULL, ensure that you set *outError when returning nil.
+	// Insert code here to write your document to data of the specified type. If the given outError != NULL, ensure that you set *outError when returning nil.
 
-    // You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
+	// You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
 
-    // For applications targeted for Panther or earlier systems, you should use the deprecated API -dataRepresentationOfType:. In this case you can also choose to override -fileWrapperRepresentationOfType: or -writeToFile:ofType: instead.
+	// For applications targeted for Panther or earlier systems, you should use the deprecated API -dataRepresentationOfType:. In this case you can also choose to override -fileWrapperRepresentationOfType: or -writeToFile:ofType: instead.
 
-    if ( outError != NULL ) {
+	if ( outError != NULL ) {
 		*outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:0 userInfo:NULL];
 	}
 	return nil;
@@ -87,21 +87,21 @@
 
 - (BOOL) readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
-    // Insert code here to read your document from the given data of the specified type.  If the given outError != NULL, ensure that you set *outError when returning NO.
+	// Insert code here to read your document from the given data of the specified type.  If the given outError != NULL, ensure that you set *outError when returning NO.
 
-    // You can also choose to override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead. 
-    
-    // For applications targeted for Panther or earlier systems, you should use the deprecated API -loadDataRepresentation:ofType. In this case you can also choose to override -readFromFile:ofType: or -loadFileWrapperRepresentation:ofType: instead.
-    
-    if ( outError != NULL ) {
+	// You can also choose to override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
+
+	// For applications targeted for Panther or earlier systems, you should use the deprecated API -loadDataRepresentation:ofType. In this case you can also choose to override -readFromFile:ofType: or -loadFileWrapperRepresentation:ofType: instead.
+
+	if ( outError != NULL ) {
 		*outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:0 userInfo:NULL];
 	}
-    return YES;
+	return YES;
 }
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-	NSLog(@"error: %@", error);	
+	NSLog(@"error: %@", error);
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
@@ -125,13 +125,13 @@
 	NSLog(@"new location: %@", newLocation);
 	if(angle >= 0.0)
 		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
-		//
-		// on iOS:
-		//
-		// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
-		// self.mapView.transform = rotation * M_PI / 180.0;
-		[map setBoundsRotation:angle];
-		[map setNeedsDisplay:YES];
+			//
+			// on iOS:
+			//
+			// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
+			// self.mapView.transform = rotation * M_PI / 180.0;
+			[map setBoundsRotation:angle];
+			[map setNeedsDisplay:YES];
 		}
 	[map setCenterCoordinate:[newLocation coordinate]];	// center
 }
@@ -150,37 +150,37 @@
 
 - (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view calloutAccessoryControlTapped:(UIControl *) control;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view didChangeDragState:(MKAnnotationViewDragState) state fromOldState:(MKAnnotationViewDragState) oldState;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didAddAnnotationViews:(NSArray *) views;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didAddOverlayViews:(NSArray *) views;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didDeselectAnnotationView:(MKAnnotationView *) view;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didFailToLocateUserWithError:(NSError *) error;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didSelectAnnotationView:(MKAnnotationView *) view;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView didUpdateUserLocation:(MKUserLocation *) location;
@@ -190,12 +190,12 @@
 
 - (void) mapView:(MKMapView *) mapView regionDidChangeAnimated:(BOOL) flag;
 {
-	
+
 }
 
 - (void) mapView:(MKMapView *) mapView regionWillChangeAnimated:(BOOL) flag;
 {
-	
+
 }
 
 - (MKAnnotationView *) mapView:(MKMapView *) mapView viewForAnnotation:(id <MKAnnotation>) annotation;
@@ -210,27 +210,27 @@
 
 - (void) mapViewDidFailLoadingMap:(MKMapView *) mapView withError:(NSError *) error;
 {
-	
+
 }
 
 - (void) mapViewDidFinishLoadingMap:(MKMapView *) mapView;
 {
-	
+
 }
 
 - (void) mapViewDidStopLocatingUser:(MKMapView *) mapView;
 {
-	
+
 }
 
 - (void) mapViewWillStartLoadingMap:(MKMapView *) mapView;
 {
-	
+
 }
 
 - (void) mapViewWillStartLocatingUser:(MKMapView *) mapView;
 {
-	
+
 }
 
 @end

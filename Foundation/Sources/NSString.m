@@ -665,16 +665,15 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				{ // scan for special formatters that can't be handled by vsfprint
 					if(atsign_pos[0] == '%')
 						{
-						switch(atsign_pos[1])
-							{
-								case '@':
-								case 'C':
+						switch(atsign_pos[1]) {
+							case '@':
+							case 'C':
 								mode=atsign_pos[1];
 								*atsign_pos = '\0';		// tmp terminate the string before the next `%@'
 								break;
-								default:
+							default:
 								continue;
-							}
+						}
 						break;
 						}
 				}
@@ -719,59 +718,61 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #if 0
 					fprintf(stderr, "spec=%c\n", *spec_pos);
 #endif
-					switch (*spec_pos)
-					{
+					switch (*spec_pos) {
 						case 'd': case 'i': case 'o':
 						case 'x': case 'X': case 'u': case 'c':
-						(void) va_arg(arg_list, int);
-						break;
+							(void) va_arg(arg_list, int);
+							break;
 						case 's':
-						(void) va_arg(arg_list, char *);
-						break;
+							(void) va_arg(arg_list, char *);
+							break;
 						case 'f': case 'e': case 'E': case 'g': case 'G':
-						(void) va_arg(arg_list, double);
-						break;
+							(void) va_arg(arg_list, double);
+							break;
 						case 'p':
-						(void) va_arg(arg_list, void *);
-						break;
+							(void) va_arg(arg_list, void *);
+							break;
 						case 'n':
-						(void) va_arg(arg_list, int *);
-						break;
+							(void) va_arg(arg_list, int *);
+							break;
 						case '\0':							// Make sure loop exits on
-						spec_pos--;						// next iteration
-						break;
+							spec_pos--;						// next iteration
+							break;
 						default:
-						fprintf(stderr, "NSString -initWithFormat:... unknown format specifier %%%c\n", *spec_pos);
+							fprintf(stderr, "NSString -initWithFormat:... unknown format specifier %%%c\n", *spec_pos);
 					}
 					format_to_go = spec_pos+1;
 				}
-			switch(mode)
-			{
-				case '@':
-				{
-				arg=(id) va_arg(arg_list, id);
-				//		fprintf(stderr, "arg.1=%p\n", arg);
-				if(arg && ![arg isKindOfClass:[NSString class]])
-					{ // not yet a string
-						if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
-							arg=[arg descriptionWithLocale:locale];
-						else
-							arg=[arg description];
-					}
-				if(!arg)
-					arg=@"<nil>";	// nil object or description
-				break;
+			switch(mode) {
+				case '@': {
+					arg=(id) va_arg(arg_list, id);
+#if 0
+					fprintf(stderr, "arg.1=%p\n", arg);
+#endif
+					if(arg && ![arg isKindOfClass:[NSString class]])
+						{ // not yet a string
+							fprintf(stderr, " class=%s\n", [NSStringFromClass([arg class]) UTF8String]);
+							if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
+								arg=[arg descriptionWithLocale:locale];
+							else
+								arg=[arg description];
+							fprintf(stderr, " new class=%s\n", [NSStringFromClass([arg class]) UTF8String]);
+						}
+					if(!arg)
+						arg=@"<nil>";	// nil object or description
+					break;
 				}
-				case 'C':
-				{
-				unichar c=va_arg(arg_list, int);
-				arg=[NSString stringWithCharacters:&c length:1];	// single character
-				break;
+				case 'C': {
+					unichar c=va_arg(arg_list, int);
+					arg=[NSString stringWithCharacters:&c length:1];	// single character
+					break;
 				}
 				default:
-				arg=@"formatter error";
+					arg=@"formatter error";
 			}
-			//		fprintf(stderr, "arg.2=%p\n", arg);
+#if 0
+			fprintf(stderr, "arg.2=%p\n", arg);
+#endif
 			[result appendString:arg];
 			format_to_go = atsign_pos + 2;				// Skip over this `%@', and look for another one.
 		}

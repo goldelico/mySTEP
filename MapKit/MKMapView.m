@@ -808,22 +808,21 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 - (void) setShowsUserLocation:(BOOL) flag;
 {
-	flag = (flag != 0);
-	if(showsUserLocation != flag)
-		{ // changes
-			if((showsUserLocation=flag))
-				{
-				[delegate mapViewWillStartLocatingUser:self];
-				userLocation=[MKUserLocation new];	// create
-				[self addAnnotation:userLocation];
-				}
-			else
-				{
-				[self removeAnnotation:userLocation];
-				[userLocation release];
-				userLocation=nil;				
-				[delegate mapViewDidStopLocatingUser:self];
-				}
+	if(flag && !userLocation)
+		{
+			[delegate mapViewWillStartLocatingUser:self];
+			userLocation=[MKUserLocation new];	// create
+#if 1
+			NSLog(@"userLocation: %@", userLocation);
+#endif
+			[self addAnnotation:userLocation];
+		}
+	else if(!flag && userLocation)
+		{
+			[self removeAnnotation:userLocation];
+			[userLocation release];
+			userLocation=nil;
+			[delegate mapViewDidStopLocatingUser:self];
 		}
 }
 
@@ -857,7 +856,7 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 }
 
 - (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
-- (BOOL) showsUserLocation; { return showsUserLocation; }
+- (BOOL) showsUserLocation; { return userLocation != nil; }
 - (MKUserLocation *) userLocation; { return userLocation; }
 
 - (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
@@ -1037,7 +1036,12 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 - (void) setCoordinate:(CLLocationCoordinate2D) pos
 {
-//	[super setCoordinate:pos];
+	//	[super setCoordinate:pos];
+}
+
+- (CLLocationCoordinate2D) coordinate;
+{ // translate from MKAnnotation protocol to inherited method...
+	return [super coordinate];
 }
 
 @end

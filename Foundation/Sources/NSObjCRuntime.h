@@ -63,9 +63,7 @@
 
 #ifdef __APPLE__
 #undef __OBJC2__	/* avoid problems with objc/Protocol.h on Xcode SDK */
-#else
 #endif
-#include <objc/Protocol.h>
 
 // new types that might appear in the AppKit API of 10.5
 
@@ -132,6 +130,7 @@ typedef struct __CGEvent *CGEventRef;
 
 #include <objc/objc-class.h>
 #include <objc/objc-load.h>
+#include <objc/objc-load.h>
 #include <objc/objc-runtime.h>
 #include <sys/malloc.h>
 
@@ -154,9 +153,9 @@ const char *objc_skip_typespec (const char *type);
 #define objc_invalidate_dtable(CLASS)
 #define objc_initialize_loading(FILE) (0)
 
-#define objc_load_callback(CLASS, CATEGORY)
-#define objc_load_module(NAME, FILE, CALLBACK, HEADER, DEBUG) (0)
-#define objc_dynamic_find_file(ADDRESS) (0)
+//#define objc_load_callback(CLASS, CATEGORY)
+// #define objc_load_module(NAME, FILE, CALLBACK, HEADER, DEBUG) (0)
+//#define objc_dynamic_find_file(ADDRESS) (0)
 
 #define objc_thread_set_data(THREAD) fprintf(stderr, "can't objc_thread_set_data for %p\n", THREAD)
 #define objc_thread_get_data() (fprintf(stderr, "can't objc_thread_get_data\n"), NULL)
@@ -228,22 +227,32 @@ typedef void *objc_condition_t;
 #define _F_ONEWAY	0x20
 #define _F_BYREF	0x40
 
-#else
+#else	/* __Apple__ */
 
 #include <malloc.h>
+#include <objc/Protocol.h>
 
 int objc_check_undefineds(FILE *errorStream);
 void objc_invalidate_dtable(Class class);
 int objc_initialize_loading(FILE *errorStream);
-void objc_load_callback(Class class, Category *category);
-long objc_load_module(const char *filename,
-					  FILE *errorStream,
-					  void (*loadCallback)(Class, Category*),
+
+int objc_loadModule(char *filename,
+					void (*loadCB)(Class, Category),
+					int *error);
+
+long objc_loadModules(char *list[],
+					  void *errStream,
+					  void (*loadCB) (Class, Category),
 					  void **header,
-					  char *debugFilename);
-char *objc_dynamic_find_file(const void *address);
+					  char *debugfile);
+
+long objc_unloadModules(void *errStream,
+						void (*unloadCB)(Class, Category));
+
 
 #endif
+
+char *objc_moduleForAddress(const void *address);
 
 #define ROUND(V, A)  ({ typeof(V) __v=(V); typeof(A) __a=(A); \
 	__a*((__v+__a-1)/__a); })
@@ -391,6 +400,8 @@ extern NSUInteger NSRealMemoryAvailable();
 extern void *NSAllocateMemoryPages(NSUInteger bytes);
 extern void NSDeallocateMemoryPages(void *ptr, NSUInteger bytes);
 extern void NSCopyMemoryPages(const void *source, void *dest, NSUInteger bytes);
+extern void __NSCountAllocate(Class aClass);
+extern void __NSCountDeallocate(Class aClass);
 
 #ifdef DEBUG
 #define NSDebugLog(format, args...)	NSLog(format, args...)

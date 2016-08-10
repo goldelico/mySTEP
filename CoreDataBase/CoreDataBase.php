@@ -318,7 +318,7 @@ class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
 	}
 
 	public function allObjectsForKey($column)
-	{ // fetch all (remaining) rows and extract key
+	{ // fetch all (remaining) rows and extract by given key
 		$result=array();
 		while($row=$this->nextObject())
 			$result[]=$row[$column];

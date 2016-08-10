@@ -1202,7 +1202,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 
 			getBytes((void*)name, bytes, ni, length, cursor);
 			name[ni] = '\0';
-			c = objc_get_class(name);
+			c = objc_getClass(name);
 			if (c == 0) {
 				[NSException raise: NSInternalInconsistencyException
 							format: @"can't find class - %s", name];

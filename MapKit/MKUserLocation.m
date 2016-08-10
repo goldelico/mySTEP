@@ -20,6 +20,7 @@
 
 - (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
 {
+	NSLog(@"MKUserLocation locationManager:didUpdateToLocation:");
 	[location release];
 	location=[newloc retain];
 	// make us redraw - what is the protocol how a MKAnnotation can notify the MKMapView about changes?
@@ -40,7 +41,9 @@
 {
 	if((self=[super init]))
 		{
+		NSLog(@"MKUserLocation init");
 		manager=[CLLocationManager new];
+		NSLog(@"CLLocationManager=%@", manager);
 		[manager setDelegate:(id <CLLocationManagerDelegate>) self];
 		[manager startUpdatingLocation];
 		}
@@ -70,8 +73,14 @@
 
 - (NSString *) description;
 {
-	CLLocationCoordinate2D l=[location coordinate];
-	return [NSString stringWithFormat:@"MKUserLocation (%lg %lg)", l.latitude, l.longitude];
+	NSString *str;
+	fprintf(stderr, "MKUserLocation description: location =%p\n", location);
+	CLLocationCoordinate2D l; /*=[location coordinate]*/;
+	fprintf(stderr, "MKUserLocation coordinate %lg %lg\n", l.latitude, l.longitude);
+	str= [NSString stringWithFormat:@"MKUserLocation (%lg %lg)", l.latitude, l.longitude];
+	fprintf(stderr, "MKUserLocation str=%s\n", [str UTF8String]);
+	fprintf(stderr, " class=%s\n", [NSStringFromClass([str class]) UTF8String]);
+	return str;
 }
 
 @end
