@@ -2,7 +2,7 @@
  NSMethodSignature.m
 
  Implementation of NSMethodSignature for mySTEP
- This class encapsulates all CPU specific specialities (e.g. how the __builtin_apply() frame is organized, how registers are handled etc.)
+ This class encapsulates all CPU specific specialities
 
  Note that the stack frame storage is not part of the NSMethodSignature because several NSInvocations may share the same NSMethodSignature:
 
@@ -12,22 +12,11 @@
  Date:	August 1994
  Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
  Date:	August 1998
- Rewrite: Nikolaus Schaller <hns@computer.org> - remove as much of mframe as possible and only rely on gcc/libobjc to run on ARM processor
- Date:    November 2003, Jan 2006-2007,2011-2014
+ Rewrite: Nikolaus Schaller <hns@computer.org> - remove as much of mframe as possible and only rely on gcc/libobjc/libffi
+ Date:    November 2003, Jan 2006-2007,2011-2016
 
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
-
- Some notes&observations by H. N. Schaller:
- * the argframe passed when forward:: is the one created by the libobjc functions __objc_x_forward(id, SEL, ...)
- * x can be word, double, block
- * that argframe structure can/will be different on ARM from the argframe within a called method with known number of arguments!
- * therefore, the method signature might be different for implemented and non-implemented methods - the latter being based on (id, SEL, ...)
- * so we need to create a different structure to call any existing/nonexisting method by __builtin_apply()
- * libobjc seems to use #define OBJC_MAX_STRUCT_BY_VALUE 1 (runtime-info.h) meaning that a char[1] only struct is returned in a register
- * we should use more support functions from libobjc...
-
- * libffi (not used!) documentation: https://github.com/atgreen/libffi/blob/master/doc/libffi.info
 
  */
 
@@ -42,17 +31,15 @@ struct NSArgumentInfo
 { // internal Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
 	const char *type;				// type (pointer to first type character)
 	int offset;						// can potentially be negative (!)
-	unsigned int size;				// size (not reliable!)
+	NSUInteger size;				// size (not reliable!)
 	/* extensions */
-	ffi_type ffitype;				// pointer to some ffi type
+	ffi_type *ffitype;				// pointer to some ffi type
 	unsigned short qual;			// qualifier bits (oneway, byref, bycopy, in, inout, out)
+	NSUInteger align;				// alignment
 #if 1 || OLD
-	unsigned int align;				// alignment
 	BOOL isReg;						// is passed in a register (+) and not on stack
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
 									// CHECKME: is this an architecture constant or for each individual parameter???
-	BOOL floatAsDouble;				// its a float value that is passed as double
-									// ffi type
 #endif
 };
 
@@ -247,11 +234,7 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 #endif
 }
 
-#define ISBIGENDIAN					(NSHostByteOrder()==NS_BigEndian)
-
-// this may be called recursively (structs)
-
-// FIXME: move some of this to NSGetSizeAndAlignment()
+// this may be called recursively for (structs)
 
 static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 { // returns NULL on error
@@ -260,7 +243,6 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	info->qual = 0;	// start with no qualifier
 	info->isReg = NO;
 	info->byRef = NO;
-	info->floatAsDouble = NO;
 	// Skip past any type qualifiers,
 	for(; YES; typePtr++)
 		{
@@ -279,104 +261,66 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		break;	// break loop if there was no continue
 		}
 	info->type = typePtr;
-	switch (*typePtr++) { // Scan for size and alignment information.
+	typePtr=NSGetSizeAndAlignment(typePtr, &info->size, &info->align);
+	switch (info->type[0]) { // set ffi information
 		case _C_ID:
-			info->size = sizeof(id);
-			info->align = __alignof__(id);
-			break;
-
 		case _C_CLASS:
-			info->size = sizeof(Class);
-			info->align = __alignof__(Class);
-			break;
-
 		case _C_SEL:
-			info->size = sizeof(SEL);
-			info->align = __alignof__(SEL);
+			info->ffitype=&ffi_type_pointer;
 			break;
-
 		case _C_CHR:
-			info->size = sizeof(char);
-			info->align = __alignof__(char);
+			info->ffitype=&ffi_type_sint8;
 			break;
-
 		case _C_UCHR:
-			info->size = sizeof(unsigned char);
-			info->align = __alignof__(unsigned char);
+			info->ffitype=&ffi_type_uint8;
 			break;
-
 		case _C_SHT:
-			info->size = sizeof(short);
-			info->align = __alignof__(short);
+			info->ffitype=&ffi_type_sint16;
 			break;
-
 		case _C_USHT:
-			info->size = sizeof(unsigned short);
-			info->align = __alignof__(unsigned short);
+			info->ffitype=&ffi_type_uint16;
 			break;
-
 		case _C_INT:
-			info->size = sizeof(int);
-			info->align = __alignof__(int);
-			break;
-
-		case _C_UINT:
-			info->size = sizeof(unsigned int);
-			info->align = __alignof__(unsigned int);
-			break;
-
-		case _C_LNG:
-			info->size = sizeof(long);
-			info->align = __alignof__(long);
-			break;
-
-		case _C_ULNG:
-			info->size = sizeof(unsigned long);
-			info->align = __alignof__(unsigned long);
-			break;
-
-		case _C_LNG_LNG:
-			info->size = sizeof(long long);
-#if defined(i386)	// for Intel 32 bit
-			info->align = __alignof__(long);
-#else
-			info->align = __alignof__(long long);
-#endif
-			break;
-
-		case _C_ULNG_LNG:
-			info->size = sizeof(unsigned long long);
-#if defined(i386)	// for Intel 32 bit
-			info->align = __alignof__(unsigned long);
-#else
-			info->align = __alignof__(unsigned long long);
-#endif
-			break;
-
-#define FLOAT_AS_DOUBLE 0
-
-		case _C_FLT:
-			if(FLOAT_AS_DOUBLE)
-				{
-				info->floatAsDouble = YES;
-				info->size = sizeof(double);
-				info->align = __alignof__(double);
-				}
+			if(sizeof(int) == 4)
+				info->ffitype=&ffi_type_sint32;
 			else
-				{
-				info->size = sizeof(float);
-				info->align = __alignof__(float);
-				}
+				info->ffitype=&ffi_type_sint64;
 			break;
-
+		case _C_UINT:
+			if(sizeof(unsigned int) == 4)
+				info->ffitype=&ffi_type_uint32;
+			else
+				info->ffitype=&ffi_type_uint64;
+			break;
+		case _C_LNG:
+			if(sizeof(long) == 4)
+				info->ffitype=&ffi_type_sint32;
+			else
+				info->ffitype=&ffi_type_sint64;
+			break;
+		case _C_ULNG:
+			if(sizeof(unsigned long) == 4)
+				info->ffitype=&ffi_type_sint32;
+			else
+				info->ffitype=&ffi_type_sint64;
+			break;
+		case _C_LNG_LNG:
+			info->ffitype=&ffi_type_sint64;
+			break;
+		case _C_ULNG_LNG:
+			info->ffitype=&ffi_type_uint64;
+			break;
+		case _C_FLT:
+			info->ffitype=&ffi_type_float;
+			break;
 		case _C_DBL:
-			info->size = sizeof(double);
-			info->align = __alignof__(double);
+			info->ffitype=&ffi_type_double;
 			break;
-
+			// case _C_LDBL:
+			// info->ffitype=&ffi_type_longdouble:
 		case _C_PTR:
-			info->size = sizeof(char*);
-			info->align = __alignof__(char*);
+			info->ffitype=&ffi_type_pointer;
+#if OLD
 			if (*typePtr == '?')
 				typePtr++;
 			else
@@ -386,15 +330,17 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 					info->isReg = local.isReg;
 					info->offset = local.offset;
 				}
+#endif
 			break;
-
 		case _C_ATOM:
 		case _C_CHARPTR:
-			info->size = sizeof(char*);
-			info->align = __alignof__(char*);
+			info->ffitype=&ffi_type_pointer;
 			break;
 
 		case _C_ARY_B: {
+			// allocate struct ffitype
+			// set number of elements and sizes
+
 			struct NSArgumentInfo local;
 			int	length = atoi(typePtr);
 
@@ -409,6 +355,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		}
 
 		case _C_STRUCT_B: {
+			// FIXME: allocate ffitype with subtypes
 			struct NSArgumentInfo local;
 			//	struct { int x; double y; } fooalign;
 			struct { unsigned char x; } fooalign;
@@ -448,6 +395,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		}
 
 		case _C_UNION_B: {
+			// FIXME: allocate ffitype with subtypes
 			struct NSArgumentInfo local;
 			int	max_size = 0;
 			int	max_align = 0;
@@ -473,8 +421,7 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		}
 
 		case _C_VOID:
-			info->size = 0;
-			info->align = __alignof__(char*);
+			info->ffitype=&ffi_type_void;
 			break;
 
 		default:
@@ -496,9 +443,6 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 		while(isdigit(*typePtr))
 			info->offset = 10 * info->offset + (*typePtr++ - '0');
 		}
-
-	// FIXME: to be more compatible, we should return a string incl. qualifier but without offset part!
-	// i.e. Vv, R@, O@ etc.
 
 	return typePtr;
 }
@@ -669,24 +613,21 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 
 - (void *) _frameDescriptor;
 {
-#ifndef __APPLE__
 	if(!cif)
 		{
+		int i;
 		int r;
 		int space;
-		int fill=0;
 		NEED_INFO();
 		OBJC_CALLOC(internal1, ffi_cif, 1);
+		// do we need to copy this?
 		OBJC_CALLOC(internal2, ffi_type, space=1+numArgs);
-		// translate types from string to cif types
+		for(i=0; i<=numArgs; i++)
+			cif_types[i]=info[i].ffitype;
 		if((r=ffi_prep_cif(cif, FFI_DEFAULT_ABI, numArgs, cif_types[0], &cif_types[1])) != FFI_OK)
-			[NSException raise: NSInvalidArgumentException format: @"Invalid types."];
+			[NSException raise: NSInvalidArgumentException format: @"Invalid types"];
 		}
 	return (void *) cif;
-#else
-	NIMP;
-	return NULL;
-#endif
 }
 
 @end
@@ -749,10 +690,10 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 	int i;
 	NSLog(@"method Types %s:", methodTypes);
 	for(i=0; i<=numArgs; i++)
-		NSLog(@"   %3d: size=%02d align=%01d isreg=%d offset=%02d qual=%x byRef=%d fltDbl=%d type=%s",
-			  i-1, info[i].size, info[i].align,
+		NSLog(@"   %3d: size=%02lu align=%01lu isreg=%d offset=%02d qual=%x byRef=%d type=%s",
+			  i-1, (unsigned long)info[i].size, (unsigned long)info[i].align,
 			  info[i].isReg, info[i].offset, info[i].qual,
-			  info[i].byRef, info[i].floatAsDouble,
+			  info[i].byRef,
 			  info[i].type);
 }
 
@@ -788,16 +729,14 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, index+1);
 #if 1
-	NSLog(@"_getArgument[%ld]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s", (long)index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type);
+	NSLog(@"_getArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
-	else if(info[index+1].floatAsDouble)
-		*(float*)buffer = (float)*(double*)addr;
 	else
 		{
 #if 1
-		NSLog(@"_getArgument memcpy(%p, %p, %u);", buffer, addr, info[index+1].size),
+		NSLog(@"_getArgument memcpy(%p, %p, %lu);", buffer, addr, (unsigned long)info[index+1].size),
 #endif
 		memcpy(buffer, addr, info[index+1].size);
 		}
@@ -809,10 +748,10 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	char *addr;
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
+		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", (long)index, numArgs];
 	addr=_getArgumentAddress(_argframe, index+1);
 #if 1
-	NSLog(@"_setArgument[%ld]:%p offset=%d addr=%p[%d] isReg=%d byref=%d double=%d type=%s mode=%d", (long)index, buffer, info[index+1].offset, addr, info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble, info[index+1].type, 1);
+	NSLog(@"_setArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s mode=%d", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type, 1);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
 		{ // retain/copy C-strings if needed
@@ -878,12 +817,10 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		{
 		if(info[index+1].byRef)	// struct by reference
 			memcpy(*(void**)addr, buffer, info[index+1].size);
-		else if(info[index+1].floatAsDouble)
-			*(double*)addr = (double)*(float*)buffer;
 		else
 			{
 #if 1
-			NSLog(@"_setArgument memcpy(%p, %p, %u);", addr, buffer, info[index+1].size),
+			NSLog(@"_setArgument memcpy(%p, %p, %lu);", addr, buffer, (unsigned long)info[index+1].size),
 #endif
 			memcpy(addr, buffer, info[index+1].size);
 			}
@@ -892,12 +829,10 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
 			if(info[index+1].byRef)	// struct by reference
 				memset(*(void**)addr, 0, info[index+1].size);
-			else if(info[index+1].floatAsDouble)
-				*(double*)addr = 0.0;
 			else
 				{
 #if 1
-				NSLog(@"_setArgument memset(%p, %ul, %u);", addr, 0, info[index+1].size),
+				NSLog(@"_setArgument memset(%p, %ul, %lu);", addr, 0, (unsigned long)info[index+1].size),
 #endif
 				memset(addr, 0, info[index+1].size);
 				}
