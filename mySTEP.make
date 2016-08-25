@@ -127,18 +127,30 @@ ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
 TOOLCHAIN=/usr/bin
-CC := $(TOOLCHAIN)/gcc
+CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
-else
-ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
+else ifeq ($(ARCHITECTURE),MacOS)
+TOOLCHAIN=/usr/bin
+CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
+LD := $(CC)
+AS := $(TOOLCHAIN)/as
+NM := $(TOOLCHAIN)/nm
+STRIP := $(TOOLCHAIN)/strip
+SO := dylib
+else ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
+LD := $(CC)
+AS := $(TOOLCHAIN)/as
+NM := $(TOOLCHAIN)/nm
+STRIP := $(TOOLCHAIN)/strip
+SO := dylib
 else
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := LANG=C $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
@@ -147,11 +159,11 @@ LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
-endif
 SO := so
 endif
 
-else
+else # Darwin
+
 # native compile on target machine
 DOXYGEN := doxygen
 TAR := tar
@@ -208,7 +220,9 @@ CONTENTS=Versions/Current
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
+else ifeq ($(ARCHITECTURE),MacOS)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
@@ -222,7 +236,9 @@ else
 ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
+else ifeq ($(ARCHITECTURE),MacOS)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
@@ -235,7 +251,10 @@ endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
 # should try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-DEBIAN_ARCHITECTURES=macos armel armhf i386 mipsel
+DEBIAN_ARCHITECTURES=mystep macos armel armhf i386 mipsel
+# mystep (use our frameworks and X11 except Foundation) and macos (link app against Macos frameworks) do not work yet
+DEBIAN_ARCHITECTURES=armel armhf i386 mipsel
+DEBIAN_ARCHITECTURES=macos
 endif
 
 # this is the default/main target on the outer level
@@ -273,6 +292,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
 			macos ) export ARCHITECTURE=MacOS;; \
+			mystep ) export ARCHITECTURE=mySTEP;; \
 			all ) export ARCHITECTURE=all;; \
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
@@ -333,7 +353,9 @@ OPTIMIZE := 3
 CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+CFLAGS += -Wno-deprecated-declarations
+else ifeq ($(ARCHITECTURE),MacOS)
 CFLAGS += -Wno-deprecated-declarations
 else
 CFLAGS += -rdynamic
@@ -349,18 +371,20 @@ else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
 endif
 
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
 # handle #include <Foundation/Foundation.h>
 INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ $(INCLUDES)
 endif
 
+ifneq ($(ARCHITECTURE),MacOS)
 INCLUDES := $(INCLUDES) \
 		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+endif
 
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 endif
 
@@ -442,10 +466,12 @@ ifeq ($(PRODUCT_NAME),AppKit)
 FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
 else
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-ifneq ($(ARCHITECTURE),MacOS)
-FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
+ifeq ($(ARCHITECTURE),mySTEP)
+FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
+else ifeq ($(ARCHITECTURE),MacOS)
+FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 else
-FMWKS := $(addprefix -l,$(FRAMEWORKS))
+FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
 endif
 endif
 endif
@@ -458,7 +484,37 @@ endif
 
 #		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))) \
 
+ifeq ($(ARCHITECTURE),mySTEP)
+LIBRARIES := -L/opt/local/lib \
+		/System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation \
+		/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation \
+		/System/Library/Frameworks/Security.framework/Versions/Current/Security \
+		/System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit \
+		/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa \
+		-L$(QuantumSTEP)/usr/lib \
+		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath,$(QuantumSTEP)/usr/lib \
+		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		$(FMWKS) \
+		$(LIBS)
+else ifeq ($(ARCHITECTURE),MacOS)
 LIBRARIES := \
+		-framework CoreFoundation -framework Foundation -framework AppKit -framework Cocoa \
+		$(FMWKS) \
+		$(LIBS)
+else
+LIBRARIES := \
+		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
+		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(QuantumSTEP)/usr/lib \
 		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
@@ -466,34 +522,13 @@ LIBRARIES := \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		$(FMWKS) \
 		$(LIBS)
-
-ifneq ($(ARCHITECTURE),MacOS)
-LIBRARIES := \
-		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		$(LIBRARIES)
-else
-
-LIBRARIES := -L/opt/local/lib \
-		/System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation \
-		/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation \
-		/System/Library/Frameworks/Security.framework/Versions/Current/Security \
-		/System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit \
-		/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa \
-		-Wl,-rpath,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
-		$(LIBRARIES)
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
 LIBRARIES += -lobjc -lm
-ifneq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+else ifeq ($(ARCHITECTURE),MacOS)
+else
 LIBRARIES += -lgcc_s
 endif
 endif
@@ -906,14 +941,17 @@ endif
 ifeq ($(ARCHITECTURE),MacOS)
 # always use system Foundation/AppKit (headers and frameworks)
 	mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
-	- for i in Foundation CoreFoundation Security AppKit Cocoa \
-		; do rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$i; ln -sf /System/Library/Frameworks/$$i.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$i \
-	  ; done
+	- for fwk in $(shell cd /System/Library/Frameworks; ls -1 | sed "s/\.framework//g" ) \
+		; do rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$fwk; ln -sf /System/Library/Frameworks/$$fwk.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$fwk \
+	    ; done
+	- rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/PDFKit.framework
+	- ln -sf /System//Library/Frameworks/Quartz.framework/Versions/A/Frameworks/PDFKit.framework $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/PDFKit.framework
 endif
 
 resources:
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
+	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
 ifneq ($(strip $(INFOPLISTS)),)
 	- cp $(INFOPLISTS) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
@@ -932,11 +970,15 @@ endif
 "$(BINARY)":: bundle headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
-	MACOSX_DEPLOYMENT_TARGET=10.5 $(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
+	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
 	# linked.
 ifeq ($(WRAPPER_EXTENSION),)
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
+	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	# link binary
+else ifeq ($(ARCHITECTURE),MacOS)
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
 	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 	# link binary
@@ -945,7 +987,9 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
-ifeq ($(ARCHITECTURE),MacOS)
+ifeq ($(ARCHITECTURE),mySTEP)
+	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+else ifeq ($(ARCHITECTURE),MacOS)
 	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 else
 	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
