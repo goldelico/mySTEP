@@ -253,8 +253,8 @@ ifeq ($(DEBIAN_ARCHITECTURES),)
 # should try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
 DEBIAN_ARCHITECTURES=mystep macos armel armhf i386 mipsel
 # mystep (use our frameworks and X11 except Foundation) and macos (link app against Macos frameworks) do not work yet
-DEBIAN_ARCHITECTURES=armel armhf i386 mipsel
-DEBIAN_ARCHITECTURES=macos
+DEBIAN_ARCHITECTURES=macos armel armhf i386 mipsel
+# DEBIAN_ARCHITECTURES=macos
 endif
 
 # this is the default/main target on the outer level
@@ -459,21 +459,23 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
+# add default frameworks
 ifeq ($(PRODUCT_NAME),Foundation)
-FMWKS := $(addprefix -l,$(FRAMEWORKS))
+# none to add
+else ifeq ($(PRODUCT_NAME),AppKit)
+FRAMEWORKS := Foundation $(FRAMEWORKS)
 else
-ifeq ($(PRODUCT_NAME),AppKit)
-FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
-else
+FRAMEWORKS := Foundation AppKit $(FRAMEWORKS)
+endif
+
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(ARCHITECTURE),mySTEP)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 else ifeq ($(ARCHITECTURE),MacOS)
+FRAMEWORKS := CoreFoundation $(FRAMEWORKS)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 else
-FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
-endif
-endif
+FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
 
@@ -505,7 +507,7 @@ LIBRARIES := -L/opt/local/lib \
 		$(LIBS)
 else ifeq ($(ARCHITECTURE),MacOS)
 LIBRARIES := \
-		-framework CoreFoundation -framework Foundation -framework AppKit -framework Cocoa \
+		-F /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks \
 		$(FMWKS) \
 		$(LIBS)
 else
