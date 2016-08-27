@@ -191,7 +191,6 @@ ifeq ($(EXECUTABLE_NAME),All)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 ifeq ($(EXECUTABLE_NAME),)
-# FIXME: should extract from Info.plist
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
@@ -955,7 +954,12 @@ ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
 ifneq ($(strip $(INFOPLISTS)),)
-	- cp $(INFOPLISTS) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+# should reject multiple Info.plists
+# should expand ${EXECUTABLE_NAME} and other macros!
+	- cp "$(INFOPLISTS)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+else
+# create a default Info.plist
+	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
 ifneq ($(strip $(RESOURCES)),)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
