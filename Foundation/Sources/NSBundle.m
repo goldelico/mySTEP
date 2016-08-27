@@ -96,7 +96,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
 			vrl=[virtualRoot length]-1;
 			//		fprintf(stderr, " vRoot=%p\n", virtualRoot);
-#if 1
+#if 0
 			NSLog(@"args=%@", [pi arguments]);
 			NSLog(@"$0=%@", path);
 			NSLog(@"virtualRoot=%@", virtualRoot);
@@ -117,13 +117,13 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 						else if([basepath length] == 0 || [basepath isEqualToString:@"."])	// ignore .. in $PATH entry for security reasons!
 							basepath=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// $PATH entry denotes relative location
 						p=[basepath stringByAppendingPathComponent:path];
-#if 1
+#if 0
 						NSLog(@"check %@", p);
 #endif
 						if([fm fileExistsAtPath:p])
 							{ //  found
 								path=p;
-#if 1
+#if 0
 								NSLog(@"NSBundle found executable at %@", path);
 #endif
 								break;
@@ -134,7 +134,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 				path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
 			if([path hasPrefix:virtualRoot])
 				path=[path substringFromIndex:vrl];	// strip off - just in case...
-#if 1
+#if 0
 			NSLog(@"check for executable at %@", path);
 #endif
 			if(![fm fileExistsAtPath:path])
@@ -152,7 +152,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 				path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
 				}
 #endif
-#if 1
+#if 0
 			NSLog(@"NSBundle: main bundle path is %@", path);
 #endif
 #if 0
@@ -204,8 +204,13 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		//					format:@"No executable found for class %@", NSStringFromClass(aClass)];
 		return __mainBundle;	// if nowhere defined
 		}
-	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))	// look up by filename - if already known
-		return bundle;
+	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))
+		{ // look up by filename - if already known
+#if 0
+			NSLog(@"already known to be %@", bundle);
+#endif
+			return bundle;
+		}
 	path=[[NSFileManager defaultManager] stringWithFileSystemRepresentation:file length:strlen(file)];
 	if([path hasPrefix:@"./"])
 		path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
@@ -258,7 +263,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 	if (![[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isdir] || !isdir)
 		{
-#if 1
+#if 0
 		NSLog(@"Could not access path %@ for bundle", path);
 #endif
 		[self release];
@@ -281,7 +286,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 #if 0	// does not work for Framework bundles because the default Info.plist is in _bundleContentPath/Resources
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:@"Info.plist"]])
 		{
-#if 1
+#if 0
 		NSLog(@"Could not find Info.plist for bundle %@", path);
 #endif
 		[self release];
@@ -310,12 +315,13 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%@: path=%@\n  infoDict=%@\n  searchPaths=%@\n  bundleClasses=%@",
+	return [NSString stringWithFormat:@"%@: path=%@\n  infoDict=%@\n  searchPaths=%@\n  bundleClasses=%@\n  %@",
 			NSStringFromClass([self class]),
 			_path,
 			_infoDict,
 			_searchPaths,
-			[_bundleClasses allObjects]];
+			[_bundleClasses allObjects],
+			_codeLoaded?@"loaded":@"not loaded"];
 }
 
 - (Class) classNamed:(NSString *)className
@@ -380,7 +386,14 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 {
 #if 0
 	NSLog(@"_addClass: %@", aClass);
+	NSLog(@"       to: %@", self);
 #endif
+	/*
+	 * don't use NSNonRetainedObjectHashCallBacks because that calls -isEqual which
+	 * calls +initialize too early (before all string constants are initialized)
+	 */
+	if(!_bundleClasses)
+		_bundleClasses = [[NSMutableSet alloc] initWithCapacity:10];
 	[_bundleClasses addObject:aClass];
 }
 
@@ -391,6 +404,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSString *obj=[self executablePath];
 		if(!obj)
 			{
+			NSLog(@"Cannot find executable for %@", [self bundlePath]);
 			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
 			return NO;
 			}
@@ -400,7 +414,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 - (BOOL) loadAndReturnError:(NSError **) error;
 {
-#if 1
+#if 0
 	NSLog(@"-load %@", self);
 #endif
 	[__loadLock lock];
@@ -409,14 +423,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSString *obj=[self executablePath];
 		if(!obj)
 			{
+			NSLog(@"Cannot find executable for %@", [self bundlePath]);
 			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
 			return NO;
 			}
-		/*
-		 * don't use NSNonRetainedObjectHashCallBacks because that calls -isEqual which
-		 * calls +initialize too early (before all string constants are initialized)
-		 */
-		_bundleClasses = [[NSMutableSet alloc] initWithCapacity:10];
 		__loadingBundle = self;
 
 #ifndef __APPLE__
@@ -436,19 +446,19 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			dict = [NSDictionary dictionaryWithObjectsAndKeys:[_bundleClasses allObjects], NSLoadedClasses, nil];
 			_codeLoaded = YES;
 			__loadingBundle = nil;
-#if 1
-			fprintf(stderr, "NSBundle: posting\n");
+#if 0
+			fprintf(stderr, "NSBundle: posting NSBundleDidLoadNotification\n");
 #endif
 			[nc postNotificationName: NSBundleDidLoadNotification
 							  object: self
 							userInfo: dict];
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"NSBundle: before loadunlock 3");
 #endif
 	[__loadLock unlock];
-#if 1
+#if 0
 	NSLog(@"NSBundle: after loadunlock 3");
 #endif
 	return YES;
@@ -926,12 +936,14 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 @end /* NSBundle */
 
+// FIXME: pass theCategory (as NSString) to _addClass
+
 void _bundleLoadCallback(Class theClass, Category theCategory)
 {
 	// should be: (but isn't?)
 	// theCategory->category_name
 	// theCategory->class_name
-#if 1
+#if 0
 	fprintf(stderr, "_bundleLoadCallback(%s, %s)\n", class_getName(theClass), theCategory?"Category":""/*theCategory?(theCategory->category_name):"---"*/);
 #endif
 	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
@@ -945,7 +957,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory)
 	else
 		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%s is not a class, theCategory=%08x", __loadingBundle, class_getName(theClass), theCategory);
 #endif
-#if 1
+#if 0
 	fprintf(stderr, "_bundleLoadCallback done\n");
 #endif
 }
