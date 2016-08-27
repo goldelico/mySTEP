@@ -1,0 +1,8 @@
+SenFoundation_GCC_VERSION=2.95.2
+
+SenFoundation_GNUSTEP_BASE=0.6.6
+
+SenFoundation_MAJOR_VERSION=1
+SenFoundation_MINOR_VERSION=0
+SenFoundation_VERSION=${SenFoundation_MAJOR_VERSION}.${SenFoundation_MINOR_VERSION}
+VERSION=${SenFoundation_VERSION}

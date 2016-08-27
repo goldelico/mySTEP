@@ -1,0 +1,57 @@
+#
+#  SenFoundation makefile.
+#  
+#  Written by: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  Date: 5 October 2000
+#
+
+# Install into the system root by default
+SenFoundation_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include Version
+
+PACKAGE_NAME = SenFoundation
+FRAMEWORK_VAR = SENFOUNDATION
+CURRENT_VERSION_NAME = A
+
+# The library to be compiled
+FRAMEWORK_NAME = SenFoundation
+
+SENFOUNDATION_INSTALL_PREFIX=$(GNUSTEP_LOCAL_ROOT)
+
+# The C source files to be compiled
+SenFoundation_C_FILES = 
+
+# The Objective-C source files to be compiled
+SenFoundation_OBJC_FILES = NSArray_SenAdditions.m NSBundle_SenAdditions.m \
+	NSException_SenAdditions.m NSMutableDictionary_SenAdditions.m \
+	NSObject_SenAdditions.m NSObject_SenRuntimeUtilities.m \
+	NSObject_SenTree.m NSString_SenAdditions.m \
+	NSTask_SenAdditions.m NSUserDefaults_SenAdditions.m \
+	SenClassEnumerator.m SenCollection.m SenDateInterval.m \
+	SenEmptiness.m SenFileSystemTree.m SenInvocationEnumerator.m \
+	SenSelection.m SenTreeEnumerator.m SenUtilities.m
+
+SenFoundation_HEADER_FILES = SenAssertion.h SenFoundation.h SenUtilities.h \
+	NSArray_SenAdditions.h NSObject_SenAdditions.h \
+	SenEmptiness.h SenCollection.h \
+	NSObject_SenRuntimeUtilities.h SenFoundationDefines.h \
+	NSBundle_SenAdditions.h NSUserDefaults_SenAdditions.h \
+	NSMutableDictionary_SenAdditions.h NSTask_SenAdditions.h \
+	NSException_SenAdditions.h NSString_SenAdditions.h \
+	SenSelection.h SenTreeEnumerator.h SenTrees.h \
+	SenFileSystemTree.h NSObject_SenTree.h SenClassEnumerator.h \
+	SenDateInterval.h SenInvocationEnumerator.h
+
+-include Makefile.preamble
+
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/framework.make
+
+-include Makefile.postamble

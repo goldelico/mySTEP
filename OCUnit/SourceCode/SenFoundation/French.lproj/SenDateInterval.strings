@@ -1,0 +1,12 @@
+"From " = "De ";
+" To " = " A ";
+"from " = "de ";
+" to " = " \U00E0 "; /* a grave */
+"FROM " = "DE ";
+" TO " = " A ";
+"From the " = "Du ";
+"from the " = "du ";
+"FROM THE " = "DU ";
+" to the " = " au ";
+" To the " = " Au ";
+" TO THE " = " AU ";

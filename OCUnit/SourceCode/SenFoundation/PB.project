@@ -1,0 +1,133 @@
+{
+    CURRENTLY_ACTIVE_VERSION = YES; 
+    DEPLOY_WITH_VERSION_NAME = A; 
+    DYNAMIC_CODE_GEN = YES; 
+    English_RESOURCES = {}; 
+    FILESTABLE = {
+        CLASSES = (
+            NSArray_SenAdditions.m, 
+            NSBundle_SenAdditions.m, 
+            NSException_SenAdditions.m, 
+            NSMutableDictionary_SenAdditions.m, 
+            NSNumber_Extensions.m, 
+            NSObject_SenAdditions.m, 
+            NSObject_SenRuntimeUtilities.m, 
+            NSObject_SenTree.m, 
+            NSString_SenAdditions.m, 
+            NSTask_SenAdditions.m, 
+            NSUserDefaults_SenAdditions.m, 
+            SenClassEnumerator.m, 
+            SenCollection.m, 
+            SenDateInterval.m, 
+            SenEmptiness.m, 
+            SenFileSystemTree.m, 
+            SenInvocationEnumerator.m, 
+            SenMutableTree.m, 
+            SenRandom.m, 
+            SenSelection.m, 
+            SenTreeEnumerator.m, 
+            SenUtilities.m, 
+            SenValueTree.m
+        ); 
+        English_OTHER_RESOURCES = (SenDateInterval.strings); 
+        FRAMEWORKS = (Foundation.framework); 
+        French_OTHER_RESOURCES = (SenDateInterval.strings); 
+        H_FILES = (
+            NSArray_SenAdditions.h, 
+            NSBundle_SenAdditions.h, 
+            NSException_SenAdditions.h, 
+            NSMutableDictionary_SenAdditions.h, 
+            NSNumber_Extensions.h, 
+            NSObject_SenAdditions.h, 
+            NSObject_SenRuntimeUtilities.h, 
+            NSObject_SenTree.h, 
+            NSString_SenAdditions.h, 
+            NSTask_SenAdditions.h, 
+            NSUserDefaults_SenAdditions.h, 
+            SenAssertion.h, 
+            SenClassEnumerator.h, 
+            SenCollection.h, 
+            SenDateInterval.h, 
+            SenEmptiness.h, 
+            SenFileSystemTree.h, 
+            SenFoundation.h, 
+            SenFoundationDefines.h, 
+            SenInvocationEnumerator.h, 
+            SenMutableTree.h, 
+            SenRandom.h, 
+            SenSelection.h, 
+            SenTreeEnumerator.h, 
+            SenTrees.h, 
+            SenUtilities.h, 
+            SenValueTree.h
+        ); 
+        OTHER_LINKED = (); 
+        OTHER_RESOURCES = (
+            "BundleInserter-windows.gdb", 
+            "BundleInserter-windows.postamble", 
+            "BundleInserter-windows.preamble", 
+            BundleInserter.gdb, 
+            BundleInserter.postamble, 
+            BundleInserter.preamble
+        ); 
+        OTHER_SOURCES = (
+            h.template, 
+            m.template, 
+            Makefile, 
+            Makefile.postamble, 
+            Makefile.preamble, 
+            OpenSourceLicense.html
+        ); 
+        PRECOMPILED_HEADERS = (); 
+        PROJECT_HEADERS = (); 
+        PUBLIC_HEADERS = (
+            NSArray_SenAdditions.h, 
+            NSBundle_SenAdditions.h, 
+            NSException_SenAdditions.h, 
+            NSMutableDictionary_SenAdditions.h, 
+            NSNumber_Extensions.h, 
+            NSObject_SenAdditions.h, 
+            NSObject_SenRuntimeUtilities.h, 
+            NSObject_SenTree.h, 
+            NSString_SenAdditions.h, 
+            NSTask_SenAdditions.h, 
+            NSUserDefaults_SenAdditions.h, 
+            SenAssertion.h, 
+            SenCollection.h, 
+            SenDateInterval.h, 
+            SenEmptiness.h, 
+            SenFileSystemTree.h, 
+            SenFoundation.h, 
+            SenFoundationDefines.h, 
+            SenMutableTree.h, 
+            SenRandom.h, 
+            SenSelection.h, 
+            SenTreeEnumerator.h, 
+            SenTrees.h, 
+            SenUtilities.h, 
+            SenValueTree.h
+        ); 
+        SUBPROJECTS = (); 
+    }; 
+    LANGUAGE = English; 
+    LOCALIZABLE_FILES = {}; 
+    MAKEFILEDIR = "$(MAKEFILEPATH)/pb_makefiles"; 
+    NEXTSTEP_BUILDDIR = "$(LOCAL_DEVELOPER_DIR)/Builds/$(USER)/$(NAME)"; 
+    NEXTSTEP_BUILDTOOL = /bin/gnumake; 
+    NEXTSTEP_COMPILEROPTIONS = "-O2"; 
+    NEXTSTEP_INSTALLDIR = /Library/Frameworks; 
+    NEXTSTEP_JAVA_COMPILER = /usr/bin/javac; 
+    NEXTSTEP_OBJCPLUS_COMPILER = /usr/bin/cc; 
+    PDO_UNIX_BUILDTOOL = $NEXT_ROOT/Developer/bin/make; 
+    PDO_UNIX_JAVA_COMPILER = "$(NEXTDEV_BIN)/javac"; 
+    PDO_UNIX_OBJCPLUS_COMPILER = "$(NEXTDEV_BIN)/gcc"; 
+    PROJECTNAME = SenFoundation; 
+    PROJECTTYPE = Framework; 
+    PROJECTVERSION = 2.8; 
+    TARGETS = (install_debug); 
+    WINDOWS_BUILDTOOL = $NEXT_ROOT/Developer/Executables/make; 
+    WINDOWS_COMPILEROPTIONS = "-DBUILDINGSENFOUNDATION"; 
+    WINDOWS_INSTALLDIR = /Library/Frameworks; 
+    WINDOWS_JAVA_COMPILER = "$(JDKBINDIR)/javac.exe"; 
+    WINDOWS_OBJCPLUS_COMPILER = "$(DEVDIR)/gcc"; 
+}
