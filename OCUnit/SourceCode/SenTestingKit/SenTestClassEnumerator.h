@@ -40,7 +40,8 @@
 
 @interface SenTestClassEnumerator : NSEnumerator
 {
-#if defined (GNUSTEP) || defined(__mySTEP__)
+// modern GNUSTEP and mySTEP use modern ObjC-API
+#if false && (defined (GNUSTEP) || defined(__mySTEP__))
     void *state;
     void *_reserved;
 #elif defined (RHAPSODY)

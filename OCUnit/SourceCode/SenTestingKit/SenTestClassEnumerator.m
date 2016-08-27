@@ -42,7 +42,8 @@
 }
 
 
-#if defined (GNUSTEP) || defined(__mySTEP__)
+// modern GNUSTEP and mySTEP use modern ObjC-API
+#if false && (defined (GNUSTEP) || defined(__mySTEP__))
 - (id) init
 {
     self = [super init];
