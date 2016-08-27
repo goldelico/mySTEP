@@ -363,7 +363,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 #endif
 				return nil;
 			}
-#if 1
+#if 0
 		NSLog(@"%@:=%@", key, val);
 #endif
 		[d setObject:val forKey:key];

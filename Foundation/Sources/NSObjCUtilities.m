@@ -116,11 +116,11 @@ static int objc_dynamicInit(const char *exec_path)
 static dl_handle_t objc_dynamicLink(const char *module, int mode, const char *debug_file)
 {
 	dl_handle_t *ret;
-#if 1
+#if 0
 	fprintf(stderr, "objc_dynamicLink(%s, %d, %s)\n", module, mode, debug_file);
 #endif
 	ret=(dl_handle_t)dlopen(module, RTLD_LAZY | RTLD_GLOBAL);
-#if 1
+#if 0
 	fprintf(stderr, "objc_dynamicLink => %08lx\n", (unsigned int) ret);
 #endif
 	return ret;
@@ -215,7 +215,7 @@ int objc_initializeLoading(FILE *errorStream)
 
 void objc_load_callback_function(Class class, struct objc_category *category)
 {
-#if 1
+#if 0
 	fprintf(stderr, "objc_load_callback_function(%s, %p)\n", class_getName(class), category);
 #endif
 #if FIXME
@@ -228,7 +228,7 @@ void objc_load_callback_function(Class class, struct objc_category *category)
 #endif
 	if (objc_loadmodule_callback)
 		(*objc_loadmodule_callback)(class, (Category) category);	// pass to user provided callback (_bundleLoadCallback)
-#if 1
+#if 0
 	fprintf(stderr, "objc_load_callback_function done\n");
 #endif
 }
@@ -256,7 +256,7 @@ long objc_loadModules (char *list[],
 	long success=0;
 	while((filename=*list++))
 		{
-#if 1
+#if 0
 		fprintf(stderr, "objc_load_module %s\n", filename);
 #endif
 
@@ -308,7 +308,7 @@ long objc_loadModules (char *list[],
 		_objc_load_callback = NULL;
 		objc_loadmodule_callback = NULL;
 		success++;
-#if 1
+#if 0
 		fprintf(stderr, "objc_load_module: successfully loaded\n");
 #endif
 		}
