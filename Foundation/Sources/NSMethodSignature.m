@@ -234,217 +234,88 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 #endif
 }
 
-// this may be called recursively for (structs)
-
-static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
+static ffi_type *parse_ffi_type(const char **typePtr)
 { // returns NULL on error
-	NSCAssert(info, @"missing NSArgumentInfo");
-	// FIXME: NO, we should keep the flags+type but remove the offset
-	info->qual = 0;	// start with no qualifier
-	info->isReg = NO;
-	info->byRef = NO;
-	// Skip past any type qualifiers,
-	for(; YES; typePtr++)
-		{
-		switch (*typePtr) {
-			case _C_CONST:  info->qual |= _F_CONST; continue;
-			case _C_IN:     info->qual |= _F_IN; continue;
-			case _C_INOUT:  info->qual |= _F_INOUT; continue;
-			case _C_OUT:    info->qual |= _F_OUT; continue;
-			case _C_BYCOPY: info->qual |= _F_BYCOPY; info->qual &= ~_F_BYREF; continue;
-#ifdef _C_BYREF
-			case _C_BYREF:  info->qual |= _F_BYREF; info->qual &= ~_F_BYCOPY; continue;
-#endif
-			case _C_ONEWAY: info->qual |= _F_ONEWAY; continue;
-			default: break;
-		}
-		break;	// break loop if there was no continue
-		}
-	info->type = typePtr;
-	typePtr=NSGetSizeAndAlignment(typePtr, &info->size, &info->align);
-	switch (info->type[0]) { // set ffi information
+	const char *t=strchr(*typePtr, '=');
+	if(t)
+		*typePtr=t+1;	// skip variable name
+	switch(*(*typePtr)++) { // set ffi information
+		default:		return NULL;	// unknown
+		case _C_VOID:	return &ffi_type_void;
 		case _C_ID:
 		case _C_CLASS:
-		case _C_SEL:
-			info->ffitype=&ffi_type_pointer;
-			break;
-		case _C_CHR:
-			info->ffitype=&ffi_type_sint8;
-			break;
-		case _C_UCHR:
-			info->ffitype=&ffi_type_uint8;
-			break;
-		case _C_SHT:
-			info->ffitype=&ffi_type_sint16;
-			break;
-		case _C_USHT:
-			info->ffitype=&ffi_type_uint16;
-			break;
-		case _C_INT:
-			if(sizeof(int) == 4)
-				info->ffitype=&ffi_type_sint32;
-			else
-				info->ffitype=&ffi_type_sint64;
-			break;
-		case _C_UINT:
-			if(sizeof(unsigned int) == 4)
-				info->ffitype=&ffi_type_uint32;
-			else
-				info->ffitype=&ffi_type_uint64;
-			break;
-		case _C_LNG:
-			if(sizeof(long) == 4)
-				info->ffitype=&ffi_type_sint32;
-			else
-				info->ffitype=&ffi_type_sint64;
-			break;
-		case _C_ULNG:
-			if(sizeof(unsigned long) == 4)
-				info->ffitype=&ffi_type_sint32;
-			else
-				info->ffitype=&ffi_type_sint64;
-			break;
-		case _C_LNG_LNG:
-			info->ffitype=&ffi_type_sint64;
-			break;
-		case _C_ULNG_LNG:
-			info->ffitype=&ffi_type_uint64;
-			break;
-		case _C_FLT:
-			info->ffitype=&ffi_type_float;
-			break;
-		case _C_DBL:
-			info->ffitype=&ffi_type_double;
-			break;
-			// case _C_LDBL:
-			// info->ffitype=&ffi_type_longdouble:
-		case _C_PTR:
-			info->ffitype=&ffi_type_pointer;
-#if OLD
-			if (*typePtr == '?')
-				typePtr++;
-			else
-				{ // recursively
-					struct NSArgumentInfo local;
-					typePtr = next_arg(typePtr, &local);
-					info->isReg = local.isReg;
-					info->offset = local.offset;
-				}
+		case _C_SEL:	return &ffi_type_pointer;
+		case _C_CHR:	return &ffi_type_sint8;
+		case _C_UCHR:	return &ffi_type_uint8;
+		case _C_SHT:	return &ffi_type_sint16;
+		case _C_USHT:	return &ffi_type_uint16;
+		case _C_INT:	return sizeof(int) == 4 ? &ffi_type_sint32 : &ffi_type_sint64;
+		case _C_UINT:	return sizeof(unsigned int) == 4 ? &ffi_type_uint32 : &ffi_type_uint64;
+		case _C_LNG:	return sizeof(long) == 4 ? &ffi_type_sint32 : &ffi_type_sint64;
+		case _C_ULNG:	return sizeof(unsigned long) == 4 ? &ffi_type_sint32 : &ffi_type_sint64;
+		case _C_LNG_LNG:	return &ffi_type_sint64;
+		case _C_ULNG_LNG:	return &ffi_type_uint64;
+		case _C_FLT:		return &ffi_type_float;
+		case _C_DBL:		return &ffi_type_double;
+#if 0
+		case _C_LDBL:		return &ffi_type_longdouble:
 #endif
-			break;
 		case _C_ATOM:
-		case _C_CHARPTR:
-			info->ffitype=&ffi_type_pointer;
-			break;
-
+		case _C_CHARPTR:	return &ffi_type_pointer;
+		case _C_PTR:
+			if(**typePtr == _C_UNDEF)
+				(*typePtr)++;	// ^?
+			else
+				parse_ffi_type(typePtr); // type follows, e.g. ^{_NSPoint=ff}
+			return &ffi_type_pointer;
 		case _C_ARY_B: {
+			NSUInteger size=0;
 			// allocate struct ffitype
 			// set number of elements and sizes
-
-			struct NSArgumentInfo local;
-			int	length = atoi(typePtr);
-
-			while (isdigit(*typePtr))
-				typePtr++;
-
-			typePtr = next_arg(typePtr, &local);
-			info->size = length * ROUND(local.size, local.align);
-			info->align = local.align;
-			typePtr++;								// Skip end-of-array
-			break;
+			// for that, recursively process starting at info->type+1
+			while (isdigit(**typePtr))
+				size=10*size+*(*typePtr)++-'0';	// collect array dimensions
+			if(*(*typePtr)++ == _C_ARY_E)
+				(*typePtr)++;
+			return &ffi_type_pointer;
 		}
-
 		case _C_STRUCT_B: {
-			// FIXME: allocate ffitype with subtypes
-			struct NSArgumentInfo local;
-			//	struct { int x; double y; } fooalign;
-			struct { unsigned char x; } fooalign;
-			int acc_size = 0;
-			int acc_align = __alignof__(fooalign);
-			while (*typePtr && *typePtr != _C_STRUCT_E && *typePtr != '=')			// Skip "<strut-name>="
-				typePtr++;
-			if (*typePtr == '=')	// did end at '='
-				typePtr++;
-			// Base structure alignment
-			if (*typePtr != _C_STRUCT_E)			// on first element.
-				{
-				typePtr = next_arg(typePtr, &local);
-				if (!typePtr)
-					return typePtr;						// error
-
-				acc_size = ROUND(acc_size, local.align);
-				acc_size += local.size;
-				acc_align = MAX(local.align, __alignof__(fooalign));
+			// recursively allocate ffi_type for struct
+			// how do we dod memory management?
+#if 1
+			NSLog(@"  struct 1: %s", *typePtr);
+#endif
+			while((**typePtr && **typePtr != _C_STRUCT_E))
+				{ // process elements
+#if 1
+					NSLog(@"  struct 2: %s", *typePtr);
+#endif
+					parse_ffi_type(typePtr);
 				}
-			// Continue accumulating
-			while (*typePtr && *typePtr != _C_STRUCT_E)			// structure size.
-				{
-				typePtr = next_arg(typePtr, &local);
-				if (!typePtr)
-					return typePtr;						// error
-
-				acc_size = ROUND(acc_size, local.align);
-				acc_size += local.size;
-				}
-			info->size = acc_size;
-			info->align = acc_align;
-			//printf("_C_STRUCT_B  size %d align %d\n",info->size,info->align);
-			if(*typePtr)
-				typePtr++;		// Skip end-of-struct
-			break;
+#if 1
+			NSLog(@"  struct 3: %s", *typePtr);
+#endif
+			if (**typePtr == _C_STRUCT_E)
+				(*typePtr)++;
+#if 1
+			NSLog(@"  struct 4: %s", *typePtr);
+#endif
+			return NULL;
 		}
-
 		case _C_UNION_B: {
 			// FIXME: allocate ffitype with subtypes
-			struct NSArgumentInfo local;
-			int	max_size = 0;
-			int	max_align = 0;
-
-			while (*typePtr && *typePtr != _C_UNION_E && *typePtr != '=')			// Skip "<strut-name>="
-				typePtr++;
-			if (*typePtr == '=')	// did end at '='
-				typePtr++;
-
-			while (*typePtr && *typePtr != _C_UNION_E)
-				{
-				typePtr = next_arg(typePtr, &local);
-				if (!typePtr)
-					return typePtr;						// error
-				max_size = MAX(max_size, local.size);
-				max_align = MAX(max_align, local.align);
+			while((**typePtr && **typePtr != _C_UNION_E))
+				{ // process elements
+#if 1
+					NSLog(@"  struct 2: %s", *typePtr);
+#endif
+					parse_ffi_type(typePtr);
 				}
-			info->size = max_size;
-			info->align = max_align;
-			if(*typePtr)
-				typePtr++;		// Skip end-of-struct
-			break;
+			if (**typePtr == _C_UNION_E)
+				(*typePtr)++;
+			return &ffi_type_pointer;
 		}
-
-		case _C_VOID:
-			info->ffitype=&ffi_type_void;
-			break;
-
-		default:
-			return NULL;	// unknown
 	}
-
-	if(info->type[0] != _C_PTR || info->type[1] == '?')
-		{
-		if(*typePtr == '+')
-			{ // register offset
-				typePtr++;
-				info->isReg = YES;
-			}
-		else
-			{ // stack offset
-				info->isReg = NO;
-			}
-		info->offset = 0;
-		while(isdigit(*typePtr))
-			info->offset = 10 * info->offset + (*typePtr++ - '0');
-		}
-
-	return typePtr;
 }
 
 @implementation NSMethodSignature
@@ -570,20 +441,36 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 			while(*types)
 				{ // process all types
 					const char *t;
-#if 0
+#if 1
 					NSLog(@"%d: %s", i, types);
 #endif
-					if(i >= allocArgs)
-						{
-						allocArgs+=5;
-						OBJC_REALLOC(info, struct NSArgumentInfo, allocArgs);
+					if(i >= allocArgs)	// we need more memory
+						OBJC_REALLOC(info, struct NSArgumentInfo, allocArgs+=5);
+					info[i].qual = 0;	// start with no qualifier
+					info[i].isReg = NO;
+					info[i].byRef = NO;
+					for(; YES; types++)
+						{ // Skip past any type qualifiers
+						switch (*types) {
+							case _C_CONST:  info[i].qual |= _F_CONST; continue;
+							case _C_IN:     info[i].qual |= _F_IN; continue;
+							case _C_INOUT:  info[i].qual |= _F_INOUT; continue;
+							case _C_OUT:    info[i].qual |= _F_OUT; continue;
+							case _C_BYCOPY: info[i].qual |= _F_BYCOPY; info[i].qual &= ~_F_BYREF; continue;
+#ifdef _C_BYREF
+							case _C_BYREF:  info[i].qual |= _F_BYREF; info[i].qual &= ~_F_BYCOPY; continue;
+#endif
+							case _C_ONEWAY: info[i].qual |= _F_ONEWAY; continue;
+							default: break;
 						}
-					types = next_arg(types, &info[i]);
+						break;	// break loop if there was no continue
+						}
+					t=info[i].type=types;
+					types=NSGetSizeAndAlignment(types, &info[i].size, &info[i].align);
 					if(!types)
 						break;	// some error
-					t=info[i].type;
 					if((info[i].qual & _F_INOUT) == 0)
-						{ // add default qualifiers
+						{ // set default qualifiers
 							if(i == 0)
 								info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
 							else if(*t == _C_PTR || *t == _C_ATOM || *t == _C_CHARPTR)
@@ -591,8 +478,18 @@ static const char *next_arg(const char *typePtr, struct NSArgumentInfo *info)
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
+					info[i].ffitype=parse_ffi_type(&t);
+					info[i].isReg = NO;
+					if(*types == '+')
+						{ // register
+							types++;
+							info[i].isReg = YES;
+						}
+					info[i].offset = 0;
+					while(isdigit(*types))
+						info[i].offset = 10 * info[i].offset + (*types++ - '0');
 					if(info[i].align < sizeof(void *))
-						info[i].align=sizeof(void *);
+						info[i].align=sizeof(void *);	// minimum alignment
 					needs=((info[i].size+info[i].align-1)/info[i].align)*info[i].align;	// how much this needs incl. padding
 					info[i].offset=ROUND(argFrameLength, info[i].align);	// offset relative to frame pointer
 					argFrameLength=info[i].offset+needs;
