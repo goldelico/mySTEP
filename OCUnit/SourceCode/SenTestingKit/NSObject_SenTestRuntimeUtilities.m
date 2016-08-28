@@ -33,9 +33,8 @@
 #import "SenTestClassEnumerator.h"
 #import "SenTestingUtilities.h"
 #import <Foundation/Foundation.h>
-#if defined(__mySTEP__)
-#define class_getClassMethod class_get_class_method
-#else
+
+#if defined(__Apple__)
 #import <objc/objc-class.h>
 #endif
 
@@ -48,7 +47,7 @@
 @implementation Object (PrivateRuntimeUtilities)
 + (BOOL)respondsToSelector:(SEL)sel
 {
-  return (IMP)class_get_instance_method(self, sel) != (IMP)0;
+  return (IMP)class_getInstanceMethod(self, sel) != (IMP)0;
 }
 @end
 #endif
