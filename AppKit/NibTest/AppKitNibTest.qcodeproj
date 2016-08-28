@@ -7,7 +7,6 @@ export SOURCES+=" AppController.m"
 export SOURCES+=" CircleView.m"
 export SOURCES+=" Default.tiff"
 export SOURCES+=" English.lproj"
-export SOURCES+=" Info.plist"
 export SOURCES+=" main.m"
 export SOURCES+=" Lion.jpg"
 export SOURCES+=" myModel.m"
@@ -21,4 +20,4 @@ export WRAPPER_EXTENSION="app"
 # project settings
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

@@ -17,4 +17,4 @@ export SOURCES+=" floatspeed.m"
 export WRAPPER_EXTENSION="octest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

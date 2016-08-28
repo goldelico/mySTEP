@@ -37,4 +37,4 @@ export WRAPPER_EXTENSION="octest"
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-/usr/bin/make -f "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

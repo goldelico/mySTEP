@@ -4,6 +4,5 @@ export INSTALL_PATH="/usr"
 export PRODUCT_NAME="PlistBuddy"
 export SOURCES="PlistBuddy.m"
 
-
-[ "$QuantumSTEP" ] || export QuantumSTEP=/usr/local/QuantumSTEP
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
+[ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
+"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
