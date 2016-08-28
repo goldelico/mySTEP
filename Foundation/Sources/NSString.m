@@ -751,12 +751,16 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #endif
 					if(arg && ![arg isKindOfClass:[NSString class]])
 						{ // not yet a string
+#if 0
 							fprintf(stderr, " class=%s\n", [NSStringFromClass([arg class]) UTF8String]);
+#endif
 							if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
 								arg=[arg descriptionWithLocale:locale];
 							else
 								arg=[arg description];
+#if 0
 							fprintf(stderr, " new class=%s\n", [NSStringFromClass([arg class]) UTF8String]);
+#endif
 						}
 					if(!arg)
 						arg=@"<nil>";	// nil object or description
