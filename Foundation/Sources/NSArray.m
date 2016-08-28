@@ -199,7 +199,7 @@ static Class __stringClass = Nil;
 	return [[(NSArray *)[self alloc] initWithObjects: objects count: count] autorelease];
 }
 
-+ (id) arrayWithObjects: firstObject, ...
++ (id) arrayWithObjects: (id) firstObject, ...
 {
 	id obj, *k, array;
 	va_list va;
