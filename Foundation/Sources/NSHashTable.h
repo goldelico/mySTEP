@@ -1,17 +1,17 @@
-/* 
-    NSHashTable.h
+/*
+ NSHashTable.h
 
-    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-    All rights reserved.
+ Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+ All rights reserved.
 
-    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
- 
-    Author:	Fabian Spillner <fabian.spillner@gmail.com>
-    Date:	9. May 2008 - aligned with 10.5 
+ Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
 
-    This file is part of the mySTEP Library and is provided under the 
-    terms of the libFoundation BSD type license (See the Readme file).
-*/
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	9. May 2008 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided under the
+ terms of the libFoundation BSD type license (See the Readme file).
+ */
 
 #ifndef _mySTEP_H_NSHashTable
 #define _mySTEP_H_NSHashTable
@@ -34,35 +34,35 @@ enum {
 };
 
 typedef struct _NSHashTableCallBacks {
-    unsigned (*hash)(/*struct _*/NSHashTable *table, const void *anObject);
-    BOOL (*isEqual)(/*struct _*/NSHashTable *table, const void *anObject1, 
+	NSUInteger (*hash)(/*struct _*/NSHashTable *table, const void *anObject);
+	BOOL (*isEqual)(/*struct _*/NSHashTable *table, const void *anObject1,
 					const void *anObject2);
-    void (*retain)(/*struct _*/NSHashTable *table, const void *anObject);
-    void (*release)(/*struct _*/NSHashTable *table, void *anObject);
-    NSString *(*describe)(/*struct _*/NSHashTable *table, const void *anObject);
+	void (*retain)(/*struct _*/NSHashTable *table, const void *anObject);
+	void (*release)(/*struct _*/NSHashTable *table, void *anObject);
+	NSString *(*describe)(/*struct _*/NSHashTable *table, const void *anObject);
 } NSHashTableCallBacks;
 
 struct _NSHashNode {
-    void *key;
-    struct _NSHashNode *next;
+	void *key;
+	struct _NSHashNode *next;
 };
 
 typedef struct _NSHashEnumerator {
-    /*struct _*/ NSHashTable *table;
-    struct _NSHashNode *node;
-    int bucket;
+	/*struct _*/ NSHashTable *table;
+	struct _NSHashNode *node;
+	int bucket;
 } NSHashEnumerator;
 
 @interface NSHashTable : NSObject <NSCopying, NSMutableCopying, NSCoding, NSFastEnumeration>
 {
-	@public	// so that we can access the table as a struct
+@public	// so that we can access the table as a struct
 	struct _NSHashNode **nodes;
-	unsigned int hashSize;
-	unsigned int itemsCount;
+	NSUInteger hashSize;
+	NSUInteger itemsCount;
 	NSHashTableCallBacks callbacks;
 }
 
-+ (id) hashTableWithOptions:(NSPointerFunctionsOptions) opts; 
++ (id) hashTableWithOptions:(NSPointerFunctionsOptions) opts;
 + (id) hashTableWithWeakObjects;
 
 - (void) addObject:(id) obj;
@@ -108,9 +108,9 @@ NSHashTable *
 NSCopyHashTable(NSHashTable *table);
 
 void NSFreeHashTable(NSHashTable *table); 				// Free a Table
-void NSResetHashTable(NSHashTable *table); 
-														// Compare Two Tables
-BOOL NSCompareHashTables(NSHashTable *table1, NSHashTable *table2);	
+void NSResetHashTable(NSHashTable *table);
+// Compare Two Tables
+BOOL NSCompareHashTables(NSHashTable *table1, NSHashTable *table2);
 
 NSUInteger NSCountHashTable(NSHashTable *table);			// Get Number of Items
 
@@ -118,7 +118,7 @@ NSArray *NSAllHashTableObjects(NSHashTable *table);		// Retrieve Items
 void *NSHashGet(NSHashTable *table, const void *pointer);
 void *NSNextHashEnumeratorItem(NSHashEnumerator *enumerator);
 NSHashEnumerator NSEnumerateHashTable(NSHashTable *table);
-														// Add / Remove an Item
+// Add / Remove an Item
 void NSHashInsert(NSHashTable *table, const void *pointer);
 void NSHashInsertKnownAbsent(NSHashTable *table, const void *pointer);
 void *NSHashInsertIfAbsent(NSHashTable *table, const void *pointer);
@@ -129,10 +129,10 @@ NSString *NSStringFromHashTable(NSHashTable *table);	//String Representation
 //
 // Convenience functions to deal with Hash and Map Table
 //
-unsigned __NSHashObject(void* table, const void* anObject);
-unsigned __NSHashPointer(void* table, const void* anObject);
-unsigned __NSHashInteger(void* table, const void* anObject);
-unsigned __NSHashCString(void* table, const void* anObject);
+NSUInteger __NSHashObject(void* table, const void* anObject);
+NSUInteger __NSHashPointer(void* table, const void* anObject);
+NSUInteger __NSHashInteger(void* table, const void* anObject);
+NSUInteger __NSHashCString(void* table, const void* anObject);
 
 BOOL __NSCompareObjects(void* table, const void* aObj1, const void* aObj2);
 BOOL __NSComparePointers(void* table, const void* aObj1, const void* aObj2);
