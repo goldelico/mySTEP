@@ -854,8 +854,23 @@ const char *NSGetSizeAndAlignment(const char *typePtr,
 								  NSUInteger *sizep,
 								  NSUInteger *alignp)
 {
-	*sizep=objc_sizeof_type(typePtr);
-	*alignp=objc_aligned_size(typePtr);
+	if(*typePtr == _C_VOID)
+		{
+		*alignp=0;
+		*sizep=0;
+		}
+	else
+		{
+		*alignp=objc_aligned_size(typePtr);
+		*sizep=objc_sizeof_type(typePtr);
+		}
+	if(*typePtr == _C_PTR)
+		{ // ^ will be followes by the type pointed to
+			NSUInteger dummy1, dummy2;
+			if(typePtr[1] == _C_UNDEF)
+				return typePtr+2;	// ^?
+			return NSGetSizeAndAlignment(typePtr+1, &dummy1, &dummy2);
+		}
 	return objc_skip_typespec(typePtr);
 }
 
