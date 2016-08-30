@@ -51,7 +51,7 @@
 
 - (id) initForClass:(Class) aClass
 {
-#if 1
+#if 0
 	NSLog(@"SenTestInvocationEnumerator initForClass:%@", NSStringFromClass(aClass));
 #endif
 	if(self = [super init])
@@ -69,7 +69,7 @@
 #if defined (GNUSTEP) || defined(__mySTEP__)
 	NSInvocation *invocation;
 	SEL nextSelector;
-#if 1
+#if 0
 	NSLog(@"SenTestInvocationEnumerator nextObject: mlist=%p iterator=%p count=%lu", mlist, iterator, count);
 #endif
 	if(iterator == NULL)
@@ -79,15 +79,15 @@
 			if(mlist)
 				free(mlist);
 			mlist=NULL;
-#if 1
-			NSLog(@"end of list");
+#if 0
+			NSLog(@"SenTestInvocationEnumerator: end of list");
 #endif
 			return nil;
 		}
 	nextSelector=method_getName(*(Method *)iterator);
 	// compiler rejects ((Method *) iterator)++ or +=1
 	iterator=((Method *) iterator)+1, count--;
-#if 1
+#if 0
 	NSLog(@"selector = %@", NSStringFromSelector(nextSelector));
 #endif
 	invocation=[NSInvocation invocationWithMethodSignature:[class instanceMethodSignatureForSelector:nextSelector]];
