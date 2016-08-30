@@ -68,18 +68,17 @@
 //
 //*****************************************************************************
 
-// FIXME: does the dtable still exist?
-
+#if OLD
 // From the objc runtime -- needed when invalidating the dtable
 extern void __objc_install_premature_dtable(Class);
-//extern void sarray_free(struct sarray *);
+#endif
 
 /* runtime.h defines:
  * extern void (*_objc_load_callback)(Class class, struct objc_category * category);
  * typedef struct objc_category *Category;
  */
 
-// Our current callback function from objc_loadmodule
+// Our current callback function from objc_loadModule
 void (*objc_loadmodule_callback)(Class, Category) = NULL;
 
 // dynamic loader was sucessfully initialized.
@@ -174,22 +173,6 @@ int objc_check_undefineds(FILE *errorStream)
 // Invalidate the dtable so it will be rebuild
 // when a message is sent to the object
 
-void objc_invalidate_dtable(Class class)
-{
-	Class s;
-#if 0
-	fprintf(stderr, "invalidate dtable for %s\n", class_getName(class));
-#endif
-#if FIXME
-	if (class->dtable == objc_get_uninstalled_dtable())
-		return;
-	sarray_free(class->dtable);
-	__objc_install_premature_dtable(class);
-	for (s = class->subclass_list; s; s=s->sibling_class)
-		objc_invalidate_dtable(s);	// recursive
-#endif
-}
-
 // FIXME: not really used
 
 int objc_initializeLoading(FILE *errorStream)
@@ -209,23 +192,47 @@ int objc_initializeLoading(FILE *errorStream)
 	return 0;
 }
 
+#if OLD
+// helper
+// must be run so that the loaded class knows the methods inherited
+// from superclasses
+
+void objc_invalidate_dtable(Class class)
+{
+	Class s;
+#if 0
+	fprintf(stderr, "invalidate dtable for %s\n", class_getName(class));
+#endif
+	if (class->dtable == objc_get_uninstalled_dtable())
+		return;
+	sarray_free(class->dtable);
+	__objc_install_premature_dtable(class);
+	for (s = class->subclass_list; s; s=s->sibling_class)
+		objc_invalidate_dtable(s);	// recursive
+}
+#endif
+
 // A callback received from Object initializer
 // (_objc_exec_class). Do what we need to do
 // and call our own callback.
 
 void objc_load_callback_function(Class class, struct objc_category *category)
 {
+	extern void __objc_update_dispatch_table_for_class(Class class);
 #if 0
 	fprintf(stderr, "objc_load_callback_function(%s, %p)\n", class_getName(class), category);
 #endif
-#if FIXME
-	if (class != Nil && category) 		// Invalidate the dtable, so it will be rebuilt correctly
+	if (class != Nil && !category) 		// Invalidate the dtable, so it will be rebuilt correctly
 		{
-			objc_invalidate_dtable(class);
-			objc_invalidate_dtable(class->class_pointer);
-		}
-
+#if 1
+		fprintf(stderr, "update_dispatch_table_for_class(%s)\n", class_getName(class));
 #endif
+		//		__objc_update_dispatch_table_for_class(class);
+#if FIXME
+		objc_invalidate_dtable(class);
+		objc_invalidate_dtable(class->class_pointer);
+#endif
+		}
 	if (objc_loadmodule_callback)
 		(*objc_loadmodule_callback)(class, (Category) category);	// pass to user provided callback (_bundleLoadCallback)
 #if 0
@@ -266,7 +273,7 @@ long objc_loadModules (char *list[],
 		// module loading could be serialized by a lock
 		if(objc_loadmodule_callback)
 			{ // there is already a callback installed
-			NSLog(@"objc_loadModule already runing (threads?)");
+			NSLog(@"objc_loadModule already running (threads?)");
 			return 0;
 			}
 		objc_loadmodule_callback = loadCB;	// most probably _bundleLoadCallback
@@ -321,6 +328,10 @@ long objc_unloadModules(void *errStream, void (*unloadCb)(Class, Category))
 	return 0;
 }
 
+/* helper to implement bundleForClass: by going through file name
+ * this also works for bundles not loaded dynamically
+ */
+
 char *objc_moduleForAddress(const void *address)
 {
 #ifdef __linux__	// not loaded by <dlfcn.h>
@@ -332,9 +343,9 @@ char *objc_moduleForAddress(const void *address)
 	void *dli_saddr;			/* Exact value of nearest symbol.  */
 	} Dl_info;
 	extern int dladdr(const void *__address, Dl_info *__info);
-#endif
+#endif	// __linux__
 	Dl_info info;
-	if(dladdr(address, &info))	// find filename for address of class record
+	if(dladdr(address, &info))	// find filename for e.g. address of class record or method IMP
 		{
 #if 0
 		NSLog(@"objc_moduleForAddress filename=%s", info.dli_fname);
