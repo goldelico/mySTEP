@@ -46,7 +46,7 @@
 	STAssertEqualObjects(NSStringFromRect(rect), @"{{10, 20}, {30, 42.2}}", nil);
 	STAssertTrue(NSEqualRects(NSRectFromString(@"{{10, 20}, {30, 42.2}}"), rect), nil);
 	STAssertTrue(NSEqualRects(NSRectFromString(@" { { 1e1, 20.000}, { 0030, 42.200}  }  "), rect), nil);
-	// check wraping into NSValue
+	// check wrapping into NSValue
 	// check intersection
 	// check inset
 	// check union (with empty and non-empty rect)
@@ -57,7 +57,7 @@
 	rect=NSMakeRect(10, 20, -30, -42.2);
 	STAssertTrue(NSIsEmptyRect(rect), nil);	// negative height is empty
 	rect=NSMakeRect(10, 20, 0, -42.2);
-	STAssertTrue(NSIsEmptyRect(rect), nil);	// zero with is nempty
+	STAssertTrue(NSIsEmptyRect(rect), nil);	// zero with is empty
 }
 
 - (void) test20
@@ -138,7 +138,7 @@
 - (void) test90
 { // selectors and equality
 	SEL s=NSSelectorFromString(@"test90");
-#if 0 // this was from debugging Debian-i386
+#if 1 // this was from debugging Debian-i386
 	NSLog(@"%s -- %s", s, @selector(test90));
 	NSLog(@"1: %@", sel_isEqual(s, @selector(test90))?@"YES":@"NO");
 	NSLog(@"2: %@", sel_isEqual(s, @selector(test91))?@"YES":@"NO");
