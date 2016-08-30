@@ -38,6 +38,7 @@ struct NSArgumentInfo
 	unsigned short qual;			// qualifier bits (oneway, byref, bycopy, in, inout, out)
 	BOOL isReg;						// signature says it is passed in a register (+) and not on stack
 #if 1 || OLD
+	// FIXME: do we always have byref?
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
 									// CHECKME: is this an architecture constant or for each individual parameter???
 #endif
@@ -164,6 +165,8 @@ static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void
 		}
 }
 
+// note: if this returns NULL, the objc runtime will try old style builtin_apply based forwarding!
+
 static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 {
 	NSMethodSignature *sig = nil;
@@ -173,6 +176,7 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
 #endif
+	*((long *)1) = 1;	// segfault into debugger
 #if FIXME
 	GSCodeBuffer *memory;
 
@@ -236,6 +240,7 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 
 	// initialize and allocate a new forwarding function
 #endif
+	/* debug */ if(!sig) sig = [NSMethodSignature signatureWithObjCTypes: "v@::"];
 	return [sig _forwardingImplementation];
 }
 
@@ -462,7 +467,9 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 						OBJC_REALLOC(info, struct NSArgumentInfo, allocArgs+=5);
 					info[i].qual = 0;	// start with no qualifier
 					info[i].isReg = NO;
-					info[i].byRef = NO;
+					// FIXME: we always use byRef!
+					// because we have pointers into the data area of a frame
+					info[i].byRef = YES;
 					for(; YES; types++)
 						{ // Skip past any type qualifiers
 						switch (*types) {
@@ -493,12 +500,14 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
 					info[i].ffitype=parse_ffi_type(&t);
+#if 1	// a comment in encoding.c source says a '+' was stopped to be generated at gcc 3.4
 					info[i].isReg = NO;
 					if(*types == '+')
 						{ // register
 							types++;
 							info[i].isReg = YES;
 						}
+#endif
 					info[i].offset = 0;
 					while(isdigit(*types))
 						info[i].offset = 10 * info[i].offset + (*types++ - '0');
@@ -569,33 +578,22 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 
 - (void) _logFrame:(void *) _argframe target:(id) target selector:(SEL) selector;
 {
-#if FIXMEFIXME
 	int i;
-	struct stackframe *f=(struct stackframe *) _argframe;
 	void **af=(void **) _argframe;
-	int len;
 	NEED_INFO();	// get valid argFrameLength and methodReturnLength
-	len=offsetof(struct stackframe, more) + argFrameLength + info[0].size;	// as calculated by _allocArgFrame
-	for(i=0; i<10+(len/sizeof(void *)); i++)
+	for(i=0; i <= numArgs; i++)
 		{
 		NSString *note=@"";
-		if(&af[i] == &af[0]) note=[note stringByAppendingFormat:@" link %+d ->>", (char *) f->fp- (char *) &af[0]];
-		if(&af[i] == f->fp) note=[note stringByAppendingString:@" <<- link"];
 		if(target && af[i] == target) note=[note stringByAppendingString:@" self"];
 		if(selector && af[i] == selector) note=[note stringByAppendingString:@" _cmd"];
-		//		if(&((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@" argp"];
-		if((char *) &af[i] == ((char *) _argframe)+len) note=[note stringByAppendingString:@" <<- END"];
-		NSLog(@"arg[%2d]:%p %+4ld %+4ld %p %12ld %12g %12lg%@", i,
+		NSLog(@"arg[%2d]:%p %p %12ld %12g %12lg%@", i,
 			  &af[i],
-			  (char *) &af[i] - (char *) &af[0],
-			  (char *) &af[i] - (char *) f->fp,
 			  af[i],
 			  (long) af[i],
 			  *(float *) &af[i],
 			  *(double *) &af[i],
 			  note);
 		}
-#endif
 }
 
 - (void) _logMethodTypes;
@@ -753,7 +751,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 }
 
 /*
- * we allocate a buffer that starts with a pointer array to speed up the call:
+ * we allocate a buffer that starts with a pointer array to speed up the _call:
  * and then data areas for all arguments
  * the first pointer is for the return value
  */
@@ -764,30 +762,39 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		{ // allocate a new buffer that is large enough to hold the space for frameLength arguments and methodReturnLength
 			unsigned int len;
 			int i;
+			char *argp;
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
-			len=sizeof(void *) * numArgs + info[0].size + argFrameLength;
+			len=sizeof(void *) * (numArgs+1) + info[0].size + argFrameLength;
 			OBJC_CALLOC(frame, char, len);
+			argp=((char *) frame) + sizeof(void *) * (numArgs+1);	// start behind argument pointers
 #if 0
 			NSLog(@"allocated frame=%p..%p framelength=%d len=%d", frame, len + (char*) frame, argFrameLength, len);
 #endif
-			for(i=0; i<numArgs; i++)
-				((void **) frame)[i]=&((void **) frame)[i];	// set up retval and argument pointers
+			for(i=0; i <= numArgs; i++)
+				{ // set up retval and argument pointers into data area
+				((void **) frame)[i]=argp;
+				argp+=info[i].size;
+				}
 		}
 	else
-		{ // clear return value (if there is no setReturnValue for a forwardInvocation:
+		{ // clear return value (if there is no setReturnValue for a forwardInvocation:)
 			memset(_getArgumentAddress(frame, 0), 0, info[0].size);
 		}
+#if 0
+	[self _logFrame:frame target:nil selector:NULL];
+#endif
 	return frame;
 }
 
 - (BOOL) _call:(void *) imp frame:(void *) _argframe;
 { // call implementation and pass values from argframe buffer
+	void **af=(void **) _argframe;
 	if(!cif)
 		[self _frameDescriptor];
 #if 1
 	NSLog(@"cif=%p imp=%p return=%p args=%p", cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
 #endif
-	ffi_call(cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
+	ffi_call(cif, imp, af[0], &af[1]);
 	return YES;
 }
 
@@ -795,7 +802,9 @@ static inline void *_getArgumentAddress(void *frame, int i)
 {
 	// memory = cifframe_closure(sig, GSFFIInvocationCallback);
 
-	return [NSObject instanceMethodForSelector:@selector(forwardInvocation:)];
+	IMP imp=[NSObject instanceMethodForSelector:@selector(nimp:)];
+	NSLog(@"_forwardingImplementation imp = %p", imp);
+	return imp;
 }
 
 @end  /* NSMethodSignature (NSPrivate) */

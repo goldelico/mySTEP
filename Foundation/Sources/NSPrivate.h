@@ -436,6 +436,7 @@ enum _INVOCATION_MODE {
 - (const char *) _methodTypes;		// full method type string
 - (void) _logFrame:(void *) _argframe target:(id) target selector:(SEL) selector;
 - (void) _logMethodTypes;
+- (IMP) _forwardingImplementation;
 
 @end
 

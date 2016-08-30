@@ -222,12 +222,12 @@ void objc_load_callback_function(Class class, struct objc_category *category)
 #if 0
 	fprintf(stderr, "objc_load_callback_function(%s, %p)\n", class_getName(class), category);
 #endif
-	if (class != Nil && !category) 		// Invalidate the dtable, so it will be rebuilt correctly
+	if (NO && class != Nil /* && !category */) 		// Invalidate the dtable, so it will be rebuilt correctly
 		{
 #if 1
 		fprintf(stderr, "update_dispatch_table_for_class(%s)\n", class_getName(class));
 #endif
-		//		__objc_update_dispatch_table_for_class(class);
+		__objc_update_dispatch_table_for_class(class);
 #if FIXME
 		objc_invalidate_dtable(class);
 		objc_invalidate_dtable(class->class_pointer);
@@ -309,8 +309,10 @@ long objc_loadModules (char *list[],
 			fprintf(stderr, "objc_load_module: has undefined symbols, can't really load\n");
 #endif
 			objc_dynamicUnlink(handle);
-			return 1;
+			return 0;
 			}
+
+ __objc_resolve_class_links();
 
 		_objc_load_callback = NULL;
 		objc_loadmodule_callback = NULL;

@@ -195,7 +195,7 @@
 	SEL selector;
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
 #if 1
-	NSLog(@"-[NSInvocation invoke]: %@", target);
+	NSLog(@"-[NSInvocation invoke]: target=%p %@", target, target);
 #endif
 	if(target == nil)
 		{ // a message to a nil object returns nil or 0 or 0.0 etc.
@@ -206,37 +206,35 @@
 	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
 	if(!selector)
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke NULL selector: %@", self];
-	
-#ifndef __APPLE__
-	imp = class_getMethodImplementation(target, selector);
-	if(imp == NULL)
+#if 1
+	NSLog(@"-[NSInvocation invoke]: selector=%@", NSStringFromSelector(selector));
+#endif
+
+	imp = class_getMethodImplementation(object_getClass(target), selector);
+	if(!imp)
 		{ // If fast lookup failed, we may be forwarding or something ...
-#if 0
+#if 1
 			NSLog(@"invoke: forwarding or something ...");
 #endif
-			imp = objc_msg_lookup(target, selector);
+#ifndef __APPLE__
+		imp = objc_msg_lookup(target, selector);
+#endif
 		}
 	if(!imp)
 		{ // still undefined
 			[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke: %@", self];
 		}
-#else
-	imp=NULL;
-#endif
 #if 0
 	NSLog(@"imp = %p", imp);
 #endif
-#if 1
+#if 0
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
-
-	// NOTE: we can run into problems if imp is itself calling forward::
-
 	_validReturn=[_sig _call:imp frame:_argframe];	// call
 	if(!_validReturn)
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: failed to invoke: %@", self];
-#if 1
+#if 0
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
 #endif
