@@ -77,6 +77,13 @@
 	STAssertNil(ms, nil);
 }
 
+#if 0	/* will raise a compile warning which we can ignore */
+- (oneway void) unimplemented;
+{ // this is unimplemented
+	return;
+}
+#endif
+
 - (oneway void) implemented;
 { // this is implemented
 	return;
