@@ -664,7 +664,12 @@ NSString *
 NSStringFromSelector(SEL aSelector)
 {
 	if (aSelector)
-		return [NSString stringWithUTF8String:sel_getName(aSelector)];
+		{
+		const char *name=sel_getName(aSelector);
+		if(name)
+			return [NSString stringWithUTF8String:name];
+		// else: invalid selector!
+		}
 	return nil;
 }
 
