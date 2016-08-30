@@ -30,14 +30,14 @@
 struct NSArgumentInfo
 { // internal Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
 	const char *type;				// type (pointer to first type character)
-	int offset;						// can potentially be negative (!)
+	NSInteger offset;				// can potentially be negative (!)
 	NSUInteger size;				// size (not reliable!)
 	/* extensions */
+	NSUInteger align;				// alignment
 	ffi_type *ffitype;				// pointer to some ffi type
 	unsigned short qual;			// qualifier bits (oneway, byref, bycopy, in, inout, out)
-	NSUInteger align;				// alignment
+	BOOL isReg;						// signature says it is passed in a register (+) and not on stack
 #if 1 || OLD
-	BOOL isReg;						// is passed in a register (+) and not on stack
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
 									// CHECKME: is this an architecture constant or for each individual parameter???
 #endif
@@ -45,6 +45,8 @@ struct NSArgumentInfo
 
 #define cif ((ffi_cif *)internal1)
 #define cif_types ((ffi_type **)internal2)
+
+/* forwarding */
 
 static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void *user)
 {
@@ -166,6 +168,11 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 {
 	NSMethodSignature *sig = nil;
 	const char *types;
+#if 1
+	fprintf(stderr, "gs_objc_msg_forward2 called\n");
+	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
+	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
+#endif
 #if FIXME
 	GSCodeBuffer *memory;
 
@@ -228,18 +235,18 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 	// memory = cifframe_closure(sig, GSFFIInvocationCallback);
 
 	// initialize and allocate a new forwarding function
-	return [sig _forwardingImplementation];
-#else
-	return NULL;
 #endif
+	return [sig _forwardingImplementation];
 }
+
+/* ffi_types */
 
 static ffi_type *parse_ffi_type(const char **typePtr)
 { // returns NULL on error
 	const char *t=strchr(*typePtr, '=');
 	if(t)
-		*typePtr=t+1;	// skip variable name
-	switch(*(*typePtr)++) { // set ffi information
+		*typePtr=t+1;	// skip optional variable name
+	switch(*(*typePtr)++) {
 		default:		return NULL;	// unknown
 		case _C_VOID:	return &ffi_type_void;
 		case _C_ID:
@@ -268,6 +275,9 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			else
 				parse_ffi_type(typePtr); // type follows, e.g. ^{_NSPoint=ff}
 			return &ffi_type_pointer;
+
+			// FIXME: handle structs and arrays!
+
 		case _C_ARY_B: {
 			NSUInteger size=0;
 			// allocate struct ffitype
@@ -275,39 +285,43 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			// for that, recursively process starting at info->type+1
 			while (isdigit(**typePtr))
 				size=10*size+*(*typePtr)++-'0';	// collect array dimensions
+			// type follows
 			if(*(*typePtr)++ == _C_ARY_E)
 				(*typePtr)++;
 			return &ffi_type_pointer;
 		}
 		case _C_STRUCT_B: {
-			// recursively allocate ffi_type for struct
-			// how do we dod memory management?
-#if 1
+			// FIXME: recursively allocate ffi_type for struct
+			// how do we do memory management?
+#if 0
 			NSLog(@"  struct 1: %s", *typePtr);
 #endif
 			while((**typePtr && **typePtr != _C_STRUCT_E))
 				{ // process elements
-#if 1
+#if 0
 					NSLog(@"  struct 2: %s", *typePtr);
 #endif
 					parse_ffi_type(typePtr);
 				}
-#if 1
+#if 0
 			NSLog(@"  struct 3: %s", *typePtr);
 #endif
 			if (**typePtr == _C_STRUCT_E)
 				(*typePtr)++;
-#if 1
+#if 0
 			NSLog(@"  struct 4: %s", *typePtr);
 #endif
-			return NULL;
+			return &ffi_type_pointer;
 		}
 		case _C_UNION_B: {
 			// FIXME: allocate ffitype with subtypes
+#if 0
+			NSLog(@"  union 1: %s", *typePtr);
+#endif
 			while((**typePtr && **typePtr != _C_UNION_E))
 				{ // process elements
-#if 1
-					NSLog(@"  struct 2: %s", *typePtr);
+#if 0
+					NSLog(@"  union 2: %s", *typePtr);
 #endif
 					parse_ffi_type(typePtr);
 				}
@@ -441,7 +455,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			while(*types)
 				{ // process all types
 					const char *t;
-#if 1
+#if 0
 					NSLog(@"%d: %s", i, types);
 #endif
 					if(i >= allocArgs)	// we need more memory
@@ -500,7 +514,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
 		}
-#if 1
+#if 0
 	[self _logMethodTypes];
 #endif
 	if(index > numArgs)
@@ -516,9 +530,11 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 		int r;
 		int space;
 		NEED_INFO();
-		OBJC_CALLOC(internal1, ffi_cif, 1);
-		// do we need to copy this?
-		OBJC_CALLOC(internal2, ffi_type, space=1+numArgs);
+#if 1
+		NSLog(@"_frameDescriptor");
+#endif
+		OBJC_CALLOC(internal1, ffi_cif, 1);	// allocates cif
+		OBJC_CALLOC(internal2, ffi_type, space=1+numArgs);	// allocates cif_types
 		for(i=0; i<=numArgs; i++)
 			cif_types[i]=info[i].ffitype;
 		if((r=ffi_prep_cif(cif, FFI_DEFAULT_ABI, numArgs, cif_types[0], &cif_types[1])) != FFI_OK)
@@ -587,9 +603,9 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 	int i;
 	NSLog(@"method Types %s:", methodTypes);
 	for(i=0; i<=numArgs; i++)
-		NSLog(@"   %3d: size=%02lu align=%01lu isreg=%d offset=%02d qual=%x byRef=%d type=%s",
+		NSLog(@"   %3d: size=%02lu align=%01lu isreg=%d offset=%02ld qual=%x byRef=%d type=%s",
 			  i-1, (unsigned long)info[i].size, (unsigned long)info[i].align,
-			  info[i].isReg, info[i].offset, info[i].qual,
+			  info[i].isReg, (long)info[i].offset, info[i].qual,
 			  info[i].byRef,
 			  info[i].type);
 }
@@ -625,14 +641,14 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
 	addr=_getArgumentAddress(_argframe, index+1);
-#if 1
+#if 0
 	NSLog(@"_getArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
 	else
 		{
-#if 1
+#if 0
 		NSLog(@"_getArgument memcpy(%p, %p, %lu);", buffer, addr, (unsigned long)info[index+1].size),
 #endif
 		memcpy(buffer, addr, info[index+1].size);
@@ -647,7 +663,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", (long)index, numArgs];
 	addr=_getArgumentAddress(_argframe, index+1);
-#if 1
+#if 0
 	NSLog(@"_setArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s mode=%d", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type, 1);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
@@ -716,7 +732,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 			memcpy(*(void**)addr, buffer, info[index+1].size);
 		else
 			{
-#if 1
+#if 0
 			NSLog(@"_setArgument memcpy(%p, %p, %lu);", addr, buffer, (unsigned long)info[index+1].size),
 #endif
 			memcpy(addr, buffer, info[index+1].size);
@@ -766,11 +782,20 @@ static inline void *_getArgumentAddress(void *frame, int i)
 
 - (BOOL) _call:(void *) imp frame:(void *) _argframe;
 { // call implementation and pass values from argframe buffer
-  // use ffi_arg type?
 	if(!cif)
 		[self _frameDescriptor];
+#if 1
+	NSLog(@"cif=%p imp=%p return=%p args=%p", cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
+#endif
 	ffi_call(cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
 	return YES;
+}
+
+- (IMP) _forwardingImplementation;
+{
+	// memory = cifframe_closure(sig, GSFFIInvocationCallback);
+
+	return [NSObject instanceMethodForSelector:@selector(forwardInvocation:)];
 }
 
 @end  /* NSMethodSignature (NSPrivate) */
