@@ -539,7 +539,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 		int r;
 		int space;
 		NEED_INFO();
-#if 1
+#if 0
 		NSLog(@"_frameDescriptor");
 #endif
 		OBJC_CALLOC(internal1, ffi_cif, 1);	// allocates cif
@@ -584,6 +584,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 	for(i=0; i <= numArgs; i++)
 		{
 		NSString *note=@"";
+		// FIXME: af[i] is just a pointer to the data!
 		if(target && af[i] == target) note=[note stringByAppendingString:@" self"];
 		if(selector && af[i] == selector) note=[note stringByAppendingString:@" _cmd"];
 		NSLog(@"arg[%2d]:%p %p %12ld %12g %12lg%@", i,
@@ -772,8 +773,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 #endif
 			for(i=0; i <= numArgs; i++)
 				{ // set up retval and argument pointers into data area
-				((void **) frame)[i]=argp;
-				argp+=info[i].size;
+				((void **) frame)[i]=argp+info[i].offset;
 				}
 		}
 	else
@@ -791,7 +791,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	void **af=(void **) _argframe;
 	if(!cif)
 		[self _frameDescriptor];
-#if 1
+#if 0
 	NSLog(@"cif=%p imp=%p return=%p args=%p", cif, imp, *(void **) _argframe, ((void **) _argframe)+1);
 #endif
 	ffi_call(cif, imp, af[0], &af[1]);
