@@ -194,7 +194,7 @@
 	id target;
 	SEL selector;
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 1
+#if 0
 	NSLog(@"-[NSInvocation invoke]: target=%p %@", target, target);
 #endif
 	if(target == nil)
@@ -206,7 +206,7 @@
 	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
 	if(!selector)
 		[NSException raise:NSInvalidArgumentException format:@"-[NSInvocation invoke]: can't invoke NULL selector: %@", self];
-#if 1
+#if 0
 	NSLog(@"-[NSInvocation invoke]: selector=%@", NSStringFromSelector(selector));
 #endif
 
