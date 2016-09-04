@@ -29,42 +29,6 @@ OBJC_ROOT_CLASS
 
 @implementation _NSObjectObserver
 
-#if OLD
-- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
-{ // state changes result from calling a method. Therefore, we intercept all method calls, record state and issue notifications
-	retval_t r;
-	NSInvocation *inv;
-#if 1
-	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
-#endif
-	if(aSel == 0)
-		[NSException raise:NSInvalidArgumentException
-					format:@"_NSObjectObserver forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
-	inv=[[NSInvocation alloc] _initWithMethodSignature:[_realobject methodSignatureForSelector:aSel] andArgFrame:argFrame];
-	if(!inv)
-		{ // unknown to system
-		[NSException raise:NSInvalidArgumentException
-					format:@"NSProxy forward:: [%@ -%@]: selector not recognized", 
-			NSStringFromClass([(NSObject *) self class]), 
-			NSStringFromSelector(aSel)];
-		return nil;
-		}
-	// save object state
-	[_realobject forwardInvocation:inv];
-	// compare object state
-	// send all notifications we need
-#if 0
-	NSLog(@"invocation forwarded. Returning result");
-#endif
-	r=[inv _returnValue];
-	[inv release];
-#if 0
-	NSLog(@"returnFrame=%08x", r);
-#endif
-	return r;
-}
-#endif
-
 - (void) dealloc;
 { // do differently
 	NSMapRemove(_observationInfo, (void *) _realobject);
