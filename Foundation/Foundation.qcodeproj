@@ -226,6 +226,7 @@ export SOURCES+=" Foundation-Info.plist"
 export SOURCES+=" Sources/HTMLEntities.strings"
 export SOURCES+=" Sources/NSSystemDirectories.h"
 export SOURCES+=" Sources/Foundation.php"
+export SOURCES+=" Sources/NSXPCConnection.h"
 export WRAPPER_EXTENSION="framework"
 
 # project settings

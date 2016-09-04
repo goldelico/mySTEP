@@ -123,6 +123,7 @@
 #import <Foundation/NSXMLDTDNode.h>
 #import <Foundation/NSXMLElement.h>
 #import <Foundation/NSXMLParser.h>
+#import <Foundation/NSXPCConnection.h>
 #import <Foundation/NSZone.h>
 
 #endif /* _mySTEP_H_Foundation */

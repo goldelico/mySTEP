@@ -59,6 +59,7 @@
 		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
 		EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */ = {isa = PBXBuildFile; fileRef = EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */; };
+		EE5D99D21D7B121200356241 /* NSXPCConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D99D11D7B121200356241 /* NSXPCConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
 		EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57B0DA2C1A40007817B /* NSXMLDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6D46C50DEB1BE800399D29 /* NSXMLDTD.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57D0DA2C1A40007817B /* NSXMLDTD.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -336,6 +337,7 @@
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
 		EE59B9BE156247E700754103 /* Foundation.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = Foundation.php; path = Sources/Foundation.php; sourceTree = "<group>"; };
+		EE5D99D11D7B121200356241 /* NSXPCConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXPCConnection.h; path = Sources/NSXPCConnection.h; sourceTree = "<group>"; };
 		EE628C4C1D759AE8007A6462 /* libobjc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libobjc; path = "../../../../../../../../../Volumes/CaseSensitive/xtoolchain/arm-linux-gnueabihf/gcc-4.9.2/libobjc"; sourceTree = "<group>"; };
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
 		EE6D869D15222673004F9394 /* NSJSONSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSJSONSerialization.h; path = Sources/NSJSONSerialization.h; sourceTree = "<group>"; };
@@ -709,6 +711,7 @@
 				EEA32F3909537D0D001244CF /* NSProtocolChecker.h */,
 				EEA32F3A09537D0D001244CF /* NSProxy.h */,
 				EEA32F3B09537D0D001244CF /* NSProxy.m */,
+				EE5D99D11D7B121200356241 /* NSXPCConnection.h */,
 			);
 			name = "Portable Distributed Objects";
 			sourceTree = "<group>";
@@ -1001,6 +1004,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE5D99D21D7B121200356241 /* NSXPCConnection.h in Headers */,
 				EEAA86670A148ED200F2E5B5 /* NSXMLParser.h in Headers */,
 				EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */,
 				EE6D46C50DEB1BE800399D29 /* NSXMLDTD.h in Headers */,
