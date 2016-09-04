@@ -20,7 +20,7 @@
 
 @implementation FunctionsTest
 
-- (void) test10
+- (void) test10_NSRect
 {
 	NSRect rect=NSMakeRect(10, 20, 30, 42.2);
 	STAssertEquals(rect.origin.x, 10.f, nil);
@@ -60,7 +60,7 @@
 	STAssertTrue(NSIsEmptyRect(rect), nil);	// zero with is empty
 }
 
-- (void) test20
+- (void) test20_NSPoint
 {
 	NSPoint point=NSMakePoint(10, 20.2);
 	STAssertEquals(point.x, 10.f, nil);
@@ -74,7 +74,7 @@
 	STAssertTrue(NSEqualPoints(NSPointFromString(@"  { 1e1, 20.200}  "), point), nil);
 }
 
-- (void) test30
+- (void) test30_NSSize
 {
 	NSSize size=NSMakeSize(10, 20.2);
 	STAssertEquals(size.width, 10.f, nil);
@@ -91,7 +91,7 @@
 // same for NSSize, NSPoint, NSRange
 // check point in rect (corner cases!), location in range 
 
-- (void) test60
+- (void) test60_User_and_Home
 {
 	STAssertEqualObjects(NSUserName(), [NSString stringWithUTF8String:getenv("LOGNAME")], nil);
 #ifdef __mySTEP__
@@ -107,13 +107,13 @@
 	// STAssertEquals(NSTemporaryDirectory(), @"/", nil);
 }
 
-- (void) test70
+- (void) test70_SearchPathForDirectories
 {
 	STAssertEqualObjects(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, NO), ([NSArray arrayWithObjects:@"~/Documents", nil]), nil);
 	STAssertEqualObjects(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES), ([NSArray arrayWithObjects:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"], nil]), nil);
 }
 
-- (void) test80
+- (void) test80_encoding
 { // this is more like a compiler test...
 	STAssertTrue(strcmp(@encode(char), @encode(signed char)) == 0, nil);
 	STAssertFalse(strcmp(@encode(char), @encode(unsigned char)) == 0, nil);
@@ -121,7 +121,27 @@
 	STAssertFalse(strcmp(@encode(int), @encode(unsigned int)) == 0, nil);
 }
 
-- (void) test91
+- (void) test91_NSString_value
+{ // nil object method calls
+	id obj=@"0";
+	STAssertEqualObjects([obj self], @"0", nil);
+	STAssertEquals([obj boolValue], NO, nil);
+	STAssertEquals([obj intValue], 0, nil);
+	STAssertThrows([obj longValue], nil);	/* -[NSString longValue] does not exist */
+	STAssertEquals([obj longLongValue], 0ll, nil);
+	STAssertEquals([obj floatValue], 0.0f, nil);
+	STAssertEquals([obj doubleValue], 0.0d, nil);
+	obj=@"3.14";
+	STAssertEqualObjects([obj self], @"3.14", nil);
+	STAssertEquals([obj boolValue], YES, nil);
+	STAssertEquals([obj intValue], 3, nil);
+	STAssertThrows([obj longValue], nil);	/* -[NSString longValue] does not exist */
+	STAssertEquals([obj longLongValue], 3ll, nil);
+	STAssertEquals([obj floatValue], 3.14f, nil);
+	STAssertEquals([obj doubleValue], 3.14d, nil);
+}
+
+- (void) test92_nil_value
 { // nil object method calls
 	id obj=nil;
 	STAssertEqualObjects([obj self], nil, nil);
@@ -129,13 +149,13 @@
 	STAssertEquals([obj intValue], 0, nil);
 	STAssertEquals([obj longValue], 0l, nil);
 	/* these are known to fail on all Debian */
-	STAssertEquals([obj longLongValue], 0ll, @"unreliable");
+	STAssertEquals([obj longLongValue], 0ll, @"known to fail");
 	/* these are known to fail on Debian-i386 */
-	STAssertEquals([obj floatValue], 0.0f, @"i386 unreliable");
-	STAssertEquals([obj doubleValue], 0.0, @"i386 unreliable");
+	STAssertEquals([obj floatValue], 0.0f, @"known to fail");
+	STAssertEquals([obj doubleValue], 0.0, @"known to fail");
 }
 
-- (void) test90
+- (void) test90_selectors
 { // selectors and equality
 	SEL s=NSSelectorFromString(@"test90");
 #if 1 // this was from debugging Debian-i386
