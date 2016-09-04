@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 #import <objc/objc.h>
-#if defined (GNUSTEP)
+#if !defined (MACOSX)
 #import <objc/runtime.h>
 #else
 #import <objc/objc-class.h>

@@ -14,7 +14,7 @@
 #import "SenInvocationEnumerator.h"
 #import "SenClassEnumerator.h"
 #import <Foundation/Foundation.h>
-#import <objc/objc-class.h>
+// #import <objc/objc-class.h>
 
 NSString *SenMethodName (id self, SEL _cmd)
 {

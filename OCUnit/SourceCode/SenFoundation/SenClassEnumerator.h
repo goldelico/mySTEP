@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if defined (GNUSTEP)
+#if defined (GNUSTEP) || defined (__mySTEP__)
 #import <objc/runtime.h>
 #elif defined (MACOSX)
 // import nothing
@@ -21,7 +21,7 @@
 {
 @private
 
-#if defined (GNUSTEP)
+#if defined (GNUSTEP) || defined (__mySTEP__)
     void *state;
     void *_reserved;
 #elif defined (MACOSX)

@@ -40,14 +40,14 @@
 #define seninvariant(condition)
 #endif
 
-#else NS_BLOCK_ASSERTIONS
+#else // NS_BLOCK_ASSERTIONS
 
 #define senassert(condition)
 #define senprecondition(condition)
 #define senpostcondition(condition)
 #define seninvariant(condition)
 
-#endif NS_BLOCK_ASSERTIONS
+#endif // NS_BLOCK_ASSERTIONS
 
 #ifdef DEBUG
 #define SEN_DEBUG_OUT(type,message)	NSLog (@"%@ [%@, %@] %@", (type), self, NSStringFromSelector(_cmd), (message))

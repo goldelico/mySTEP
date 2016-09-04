@@ -10,6 +10,7 @@
 #import "NSObject_SenTree.h"
 #import "SenTreeEnumerator.h"
 #import <Foundation/NSArray.h>
+#import <Foundation/NSNumber.h>
 
 
 @implementation NSObject(SenTree)
@@ -142,7 +143,7 @@
     return YES;
 }
 
-- (BOOL) isEqualToNode:(id) anotherNode
+- (BOOL) isEqualToNode:(NSObject *) anotherNode
 {
     return YES;
 }
