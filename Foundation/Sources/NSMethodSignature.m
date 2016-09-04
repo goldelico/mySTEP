@@ -26,6 +26,7 @@
 #import "NSPrivate.h"
 #include <objc/message.h>
 #include <ffi.h>
+#include <sys/mman.h>   // for mmap()
 
 struct NSArgumentInfo
 { // internal Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
@@ -40,7 +41,7 @@ struct NSArgumentInfo
 #if 1 || OLD
 	// FIXME: do we always have byref?
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
-									// CHECKME: is this an architecture constant or for each individual parameter???
+									// always YES
 #endif
 };
 
@@ -49,18 +50,22 @@ struct NSArgumentInfo
 
 /* forwarding */
 
-static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void *user)
+static void closureCallback(ffi_cif *cifp, void *retp, void **args, void *user)
 {
 	id	obj;
 	SEL	selector;
 	NSInvocation *inv;
-	NSMethodSignature *sig;
+	NSMethodSignature *sig=(NSMethodSignature *) user;
 #if 1
-	fprintf(stderr, "GSFFIInvocationCallback called\n");
+	fprintf(stderr, "closureCallback called\n");
 #endif
 	obj = *(id *)args[0];
 	selector = *(SEL *)args[1];
-
+#if 1
+	NSLog(@"self=%@", obj);
+	NSLog(@"_cmd=%@", NSStringFromSelector(selector));
+	NSLog(@"signature=%@", sig);
+#endif
 	if (!class_respondsToSelector(object_getClass(obj),
 								  @selector(forwardInvocation:)))
 		{
@@ -71,6 +76,7 @@ static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void
 							selector ? sel_getName(selector) : "(null)"];
 		}
 
+#if OLD	// we pass the sig that created this closure
 	sig = nil;
 	if (gs_protocol_selector(GSTypesFromSelector(selector)) == YES)
 		{
@@ -82,7 +88,6 @@ static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void
 		sig = [obj methodSignatureForSelector: selector];
 		}
 
-#if FIXME
 	/*
 	 * If we got a method signature from the receiving object,
 	 * ensure that the selector we are using matches the types.
@@ -141,13 +146,11 @@ static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void
 		}
 #endif
 
-	inv = [[[NSInvocation alloc] _initWithMethodSignature:(NSMethodSignature *) sig andArgFrame:NULL] autorelease];
+	// FIXME: nicht eintragen, sondern gleicht die framepointer in der Invocation passend auf args und retp setzen!
+	// so we should have: _initWithMethodSignature:retp:args:
 
-	// FIXME: setup cifp args user sig;
-	// ...
-	// No. If *user is the NSMethodSignature we already have a cifp
-	// we only need a frame buffer inside the NSInvocation
-	// which is allocated by invocationWithMethodSignature
+	inv = [[NSInvocation alloc] _initWithMethodSignature:(NSMethodSignature *) sig andArgFrame:NULL];
+	[inv autorelease];	// put into ARP if an exception occurs during forwardInvocation:
 
 	[inv setTarget:obj];
 	[inv setSelector:selector];
@@ -160,8 +163,10 @@ static void GSFFIInvocationCallback(ffi_cif *cifp, void *retp, void **args, void
 	if (retp)
 		{
 		[inv getReturnValue:retp];
+#if FIXME
 		/* We need to (re)encode the return type for it's trip back. */
 		cifframe_encode_arg([sig methodReturnType], retp);
+#endif
 		}
 }
 
@@ -178,7 +183,6 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 #endif
 	*((long *)1) = 1;	// segfault into debugger
 #if FIXME
-	GSCodeBuffer *memory;
 
 	/*
 	 * If we're called with a typed selector, then use this when deconstructing
@@ -203,7 +207,7 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 	 * NB. object_getClass() and class_respondsToSelector() should both
 	 * return NULL when given NULL arguments, so they are safe to use.
 	 */
-	if (nil == sig)
+	if (!sig)
 		{
 		Class c = object_getClass(receiver);
 
@@ -232,16 +236,9 @@ static IMP gs_objc_msg_forward2(id receiver, SEL sel)
 				class_getName(c), sel_getName(sel), receiver];
 			}
 		}
-
-	// here we should make the sig allocate a new closure function
-	// i.e. rather than calling cifframe_closure here we move it into _forwardingImplementation
-
-	// memory = cifframe_closure(sig, GSFFIInvocationCallback);
-
-	// initialize and allocate a new forwarding function
 #endif
-	/* debug */ if(!sig) sig = [NSMethodSignature signatureWithObjCTypes: "v@::"];
-	return [sig _forwardingImplementation];
+	/* debug */ if(!sig) sig = [NSMethodSignature signatureWithObjCTypes:"v@::"];
+	return [sig _forwardingImplementation:(void (*)(void)) closureCallback];
 }
 
 /* ffi_types */
@@ -467,8 +464,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 						OBJC_REALLOC(info, struct NSArgumentInfo, allocArgs+=5);
 					info[i].qual = 0;	// start with no qualifier
 					info[i].isReg = NO;
-					// FIXME: we always use byRef!
-					// because we have pointers into the data area of a frame
+					// FIXME: we always use byRef because we have pointers into the data area of a frame
 					info[i].byRef = YES;
 					for(; YES; types++)
 						{ // Skip past any type qualifiers
@@ -798,13 +794,21 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	return YES;
 }
 
-- (IMP) _forwardingImplementation;
+- (IMP) _forwardingImplementation:(void (*)(void)) cb;
 {
-	// memory = cifframe_closure(sig, GSFFIInvocationCallback);
-
-	IMP imp=[NSObject instanceMethodForSelector:@selector(nimp:)];
-	NSLog(@"_forwardingImplementation imp = %p", imp);
-	return imp;
+	ffi_closure *closure;
+	ffi_status status;
+	IMP imp;
+	closure=ffi_closure_alloc(sizeof(ffi_closure), (void **) &imp);	// allocate writable memory
+	if(!cif)
+		[self _frameDescriptor];	// prepare cif
+	if((status = ffi_prep_closure_loc(closure, cif, (void (*)(ffi_cif *, void *, void **, void *)) cb, self, imp)) != FFI_OK)
+		return NULL;
+#if FIXME
+	// FIXME: we must somehow autorelease this memory area after it is used
+	ffi_closure_free(closure);
+#endif
+	return (IMP) closure;	// can be called somewhere
 }
 
 @end  /* NSMethodSignature (NSPrivate) */
