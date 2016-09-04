@@ -211,6 +211,7 @@
 #endif
 
 	imp = class_getMethodImplementation(object_getClass(target), selector);
+	// FIXME: do we still need this?
 	if(!imp)
 		{ // If fast lookup failed, we may be forwarding or something ...
 #if 1
