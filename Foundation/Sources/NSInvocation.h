@@ -67,14 +67,12 @@ typedef struct
 @interface NSInvocation : NSObject <NSCoding>
 {
 	NSMethodSignature *_sig;
-	void * _argframe;	// stack frame - or local buffer for return value and arguments
+	void * _argframe;	// buffer allocated through NSMethodSignature
 	const char *_rettype;	// cached
 	const char *_types;	// cached
 	int _numArgs;	// cached
 	unsigned int _returnLength;	// cached
-	char _retbuf[32];	// should be big enough for a retval_t
-						// FIXME: should we use bitfields
-	BOOL _argframeismalloc;		// _argframe has been malloc'ed locally
+	// FIXME: should we use bitfields
 	BOOL _argsRetained;			// (id) arguments have been retained
 	BOOL _validReturn;			// setReturn or invoke has been called
 }

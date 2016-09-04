@@ -50,195 +50,75 @@ struct NSArgumentInfo
 
 /* forwarding */
 
-static void closureCallback(ffi_cif *cifp, void *retp, void **args, void *user)
-{
-	id	obj;
-	SEL	selector;
-	NSInvocation *inv;
+static void mySTEP_closureCallback(ffi_cif *cifp, void *retp, void **args, void *user)
+{ // wrap into NSInvocation and call -forwardInvocation (if possible)
+#if 1
+	fprintf(stderr, "mySTEP_closureCallback called\n");
+#endif
 	NSMethodSignature *sig=(NSMethodSignature *) user;
+	NSInvocation *inv=[[[NSInvocation alloc] _initWithMethodSignature:sig retp:retp args:args] autorelease];
+	id target=[inv target];
 #if 1
-	fprintf(stderr, "closureCallback called\n");
-#endif
-	obj = *(id *)args[0];
-	selector = *(SEL *)args[1];
-#if 1
-	NSLog(@"self=%@", obj);
-	NSLog(@"_cmd=%@", NSStringFromSelector(selector));
 	NSLog(@"signature=%@", sig);
+	NSLog(@"self=%@", target);
+	NSLog(@"_cmd=%@", NSStringFromSelector([inv selector]));
 #endif
-	if (!class_respondsToSelector(object_getClass(obj),
+	if (!class_respondsToSelector(object_getClass(target),
 								  @selector(forwardInvocation:)))
 		{
+		SEL selector=[inv selector];
 		[NSException raise: NSInvalidArgumentException
-					format: @"GSFFIInvocation: Class '%s' does not respond to forwardInvocation: for '%c%s'",
-							class_getName(object_getClass(obj)),
-							(class_isMetaClass(object_getClass(obj)) ? '+' : '-'),
+					format: @"Class '%s' does not respond to forwardInvocation: for '%c%s'",
+							class_getName(object_getClass(target)),
+							(class_isMetaClass(object_getClass(target)) ? '+' : '-'),
 							selector ? sel_getName(selector) : "(null)"];
 		}
-
-#if OLD	// we pass the sig that created this closure
-	sig = nil;
-	if (gs_protocol_selector(GSTypesFromSelector(selector)) == YES)
-		{
-		sig = [NSMethodSignature signatureWithObjCTypes:
-			   GSTypesFromSelector(selector)];
-		}
-	if (sig == nil)
-		{
-		sig = [obj methodSignatureForSelector: selector];
-		}
-
-	/*
-	 * If we got a method signature from the receiving object,
-	 * ensure that the selector we are using matches the types.
-	 */
-	if (sig != nil)
-		{
-		const char	*receiverTypes = [sig methodType];
-		const char	*runtimeTypes = GSTypesFromSelector(selector);
-
-		if (NO == GSSelectorTypesMatch(receiverTypes, runtimeTypes))
-			{
-	  const char	*runtimeName = sel_getName(selector);
-
-	  selector = GSSelectorFromNameAndTypes(runtimeName, receiverTypes);
-	  if (runtimeTypes != 0)
-		  {
-		  /*
-		   * FIXME ... if we have a typed selector, it probably came
-		   * from the compiler, and the types of the proxied method
-		   * MUST match those that the compiler supplied on the stack
-		   * and the type it expects to retrieve from the stack.
-		   * We should therefore discriminate between signatures where
-		   * type qalifiers and sizes differ, and those where the
-		   * actual types differ.
-		   */
-		  NSDebugFLog(@"Changed type signature '%s' to '%s' for '%s'",
-					  runtimeTypes, receiverTypes, runtimeName);
-		  }
-			}
-		}
-
-	if (sig == nil)
-		{
-		/* NB Don't overwrite selector prematurely, so we can show the untyped
-		 * selector in the error message below if there is no best selector. */
-		SEL typed_sel = gs_find_best_typed_sel (selector);
-
-		if (typed_sel != 0)
-			{
-			selector = typed_sel;
-			if (GSTypesFromSelector(selector) != 0)
-				{
-				sig = [NSMethodSignature signatureWithObjCTypes:
-						GSTypesFromSelector(selector)];
-				}
-			}
-		}
-
-	if (sig == nil)
-		{
-		[NSException raise: NSInvalidArgumentException
-					format: @"Can not determine type information for %s[%s %s]",
-					GSObjCIsInstance(obj) ? "-" : "+",
-					GSClassNameFromObject(obj),
-					selector ? sel_getName(selector) : "(null)"];
-		}
-#endif
-
-	// FIXME: nicht eintragen, sondern gleicht die framepointer in der Invocation passend auf args und retp setzen!
-	// so we should have: _initWithMethodSignature:retp:args:
-
-	inv = [[NSInvocation alloc] _initWithMethodSignature:(NSMethodSignature *) sig andArgFrame:NULL];
-	[inv autorelease];	// put into ARP if an exception occurs during forwardInvocation:
-
-	[inv setTarget:obj];
-	[inv setSelector:selector];
-
-	[obj forwardInvocation:inv];
-
-	/* If we are returning a value, we must copy it from the invocation
-	 * to the memory indicated by 'retp'.
-	 */
-	if (retp)
-		{
-		[inv getReturnValue:retp];
-#if FIXME
-		/* We need to (re)encode the return type for it's trip back. */
-		cifframe_encode_arg([sig methodReturnType], retp);
-#endif
-		}
+	[target forwardInvocation:inv];
 }
 
 // note: if this returns NULL, the objc runtime will try old style builtin_apply based forwarding!
 
-static IMP gs_objc_msg_forward2(id receiver, SEL sel)
+static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 {
-	NSMethodSignature *sig = nil;
-	const char *types;
+	NSMethodSignature *sig=nil;
+	const char *types=NULL;
+	Method m;
+	Class c;
+#ifdef __APPLE__
+	if(0) mySTEP_objc_msg_forward2(nil, NULL);	// silence compiler warning about unused function
+#endif
 #if 1
-	fprintf(stderr, "gs_objc_msg_forward2 called\n");
+	fprintf(stderr, "mySTEP_objc_msg_forward2 called\n");
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
 #endif
-	*((long *)1) = 1;	// segfault into debugger
-#if FIXME
-
-	/*
-	 * If we're called with a typed selector, then use this when deconstructing
-	 * the stack frame.  This deviates from OS X behaviour (where there are no
-	 * typed selectors), but it always more reliable because the compiler will
-	 * set the selector types to represent the layout of the call frame.  This
-	 * means that the invocation will always deconstruct the call frame
-	 * correctly.
-	 */
-
-	if (NULL != (types = GSTypesFromSelector(sel)))
-		{
-		sig = [NSMethodSignature signatureWithObjCTypes: types];
-		}
-
-	/* Take care here ... the receiver may be nil (old runtimes) or may be
-	 * a proxy which implements a method by forwarding it (so calling the
-	 * method might cause recursion).  However, any sane proxy ought to at
-	 * least implement -methodSignatureForSelector: in such a way that it
-	 * won't cause infinite recursion, so we check for that method being
-	 * implemented and call it.
-	 * NB. object_getClass() and class_respondsToSelector() should both
-	 * return NULL when given NULL arguments, so they are safe to use.
-	 */
-	if (!sig)
-		{
-		Class c = object_getClass(receiver);
-
-		if (class_respondsToSelector(c, @selector(methodSignatureForSelector:)))
-			{
-			sig = [receiver methodSignatureForSelector: sel];
-			}
-		if (nil == sig
-			&& (NULL != (types = GSTypesFromSelector(gs_find_best_typed_sel(sel)))))
-			{
-			sig = [NSMethodSignature signatureWithObjCTypes: types];
-			}
-		if (nil == sig)
-			{
-			if (nil == receiver)
-				{
-				/* If we have a nil receiver, so the runtime is probably trying
-				 * to check for forwarding ... return NULL to let it fall back
-				 * on the standard forwarding mechanism.
-				 */
-				return NULL;
-				}
-			[NSException raise: NSInvalidArgumentException
-				format: @"%c[%s %s]: unrecognized selector sent to instance %p",
-				(class_isMetaClass(c) ? '+' : '-'),
-				class_getName(c), sel_getName(sel), receiver];
-			}
-		}
+	c=object_getClass(receiver);
+	/* may trigger a call to +resolveInstanceMethod: */
+	m=class_getInstanceMethod(c, sel);
+	if(m)
+		types=method_getTypeEncoding(m);
+#if 1
+	fprintf(stderr, "types = %s\n", types);
 #endif
+	if(types)
+		sig = [NSMethodSignature signatureWithObjCTypes:types];
+	if(!sig)
+		{ // proxy expects that we call methodSignatureForSelector: and forwardInvocation:
+		if(class_respondsToSelector(c, @selector(methodSignatureForSelector:)))
+			sig=[receiver methodSignatureForSelector:sel];
+		}
+	if(!sig)	// still unknown
+			[NSException raise: NSInvalidArgumentException
+						format: @"%c[%s %s]: unrecognized selector sent to instance %p",
+								(class_isMetaClass(c) ? '+' : '-'),
+								class_getName(c), sel_getName(sel), receiver];
+	NSLog(@"sig = %@", sig);
+
+	*((long *)1) = 1;	// segfault into debugger
+
 	/* debug */ if(!sig) sig = [NSMethodSignature signatureWithObjCTypes:"v@::"];
-	return [sig _forwardingImplementation:(void (*)(void)) closureCallback];
+
+	return [sig _forwardingImplementation:(void (*)(void)) mySTEP_closureCallback];
 }
 
 /* ffi_types */
@@ -277,9 +157,6 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			else
 				parse_ffi_type(typePtr); // type follows, e.g. ^{_NSPoint=ff}
 			return &ffi_type_pointer;
-
-			// FIXME: handle structs and arrays!
-
 		case _C_ARY_B: {
 			NSUInteger size=0;
 			// allocate struct ffitype
@@ -293,27 +170,47 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return &ffi_type_pointer;
 		}
 		case _C_STRUCT_B: {
-			// FIXME: recursively allocate ffi_type for struct
-			// how do we do memory management?
-#if 0
+			int nelem;
+			int i=0;
+			ffi_type *composite=(ffi_type *) objc_malloc(sizeof(ffi_type));
+
+			composite->size=0;
+			composite->alignment=0;
+			composite->type=FFI_TYPE_STRUCT;
+			composite->elements=(ffi_type **) objc_calloc((nelem=4), sizeof(ffi_type *));
+			// FIXME: how do we do memory management?
+			// should we queue up all these elements to the NSMethodSignature until its -dealloc?
+			// or should we recursively check all ffi_types for composite->type == FFI_TYPE_STRUCT and objc_free them
+#if 1
 			NSLog(@"  struct 1: %s", *typePtr);
 #endif
 			while((**typePtr && **typePtr != _C_STRUCT_E))
 				{ // process elements
-#if 0
+#if 1
 					NSLog(@"  struct 2: %s", *typePtr);
 #endif
-					parse_ffi_type(typePtr);
+					if(i+1 >= nelem)
+						composite->elements=(ffi_type **) objc_realloc(composite->elements, (nelem=2*nelem+3)*sizeof(ffi_type *));
+					composite->elements[i]=parse_ffi_type(typePtr);
+					if(composite->elements[i] == NULL)
+						{
+						/* error in single element! */
+						/* if we simply store NULL, we will memory leak all nested struct elments coming later */
+						}
+#if 1
+					NSLog(@"  -> %p", composite->elements[i]);
+#endif
+					composite->elements[++i]=NULL;	// directly create/move end-of-list indicator
 				}
-#if 0
+#if 1
 			NSLog(@"  struct 3: %s", *typePtr);
 #endif
 			if (**typePtr == _C_STRUCT_E)
 				(*typePtr)++;
-#if 0
+#if 1
 			NSLog(@"  struct 4: %s", *typePtr);
 #endif
-			return &ffi_type_pointer;
+			return composite;
 		}
 		case _C_UNION_B: {
 			// FIXME: allocate ffitype with subtypes
@@ -332,6 +229,21 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return &ffi_type_pointer;
 		}
 	}
+}
+
+static void free_ffi_type(ffi_type *type)
+{
+#if 1
+	NSLog(@"free ffi_type %p %d", type, type->type);
+#endif
+	if(type->type == FFI_TYPE_STRUCT)
+		{ // has been malloc'ed
+			ffi_type **e=type->elements;
+			while(*e)
+				free_ffi_type(*e++);	// release all subelements
+			objc_free(type->elements);
+			objc_free(type);
+		}
 }
 
 @implementation NSMethodSignature
@@ -381,6 +293,12 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 - (void) dealloc
 {
 	OBJC_FREE((void*) methodTypes);
+	if(info)
+		{ // release dynamically allocated struct elements
+		unsigned int i;
+		for(i=0; i<=numArgs; i++)
+			free_ffi_type(info[i].ffitype);
+		}
 	OBJC_FREE((void*) info);
 	OBJC_FREE((void*) internal1);
 	OBJC_FREE((void*) internal2);
@@ -435,7 +353,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 #ifndef __APPLE__
 + (void) load
 { // install handler for forwarding
-	__objc_msg_forward2 = gs_objc_msg_forward2;
+	__objc_msg_forward2 = mySTEP_objc_msg_forward2;
 }
 #endif
 
@@ -538,12 +456,15 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 #if 0
 		NSLog(@"_frameDescriptor");
 #endif
-		OBJC_CALLOC(internal1, ffi_cif, 1);	// allocates cif
-		OBJC_CALLOC(internal2, ffi_type, space=1+numArgs);	// allocates cif_types
+		OBJC_MALLOC(internal1, ffi_cif, 1);	// allocates cif
+		OBJC_MALLOC(internal2, ffi_type, space=1+numArgs);	// allocates cif_types
 		for(i=0; i<=numArgs; i++)
 			cif_types[i]=info[i].ffitype;
 		if((r=ffi_prep_cif(cif, FFI_DEFAULT_ABI, numArgs, cif_types[0], &cif_types[1])) != FFI_OK)
 			[NSException raise: NSInvalidArgumentException format: @"Invalid types"];
+#if 1
+		[self _logMethodTypes];
+#endif
 		}
 	return (void *) cif;
 }
@@ -723,7 +644,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		}
 	if(buffer)
 		{
-		if(info[index+1].byRef)	// struct by reference
+		if(info[index+1].byRef)	// by reference
 			memcpy(*(void**)addr, buffer, info[index+1].size);
 		else
 			{
@@ -735,7 +656,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		}
 	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
-			if(info[index+1].byRef)	// struct by reference
+			if(info[index+1].byRef)	// by reference
 				memset(*(void**)addr, 0, info[index+1].size);
 			else
 				{
@@ -749,15 +670,16 @@ static inline void *_getArgumentAddress(void *frame, int i)
 
 /*
  * we allocate a buffer that starts with a pointer array to speed up the _call:
- * and then data areas for all arguments
+ * and then data areas for all arguments (unless args are provided)
  * the first pointer is for the return value
  */
 
-- (void *) _allocArgFrame:(void *) frame
+- (void *) _allocArgFrame:(void *) retp args:(void **) args;
 { // (re)allocate stack frame
-	if(!frame)
+	void *frame;
+	unsigned int len;
+	if(!args)
 		{ // allocate a new buffer that is large enough to hold the space for frameLength arguments and methodReturnLength
-			unsigned int len;
 			int i;
 			char *argp;
 			NEED_INFO();	// get valid argFrameLength and methodReturnLength
@@ -768,17 +690,19 @@ static inline void *_getArgumentAddress(void *frame, int i)
 			NSLog(@"allocated frame=%p..%p framelength=%d len=%d", frame, len + (char*) frame, argFrameLength, len);
 #endif
 			for(i=0; i <= numArgs; i++)
-				{ // set up retval and argument pointers into data area
+				{ // set up pointers into data area for returnValue and argument
 				((void **) frame)[i]=argp+info[i].offset;
 				}
 		}
 	else
-		{ // clear return value (if there is no setReturnValue for a forwardInvocation:)
-			memset(_getArgumentAddress(frame, 0), 0, info[0].size);
+		{ // allocate with existing data area and pointers
+			NEED_INFO();	// get valid argFrameLength and methodReturnLength
+			len=sizeof(void *) * (numArgs+1);
+			OBJC_CALLOC(frame, char, len);
+			((void **) frame)[0]=retp;
+			memcpy(&((void **) frame)[1], args, numArgs*sizeof(*args));	// copy data area pointers
+			memset(_getArgumentAddress(frame, 0), 0, info[0].size);	// clear returnValue
 		}
-#if 0
-	[self _logFrame:frame target:nil selector:NULL];
-#endif
 	return frame;
 }
 
@@ -805,7 +729,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	if((status = ffi_prep_closure_loc(closure, cif, (void (*)(ffi_cif *, void *, void **, void *)) cb, self, imp)) != FFI_OK)
 		return NULL;
 #if FIXME
-	// FIXME: we must somehow autorelease this memory area after it is used
+	// FIXME: we must somehow autorelease this memory area after it is no longer used
 	ffi_closure_free(closure);
 #endif
 	return (IMP) closure;	// can be called somewhere

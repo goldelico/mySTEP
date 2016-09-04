@@ -540,13 +540,14 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector
 {
 	Method m=class_getInstanceMethod(self, aSelector);
+	const char *types=m?method_getTypeEncoding(m):NULL;	// default (if we have an implementation)
 #if 0
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	NSLog(@" -> %s", m->method_types);
 	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	// CHECKME: should we also check for Protocols?
-	return m ? [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)] : (NSMethodSignature *) nil;
+	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector

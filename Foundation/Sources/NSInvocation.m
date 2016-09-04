@@ -111,8 +111,8 @@
 #endif
 	if(_argsRetained && _argframe && _sig)
 		[self _releaseArguments];
-	if(_argframeismalloc && _argframe)
-		objc_free(_argframe);	// deallocate buffer (if not taken from stack)
+	if(_argframe)
+		objc_free(_argframe);	// deallocate buffer
 	[_sig release];
 	[super dealloc];
 }
@@ -300,7 +300,7 @@
 #endif
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer for return value and arguments
-	self=[self _initWithMethodSignature:sig andArgFrame:NULL];
+	self=[self _initWithMethodSignature:sig retp:NULL args:NULL];
 	if(!self)
 		return nil;	// failed
 	// check if cnt == [sig numberOfArguments]
@@ -325,7 +325,7 @@
 
 - (id) initWithMethodSignature:(NSMethodSignature*) aSignature
 { // undocumented in Cocoa but exists in some releases
-	return [self _initWithMethodSignature:aSignature andArgFrame:NULL];
+	return [self _initWithMethodSignature:aSignature retp:NULL args:NULL];
 }
 
 - (id) copyWithZone:(NSZone *) z;
@@ -360,16 +360,12 @@
 	[_sig _logFrame:_argframe target:target selector:selector];
 }
 
-// this is called from NSObject/NSProxy from the forward:: method
+// this is called to initialize an NSInvocation for forwarding
 
-- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(void *) argFrame
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature retp:(void *) retp args:(void **) args
 {
 #if 0
-	NSLog(@"NSInovcation _initWithMethodSignature:%@ andArgFrame:%p", aSignature, argFrame);
-#if 0
-	if(argFrame)
-		[aSignature _logFrame:argFrame target:nil selector:NULL];
-#endif
+	NSLog(@"NSInovcation _initWithMethodSignature:%@ retp:%p args:p", aSignature, retp, args);
 #endif
 	if(!aSignature)
 		{ // missing signature
@@ -379,22 +375,21 @@
 	if((self=[super init]))
 		{
 		_sig = [aSignature retain];
-		_argframe = [_sig _allocArgFrame:argFrame];
+		_argframe = [_sig _allocArgFrame:retp args:args];
 		if(!_argframe)
 			{ // could not allocate
 #if 1
-				NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _argframe");
+				NSLog(@"_initWithMethodSignature: could not allocate _argframe");
 #endif
 				[self release];
 				return nil;
 			}
-		_argframeismalloc=(_argframe != argFrame);	// was re-allocated/copied if different
 		_types=[_sig _methodTypes];	// get method type
 		_numArgs=[aSignature numberOfArguments];
 		_rettype=[_sig methodReturnType];
 		_returnLength=[_sig methodReturnLength];
 #if 0
-		NSLog(@"-[NSInvocation(%p) _initWithMethodSignature:%s andArgFrame:%p] successfull", self, _types, argFrame);
+		NSLog(@"-[NSInvocation(%p) _initWithMethodSignature:%s] successfull", self, _types, argFrame);
 		NSLog(@"self target: %@", [self target]);
 #endif
 		}
@@ -414,33 +409,5 @@
 		_argsRetained = NO;
 		}
 }
-
-#if OLD
-- (retval_t) _returnValue;
-{ // encode the return value so that it can be passed back to the libobjc forward:: method
-	retval_t retval;
-#if 1
-	NSLog(@"-[NSInvocation(%p) _returnValue] called", self);
-	[self _log:@"before getting retval"];
-	if(_rettype[0] == _C_ID)
-		{
-		id ret;
-		[self getReturnValue:&ret];
-		NSLog(@"value = %@", ret);
-		}
-#endif
-	retval=[_sig _returnValue:_argframe retbuf:_retbuf];	// get return value - use _retbuf as a temporary buffer
-#if 0
-	[self _log:@"after getting retval"];
-#endif
-	if(!_argframeismalloc)
-		_argframe=NULL;	// invalidate since it was inherited from our caller and we should not use the cached value again
-#if 0
-	fprintf(stderr, "_returnValue: %p %p %p %p %p %p\n", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
-//	NSLog(@"_returnValue: %p %p %p %p %p %p", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
-#endif
-	return retval;
-}
-#endif
 
 @end
