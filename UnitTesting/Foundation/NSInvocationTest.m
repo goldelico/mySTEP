@@ -28,10 +28,22 @@
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *)types;
 @end
 
-struct fd
+struct f_d
 {
 	float a;
 	double b;
+};
+
+struct i_ll
+{
+	int a;
+	long long b;
+};
+
+struct c_c
+{
+	char a;
+	char b;
 };
 
 @interface NSInvocationTest (Forwarding)	// define as header so that the compiler does not complain and we know the signature
@@ -44,7 +56,7 @@ struct fd
 - (int) forward46:(int) a b:(int) b;
 - (float) forward47:(int) a b:(int) b c:(float) c d:(int) d e:(float) e f:(float) f;
 - (double) forward48:(int) a b:(long long) b c:(float) c d:(int) d e:(double) e f:(float) f;
-- (void) forward49:(float) a b:(double) b c:(struct fd) c;
+- (void) forward49:(float) a b:(double) b c:(struct f_d) c;
 // test char, short, struct, array arguments and return values (alignment!)
 @end
 
@@ -71,7 +83,7 @@ struct fd
 	invoked=1;
 }
 
-- (void) test01
+- (void) test01_basic
 { // no arguments
 	id target=self;
 	SEL sel=@selector(invoke01);
@@ -96,7 +108,7 @@ struct fd
 	return [[arg1 description] stringByAppendingString:[arg2 description]];
 }
 
-- (void) test02
+- (void) test02_args_and_ret
 { // multiple object arguments and return value
 	id target=self;
 	SEL sel=@selector(invoke02:witharg:);
@@ -113,7 +125,7 @@ struct fd
 	STAssertEquals(invoked, 2, nil);
 }
 
-- (void) test03
+- (void) test03_missing_target_or_selector
 { // missing target or selector or NULL arguments
 	id target=self;
 	SEL sel=@selector(invoke01);
@@ -139,7 +151,7 @@ struct fd
 	 */
 }
 
-- (void) test10
+- (void) test10_get_set_args
 { // reading/writing arguments
 	id target=self;
 	SEL sel=@selector(invoke01);
@@ -173,7 +185,7 @@ struct fd
 	 */
 }
 
-- (void) test11
+- (void) test11_more_get_set_args
 { // reading/writing arguments - without invoking
 	id target=self;
 	SEL sel=@selector(invoke02:witharg:);
@@ -234,7 +246,7 @@ struct fd
 	return dbl+f;
 }
 
-- (void) test12
+- (void) test12_invoke_double_and_float_with_return
 { // reading/writing floats
 	id target=self;
 	SEL sel=@selector(invoke12:flt:);
@@ -275,7 +287,7 @@ struct fd
 	return @"r";
 }
 
-- (void) test13
+- (void) test13_invoke_many_objects_with_return
 { // reading/writing many arguments
 	id target=self;
 	SEL sel=@selector(invoke13:b:c:d:e:f:g:);
@@ -339,7 +351,7 @@ struct fd
 	return 0x30AB;
 }
 
-- (void) test14
+- (void) test14_invoke_many_C_and_return
 { // reading/writing many C type arguments
 	id target=self;
 	SEL sel=@selector(invoke14:b:c:d:e:f:g:);
@@ -390,6 +402,54 @@ struct fd
 	 */
 }
 
+// this is a tricky to implement case
+// on some architectures (i386) alignment may differ between stack and structs
+// http://www.wambold.com/Martin/writings/alignof.html
+// on armhf it *may* be that the compiler knows that the whole struct can be passed in vector registers
+
+- (void) invoke14dfs:(float) a b:(double) b c:(struct f_d) c
+{ // pass float and double and struct
+	NSLog(@"invoke14dfs called");
+	invoked=14;
+	NSLog(@"invoked = %d", invoked);
+	STAssertEquals(a, (float) 1.1, nil);
+	STAssertEquals(b, 2.2, nil);
+	NSLog(@"&a=%p a=%g", &a, a);
+	NSLog(@"&b=%p b=%lg", &b, b);
+	NSLog(@"&c=%p", &c);
+	NSLog(@"&c.a=%p c.a=%g", &c.a, c.a);
+	NSLog(@"&c.b=%p c.b=%lg", &c.b, c.b);
+	STAssertEquals(c.a, (float) 3.3, nil);
+	STAssertEquals(c.b, 4.4, nil);
+	NSLog(@"test14dfs done");
+}
+
+- (void) test14_invoke_double_float_and_struct
+{ // pass float and double
+	id target=self;
+	SEL sel=@selector(invoke14dfs:b:c:);
+	float a=1.1;
+	double b=2.2;
+	struct f_d c={
+		3.3,
+		4.4
+	};
+	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
+	NSLog(@"test14dfs started");
+	NSLog(@"%d+%d -- %d", sizeof(a), sizeof(b), sizeof(c));
+	STAssertNotNil(ms, nil);
+	STAssertNotNil(i, nil);
+	[i setTarget:target];
+	[i setSelector:sel];
+	[i setArgument:&a atIndex:2];
+	[i setArgument:&b atIndex:3];
+	[i setArgument:&c atIndex:4];	// pass by copy
+	invoked=0;
+	[i invoke];
+	STAssertEquals(invoked, 14, nil);
+}
+
 - (long long) invoke14ll:(char) a b:(long long) b
 { // pass long longs
 	NSLog(@"invoke14ll called");
@@ -401,7 +461,7 @@ struct fd
 	return 0x7fff00ffff00ff00ll;
 }
 
-- (void) test14ll
+- (void) test14_longlong
 { // pass long longs (in register on armhf)
 	id target=self;
 	SEL sel=@selector(invoke14ll:b:);
@@ -443,61 +503,7 @@ struct fd
 	 */
 }
 
-// this is a tricky to implement case
-// on some architectures (i386) alignment may differ between stack and structs
-// http://www.wambold.com/Martin/writings/alignof.html
-// on armhf it *may* be that the compiler knows that the whole struct can be passed in vector registers
-
-- (void) invoke14df:(float) a b:(double) b c:(struct fd) c
-{ // pass float and double
-	NSLog(@"invoke14df called");
-	invoked=14;
-	NSLog(@"invoked = %d", invoked);
-	STAssertEquals(a, (float) 1.1, nil);
-	STAssertEquals(b, 2.2, nil);
-	NSLog(@"&a=%p a=%g", &a, a);
-	NSLog(@"&b=%p b=%lg", &b, b);
-	NSLog(@"&c=%p", &c);
-	NSLog(@"&c.a=%p c.a=%g", &c.a, c.a);
-	NSLog(@"&c.b=%p c.b=%lg", &c.b, c.b);
-	STAssertEquals(c.a, (float) 3.3, nil);
-	STAssertEquals(c.b, 4.4, nil);
-	NSLog(@"test14df done");
-}
-
-- (void) test14df
-{ // pass float and double
-	id target=self;
-	SEL sel=@selector(invoke14df:b:c:);
-	float a=1.1;
-	double b=2.2;
-	struct fd c={
-		3.3,
-		4.4
-	};
-	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
-	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	NSLog(@"test14df started");
-	NSLog(@"%d+%d -- %d", sizeof(a), sizeof(b), sizeof(c));
-	STAssertNotNil(ms, nil);
-	STAssertNotNil(i, nil);
-	[i setTarget:target];
-	[i setSelector:sel];
-	[i setArgument:&a atIndex:2];
-	[i setArgument:&b atIndex:3];
-	[i setArgument:&c atIndex:4];	// pass by copy
-	invoked=0;
-	[i invoke];
-	STAssertEquals(invoked, 14, nil);
-}
-
-struct mystruct
-{
-	int a;
-	long long b;
-};
-
-- (struct mystruct) invoke15:(char) a b:(struct mystruct) b c:(struct mystruct *) c
+- (struct i_ll) invoke15:(char) a b:(struct i_ll) b c:(struct i_ll *) c
 { // pass structs by copy and by reference
 	NSLog(@"invoke15 called");
 	invoked=15;
@@ -507,17 +513,17 @@ struct mystruct
 	STAssertEquals(c->a, 0x4321, nil);
 	STAssertEquals(c->b, 0x1f00ff0000ff00ffll, nil);
 	NSLog(@"invoke15 returning");
-	return (struct mystruct) { 0xaadd, 0xbbccddee };
+	return (struct i_ll) { 0xaadd, 0xbbccddee };
 }
 
-- (void) test15
+- (void) test15_int_longlong_struct
 { // reading/writing many C type arguments
 	id target=self;
 	SEL sel=@selector(invoke15:b:c:);
 	char a='a';
-	struct mystruct b={ 0x1234, 0x7fff00ffff00ff00ll };
-	struct mystruct c={ 0x4321, 0x1f00ff0000ff00ffll }, *cp=&c;
-	struct mystruct r={ 1, 2 };
+	struct i_ll b={ 0x1234, 0x7fff00ffff00ff00ll };
+	struct i_ll c={ 0x4321, 0x1f00ff0000ff00ffll }, *cp=&c;
+	struct i_ll r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
@@ -535,7 +541,7 @@ struct mystruct
 	[i invoke];
 	STAssertEquals(invoked, 15, nil);
 	[i getReturnValue:&r];
-	STAssertEquals(r, ((struct mystruct) { 0xaadd, 0xbbccddee }), nil);
+	STAssertEquals(r, ((struct i_ll) { 0xaadd, 0xbbccddee }), nil);
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 STAssertEqualObjects(obj, @"a", nil);
@@ -563,13 +569,7 @@ struct mystruct
  * so we run this test as well as the implementation may run a different algorithm
  */
 
-struct mysmallstruct
-{
-	char a;
-	char b;
-};
-
-- (struct mysmallstruct) invoke15s:(char) a b:(struct mysmallstruct) b c:(struct mysmallstruct *) c
+- (struct c_c) invoke15s:(char) a b:(struct c_c) b c:(struct c_c *) c
 { // pass small structs by copy and by reference
 	NSLog(@"invoke15s called");
 	invoked=-15;
@@ -580,17 +580,17 @@ struct mysmallstruct
 	STAssertEquals(c->a, (char) 'c', nil);
 	STAssertEquals(c->b, (char) 'C', nil);
 	NSLog(@"invoke15s returning");
-	return (struct mysmallstruct) { 'r', 'R' };
+	return (struct c_c) { 'r', 'R' };
 }
 
-- (void) test15s
+- (void) test15_small_struct
 { // reading/writing small C struct arguments
 	id target=self;
 	SEL sel=@selector(invoke15s:b:c:);
 	char a='a';
-	struct mysmallstruct b={ 'b', 'B' };
-	struct mysmallstruct c={ 'c', 'C' }, *cp=&c;
-	struct mysmallstruct r={ 1, 2 };
+	struct c_c b={ 'b', 'B' };
+	struct c_c c={ 'c', 'C' }, *cp=&c;
+	struct c_c r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
@@ -604,7 +604,7 @@ struct mysmallstruct
 	[i invoke];
 	STAssertEquals(invoked, -15, nil);
 	[i getReturnValue:&r];
-	STAssertEquals(r, ((struct mysmallstruct) { 'r', 'R' }), nil);
+	STAssertEquals(r, ((struct c_c) { 'r', 'R' }), nil);
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 STAssertEqualObjects(obj, @"a", nil);
@@ -626,7 +626,7 @@ struct mysmallstruct
 	 */
 }
 
-- (struct mystruct *) invoke16:(char) a b:(struct mystruct) b c:(struct mystruct *) c
+- (struct i_ll *) invoke16:(char) a b:(struct i_ll) b c:(struct i_ll *) c
 { // return struct by reference
 	invoked=16;
 	STAssertEquals(a, (char) 'a', nil);
@@ -637,14 +637,14 @@ struct mysmallstruct
 	return c;
 }
 
-- (void) test16
+- (void) test16_char_big_structs
 { // reading/writing many C type arguments
 	id target=self;
 	SEL sel=@selector(invoke16:b:c:);
 	char a='a';
-	struct mystruct b={ 1234, 123456789 };
-	struct mystruct c={ 4321, 987654321 }, *cp=&c;
-	struct mystruct *r=NULL;
+	struct i_ll b={ 1234, 123456789 };
+	struct i_ll c={ 4321, 987654321 }, *cp=&c;
+	struct i_ll *r=NULL;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
@@ -684,7 +684,7 @@ struct mysmallstruct
 
 // FIXME: write a test if we handle zero-sized structs byref or bycopy correctly
 
-- (void) test17
+- (void) test17_nil_target
 { // invoke nil target
 	id target=self;
 	SEL sel=@selector(invoke02:witharg:);
@@ -720,7 +720,7 @@ struct mysmallstruct
 	invoked=-20;
 }
 
-- (void) test20
+- (void) test20_raise_exception
 {
 	id target=self;
 	SEL sel=@selector(invoke20);
@@ -743,7 +743,7 @@ struct mysmallstruct
 	
 }
 
-- (void) test30
+- (void) test30_nimp
 {
 	
 }
@@ -769,7 +769,7 @@ struct mysmallstruct
 	if(sel_isEqual(aSelector, @selector(forward48:b:c:d:e:f:)))
 		return [NSMethodSignature signatureWithObjCTypes:"d@:iqfidf"];	// double return and several int and float, double arguments mixed
 	if(sel_isEqual(aSelector,@selector(forward49:b:c:)))
-	   return [NSMethodSignature signatureWithObjCTypes:"v@:fd{fd=fd}"];	// double return and several int and float, double arguments mixed
+	   return [NSMethodSignature signatureWithObjCTypes:"v@:fd{f_d=fd}"];	// double return and several int and float, double arguments mixed
 	   // same for structs...
 	return [super methodSignatureForSelector:aSelector];	// default
 }
@@ -923,7 +923,7 @@ struct mysmallstruct
 	NSLog(@"** %@ done **", NSStringFromSelector(sel));
 }
 
-- (void) test40
+- (void) test40_simple_forward
 {
 	invoked=0;
 	STAssertEquals(invoked, 0, nil);
@@ -936,7 +936,7 @@ struct mysmallstruct
 	 */
 }
 
-- (void) test41
+- (void) test41_forward_with_args
 {
 	int ir=0;
 	invoked=0;
@@ -945,7 +945,7 @@ struct mysmallstruct
 	STAssertEquals(ir, 'r', nil);
 }
 
-- (void) test42
+- (void) test42_forward_with_many_args
 {
 	int ir=0;
 	invoked=0;
@@ -954,7 +954,7 @@ struct mysmallstruct
 	STAssertEquals(ir, 'r', nil);
 }
 
-- (void) test43
+- (void) test43_forward_with_string_result
 {
 	id a=self;
 	id b=self;
@@ -965,21 +965,21 @@ struct mysmallstruct
 	STAssertEqualObjects(r, @"the result", nil);
 }
 
-- (void) test44
+- (void) test44_nested_invoke
 { // nested invoke
 	invoked=0;
 	[self forward44];
 	STAssertEquals(invoked, 1, nil);	// invoke01 should have been invoked in the second step
 }
 
-- (void) test45
+- (void) test45_nested_invoke
 { // nested invoke
 	invoked=0;
 	[self forward45];
 	STAssertEquals(invoked, 40, nil);	// forward40 should have been invoked in the second step
 }
 
-- (void) test46
+- (void) test46_missing_setReturnValue
 { // what happens if forward-invocation does not set a return value?
 	int ir=0;
 	invoked=0;
@@ -988,7 +988,7 @@ struct mysmallstruct
 	STAssertEquals(ir, 0, @"unreliable");	// most likely because the stack frame is not initialized - it is not clear if this is reproducible by our implementation
 }
 
-- (void) test47
+- (void) test47_forward_float_return
 { // float return
 	float fr=0.0;
 	invoked=0;
@@ -997,7 +997,7 @@ struct mysmallstruct
 	STAssertEquals(fr, 3.1415f, nil);
 }
 
-- (void) test48
+- (void) test48_forward_double_return
 { // double return
 	double fr=0.0;
 	invoked=0;
@@ -1006,19 +1006,21 @@ struct mysmallstruct
 	STAssertEquals(fr, 3.1415, nil);
 }
 
-- (void) test49
+- (void) test49_forward_struct
 { // similar to test14df
 	id target=self;
-	SEL sel=@selector(invoke14df:b:c:);
+	SEL sel=@selector(invoke14dfs:b:c:);
 	float a=1.1;
 	double b=2.2;
-	struct fd c={
+	struct f_d c={
 		3.3,
 		4.4
 	};
 	[self forward49:a b:b c:c];
 	STAssertEquals(invoked, 49, nil);
 }
+
+// FIXME: forward_struct_return!
 
 - (id) invoke60:(id) a b:(id) b
 { // return an autoreleased object
@@ -1028,7 +1030,7 @@ struct mysmallstruct
 	return [[[NSObject alloc] init] autorelease];	// should be placed in the ARP where the -invoke is issued
 }
 
-- (void) test60
+- (void) test60_retain_count
 {
 	id target=self;
 	SEL sel=@selector(invoke60:b:);
@@ -1088,7 +1090,7 @@ struct mysmallstruct
 	 */
 }
 
-- (void) test61
+- (void) test61_retain_count_for_setReturnValue
 { // invoke nil target with predefined return-value
 	id target=self;
 	SEL sel=@selector(invoke02:witharg:);
@@ -1123,7 +1125,7 @@ struct mysmallstruct
 	 */
 }
 
-- (void) test63
+- (void) test63_retain_count_for_setArguments
 { // test if setArguments releases previous retain
 	id target=self;
 	SEL sel=@selector(invoke02:witharg:);
@@ -1150,7 +1152,7 @@ struct mysmallstruct
 	STAssertEquals([test2 retainCount], 3u, nil);	// ok, is retained before setting
 	/* conclusion
 	 * retainArguments only instructs to retain - but does not release
-	 * NOTE: this test is not able to find out if they are autoreleased!
+	 * NOTE: this test is not able to find out if they are autoreleased later!
 	 */
 }
 
