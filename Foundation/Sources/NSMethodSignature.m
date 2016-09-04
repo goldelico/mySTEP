@@ -37,7 +37,9 @@ struct NSArgumentInfo
 	NSUInteger align;				// alignment
 	ffi_type *ffitype;				// pointer to some ffi type
 	unsigned short qual;			// qualifier bits (oneway, byref, bycopy, in, inout, out)
+#if 1
 	BOOL isReg;						// signature says it is passed in a register (+) and not on stack
+#endif
 #if 1 || OLD
 	// FIXME: do we always have byref?
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
@@ -123,11 +125,44 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 
 /* ffi_types */
 
+static void free_ffi_type(ffi_type *type)
+{
+#if 0
+	NSLog(@"free ffi_type %p %d", type, type->type);
+#endif
+	if(type->type == FFI_TYPE_STRUCT)
+		{ // has been malloc'ed
+			ffi_type **e=type->elements;
+			while(*e)
+				free_ffi_type(*e++);	// release all subelements
+			objc_free(type->elements);
+			objc_free(type);
+		}
+}
+
 static ffi_type *parse_ffi_type(const char **typePtr)
 { // returns NULL on error
-	const char *t=strchr(*typePtr, '=');
-	if(t)
-		*typePtr=t+1;	// skip optional variable name
+	const char *t=*typePtr;
+	while(*t)
+		{
+		switch(*t++) {
+			default:
+				continue;
+			case '=':
+				*typePtr=t;	// skip optional variable name
+				break;
+			case _C_ARY_B:
+			case _C_ARY_E:
+			case _C_STRUCT_B:
+			case _C_STRUCT_E:
+			case _C_UNION_B:
+			case _C_UNION_E:
+			case _C_PTR:
+			case _C_UNDEF:
+				break;
+		}
+		break;
+		}
 	switch(*(*typePtr)++) {
 		default:		return NULL;	// unknown
 		case _C_VOID:	return &ffi_type_void;
@@ -155,7 +190,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			if(**typePtr == _C_UNDEF)
 				(*typePtr)++;	// ^?
 			else
-				parse_ffi_type(typePtr); // type follows, e.g. ^{_NSPoint=ff}
+				free_ffi_type(parse_ffi_type(typePtr)); // type follows, e.g. ^{_NSPoint=ff}
 			return &ffi_type_pointer;
 		case _C_ARY_B: {
 			NSUInteger size=0;
@@ -170,10 +205,9 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return &ffi_type_pointer;
 		}
 		case _C_STRUCT_B: {
-			int nelem;
-			int i=0;
+			NSUInteger nelem;
+			NSUInteger i=0;
 			ffi_type *composite=(ffi_type *) objc_malloc(sizeof(ffi_type));
-
 			composite->size=0;
 			composite->alignment=0;
 			composite->type=FFI_TYPE_STRUCT;
@@ -181,12 +215,12 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			// FIXME: how do we do memory management?
 			// should we queue up all these elements to the NSMethodSignature until its -dealloc?
 			// or should we recursively check all ffi_types for composite->type == FFI_TYPE_STRUCT and objc_free them
-#if 1
+#if 0
 			NSLog(@"  struct 1: %s", *typePtr);
 #endif
 			while((**typePtr && **typePtr != _C_STRUCT_E))
 				{ // process elements
-#if 1
+#if 0
 					NSLog(@"  struct 2: %s", *typePtr);
 #endif
 					if(i+1 >= nelem)
@@ -194,20 +228,21 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 					composite->elements[i]=parse_ffi_type(typePtr);
 					if(composite->elements[i] == NULL)
 						{
-						/* error in single element! */
+						/* FIXME: error in single element! */
 						/* if we simply store NULL, we will memory leak all nested struct elments coming later */
+						/* so we wither should abort parsing or free_ffi_type the coming elements here */
 						}
-#if 1
+#if 0
 					NSLog(@"  -> %p", composite->elements[i]);
 #endif
-					composite->elements[++i]=NULL;	// directly create/move end-of-list indicator
+					composite->elements[++i]=NULL;	// always keep an end-of-list indicator
 				}
-#if 1
+#if 0
 			NSLog(@"  struct 3: %s", *typePtr);
 #endif
 			if (**typePtr == _C_STRUCT_E)
 				(*typePtr)++;
-#if 1
+#if 0
 			NSLog(@"  struct 4: %s", *typePtr);
 #endif
 			return composite;
@@ -229,21 +264,6 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return &ffi_type_pointer;
 		}
 	}
-}
-
-static void free_ffi_type(ffi_type *type)
-{
-#if 1
-	NSLog(@"free ffi_type %p %d", type, type->type);
-#endif
-	if(type->type == FFI_TYPE_STRUCT)
-		{ // has been malloc'ed
-			ffi_type **e=type->elements;
-			while(*e)
-				free_ffi_type(*e++);	// release all subelements
-			objc_free(type->elements);
-			objc_free(type);
-		}
 }
 
 @implementation NSMethodSignature
@@ -416,7 +436,7 @@ static void free_ffi_type(ffi_type *type)
 					info[i].ffitype=parse_ffi_type(&t);
 #if 1	// a comment in encoding.c source says a '+' was stopped to be generated at gcc 3.4
 					info[i].isReg = NO;
-					if(*types == '+')
+					if(*types == '+' || *types == '-')
 						{ // register
 							types++;
 							info[i].isReg = YES;
@@ -462,7 +482,7 @@ static void free_ffi_type(ffi_type *type)
 			cif_types[i]=info[i].ffitype;
 		if((r=ffi_prep_cif(cif, FFI_DEFAULT_ABI, numArgs, cif_types[0], &cif_types[1])) != FFI_OK)
 			[NSException raise: NSInvalidArgumentException format: @"Invalid types"];
-#if 1
+#if 0
 		[self _logMethodTypes];
 #endif
 		}
