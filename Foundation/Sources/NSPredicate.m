@@ -1275,7 +1275,8 @@
 	NSString *sel=NSStringFromSelector(_selector);
 	// FIXME:
 	// here we should recognize binary and unary operators and convert back to standard format
-	// and add parentheses only if required (private method _bindingLevel - maybe we should have some NSDicts for this infos
+	// and add parentheses only if required (private method _bindingLevel?)
+	// maybe we should have some NSDicts for such infos and the following translations
 	if([sel isEqualToString:@"_eval__add:context:"]) return @"l+r";
 	if([sel isEqualToString:@"_eval__sub:context:"]) return @"l-r";
 	// below, we must expand the total description of the arguments into a comma-separated list
