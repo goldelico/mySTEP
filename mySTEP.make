@@ -102,6 +102,14 @@ endif
 
 INSTALL:=true
 
+HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
+## prefix by $ROOT unless starting with //
+ifneq ($(findstring //,$(INSTALL_PATH)),//)
+TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
+else
+TARGET_INSTALL_PATH := $(INSTALL_PATH)
+endif
+
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers
@@ -222,7 +230,7 @@ endif
 ifeq ($(ARCHITECTURE),mySTEP)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else ifeq ($(ARCHITECTURE),MacOS)
-	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
@@ -383,7 +391,7 @@ LIBS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
-	else echo -Wl,-rpath,$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	else echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
 	fi; done)
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
@@ -397,6 +405,8 @@ else ifeq ($(ARCHITECTURE),MacOS)
 # no special includes and defines
 else
 DEFINES += -D__mySTEP__
+### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
+### But we don't know exactly where it is located
 INCLUDES += \
 -I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 -I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
@@ -432,7 +442,6 @@ LIBRARIES := -L/opt/local/lib \
 		$(LIBS)
 else ifeq ($(ARCHITECTURE),MacOS)
 LIBRARIES := \
-		-F /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks \
 		$(FMWKS) \
 		$(LIBS)
 else
@@ -512,14 +521,6 @@ CFLAGS += -rdynamic
 endif
 
 CFLAGS += -fsigned-char
-
-HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
-## prefix by $ROOT unless starting with //
-ifneq ($(findstring //,$(INSTALL_PATH)),//)
-TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
-else
-TARGET_INSTALL_PATH := $(INSTALL_PATH)
-endif
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
 
