@@ -224,9 +224,6 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return &ffi_type_pointer;
 		case _C_ARY_B: {
 			NSUInteger size=0;
-			// allocate struct ffitype
-			// set number of elements and sizes
-			// for that, recursively process starting at info->type+1
 			while (isdigit(**typePtr))
 				size=10*size+*(*typePtr)++-'0';	// collect array dimensions
 			// type follows
@@ -242,9 +239,6 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			composite->alignment=0;
 			composite->type=FFI_TYPE_STRUCT;
 			composite->elements=(ffi_type **) objc_calloc((nelem=4), sizeof(ffi_type *));
-			// FIXME: how do we do memory management?
-			// should we queue up all these elements to the NSMethodSignature until its -dealloc?
-			// or should we recursively check all ffi_types for composite->type == FFI_TYPE_STRUCT and objc_free them
 #if 0
 			NSLog(@"  struct 1: %s", *typePtr);
 #endif
@@ -257,10 +251,9 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 						composite->elements=(ffi_type **) objc_realloc(composite->elements, (nelem=2*nelem+3)*sizeof(ffi_type *));
 					composite->elements[i]=parse_ffi_type(typePtr);
 					if(composite->elements[i] == NULL)
-						{
-						/* FIXME: error in single element! */
-						/* if we simply store NULL, we will memory leak all nested struct elments coming later */
-						/* so we wither should abort parsing or free_ffi_type the coming elements here */
+						{ // release any memory allocated for sub-structs
+						free_ffi_type(composite);
+						return NULL;
 						}
 #if 0
 					NSLog(@"  -> %p", composite->elements[i]);
@@ -278,7 +271,8 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			return composite;
 		}
 		case _C_UNION_B: {
-			// FIXME: allocate ffitype with subtypes
+			return NULL;	// can't handle
+
 #if 0
 			NSLog(@"  union 1: %s", *typePtr);
 #endif
@@ -464,6 +458,8 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
 					info[i].ffitype=parse_ffi_type(&t);
+					if(!info[i].ffitype)
+						[NSException raise: NSInternalInconsistencyException format: @"can't parse encoding type %s.", types];
 #if 1	// a comment in encoding.c source says a '+' was stopped to be generated at gcc 3.4
 					info[i].isReg = NO;
 					if(*types == '+' || *types == '-')
