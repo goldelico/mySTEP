@@ -212,7 +212,7 @@ ifeq ($(FRAMEWORK_VERSION),)	# empty
 	# default
 	FRAMEWORK_VERSION=A
 endif
-CONTENTS=Versions/Current
+	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
@@ -307,114 +307,9 @@ endif
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
 	
-	# override if (stripped) package is build using xcodebuild
-
 ifeq ($(RUN_CMD),)
+# override if (stripped) package is built using xcodebuild
 RUN_CMD := run
-endif
-
-ifeq ($(BUILD_FOR_DEPLOYMENT),true)
-# ifneq ($(BUILD_STYLE),Development)
-	# optimize for speed
-OPTIMIZE := 2
-	# should also remove headers and symbols
-#	STRIP_Framework := true
-	# remove MacOS X code
-#	STRIP_MacOS := true
-	# install in our file system so that we can build the package
-INSTALL := true
-	# don't send to the device
-DEPLOY := false
-	# and don't run
-RUN := false
-endif
-
-	# default to optimize depending on BUILD_STYLE
-ifeq ($(OPTIMIZE),)
-ifeq ($(BUILD_STYLE),Development)
-OPTIMIZE := s
-else
-OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
-endif
-endif
-
-# add architecture specific CFLAGS
-
-# workaround for bug in arm-linux-gnueabi toolchain
-ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
-OPTIMIZE := 3
-CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
-endif
-ifeq ($(ARCHITECTURE),arm-linux-gnueabihf)
-OPTIMIZE := 3
-# we could try -mfloat-abi=hardfp
-# see https://wiki.linaro.org/Linaro-arm-hardfloat
-CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
-endif
-
-ifeq ($(ARCHITECTURE),mySTEP)
-CFLAGS += -Wno-deprecated-declarations
-else ifeq ($(ARCHITECTURE),MacOS)
-CFLAGS += -Wno-deprecated-declarations
-else
-CFLAGS += -rdynamic
-endif
-
-CFLAGS += -fsigned-char
-
-HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
-## prefix by $ROOT unless starting with //
-ifneq ($(findstring //,$(INSTALL_PATH)),//)
-TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
-else
-TARGET_INSTALL_PATH := $(INSTALL_PATH)
-endif
-
-ifeq ($(ARCHITECTURE),mySTEP)
-# handle #include <Foundation/Foundation.h>
-INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ $(INCLUDES)
-endif
-
-ifneq ($(ARCHITECTURE),MacOS)
-INCLUDES := $(INCLUDES) \
-		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
-		-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
-		-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
-		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
-endif
-
-ifeq ($(ARCHITECTURE),mySTEP)
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
-endif
-
-# set up appropriate CFLAGS for $(ARCHITECTURE)
-
-# -Wall
-WARNINGS =  -Wno-shadow -Wpointer-arith -Wno-import
-
-DEFINES = -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
-		-D__mySTEP__ \
-		-DHAVE_MMAP
-
-# add -v to debug include search path issues
-
-CFLAGS := $(CFLAGS) \
-		-g -O$(OPTIMIZE) -fPIC \
-		$(WARNINGS) \
-		$(DEFINES) \
-		$(INCLUDES)
-
-ifeq ($(PROFILING),YES)
-CFLAGS := -pg $(CFLAGS)
-endif
-
-# ifeq ($(GCC_WARN_ABOUT_MISSING_PROTOTYPES),YES)
-# CFLAGS :=  -Wxyz $(CFLAGS)
-# endif
-
-# should be solved differently
-ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
-OBJCFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
 endif
 
 # expand patterns in SOURCES
@@ -470,12 +365,36 @@ endif
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(ARCHITECTURE),mySTEP)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
+# should be similar to MacOS but only link against MacOS CoreFoundation and Foundation
 else ifeq ($(ARCHITECTURE),MacOS)
-FRAMEWORKS := CoreFoundation $(FRAMEWORKS)
-FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
+# check if each framework exists in /System/Library/*Frameworks or explicitly link from $(QuantumSTEP)
+FMWKS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+	do \
+	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
+	then echo -framework $$FMWK; \
+	else echo -I $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/; \
+	fi; done)
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
+endif
+
+# allow to use #import <framework/header.h> while building the framework
+INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(ARCHITECTURE)/Headers $(INCLUDES)
+
+ifeq ($(ARCHITECTURE),mySTEP)
+# handle #include <Foundation/Foundation.h>
+DEFINES += -D__mySTEP__
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
+else ifeq ($(ARCHITECTURE),MacOS)
+# no special includes and defines
+else
+DEFINES += -D__mySTEP__
+INCLUDES += \
+-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
+-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 endif
 
 #		-L$(TOOLCHAIN)/lib \
@@ -523,18 +442,103 @@ LIBRARIES := \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		$(FMWKS) \
 		$(LIBS)
+
+ifneq ($(OBJCSRCS)$(FMWKS),)
+LIBRARIES += -lgcc_s
+endif
+
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
 LIBRARIES += -lobjc -lm
-ifeq ($(ARCHITECTURE),mySTEP)
-else ifeq ($(ARCHITECTURE),MacOS)
+endif
+
+# setup gcc
+
+.SUFFIXES : .o .c .cpp .m .lm .ym
+
+ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+# ifneq ($(BUILD_STYLE),Development)
+# optimize for speed
+OPTIMIZE := 2
+# should also remove headers and symbols
+#	STRIP_Framework := true
+# remove MacOS X code
+#	STRIP_MacOS := true
+# install in our file system so that we can build the package
+INSTALL := true
+# don't send to the device
+DEPLOY := false
+# and don't run
+RUN := false
+endif
+
+# default to optimize depending on BUILD_STYLE
+ifeq ($(OPTIMIZE),)
+ifeq ($(BUILD_STYLE),Development)
+OPTIMIZE := s
 else
-LIBRARIES += -lgcc_s
+OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
 endif
 endif
 
-.SUFFIXES : .o .c .cpp .m .lm .ym
+# add architecture specific CFLAGS
+
+# workaround for bug in arm-linux-gnueabi toolchain
+ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
+OPTIMIZE := 3
+CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
+endif
+ifeq ($(ARCHITECTURE),arm-linux-gnueabihf)
+OPTIMIZE := 3
+# we could try -mfloat-abi=hardfp
+# see https://wiki.linaro.org/Linaro-arm-hardfloat
+CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
+endif
+
+ifeq ($(ARCHITECTURE),mySTEP)
+CFLAGS += -Wno-deprecated-declarations
+else ifeq ($(ARCHITECTURE),MacOS)
+CFLAGS += -Wno-deprecated-declarations
+else
+CFLAGS += -rdynamic
+endif
+
+CFLAGS += -fsigned-char
+
+HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
+## prefix by $ROOT unless starting with //
+ifneq ($(findstring //,$(INSTALL_PATH)),//)
+TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
+else
+TARGET_INSTALL_PATH := $(INSTALL_PATH)
+endif
+
+# set up appropriate CFLAGS for $(ARCHITECTURE)
+
+# -Wall
+WARNINGS =  -Wno-shadow -Wpointer-arith -Wno-import
+
+DEFINES += -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
+-DHAVE_MMAP
+
+# add -v to debug include search path issues
+CFLAGS += -g -fPIC -O$(OPTIMIZE) $(WARNINGS) $(DEFINES) $(INCLUDES)
+
+ifeq ($(PROFILING),YES)
+CFLAGS := -pg $(CFLAGS)
+endif
+
+# ifeq ($(GCC_WARN_ABOUT_MISSING_PROTOTYPES),YES)
+# CFLAGS :=  -Wxyz $(CFLAGS)
+# endif
+
+# should be solved differently
+ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
+OBJCFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
+endif
+
+# define rules for .SUFFIXES
 
 # adding /+ to the file path looks strange but is to avoid problems with ../neighbour/source.m
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
@@ -568,6 +572,8 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 # FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
 build_subprojects:
+	# PROJECT_NAME: $(PROJECT_NAME)
+	# PRODUCT_NAME: $(PRODUCT_NAME)
 ifeq ($(RECURSIVE),true)
 	# SUBPROJECTS: $(SUBPROJECTS)
 	# RECURSIVE: $(RECURSIVE)
@@ -939,14 +945,16 @@ ifneq ($(strip $(HEADERSRC)),)
 endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif
-ifeq ($(ARCHITECTURE),MacOS)
-# always use system Foundation/AppKit (headers and frameworks)
+ifeq ($(ARCHITECTURE),mySTEP)
+# always use selected system frameworks
+else ifeq ($(ARCHITECTURE),MacOS)
+# always use system frameworks and make nested frameworks "flat"
 	mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
-	- for fwk in $(shell cd /System/Library/Frameworks; ls -1 | sed "s/\.framework//g" ) \
-		; do rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$fwk; ln -sf /System/Library/Frameworks/$$fwk.framework/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$fwk \
-	    ; done
-	- rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/PDFKit.framework
-	- ln -sf /System//Library/Frameworks/Quartz.framework/Versions/A/Frameworks/PDFKit.framework $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/PDFKit.framework
+	- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
+	  do \
+	      rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$(basename $$fwk); \
+		  ln -sf $$fwk/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$(basename $$fwk) \
+	  ; done
 endif
 
 resources:
