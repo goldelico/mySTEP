@@ -37,7 +37,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) INCLUDES
 #   (*) CFLAGS
 #   (+) PROFILING
-#   (*) FMWKS
+#   (*) FRAMEWORKS
 #   (*) LIBS
 #  compile control
 #   (+) NOCOMPILE
@@ -354,37 +354,43 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # add default frameworks
-ifeq ($(PRODUCT_NAME),Foundation)
-# none to add
-else ifeq ($(PRODUCT_NAME),AppKit)
+ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
+# none to add if we build Foundation.framework
+else ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),AppKit.framework)
+# add Foundation if we build AppKit.framework
 FRAMEWORKS := Foundation $(FRAMEWORKS)
 else
+# always add Foundation.framework and AppKit.framework
 FRAMEWORKS := Foundation AppKit $(FRAMEWORKS)
 endif
+
+# allow to use #import <framework/header.h> while building the framework
+INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(ARCHITECTURE)/Headers $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(ARCHITECTURE),mySTEP)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 # should be similar to MacOS but only link against MacOS CoreFoundation and Foundation
 else ifeq ($(ARCHITECTURE),MacOS)
-# check if each framework exists in /System/Library/*Frameworks or explicitly link from $(QuantumSTEP)
-FMWKS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+# check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
+INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+	do \
+	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
+	then :; \
+	else echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	fi; done)
+LIBS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
-	else echo -I $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers \
-				 -Wl,-rpath,$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	else echo -Wl,-rpath,$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
 	fi; done)
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
 
-# allow to use #import <framework/header.h> while building the framework
-INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(ARCHITECTURE)/Headers $(INCLUDES)
-
 ifeq ($(ARCHITECTURE),mySTEP)
-# handle #include <Foundation/Foundation.h>
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 else ifeq ($(ARCHITECTURE),MacOS)
@@ -1013,14 +1019,18 @@ endif
 
 "$(EXEC)":: bundle headers resources
 	# make directory for executable
+	# INCLUDES: $(INCLUDES)
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
 	# OBJCSRCS: $(OBJCSRCS)
+	# FRAMEWORKS: $(FRAMEWORKS)
 	# CSRCS: $(CSRCS)
 	# LEXSRCS: $(LEXSRCS)
 	# YACCSRCS: $(YACCSRCS)
 	# PHPSRCS: $(PHPSRCS)
 	# OBJECTS: $(OBJECTS)
+	# LIBS: $(LIBS)
+	# BINARY: $(BINARY)
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
