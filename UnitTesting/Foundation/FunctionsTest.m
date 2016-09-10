@@ -130,7 +130,7 @@
 	STAssertThrows([obj longValue], nil);	/* -[NSString longValue] does not exist */
 	STAssertEquals([obj longLongValue], 0ll, nil);
 	STAssertEquals([obj floatValue], 0.0f, nil);
-	STAssertEquals([obj doubleValue], 0.0d, nil);
+	STAssertEquals([obj doubleValue], 0.0, nil);
 	obj=@"3.14";
 	STAssertEqualObjects([obj self], @"3.14", nil);
 	STAssertEquals([obj boolValue], YES, nil);
@@ -138,7 +138,7 @@
 	STAssertThrows([obj longValue], nil);	/* -[NSString longValue] does not exist */
 	STAssertEquals([obj longLongValue], 3ll, nil);
 	STAssertEquals([obj floatValue], 3.14f, nil);
-	STAssertEquals([obj doubleValue], 3.14d, nil);
+	STAssertEquals([obj doubleValue], 3.14, nil);
 }
 
 - (void) test92_nil_value
@@ -159,7 +159,7 @@
 { // selectors and equality
 	SEL s=NSSelectorFromString(@"test90");
 #if 1 // this was from debugging Debian-i386
-	NSLog(@"%s -- %s", s, @selector(test90));
+	NSLog(@"%@ -- %@", NSStringFromSelector(s), NSStringFromSelector(@selector(test90)));
 	NSLog(@"1: %@", sel_isEqual(s, @selector(test90))?@"YES":@"NO");
 	NSLog(@"2: %@", sel_isEqual(s, @selector(test91))?@"YES":@"NO");
 	NSLog(@"3: %@", sel_isEqual(@selector(test90), @selector(test91))?@"YES":@"NO");
