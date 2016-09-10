@@ -30,6 +30,12 @@
 
 #import "SenTestInvocationEnumerator.h"
 
+// FIXME: MacOS has deprecated class_nextMethodList and recommends class_copymethodList
+// https://developer.apple.com/reference/objectivec/1418490-class_copymethodlist
+// https://developer.apple.com/library/prerelease/content/releasenotes/Cocoa/RN-ObjectiveC/index.html#//apple_ref/doc/uid/TP40004309-CH1-DontLinkElementID_6
+
+#define GNUSTEP
+
 @implementation SenTestInvocationEnumerator
 
 + (id) instanceInvocationEnumeratorForClass:(Class) aClass
