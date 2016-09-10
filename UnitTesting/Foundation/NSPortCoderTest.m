@@ -36,7 +36,7 @@
 @implementation MySuperClass
 
 + (void) initialize; { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); [self setVersion:7]; }
-+ (int) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
++ (NSInteger) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
 
 - (Class) classForCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
 - (Class) classForPortCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
@@ -54,7 +54,7 @@
 @implementation MyClass
 
 + (void) initialize; { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); [self setVersion:5]; }
-+ (int) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
++ (NSInteger) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
 
 @end
 
@@ -137,7 +137,7 @@ encodeWithCoder:
 {
 	NSLog(@"+[NSPort allocWithZone:]");
 	[self release];
-	return [MockPort allocWithZone:zone];
+	return (id)[MockPort allocWithZone:zone];
 }
 
 @end
@@ -292,7 +292,7 @@ static NSHashTable *_allConnections;
 {
 	NSLog(@"+[NSConnection allocWithZone:]");
 	[self release];
-	return [MockConnection allocWithZone:zone];
+	return (id)[MockConnection allocWithZone:zone];
 }
 
 @end
@@ -714,7 +714,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	union testUnion { char x; char *y; } val={ .y = "y" };
 	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);
-	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
+	[pc encodeValueOfObjCType:@encode(union testUnion) at:&val];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", nil);	// Cocoa simply ignores them
 }
 
@@ -1290,7 +1290,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:obj];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010501 01010d4d 79537570 6572436c 61737300 01070001>", nil);
 	// 0x01 prefix + Class(MyClass) + 1 byte 00 + 01057 (Version 7) + Class(MySuperClass) + 1 byte 00 + 0107 (Version 7) + 0x01 suffix
-	obj=[[[MySuperClass alloc] init] autorelease];
+	obj=(MyClass *) [[[MySuperClass alloc] init] autorelease];
 	pc=[self portCoderForEncode];
 	[pc encodeObject:obj];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4d795375 70657243 6c617373 00010107 0001>", nil);

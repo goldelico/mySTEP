@@ -437,7 +437,7 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	NSLog(@"test14dfs started");
-	NSLog(@"%d+%d -- %d", sizeof(a), sizeof(b), sizeof(c));
+	NSLog(@"%lu+%lu -- %lu", sizeof(a), sizeof(b), sizeof(c));
 	STAssertNotNil(ms, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:target];
