@@ -372,7 +372,8 @@ FMWKS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
-	else echo -I $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/; \
+	else echo -I $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers \
+				 -Wl,-rpath,$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
 	fi; done)
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
