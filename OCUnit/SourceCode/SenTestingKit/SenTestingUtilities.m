@@ -98,7 +98,7 @@ NSString *STComposeString(NSString *format, ...) {
 				case 'I': {
 					unsigned int long scalarValue = 0;
 					[self getValue:(void *)&scalarValue];
-					return [NSString stringWithFormat:@"%u", scalarValue];
+					return [NSString stringWithFormat:@"%lu", scalarValue];
 				}
 				case 'f': {
 					float scalarValue = 0.0;
