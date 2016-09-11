@@ -33,7 +33,7 @@
 #endif
 }
 
-- (void) test1_basics_void_return
+- (void) test1_basic_void_return
 { // introduced in 10.5
 	NSMethodSignature *ms;
 	// crashes if called with NULL argument
@@ -52,7 +52,17 @@
 #endif
 }
 
-- (void) test2_retain
+- (void) test10_cached
+{ // introduced in 10.5
+	NSMethodSignature *ms1, *ms2;
+	ms1=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertNotNil(ms1, nil);
+	ms2=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertEqualObjects(ms1, ms2, nil);	// should be equal of course
+	STAssertTrue(ms1 == ms2, nil);	// is it cached or created each time?
+}
+
+- (void) test2_for_retain
 {
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(retain)];
 	STAssertNotNil(ms, nil);
@@ -71,7 +81,7 @@
 	STAssertFalse([ms isOneway], nil);
 }
 
-- (void) test3_undefined
+- (void) test3_for_undefined_method_count
 {
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(count)];	// selector that does not exist
 	STAssertNil(ms, nil);
