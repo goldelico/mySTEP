@@ -52,16 +52,6 @@
 #endif
 }
 
-- (void) test10_cached
-{ // introduced in 10.5
-	NSMethodSignature *ms1, *ms2;
-	ms1=[NSMethodSignature signatureWithObjCTypes:"v@:"];
-	STAssertNotNil(ms1, nil);
-	ms2=[NSMethodSignature signatureWithObjCTypes:"v@:"];
-	STAssertEqualObjects(ms1, ms2, nil);	// should be equal of course
-	STAssertTrue(ms1 == ms2, nil);	// is it cached or created each time?
-}
-
 - (void) test2_for_retain
 {
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(retain)];
@@ -117,11 +107,14 @@
 	 */
 }
 
-// init with NULL signature
-// NSObject methodSignatureForSelector - one that exists @selector(retain)
-// NSObject one that exists in a different (sub) class @selector(count)
-// one that does not exist in the system @selector(_selector_that_does_not_exist_)
-// check frame length, numberOfArguments, returnType, isOneway etc.
-
+- (void) test6_cached
+{ // introduced in 10.5
+	NSMethodSignature *ms1, *ms2;
+	ms1=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertNotNil(ms1, nil);
+	ms2=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertEqualObjects(ms1, ms2, nil);	// should be equal of course
+	STAssertTrue(ms1 == ms2, nil);	//  method-signatures return the same object for identical encoding (cache)
+}
 
 @end

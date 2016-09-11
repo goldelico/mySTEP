@@ -1042,7 +1042,7 @@ struct c_c
 	NSAutoreleasePool *arp2=[NSAutoreleasePool new];	// create an ARP where the NSInvocation is autoreleased
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	NSAutoreleasePool *arp;
-	unsigned int rc;
+	NSUInteger rc;
 	id r;
 	STAssertNotNil(ms, nil);
 	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);

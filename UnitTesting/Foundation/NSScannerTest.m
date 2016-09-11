@@ -28,7 +28,7 @@
 	[sc scanString:@"m" intoString:&em];
 	STAssertEquals(flt, 1e+2f, @"flt=1e+2");
 	STAssertEqualObjects(em, @"m", @"e is part of exponent");
-	STAssertEquals([sc scanLocation], 7u, @"all scanned");
+	STAssertEquals([sc scanLocation], (NSUInteger) 7, @"all scanned");
 	STAssertTrue([sc isAtEnd], @"is at end");
 }
 
@@ -41,7 +41,7 @@
 	[sc scanString:@"em" intoString:&em];
 	STAssertEquals(flt, 1.0f, @"flt=1.0");
 	STAssertEqualObjects(em, @"em", @"em is not part of exponent");
-	STAssertEquals([sc scanLocation], 5u, @"all scanned");
+	STAssertEquals([sc scanLocation], (NSUInteger) 5, @"all scanned");
 	STAssertTrue([sc isAtEnd], @"is at end");
 }
 
