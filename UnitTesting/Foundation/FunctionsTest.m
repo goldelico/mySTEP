@@ -23,22 +23,22 @@
 - (void) test10_NSRect
 {
 	NSRect rect=NSMakeRect(10, 20, 30, 42.2);
-	STAssertEquals(rect.origin.x, 10.f, nil);
-	STAssertEquals(rect.origin.y, 20.f, nil);
-	STAssertEquals(rect.size.width, 30.f, nil);
-	STAssertEquals(rect.size.height, 42.2f, nil);
-	STAssertEquals(NSZeroRect.origin.x, 0.f, nil);
-	STAssertEquals(NSZeroRect.origin.y, 0.f, nil);
-	STAssertEquals(NSZeroRect.size.width, 0.f, nil);
-	STAssertEquals(NSZeroRect.size.height, 0.f, nil);
-	STAssertEquals(NSMinX(rect), 10.f, nil);
-	STAssertEquals(NSMidX(rect), 25.f, nil);
-	STAssertEquals(NSMaxX(rect), 40.f, nil);
-	STAssertEquals(NSMinY(rect), 20.f, nil);
-	STAssertEquals(NSMidY(rect), 41.1f, nil);
-	STAssertEquals(NSMaxY(rect), 62.2f, nil);
-	STAssertEquals(NSWidth(rect), 30.f, nil);
-	STAssertEquals(NSHeight(rect), 42.2f, nil);
+	STAssertEquals(rect.origin.x, (CGFloat) 10., nil);
+	STAssertEquals(rect.origin.y, (CGFloat) 20., nil);
+	STAssertEquals(rect.size.width, (CGFloat) 30., nil);
+	STAssertEquals(rect.size.height, (CGFloat) 42.2, nil);
+	STAssertEquals(NSZeroRect.origin.x, (CGFloat) 0., nil);
+	STAssertEquals(NSZeroRect.origin.y, (CGFloat) 0., nil);
+	STAssertEquals(NSZeroRect.size.width, (CGFloat) 0., nil);
+	STAssertEquals(NSZeroRect.size.height, (CGFloat) 0., nil);
+	STAssertEquals(NSMinX(rect), (CGFloat) 10., nil);
+	STAssertEquals(NSMidX(rect), (CGFloat) 25., nil);
+	STAssertEquals(NSMaxX(rect), (CGFloat) 40., nil);
+	STAssertEquals(NSMinY(rect), (CGFloat) 20., nil);
+	STAssertEquals(NSMidY(rect), (CGFloat) 41.1, nil);
+	STAssertEquals(NSMaxY(rect), (CGFloat) 62.2, nil);
+	STAssertEquals(NSWidth(rect), (CGFloat) 30., nil);
+	STAssertEquals(NSHeight(rect), (CGFloat) 42.2, nil);
 	STAssertTrue(NSIsEmptyRect(NSZeroRect), nil);
 	STAssertFalse(NSIsEmptyRect(rect), nil);
 	STAssertTrue(NSEqualRects(rect, rect), nil);
@@ -63,10 +63,10 @@
 - (void) test20_NSPoint
 {
 	NSPoint point=NSMakePoint(10, 20.2);
-	STAssertEquals(point.x, 10.f, nil);
-	STAssertEquals(point.y, 20.2f, nil);
-	STAssertEquals(NSZeroPoint.x, 0.f, nil);
-	STAssertEquals(NSZeroPoint.y, 0.f, nil);
+	STAssertEquals(point.x, (CGFloat) 10., nil);
+	STAssertEquals(point.y, (CGFloat) 20.2, nil);
+	STAssertEquals(NSZeroPoint.x, (CGFloat) 0., nil);
+	STAssertEquals(NSZeroPoint.y, (CGFloat) 0., nil);
 	STAssertTrue(NSEqualPoints(point, point), nil);
 	STAssertFalse(NSEqualPoints(point, NSZeroPoint), nil);
 	STAssertEqualObjects(NSStringFromPoint(point), @"{10, 20.2}", nil);
@@ -77,10 +77,10 @@
 - (void) test30_NSSize
 {
 	NSSize size=NSMakeSize(10, 20.2);
-	STAssertEquals(size.width, 10.f, nil);
-	STAssertEquals(size.height, 20.2f, nil);
-	STAssertEquals(NSZeroSize.width, 0.f, nil);
-	STAssertEquals(NSZeroSize.height, 0.f, nil);
+	STAssertEquals(size.width, (CGFloat) 10., nil);
+	STAssertEquals(size.height, (CGFloat) 20.2, nil);
+	STAssertEquals(NSZeroSize.width, (CGFloat) 0., nil);
+	STAssertEquals(NSZeroSize.height, (CGFloat) 0., nil);
 	STAssertTrue(NSEqualSizes(size, size), nil);
 	STAssertFalse(NSEqualSizes(size, NSZeroSize), nil);
 	STAssertEqualObjects(NSStringFromSize(size), @"{10, 20.2}", nil);

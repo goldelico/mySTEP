@@ -37,12 +37,12 @@
 {
 	NSAffineTransformStruct ts;
 	ts=[t transformStruct];
-	STAssertEquals(ts.m11, 1.0f, nil);
-	STAssertEquals(ts.m12, 0.0f, nil);
-	STAssertEquals(ts.m21, 0.0f, nil);
-	STAssertEquals(ts.m22, 1.0f, nil);
-	STAssertEquals(ts.tX, 0.0f, nil);
-	STAssertEquals(ts.tY, 0.0f, nil);
+	STAssertEquals(ts.m11, (CGFloat) 1.0, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m21, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m22, (CGFloat) 1.0, nil);
+	STAssertEquals(ts.tX, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.tY, (CGFloat) 0.0, nil);
 }
 
 - (void) test02
@@ -50,12 +50,12 @@
 	NSAffineTransformStruct ts;
 	[t translateXBy:5.0 yBy:7.0];
 	ts=[t transformStruct];
-	STAssertEquals(ts.m11, 1.0f, nil);
-	STAssertEquals(ts.m12, 0.0f, nil);
-	STAssertEquals(ts.m21, 0.0f, nil);
-	STAssertEquals(ts.m22, 1.0f, nil);
-	STAssertEquals(ts.tX, 5.0f, nil);
-	STAssertEquals(ts.tY, 7.0f, nil);
+	STAssertEquals(ts.m11, (CGFloat) 1.0, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m21, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m22, (CGFloat) 1.0, nil);
+	STAssertEquals(ts.tX, (CGFloat) 5.0, nil);
+	STAssertEquals(ts.tY, (CGFloat) 7.0, nil);
 }
 
 - (void) test03
@@ -63,12 +63,12 @@
 	NSAffineTransformStruct ts;
 	[t rotateByDegrees:30.0];
 	ts=[t transformStruct];
-	STAssertEqualsWithAccuracy(ts.m11, 0.8660254f, 2e-6, nil);
-	STAssertEquals(ts.m12, 0.5f, nil);
-	STAssertEquals(ts.m21, -0.5f, nil);
-	STAssertEqualsWithAccuracy(ts.m22, 0.8660254f, 2e-6, nil);
-	STAssertEquals(ts.tX, 0.0f, nil);
-	STAssertEquals(ts.tY, 0.0f, nil);
+	STAssertEqualsWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.5, nil);
+	STAssertEquals(ts.m21, (CGFloat) -0.5, nil);
+	STAssertEqualsWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEquals(ts.tX, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.tY, (CGFloat) 0.0, nil);
 }
 
 - (void) test04
@@ -77,12 +77,12 @@
 	[t translateXBy:5.0 yBy:7.0];
 	[t rotateByDegrees:30.0];
 	ts=[t transformStruct];
-	STAssertEqualsWithAccuracy(ts.m11, 0.8660254f, 2e-6, nil);
-	STAssertEquals(ts.m12, 0.5f, nil);
-	STAssertEquals(ts.m21, -0.5f, nil);
-	STAssertEqualsWithAccuracy(ts.m22, 0.8660254f, 2e-6, nil);
-	STAssertEquals(ts.tX, 5.0f, nil);
-	STAssertEquals(ts.tY, 7.0f, nil);
+	STAssertEqualsWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.5, nil);
+	STAssertEquals(ts.m21, (CGFloat) -0.5, nil);
+	STAssertEqualsWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEquals(ts.tX, (CGFloat) 5.0, nil);
+	STAssertEquals(ts.tY, (CGFloat) 7.0, nil);
 }
 
 - (void) test05
@@ -91,12 +91,12 @@
 	[t rotateByDegrees:30.0];
 	[t translateXBy:5.0 yBy:7.0];
 	ts=[t transformStruct];
-	STAssertEqualsWithAccuracy(ts.m11, 0.8660254f, 2e-6, nil);
-	STAssertEquals(ts.m12, 0.5f, nil);
-	STAssertEquals(ts.m21, -0.5f, nil);
-	STAssertEqualsWithAccuracy(ts.m22, 0.8660254f, 2e-6, nil);
-	STAssertEqualsWithAccuracy(ts.tX, 0.830127f, 2e-6, nil);
-	STAssertEqualsWithAccuracy(ts.tY, 8.562178f, 2e-6, nil);
+	STAssertEqualsWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.5, nil);
+	STAssertEquals(ts.m21, (CGFloat) -0.5, nil);
+	STAssertEqualsWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, nil);
+	STAssertEqualsWithAccuracy(ts.tX, (CGFloat) 0.830127, 2e-6, nil);
+	STAssertEqualsWithAccuracy(ts.tY, (CGFloat) 8.562178, 2e-6, nil);
 }
 
 - (void) test10
@@ -230,12 +230,12 @@
 	NSAffineTransformStruct ts;
 	[t scaleBy:0.0];
 	ts=[t transformStruct];
-	STAssertEquals(ts.m11, 0.0f, nil);
-	STAssertEquals(ts.m12, 0.0f, nil);
-	STAssertEquals(ts.m21, 0.0f, nil);
-	STAssertEquals(ts.m22, 0.0f, nil);
-	STAssertEquals(ts.tX, 0.0f, nil);
-	STAssertEquals(ts.tY, 0.0f, nil);
+	STAssertEquals(ts.m11, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m12, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m21, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.m22, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.tX, (CGFloat) 0.0, nil);
+	STAssertEquals(ts.tY, (CGFloat) 0.0, nil);
 	STAssertThrowsSpecific([t invert], NSException, nil);
 }
 

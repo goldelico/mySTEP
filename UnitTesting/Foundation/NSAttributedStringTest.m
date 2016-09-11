@@ -16,12 +16,12 @@
 
 @end
 
-@interface NSColor : NSObject
+@interface Mock_NSColor : NSObject
 + (id) redColor;
 + (id) blueColor;
 @end
 
-@implementation NSColor
+@implementation Mock_NSColor
 + (id) redColor;
 {
 	return [[self new] autorelease];
@@ -40,9 +40,9 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 {
 	NSAttributedString *s=[[NSAttributedString alloc] initWithString:@"string"];
 	STAssertEqualObjects(@"string", [s string], nil);
-	STAssertEquals([s length], 6u, nil);
+	STAssertEquals([s length], (NSUInteger) 6, nil);
 	STAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], 0u, nil);	
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, nil);
 	[s release];
 }
 
@@ -50,15 +50,15 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 {
 	NSMutableAttributedString *s=[[NSMutableAttributedString alloc] initWithString:@"string"];
 	STAssertEqualObjects(@"string", [s string], nil);
-	STAssertEquals([s length], 6u, nil);
+	STAssertEquals([s length], (NSUInteger) 6, nil);
 	STAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], 0u, nil);	
-	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NSColor redColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(0, 3)];
-	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], 1u, nil);	
-	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], 0u, nil);	
-	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NSColor blueColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(3, 3)];
-	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], 1u, nil);	
-	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], 1u, nil);	
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, nil);
+	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[Mock_NSColor redColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(0, 3)];
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, nil);
+	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 0, nil);
+	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[Mock_NSColor blueColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(3, 3)];
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, nil);
+	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 1, nil);
 	[s release];
 }
 
@@ -81,6 +81,8 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 	id obj=[NSPropertyListSerialization propertyListFromData:d mutabilityOption:NSPropertyListImmutable format:&format errorDescription:&error];
 	[self searchData:obj];
 }
+
+// FIXME: this is very incomplete...
 
 - (void) test3
 {

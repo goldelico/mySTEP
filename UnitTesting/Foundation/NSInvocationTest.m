@@ -90,7 +90,7 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 2u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 2, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:target];
 	[i setSelector:sel];
@@ -115,7 +115,7 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:target];
 	[i setSelector:sel];
@@ -138,7 +138,9 @@ struct c_c
 	STAssertNoThrow([i invoke], nil);	// nil target ignores nil selector
 	STAssertEquals(invoked, 0, nil);
 	[i setTarget:target];
-	STAssertThrowsSpecificNamed([i invoke], NSException, NSInvalidArgumentException, nil);	// NULL selector throws
+#ifndef __APPLE__	// segfaults on Apple
+	STAssertThrowsSpecificNamed([i invoke], NSException, NSInvalidArgumentException, nil);	// NULL/uninitialized selector throws
+#endif
 	[i setSelector:sel];
 	STAssertEquals(invoked, 0, nil);
 	STAssertNoThrow([i invoke], nil);
@@ -146,8 +148,8 @@ struct c_c
 	STAssertThrowsSpecificNamed([i setArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);	// NULL address throws
 	STAssertThrowsSpecificNamed([i getArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);
 	/* conclusions
-	 * a NULL selector throws an exception
-	 * a nil target makes the invoication being ignored
+	 * an uninitialized/NULL selector throws an exception (NOTE: segfaults on MacOS 10.11)
+	 * an uninitialized/nil target makes the invoication being ignored
 	 */
 }
 
@@ -692,7 +694,7 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:nil];
 	[i setSelector:sel];
@@ -727,7 +729,7 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 2u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 2, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:target];
 	[i setSelector:sel];
@@ -1025,8 +1027,8 @@ struct c_c
 - (id) invoke60:(id) a b:(id) b
 { // return an autoreleased object
 	invoked=60;
-	STAssertEquals([a retainCount], 1u, nil);
-	STAssertEquals([b retainCount], 1u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 1, nil);
 	return [[[NSObject alloc] init] autorelease];	// should be placed in the ARP where the -invoke is issued
 }
 
@@ -1043,45 +1045,45 @@ struct c_c
 	unsigned int rc;
 	id r;
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);
 	STAssertNotNil(i, nil);
-	STAssertEquals([a retainCount], 1u, nil);
-	STAssertEquals([b retainCount], 1u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 1, nil);
 	rc=[target retainCount];
 	[i setTarget:target];
 	STAssertEquals([target retainCount], rc, nil);	// has not changed
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
 	[i setArgument:&b atIndex:3];
-	STAssertEquals([a retainCount], 1u, nil);
-	STAssertEquals([b retainCount], 1u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 1, nil);
 	invoked=0;
 	STAssertEquals(invoked, 0, nil);
 	arp=[NSAutoreleasePool new];	// create a private ARP so that r is autoreleased there
 	[i invoke];
 	STAssertEquals(invoked, 60, nil);
-	STAssertEquals([a retainCount], 1u, nil);
-	STAssertEquals([b retainCount], 1u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 1, nil);
 	[i getReturnValue:&r];
-	STAssertEquals([r retainCount], 1u, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 1, nil);
 	[r retain];
-	STAssertEquals([r retainCount], 2u, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 2, nil);
 	[arp release];	// this should release r
-	STAssertEquals([r retainCount], 1u, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 1, nil);
 	STAssertFalse([i argumentsRetained], nil);
 	[i retainArguments];
 	STAssertTrue([i argumentsRetained], nil);
-	STAssertEquals([a retainCount], 2u, nil);
-	STAssertEquals([b retainCount], 2u, nil);
-	STAssertEquals([r retainCount], 2u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 2, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 2, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 2, nil);
 	[i retainArguments];
-	STAssertEquals([a retainCount], 2u, nil);
-	STAssertEquals([b retainCount], 2u, nil);
-	STAssertEquals([r retainCount], 2u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 2, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 2, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 2, nil);
 	[arp2 release];	// this releases the invocation - and all retained arguments
-	STAssertEquals([a retainCount], 1u, nil);
-	STAssertEquals([b retainCount], 1u, nil);
-	STAssertEquals([r retainCount], 1u, nil);
+	STAssertEquals([a retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([b retainCount], (NSUInteger) 1, nil);
+	STAssertEquals([r retainCount], (NSUInteger) 1, nil);
 	[r release];
 	/* conclusions
 	 * the current APR is used for invocations (i.e. it does not have a private one)
@@ -1099,23 +1101,23 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:nil];
 	[i setSelector:sel];
 	[i setArgument:&self atIndex:2];
 	[i setArgument:&self atIndex:3];
 	test=[NSObject new];
-	STAssertEquals([test retainCount], 1u, nil);
+	STAssertEquals([test retainCount], (NSUInteger) 1, nil);
 	[i setReturnValue:&test];
 	[i retainArguments];
-	STAssertEquals([test retainCount], 2u, nil);
+	STAssertEquals([test retainCount], (NSUInteger) 2, nil);
 	invoked=0;
 	STAssertEquals(invoked, 0, nil);
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, test, nil);	// has been stored
 	[i invoke];	// invoke nil target
-	STAssertEquals([test retainCount], 2u, nil);	// previously set return value should have been released - but has not (but may have been autoreleased)!
+	STAssertEquals([test retainCount], (NSUInteger) 2, nil);	// previously set return value should have been released - but has not (but may have been autoreleased)!
 	STAssertEquals(invoked, 0, nil);	// has NOT been called
 	[i getReturnValue:&obj];
 	STAssertEqualObjects(obj, nil, nil);	// has been wiped out
@@ -1134,22 +1136,22 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	STAssertNotNil(ms, nil);
-	STAssertEquals([ms numberOfArguments], 4u, nil);
+	STAssertEquals([ms numberOfArguments], (NSUInteger) 4, nil);
 	STAssertNotNil(i, nil);
 	[i setTarget:nil];
 	[i setSelector:sel];
 	test=[NSObject new];
-	STAssertEquals([test retainCount], 1u, nil);
+	STAssertEquals([test retainCount], (NSUInteger) 1, nil);
 	[i setArgument:&test atIndex:2];
 	[i retainArguments];
-	STAssertEquals([test retainCount], 2u, nil);
+	STAssertEquals([test retainCount], (NSUInteger) 2, nil);
 	test2=[NSObject new];
-	STAssertEquals([test2 retainCount], 1u, nil);
+	STAssertEquals([test2 retainCount], (NSUInteger) 1, nil);
 	[i setArgument:&test2 atIndex:2];	// replace
-	STAssertEquals([test retainCount], 2u, nil);	// likely autoreleased
-	STAssertEquals([test2 retainCount], 2u, nil);
+	STAssertEquals([test retainCount], (NSUInteger) 2, nil);	// likely autoreleased
+	STAssertEquals([test2 retainCount], (NSUInteger) 2, nil);
 	[i setArgument:&test2 atIndex:3];	// set (with retainArguments enabled)
-	STAssertEquals([test2 retainCount], 3u, nil);	// ok, is retained before setting
+	STAssertEquals([test2 retainCount], (NSUInteger) 3, nil);	// ok, is retained before setting
 	/* conclusion
 	 * retainArguments only instructs to retain - but does not release
 	 * NOTE: this test is not able to find out if they are autoreleased later!
