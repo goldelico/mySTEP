@@ -24,7 +24,7 @@
 
 @implementation NSMethodSignatureTest
 
-- (void) test0
+- (void) test0_NULL
 { // introduced in 10.5
 	NSMethodSignature *ms;
 #if 0	// crashes if called with NULL argument
@@ -33,7 +33,7 @@
 #endif
 }
 
-- (void) test1
+- (void) test1_create
 { // introduced in 10.5
 	NSMethodSignature *ms;
 	// crashes if called with NULL argument
@@ -52,7 +52,17 @@
 #endif
 }
 
-- (void) test2
+- (void) test10_cached
+{ // introduced in 10.5
+	NSMethodSignature *ms1, *ms2;
+	ms1=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertNotNil(ms1, nil);
+	ms2=[NSMethodSignature signatureWithObjCTypes:"v@:"];
+	STAssertEqualObjects(ms1, ms2 nil);	// should be equal of course
+	STAssertTrue(ms1 == ms2, nil);	// is it cached or created each time?
+}
+
+- (void) test2_for_retain
 {
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(retain)];
 	STAssertNotNil(ms, nil);
@@ -71,7 +81,7 @@
 	STAssertFalse([ms isOneway], nil);
 }
 
-- (void) test3
+- (void) test3_for_count
 {
 	NSMethodSignature *ms=[self methodSignatureForSelector:@selector(count)];	// selector that does not exist
 	STAssertNil(ms, nil);
@@ -89,7 +99,7 @@
 	return;
 }
 
-- (void) test4
+- (void) test4_un_implemented
 {
 	NSMethodSignature *ms;
 	ms=[self methodSignatureForSelector:@selector(unimplemented)];	// header exists but no implementation
