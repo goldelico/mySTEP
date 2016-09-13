@@ -235,7 +235,7 @@
 	if(_task)
 		return kIOReturnError;	// task is already running
 	_aborted=NO;
-	_task=[[isa _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"inq", @"--flush", nil] handler:self done:@selector(_done:)] retain];
+	_task=[[[self class] _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"inq", @"--flush", nil] handler:self done:@selector(_done:)] retain];
 	if(!_task)
 		return 42;	// could not launch
 	[_delegate deviceInquiryStarted:self];

@@ -24,7 +24,7 @@
 
 - (id) copyWithZone:(NSZone *) zone;
 {
-	ABMultiValue *c=[isa allocWithZone:zone];
+	ABMultiValue *c=[[self class] allocWithZone:zone];
 	if(c)
 		{
 		c->primaryIdentifier=[primaryIdentifier retain];
@@ -38,7 +38,7 @@
 
 - (id) mutableCopyWithZone:(NSZone *) zone;
 {
-	ABMutableMultiValue *c=(ABMutableMultiValue *) [isa allocWithZone:zone];
+	ABMutableMultiValue *c=(ABMutableMultiValue *) [[self class] allocWithZone:zone];
 	c->primaryIdentifier=[primaryIdentifier copyWithZone:zone];
 	c->propertyType=propertyType;
 	c->values=[values mutableCopy];
