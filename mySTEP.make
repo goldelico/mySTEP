@@ -241,7 +241,7 @@ else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
-	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
+#	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
 ifeq ($(ARCHITECTURE),mySTEP)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)

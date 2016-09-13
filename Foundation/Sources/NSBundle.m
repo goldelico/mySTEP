@@ -97,6 +97,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			vrl=[virtualRoot length]-1;
 			//		fprintf(stderr, " vRoot=%p\n", virtualRoot);
 #if 0
+			NSLog(@"pi=%@", pi);
 			NSLog(@"args=%@", [pi arguments]);
 			NSLog(@"$0=%@", path);
 			NSLog(@"virtualRoot=%@", virtualRoot);

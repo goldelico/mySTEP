@@ -408,6 +408,10 @@ void NSDecimalFromComponents(NSDecimal *result, unsigned long long mantissa,
 void NSDecimalFromString(NSDecimal *result, NSString *numberValue, 
 						 NSDictionary *locale);
 
+@interface NSProcessInfo (NSPrivate)
+- (id) _initWithArguments:(char**)argv count:(int)argc environ:(char**)env;
+@end
+
 @interface NSMethodSignature (NSUndocumented)
 
 - (NSString *) _typeString;		// full method type

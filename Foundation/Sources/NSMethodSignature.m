@@ -44,7 +44,7 @@ struct NSArgumentInfo
 	BOOL isReg;						// signature says it is passed in a register (+) and not on stack
 #endif
 #if 1 || OLD
-	// FIXME: do we always have byref?
+	// FIXME: if we always have byref we can remove this variable
 	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
 									// always YES
 #endif
@@ -173,6 +173,9 @@ static void free_ffi_type(ffi_type *type)
 static ffi_type *parse_ffi_type(const char **typePtr)
 { // returns NULL on error
 	const char *t=*typePtr;
+#if 0
+	NSLog(@"type 1: %s", t);
+#endif
 	while(*t)
 		{
 		switch(*t++) {
@@ -187,12 +190,13 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 			case _C_STRUCT_E:
 			case _C_UNION_B:
 			case _C_UNION_E:
-			case _C_PTR:
-			case _C_UNDEF:
 				break;
 		}
 		break;
 		}
+#if 0
+	NSLog(@"type 2: %s", *typePtr);
+#endif
 	switch(*(*typePtr)++) {
 		default:		return NULL;	// unknown
 		case _C_VOID:	return &ffi_type_void;
@@ -216,19 +220,35 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 #endif
 		case _C_ATOM:
 		case _C_CHARPTR:	return &ffi_type_pointer;
-		case _C_PTR:
+		case _C_PTR: {
+#if 0
+			NSLog(@"type 3: %s", *typePtr);
+#endif
 			if(**typePtr == _C_UNDEF)
 				(*typePtr)++;	// ^?
 			else
-				free_ffi_type(parse_ffi_type(typePtr)); // type follows, e.g. ^{_NSPoint=ff}
+				{ // type follows, e.g. ^{_NSPoint=ff}
+				ffi_type *f=f=parse_ffi_type(typePtr);
+				if(!f)
+					return NULL;	// failed
+				free_ffi_type(f);	// we don't store/need it
+				}
+#if 0
+			NSLog(@"type 4: %s", *typePtr);
+#endif
 			return &ffi_type_pointer;
+		}
 		case _C_ARY_B: {
 			NSUInteger size=0;
+			ffi_type *f;
 			while (isdigit(**typePtr))
 				size=10*size+*(*typePtr)++-'0';	// collect array dimensions
-			// type follows
-			if(*(*typePtr)++ == _C_ARY_E)
-				(*typePtr)++;
+			f=parse_ffi_type(typePtr); // type follows, e.g. [5L]
+			if(!f)
+				return NULL;	// failed
+			free_ffi_type(f);	// we don't store/need it
+			if(*(*typePtr)++ != _C_ARY_E)
+				return NULL;	// missing ]
 			return &ffi_type_pointer;
 		}
 		case _C_STRUCT_B: {
@@ -446,6 +466,8 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 						}
 					t=info[i].type=types;
 					types=NSGetSizeAndAlignment(types, &info[i].size, &info[i].align);
+					// FIXME: we should truncate info[i].type at types...
+					// or make a copy with strncpy
 					if(!types)
 						break;	// some error
 					if((info[i].qual & _F_INOUT) == 0)
@@ -457,7 +479,13 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 							else
 								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
+#if 0
+					NSLog(@"t1: %s", t);
+#endif
 					info[i].ffitype=parse_ffi_type(&t);
+#if 0
+					NSLog(@"t2: %s", t);
+#endif
 					if(!info[i].ffitype)
 						[NSException raise: NSInternalInconsistencyException format: @"can't parse encoding type %s.", types];
 #if 1	// a comment in encoding.c source says a '+' was stopped to be generated at gcc 3.4

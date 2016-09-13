@@ -45,8 +45,6 @@
 #define mySTEP_MINOR_VERSION	0
 #endif
 
-#define main objc_main						// redefine main() to objc_main()
-
 // libobjc interface
 
 #include <objc/objc.h>
