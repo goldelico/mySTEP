@@ -112,7 +112,7 @@ endif
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers
+.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers resources
 
 # configure Embedded System if undefined
 
@@ -202,6 +202,8 @@ ifeq ($(EXECUTABLE_NAME),)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
+STDCFLAGS := $(CFLAGS)
+
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
 	# shared between all binary tools
@@ -226,7 +228,7 @@ endif
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
-	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
+	STDCFLAGS := -I$(EXEC)/Headers/ $(STDCFLAGS)
 ifeq ($(ARCHITECTURE),mySTEP)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else ifeq ($(ARCHITECTURE),MacOS)
@@ -241,7 +243,7 @@ else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
-#	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
+#	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else
 ifeq ($(ARCHITECTURE),mySTEP)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
@@ -253,6 +255,47 @@ endif
 endif
 endif
 endif
+
+# expand patterns in SOURCES
+XSOURCES := $(wildcard $(SOURCES))
+
+# get the objects from all sources we need to compile and link
+OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
+CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
+LEXSRCS := $(filter %.l %.lm,$(XSOURCES))
+YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
+
+# sources that drive the compiler
+# FIXME: include LEX/YACC?
+SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
+
+OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+
+# PHP and shell scripts
+PHPSRCS   := $(filter %.php,$(XSOURCES))
+SHSRCS   := $(filter %.sh,$(XSOURCES))
+
+# INfo.plist
+INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
+
+# subprojects
+SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
+
+# header files
+HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
+
+# additional debian control files
+DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES))
+
+# all sources that are processed specially
+PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
+
+# all remaining selected (re)sources
+RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # default is to build for all
 
@@ -271,10 +314,21 @@ build:	build_subprojects build_doxy install_local
 else
 build:	build_subprojects build_doxy build_architectures make_php make_sh install_local deploy_remote launch_remote
 endif
-	date
+	@date
 
-clean:	# also clean recursively for subprojects???
-	rm -rf build
+clean:
+ifeq ($(RECURSIVE),true)
+# SUBPROJECTS: $(SUBPROJECTS)
+# RECURSIVE: $(RECURSIVE)
+ifneq "$(strip $(SUBPROJECTS))" ""
+	@for i in $(SUBPROJECTS); \
+	do \
+		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
+	done
+endif
+endif
+	@rm -rf build
+	@echo CLEAN
 
 debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 	$(for v,$(V), \
@@ -319,47 +373,6 @@ ifeq ($(RUN_CMD),)
 # override if (stripped) package is built using xcodebuild
 RUN_CMD := run
 endif
-
-# expand patterns in SOURCES
-XSOURCES := $(wildcard $(SOURCES))
-
-# get the objects from all sources we need to compile and link
-OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
-CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
-LEXSRCS := $(filter %.l %.lm,$(XSOURCES))
-YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
-
-# sources that drive the compiler
-# FIXME: include LEX/YACC?
-SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
-
-OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-
-# PHP and shell scripts
-PHPSRCS   := $(filter %.php,$(XSOURCES))
-SHSRCS   := $(filter %.sh,$(XSOURCES))
-
-# INfo.plist
-INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
-
-# subprojects
-SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
-
-# header files
-HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
-
-# additional debian control files
-DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES))
-
-# all sources that are processed specially
-PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
-
-# all remaining selected (re)sources
-RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # add default frameworks
 ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
@@ -503,26 +516,26 @@ endif
 # workaround for bug in arm-linux-gnueabi toolchain
 ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
 OPTIMIZE := 3
-CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
+STDCFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
 ifeq ($(ARCHITECTURE),arm-linux-gnueabihf)
 OPTIMIZE := 3
 # we could try -mfloat-abi=hardfp
 # see https://wiki.linaro.org/Linaro-arm-hardfloat
-CFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
+STDCFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
 ifeq ($(ARCHITECTURE),mySTEP)
-CFLAGS += -Wno-deprecated-declarations
+STDCFLAGS += -Wno-deprecated-declarations
 else ifeq ($(ARCHITECTURE),MacOS)
-CFLAGS += -Wno-deprecated-declarations
+STDCFLAGS += -Wno-deprecated-declarations
 else
-CFLAGS += -rdynamic
+STDCFLAGS += -rdynamic
 endif
 
-CFLAGS += -fsigned-char
+STDCFLAGS += -fsigned-char
 
-# set up appropriate CFLAGS for $(ARCHITECTURE)
+# set up appropriate STDCFLAGS for $(ARCHITECTURE)
 
 # -Wall
 WARNINGS =  -Wno-shadow -Wpointer-arith -Wno-import
@@ -531,19 +544,19 @@ DEFINES += -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
 -DHAVE_MMAP
 
 # add -v to debug include search path issues
-CFLAGS += -g -fPIC -O$(OPTIMIZE) $(WARNINGS) $(DEFINES) $(INCLUDES)
+STDCFLAGS += -g -fPIC -O$(OPTIMIZE) $(WARNINGS) $(DEFINES) $(INCLUDES)
 
 ifeq ($(PROFILING),YES)
-CFLAGS := -pg $(CFLAGS)
+STDCFLAGS := -pg $(STDCFLAGS)
 endif
 
 # ifeq ($(GCC_WARN_ABOUT_MISSING_PROTOTYPES),YES)
-# CFLAGS :=  -Wxyz $(CFLAGS)
+# STDCFLAGS :=  -Wxyz $(STDCFLAGS)
 # endif
 
 # should be solved differently
 ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
-OBJCFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
+OBJCFLAGS := $(STDCFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
 endif
 
 # define rules for .SUFFIXES
@@ -564,12 +577,12 @@ endif
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -588,7 +601,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) || break ; echo Leaving directory $$(pwd) ); \
+		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -939,6 +952,7 @@ endif
 # link headers of framework
 
 bundle:
+	# create bundle
 ifeq ($(WRAPPER_EXTENSION),framework)
 	[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
@@ -946,6 +960,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 endif
 
 headers:
+	# create headers
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
@@ -966,6 +981,7 @@ else ifeq ($(ARCHITECTURE),MacOS)
 endif
 
 resources:
+# copy resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
