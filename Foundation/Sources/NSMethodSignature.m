@@ -144,12 +144,13 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 						format: @"%c[%s %s]: unrecognized selector sent to instance %p",
 								(class_isMetaClass(c) ? '+' : '-'),
 								class_getName(c), sel_getName(sel), receiver];
-	NSLog(@"sig = %@", sig);
-
-	*((long *)1) = 1;	// segfault into debugger
-
+#if 1
+	NSLog(@"mySTEP_objc_msg_forward2: sig = %@", sig);
+#endif
+#if 0
+	//	*((long *)1) = 1;	// segfault into debugger
 	/* debug */ if(!sig) sig = [NSMethodSignature signatureWithObjCTypes:"v@::"];
-
+#endif
 	return [sig _forwardingImplementation:(void (*)(void)) mySTEP_closureCallback];
 }
 
@@ -561,7 +562,7 @@ static NSMapTable *__methodSignatures;	// map C signature to NSMethodSignature
 			NSLog(@"_initWithObjCTypes found in cache: %s -> %@", t, sig);
 #endif
 			[self release];
-			return sig;	// return cached NSMethodSignature
+			return [sig retain];	// replace by cached NSMethodSignature
 		}
 #if 0
 	NSLog(@"_initWithObjCTypes: %s", t);
@@ -811,6 +812,9 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	ffi_status status;
 	if(!cif) [self _frameDescriptor];	// prepare cif
 	[[[_NSFFIClosure alloc] initWithClosure:&closure andImp:&imp] autorelease];
+#if 1
+	NSLog(@"_forwardingImplementation closure=%p imp=%p", closure, imp);
+#endif
 	if((status = ffi_prep_closure_loc(closure, cif, (void (*)(ffi_cif *, void *, void **, void *)) cb, self, imp)) != FFI_OK)
 		return NULL;
 	return imp;	// can be called until current ARP is drained
