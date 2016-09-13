@@ -335,7 +335,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 }
 
 - (void) dealloc
-{
+{ // NOTE: since NSMethodSignatures are cached this will never happen
 	OBJC_FREE((void*) methodTypes);
 	if(info)
 		{ // release dynamically allocated struct elements
@@ -367,8 +367,8 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 {
 	if(other == self)
 		return YES;
-	// fixme: strip off offsets if included
-	// i.e. we should better compare numArgs and individual _argInfo:
+	// FIXME: strip off offsets if included
+	// i.e. we should better compare numArgs and individual _argInfo[]
 	if(strcmp([self _methodTypes], [other _methodTypes]) != 0)
 		return NO;
 	return [super isEqual:other];
@@ -376,7 +376,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 
 - (NSUInteger) hash;
 {
-	// checkme
+	// FIXME: if equal they could have the same hash
 	return [super hash];
 }
 
@@ -519,21 +519,33 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 
 @implementation NSMethodSignature (NSPrivate)
 
+static NSMapTable *__methodSignatures;	// map C signature to NSMethodSignature
+
 - (id) _initWithObjCTypes:(const char *) t;
 {
-	// FIXME: this would allow to cache NSMethodSignatures by C-type...
-	// by using a NSMapTable (char *) -> (NSMethodSignature *)
+	NSMethodSignature *sig;
+	if(!__methodSignatures)
+		__methodSignatures=NSCreateMapTable(NSNonOwnedCStringMapKeyCallBacks,
+											NSObjectMapValueCallBacks, 0);
+	if((sig=(NSMethodSignature *) NSMapGet(__methodSignatures, t)))
+		{ // look up by type - if already known
+#if 0
+			NSLog(@"_initWithObjCTypes found in cache: %s -> %@", t, sig);
+#endif
+			[self release];
+			return sig;	// return cached NSMethodSignature
+		}
 #if 0
 	NSLog(@"_initWithObjCTypes: %s", t);
 #endif
 	if((self=[super init]))
 		{
 		OBJC_MALLOC(methodTypes, char, strlen(t)+1);
-		// strip off embedded offsets, i.e. convert from gcc to OpenSTEP format?
-		strcpy(methodTypes, t);	// save unchanged
+		strcpy(methodTypes, t);	// save C string
 #if 0
 		NSLog(@"NSMethodSignature -> %s", methodTypes);
 #endif
+		NSMapInsert(__methodSignatures, methodTypes, self); // save in cache!
 		}
 	return self;
 }
