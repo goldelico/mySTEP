@@ -36,6 +36,7 @@ int main (int argc, const char *argv[])
 #ifdef __mySTEP__
 	extern BOOL __printLog;
 //	__printLog=YES;	// enable NSLog
+	fprintf(stderr, "otest main: %s\n", __FUNCTION__);
 #endif
     [SenTestTool run];
     [pool release];
