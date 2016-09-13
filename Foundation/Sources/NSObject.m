@@ -585,7 +585,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 				}
 		}
 #endif	// FIXME
-#if 1
+#if 0
 	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
 	if(types)
 		NSLog(@" -> %s", types);
