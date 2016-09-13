@@ -110,8 +110,6 @@ typedef enum _NSThreadPriority
 	[super dealloc];
 }
 
-#undef main	// may be defined as objc_main
-
 - (void) main
 {
 	NIMP;
