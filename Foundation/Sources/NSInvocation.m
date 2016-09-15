@@ -304,7 +304,9 @@
 	self=[self _initWithMethodSignature:sig retp:NULL args:NULL];
 	if(!self)
 		return nil;	// failed
-	// check if cnt == [sig numberOfArguments]
+	// FIXME: raise exception?
+	if(cnt != [sig numberOfArguments])
+		NSLog(@"mismatch in number of arguments");
 	[aCoder decodeArrayOfObjCType:@encode(char) count:len at:buffer];	// decode byte pattern for return value
 	// FIXME: how can we decode _validReturn?
 	[self setReturnValue:buffer];	// set value

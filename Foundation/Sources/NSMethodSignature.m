@@ -570,7 +570,7 @@ static NSMapTable *__methodSignatures;	// map C signature to NSMethodSignature
 	if((self=[super init]))
 		{
 		OBJC_MALLOC(methodTypes, char, strlen(t)+1);
-		strcpy(methodTypes, t);	// save C string
+		strcpy(methodTypes, t);	// save original C string - also used for indexing
 #if 0
 		NSLog(@"NSMethodSignature -> %s", methodTypes);
 #endif
