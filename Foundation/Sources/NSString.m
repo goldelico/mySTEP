@@ -3144,6 +3144,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSAutoreleasePool *pool;
 	Class c;
 
+	if (aString == nil)
+		return NO;
 	if (aString == self)
 		return YES;
 	c = object_getClass(aString);	// peer class
@@ -3844,6 +3846,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (BOOL) isEqualToString:(NSString*)aString
 {
 	Class c;
+	if (aString == nil)
+		return NO;
 	if (aString == self)
 		return YES;
 	c = object_getClass(aString);	// peer class
@@ -3962,9 +3966,11 @@ int __CFConstantStringClassReference [];
 
 - (BOOL) isEqualToString:(NSString*)aString
 {
+	if (aString == nil)
+		return NO;
 	if (aString == self)
 		return YES;
-	if (aString == nil || (_count != aString->_count))
+	if (_count != aString->_count)
 		return NO;
 	if(!aString->_cString)
 		{
