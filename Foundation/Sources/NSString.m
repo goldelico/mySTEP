@@ -2554,9 +2554,15 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSArray *r;
 	NSString *s;
 	NSEnumerator *e=[hdc objectEnumerator], *f=[path objectEnumerator];
+#if 0
+	NSLog(@"hd=%@", hd);
+	NSLog(@"hdc=%@", hdc);
+	NSLog(@"path=%@", path);
+#endif
 	while((s=[e nextObject]))
 		{
-		if(![s isEqualToString:[f nextObject]])
+		NSString *t=[f nextObject];
+		if(!t || ![s isEqualToString:t])
 			return [[self class] pathWithComponents:path];	// not prefixed
 		}
 	r=[f allObjects];	// all remaining components
