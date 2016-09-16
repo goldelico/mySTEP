@@ -85,7 +85,7 @@ struct NSArgumentInfo
 static void mySTEP_closureCallback(ffi_cif *cifp, void *retp, void **args, void *user)
 { // wrap into NSInvocation and call -forwardInvocation (if possible)
 	void *frame;
-#if 1
+#if 0
 	fprintf(stderr, "mySTEP_closureCallback called\n");
 #endif
 	NSMethodSignature *sig=(NSMethodSignature *) user;
@@ -99,7 +99,7 @@ static void mySTEP_closureCallback(ffi_cif *cifp, void *retp, void **args, void 
 	inv=[[[NSInvocation alloc] _initWithMethodSignature:sig argFrame:frame] autorelease];	// wrap passed arguments into NSInvocation
 	[sig _setArgument:NULL forFrame:frame atIndex:-1 retainMode:_INVOCATION_ARGUMENT_SET_NOT_RETAINED];	// nullify return value
 	target=[inv target];
-#if 1
+#if 0
 	NSLog(@"signature=%@", sig);
 	NSLog(@"self=%@", target);
 	NSLog(@"_cmd=%@", NSStringFromSelector([inv selector]));
@@ -128,7 +128,7 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 #ifdef __APPLE__
 	if(0) mySTEP_objc_msg_forward2(nil, NULL);	// silence compiler warning about unused function
 #endif
-#if 1
+#if 0
 	fprintf(stderr, "mySTEP_objc_msg_forward2 called\n");
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
@@ -138,7 +138,7 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 	m=class_getInstanceMethod(c, sel);
 	if(m)
 		types=method_getTypeEncoding(m);
-#if 1
+#if 0
 	fprintf(stderr, "types = %s\n", types);
 #endif
 	if(types)
@@ -153,7 +153,7 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 						format: @"%c[%s %s]: unrecognized selector sent to instance %p",
 								(class_isMetaClass(c) ? '+' : '-'),
 								class_getName(c), sel_getName(sel), receiver];
-#if 1
+#if 0
 	NSLog(@"mySTEP_objc_msg_forward2: sig = %@", sig);
 #endif
 #if 0
@@ -639,12 +639,15 @@ static NSMapTable *__methodSignatures;	// map C signature to NSMethodSignature
 	return info[index+1].qual;
 }
 
-static inline void *_getArgumentAddress(void *frame, int i)
+static inline void *_getArgumentAddress(void *frame, int i, BOOL byRef)
 {
 	if(!frame)
 		[NSException raise:NSInternalInconsistencyException format:@"missing stack frame"];
 	// requires that argument pointers are initialized!
-	return &((void **) frame)[i];
+	if(byRef)		// NOTE: with libffi we always have byRef=YES
+		return ((void **) frame)[i];	// fetch i-th pointer into frame
+	[NSException raise:NSInternalInconsistencyException format:@"can do byRef only"];
+	return NULL;
 }
 
 /* NOTE: the following functions use index -1 for the return value and 0 for the first argument! */
@@ -655,19 +658,14 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", index, numArgs];
-	addr=_getArgumentAddress(_argframe, index+1);
+	addr=_getArgumentAddress(_argframe, index+1, info[index+1].byRef);
 #if 0
 	NSLog(@"_getArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type);
 #endif
-	if(info[index+1].byRef)
-		memcpy(buffer, *(void**)addr, info[index+1].size);
-	else
-		{
 #if 0
 		NSLog(@"_getArgument memcpy(%p, %p, %lu);", buffer, addr, (unsigned long)info[index+1].size),
 #endif
-		memcpy(buffer, addr, info[index+1].size);
-		}
+	memcpy(buffer, addr, info[index+1].size);
 	return info[index+1].type;
 }
 
@@ -677,8 +675,8 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	NEED_INFO();
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", (long)index, numArgs];
-	addr=_getArgumentAddress(_argframe, index+1);
-#if 1
+	addr=_getArgumentAddress(_argframe, index+1, info[index+1].byRef);
+#if 0
 	NSLog(@"_setArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s mode=%d", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type, mode);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
@@ -687,7 +685,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 				return;	// no need to change
 			if(((*(char **)addr) && mode == _INVOCATION_ARGUMENT_SET_RETAINED) || mode == _INVOCATION_ARGUMENT_RELEASE)
 				{
-#if 1
+#if 0
 				NSLog(@"_setArgument free old %s", *(char **)addr);
 #endif
 				OBJC_FREE(*(char **)addr);
@@ -695,7 +693,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 			if(buffer && (*(char **)buffer) && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
 				{
 				char *tmp;
-#if 1
+#if 0
 				NSLog(@"_setArgument copy new %s", *(char **)buffer);
 #endif
 				OBJC_MALLOC(tmp, char, strlen(*(char **)buffer)+1);
@@ -705,7 +703,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 			else if(mode == _INVOCATION_ARGUMENT_RETAIN)
 				{
 				char *tmp;
-#if 1
+#if 0
 				NSLog(@"_setArgument copy current %s", *(char **)addr);
 #endif
 				OBJC_MALLOC(tmp, char, strlen(*(char **)buffer)+1);
@@ -720,21 +718,23 @@ static inline void *_getArgumentAddress(void *frame, int i)
 				return;	// no need to change
 			if(mode == _INVOCATION_ARGUMENT_SET_RETAINED || mode == _INVOCATION_ARGUMENT_RELEASE)
 				{ // release current value
-#if 1
+#if 0
 					NSLog(@"_setArgument release old %@", *(id*)addr);
 #endif
 					[*(id*)addr autorelease];	// this makes retainCount compatible with OS X
 				}
 			if(buffer && mode == _INVOCATION_ARGUMENT_SET_RETAINED)
 				{
-#if 1
+#if 0
 				NSLog(@"_setArgument retain new %@", *(id*)buffer);
 #endif
 				[*(id*)buffer retain];
 				}
 			else if(mode == _INVOCATION_ARGUMENT_RETAIN)
 				{
-#if 1
+#if 0
+				NSLog(@"_setArgument retain current %p", addr);
+				NSLog(@"_setArgument retain current %p", *(id*)addr);
 				NSLog(@"_setArgument retain current %@", *(id*)addr);
 #endif
 				[*(id*)addr retain];
@@ -743,37 +743,17 @@ static inline void *_getArgumentAddress(void *frame, int i)
 		}
 	if(buffer)
 		{
-		if(info[index+1].byRef)	// by reference
-			{
-#if 1
-			NSLog(@"_setArgument: memcpy(%p, %p, %lu);", *(void**)addr, buffer, (unsigned long)info[index+1].size),
+#if 0
+		NSLog(@"_setArgument memcpy(%p, %p, %lu);", addr, buffer, (unsigned long)info[index+1].size),
 #endif
-			memcpy(*(void**)addr, buffer, info[index+1].size);
-			}
-		else
-			{
-#if 1
-			NSLog(@"_setArgument memcpy(%p, %p, %lu);", addr, buffer, (unsigned long)info[index+1].size),
-#endif
-			memcpy(addr, buffer, info[index+1].size);
-			}
+		memcpy(addr, buffer, info[index+1].size);
 		}
 	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
-			if(info[index+1].byRef)	// by reference
-				{
-#if 1
-				NSLog(@"_setArgument: memset(%p, %ul, %lu);", *(void**)addr, 0, (unsigned long)info[index+1].size),
+#if 0
+		NSLog(@"_setArgument memset(%p, %ul, %lu);", addr, 0, (unsigned long)info[index+1].size),
 #endif
-				memset(*(void**)addr, 0, info[index+1].size);
-				}
-			else
-				{
-#if 1
-				NSLog(@"_setArgument memset(%p, %ul, %lu);", addr, 0, (unsigned long)info[index+1].size),
-#endif
-				memset(addr, 0, info[index+1].size);
-				}
+		memset(addr, 0, info[index+1].size);
 		}
 }
 
@@ -821,7 +801,7 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	ffi_status status;
 	if(!cif) [self _frameDescriptor];	// prepare cif
 	[[[_NSFFIClosure alloc] initWithClosure:&closure andImp:&imp] autorelease];
-#if 1
+#if 0
 	NSLog(@"_forwardingImplementation closure=%p imp=%p", closure, imp);
 #endif
 	if((status = ffi_prep_closure_loc(closure, cif, (void (*)(ffi_cif *, void *, void **, void *)) cb, self, imp)) != FFI_OK)
