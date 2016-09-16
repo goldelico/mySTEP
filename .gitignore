@@ -19,6 +19,5 @@ DerivedData
 # hide other subprojects
 CoreData/
 GNUstep/
-ObjC/
 SimpleWebKit/
 qemu-wheezy-vexpress/
