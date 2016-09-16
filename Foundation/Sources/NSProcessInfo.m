@@ -53,7 +53,9 @@ static void my_early_main(int argc, char* argv[], char* envp[])
 	__envp=envp;
 }
 
+#ifndef __APPLE__
 __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],char*[]) = &my_early_main;
+#endif
 
 @implementation NSProcessInfo
 
