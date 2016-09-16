@@ -780,18 +780,16 @@ struct c_c
 { // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
 	SEL sel=[anInvocation selector];
 	STAssertEqualObjects([anInvocation target], self, nil);
+	STAssertTrue(sel_isEqual(_cmd, @selector(forwardInvocation:));
 	invoked=-99;
-	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
+	NSLog(@"** self=%p _cmd=%p %@ sel=%p %@ called **", self, _cmd, NSStringFromSelector(_cmd), sel, NSStringFromSelector(sel));
 #if 0
 	NSLog(@"** self=%p _cmd=%p sel=%p %@ called **", self, _cmd, sel, NSStringFromSelector(sel));
 	NSLog(@"** Cstring %s **", "forward40");
 	NSLog(@"** %p - %p **", sel, @selector(forward40));
 	NSLog(@"** %02x - %02x **", *(char *)sel, *(char *)@selector(forward40));
 	NSLog(@"** %s - %s **", sel, @selector(forward40));
-#ifndef __APPLE__	// & SDK before 10.5
-
-	NSLog(@"** %s - %s **", sel_get_name(sel), sel_get_name(@selector(forward40)));
-#endif
+	NSLog(@"** %s - %s **", sel_getName(sel), sel_getName(@selector(forward40)));
 #endif
 	if(sel_isEqual(sel, @selector(forward40)))
 		{
