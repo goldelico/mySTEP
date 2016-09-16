@@ -159,7 +159,7 @@
 
 - (void) setReturnValue:(void *) buffer
 {
-#if 1
+#if 0
 	NSLog(@"setReturnValue: _argframe=%p", _argframe);
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
@@ -175,7 +175,7 @@
 	if(!_argsRetained)
 		{
 		int	i;
-#if 1
+#if 0
 		NSLog(@"retaining arguments %@", self);
 #endif
 		for(i = _validReturn?-1:0; i < _numArgs; i++)
@@ -379,7 +379,7 @@
 		}
 	if(!argframe)
 		{ // could not allocate
-#if 1
+#if 0
 			NSLog(@"_initWithMethodSignature: missing argframe");
 #endif
 			[self release];
@@ -408,7 +408,7 @@
 	if(_argsRetained && _argframe)
 		{
 		int	i;
-#if 1
+#if 0
 		NSLog(@"releasing arguments %@", self);
 #endif
 		for(i = 0; i < _numArgs; i++)
