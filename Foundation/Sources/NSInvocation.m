@@ -163,8 +163,10 @@
 	NSLog(@"setReturnValue: _argframe=%p", _argframe);
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
+	NSLog(@"a");
 #endif
 	[_sig _setArgument:buffer forFrame:_argframe atIndex:-1 retainMode:_argsRetained];
+	NSLog(@"b");
 	_validReturn = YES;
 }
 
@@ -301,7 +303,7 @@
 #endif
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer for return value and arguments
-	self=[self _initWithMethodSignature:sig retp:NULL args:NULL];
+	self=[self _initWithMethodSignature:sig argFrame:[sig _allocArgFrame]];
 	if(!self)
 		return nil;	// failed
 	// FIXME: raise exception?
@@ -328,7 +330,7 @@
 
 - (id) initWithMethodSignature:(NSMethodSignature*) aSignature
 { // undocumented in Cocoa but exists in some releases
-	return [self _initWithMethodSignature:aSignature retp:NULL args:NULL];
+	return [self _initWithMethodSignature:aSignature argFrame:[aSignature _allocArgFrame]];
 }
 
 - (id) copyWithZone:(NSZone *) z;
@@ -363,9 +365,9 @@
 	[_sig _logFrame:_argframe target:target selector:selector];
 }
 
-// this is called to initialize an NSInvocation for forwarding
+// this is called to initialize an NSInvocation with a malloc'ed argframe
 
-- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature retp:(void *) retp args:(void **) args
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature argFrame:(void *) argframe
 {
 #if 0
 	NSLog(@"NSInovcation _initWithMethodSignature:%@ retp:%p args:p", aSignature, retp, args);
@@ -375,22 +377,24 @@
 			[self release];
 			[NSException raise:NSInvalidArgumentException format:@"NSInvocation needs a method signature"];
 		}
+	if(!argframe)
+		{ // could not allocate
+#if 1
+			NSLog(@"_initWithMethodSignature: missing argframe");
+#endif
+			[self release];
+			[NSException raise:NSInvalidArgumentException format:@"NSInvocation needs an argframe"];
+		}
 	if((self=[super init]))
 		{
-		_sig = [aSignature retain];
-		_argframe = [_sig _allocArgFrame:retp args:args];
-		if(!_argframe)
-			{ // could not allocate
-#if 1
-				NSLog(@"_initWithMethodSignature: could not allocate _argframe");
-#endif
-				[self release];
-				return nil;
-			}
-		_types=[_sig _methodTypes];	// get method type
+		_sig=[aSignature retain];
+		_argframe=argframe;
 		_numArgs=[aSignature numberOfArguments];
 		_rettype=[_sig methodReturnType];
+		// FIXME: isn't used
 		_returnLength=[_sig methodReturnLength];
+		// FIXME: used only for debugging
+		_types=[_sig _methodTypes];	// get method type
 #if 0
 		NSLog(@"-[NSInvocation(%p) _initWithMethodSignature:%s] successfull", self, _types, argFrame);
 		NSLog(@"self target: %@", [self target]);

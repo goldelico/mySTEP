@@ -434,7 +434,7 @@ enum _INVOCATION_MODE {
 };
 
 - (void) _setArgument:(void *) buffer forFrame:(void *) _argframe atIndex:(NSInteger) index retainMode:(enum _INVOCATION_MODE) mode;
-- (void *) _allocArgFrame:(void *) retp args:(void **) args;
+- (void *) _allocArgFrame;
 - (BOOL) _call:(void *) imp frame:(void *) _argframe;
 - (id) _initWithObjCTypes:(const char *) t;
 - (const char *) _methodTypes;		// full method type string
@@ -452,7 +452,7 @@ enum _INVOCATION_MODE {
 
 @interface NSInvocation (NSPrivate)
 
-- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature retp:(void *) retp args:(void **) args;
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature argFrame:(void *) argframe;
 - (void) _releaseArguments;	// used by -dealloc
 - (void) _log:(NSString *) str;
 

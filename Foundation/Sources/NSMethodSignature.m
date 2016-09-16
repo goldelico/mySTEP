@@ -84,12 +84,21 @@ struct NSArgumentInfo
 
 static void mySTEP_closureCallback(ffi_cif *cifp, void *retp, void **args, void *user)
 { // wrap into NSInvocation and call -forwardInvocation (if possible)
+	void *frame;
 #if 1
 	fprintf(stderr, "mySTEP_closureCallback called\n");
 #endif
 	NSMethodSignature *sig=(NSMethodSignature *) user;
-	NSInvocation *inv=[[[NSInvocation alloc] _initWithMethodSignature:sig retp:retp args:args] autorelease];
-	id target=[inv target];
+	NSUInteger numArgs=[sig numberOfArguments];
+	int len=sizeof(void *) * (numArgs+1);
+	NSInvocation *inv;
+	id target;
+	OBJC_CALLOC(frame, char, len);
+	((void **) frame)[0]=retp;
+	memcpy(&((void **) frame)[1], args, numArgs*sizeof(*args));	// copy data area pointers
+	inv=[[[NSInvocation alloc] _initWithMethodSignature:sig argFrame:frame] autorelease];	// wrap passed arguments into NSInvocation
+	[sig _setArgument:NULL forFrame:frame atIndex:-1 retainMode:_INVOCATION_ARGUMENT_SET_NOT_RETAINED];	// nullify return value
+	target=[inv target];
 #if 1
 	NSLog(@"signature=%@", sig);
 	NSLog(@"self=%@", target);
@@ -638,6 +647,8 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	return &((void **) frame)[i];
 }
 
+/* NOTE: the following functions use index -1 for the return value and 0 for the first argument! */
+
 - (const char *) _getArgument:(void *) buffer fromFrame:(void *) _argframe atIndex:(NSInteger) index;
 { // extract argument from frame
 	char *addr;
@@ -667,8 +678,8 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d out of range (-1 .. %d).", (long)index, numArgs];
 	addr=_getArgumentAddress(_argframe, index+1);
-#if 0
-	NSLog(@"_setArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s mode=%d", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type, 1);
+#if 1
+	NSLog(@"_setArgument[%ld]:%p offset=%lu addr=%p[%lu] isReg=%d byref=%d type=%s mode=%d", (long)index, buffer, (unsigned long)info[index+1].offset, addr, (unsigned long)info[index+1].size, info[index+1].isReg, info[index+1].byRef, info[index+1].type, mode);
 #endif
 	if(mode != _INVOCATION_ARGUMENT_SET_NOT_RETAINED && info[index+1].type[0] == _C_CHARPTR)
 		{ // retain/copy C-strings if needed
@@ -733,10 +744,15 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	if(buffer)
 		{
 		if(info[index+1].byRef)	// by reference
+			{
+#if 1
+			NSLog(@"_setArgument: memcpy(%p, %p, %lu);", *(void**)addr, buffer, (unsigned long)info[index+1].size),
+#endif
 			memcpy(*(void**)addr, buffer, info[index+1].size);
+			}
 		else
 			{
-#if 0
+#if 1
 			NSLog(@"_setArgument memcpy(%p, %p, %lu);", addr, buffer, (unsigned long)info[index+1].size),
 #endif
 			memcpy(addr, buffer, info[index+1].size);
@@ -745,7 +761,12 @@ static inline void *_getArgumentAddress(void *frame, int i)
 	else if(mode != _INVOCATION_ARGUMENT_RELEASE)
 		{ // wipe out (used for handling the return value of -invoke with nil target)
 			if(info[index+1].byRef)	// by reference
+				{
+#if 1
+				NSLog(@"_setArgument: memset(%p, %ul, %lu);", *(void**)addr, 0, (unsigned long)info[index+1].size),
+#endif
 				memset(*(void**)addr, 0, info[index+1].size);
+				}
 			else
 				{
 #if 1
@@ -762,34 +783,22 @@ static inline void *_getArgumentAddress(void *frame, int i)
  * the first pointer is for the return value
  */
 
-- (void *) _allocArgFrame:(void *) retp args:(void **) args;
-{ // (re)allocate stack frame
+- (void *) _allocArgFrame;
+{ // allocate a new buffer that is large enough to hold the space for frameLength arguments and methodReturnLength
 	void *frame;
 	unsigned int len;
-	if(!args)
-		{ // allocate a new buffer that is large enough to hold the space for frameLength arguments and methodReturnLength
-			int i;
-			char *argp;
-			NEED_INFO();	// get valid argFrameLength and methodReturnLength
-			len=sizeof(void *) * (numArgs+1) + info[0].size + argFrameLength;
-			OBJC_CALLOC(frame, char, len);
-			argp=((char *) frame) + sizeof(void *) * (numArgs+1);	// start behind argument pointers
+	int i;
+	char *argp;
+	NEED_INFO();	// get valid argFrameLength and methodReturnLength
+	len=sizeof(void *) * (numArgs+1) + info[0].size + argFrameLength;
+	OBJC_CALLOC(frame, char, len);
+	argp=((char *) frame) + sizeof(void *) * (numArgs+1);	// start behind argument pointers
 #if 0
-			NSLog(@"allocated frame=%p..%p framelength=%d len=%d", frame, len + (char*) frame, argFrameLength, len);
+	NSLog(@"allocated frame=%p..%p framelength=%d len=%d", frame, len + (char*) frame, argFrameLength, len);
 #endif
-			for(i=0; i <= numArgs; i++)
-				{ // set up pointers into data area for returnValue and argument
-				((void **) frame)[i]=argp+info[i].offset;
-				}
-		}
-	else
-		{ // allocate with existing data area and pointers
-			NEED_INFO();	// get valid argFrameLength and methodReturnLength
-			len=sizeof(void *) * (numArgs+1);
-			OBJC_CALLOC(frame, char, len);
-			((void **) frame)[0]=retp;
-			memcpy(&((void **) frame)[1], args, numArgs*sizeof(*args));	// copy data area pointers
-			memset(_getArgumentAddress(frame, 0), 0, info[0].size);	// clear returnValue
+	for(i=0; i <= numArgs; i++)
+		{ // set up pointers into data area for returnValue and argument
+		((void **) frame)[i]=argp+info[i].offset;
 		}
 	return frame;
 }
