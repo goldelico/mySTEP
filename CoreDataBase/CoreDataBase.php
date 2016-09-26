@@ -160,22 +160,38 @@ class _CSV
 	protected $enclosure;
 	protected $columns;
 	protected $rows;
+	static $cache;
 
 	public static function fileTest($file)
 	{ // check if we can process this file as a table name
 		$c=pathinfo($file);
 		if(!isset($c['extension']))
 			return false;	// file w/o extension
-		return $c['extension'] == "csv" || $c['extension'] == "tsv";
+		return $c['extension'] == "csv" || $c['extension'] == "tsv" ||
+			$c['extension'] == "xls" || $c['extension'] == "html";
+	}
+
+	public static function newCSV($directory, $table)
+	{
+		$key="$directory/$table";
+		if(isset(_CSV::$cache[$key]))
+			return _CSV::$cache[$key];	// found in cache
+		$csv=new _CSV();
+		if(!$csv->open($directory, $table))
+			return null;	// failed to open
+		_CSV::$cache[$key]=$csv;
+		return $csv;
 	}
 
 	public function open($directory, $table)
 	{
+// echo "open $directory table $table\n";
 		if(($dh = opendir($directory)) === false)
 			return false;	// failed to open directory
 		while (($file = readdir($dh)) !== false)
 			{ // search for table name and .csv or .tsv extension
 			$c=pathinfo($file);
+// echo "try $file\n";
 			if(_CSV::fileTest($file))
 				{ // candidate
 				if($c['filename'] == $table)
@@ -183,15 +199,58 @@ class _CSV
 				}
 			}
 		closedir($dh);
+// echo "file $file\n";
 		if($file === false)
 			return null;	// not found
 		$this->file=$directory."/".$file;
 		$this->separator=",";
 		$this->enclosure="\"";
-		if(substr($this->file, -4) == ".tsv")
+		if(substr($file, -4) == ".tsv")
 			{
 			$this->separator="\t";
 			$this->enclosure="\n";	// should never occur
+			}
+		else if(substr($file, -4) == ".xls" || substr($file, -5) == ".html")
+			{ // try to read html
+			$doc = new DOMDocument();
+			$doc->strictErrorChecking = FALSE;
+			if(!$doc->loadHTMLFile($this->file))
+				{
+				NSLog("could not process $this->file as html");
+				return false;
+				}
+			$body=$doc->getElementsByTagName('body')->item(0);	// first
+			$table=$body->getElementsByTagName('table')->item(0);
+			$this->columns=array();
+			$this->rows=array();
+			foreach($table->getElementsByTagName('tr') as $tr)
+				{
+// print_r($tr);
+				foreach($tr->getElementsByTagName('th') as $th)
+					{
+// print_r($th);
+					$this->columns[]=$th->textContent;
+					}
+				unset($columns);
+				$idx=0;
+				foreach($tr->getElementsByTagName('td') as $td)
+					{
+// print_r($td);
+					if(count($this->columns) > 0)	// names are known
+						$columns[$this->columns[$idx++]]=$td->textContent;
+					else
+						$columns[$idx++]=$td->textContent;
+// echo $td->textContent."\n";
+					}
+				if(isset($columns))
+					{
+					if(count($this->columns) == 0)	// column names with <td>
+						$this->columns=$columns;
+					else
+						$this->rows[]=$columns;
+					}
+				}
+			return true;
 			}
 		if(!$handle = @fopen($this->file, "r"))
 			{
@@ -229,11 +288,42 @@ class _CSV
 			NSLog("could not write $this->file");
 			return false;
 			}
+		if(substr($this->file, -4) == ".xls" || substr($this->file, -5) == ".html")
+			{ // write as html table so that we can open in EXCEL/OpenOffice
+
+// Alternative: DOMDocument aufbauen und dann schreiben
+
+			fprintf(handle, "<head>\n");
+			fprintf(handle, "</head>\n");
+			fprintf(handle, "<body>\n");
+			fprintf(handle, "<table>\n");
+			fprintf(handle, "<tr>\n");
+			foreach($this->columns as $col)
+				fprintf(handle, "<th>".htmlentities($col)."</th>\n");
+			fprintf(handle, "</tr>\n");
+			foreach($this->rows as $record)
+				{
+				fprintf(handle, "<tr>\n");
+				foreach($this->columns as $col)
+					fprintf(handle, "<td>".htmlentities($record[$col])."</td>\n");
+				fprintf(handle, "</tr>\n");
+				}
+			fprintf(handle, "</table>\n");
+			fprintf(handle, "</body>\n");
+			fclose($handle);
+			return true;	// OK
+			}
 		if(!fputcsv($handle, $this->columns, $this->separator, $this->enclosure))
+			{
+			fclose($handle);
 			return false;
+			}
 		foreach($this->rows as $record)
 			if(!fputcsv($handle, $record, $this->separator, $this->enclosure))
+				{
+				fclose($handle);
 				return false;
+				}
 		fclose($handle);
 		return true;	// OK
 	}
@@ -266,9 +356,11 @@ class _CSV
 	{
 		if(isset($this->columns))
 			return false;	// already opened!
-		// use csv or tsv by default?
-		// or how can we control that?
-		$file=$directory."/".$table.".csv";
+		$c=pathinfo($table);
+		if(!isset($c['extension']))
+			$file=$directory."/".$table.".csv";
+		else
+			$file=$directory."/".$table;	// use suffx by table name
 		if(file_exists($file))
 			return false;	// table already esists
 		$this->file=$file;
@@ -379,8 +471,8 @@ class SQL extends NSObject
 
 	public function open($url, &$error)
 	{ // YES=ok
-		// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is revealed to the Web
-		// NSLog($url);
+// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is revealed to the Web
+// NSLog($url);
 		$c=parse_url($url);
 		if($c === false)
 			return false;	// invalid
@@ -388,8 +480,8 @@ class SQL extends NSObject
 		if($this->type == "mysql")
 			{
 			$socket="/opt/local/var/run/mysql5/mysqld.sock";	// MySQL as installed by MacPorts
-			// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is reveilled to the Web
-			// NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
+// don't enable if you have some $_GET['DEBUG'] magic in the App or the DB password is reveilled to the Web
+// NSLog("connect to ".$c['host']." ".$c['user']." ".$c['pass']);
 			// FIXME: should only remove the /
 			if(isset($c['path']))
 				$this->dbname=basename($c['path']);
@@ -411,12 +503,11 @@ class SQL extends NSObject
 			return isset($this->db);
 			}
 		if($this->type == "file")
-			{
+			{ // csv, tsv, html etc.
 			$this->dbname=$c['path'];	// directory name
 			return file_exists($c['path']);	// should we base on NSFileManager?
 			}
-		// ADDME: abstract csv/tsv (specify directory where file.csv or file.tsv are treated as individual tables)
-		return false;	// we speak only MySQL
+		return false;	// not supported
 	}
 
 	public function setDatabase($name)
@@ -456,13 +547,13 @@ NSLog("sql: $key");
 	{ // get identifier - potentially quoted in ``
 		$this->eat("", $sql);	// skip any whitespace
 NSLog("try to get ident: $sql");
-		if(preg_match("|([a-zA-Z_][a-zA-Z_0-9]*)|", $sql, $match))
-			{
+		if(preg_match("|^([a-zA-Z_][a-zA-Z_0-9]*)|", $sql, $match))
+			{ // standard identifier only
 			$ident=$match[1];
 			$sql=substr($sql, strlen($ident));	// remove ident
 			}
-		else if(preg_match("|`([a-zA-Z_][a-zA-Z_0-9]*)`|", $sql, $match))
-			{
+		else if(preg_match("|^`([^`]*)`|", $sql, $match))
+			{ // accept any character except `
 			$ident=$match[1];
 			$sql=substr($sql, strlen($ident)+2);	// remove ident and ``
 			}
@@ -489,13 +580,13 @@ NSLog("sql: $ident");
 				return null;	// column does not exist
 			return $row[$ident];
 			}
-		if(preg_match("|'(.*)'|", $sql, $match))
+		if(preg_match("|^'(.*)'|", $sql, $match))
 			{ // quoted string (does not handle escape sequences and embedded ' yet)
 			$str=$match[1];
 			$sql=substr($sql, strlen($str)+2);	// remove string
 			return $str;
 			}
-		if(preg_match("|'(-?[0-9][0-9]*)'|", $sql, $match))
+		if(preg_match("|^'(-?[0-9][0-9]*)'|", $sql, $match))
 			{
 			$val=0+$match[1];	// convert to PHP number
 			NSLog("sql: $val");
@@ -594,8 +685,7 @@ NSLog("sql: $ident");
 		else
 			$limit=-1;	// never becomes 0 (unless we wrap around for integers)
 		/* open table and fetch/filter results */
-		$db=new _CSV();
-		if(!$db->open($this->dbname, $table))
+		if(($db=_CSV::newCSV($this->dbname, $table)) == null)
 			return null;	// table does not exit
 		if($hasWhere || $limit >= 0)
 			{ // filter rows
@@ -722,12 +812,13 @@ NSLog("can't process for CSV file: $sql");
 		else if($this->type == "sqlite")
 			$query="SELECT name,sql FROM sqlite_master WHERE type=".$this->quote("table");
 		else if($this->type == "file")
-			{ // return all files with .*sv suffix
+			{ // return all files with .csv, .tsv etc. suffix
 			$tables=array();
 			if($dh = opendir($this->dbname))
 				{
 				while (($file = readdir($dh)) !== false)
 					if(_CSV::fileTest($file))
+// FIXME: strip off suffix!
 						$tables[]=$file;
 				}
 			closedir($dh);
