@@ -14,7 +14,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-void __dummy(void)
+void _Cocoa_dummy(void)
 {
 	[NSString class];	// reference Foundation
 	[NSWindow class];	// reference AppKit
