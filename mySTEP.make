@@ -627,12 +627,17 @@ endif
 
 make_php: bundle
 	# PHPSRCS: $(PHPSRCS)
-	for PHP in $(PHPSRCS); do \
-		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
+	for PHP in $(PHPSRCS); \
+	do \
+	if [ -r "$$PHP" ]; \
+		then \
+			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+		fi; \
 	done
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
+	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"
 	for SH in $(SHSRCS); do \
 		cp -p "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
