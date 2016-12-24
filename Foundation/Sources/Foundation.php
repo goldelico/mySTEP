@@ -436,6 +436,43 @@ function __load($path)
 	return false;
 	}
 
+class NSJSONSerialization extends NSObject
+{
+	public static function JSONObjectWithDataOptionsError($data, $options=0, &$error)
+	{
+		/* translate options
+		JSON_BIGINT_AS_STRING
+		*/
+		$val = json_decode($object);
+		if($val === null)
+			{
+			$error=json_last_error_msg();
+			return null;
+			}
+		return $val;
+	}
+
+	public static function dataWithJSONObjectOptionsError(NSObject $object, $options=0, &$error)
+	{
+		/* translate options
+		JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE
+		*/
+		$val = json_encode($object);
+		if($val === false)
+			{
+			$error=json_last_error_msg();
+			return null;
+			}
+		return $val;
+	}
+
+	public static function isValidJSONObject($object)
+	{
+		return dataWithJSONObjectOptionsError($object, 0, $error);
+	}
+
+}
+
 class NSBundle extends NSObject
 { // abstract superclass
 	protected $path;
