@@ -101,7 +101,7 @@ BOOL __NSCompareSockets(void *table, const void *addr1, const void *addr2)
 }
 
 static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
-    (unsigned(*)(NSMapTable *, const void *))__NSHashSocket,
+    (NSUInteger(*)(NSMapTable *, const void *))__NSHashSocket,
     (BOOL (*)(NSMapTable *, const void *, const void *))__NSCompareSockets,
     (void (*)(NSMapTable *, const void *anObject))__NSRetainNothing,
     (void (*)(NSMapTable *, void *anObject))__NSReleaseNothing,
