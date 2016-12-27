@@ -103,7 +103,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
 			__launchCurrentDirectory=[[fm currentDirectoryPath] retain];
+
 			// FIXME: can we streamline this a little? It appears that we do a lot of duplicate checks
+			// FIXME: use _NSGetExecutablePath() from NSObjCRuntime.h
+
 			if(![path isAbsolutePath])
 				{ // $0 is a relative path
 					NSString *PATH=[[pi environment] objectForKey:@"PATH"];

@@ -1155,6 +1155,21 @@ void __NSPrintAllocationCount(void)
 
 #endif
 
+extern int32_t NSVersionOfRunTimeLibrary(const char *libraryName)
+{
+	return -1;
+}
+extern int32_t NSVersionOfLinkTimeLibrary(const char *libraryName)
+{
+	return -1;
+}
+extern int _NSGetExecutablePath(char *buf, uint32_t *bufsize)
+{
+	// copy name of main executable to *buf, adjust *bufsize to real size and return 0
+	// on failure: don't change and return -1
+	return -1;
+}
+
 /*
  * Workaround for ARM-OABI systems with softfloat libraries and hardfloat CPU (e.g. OpenMoko Neo 1973)
  */
