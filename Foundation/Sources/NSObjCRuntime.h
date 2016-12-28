@@ -401,6 +401,10 @@ extern void NSCopyMemoryPages(const void *source, void *dest, NSUInteger bytes);
 extern void __NSCountAllocate(Class aClass);
 extern void __NSCountDeallocate(Class aClass);
 
+extern int32_t NSVersionOfRunTimeLibrary(const char *libraryName);
+extern int32_t NSVersionOfLinkTimeLibrary(const char *libraryName);
+extern int _NSGetExecutablePath(char *buf, uint32_t *bufsize);
+
 #ifdef DEBUG
 #define NSDebugLog(format, args...)	NSLog(format, args...)
 #else

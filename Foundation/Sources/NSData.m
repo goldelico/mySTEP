@@ -790,6 +790,7 @@ static IMP appendImp;
 			types[t] = '\0';
 
 			if (t)
+				// FIXME:
 				sel = sel_getTypedSelector(name);
 			else
 				sel = sel_registerName(name);
@@ -2137,6 +2138,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		const char *name = *(SEL*)data ? sel_getName(*(SEL*)data) : "";
 		unsigned ln = strlen(name);
 		const char *types = *(SEL*)data ?
+		// FIXME:
 		(const char*) sel_getTypeEncoding(*(SEL*)data) : "";
 		unsigned lt = strlen(types);
 		unsigned minimum = length + ln + lt + 2*sizeof(unsigned);

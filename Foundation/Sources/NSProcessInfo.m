@@ -63,7 +63,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 {
 	if(!__processInfo)
 		{
-		NSAutoreleasePool *pool;
+		NSAutoreleasePool *pool = [NSAutoreleasePool new];
 #if 0
 		fprintf(stderr, "NSProcessInfo not yet initialized because main() is not yet called\n");
 #endif
