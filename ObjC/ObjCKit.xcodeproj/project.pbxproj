@@ -407,7 +407,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\n./objc.qcodeproj";
+			shellScript = ./objc.qcodeproj;
 		};
 		EEEB4C051508D643000EE2E5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
