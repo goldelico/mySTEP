@@ -400,7 +400,7 @@ INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	then :; \
 	else echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
 	fi; done)
-LIBS := $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
