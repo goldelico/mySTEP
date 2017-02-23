@@ -631,7 +631,10 @@ make_php: bundle
 	do \
 	if [ -r "$$PHP" ]; \
 		then \
-			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && php -l "$$PHP" && cp -p "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
+			php -l "$$PHP" && \
+			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
+			chmod a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/$$PHP"; \
 		fi; \
 	done
 
@@ -639,7 +642,8 @@ make_sh: bundle
 	# SHSRCS: $(SHSRCS)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"
 	for SH in $(SHSRCS); do \
-		cp -p "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
+		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
+		chmod a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/$$SH"; \
 	done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
@@ -1009,6 +1013,7 @@ ifneq ($(strip $(RESOURCES)),)
 	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'ibtool --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
+	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"*	# write protect resources
 
 "$(BINARY)":: bundle headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
