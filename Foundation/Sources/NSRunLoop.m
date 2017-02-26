@@ -388,6 +388,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	int i, loop;
 	NSMutableArray *timers;
 	NSAutoreleasePool *arp;
+	NSUInteger _prevAllocated=__NSAllocatedObjects;
 	BOOL anyInput;
 	NSDate *limitDate=[NSDate distantFuture];	// default
 
@@ -592,6 +593,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		{
 		_current_mode = saved_mode;
 		[arp release];
+#if 1
+		if(__NSAllocatedObjects > _prevAllocated)
+			NSLog(@"leaked objects per loop %lu", __NSAllocatedObjects - _prevAllocated);
+#endif
 		return NO;	// don't wait - we have no watchers
 		}
 	
@@ -620,7 +625,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	if(select_return == 0)
 		{
 		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
-#if 0
+#if 1
 			{
 			extern void __NSPrintAllocationCount(void);
 			__NSPrintAllocationCount();
@@ -672,6 +677,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	else
 		[arp release];
+#if 1
+	if(__NSAllocatedObjects > _prevAllocated)
+		NSLog(@"leaked objects per loop %lu", __NSAllocatedObjects - _prevAllocated);
+#endif
 	return anyInput;
 }
 
