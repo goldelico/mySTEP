@@ -125,9 +125,6 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 	const char *types=NULL;
 	Method m;
 	Class c;
-#ifdef __APPLE__
-	if(0) mySTEP_objc_msg_forward2(nil, NULL);	// silence compiler warning about unused function
-#endif
 #if 0
 	fprintf(stderr, "mySTEP_objc_msg_forward2 called\n");
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
@@ -167,6 +164,10 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 
 static void free_ffi_type(ffi_type *type)
 {
+#ifdef __APPLE__
+	if(type == NULL)
+		mySTEP_objc_msg_forward2(nil, NULL);	// silence compiler warning about unused function
+#endif
 #if 0
 	NSLog(@"free ffi_type %p %d", type, type->type);
 #endif
