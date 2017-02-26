@@ -1092,11 +1092,36 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 		[self removeObject:[otherArray objectAtIndex:i]];
 }
 
+/* not very efficient! */
+
 - (void) removeObjectsInRange:(NSRange)aRange
 {
 	NSUInteger i = MIN(NSMaxRange(aRange), [self count]);
 	while (i-- > aRange.location)
 		[self removeObjectAtIndex: i];
+}
+
+- (void) removeObjectsAtIndexes:(NSIndexSet *)indexes
+{
+	NSUInteger i;
+	for (i = [indexes firstIndex]; i != NSNotFound; i=[indexes indexGreaterThanIndex:i])
+		[self removeObjectAtIndex: i];
+}
+
+- (void) insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes
+{
+	NSUInteger i=[indexes firstIndex], j=0, count=[objects count];
+	// assert(count, [indexes count]
+	for(j=0; j<count && i != NSNotFound; j++, i=[indexes indexGreaterThanIndex:i])
+		[self insertObject:[objects objectAtIndex:j] atIndex:i];
+}
+
+- (void) replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)objects
+{
+	NSUInteger i=[indexes firstIndex], j=0, count=[objects count];
+	// assert(count, [indexes count]
+	for(j=0; j<count && i != NSNotFound; j++, i=[indexes indexGreaterThanIndex:i])
+		[self replaceObjectAtIndex:i withObject:[objects objectAtIndex:j]];
 }
 
 /*
@@ -1105,7 +1130,8 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
  Written by Douglas C. Schmidt (schmidt@ics.uci.edu).
 
  Adapted to mySTEP by H. N. Schaller
- FIXME: improve further since we know SIZE=sizeof(id) - this can be used to optimize the SWAP macro and reduce argument passing
+ FIXME: improve further since we know SIZE=sizeof(id) -
+ this can be used to optimize the SWAP macro and reduce argument passing
 
  */
 
@@ -1114,17 +1140,17 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 
 /* Byte-wise swap two items of size SIZE. */
 
-#define SWAP(a, b, size)			      \
-do									      \
-{									      \
-register size_t __size = (size);					      \
-register char *__a = (a), *__b = (b);				      \
-do								      \
-{								      \
-char __tmp = *__a;						      \
-*__a++ = *__b;						      \
-*__b++ = __tmp;						      \
-} while (--__size > 0);						      \
+#define SWAP(a, b, size) \
+do \
+{ \
+register size_t __size = (size); \
+register char *__a = (a), *__b = (b); \
+do \
+{ \
+char __tmp = *__a; \
+*__a++ = *__b; \
+*__b++ = __tmp; \
+} while (--__size > 0); \
 } while (0)
 
 /* Discontinue quicksort algorithm when partition gets below this size.
