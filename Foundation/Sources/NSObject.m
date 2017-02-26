@@ -288,6 +288,9 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 	return class_respondsToSelector(self, aSelector);
 }
 
+#ifndef __APPLE__
+#if 0	// FIXME for __linux__
+
 /**
  * Returns a flag to say whether the receiving class conforms to aProtocol
  **/
@@ -300,8 +303,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject);
 
 static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
-#ifndef __APPLE__
-#if 0	// FIXME for __linux__
 	int i;
 	struct objc_protocol_list* proto_list;
 	if(strcmp(aProtocolObject->protocol_name, self->protocol_name) == 0)
@@ -314,10 +315,10 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 				return YES;
 			}
 		}
-#endif
-#endif
 	return NO;
 }
+#endif
+#endif
 
 + (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
