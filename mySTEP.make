@@ -808,7 +808,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
 	- chmod -R u+w "/tmp/$(TMP_DATA)"
-	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec -exec $(STRIP) {} \;
+	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l "/tmp/$(TMP_DATA).tar.gz"
@@ -957,9 +957,9 @@ launch_remote:
 ifeq ($(DEPLOY),true)
 ifeq ($(RUN),true)
 ifeq ($(WRAPPER_EXTENSION),app)
-    # DEPLOY: $(DEPLOY)
-    # RUN: $(RUN)
-    # RUN_CMD: $(RUN_CMD)
+	# DEPLOY: $(DEPLOY)
+	# RUN: $(RUN)
+	# RUN_CMD: $(RUN_CMD)
 	# try to launch deployed Application using our local Xquartz as a remote display
 	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
 	#
@@ -1014,7 +1014,7 @@ else ifeq ($(ARCHITECTURE),MacOS)
 endif
 
 resources:
-	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"*	2>/dev/null # unprotect resources
+	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"	2>/dev/null # unprotect resources
 # copy resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
