@@ -327,6 +327,7 @@ ifneq "$(strip $(SUBPROJECTS))" ""
 	done
 endif
 endif
+	@- chmod -R u+w build	# rm -rf refuses to delete files without write mode
 	@rm -rf build
 	@echo CLEAN
 
@@ -398,13 +399,29 @@ INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then :; \
-	else echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	else echo -I$$FMWK.headers; \
 	fi; done)
 LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
-	else echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
+	then echo $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
+	then echo $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
+	then echo $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
+	then echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	else echo lib$$FMWK.dylib; \
 	fi; done)
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
@@ -633,8 +650,9 @@ make_php: bundle
 		then \
 			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
 			php -l "$$PHP" && \
+			chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
-			chmod a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/$$PHP"; \
+			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
 	done
 
@@ -642,8 +660,9 @@ make_sh: bundle
 	# SHSRCS: $(SHSRCS)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"
 	for SH in $(SHSRCS); do \
+		chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
-		chmod a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/$$SH"; \
+		chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
@@ -768,6 +787,7 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	# DEBIAN_RECOMMENDS: $(DEBIAN_RECOMMENDS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	- chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
@@ -787,7 +807,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
-	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	- chmod -R u+w "/tmp/$(TMP_DATA)"
+	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec -exec $(STRIP) {} \;
 	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l "/tmp/$(TMP_DATA).tar.gz"
@@ -818,6 +839,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	-@ chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
@@ -827,6 +849,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	- chmod -R u+w "/tmp/$(TMP_DATA)"
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
@@ -861,6 +884,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	-@ chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
@@ -900,13 +924,13 @@ endif
 
 install_local:
 ifeq ($(INSTALL),true)
-    # INSTALL: $(INSTALL)
+	# INSTALL: $(INSTALL)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 ifeq ($(NAME_EXT),bin)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; $(TAR) xpvf -))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' && (pwd; $(TAR) xpvf -))
 else
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; $(TAR) xpvf - -U --recursive-unlink))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' && (pwd; $(TAR) xpvf - -U --recursive-unlink))
 endif
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
@@ -915,7 +939,7 @@ endif
 
 deploy_remote:
 ifeq ($(DEPLOY),true)
-    # DEPLOY: $(DEPLOY)
+	# DEPLOY: $(DEPLOY)
 	# deploy remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	# FIXME: does not copy $(DATA) and $(FILES)
@@ -990,6 +1014,7 @@ else ifeq ($(ARCHITECTURE),MacOS)
 endif
 
 resources:
+	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"*	2>/dev/null # unprotect resources
 # copy resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
