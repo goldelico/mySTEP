@@ -2338,7 +2338,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) lastPathComponent
 {
-	NSArray *components=[self pathComponents];
+	NSArray *components=[self _mutablePathComponents];
 	unsigned int cnt=[components count];
 	if(cnt < 1)
 		return @"";	// FIXME: what happens if we call this on NSMutableString??? -> return [[self class] stringWithString:@""];
@@ -2394,11 +2394,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) stringByAppendingPathComponent:(NSString*)aString
 { // return a new string with aString appended to reciever
   // FIXME: this is much less efficient than the old implementation - but handles the special cases like multiple /// correctly
-	NSMutableArray *s=[[[self pathComponents] mutableCopy] autorelease];
-	NSArray *a=[aString pathComponents];
+	NSMutableArray *s=[self _mutablePathComponents];
+	NSArray *a=[aString _mutablePathComponents];
 	[s addObjectsFromArray:a];	// append
 								//	NSLog(@"a=%@", s);
 	return [[self class] pathWithComponents:s];
+
 #if OLD
 	NSRange range;
 	NSString *newstring;
@@ -2422,7 +2423,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByAppendingPathExtension:(NSString*)aString
 { // returns a new string with the path extension given in aString appended to the receiver
-	NSMutableArray *a=[[[self pathComponents] mutableCopy] autorelease];
+	NSMutableArray *a=[self _mutablePathComponents];
 	NSString *last;
 	//	NSLog(@"0=%@", a);
 	if([a count] > 1 && [[a lastObject] isEqualToString:pathSepString])
@@ -2457,7 +2458,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByDeletingLastPathComponent
 {
-	NSMutableArray *components=[[self pathComponents] mutableCopy];
+	NSMutableArray *components=[self _mutablePathComponents];
 	unsigned int cnt=[components count];
 	//	NSLog(@"c=%@", components);
 	if(cnt > 0)
@@ -2468,7 +2469,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			[components removeLastObject];	// remove path component unless we are the first and a /
 		}
 	//	NSLog(@"d=%@", components);
-	return [[self class] pathWithComponents:[components autorelease]];
+	return [[self class] pathWithComponents:components];
 
 #if OLD
 	NSString *str=self;
@@ -2492,7 +2493,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByDeletingPathExtension
 {
-	NSMutableArray *components=[[self pathComponents] mutableCopy];
+	NSMutableArray *components=[self _mutablePathComponents];
 	unsigned int cnt=[components count];
 	//	NSLog(@"c=%@", components);
 	if(cnt > 0)
@@ -2527,7 +2528,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString *) stringByExpandingTildeInPath
 {
-	NSMutableArray *path=[[[self pathComponents] mutableCopy] autorelease];
+	NSMutableArray *path=[self _mutablePathComponents];
 	unsigned int cnt=[path count];
 	NSString *first=cnt > 0 ? [path objectAtIndex:0] : nil; // exists even for "/" - except vor ""
 	if([first hasPrefix:@"~"])
@@ -2549,8 +2550,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) stringByAbbreviatingWithTildeInPath
 {
 	NSString *hd=NSHomeDirectory();
-	NSArray *hdc=[hd pathComponents];
-	NSArray *path=[self pathComponents];
+	NSArray *hdc=[hd _mutablePathComponents];
+	NSArray *path=[self _mutablePathComponents];
 	NSArray *r;
 	NSString *s;
 	NSEnumerator *e=[hdc objectEnumerator], *f=[path objectEnumerator];
@@ -2627,7 +2628,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByStandardizingPath
 {
-	NSMutableArray *c=[[[[self stringByExpandingTildeInPath] pathComponents] mutableCopy] autorelease];
+	NSMutableArray *c=[[self stringByExpandingTildeInPath] _mutablePathComponents];
 	unsigned int cnt=[c count];
 	unsigned int i;
 	//	NSLog(@"a=%@", c);
@@ -2761,10 +2762,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return (_count > 0 && [self hasPrefix:pathSepString]);
 }
 
-- (NSArray*) pathComponents
+- (NSMutableArray*) _mutablePathComponents
 {
 	NSMutableArray *a = [[self componentsSeparatedByCharactersInSet: pathSeps] mutableCopy];
-	NSArray *r;
 	int	i = [a count];
 
 	if (i > 0)
@@ -2785,9 +2785,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			}
 		//		NSLog(@"c=%@", a);
 		}
-	r = [a copy];	// return an immutable copy
-	[a release];
-	return [r autorelease];
+	return [a autorelease];
+}
+
+- (NSArray*) pathComponents
+{ // return an immutable copy
+	return [[[self _mutablePathComponents] copy] autorelease];
 }
 
 - (NSArray*) stringsByAppendingPaths:(NSArray*)paths
