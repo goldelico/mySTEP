@@ -603,7 +603,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 - (NSString*) componentsJoinedByString:(NSString*)separator
 {
 	NSUInteger i;
-	id s = [NSMutableString stringWithCapacity:2]; 			// arbitrary capacity
+	id s = [NSMutableString stringWithCapacity:20];			// arbitrary capacity
 
 	if (_count < 1)
 		return s;
@@ -621,7 +621,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 - (NSArray*) pathsMatchingExtensions:(NSArray*)extensions
 {
 	NSUInteger i;
-	NSMutableArray *a = [NSMutableArray arrayWithCapacity: 1];
+	NSMutableArray *a = [NSMutableArray arrayWithCapacity:20];
 
 	for (i = 0; i < _count; i++)
 		{
