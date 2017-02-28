@@ -60,20 +60,44 @@ static NSArray *__bitmapImageRepsPNG;
 		}
 }
 
+#define PNG_HEADER_LENGTH 8
+
 + (BOOL) canInitWithData:(NSData *)data
 {
-	return [data length] > 6 && memcmp([data bytes], "\x89PNG\r\n", 6) == 0;
+	return data && [data length] > PNG_HEADER_LENGTH && !png_sig_cmp((png_bytep) [data bytes], 0, PNG_HEADER_LENGTH);
 }
 
 + (NSArray *) imageFileTypes				{ return __bitmapImageRepsPNG; }
 + (NSArray *) imageUnfilteredFileTypes		{ return __bitmapImageRepsPNG; }
 
+// we follow the description at http://santosdev.blogspot.de/2012/08/loading-png-image-with-libpng-1512-or.html
+// and https://github.com/xerpi/libvita2d/blob/master/libvita2d/source/vita2d_image_png.c
+
 static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-	if(!memcpy((void *)data, png_get_io_ptr(png_ptr), (size_t)length))
+	const char **png_data=png_get_io_ptr(png_ptr);
+#if 0
+	NSLog(@"png_read %p png_data=%p %p %lu", png_ptr, png_data, data, length);
+#endif
+	if(png_data == NULL || *png_data == NULL)
+		return;
+#if 0
+	NSLog(@"*png_data=%p", *png_data);
+#endif
+	if(!memcpy((void *)data, *png_data, (size_t)length))
 		png_error(png_ptr, "Read Error");
-	// this does not work - and we hope that the pointer is now maintained by libpng
-	//	*((char **) (&png_ptr->io_ptr)) += length;
+	(*png_data)+=length;	// advance pointer
+}
+
+static void png_read_NSInputStream(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+	NSInputStream *png_data=png_get_io_ptr(png_ptr);
+#if 1
+	NSLog(@"png_read_NSInputStream %p png_data=%p %p %lu", png_ptr, png_data, data, length);
+#endif
+	if(png_data == nil)
+		return;
+	[png_data read:data maxLength:length];
 }
 
 static void png_error_handler(png_structp png_ptr, png_const_charp error_message)
@@ -82,6 +106,8 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 	NSLog(@"PNG error: %s", error_message);
 	//	longjmp(png_ptr->jmpbuf, 1);	// png_structp is opaque :(
 }
+
+/* NOTE: as a special trick we can pass an NSInputStream object as data to directly read from a file */
 
 + (NSArray *) imageRepsWithData:(NSData *)data
 {
@@ -93,13 +119,30 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 	int bit_depth, color_type, intent;
 	unsigned long row_bytes;
 	int interlace_type, compression_type, filter_type;
-	const char *pin;
+	const char *png_data;
 	char *buffer;
 	BOOL alpha;
+	BOOL fromStream=[data isKindOfClass:[NSInputStream class]];
 	// png_color_16p background;
 	double screen_gamma = 2.2;				// A good guess for a PC monitor
-	NSAssert(data, @"PNG imageRep data is nil");		
-	pin = [data bytes];
+	NSAssert(data, @"PNG imageRep data is nil");
+	if(fromStream)
+		{ // check header
+		const unsigned char header[PNG_HEADER_LENGTH];
+		[(NSInputStream *) data read:(uint8_t *) header maxLength:PNG_HEADER_LENGTH];
+		if(png_sig_cmp((png_bytep) header, 0, PNG_HEADER_LENGTH))
+			return nil;	/* not a PNG */
+		}
+	else
+		{
+		png_data = [data bytes];
+#if 0
+		NSLog(@"PNG data %p", png_data);
+#endif
+
+		if(png_sig_cmp((png_bytep) png_data, 0, PNG_HEADER_LENGTH))
+			return nil;	/* not a PNG */
+		}
 
 	read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
 	if(!read_ptr)
@@ -124,16 +167,30 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 		png_destroy_read_struct(&read_ptr, &read_info_ptr, &end_info_ptr);
 		NSLog(@"error while decompressing PNG");
 //		[NSException raise:NSTIFFException format: @"invalid PNG image"];
+		abort();
 		return nil;
 		}
-
-	png_set_read_fn(read_ptr, (png_voidp)pin, png_read);
+	//	NSLog(@"png 1");
 	png_set_read_status_fn(read_ptr, NULL);
+	// NSLog(@"png 2");
+	if(fromStream)
+		{
+		png_set_read_fn(read_ptr, (png_voidp)data, png_read_NSInputStream);
+		png_set_sig_bytes(read_ptr, PNG_HEADER_LENGTH);	// header already read
+		}
+	else
+		{
+		png_set_read_fn(read_ptr, (png_voidp)&png_data, png_read);
+		// NSLog(@"png 3");
+		png_set_sig_bytes(read_ptr, 0);
+		}
+	// NSLog(@"png 4");
 	png_read_info(read_ptr, read_info_ptr);
+	// NSLog(@"png 5");
 
-	if (png_get_IHDR(read_ptr, read_info_ptr, &width, &height, &bit_depth,
+	if (!png_get_IHDR(read_ptr, read_info_ptr, &width, &height, &bit_depth,
 			&color_type, &interlace_type, &compression_type, &filter_type))
-		;
+		NSLog(@"error reading PNG IHDR");
 #if 0
 	NSLog(@"png: width=%d height=%d", width, height);
 #endif
@@ -165,6 +222,7 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 		else
 			png_set_gamma(read_ptr, screen_gamma, 0.45455);
 		}
+	// NSLog(@"png 6");
 
 	num_pass = png_set_interlace_handling(read_ptr);
 	png_read_update_info(read_ptr, read_info_ptr);
@@ -182,7 +240,7 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 						 bytesPerRow: row_bytes
 						 bitsPerPixel: png_get_bit_depth(read_ptr, read_info_ptr)] autorelease];
 
-    buffer = (char *) [imageRep bitmapData];
+	buffer = (char *) [imageRep bitmapData];
 
 	for (pass = 0; pass < num_pass; pass++)
 		{
@@ -207,12 +265,13 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 }
 												// Loads only the default image
 - (id) initWithData:(NSData *)data				// (first) from TIFF contained
-{										 		// in data.
+{												// in data.
 	return self;
 }
 
 static void png_write(png_structp png_ptr, png_bytep row, int pass)
 {
+	NSMutableData *png_data=png_get_io_ptr(png_ptr);
 	/* put your code here */
 }
 
@@ -227,110 +286,110 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
 		return nil;
 	data=[NSMutableData dataWithCapacity:([irep bytesPerPlane]*[irep numberOfPlanes]+1000)];	// should be enough for uncompressed data
 #if BITMAP_WRITING
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_error_fn, user_warning_fn);
-    png_infop info_ptr;
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_error_fn, user_warning_fn);
+	png_infop info_ptr;
 	if(!png_ptr)
 		return nil;
 	info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr)
-    {
-       png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-       return nil;
-    }
-    if (setjmp(png_jmpbuf(png_ptr)))
-    {
-       png_destroy_write_struct(&png_ptr, &info_ptr);
-       return nil;
-    }
+	if (!info_ptr)
+	{
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		return nil;
+	}
+	if (setjmp(png_jmpbuf(png_ptr)))
+	{
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		return nil;
+	}
 	// set png_ptr->ip_ptr to data object
 	val=[properties objectForKey:@"xxx"];	// get values for the following calls from properties
-    png_set_write_status_fn(png_ptr, png_write);
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-    png_set_compression_mem_level(png_ptr, 8);
-    png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
-    png_set_compression_window_bits(png_ptr, 15);
-    png_set_compression_method(png_ptr, 8);
-    png_set_compression_buffer_size(png_ptr, 8192);
+	png_set_write_status_fn(png_ptr, png_write);
+	png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+	png_set_compression_mem_level(png_ptr, 8);
+	png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
+	png_set_compression_window_bits(png_ptr, 15);
+	png_set_compression_method(png_ptr, 8);
+	png_set_compression_buffer_size(png_ptr, 8192);
 
 	png_set_IHDR(png_ptr, info_ptr, [irep width], [irep height],
-       bit_depth, color_type, interlace_type,
+				 bit_depth, color_type, interlace_type,
 				 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 /*
-    bit_depth      - holds the bit depth of one of the
-                     image channels.
-                     (valid values are 1, 2, 4, 8, 16
-                     and depend also on the
-                     color_type.  See also significant
-                     bits (sBIT) below).
-    color_type     - describes which color/alpha
-                     channels are present.
-                     PNG_COLOR_TYPE_GRAY
-                        (bit depths 1, 2, 4, 8, 16)
-                     PNG_COLOR_TYPE_GRAY_ALPHA
-                        (bit depths 8, 16)
-                     PNG_COLOR_TYPE_PALETTE
-                        (bit depths 1, 2, 4, 8)
-                     PNG_COLOR_TYPE_RGB
-                        (bit_depths 8, 16)
-                     PNG_COLOR_TYPE_RGB_ALPHA
-                        (bit_depths 8, 16)
+	bit_depth	  - holds the bit depth of one of the
+					 image channels.
+					 (valid values are 1, 2, 4, 8, 16
+					 and depend also on the
+					 color_type.  See also significant
+					 bits (sBIT) below).
+	color_type	 - describes which color/alpha
+					 channels are present.
+					 PNG_COLOR_TYPE_GRAY
+						(bit depths 1, 2, 4, 8, 16)
+					 PNG_COLOR_TYPE_GRAY_ALPHA
+						(bit depths 8, 16)
+					 PNG_COLOR_TYPE_PALETTE
+						(bit depths 1, 2, 4, 8)
+					 PNG_COLOR_TYPE_RGB
+						(bit_depths 8, 16)
+					 PNG_COLOR_TYPE_RGB_ALPHA
+						(bit_depths 8, 16)
 
-                     PNG_COLOR_MASK_PALETTE
-                     PNG_COLOR_MASK_COLOR
-                     PNG_COLOR_MASK_ALPHA
+					 PNG_COLOR_MASK_PALETTE
+					 PNG_COLOR_MASK_COLOR
+					 PNG_COLOR_MASK_ALPHA
 
-    interlace_type - PNG_INTERLACE_NONE or
-                     PNG_INTERLACE_ADAM7
+	interlace_type - PNG_INTERLACE_NONE or
+					 PNG_INTERLACE_ADAM7
 	*/
-    png_set_PLTE(png_ptr, info_ptr, palette, 0);
-    png_set_gAMA(png_ptr, info_ptr, 2.2);
+	png_set_PLTE(png_ptr, info_ptr, palette, 0);
+	png_set_gAMA(png_ptr, info_ptr, 2.2);
 /*
-    png_set_sRGB(png_ptr, info_ptr, srgb_intent);
-    srgb_intent    - the rendering intent
-                     (PNG_INFO_sRGB) The presence of
-                     the sRGB chunk means that the pixel
-                     data is in the sRGB color space.
-                     This chunk also implies specific
-                     values of gAMA and cHRM.  Rendering
-                     intent is the CSS-1 property that
-                     has been defined by the International
-                     Color Consortium
-                     (http://www.color.org).
-                     It can be one of
-                     PNG_sRGB_INTENT_SATURATION,
-                     PNG_sRGB_INTENT_PERCEPTUAL,
-                     PNG_sRGB_INTENT_ABSOLUTE, or
-                     PNG_sRGB_INTENT_RELATIVE.
+	png_set_sRGB(png_ptr, info_ptr, srgb_intent);
+	srgb_intent	- the rendering intent
+					 (PNG_INFO_sRGB) The presence of
+					 the sRGB chunk means that the pixel
+					 data is in the sRGB color space.
+					 This chunk also implies specific
+					 values of gAMA and cHRM.  Rendering
+					 intent is the CSS-1 property that
+					 has been defined by the International
+					 Color Consortium
+					 (http://www.color.org).
+					 It can be one of
+					 PNG_sRGB_INTENT_SATURATION,
+					 PNG_sRGB_INTENT_PERCEPTUAL,
+					 PNG_sRGB_INTENT_ABSOLUTE, or
+					 PNG_sRGB_INTENT_RELATIVE.
 
-    png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
-       srgb_intent);
-    srgb_intent    - the rendering intent
-                     (PNG_INFO_sRGB) The presence of the
-                     sRGB chunk means that the pixel
-                     data is in the sRGB color space.
-                     This function also causes gAMA and
-                     cHRM chunks with the specific values
-                     that are consistent with sRGB to be
-                     written.
+	png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
+	   srgb_intent);
+	srgb_intent	- the rendering intent
+					 (PNG_INFO_sRGB) The presence of the
+					 sRGB chunk means that the pixel
+					 data is in the sRGB color space.
+					 This function also causes gAMA and
+					 cHRM chunks with the specific values
+					 that are consistent with sRGB to be
+					 written.
 					  */
 	/* get iCCP from [irep colorSpace];
-    png_set_iCCP(png_ptr, info_ptr, name, NULL,
-                      profile, proflen);
-    name            - The profile name.
-    compression     - The compression type; always
-                      PNG_COMPRESSION_TYPE_BASE for PNG 1.0.
-                      You may give NULL to this argument to
-                      ignore it.
-    profile         - International Color Consortium color
-                      profile data. May contain NULs.
-    proflen         - length of profile data in bytes.
+	png_set_iCCP(png_ptr, info_ptr, name, NULL,
+					  profile, proflen);
+	name			- The profile name.
+	compression	 - The compression type; always
+					  PNG_COMPRESSION_TYPE_BASE for PNG 1.0.
+					  You may give NULL to this argument to
+					  ignore it.
+	profile		 - International Color Consortium color
+					  profile data. May contain NULs.
+	proflen		 - length of profile data in bytes.
 		*/
 
-    png_set_sBIT(png_ptr, info_ptr, 8);
-    png_set_tRNS(png_ptr, info_ptr, trans, num_trans, trans_values);
-    png_set_hIST(png_ptr, info_ptr, hist);
-    png_set_tIME(png_ptr, info_ptr, mod_time);
-    png_set_bKGD(png_ptr, info_ptr, background);
+	png_set_sBIT(png_ptr, info_ptr, 8);
+	png_set_tRNS(png_ptr, info_ptr, trans, num_trans, trans_values);
+	png_set_hIST(png_ptr, info_ptr, hist);
+	png_set_tIME(png_ptr, info_ptr, mod_time);
+	png_set_bKGD(png_ptr, info_ptr, background);
 /*
  text_ptr[i].compression - type of compression used
 		on "text" PNG_TEXT_COMPRESSION_NONE
@@ -349,33 +408,33 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
 																		 empty for unknown).
 									text_ptr[i].translated_keyword  - keyword in UTF-8 (NULL
 																						or empty for unknown).
-									num_text       - number of comments
+									num_text	   - number of comments
 									png_set_text(png_ptr, info_ptr, text_ptr, num_text);
 */
 	
-    png_set_pHYs(png_ptr, info_ptr, res_x, res_y, PNG_RESOLUTION_METER);	// here we may store size.width&size.height
-    png_set_sCAL(png_ptr, info_ptr, unit, width, height);	// ditto
-    png_set_sCAL_s(png_ptr, info_ptr, unit, "2.54", "2.54");
+	png_set_pHYs(png_ptr, info_ptr, res_x, res_y, PNG_RESOLUTION_METER);	// here we may store size.width&size.height
+	png_set_sCAL(png_ptr, info_ptr, unit, width, height);	// ditto
+	png_set_sCAL_s(png_ptr, info_ptr, unit, "2.54", "2.54");
 /*
  
-    Title            Short (one line) title or caption for image
-    Author           Name of image's creator
-    Description      Description of image (possibly long)
-    Copyright        Copyright notice
-    Creation Time    Time of original image creation (usually RFC 1123 format, see below)
-    Software         "mySTEP"
-    Disclaimer       Legal disclaimer
-    Warning          Warning of nature of content
-    Source           Device used to create the image
-    Comment          Miscellaneous comment; conversion from other image format
+	Title			Short (one line) title or caption for image
+	Author		   Name of image's creator
+	Description	  Description of image (possibly long)
+	Copyright		Copyright notice
+	Creation Time	Time of original image creation (usually RFC 1123 format, see below)
+	Software		 "mySTEP"
+	Disclaimer	   Legal disclaimer
+	Warning		  Warning of nature of content
+	Source		   Device used to create the image
+	Comment		  Miscellaneous comment; conversion from other image format
 */
 	
-//    png_set_invert_alpha(png_ptr);
-    png_write_info(png_ptr, info_ptr);
+//	png_set_invert_alpha(png_ptr);
+	png_write_info(png_ptr, info_ptr);
 	// setup row pointers png_byte *row_pointers[height]; -> malloc() them!
-    png_write_image(png_ptr, row_pointers);
-    png_write_end(png_ptr, info_ptr);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
+	png_write_image(png_ptr, row_pointers);
+	png_write_end(png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 #endif
 	return data;
 }
@@ -460,7 +519,7 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	
 	NSDebugLog (@"ReadGIFToBuf\n");
 	
-    while (RecordType != TERMINATE_RECORD_TYPE)
+	while (RecordType != TERMINATE_RECORD_TYPE)
 		{
 		if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
 			return 6;
