@@ -445,4 +445,38 @@ _classIsKindOfClass(Class c, Class aClass)
 		fprintf(stderr, "\n"); \
 	}
 
+#if 1
+
+#define LEAK(CALL) \
+	{ \
+	NSInteger p=__NSAllocatedObjects, p2; \
+	NSAutoreleasePool *arp=[NSAutoreleasePool new]; \
+	CALL; \
+	[arp release]; \
+	p2=__NSAllocatedObjects; \
+	if(p2 != p) \
+		NSLog(@"[%@ %@] allocation change %ld", NSStringFromClass([self class]), NSStringFromSelector(_cmd), p2 - p); \
+	}
+
+#define LEAK_OBJ(CALL) \
+	({ \
+	id r; \
+	NSInteger p=__NSAllocatedObjects, p2; \
+	NSAutoreleasePool *arp=[NSAutoreleasePool new]; \
+	r=CALL; \
+	[r retain]; \
+	[arp release]; \
+	p2=__NSAllocatedObjects; \
+	if(p2 != p) \
+	NSLog(@"[%@ %@] allocation change %ld", NSStringFromClass([self class]), NSStringFromSelector(_cmd), p2 - p); \
+	[r autorelease]; \
+	})
+
+#else
+
+#define LEAK(CALL) CALL
+#define LEAK_OBJ(CALL) CALL
+
+#endif
+
 #endif /* _mySTEP_H_NSObjCRuntime */
