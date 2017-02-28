@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 #
+# FIXME: the current directory must be the one that contains the .qcodeproj
+#
 ifeq (nil,null)   ## this is to allow for the following text without special comment character considerations
 #
 # This file is part of mySTEP
@@ -348,13 +350,14 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
+		EXIT=1; \
 		case "$$DEBIAN_ARCH" in \
 			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			macos ) export ARCHITECTURE=MacOS;; \
-			mystep ) export ARCHITECTURE=mySTEP;; \
+			macos ) export ARCHITECTURE=MacOS; EXIT=0;; \
+			mystep ) export ARCHITECTURE=mySTEP; EXIT=0;; \
 			all ) export ARCHITECTURE=all;; \
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
@@ -1014,7 +1017,7 @@ else ifeq ($(ARCHITECTURE),MacOS)
 endif
 
 resources:
-	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"	2>/dev/null # unprotect resources
+	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null # unprotect resources
 # copy resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
@@ -1038,7 +1041,7 @@ ifneq ($(strip $(RESOURCES)),)
 	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'ibtool --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
-	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"*	# write protect resources
+	- chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null	# write protect resources
 
 "$(BINARY)":: bundle headers $(OBJECTS)
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
@@ -1047,17 +1050,9 @@ endif
 	$(NM) -u "$(BINARY)"
 	# linked.
 ifeq ($(WRAPPER_EXTENSION),)
-ifeq ($(ARCHITECTURE),mySTEP)
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
-	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
-	# link binary
-else ifeq ($(ARCHITECTURE),MacOS)
-	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
-	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
-	# link binary
-endif
-endif
-ifeq ($(WRAPPER_EXTENSION),framework)
+	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
+else ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
 ifeq ($(ARCHITECTURE),mySTEP)
