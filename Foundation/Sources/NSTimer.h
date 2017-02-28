@@ -26,6 +26,7 @@
 @interface NSTimer : NSObject
 {
 	NSTimeInterval _interval;
+	NSTimeInterval _tolerance;
 	id _info;
 	id _target;
 	SEL _selector;
@@ -64,7 +65,9 @@
 - (void) invalidate;
 - (BOOL) isValid;
 - (void) setFireDate:(NSDate *) date;
+- (void) setTolerance:(NSTimeInterval) tolerance;
 - (NSTimeInterval) timeInterval;
+- (NSTimeInterval) tolerance;
 - (id) userInfo;
 
 @end

@@ -117,12 +117,14 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ fireDate:%@ interval:%.0lf%@%@",
+	return [NSString stringWithFormat:@"%@ fireDate:%@ interval:%.0lf%@%@ target:[%@ %@]",
 				NSStringFromClass([self class]),
 				_fireDate,
 				_interval,
 				_repeats?@" repeats":@"",
-				_is_valid?@"":@" invalid"];
+				_is_valid?@"":@" invalid",
+				NSStringFromClass([_target class]),
+				NSStringFromSelector(_selector)];
 }
 
 - (void) fire
@@ -187,7 +189,12 @@
 
 - (int) compare:(NSTimer*)anotherTimer
 {
-    return [_fireDate compare: anotherTimer->_fireDate];
+	return [_fireDate compare: anotherTimer->_fireDate];
 }
+
+/* ignored by our runloop... */
+- (void) setTolerance:(NSTimeInterval) tolerance; {	_tolerance=tolerance; }
+- (NSTimeInterval) tolerance; { return _tolerance; }
+
 
 @end
