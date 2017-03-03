@@ -361,7 +361,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"App Icon = %@", _appIcon);
 #endif
 #if 1
-		NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
+	NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
 #endif
 	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
 #if 1
