@@ -34,12 +34,12 @@
 
 @interface NSDirectoryEnumerator : NSEnumerator
 {
-    NSMutableArray *_enumStack;
-    NSMutableArray *_pathStack;
-    NSString *_fileName ;
-    NSString *_filePath;
-    NSString *_topPath;
-    struct __FileManagerFlags
+	NSMutableArray *_enumStack;
+	NSMutableArray *_pathStack;
+	NSString *_fileName;
+	NSString *_filePath;
+	NSString *_topPath;
+	struct __FileManagerFlags
 		{
 			unsigned int shallow:1;
 			unsigned int followLinks:1;
