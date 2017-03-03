@@ -62,7 +62,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	image=[self _imageNamed:aName inBundle:[NSBundle mainBundle]];
 	if(!image)
 		{
-#if 0
+#if 1
 		NSLog(@"could not find NSImage -imageNamed:%@", aName);
 #endif
 		[__nameToImageDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the image
@@ -336,6 +336,16 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (BOOL) setName:(NSString*)string
 {
+#if 0
+	NSLog(@"NSImage setName:%@", string);
+#endif
+	if([string length] == 0 && [_name length] > 0)
+		{ // clearing the name removes it from the dictionary
+		[[self retain] autorelease];
+		[__nameToImageDict removeObjectForKey:_name];	// remove from dictionary
+		ASSIGN(_name, nil);
+		return YES;
+		}
 	if(!string || [__nameToImageDict objectForKey: string])
 		return NO;	// if already in dictionary
 	ASSIGN(_name, string);
