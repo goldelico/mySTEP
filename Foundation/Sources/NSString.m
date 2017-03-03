@@ -2511,7 +2511,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			}
 		}
 	//	NSLog(@"d=%@", components);
-	return [[self class] pathWithComponents:[components autorelease]];
+	return [[self class] pathWithComponents:components];
 #if OLD
 	NSRange range = [self rangeOfString:[self pathExtension]
 								options:NSBackwardsSearch];
