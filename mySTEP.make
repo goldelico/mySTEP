@@ -931,9 +931,9 @@ ifeq ($(INSTALL),true)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 ifeq ($(NAME_EXT),bin)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' && (pwd; $(TAR) xpvf -))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf -))
 else
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' && (pwd; $(TAR) xpvf - -U --recursive-unlink))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf - -U --recursive-unlink))
 endif
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
