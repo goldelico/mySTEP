@@ -779,6 +779,8 @@ class NSButton extends NSControl
 					parameter("name", $this->elementId."-ck");
 					parameter("value", _htmlentities($this->title));
 			}
+		if(!$this->enabled)
+			parameter("disabled", "");
 		if(isset($this->altTitle))
 			{ // use CSS to change contents on hover
 			}
