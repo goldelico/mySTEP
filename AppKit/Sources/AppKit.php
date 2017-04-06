@@ -698,6 +698,10 @@ class NSButton extends NSControl
 		}
 	public function setSelected($value)
 		{
+/*		_NSLog("setSelected");
+		_NSLog($this->state);
+		_NSLog($value);
+*/
 		$this->setState($value?NSOnState:NSOffState);
 		}
 	public function description() { return parent::description()." ".$this->title; }
@@ -720,11 +724,17 @@ class NSButton extends NSControl
 	public function state() { return $this->state; }
 	public function setState($value)
 		{
+/*		_NSLog("setState");
+		_NSLog($this->state);
+		_NSLog($value);
+*/
 		if($value == $this->state)
 			return;
 		$this->state=$this->_persist("state", $value);
 		$this->setNeedsDisplay();
+//		_NSLog($this->state);
 		}
+	public function setObjectValue($val) { /*_NSLog("setObjectValue"); _NSLog($val);*/ $this->setSelected($val != ""); /*_NSLog($this->state);*/ }
 	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
@@ -1203,6 +1213,7 @@ class NSImageView extends NSControl
 // _NSLog($img);
 		$this->setNeedsDisplay();
 		}
+	public function setObjectValue(NSObject $img=null) { $this->setImage($img); }
 	public function setFrameSize($size)
 		{
 // _NSLog("setFrameSize($size)");
@@ -1746,6 +1757,10 @@ class NSTableColumn extends NSObject
 	public function setAlign($align) { $this->align=$align; }
 	public function width() { return $this->width; }
 	public function setWidth($width) { $this->width=$width; }
+	public function dataCell() { return $this->dataCell; }
+	public function headerCell() { return $this->headerCell; }
+	public function setDataCell(NSView $cell) { $this->dataCell=$cell; }
+	public function setHeaderCell(NSView $cell) { $this->headerCell=$cell; }
 }
 
 // IDEA:
@@ -1895,17 +1910,30 @@ class NSTableView extends NSControl
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
 				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
-				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				parameter("align", $column->align());
 				parameter("width", $column->width());
+// FIXME: make the element handle onclick...
+				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-					// we should insert that into the $column->cell->setObjectValue
-					// $item->draw();
-					// so that we can use the cell's style & editing capabilities
-					html(_htmlentities($item));
+					$cell=$column->dataCell();
+					if(!is_null($cell))
+						{ // insert value into cell and let the cell do the formatting
+						// how can we pass down the onclick handler?
+						$cell->setObjectValue($item);
+						$cell->draw();
+						}
+					// compatibility if no cells are defined
+					else if(is_object($item) && $item->respondsToSelector("draw"))
+						{
+						$item->draw();
+						}
+					else
+						{
+						html(_htmlentities($item));
+						}
 					}
 				else
 					html("&nbsp;");	// add empty rows
