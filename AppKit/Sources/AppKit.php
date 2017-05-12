@@ -240,7 +240,7 @@ class NSResponder extends NSObject
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
 	public static function _objectForId($id) { return isset(self::$objects[$id])?self::$objects[$id]:null; }
-	protected function elementId() { return $this->elementId; }
+	public function elementId() { return $this->elementId; }
 }
 
 class NSApplication extends NSResponder
@@ -666,6 +666,7 @@ class NSButton extends NSControl
 	protected $state;
 	protected $buttonType;
 	protected $keyEquivalent;	// set to "\r" to make it the default button
+	protected $backgroundColor;
 	public function __construct($newtitle = "NSButton", $type="Button")
 		{
 		parent::__construct();
@@ -721,6 +722,14 @@ class NSButton extends NSControl
 		$this->altTitle=$title;
 		$this->setNeedsDisplay();
 		}
+	public function backgroundColor() { return $this->backgroundColor; }
+	public function setBackgroundColor($color)
+		{
+		if($color == $this->backgroundColor)
+			return;
+		$this->backgroundColor=$color;
+		$this->setNeedsDisplay();
+		}
 	public function state() { return $this->state; }
 	public function setState($value)
 		{
@@ -754,6 +763,8 @@ class NSButton extends NSControl
 			parameter("class", "NSButton ".(!$this->isSelected()?"NSOnState":"NSOffState"));
 		else
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
+		if($this->backgroundColor)
+			parameter("style", "background-color: ".$this->backgroundColor);
 		switch($this->buttonType)
 			{
 // if checkbox/radio action is defined -> add onclick handler
@@ -1967,6 +1978,14 @@ class NSTextField extends NSControl
 	public function setEditable($flag) { $this->isEditable=$flag; $this->setNeedsDisplay(); }
 	public function placeholderString() { return $this->placeholder; }
 	public function setPlaceholderString($str) { $this->placeholder=$str; $this->setNeedsDisplay(); }
+	public function backgroundColor() { return $this->backgroundColor; }
+	public function setBackgroundColor($color)
+		{
+		if($color == $this->backgroundColor)
+			return;
+		$this->backgroundColor=$color;
+		$this->setNeedsDisplay();
+		}
 	public function __construct($width=30, $stringValue = null, $name = null)
 	{
        		parent::__construct();
@@ -2007,6 +2026,8 @@ class NSTextField extends NSControl
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
+			if($this->backgroundColor)
+				parameter("style", "background-color: ".$this->backgroundColor);
 			if($this->placeholder)
 				parameter("placeholder", $this->placeholder);
 			// FIXME: _setName should allow to set a global name, e.g. "username" or "password"
