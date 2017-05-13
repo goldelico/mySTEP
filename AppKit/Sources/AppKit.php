@@ -606,6 +606,11 @@ class NSView extends NSResponder
 		if(isset($this->tooltip) && $this->tooltip)
 			html("</span>\n");
 		}
+	public function displayDone()
+		{ // notify all subview
+		foreach($this->subviews as $view)
+			$view->displayDone();
+		}
 	public function setToolTip($str=null) { $this->tooltip=$str; }
 	public function toolTip() { return $this->tooltip; }
 	public function draw()
@@ -1585,6 +1590,7 @@ class NSTabViewItem extends NSObject
 	protected $identifier;
 	protected $label;
 	protected $view;
+
 	public function identifier() { return $this->label; }
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
@@ -1598,10 +1604,11 @@ class NSTabViewItem extends NSObject
 		$this->label=$label;
 		$this->view=$view;
 		}
+
 	/* AppKit.php extension */
-	protected $isHidden;
-	public function isHidden() { return $this->isHidden; }
-	public function setHidden($flag) { $this->isHidden=$flag; }
+	protected $hidden;
+	public function isHidden() { return $this->hidden; }
+	public function setHidden($flag) { $this->hidden=$flag; }
 	}
 
 class NSTabView extends NSControl
@@ -1732,7 +1739,7 @@ class NSTabView extends NSControl
 		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
 		if(!is_null($selectedItem))
-			$selectedItem->view()->display();	// draw current tab
+			$selectedItem->view()->display();
 		else
 			html(_htmlentities("No tab for index ".$this->selectedIndex));
 		html("</td>");
@@ -1750,7 +1757,7 @@ class NSTableColumn extends NSObject
 	protected $identifier="";
 	protected $width="*";
 	protected $isEditable=false;
-	protected $isHidden=false;
+	protected $hidden=false;
 	protected $align="";
 	protected $headerCell;
 	protected $dataCell;
@@ -1760,8 +1767,8 @@ class NSTableColumn extends NSObject
 	public function setTitle($title) { $this->title=$title; }
 	public function identifier() { return $this->identifier; }
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
-	public function isHidden() { return $this->isHidden; }
-	public function setHidden($flag) { $this->isHidden=$flag; }
+	public function isHidden() { return $this->hidden; }
+	public function setHidden($flag) { $this->hidden=$flag; }
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag) { $this->isEditable=$flag; }
 	public function align() { return $this->align; }
@@ -1975,7 +1982,16 @@ class NSTextField extends NSControl
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; $this->setNeedsDisplay(); }
 	public function isEditable() { return $this->isEditable; }
-	public function setEditable($flag) { $this->isEditable=$flag; $this->setNeedsDisplay(); }
+	public function setEditable($flag, $name=null)
+		{
+		$this->isEditable=$flag;
+		if(!is_null($name))
+			{
+			$this->name=$name;	// override
+			$this->setStringValue(_persist($this->name, ""));
+			}
+		$this->setNeedsDisplay();
+		}
 	public function placeholderString() { return $this->placeholder; }
 	public function setPlaceholderString($str) { $this->placeholder=$str; $this->setNeedsDisplay(); }
 	public function backgroundColor() { return $this->backgroundColor; }
@@ -2007,15 +2023,16 @@ class NSTextField extends NSControl
 // _NSLog($this);
 		$this->sendAction();
 		}
-	public function display()
+	public function displayDone()
 		{
 		if($this->isHidden())
 			{ // persist stringValue even if text field is currently hidden
 			if($this->isEditable && $this->type != "password")
 				_persist($this->name, $this->stringValue);
-			return;
 			}
-		parent::display();
+		else if($this->isEditable)
+			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
+		parent::displayDone();
 		}
 	public function draw()
 		{
@@ -2047,7 +2064,6 @@ class NSTextField extends NSControl
 					break;
 				}
 			html("/>\n");
-			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
 			}
 		else
 			{
@@ -2120,7 +2136,11 @@ class NSTextView extends NSControl
 		html(">");
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
+		}
+	public function displayDone()
+		{
 		$this->_persist("string", "", "");	// remove from persistence store
+		parent::displayDone();
 		}
 }
 
@@ -2277,7 +2297,8 @@ class NSWindow extends NSResponder
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
-		$this->contentView->display();
+		$this->contentView->display();	// handles isHidden
+		$this->contentView->displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
 		global $persist;
 		foreach($persist as $object => $value)
