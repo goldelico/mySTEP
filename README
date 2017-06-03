@@ -7,6 +7,11 @@ VERSION
   
   Some parts are coming from GNUstep. Others
   are even shared with GNUstep (CoreData, SimpleWebKit).
+
+  License for all files in this source code package are made available
+  under LGPL (even if file contents tell it differently because we were
+  too lazy to fix it).
+
   
 LICENSE
 
