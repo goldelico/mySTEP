@@ -588,10 +588,14 @@ class NSView extends NSResponder
 		$this->hidden=$flag;
 		$this->setNeedsDisplay();
 		}
+	public function willDisplay()
+		{
+		}
 	public function display()
 		{ // draw subviews first
 		if($this->hidden)
 			return;	// hide - including subviews
+		$this->willDisplay();	// call before subviews
 //		NSLog("<!-- ".$this->elementId." -->");
 		if(isset($this->tooltip) && $this->tooltip)
 			{
@@ -660,6 +664,7 @@ NSLog($this->description()." sendAction $action");
 	public function align() { return $this->align; }
 	public function draw()
 		{
+// _NSLog($this);
 		$this->cell->drawCell();
 		}
 	}
@@ -1879,6 +1884,7 @@ class NSTableView extends NSControl
 		// then call doubleAction (if defined) or check if NSTableColumn is editable
 		$this->selectRow($this->clickedRow);
 		}
+	public function draw() { _NSLog("don't call NSTableView -> draw()"; }
 	public function display()
 		{
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
@@ -2146,28 +2152,74 @@ class NSTextView extends NSControl
 
 // NSClipView? with different overflow-setting?
 
+// initially we only control the scrollers of the NSWindow and keep them stable after reload
 class NSScrollView extends NSView
 {
-	public function draw()
+	protected $point;
+
+	public function __construct()
+		{
+// FIXME: does not work properly :(
+       		parent::__construct();
+		$this->point=NSMakePoint(_persist('scrollerX', null), _persist('scrollerX', null));
+// _NSLog("point");
+// _NSLog($this->point);
+		}
+
+	public function scrollTo($point)
+		{ // use NSMakePoint
+		$this->point=$point;
+		}
+
+	public function willDisplay()
 		{
 		if($this->hidden)
 			return;
-		html("<div");
-		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
-		html(">");
-		foreach($this->subviews as $item)
-			$item->display();
-		html("</div>");
+//		html("<div");
+//		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
+//		html(">");
+		}
+
+	public function display()
+		{
+		if($this->hidden)
+			return;
+		// +0 is to protect against code injection through manipulated point coordinates not being numerical
+		$x=$this->point['x']+0;
+		$y=$this->point['y']+0;
+		if($x != 0 || $y != 0)
+			{
+			html("<script");
+			parameter("type", "text/javascript");
+			html(">");
+			html("window.scrollTo($x, $y)");
+			html("</script>\n");
+			}
+		parent::display();
+//		html("</div>");
 		}
 }
 
 class NSWindow extends NSResponder
 {
 	protected $title;
-	protected $contentView;
+	protected $scrollView;
 	protected $heads="";
-	public function contentView() { return $this->contentView; }
-	public function setContentView(NSView $view) { $this->contentView=$view; $view->setWindow($this); }
+
+	public function contentView()
+		{
+		if(isset($this->scrollView->subviews()[0]))
+			return $this->scrollView->subviews()[0];	// first subview
+		return null;
+		}
+	public function setContentView(NSView $view)
+		{
+		$cv=$this->contentView();
+		if(!is_null($cv))
+			$this->scrollView->_removeSubView($cv);
+		$this->scrollView->addSubView($view);
+		$this->scrollView->setWindow($this);
+		}
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function _addToHead($line) { $this->heads.=$line."\n"; }
@@ -2176,7 +2228,7 @@ class NSWindow extends NSResponder
 		{
 		global $NSApp;
 		parent::__construct();
-		$this->setContentView(new NSView());
+		$this->scrollView=new NSScrollView();
 		if($NSApp->mainWindow() == null)
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
@@ -2240,7 +2292,7 @@ class NSWindow extends NSResponder
 		html("function e(v){document.forms[0].NSEvent.value=v;};");
 		html("function r(v){document.forms[0].clickedRow.value=v;};");
 		html("function c(v){document.forms[0].clickedColumn.value=v;}");
-		html("function s(){document.forms[0].submit();}");
+		html("function s(){document.forms[0].scrollerX.value=window.pageXOffset;document.forms[0].scrollerY.value=window.pageYOffset;document.forms[0].submit();}");
 		html("</script>");
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
@@ -2293,12 +2345,22 @@ class NSWindow extends NSResponder
 		parameter("name", "clickedColumn");
 		parameter("value", "");	// can be set by the c(n) function in JavaScript
 		html(">\n");
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", "scrollerX");
+		parameter("value", "");	// can be set by the s(n) function in JavaScript
+		html(">\n");
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", "scrollerY");
+		parameter("value", "");	// can be set by the s(n) function in JavaScript
+		html(">\n");
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
-		$this->contentView->display();	// handles isHidden
-		$this->contentView->displayDone();	// can handle special persistence processing
+		$this->scrollView->display();	// handles isHidden
+		$this->scrollView->displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
 		global $persist;
 		foreach($persist as $object => $value)
