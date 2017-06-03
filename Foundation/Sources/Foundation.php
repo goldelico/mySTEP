@@ -92,20 +92,24 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 		echo "<b>ERROR</b> [$errno] $errstr<br />\n";
 		echo "  Fatal error on line $errline in file $errfile";
 		echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+		debug_print_backtrace();
 		echo "Aborting...<br />\n";
 		exit(1);
 		break;
 
 	case E_USER_WARNING:
 		_NSLog("<b>WARNING</b> [$errno] $errstr on line $errline in file $errfile");
+		debug_print_backtrace();
 		break;
 
 	case E_USER_NOTICE:
 		_NSLog("<b>NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
+		debug_print_backtrace();
 		break;
 
 	default:
 		_NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
+		debug_print_backtrace();
 		break;
 	}
 
@@ -113,7 +117,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 	return true;
 }
 
-$old_error_handler = set_error_handler("myErrorHandler");
+$old_error_handler = set_error_handler('myErrorHandler');
 
 class NSObject /* root class */
 	{
