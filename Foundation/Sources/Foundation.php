@@ -982,7 +982,13 @@ class NSFileManager extends NSObject
 			if($file == "." || $file == "..")
 				continue;	// skip
 			$file=$path."/".$file;
-			// check for directory recursion
+			if($this->fileExistsAtPathAndIsDirectory($file, $isDir))
+				{
+				if($isDir)
+					$result=array_merge($result, $this->subpathsAtPath($file));
+				else
+					$result[]=$file;
+				}
 			}
 		return $result;
 		}
