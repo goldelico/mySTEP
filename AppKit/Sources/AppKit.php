@@ -1884,7 +1884,7 @@ class NSTableView extends NSControl
 		// then call doubleAction (if defined) or check if NSTableColumn is editable
 		$this->selectRow($this->clickedRow);
 		}
-	public function draw() { _NSLog("don't call NSTableView -> draw()"; }
+	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
 	public function display()
 		{
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
@@ -1934,7 +1934,7 @@ class NSTableView extends NSControl
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
 				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
-				parameter("align", $column->align());
+				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
 // FIXME: make the element handle onclick...
 				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
@@ -2152,6 +2152,10 @@ class NSTextView extends NSControl
 
 // NSClipView? with different overflow-setting?
 
+class NSClipView extends NSView
+{
+}
+
 // initially we only control the scrollers of the NSWindow and keep them stable after reload
 class NSScrollView extends NSView
 {
@@ -2229,6 +2233,7 @@ class NSWindow extends NSResponder
 		global $NSApp;
 		parent::__construct();
 		$this->scrollView=new NSScrollView();
+		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
 		if($NSApp->mainWindow() == null)
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
