@@ -1003,57 +1003,92 @@ date_default_timezone_set("Europe/Berlin");
 
 class NSDate extends NSObject
 	{
-	protected $timestamp;
+	protected /* float */ $timestamp;
 
 	public function __construct($timestamp=null)
 		{
 		parent::__construct();
 		if(is_null($timestamp))
-			$timestamp=time();
+			$timestamp=microtime(true);
 		$this->timestamp=$timestamp;
 		}
 
-	public static function date() { $r=new NSDate(); return $r; }
-
-	public function description()
+	public static function date() { return new NSDate(); }
+	public static function dateWithTimeIntervalSinceNow($interval)
 		{
-		// return formatted string
+		return new NSDate(microtime(true)+$interval);
 		}
 
-	public function dateWithString($str)
-		{ // YYYY-MM-DD HH:MM:SS ±HHMM
-		
+	public static function dateWithTimeIntervalSince1970($interval)
+		{ // seconds since 1 January 1970 00:00:00 UTC
+		return new NSDate($interval);
 		}
 
-	public function dateWithTimeIntervalSince1970($interval)
-		{
-		
+	public static function dateWithTimeIntervalSinceReferenceDate($interval)
+		{ // seconds since 1 January 2001 00:00:00 UTC
+		return new NSDate(REF+$interval);
 		}
 
-	public function dateWithTimeIntervalSinceNow()
+	public static function dateWithComponents($year, $month, $day, $hour, $minute, $second)
 		{
-		
-		}
+// FIXME: handle fraction of seconds by truncation/rounding
+		new NSDate(mktime($hour, $minute, $second, $month, $day, $year));				}
 
-	public function dateWithTimeIntervalSinceReferenceDate()
-		{
-		
+	public static function dateWithString($string)
+		{ // prose...
+		return new NSDate(strtotime($string));
 		}
 
 	public function timeIntervalSinceReference1970()
 		{
-		return $timestamp;
+		return $this->timestamp;
 		}
 
 	public function timeIntervalSinceNow()
 		{
-		
+		return $this->timestamp-microtime(true);
 		}
 
 	public function timeIntervalSinceReferenceDate()
 		{
-		
+		return $this->timestamp-REF;		
 		}
+
+	public function stringFromDate($str)
+		{ // uses POSIX formatting and not PHP!
+		setlocale(LC_TIME, "C");
+		return strftime($str, $this->timestamp);
+		}
+
+	public function description()
+		{ // YYYY-MM-DD HH:MM:SS ±HHMM
+		return $this->stringFromDate("%Y-%m-%d %H:%M:%S %Z");
+		}
+
+// should this go to CoreDataBase?
+
+	public static function dateWithSQLDateTime($string)
+		{ // YYYY-MM-DD [HH:MM:SS]
+		if($string == "0000-00-00 00:00:00" || $string == "0000-00-00")
+			return nil;
+		$dt=date_create_from_format("Y-m-d H:i:s", $string);
+		$errs=date_get_last_errors();
+		if($errs['error_count'] + $errs['warning_count'] == 0)
+			return new NSDate(date_timestamp_get($dt));
+		// try again as YYYY-MM-DD
+		$dt=date_create_from_format("Y-m-d", $string);
+		if($errs['error_count'] + $errs['warning_count'] == 0)
+			return new NSDate(date_timestamp_get($dt));
+_NSLog("dateWithSQLDateTime conversion error for: $string");
+_NSLog($errs);
+		return nil;
+		}
+
+	public function sqldate()
+		{ // "YYYY-MM-DD HH:MM:SS"
+		return $this->stringFromDate("%Y-%m-%d %H:%M:%S");
+		}
+
 	}
 
 class NSProcessInfo extends NSObject
