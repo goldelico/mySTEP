@@ -1921,8 +1921,6 @@ class NSTableView extends NSControl
 		$row=$this->firstVisibleRow;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
 			{
-			if($column->isHidden())
-				continue;
 			html("<tr");
 			parameter("id", $this->elementId."-".$row);
 			parameter("class", "NSTableRow");
@@ -1930,6 +1928,8 @@ class NSTableView extends NSControl
 			html(">\n");
 			foreach($this->columns as $index => $column)
 				{
+				if($column->isHidden())
+					continue;
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
