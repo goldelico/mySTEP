@@ -1,4 +1,5 @@
 <?php
+
 	/*
 	 * Foundation.framework
 	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
@@ -18,6 +19,8 @@
 
 // global $ROOT must be set by some application
 // global $debug can be set to enable/disable debugging messages
+
+ob_start();	// enable output buffering so that we can sent cookies and headers later than starting to write html
 
 const NO=false;
 const YES=true;
@@ -47,7 +50,8 @@ function _NSLog($format)
 			$str.="\n";	// append \n
 		echo nl2br(htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, 'UTF-8'))."\n";
 		}
-	flush();
+	if(headers_sent())
+		flush();		// flush() will send headers...
 	}
 
 function NSLog($format)
@@ -80,12 +84,12 @@ if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
 
 function _print_backtrace()
 {
-	$trace=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 10);
+	$trace=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 20);
 	array_shift($trace);
 	array_shift($trace);
 	foreach($trace as $stack)
 		{
-		echo "&nbsp;&nbsp;".$stack['class'].$stack['type'].$stack['function']." ".$stack['line'].":".basename($stack['file'])."<br />\n";
+		echo "&nbsp;&nbsp;".$stack['class'].$stack['type'].$stack['function']." ".basename($stack['file'])."#".$stack['line']."<br />\n";
 		}
 	echo "<br />\n";
 }
