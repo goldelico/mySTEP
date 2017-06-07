@@ -224,6 +224,7 @@ class NSEvent extends NSObject
 	public function type() { return $this->type; }
 	public function target() { return $this->target; }
 	public function position() { return $this->position; }
+	public function window() { return $this->target->window(); }
 	public function setPosition($pos) { $this->position=$pos; }
 }
 
@@ -239,6 +240,14 @@ class NSResponder extends NSObject
 		$this->elementId=1+count(self::$objects);	// assign element numbers
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
+
+	public function _eventIsForMe()
+		{ // there is some event for us!
+		if(!isset($_POST['NSEvent']))
+			return false;
+		return $_POST['NSEvent'] == $this->elementId;
+		}
+
 	public static function _objectForId($id) { return isset(self::$objects[$id])?self::$objects[$id]:null; }
 	public function elementId() { return $this->elementId; }
 }
@@ -441,9 +450,9 @@ _NSLog("sendAction $action to first responder");
 			exit;
 			}
 		do
-			{
+			{ // e(elementId) onclick handler
 // _NSLog($_POST);
-			$targetId=_persist('NSEvent', null);
+			$targetId=_persist('NSEvent', null);	// set by the e(n) onlick handler
 // _NSLog("targetId $targetId");
 			if(!is_null($targetId) && $targetId)
 				$target=NSResponder::_objectForId($targetId);
@@ -671,6 +680,7 @@ NSLog($this->description()." sendAction $action");
 
 class NSButton extends NSControl
 	{
+	protected $tag;
 	protected $title;
 	protected $altTitle;
 	protected $state;
@@ -684,23 +694,17 @@ class NSButton extends NSControl
 		$this->title=$newtitle;
 		$this->buttonType=$type;
 		$this->state=$this->_persist("state", NSOffState);
-		if(!is_null($this->_persist("ck", null)))
-			{
-			global $NSApp;
+		if($this->_eventIsForMe())
+			{ // has been clicked by e() mechanism
+			_persist('clickedRow', "", $state);	// pass through NSEvent to mouseDown
 			$this->_persist("ck", "", "");	// unset
+			}
+		else if(!is_null($this->_persist("ck", null)))
+			{ // non-java-script detection
+			global $NSApp;
+			$this->_persist("ck", "", "");  // unset
 // _NSLog("ck: ".$this->classString());
-			switch($type)
-				{
-				case "CheckBox":
-				case "Radio":
-					$this->state=NSOnState;
-					break;	// don't assume a button that has been clicked
-			// FIXME: multiple buttons may have -ck set (the button pressed and several checkboxes)
-			// => use ck only for checkboxes? and not as "click"???
-		//	if($this->action)	// FIXME: action is never set here!!!
-				default:
-					$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
-				}
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 			}
 		}
 	public function isSelected()
@@ -716,6 +720,8 @@ class NSButton extends NSControl
 		$this->setState($value?NSOnState:NSOffState);
 		}
 	public function description() { return parent::description()." ".$this->title; }
+	public function tag() { return $this->tag; }
+	public function setTag($tag) { $this->tag=$tag; }
 	public function title() { return $this->title; }
 	public function setTitle($title)
 		{
@@ -743,23 +749,30 @@ class NSButton extends NSControl
 	public function state() { return $this->state; }
 	public function setState($value)
 		{
-/*		_NSLog("setState");
-		_NSLog($this->state);
-		_NSLog($value);
+/*
+_NSLog("setState");
+_NSLog($this->state);
+_NSLog($value);
 */
 		if($value == $this->state)
 			return;
 		$this->state=$this->_persist("state", $value);
 		$this->setNeedsDisplay();
-//		_NSLog($this->state);
+// _NSLog($this->state);
 		}
 	public function setObjectValue($val) { /*_NSLog("setObjectValue"); _NSLog($val);*/ $this->setSelected($val != ""); /*_NSLog($this->state);*/ }
 	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
+// _NSLog("NSButton mouseDown");
+// _NSLog($event->position());
 		// _NSLog($event);
 		// NSLog($this);
 		// if radio button or checkbox, watch for value
+		// but then the mouseDown is handled by the superview
+		// FIXME: handle checkbox tristate
+		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
+			$this->setState(!$this->state());
 		$this->sendAction();
 	}
 	public function keyEquivalent() { return $this->keyEquivalent; }
@@ -990,18 +1003,12 @@ class NSPopUpButton extends NSButton
 		{
 		parent::__construct("");
 		$this->menu=array();
-		$title=_persist($this->elementId, "");	// read selected item title
-		if($title != "")
+		$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
+		if($this->_eventIsForMe())
 			{
-			global $NSApp;
-			_persist($this->elementId, "", "");	// don't really persist
-// _NSLog($title);
-			$event=new NSEvent($this, 'NSMouseDown');
-			$event->setPosition(array('title' => $title));	// we do not know the index yet!
-			$NSApp->queueEvent($event); // queue a mouseDown event for us so that we can decode later
+			$title=_persist($this->elementId, "");	// read selected item title (if any)
+			_persist('clickedRow', "", $title);	// pass through NSEvent to mouseDown
 			}
-		else
-			$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
 		}
 
 	public function pullsDown() { return $this->pullsDown; }
@@ -1039,7 +1046,7 @@ class NSPopUpButton extends NSButton
 	public function indexOfItemWithTitle($title)
 		{ // search by title
 // _NSLog("indexOfItemWithTitle($title)");
-//_NSLog("count()=".count($this->menu));
+// _NSLog("count()=".count($this->menu));
 		for($idx=0; $idx<count($this->menu); $idx++)
 			{
 // _NSLog($this->menu[$idx]." == ".$title);
@@ -1050,8 +1057,11 @@ class NSPopUpButton extends NSButton
 		}
 	public function mouseDown(NSEvent $event)
 		{
+// _NSLog($event);
+// _NSLog("NSPopupButton mousedown ");
 		$pos=$event->position();
-		$this->selectItemAtIndex($this->indexOfItemWithTitle($pos['title']));
+// _NSLog($pos);
+		$this->selectItemAtIndex($this->indexOfItemWithTitle($pos['y']));
 		$this->sendAction();
 		}
 	public function draw()
@@ -1061,7 +1071,7 @@ class NSPopUpButton extends NSButton
 		parameter("id", $this->elementId);
 		parameter("class", "NSPopUpButton");
 		parameter("name", $this->elementId);
-		parameter("onclick", "s('NSPopUpButton');");
+		parameter("onclick", "e('".$this->elementId."');".";s()");
 		parameter("size", 1);	// to make it a popup and not a combo-box
 		html(">\n");
 		$index=0;
@@ -1703,7 +1713,7 @@ class NSTabView extends NSControl
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 		{
-		NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
+// _NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
 		$this->selectTabViewItemAtIndex($this->clickedItemIndex);
 		}
 	public function display()
@@ -1726,6 +1736,10 @@ class NSTabView extends NSControl
 // i.e. these buttons should be made in a way that calling their action
 // will make selectTabViewItemAtIndex being called
 // FIXME: use NSButton or NSMenuItem?
+
+// yes, use ordinary NSButtons and use setTag(tabindex)
+// or we us a NSMatrix of NSButtons as a single subview
+
 				html("<input");
 				parameter("id", $this->elementId."-".$index);
 				parameter("class", "NSTabViewItemsButton ".($item == $this->selectedTabViewItem()?"NSOnState":"NSOffState"));
@@ -2060,13 +2074,13 @@ class NSTextField extends NSControl
 			switch($this->type)
 				{ // special types
 				case "search":
-					parameter("onsearch", "e('".$this->elementId."');s()");
+					parameter("onsearch", "e('".$this->elementId."');s('search')");
 					break;
 				case "search":
-					parameter("onchange", "e('".$this->elementId."');s()");
+					parameter("onchange", "e('".$this->elementId."');s('change')");
 					break;
 				case "range":
-					parameter("oninput", "e('".$this->elementId."');s()");
+					parameter("oninput", "e('".$this->elementId."');s('input')");
 					break;
 				}
 			html("/>\n");
@@ -2234,16 +2248,22 @@ class NSWindow extends NSResponder
 		parent::__construct();
 		$this->scrollView=new NSScrollView();
 		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
-		if($NSApp->mainWindow() == null)
+		if(is_null($NSApp->mainWindow()))
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
 		}
+	public function hitTest(NSEvent $event)
+		{
+		return $event->target();
+		}
 	public function sendEvent(NSEvent $event)
 		{
+		global $NSApp;
 		NSLog("sendEvent: ".$event->description());
-		// here we would run hitTest - but we know the target object already
-		// $target=$event->window->hitTest($event);
-		$target=$event->target();
+		$window=$target=$event->window();
+		if(is_null($window))
+			$window=$NSApp->mainWindow();
+		$target=$window->hitTest($event);
 		$target->mouseDown($event);
 		}
 	public function update()
