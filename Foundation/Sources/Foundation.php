@@ -78,6 +78,18 @@ function NSSevereError($format)
 
 if($GLOBALS['debug']) echo "<h1>Foundation.framework</h1>";
 
+function _print_backtrace()
+{
+	$trace=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 10);
+	array_shift($trace);
+	array_shift($trace);
+	foreach($trace as $stack)
+		{
+		echo "&nbsp;&nbsp;".$stack['class'].$stack['type'].$stack['function']." ".$stack['line'].":".basename($stack['file'])."<br />\n";
+		}
+	echo "<br />\n";
+}
+
 // error handler function
 function myErrorHandler($errno, $errstr, $errfile, $errline)
 {
@@ -89,27 +101,27 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 
 	switch ($errno) {
 	case E_USER_ERROR:
-		echo "<b>ERROR</b> [$errno] $errstr<br />\n";
-		echo "  Fatal error on line $errline in file $errfile";
+		echo "<b>ERROR</b>&nbsp;&nbsp;[$errno] $errstr<br />\n";
+		echo "&nbsp;&nbsp;Fatal error on line $errline in file ".basename($errfile);
 		echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-		debug_print_backtrace();
+		_print_backtrace();
 		echo "Aborting...<br />\n";
 		exit(1);
 		break;
 
 	case E_USER_WARNING:
-		_NSLog("<b>WARNING</b> [$errno] $errstr on line $errline in file $errfile");
-		debug_print_backtrace();
+		_NSLog("<b>WARNING</b> [$errno] $errstr on line $errline in file ".basename($errfile));
+		_print_backtrace();
 		break;
 
 	case E_USER_NOTICE:
-		_NSLog("<b>NOTICE</b> [$errno] $errstr on line $errline in file $errfile");
-		debug_print_backtrace();
+		_NSLog("<b>NOTICE</b> [$errno] $errstr on line $errline in file ".basename($errfile));
+		_print_backtrace();
 		break;
 
 	default:
-		_NSLog("Unknown error type: [$errno] $errstr on line $errline in file $errfile");
-		debug_print_backtrace();
+		_NSLog("Unknown error type: [$errno] $errstr on line $errline in file ".basename($errfile));
+		_print_backtrace();
 		break;
 	}
 
@@ -602,6 +614,7 @@ class NSBundle extends NSObject
 			$p=$rp.$dir.$name;	// $p or $dir already ends in / suffix!
 			if($type != "")
 				$p.=".".$type;	// given suffix
+// _NSLog("try $p");
 			if($fm->fileExistsAtPath($p)) return $p;
 			}
 		return null;
