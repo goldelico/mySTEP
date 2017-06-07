@@ -2274,6 +2274,9 @@ class NSWindow extends NSResponder
 	public function display() 
 		{
 		global $NSApp;
+
+		if(headers_sent($file, $line))
+			_NSLog("AppKit error: headers already sent in $file#$line");
 		html("<!DOCTYPE html");
 		if(true)	// use HTML4
 			{
@@ -2338,6 +2341,7 @@ class NSWindow extends NSResponder
 		html($this->heads);	// additional tags
 		html("</head>\n");
 		html("<body>\n");
+
 		html("<form");
 //		parameter("action", "?");	// delete any query parameter - does not work correctly in all situations :(
 		parameter("id", "NSWindow");
