@@ -97,11 +97,11 @@ function _persist($object, $default, $value=null)
 	global $persist;	// will come back as $_POST[] next time (+ values from <input>)
 	if(is_null($value))
 		{ // query
-// _NSLog("query persist $object");
 		if(isset($_POST[$object]))
 			$value=$_POST[$object];
 		else
 			$value=$default;
+// _NSLog("query persist $object -> $value");
 		}
 	if($value === $default)
 		{
@@ -693,18 +693,21 @@ class NSButton extends NSControl
 // _NSLog("NSButton $newtitle ".$this->elementId);
 		$this->title=$newtitle;
 		$this->buttonType=$type;
-		$this->state=$this->_persist("state", NSOffState);
-		if($this->_eventIsForMe())
-			{ // has been clicked by e() mechanism
-			_persist('clickedRow', "", $state);	// pass through NSEvent to mouseDown
-			$this->_persist("ck", "", "");	// unset
-			}
-		else if(!is_null($this->_persist("ck", null)))
-			{ // non-java-script detection
-			global $NSApp;
-			$this->_persist("ck", "", "");  // unset
+		if($type != "NSPopupButton")
+			{
+			$this->state=$this->_persist("state", NSOffState);
+			if($this->_eventIsForMe())
+				{ // has been clicked by e() mechanism
+				_persist('clickedRow', "", $state);	// pass through NSEvent to mouseDown
+				$this->_persist("ck", "", "");	// unset
+				}
+			else if(!is_null($this->_persist("ck", null)))
+				{ // non-java-script detection
+				global $NSApp;
+				$this->_persist("ck", "", "");  // unset
 // _NSLog("ck: ".$this->classString());
-			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				}
 			}
 		}
 	public function isSelected()
@@ -1001,12 +1004,16 @@ class NSPopUpButton extends NSButton
 
 	public function __construct()
 		{
-		parent::__construct("");
+		parent::__construct("", "NSPopupButton");
 		$this->menu=array();
+// _NSLog($this->elementId()." created");
 		$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
+// _NSLog($this->elementId()." selected item ".$this->selectedItemIndex);
 		if($this->_eventIsForMe())
 			{
-			$title=_persist($this->elementId, "");	// read selected item title (if any)
+			// Warning - this only works if titles are unique!
+			$title=_persist($this->elementId, "");	// read selected item title
+			_persist($this->elementId, "", "");	// and remove
 			_persist('clickedRow', "", $title);	// pass through NSEvent to mouseDown
 			}
 		}
@@ -1027,12 +1034,12 @@ class NSPopUpButton extends NSButton
 	public function removeItemWithTitle($title) { }
 	public function removeItemWithTitles($titleArray) { }
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
-	public function indexOfSelectedItem() { return $this->selectedItemIndex; }
+	public function indexOfSelectedItem() { return $this->selectedItemIndex >= count($this->menu)?-1:$this->selectedItemIndex; }
 	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
 	public function selectItemAtIndex($index)
 		{
-		$this->selectedItemIndex=$this->_persist("selectedIndex", $index);
-// _NSLog("selectItemAtIndex -> ".$this->selectedItemIndex);
+		$this->selectedItemIndex=$this->_persist("selectedIndex", -1, $index);
+// _NSLog("selectItemAtIndex $index -> ".$this->selectedItemIndex);
 		$this->setNeedsDisplay();
 		}
 	public function selectItemWithTitle($title) { $this->selectItemAtIndex($this->indexOfItemWithTitle($title)); }
@@ -1060,12 +1067,16 @@ class NSPopUpButton extends NSButton
 // _NSLog($event);
 // _NSLog("NSPopupButton mousedown ");
 		$pos=$event->position();
+// _NSLog($event->target()->elementId());
+// _NSLog($this->elementId());
 // _NSLog($pos);
+		// Warning - this only works if titles are unique!
 		$this->selectItemAtIndex($this->indexOfItemWithTitle($pos['y']));
 		$this->sendAction();
 		}
 	public function draw()
 		{
+// _NSLog($this->elementId()." draw selected item ".$this->selectedItemIndex);
 		NSGraphicsContext::currentContext()->text($this->title);
 		html("<select");
 		parameter("id", $this->elementId);
