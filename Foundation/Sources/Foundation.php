@@ -1086,14 +1086,18 @@ class NSDate extends NSObject
 
 	public static function dateWithSQLDateTime($string)
 		{ // YYYY-MM-DD [HH:MM:SS]
+// $string="2013-13-41 12:13:14";
+// $string="2013-13-41";
+// _NSLog("dateWithSQLDateTime: '$string'");
 		if($string == "0000-00-00 00:00:00" || $string == "0000-00-00")
 			return nil;
-		$dt=date_create_from_format("Y-m-d H:i:s", $string);
+		$dt=date_create_from_format("Y-m-d H:i:s", $string);	// DATETIME (YYYY-MM-DD HH-MM-SS)
 		$errs=date_get_last_errors();
+// _NSLog($errs);
 		if($errs['error_count'] + $errs['warning_count'] == 0)
 			return new NSDate(date_timestamp_get($dt));
-		// try again as YYYY-MM-DD
-		$dt=date_create_from_format("Y-m-d", $string);
+		$dt=date_create_from_format("Y-m-d|", $string);	// try again as TIME (YYYY-MM-DD)
+		$errs=date_get_last_errors();
 		if($errs['error_count'] + $errs['warning_count'] == 0)
 			return new NSDate(date_timestamp_get($dt));
 _NSLog("dateWithSQLDateTime conversion error for: $string");

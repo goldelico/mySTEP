@@ -268,6 +268,27 @@
 		EEAA86E50A148ED200F2E5B5 /* NSPredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0622880975A53D00B24DDA /* NSPredicate.m */; };
 		EEAA86E60A148ED200F2E5B5 /* NSLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2FDF2709770599003EA8A2 /* NSLocale.m */; };
 		EEAA86E70A148ED200F2E5B5 /* NSSpellServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1DF4E0098ECB8C00DDE5E0 /* NSSpellServer.m */; };
+		EEAD7CE61ED893D400857F32 /* FoundationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CE51ED893D400857F32 /* FoundationTests.m */; };
+		EEAD7CE81ED893D400857F32 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */; };
+		EEAD7D021ED8962C00857F32 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CEF1ED8962C00857F32 /* FunctionsTest.m */; };
+		EEAD7D031ED8962C00857F32 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF01ED8962C00857F32 /* NSAffineTransformTest.m */; };
+		EEAD7D041ED8962C00857F32 /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF11ED8962C00857F32 /* NSAttributedStringTest.m */; };
+		EEAD7D051ED8962C00857F32 /* NSBundleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF21ED8962C00857F32 /* NSBundleTest.m */; };
+		EEAD7D061ED8962C00857F32 /* NSByteSwappingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF31ED8962C00857F32 /* NSByteSwappingTest.m */; };
+		EEAD7D071ED8962C00857F32 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF41ED8962C00857F32 /* NSConnectionTest.m */; };
+		EEAD7D081ED8962D00857F32 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF51ED8962C00857F32 /* NSDistantObjectTest.m */; };
+		EEAD7D091ED8962D00857F32 /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF61ED8962C00857F32 /* NSHTTPCookieTest.m */; };
+		EEAD7D0A1ED8962D00857F32 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF71ED8962C00857F32 /* NSInvocationTest.m */; };
+		EEAD7D0B1ED8962D00857F32 /* NSMessagePortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF81ED8962C00857F32 /* NSMessagePortTest.m */; };
+		EEAD7D0C1ED8962D00857F32 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CF91ED8962C00857F32 /* NSMethodSignatureTest.m */; };
+		EEAD7D0D1ED8962D00857F32 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFA1ED8962C00857F32 /* NSPortCoderTest.m */; };
+		EEAD7D0E1ED8962D00857F32 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFB1ED8962C00857F32 /* NSPortTest.m */; };
+		EEAD7D0F1ED8962D00857F32 /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFC1ED8962C00857F32 /* NSPredicateTest.m */; };
+		EEAD7D101ED8962D00857F32 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFD1ED8962C00857F32 /* NSScannerTest.m */; };
+		EEAD7D111ED8962D00857F32 /* NSSocketPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFE1ED8962C00857F32 /* NSSocketPortTest.m */; };
+		EEAD7D121ED8962D00857F32 /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7CFF1ED8962C00857F32 /* NSStringTest.m */; };
+		EEAD7D131ED8962D00857F32 /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7D001ED8962C00857F32 /* NSURLTest.m */; };
+		EEAD7D141ED8962D00857F32 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAD7D011ED8962C00857F32 /* NSValueTest.m */; };
 		EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */; };
 		EEBFF0201A34B74B004ABB30 /* HTMLEntities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */; };
@@ -275,6 +296,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		EEAA86FD0A148F7A00F2E5B5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEAA86140A148ED200F2E5B5;
+			remoteInfo = Foundation.framework;
+		};
+		EEAD7CE91ED893D400857F32 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
@@ -518,6 +546,28 @@
 		EEA925840C0B004500A846D2 /* whitespace.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = whitespace.charSet; sourceTree = "<group>"; };
 		EEA925850C0B004500A846D2 /* whitespaceandnl.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = whitespaceandnl.charSet; sourceTree = "<group>"; };
 		EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEAD7CE31ED893D400857F32 /* FoundationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoundationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEAD7CE51ED893D400857F32 /* FoundationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FoundationTests.m; sourceTree = "<group>"; };
+		EEAD7CE71ED893D400857F32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEAD7CEF1ED8962C00857F32 /* FunctionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionsTest.m; sourceTree = "<group>"; };
+		EEAD7CF01ED8962C00857F32 /* NSAffineTransformTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAffineTransformTest.m; sourceTree = "<group>"; };
+		EEAD7CF11ED8962C00857F32 /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
+		EEAD7CF21ED8962C00857F32 /* NSBundleTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSBundleTest.m; sourceTree = "<group>"; };
+		EEAD7CF31ED8962C00857F32 /* NSByteSwappingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSByteSwappingTest.m; sourceTree = "<group>"; };
+		EEAD7CF41ED8962C00857F32 /* NSConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSConnectionTest.m; sourceTree = "<group>"; };
+		EEAD7CF51ED8962C00857F32 /* NSDistantObjectTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDistantObjectTest.m; sourceTree = "<group>"; };
+		EEAD7CF61ED8962C00857F32 /* NSHTTPCookieTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSHTTPCookieTest.m; sourceTree = "<group>"; };
+		EEAD7CF71ED8962C00857F32 /* NSInvocationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSInvocationTest.m; sourceTree = "<group>"; };
+		EEAD7CF81ED8962C00857F32 /* NSMessagePortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMessagePortTest.m; sourceTree = "<group>"; };
+		EEAD7CF91ED8962C00857F32 /* NSMethodSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMethodSignatureTest.m; sourceTree = "<group>"; };
+		EEAD7CFA1ED8962C00857F32 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
+		EEAD7CFB1ED8962C00857F32 /* NSPortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortTest.m; sourceTree = "<group>"; };
+		EEAD7CFC1ED8962C00857F32 /* NSPredicateTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPredicateTest.m; sourceTree = "<group>"; };
+		EEAD7CFD1ED8962C00857F32 /* NSScannerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScannerTest.m; sourceTree = "<group>"; };
+		EEAD7CFE1ED8962C00857F32 /* NSSocketPortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSSocketPortTest.m; sourceTree = "<group>"; };
+		EEAD7CFF1ED8962C00857F32 /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
+		EEAD7D001ED8962C00857F32 /* NSURLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLTest.m; sourceTree = "<group>"; };
+		EEAD7D011ED8962C00857F32 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSPointerFunctions.h; path = Sources/NSPointerFunctions.h; sourceTree = "<group>"; };
 		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
 		EEBFF01F1A34B74B004ABB30 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = Sources/HTMLEntities.strings; sourceTree = "<group>"; };
@@ -533,6 +583,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEAD7CE01ED893D400857F32 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEAD7CE81ED893D400857F32 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,6 +611,7 @@
 				EE8F6B7B0D76A03D0096A370 /* GNUstep */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EEA3CEEA0954503D001244CF /* MacOS X Runtime */,
+				EEAD7CE41ED893D400857F32 /* FoundationTests */,
 				EE29D8D8058A38830035639B /* Products */,
 			);
 			name = BrowserTester;
@@ -562,6 +621,7 @@
 			isa = PBXGroup;
 			children = (
 				EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */,
+				EEAD7CE31ED893D400857F32 /* FoundationTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -986,6 +1046,34 @@
 			name = "MacOS X Runtime";
 			sourceTree = "<group>";
 		};
+		EEAD7CE41ED893D400857F32 /* FoundationTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEAD7CE71ED893D400857F32 /* Info.plist */,
+				EEAD7CE51ED893D400857F32 /* FoundationTests.m */,
+				EEAD7CEF1ED8962C00857F32 /* FunctionsTest.m */,
+				EEAD7CF01ED8962C00857F32 /* NSAffineTransformTest.m */,
+				EEAD7CF11ED8962C00857F32 /* NSAttributedStringTest.m */,
+				EEAD7CF21ED8962C00857F32 /* NSBundleTest.m */,
+				EEAD7CF31ED8962C00857F32 /* NSByteSwappingTest.m */,
+				EEAD7CF41ED8962C00857F32 /* NSConnectionTest.m */,
+				EEAD7CF51ED8962C00857F32 /* NSDistantObjectTest.m */,
+				EEAD7CF61ED8962C00857F32 /* NSHTTPCookieTest.m */,
+				EEAD7CF71ED8962C00857F32 /* NSInvocationTest.m */,
+				EEAD7CF81ED8962C00857F32 /* NSMessagePortTest.m */,
+				EEAD7CF91ED8962C00857F32 /* NSMethodSignatureTest.m */,
+				EEAD7CFA1ED8962C00857F32 /* NSPortCoderTest.m */,
+				EEAD7CFB1ED8962C00857F32 /* NSPortTest.m */,
+				EEAD7CFC1ED8962C00857F32 /* NSPredicateTest.m */,
+				EEAD7CFD1ED8962C00857F32 /* NSScannerTest.m */,
+				EEAD7CFE1ED8962C00857F32 /* NSSocketPortTest.m */,
+				EEAD7CFF1ED8962C00857F32 /* NSStringTest.m */,
+				EEAD7D001ED8962C00857F32 /* NSURLTest.m */,
+				EEAD7D011ED8962C00857F32 /* NSValueTest.m */,
+			);
+			path = FoundationTests;
+			sourceTree = "<group>";
+		};
 		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1152,6 +1240,24 @@
 			productReference = EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EEAD7CE21ED893D400857F32 /* FoundationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEAD7CEE1ED893D400857F32 /* Build configuration list for PBXNativeTarget "FoundationTests" */;
+			buildPhases = (
+				EEAD7CDF1ED893D400857F32 /* Sources */,
+				EEAD7CE01ED893D400857F32 /* Frameworks */,
+				EEAD7CE11ED893D400857F32 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EEAD7CEA1ED893D400857F32 /* PBXTargetDependency */,
+			);
+			name = FoundationTests;
+			productName = FoundationTests;
+			productReference = EEAD7CE31ED893D400857F32 /* FoundationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1159,6 +1265,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0720;
+				TargetAttributes = {
+					EEAD7CE21ED893D400857F32 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
 			};
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "Foundation" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1179,6 +1290,7 @@
 				EEAA86140A148ED200F2E5B5 /* Foundation.framework */,
 				EEBAEECA0C94803F00596D9C /* FPU check */,
 				EEBBA9221413B9340006097A /* Documentation */,
+				EEAD7CE21ED893D400857F32 /* FoundationTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1200,6 +1312,13 @@
 				EEA9258E0C0B004500A846D2 /* uppercase.charSet in Resources */,
 				EEA9258F0C0B004500A846D2 /* whitespace.charSet in Resources */,
 				EEA925900C0B004500A846D2 /* whitespaceandnl.charSet in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEAD7CE11ED893D400857F32 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1348,6 +1467,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEAD7CDF1ED893D400857F32 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEAD7CE61ED893D400857F32 /* FoundationTests.m in Sources */,
+				EEAD7D121ED8962D00857F32 /* NSStringTest.m in Sources */,
+				EEAD7D0E1ED8962D00857F32 /* NSPortTest.m in Sources */,
+				EEAD7D021ED8962C00857F32 /* FunctionsTest.m in Sources */,
+				EEAD7D091ED8962D00857F32 /* NSHTTPCookieTest.m in Sources */,
+				EEAD7D131ED8962D00857F32 /* NSURLTest.m in Sources */,
+				EEAD7D111ED8962D00857F32 /* NSSocketPortTest.m in Sources */,
+				EEAD7D051ED8962C00857F32 /* NSBundleTest.m in Sources */,
+				EEAD7D101ED8962D00857F32 /* NSScannerTest.m in Sources */,
+				EEAD7D071ED8962C00857F32 /* NSConnectionTest.m in Sources */,
+				EEAD7D061ED8962C00857F32 /* NSByteSwappingTest.m in Sources */,
+				EEAD7D0B1ED8962D00857F32 /* NSMessagePortTest.m in Sources */,
+				EEAD7D0F1ED8962D00857F32 /* NSPredicateTest.m in Sources */,
+				EEAD7D031ED8962C00857F32 /* NSAffineTransformTest.m in Sources */,
+				EEAD7D141ED8962D00857F32 /* NSValueTest.m in Sources */,
+				EEAD7D041ED8962C00857F32 /* NSAttributedStringTest.m in Sources */,
+				EEAD7D0A1ED8962D00857F32 /* NSInvocationTest.m in Sources */,
+				EEAD7D0D1ED8962D00857F32 /* NSPortCoderTest.m in Sources */,
+				EEAD7D0C1ED8962D00857F32 /* NSMethodSignatureTest.m in Sources */,
+				EEAD7D081ED8962D00857F32 /* NSDistantObjectTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1355,6 +1501,11 @@
 			isa = PBXTargetDependency;
 			target = EEAA86140A148ED200F2E5B5 /* Foundation.framework */;
 			targetProxy = EEAA86FD0A148F7A00F2E5B5 /* PBXContainerItemProxy */;
+		};
+		EEAD7CEA1ED893D400857F32 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEAA86140A148ED200F2E5B5 /* Foundation.framework */;
+			targetProxy = EEAD7CE91ED893D400857F32 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1611,6 +1762,139 @@
 			};
 			name = Default;
 		};
+		EEAD7CEB1ED893D400857F32 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.quantumstep.FoundationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEAD7CEC1ED893D400857F32 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.quantumstep.FoundationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEAD7CED1ED893D400857F32 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.quantumstep.FoundationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
 		EEBAEECE0C94805D00596D9C /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1700,6 +1984,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
+		};
+		EEAD7CEE1ED893D400857F32 /* Build configuration list for PBXNativeTarget "FoundationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEAD7CEB1ED893D400857F32 /* Development */,
+				EEAD7CEC1ED893D400857F32 /* Deployment */,
+				EEAD7CED1ED893D400857F32 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */ = {
 			isa = XCConfigurationList;
