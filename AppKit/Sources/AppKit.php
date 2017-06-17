@@ -597,14 +597,10 @@ class NSView extends NSResponder
 		$this->hidden=$flag;
 		$this->setNeedsDisplay();
 		}
-	public function willDisplay()
-		{
-		}
 	public function display()
 		{ // draw subviews first
 		if($this->hidden)
 			return;	// hide - including subviews
-		$this->willDisplay();	// call before subviews
 //		NSLog("<!-- ".$this->elementId." -->");
 		if(isset($this->tooltip) && $this->tooltip)
 			{
@@ -2009,6 +2005,7 @@ class NSTextField extends NSControl
 	protected $wraps=false;
 	protected $name;	// name of this <input>
 	public function stringValue() { return $this->stringValue; }
+	public function attributedStringValue() { return $this->htmlValue; }
 	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); $this->setNeedsDisplay(); }
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; $this->setNeedsDisplay(); }
@@ -2200,19 +2197,13 @@ class NSScrollView extends NSView
 		$this->point=$point;
 		}
 
-	public function willDisplay()
+	public function display()
 		{
 		if($this->hidden)
 			return;
 //		html("<div");
 //		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
 //		html(">");
-		}
-
-	public function display()
-		{
-		if($this->hidden)
-			return;
 		// +0 is to protect against code injection through manipulated point coordinates not being numerical
 		$x=$this->point['x']+0;
 		$y=$this->point['y']+0;
