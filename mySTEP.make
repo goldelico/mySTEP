@@ -802,15 +802,17 @@ ifneq ($(DATA),)
 	# additional files relative to root
 	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
-	# strip all executables down to the minimum
+	# unprotect
+	- chmod -R u+w "/tmp/$(TMP_DATA)"
+	# strip all foreign architectures
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	# FIXME: prune .nib so that they still work
 ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
-	- chmod -R u+w "/tmp/$(TMP_DATA)"
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
