@@ -2201,22 +2201,33 @@ class NSScrollView extends NSView
 		{
 		if($this->hidden)
 			return;
-//		html("<div");
-//		parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: scroll");
-//		html(">");
-		// +0 is to protect against code injection through manipulated point coordinates not being numerical
-		$x=$this->point['x']+0;
-		$y=$this->point['y']+0;
-		if($x != 0 || $y != 0)
-			{
-			html("<script");
-			parameter("type", "text/javascript");
-			html(">");
-			html("window.scrollTo($x, $y)");
-			html("</script>\n");
+		if(is_null($this->superview))
+			{ // NSWindow
+			// +0 is to protect against code injection through manipulated point coordinates not being numerical
+			$x=$this->point['x']+0;
+			$y=$this->point['y']+0;
+			if($x != 0 || $y != 0)
+				{
+				html("<script");
+				parameter("type", "text/javascript");
+				html(">");
+				html("window.scrollTo($x, $y)");
+				html("</script>\n");
+				}
+			parent::display();
 			}
-		parent::display();
-//		html("</div>");
+		else
+			{ // embed subview into Scrollview - use e.g. setFrameSize(NSMakeSize("100%", "500px"))
+			if(NSWidth($this->frame) == 0 || NSHeight($this->frame) == 0)
+				_NSLog("empty NSScrollView");
+			html("<div");
+			// allow to control scrollers separately
+			// e.g. overflow-x:hidden; overflow-y:auto
+			parameter("style", "width: ".NSWidth($this->frame)."; height: ".NSHeight($this->frame)."; overflow: auto");
+			html(">");
+			parent::display();
+			html("</div>");
+			}
 		}
 }
 
