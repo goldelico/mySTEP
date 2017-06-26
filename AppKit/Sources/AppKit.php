@@ -2505,11 +2505,13 @@ class NSWorkspace extends NSObject
 		}
 	public function fullPathForApplication($name)
 		{
-// FIXME: should work with or w/o .app suffix!
 		if(substr($name, 0, 1) == "/")
 			return $name;	// already a full path
 		NSWorkspace::knownApplications();	// update list
 // _NSLog("fullPathForApplication: $name)";
+		if(isset(self::$knownApplications[$name]))
+			return self::$knownApplications[$name]["NSApplicationPath"];
+		$name.=".app";	// try with .app suffix
 		if(isset(self::$knownApplications[$name]))
 			return self::$knownApplications[$name]["NSApplicationPath"];
 		_NSLog("fullPathForApplication:$name not found");
