@@ -2016,7 +2016,7 @@ class NSTextField extends NSControl
 		if(!is_null($name))
 			{
 			$this->name=$name;	// override
-			$this->setStringValue(_persist($this->name, ""));
+			$this->setStringValue(_persist($this->name, $this->stringValue));
 			}
 		$this->setNeedsDisplay();
 		}
