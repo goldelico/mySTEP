@@ -616,9 +616,13 @@ class NSView extends NSResponder
 			html("</span>\n");
 		}
 	public function displayDone()
-		{ // notify all subview
+		{ // notify all subviews
 		foreach($this->subviews as $view)
+			{
+// _NSLog("call ".$view->classString()."->displayDone()");
 			$view->displayDone();
+// _NSLog("called ".$view->classString()."->displayDone()");
+			}
 		}
 	public function setToolTip($str=null) { $this->tooltip=$str; }
 	public function toolTip() { return $this->tooltip; }
@@ -1771,6 +1775,13 @@ class NSTabView extends NSControl
 		html("</td>");
 		html("</tr>\n");
 		html("</table>\n");
+		}
+
+	public function displayDone()
+		{ // treat items like subviews
+		$selectedItem=$this->selectedTabViewItem();
+		if(!is_null($selectedItem))
+			$selectedItem->view()->displayDone();
 		}
 	}
 
