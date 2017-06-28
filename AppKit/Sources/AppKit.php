@@ -2041,7 +2041,7 @@ class NSTextField extends NSControl
 		$this->backgroundColor=$color;
 		$this->setNeedsDisplay();
 		}
-	public function __construct($width=30, $stringValue = null, $name = null)
+	public function __construct($width=30, $default="", $name = null)
 	{
        		parent::__construct();
 		if(is_null($name))
@@ -2049,10 +2049,7 @@ class NSTextField extends NSControl
 		else
 			$this->name=$name;	// override
 // _NSLog("__contruct NSTextField ".$this->name);
-		$this->setStringValue(_persist($this->name, ""));
-		// the second parameter should be depreacted and be replaced by an explicit setStringValue() only ...
-		if(!is_null($stringValue))
-			$this->setStringValue($stringValue);	// overwrite
+		$this->setStringValue(_persist($this->name, $default));
 		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
 	}
