@@ -698,7 +698,7 @@ class NSButton extends NSControl
 			$this->state=$this->_persist("state", NSOffState);
 			if($this->_eventIsForMe())
 				{ // has been clicked by e() mechanism
-				_persist('clickedRow', "", $state);	// pass through NSEvent to mouseDown
+				_persist('clickedRow', "", $this->state);	// pass through NSEvent to mouseDown
 				$this->_persist("ck", "", "");	// unset
 				}
 			else if(!is_null($this->_persist("ck", null)))
