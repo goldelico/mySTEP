@@ -1020,6 +1020,7 @@ date_default_timezone_set("Europe/Berlin");
 
 class NSDate extends NSObject
 	{
+	protected static $distantPast;
 	protected /* float */ $timestamp;
 
 	public function __construct($timestamp=null)
@@ -1056,6 +1057,24 @@ class NSDate extends NSObject
 		return new NSDate(strtotime($string));
 		}
 
+	public static function distantPast()
+		{
+		if(!isset(NSDate::$distantPast))
+			NSDate::$distantPast=NSDate::dateWithTimeIntervalSince1970(0);
+		return NSDate::$distantPast;
+		}
+
+	public function isDistantPast()
+		{
+		return $this->timestamp == 0;
+		}
+
+	public static function distantFuture()
+		{
+// make a singleton
+		return dateWithTimeIntervalSince1970(1<<31);
+		}
+
 	public function timeIntervalSinceReference1970()
 		{
 		return $this->timestamp;
@@ -1090,7 +1109,7 @@ class NSDate extends NSObject
 // $string="2013-13-41";
 // _NSLog("dateWithSQLDateTime: '$string'");
 		if($string == "0000-00-00 00:00:00" || $string == "0000-00-00")
-			return nil;
+			return NSDate::distantPast();
 		$dt=date_create_from_format("Y-m-d H:i:s", $string);	// DATETIME (YYYY-MM-DD HH-MM-SS)
 		$errs=date_get_last_errors();
 // _NSLog($errs);
@@ -1107,6 +1126,8 @@ _NSLog($errs);
 
 	public function sqldate()
 		{ // "YYYY-MM-DD HH:MM:SS"
+		if($this->timestamp == 0)
+			return "0000-00-00 00:00:00";	// distantPast
 		return $this->stringFromDate("%Y-%m-%d %H:%M:%S");
 		}
 
