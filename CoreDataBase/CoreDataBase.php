@@ -259,8 +259,11 @@ class _CSV
 			}
 		if(($this->columns = fgetcsv($handle, 0, $this->separator, $this->enclosure)) === false)
 			return false;
+// print_r($this->columns);
+		$this->rows[]=array();
 		while(($values = fgetcsv($handle, 0, $this->separator, $this->enclosure)) !== false)
 			{
+// print_r($values);
 			$row=array();
 			for($c=0; $c<count($this->columns); $c++)
 				{ // make $rows an array of arrays indexed by the column names
@@ -268,10 +271,11 @@ class _CSV
 				else $val="";	// missing entry
 				$row[$this->columns[$c]]=$val;	// use column names as new index
 				}
+// print_r($row);
 			$this->rows[]=$row;
 			}
 		fclose($handle);
-//		NSLog("opened $file ".count($this->rows)." rows ".count($this->columns)." cols");
+//		_NSLog("opened $file ".count($this->rows)." rows ".count($this->columns)." cols");
 		return true;
 	}
 
@@ -360,7 +364,7 @@ class _CSV
 		if(!isset($c['extension']))
 			$file=$directory."/".$table.".csv";
 		else
-			$file=$directory."/".$table;	// use suffx by table name
+			$file=$directory."/".$table;	// use suffix by table name
 		if(file_exists($file))
 			return false;	// table already esists
 		$this->file=$file;
@@ -442,6 +446,12 @@ class _SQLiteRowEnumerator extends SQLRowEnumerator
 
 class _CSVRowEnumerator extends SQLRowEnumerator
 {
+	public function __construct($r)
+	{
+		parent::__construct($r);
+		reset($this->result);
+	}
+
 	public function __destruct()
 	{
 		// nothing to destruct explicitly
