@@ -674,7 +674,8 @@ NSLog($this->description()." sendAction $action");
 	public function draw()
 		{
 // _NSLog($this);
-		$this->cell->drawCell();
+		if(isset($this->cell))
+			$this->cell->drawCell();
 		}
 	}
 
@@ -698,6 +699,7 @@ class NSButton extends NSControl
 			$this->state=$this->_persist("state", NSOffState);
 			if($this->_eventIsForMe())
 				{ // has been clicked by e() mechanism
+// FIXME: how does this work? it is neither used by NSEvent nor mouseDown
 				_persist('clickedRow', "", $this->state);	// pass through NSEvent to mouseDown
 				$this->_persist("ck", "", "");	// unset
 				}
@@ -764,7 +766,12 @@ _NSLog($value);
 // _NSLog($this->state);
 		}
 	public function setObjectValue($val) { /*_NSLog("setObjectValue"); _NSLog($val);*/ $this->setSelected($val != ""); /*_NSLog($this->state);*/ }
-	public function setButtonType($type) { $this->buttonType=$type; $this->setNeedsDisplay(); }
+	public function setButtonType($type)
+		{
+		if($this->buttonType == $type) return;
+		$this->buttonType=$type;
+		$this->setNeedsDisplay();
+		}
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
 // _NSLog("NSButton mouseDown");
@@ -793,39 +800,32 @@ _NSLog($value);
 			parameter("style", "background-color: ".$this->backgroundColor);
 		switch($this->buttonType)
 			{
-// if checkbox/radio action is defined -> add onclick handler
-				case "Radio":
-					parameter("type", "radio");
-					$super=$this->superview();
-					if($super->classString() == "NSMatrix")
-						{
-						parameter("name", $super->elementId."-ck");
-						if($super->getRowColumnOfCell($row, $column, $this))
-							{
-							if(is_null($super->action()))
-								parameter("onclick", "e('".$super->elementId."');"."r($row);"."c($column)");	// don't submit
-							else
-								parameter("onclick", "e('".$super->elementId."');"."r($row);"."c($column)".";s()");
-							}
-						}
-					else
-						{ // stand-alone
-						parameter("name", $this->elementId."-ck");
-						if(!is_null($this->target) && !is_null($this->action))
-							parameter("onclick", "e('".$this->elementId."');s()");
-						}
-					break;
-				case "CheckBox":
-					parameter("type", "checkbox");
-					parameter("name", $this->elementId."-ck");
-					if(!is_null($this->target) && !is_null($this->action))
-						parameter("onclick", "e('".$this->elementId."');s()");
-					break;
-				default:
-					parameter("type", "submit");
-					parameter("name", $this->elementId."-ck");
-					parameter("value", _htmlentities($this->title));
+				case "Radio":	parameter("type", "radio"); break;
+				case "CheckBox":	parameter("type", "checkbox"); break;
+				default:		parameter("type", "submit");
+						parameter("value", _htmlentities($this->title));
 			}
+		$super=$this->superview();
+// _NSLog($super->classString());
+		if($super->respondsToSelector("getRowColumnOfCell"))
+			{ // appears to be a Matrix (we could also check $super->isKindOfClass("NSMatrix")
+			$onclick="e('".$super->elementId."')";
+			parameter("name", $super->elementId."-ck");
+			if($super->getRowColumnOfCell($row, $column, $this))
+				{
+				$onclick.=";r($row)".";c($column)";
+				if(!is_null($super->action()))
+					$onclick.=";s()";
+				}
+			}
+		else
+			{ // stand-alone
+			$onclick="e('".$this->elementId."')";
+			parameter("name", $this->elementId."-ck");
+			$onclick.=";s()";
+			}
+		if(!is_null($this->target))
+			parameter("onclick", $onclick);
 		if(!$this->enabled)
 			parameter("disabled", "");
 		if(isset($this->altTitle))
@@ -1030,7 +1030,12 @@ class NSPopUpButton extends NSButton
 	public function addItemWithTitle($title) { $this->menu[]=$title; $this->setNeedsDisplay(); }
 	public function addItemsWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
 	public function insertItemWithTitleAtIndex($title, $index) { }
-	public function removeAllItems() { $this->menu=array(); $this->setNeedsDisplay(); }
+	public function removeAllItems()
+		{
+		if(count($this->menu) == 0) return;
+		$this->menu=array();
+		$this->setNeedsDisplay();
+		}
 	public function removeItemWithTitle($title) { }
 	public function removeItemWithTitles($titleArray) { }
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
@@ -1038,6 +1043,7 @@ class NSPopUpButton extends NSButton
 	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
 	public function selectItemAtIndex($index)
 		{
+		if($this->selectedItemIndex == $index) return;	// no change
 		$this->selectedItemIndex=$this->_persist("selectedIndex", -1, $index);
 // _NSLog("selectItemAtIndex $index -> ".$this->selectedItemIndex);
 		$this->setNeedsDisplay();
@@ -1295,8 +1301,20 @@ class NSCollectionView extends NSControl
 		{ // alternate function name
 			$this->addSubview($item);
 		}
-	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
-	public function setColumns($columns) { $this->columns=0+$columns; $this->setNeedsDisplay(); }
+	public function setBorder($border)
+		{
+		$border=0+$border;
+		if($this->border == $border) return;
+		$this->border=$border;
+		$this->setNeedsDisplay();
+		}
+	public function setColumns($columns)
+		{
+		$columns=0+$columns;
+		if($this->columns == $columns) return;
+		$this->columns=$columns;
+		$this->setNeedsDisplay();
+		}
 
 // allow to define colspan and rowspan objects
 // allow to modify alignment
@@ -1382,7 +1400,13 @@ class NSMatrix extends NSControl
 
 	public function numberOfColumns() { return $this->columns; }
 	public function numberOfRows() { return (count($this->subviews)+$this->columns-1)/$this->columns; }
-	public function setColumns($columns) { $this->columns=0+$columns; $this->setNeedsDisplay(); }
+	public function setColumns($columns)
+		{
+		$columns=0+$columns;
+		if($this->columns == $columns) return;
+		$this->columns=$columns;
+		$this->setNeedsDisplay();
+		}
 
 	public function selectedRow()
 		{
@@ -1490,7 +1514,8 @@ class NSMatrix extends NSControl
 			if($this->align)
 				parameter("align", $this->align);
 			html(">\n");
-			$item->setSelected($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected
+			if($item->respondsToSelector("setSelected"))
+				$item->setSelected($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected state
 			$this->currentCell=$item;	// use cache when calling getRowColumnOfCell from within $item->display()
 			$this->currentRow=$row;
 			$this->currentColumn=$col;
@@ -1785,9 +1810,6 @@ class NSTabView extends NSControl
 		}
 	}
 
-// should we embed that into a NSClipView which provides the $visibleRows and $firstVisibleRow?
-// should we embed the NSClipView into a NSScrollView which can somehow (JavaScript? CSS?) show a scroller?
-
 class NSTableColumn extends NSObject
 {
 	protected $title;
@@ -1796,8 +1818,8 @@ class NSTableColumn extends NSObject
 	protected $isEditable=false;
 	protected $hidden=false;
 	protected $align="";
-	protected $headerCell;
-	protected $dataCell;
+	protected $headerCell=null;
+	protected $dataCell=null;
 	// allow to define colspan and rowspan values
 
 	public function title() { return $this->title; }
@@ -1829,8 +1851,7 @@ class NSTableView extends NSControl
 	protected $width="100%";
 	protected $delegate;
 	protected $dataSource;
-	protected $visibleRows=0;	// 0 = infinite
-	protected $firstVisibleRow=0;
+	protected $visibleRows;
 	protected $selectedRow=-1;
 	protected $selectedColumn=-1;
 	protected $clickedRow;
@@ -1839,8 +1860,20 @@ class NSTableView extends NSControl
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
 	public function setDataSource(NSObject $source=null) { $this->dataSource=$source; $this->reloadData(); }
-	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
-	public function setVisibleRows($rows) { $this->visibleRows=0+$rows; $this->setNeedsDisplay(); }
+	public function setBorder($border)
+		{
+		$border=0+$border;
+		if($this->border == $border) return;
+		$this->border=$border;
+		$this->setNeedsDisplay();
+		}
+	public function setVisibleRows($rows)
+		{ // Minimum visible rows
+		$rows=0+$rows;
+		if($this->visibleRows == $rows) return;
+		$this->visibleRows=$rows;
+		$this->setNeedsDisplay();
+		}
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
 	public function numberOfColumns() { return count($this->headers); }
 	public function doubleAction() { return $this->doubleAction; }
@@ -1895,6 +1928,14 @@ class NSTableView extends NSControl
 		{
 		return ($this->selectedColumn<$this->numberOfColumns())?$this->selectedColumn:-1;
 		}
+	public function clickedRow()
+		{
+		return ($this->clickedRow<$this->numberOfRows())?$this->clickedRow:-1;
+		}
+	public function clickedColumn()
+		{
+		return ($this->clickedColumn<$this->numberOfColumns())?$this->clickedColumn:-1;
+		}
 	public function selectRow($row, $extend=false)
 		{
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
@@ -1943,15 +1984,18 @@ class NSTableView extends NSControl
 			parameter("id", $this->elementId."-".$index);
 			parameter("name", $column->identifier());
 			parameter("class", "NSTableHeaderCell");
-			parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
+			if(is_null($column->headerCell()))
+				parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
+			else
+				parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)"."");
 			parameter("width", $column->width());
 			html(">\n");
 			html(_htmlentities($column->title()));
 			html("</th>\n");
 			}
 		html("</tr>\n");
-		$row=$this->firstVisibleRow;
-		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->firstVisibleRow+$this->visibleRows)
+		$row=0;
+		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
 			{
 			html("<tr");
 			parameter("id", $this->elementId."-".$row);
@@ -1969,17 +2013,20 @@ class NSTableView extends NSControl
 				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
 // FIXME: make the element handle onclick...
-				parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
+				$cell=$column->dataCell();
+				if(is_null($cell))
+					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
+			//	else
+			//		parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-					$cell=$column->dataCell();
 					if(!is_null($cell))
 						{ // insert value into cell and let the cell do the formatting
 						// how can we pass down the onclick handler?
 						$cell->setObjectValue($item);
-						$cell->draw();
+						$cell->display();
 						}
 					// compatibility if no cells are defined
 					else if(is_object($item) && $item->respondsToSelector("draw"))
@@ -1992,7 +2039,7 @@ class NSTableView extends NSControl
 						}
 					}
 				else
-					html("&nbsp;");	// add empty rows
+					html("&nbsp;");	// add empty rows until visibleRows are shown
 				html("</td>");
 				}
 			html("</tr>\n");
@@ -2017,12 +2064,26 @@ class NSTextField extends NSControl
 	protected $name;	// name of this <input>
 	public function stringValue() { return $this->stringValue; }
 	public function attributedStringValue() { return $this->htmlValue; }
-	public function setStringValue($str) { $this->stringValue=$str; $this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding); $this->setNeedsDisplay(); }
+	public function setStringValue($str)
+		{
+		if($this->stringValue == $str) return;
+		$this->stringValue=$str;
+		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
+		$this->setNeedsDisplay();
+		}
 	// should be used for static text fields
-	public function setAttributedStringValue($astr) { $this->htmlValue=$astr; $this->isEditable=false; $this->wraps=true; $this->setNeedsDisplay(); }
+	public function setAttributedStringValue($astr) 
+		{
+		if($this->htmlValue == $astr) return;
+		$this->htmlValue=$astr;
+		$this->isEditable=false;
+		$this->wraps=true;
+		$this->setNeedsDisplay();
+		}
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag, $name=null)
 		{
+		if($this->isEditable == $flag) return;
 		$this->isEditable=$flag;
 		if(!is_null($name))
 			{
@@ -2032,12 +2093,16 @@ class NSTextField extends NSControl
 		$this->setNeedsDisplay();
 		}
 	public function placeholderString() { return $this->placeholder; }
-	public function setPlaceholderString($str) { $this->placeholder=$str; $this->setNeedsDisplay(); }
+	public function setPlaceholderString($str)
+		{
+		if($this->placeholder == $str) return;
+		$this->placeholder=$str;
+		$this->setNeedsDisplay();
+		}
 	public function backgroundColor() { return $this->backgroundColor; }
 	public function setBackgroundColor($color)
 		{
-		if($color == $this->backgroundColor)
-			return;
+		if($color == $this->backgroundColor) return;
 		$this->backgroundColor=$color;
 		$this->setNeedsDisplay();
 		}
@@ -2152,8 +2217,7 @@ class NSTextView extends NSControl
 		}
 	public function setString($string)
 		{
-		if($string == $this->string)
-			return;	// no change
+		if($string == $this->string) return;	// no change
 		// FIXME: doesn't this conflict with posting a changed string?
 		$this->string=$this->_persist("string", "", $string);
 		$this->setNeedsDisplay();
