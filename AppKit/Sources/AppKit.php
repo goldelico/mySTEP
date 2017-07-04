@@ -235,11 +235,17 @@ class NSResponder extends NSObject
 	protected static $objects=array();	// all objects
 	protected $elementId;	// unique object id
 	public function __construct()
-	{
+		{
 		parent::__construct();
 		$this->elementId=1+count(self::$objects);	// assign element numbers
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
+	
+	public function _collectEvents()
+		{ // go through hierarchy and update initialization values by user input
+		// we could postpone elementid assignment up to here!
+		// default responder does nothing
+		}
 
 	public function _eventIsForMe()
 		{ // there is some event for us!
@@ -248,8 +254,14 @@ class NSResponder extends NSObject
 		return $_POST['NSEvent'] == $this->elementId;
 		}
 
-	public static function _objectForId($id) { return isset(self::$objects[$id])?self::$objects[$id]:null; }
-	public function elementId() { return $this->elementId; }
+	public static function _objectForId($id)
+		{
+		return isset(self::$objects[$id])?self::$objects[$id]:null;
+		}
+	public function elementId()
+		{
+		return $this->elementId;
+		}
 }
 
 class NSApplication extends NSResponder
@@ -389,6 +401,28 @@ _NSLog("sendAction $action to first responder");
 		else
 			_NSLog(/*$target->description().*/"target does no handle $action");
 		}
+	public function _collectEvents()
+		{
+		$this->mainWindow->_collectEvents();	// collect from subelements
+// _NSLog($_POST);
+		$targetId=_persist('NSEvent', null);	// set by the e(n) onlick handler
+// _NSLog("targetId $targetId");
+		if(!is_null($targetId) && $targetId)
+			$target=NSResponder::_objectForId($targetId);
+		else
+			$target=null;
+// _NSLog($target);
+		if(!is_null($target))
+			{ // user did click into this object when sending this form
+			global $NSApp;
+			$event=new NSEvent($target, 'NSMouseDown');
+			$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
+			_persist('clickedRow', "", "");	// reset
+			_persist('clickedColumn', "", "");	// reset
+			$NSApp->queueEvent($event);
+			}
+		_persist('NSEvent', "", "");	// reset
+		}
 	public function updateWindows()
 		{
 		if(method_exists($this->delegate, "updateWindows"))
@@ -449,31 +483,15 @@ _NSLog("sendAction $action to first responder");
 				}
 			exit;
 			}
-		do
-			{ // e(elementId) onclick handler
-// _NSLog($_POST);
-			$targetId=_persist('NSEvent', null);	// set by the e(n) onlick handler
-// _NSLog("targetId $targetId");
-			if(!is_null($targetId) && $targetId)
-				$target=NSResponder::_objectForId($targetId);
-			else
-				$target=null;
-// _NSLog($target);
-			if(!is_null($target))
-				{ // user did click into this object when sending this form
-				global $NSApp;
-				$event=new NSEvent($target, 'NSMouseDown');
-				$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
-				_persist('clickedRow', "", "");	// reset
-				_persist('clickedColumn', "", "");	// reset
-				$this->queueEvent($event);
-				}
-			_persist('NSEvent', "", "");	// reset
+		$this->_collectEvents();
+		while(true)
+			{
 			foreach($this->eventQueue as $event)
 				$this->mainWindow->sendEvent($event);	// deliver all events
-			$this->updateWindows();
+			$this->updateWindows();	// and finally display
 			// could we run an AJAX loop here?
-			} while(false);	// not really a loop in a http response...
+			return; // not really a loop in a http response...
+			}
 		}
 }
 	
@@ -512,12 +530,15 @@ class NSView extends NSResponder
 	public function __construct()
 		{
 		parent::__construct();
-		// if we ever get problems with this numbering, we should derive the name from
-		// the subview tree index, e.g. 0-2-3
 		$this->frame=NSMakeRect(0, 0, 0, 0);
 		}
 	public function _persist($object, $default, $value=null)
 		{
+		if(!$this->elementId)
+			{ // called before elementId was assigned (should not happen)
+			_NSLog("missing elementId");
+			_NSLog($this);
+			}
 		return _persist($this->elementId."-".$object, $default, $value);	// add namespace for this view
 		}
 	public function frame() { return $this->frame; }
@@ -596,6 +617,11 @@ class NSView extends NSResponder
 			return;
 		$this->hidden=$flag;
 		$this->setNeedsDisplay();
+		}
+	public function _collectEvents()
+		{ // go through hierarchy
+		foreach($this->subviews as $view)
+			$view->_collectEvents();
 		}
 	public function display()
 		{ // draw subviews first
@@ -681,6 +707,7 @@ NSLog($this->description()." sendAction $action");
 
 class NSButton extends NSControl
 	{
+	protected $type;
 	protected $tag;
 	protected $title;
 	protected $altTitle;
@@ -692,25 +719,9 @@ class NSButton extends NSControl
 		{
 		parent::__construct();
 // _NSLog("NSButton $newtitle ".$this->elementId);
+		$this->type=$type;
 		$this->title=$newtitle;
 		$this->buttonType=$type;
-		if($type != "NSPopupButton")
-			{
-			$this->state=$this->_persist("state", NSOffState);
-			if($this->_eventIsForMe())
-				{ // has been clicked by e() mechanism
-// FIXME: how does this work? it is neither used by NSEvent nor mouseDown
-				_persist('clickedRow', "", $this->state);	// pass through NSEvent to mouseDown
-				$this->_persist("ck", "", "");	// unset
-				}
-			else if(!is_null($this->_persist("ck", null)))
-				{ // non-java-script detection
-				global $NSApp;
-				$this->_persist("ck", "", "");  // unset
-// _NSLog("ck: ".$this->classString());
-				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
-				}
-			}
 		}
 	public function isSelected()
 		{
@@ -761,7 +772,7 @@ _NSLog($value);
 */
 		if($value == $this->state)
 			return;
-		$this->state=$this->_persist("state", $value);
+		$this->state=$value;
 		$this->setNeedsDisplay();
 // _NSLog($this->state);
 		}
@@ -787,6 +798,27 @@ _NSLog($value);
 	}
 	public function keyEquivalent() { return $this->keyEquivalent; }
 	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
+	public function _collectEvents()
+		{
+		if($this->type != "NSPopupButton")
+			{
+			$this->state=$this->_persist("state", NSOffState);
+			if($this->_eventIsForMe())
+				{ // has been clicked by e() mechanism
+// FIXME: how does this work? it is neither used by NSEvent nor mouseDown
+				_persist('clickedRow', "", $this->state);	// pass through NSEvent to mouseDown
+				$this->_persist("ck", "", "");	// unset
+				}
+			else if(!is_null($this->_persist("ck", null)))
+				{ // non-java-script detection
+				global $NSApp;
+				$this->_persist("ck", "", "");  // unset
+// _NSLog("ck: ".$this->classString());
+				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				}
+			}
+		parent::_collectEvents();
+		}
 	public function draw()
 		{
 		html("<input");
@@ -836,12 +868,23 @@ _NSLog($value);
 		html("/>");
 		switch($this->buttonType)
 			{
-				case "CheckBox":
-				case "Radio":
-					html(_htmlentities($this->title));
+			case "CheckBox":
+			case "Radio":
+				html(_htmlentities($this->title));
 				break;
 			}
 		html("\n");
+		}
+	public function displayDone()
+		{
+		switch($this->buttonType)
+			{
+			case "CheckBox":
+			case "Radio":
+				$this->_persist("state", "", $this->state);
+				break;
+			}
+		parent::displayDone();
 		}
 	}
 
@@ -858,7 +901,11 @@ class NSMenuItemView extends NSButton
 		public function __construct($label)
 			{
 			parent::__construct($label);
+			}
+		public function _collectEvents()
+			{
 			$this->isSelected=$this->_persist("isSelected", 0);
+			parent::_collectEvents();
 			}
 		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; $this->setNeedsDisplay(); }
 		public function submenu() { return $this->subMenuView; }
@@ -927,8 +974,12 @@ class NSMenuView extends NSMenu
 		parent::__construct();
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
-		$this->selectedItem=$this->_persist("selectedIndex", -1);
 		$menuItems=array();
+		}
+	public function _collectEvents()
+		{
+		$this->selectedItem=$this->_persist("selectedIndex", -1);
+		parent::_collectEvents();
 		}
 	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
@@ -1007,17 +1058,7 @@ class NSPopUpButton extends NSButton
 		parent::__construct("", "NSPopupButton");
 		$this->menu=array();
 // _NSLog($this->elementId()." created");
-		$this->selectedItemIndex=$this->_persist("selectedIndex", -1);
-// _NSLog($this->elementId()." selected item ".$this->selectedItemIndex);
-		if($this->_eventIsForMe())
-			{
-			// Warning - this only works if titles are unique!
-			$title=_persist($this->elementId, "");	// read selected item title
-			_persist($this->elementId, "", "");	// and remove
-			_persist('clickedRow', "", $title);	// pass through NSEvent to mouseDown
-			}
 		}
-
 	public function pullsDown() { return $this->pullsDown; }
 	public function setPullsDown($flag)
 		{
@@ -1044,11 +1085,15 @@ class NSPopUpButton extends NSButton
 	public function selectItemAtIndex($index)
 		{
 		if($this->selectedItemIndex == $index) return;	// no change
-		$this->selectedItemIndex=$this->_persist("selectedIndex", -1, $index);
+		$this->selectedItemIndex=$index;
 // _NSLog("selectItemAtIndex $index -> ".$this->selectedItemIndex);
 		$this->setNeedsDisplay();
 		}
-	public function selectItemWithTitle($title) { $this->selectItemAtIndex($this->indexOfItemWithTitle($title)); }
+	public function selectItemWithTitle($title)
+		{
+_NSLog("selectItemWithTitle: $title");
+		$this->selectItemAtIndex($this->indexOfItemWithTitle($title));
+		}
 	public function menu() { return $this->menu; }
 	public function itemArray() { return $this->menu; }
 	public function itemWithTitle($title)
@@ -1071,17 +1116,25 @@ class NSPopUpButton extends NSButton
 	public function mouseDown(NSEvent $event)
 		{
 // _NSLog($event);
-// _NSLog("NSPopupButton mousedown ");
+_NSLog("NSPopupButton mousedown ");
 		$pos=$event->position();
 // _NSLog($event->target()->elementId());
 // _NSLog($this->elementId());
 // _NSLog($pos);
-		// Warning - this only works if titles are unique!
-		$this->selectItemAtIndex($this->indexOfItemWithTitle($pos['y']));
 		$this->sendAction();
+		}
+	public function _collectEvents()
+		{ // Warning - this only works correctly if titles are unique!
+		$title=$this->_persist("", $this->titleOfSelectedItem());	// read old/new selected item title
+_NSLog("NSPopUpButton _collectEvents: $title - ".$this->titleOfSelectedItem());
+	//	_persist($this->elementId, "", "");	// and remove
+		$this->selectItemWithTitle($title);
+_NSLog($this->elementId()." selected item ".$this->selectedItemIndex);
+		parent::_collectEvents();
 		}
 	public function draw()
 		{
+		if($this->isHidden()) return;
 // _NSLog($this->elementId()." draw selected item ".$this->selectedItemIndex);
 		NSGraphicsContext::currentContext()->text($this->title);
 		html("<select");
@@ -1104,6 +1157,14 @@ class NSPopUpButton extends NSButton
 			$index++;
 			}
 		html("</select>\n");
+		}
+	public function displayDone()
+		{
+		if($this->isHidden())	// persist index even if button is currently hidden
+			$this->_persist("", -1, $this->selectedIndex);
+		else
+			$this->_persist("", "", "");	// remove from persistence store (because we have our own <input>)
+		parent::displayDone();
 		}
 	}
 
@@ -1331,7 +1392,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		}
 	public function display()
 		{
-		if($this->hidden)
+		if($this->isHidden())
 			return;
 		if($this->columns > 0)
 			{
@@ -1422,9 +1483,6 @@ class NSMatrix extends NSControl
 		{
 		parent::__construct();
 		$this->columns=$cols;
-		$this->selectedRow=$this->_persist("selectedRow", -1);
-		$this->selectedColumn=$this->_persist("selectedColumn", -1);
-// _NSLog("init $this->elementId: $this->selectedRow / $this->selectedColumn");
 		}
 
 	public function getRowColumnOfCell(&$row, &$col, $cell)
@@ -1473,9 +1531,9 @@ class NSMatrix extends NSControl
 
 	public function selectRowColumn($row, $column)
 		{
-// _NSLog("select old $this->elementId: $this->selectedRow / $this->selectedColumn");
-		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
-		$this->selectedColumn=$this->_persist("selectedColumn", -1, $column);
+// unselect auf vorheriges?
+		$this->selectedRow=$row;
+		$this->selectedColumn=$column;
 // _NSLog("select new $this->elementId: $this->selectedRow / $this->selectedColumn");
 		$item=$this->cellAtRowColumn($row, $column);
 		if(!is_null($item))
@@ -1493,9 +1551,17 @@ class NSMatrix extends NSControl
 		$this->sendAction();
 		}
 
+	public function _collectEvents()
+		{
+		$this->selectedRow=$this->_persist("selectedRow", -1);
+		$this->selectedColumn=$this->_persist("selectedColumn", -1);
+// _NSLog("init $this->elementId: $this->selectedRow / $this->selectedColumn");
+		parent::_collectEvents();
+		}
+
 	public function display()
 		{
-		if($this->hidden)
+		if($this->isHidden())
 			return;
 		html("<table");
 		parameter("class", "NSMatrixView");
@@ -1535,6 +1601,13 @@ class NSMatrix extends NSControl
 				html("</tr>\n");
 			}
 		html("</table>\n");
+		}
+
+	public function displayDone()
+		{
+		$this->_persist("selectedRow", -1, $this->selectedRow);
+		$this->_persist("selectedColumn", -1, $this->selectedColumn);
+		parent::displayDone();
 		}
 	}
 
@@ -1613,7 +1686,7 @@ class NSBox extends NSControl
 		}
 	public function display()
 		{
-		if($this->hidden)
+		if($this->isHidden())
 			return;
 		html("<div");
 		parameter("class", "NSBox");
@@ -1667,7 +1740,7 @@ class NSTabView extends NSControl
 	protected $border=1;
 	protected $width="100%";
 	protected $tabViewItems=array();
-	protected $selectedIndex;
+	protected $selectedIndex=-1;
 	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
@@ -1676,7 +1749,6 @@ class NSTabView extends NSControl
 		parent::__construct();
 		foreach($items as $item)
 			$this->addTabViewItem($item);
-		$this->selectedIndex=$this->_persist("selectedIndex", 0);
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -1684,15 +1756,9 @@ class NSTabView extends NSControl
 	public function tabViewItemAtIndex($i) { return $this->tabViewItems[$i]; }
 	public function addTabViewItem(NSTabViewItem $item)
 		{
-		if(!is_null($this->_persist(count($this->tabViewItems), null)))
-			{ // this index was clicked
-			global $NSApp;
-			$this->_persist(count($this->tabViewItems), "", "");	// reset event
-			$this->clickedItemIndex=count($this->tabViewItems);
-			NSLog($this->classString()." index ".$this->clickedItemIndex);
-			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
-			}
 		$this->tabViewItems[]=$item;
+		if($this->selectedIndex < 0)
+			$this->selectedIndex=0;	// select first
 		$this->setNeedsDisplay();
 		}
 	public function indexOfSelectedTabViewItem() { return $this->selectedIndex; }
@@ -1736,7 +1802,7 @@ class NSTabView extends NSControl
 				return;	// reject selection
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[$index]);
-		$this->selectedIndex=$this->_persist("selectedIndex", 0, $index);
+		$this->selectedIndex=$index;
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 		NSLog("selectTabViewItemAtIndex $index done");
@@ -1751,6 +1817,27 @@ class NSTabView extends NSControl
 		{
 // _NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
 		$this->selectTabViewItemAtIndex($this->clickedItemIndex);
+		}
+	public function _collectEvents()
+		{
+		global $NSApp;
+// _NSLog("NSTabView _collectEvents");
+		$this->selectedIndex=$this->_persist("selectedIndex", 0);
+		$this->clickedItemIndex=-1;
+		for($i=0; $i<count($this->tabViewItems); $i++)
+			{ // find out which _persist index exists
+			if(!is_null($this->_persist($i, null)))
+				{ // this index was clicked
+				$this->_persist($i, "", "");	// reset event
+				$this->clickedItemIndex=$i;
+// _NSLog($this->classString()." index ".$this->clickedItemIndex);
+				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				}
+			}
+		$selectedItem=$this->selectedTabViewItem();
+		if(!is_null($selectedItem))
+			$selectedItem->view()->_collectEvents();
+		parent::_collectEvents();	// and from all subviews
 		}
 	public function display()
 		{
@@ -1804,9 +1891,13 @@ class NSTabView extends NSControl
 
 	public function displayDone()
 		{ // treat items like subviews
+		$this->_persist("selectedIndex", 0, $this->selectedIndex);
 		$selectedItem=$this->selectedTabViewItem();
-		if(!is_null($selectedItem))
-			$selectedItem->view()->displayDone();
+		foreach($this->tabViewItems as $item)
+			{
+			$item->view()->setHidden($item != $selectedItem);	// we did not call display...
+			$item->view()->displayDone();	// give items a chance to persist
+			}
 		}
 	}
 
@@ -1884,8 +1975,6 @@ class NSTableView extends NSControl
 		if(!is_array($headers))
 			_NSLog('please specify column headers of new NSTableView($headers) as array()');
 		$this->visibleRows=$visibleRows;
-		$this->selectedRow=$this->_persist("selectedRow", -1);
-		$this->selectedColumn=$this->_persist("selectedColumn", -1);
 		$this->columns=array();
 		foreach($headers as $title)
 			{
@@ -1940,7 +2029,7 @@ class NSTableView extends NSControl
 		{
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
 		// if ! extend -> delete previous otherwise merge into set
-		$this->selectedRow=$this->_persist("selectedRow", -1, $row);
+		$this->selectedRow=$row;
 		$this->setNeedsDisplay();
 		$delegate=$this->delegate();
 		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
@@ -1956,6 +2045,12 @@ class NSTableView extends NSControl
 		// if this clickedRow is already selected we may have a double-click
 		// then call doubleAction (if defined) or check if NSTableColumn is editable
 		$this->selectRow($this->clickedRow);
+		}
+	public function _collectEvents()
+		{
+		$this->selectedRow=$this->_persist("selectedRow", -1);
+		$this->selectedColumn=$this->_persist("selectedColumn", -1);
+		parent::_collectEvents();
 		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
 	public function display()
@@ -2047,6 +2142,12 @@ class NSTableView extends NSControl
 			}
 		html("</table>\n");
 		}
+	public function displayDone()
+		{
+		$this->_persist("selectedRow", -1, $this->selectedRow);
+		$this->_persist("selectedColumn", -1, $this->selectedColumn);
+		parent::displayDone();
+		}
 	}
 	
 class NSTextField extends NSControl
@@ -2066,6 +2167,7 @@ class NSTextField extends NSControl
 	public function attributedStringValue() { return $this->htmlValue; }
 	public function setStringValue($str)
 		{
+// _NSLog("setStringValue for ".$this->name.": $str");
 		if($this->stringValue == $str) return;
 		$this->stringValue=$str;
 		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
@@ -2083,13 +2185,12 @@ class NSTextField extends NSControl
 	public function isEditable() { return $this->isEditable; }
 	public function setEditable($flag, $name=null)
 		{
+if($name)
+	_NSLog("NSTextField setEditable with name (deprecated): $name");
 		if($this->isEditable == $flag) return;
 		$this->isEditable=$flag;
 		if(!is_null($name))
-			{
-			$this->name=$name;	// override
-			$this->setStringValue(_persist($this->name, $this->stringValue));
-			}
+			$this->name=$name;	// override (must be done in didFinishLoading())
 		$this->setNeedsDisplay();
 		}
 	public function placeholderString() { return $this->placeholder; }
@@ -2107,33 +2208,36 @@ class NSTextField extends NSControl
 		$this->setNeedsDisplay();
 		}
 	public function __construct($width=30, $default="", $name = null)
-	{
+		{
+if($default)
+	_NSLog("NSTextField with default (deprecated): $default");
+if($name)
+	_NSLog("NSTextField with name (deprecated): $name");
        		parent::__construct();
+		// should be depreacted and replaced by setFrame() ...
+		$this->width=$width;
+		$this->setName($name);
+		}
+	public function setName($name=null)
+		{
 		if(is_null($name))
 			$this->name=$this->elementId."-string";	// default name
 		else
 			$this->name=$name;	// override
-// _NSLog("__contruct NSTextField ".$this->name);
-		$this->setStringValue(_persist($this->name, $default));
-		// should be depreacted and replaced by setFrame() ...
-		$this->width=$width;
-	}
+// _NSLog("NSTextField name: ".$this->name);
+		}
 	public function mouseDown(NSEvent $event)
 		{ // user has pressed return in this (search)field
 // _NSLog("mouseDown");
 // _NSLog($this);
 		$this->sendAction();
 		}
-	public function displayDone()
+	public function _collectEvents()
 		{
-		if($this->isHidden())
-			{ // persist stringValue even if text field is currently hidden
-			if($this->isEditable && $this->type != "password")
-				_persist($this->name, $this->stringValue);
-			}
-		else if($this->isEditable)
-			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
-		parent::displayDone();
+		$str=_persist($this->name, $this->stringValue);
+_NSLog("NSTextField _collectEvents for ".$this->name.": $str");
+		$this->setStringValue($str);
+		parent::_collectEvents();
 		}
 	public function draw()
 		{
@@ -2157,7 +2261,7 @@ class NSTextField extends NSControl
 				case "search":
 					parameter("onsearch", "e('".$this->elementId."');s('search')");
 					break;
-				case "search":
+				case "?":
 					parameter("onchange", "e('".$this->elementId."');s('change')");
 					break;
 				case "range":
@@ -2173,6 +2277,17 @@ class NSTextField extends NSControl
 			else
 				html($this->htmlValue);
 			}
+		}
+	public function displayDone()
+		{
+		if($this->isHidden())
+			{ // persist stringValue even if text field is currently hidden
+			if($this->isEditable && $this->type != "password")
+				_persist($this->name, $this->stringValue);
+			}
+		else if($this->isEditable)
+			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
+		parent::displayDone();
 		}
 }
 
@@ -2213,21 +2328,26 @@ class NSTextView extends NSControl
 		{
        		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, $width, $height);
-		$this->string=$this->_persist("string", "");
+		// should be depreacted and replaced by setFrame() ...
+		$this->width=$width;
 		}
 	public function setString($string)
 		{
 		if($string == $this->string) return;	// no change
-		// FIXME: doesn't this conflict with posting a changed string?
-		$this->string=$this->_persist("string", "", $string);
 		$this->setNeedsDisplay();
 		}
 	public function string() { return $this->string; }
 	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
 		}
+	public function _collectEvents()
+		{
+		$this->string=$this->_persist("string", $this->string);
+		parent::_collectEvents();
+		}
 	public function draw()
 		{
+		if($this->isHidden()) return;	// don't draw
 		html("<textarea");
 		parameter("id", $this->elementId);
 		parameter("width", NSWidth($this->frame));
@@ -2239,7 +2359,10 @@ class NSTextView extends NSControl
 		}
 	public function displayDone()
 		{
-		$this->_persist("string", "", "");	// remove from persistence store
+		if($this->isHidden())	// persist stringValue even if text field is currently hidden
+			$this->_persist("string", $this->stringValue);
+		else
+			$this->_persist("string", "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
 		}
 }
@@ -2259,9 +2382,13 @@ class NSScrollView extends NSView
 		{
 // FIXME: does not work properly :(
        		parent::__construct();
+		}
+	public function _collectEvents()
+		{
 		$this->point=NSMakePoint(_persist('scrollerX', null), _persist('scrollerX', null));
 // _NSLog("point");
 // _NSLog($this->point);
+		parent::_collectEvents();
 		}
 
 	public function scrollTo($point)
@@ -2271,7 +2398,7 @@ class NSScrollView extends NSView
 
 	public function display()
 		{
-		if($this->hidden)
+		if($this->isHidden())
 			return;
 		if(is_null($this->superview))
 			{ // NSWindow
@@ -2356,6 +2483,11 @@ class NSWindow extends NSResponder
 		// should send NSWindowDidUpdateNotification
 		return;
 		}
+	public function _collectEvents()
+		{ // go through hierarchy
+		$this->scrollView->_collectEvents();
+		}
+
 	public function display() 
 		{
 		global $NSApp;
