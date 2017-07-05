@@ -240,7 +240,7 @@ class NSResponder extends NSObject
 		$this->elementId=1+count(self::$objects);	// assign element numbers
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
-	
+
 	public function _collectEvents()
 		{ // go through hierarchy and update initialization values by user input
 		// we could postpone elementid assignment up to here!
@@ -532,14 +532,19 @@ class NSView extends NSResponder
 		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, 0, 0);
 		}
-	public function _persist($object, $default, $value=null)
+	public function _persist($component, $default, $value=null)
 		{
 		if(!$this->elementId)
 			{ // called before elementId was assigned (should not happen)
 			_NSLog("missing elementId");
 			_NSLog($this);
 			}
-		return _persist($this->elementId."-".$object, $default, $value);	// add namespace for this view
+		if($component !== "")	// allow for -0
+			$id=$this->elementId."-".$component;
+		else
+			$id=$this->elementId;	// handle empty id
+// _NSLog("persist $id");
+		return _persist($id, $default, $value);	// add namespace for this view
 		}
 	public function frame() { return $this->frame; }
 	public function setFrame($frame) { $this->frame=$frame; }
@@ -683,7 +688,7 @@ class NSControl extends NSView
 			$action=$this->action;
 		if(is_null($target))
 			$target=$this->target;
-NSLog($this->description()." sendAction $action");
+// NSLog($this->description()." sendAction $action");
 		$NSApp->sendActionToTarget($this, $action, $target);
 		}
 	public function setActionAndTarget($action, NSObject $target)
@@ -707,21 +712,20 @@ NSLog($this->description()." sendAction $action");
 
 class NSButton extends NSControl
 	{
-	protected $type;
 	protected $tag;
 	protected $title;
 	protected $altTitle;
-	protected $state;
+	protected $state=NSOffState;
+	protected $hasMixedMode=false;
 	protected $buttonType;
 	protected $keyEquivalent;	// set to "\r" to make it the default button
 	protected $backgroundColor;
-	public function __construct($newtitle = "NSButton", $type="Button")
+	public function __construct($newtitle = "NSButton", $buttonType="Button")
 		{
 		parent::__construct();
 // _NSLog("NSButton $newtitle ".$this->elementId);
-		$this->type=$type;
+		$this->buttonType=$buttonType;
 		$this->title=$newtitle;
-		$this->buttonType=$type;
 		}
 	public function isSelected()
 		{
@@ -765,57 +769,85 @@ class NSButton extends NSControl
 	public function state() { return $this->state; }
 	public function setState($value)
 		{
-/*
-_NSLog("setState");
-_NSLog($this->state);
-_NSLog($value);
-*/
+// _NSLog("setState");
+// _NSLog($this->state);
+// _NSLog($value);
 		if($value == $this->state)
 			return;
 		$this->state=$value;
 		$this->setNeedsDisplay();
 // _NSLog($this->state);
 		}
-	public function setObjectValue($val) { /*_NSLog("setObjectValue"); _NSLog($val);*/ $this->setSelected($val != ""); /*_NSLog($this->state);*/ }
-	public function setButtonType($type)
+	public function setNextState()
+		{ // cycle through states
+// _NSLog("setNextState $state ->");
+		if($this->state < NSOffState)
+			$this->setState(NSOffState);
+		else if($this->state == NSOffState)
+			$this->setState(NSOnState);
+		else if($this->hasMixedMode)
+			$this->setState(NSMixedState);	// choose mixed state if possible
+		else
+			$this->setState(NSOffState);
+// _NSLog("  -> $state");
+		}
+	public function setObjectValue($val)
 		{
-		if($this->buttonType == $type) return;
-		$this->buttonType=$type;
+// _NSLog("setObjectValue"); _NSLog($val);
+		$this->setSelected($val != "");
+// _NSLog($this->state);
+		}
+	public function setButtonType($buttonType)
+		{
+		if($this->buttonType == $buttonType) return;
+		$this->buttonType=$buttonType;
 		$this->setNeedsDisplay();
 		}
 	public function mouseDown(NSEvent $event)
 	{ // this button may have been pressed
-// _NSLog("NSButton mouseDown");
-// _NSLog($event->position());
-		// _NSLog($event);
-		// NSLog($this);
+// _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		// if radio button or checkbox, watch for value
-		// but then the mouseDown is handled by the superview
+		// but then the mouseDown is handled by the NSMatrix superview
 		// FIXME: handle checkbox tristate
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
-			$this->setState(!$this->state());
+			$this->setNextState();	// toggle before sending action (why?)
 		$this->sendAction();
 	}
 	public function keyEquivalent() { return $this->keyEquivalent; }
 	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
 	public function _collectEvents()
 		{
-		if($this->type != "NSPopupButton")
+		if($this->buttonType != "NSPopupButton")
 			{
-			$this->state=$this->_persist("state", NSOffState);
-			if($this->_eventIsForMe())
-				{ // has been clicked by e() mechanism
-// FIXME: how does this work? it is neither used by NSEvent nor mouseDown
-				_persist('clickedRow', "", $this->state);	// pass through NSEvent to mouseDown
-				$this->_persist("ck", "", "");	// unset
+// _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
+// _NSLog($_POST);
+/*
+ * In JS Mode, e() has triggered the POST and
+ * _POST['NSEvent'] is set.
+ * _eventIsForMe returns true.
+ * An NSEvent will be queued by _collectEvents() of NSApplication.
+ * And we store the state explicitly.
+ *
+ * In non-JS mode (i.e. onclick is ignored)
+ * "ck" returns "on" if a checkbox/radio is active.
+ * And null if it is inactive.
+ * State is not stored explicitly (well, it is stored but not processed)
+ *
+ * So we have to separate state-detection and event generation!
+ */
+			if(!is_null(_persist("NSEvent", null)))
+				{ // e(other) tiggered - store state in separate variable
+				$this->state=$this->_persist("state", $this->state);
 				}
 			else if(!is_null($this->_persist("ck", null)))
 				{ // non-java-script detection
-				global $NSApp;
-				$this->_persist("ck", "", "");  // unset
+				$this->state=NSOffState;	// mouseDown will switch to NSOnState
 // _NSLog("ck: ".$this->classString());
-				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+//				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				$this->_persist("ck", "", "");  // unset
 				}
+			else
+				$this->state=NSOffState; // non-JS mode and seems to be off
 			}
 		parent::_collectEvents();
 		}
@@ -828,6 +860,7 @@ _NSLog($value);
 			parameter("class", "NSButton ".(!$this->isSelected()?"NSOnState":"NSOffState"));
 		else
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
+// tristate needs JS: document.getElementById("some-checkbox").indeterminate = true
 		if($this->backgroundColor)
 			parameter("style", "background-color: ".$this->backgroundColor);
 		switch($this->buttonType)
@@ -863,8 +896,11 @@ _NSLog($value);
 		if(isset($this->altTitle))
 			{ // use CSS to change contents on hover
 			}
-		if($this->isSelected())
-			parameter("checked", "checked");
+		switch($this->state())
+			{
+			case NSMixedState: parameter("intermediate", "intermediate"); break;
+			case NSOnState: parameter("checked", "checked"); break;
+			}
 		html("/>");
 		switch($this->buttonType)
 			{
@@ -881,7 +917,7 @@ _NSLog($value);
 			{
 			case "CheckBox":
 			case "Radio":
-				$this->_persist("state", "", $this->state);
+				$this->_persist("state", "", $this->state);	// store for JS mode
 				break;
 			}
 		parent::displayDone();
@@ -1091,7 +1127,7 @@ class NSPopUpButton extends NSButton
 		}
 	public function selectItemWithTitle($title)
 		{
-_NSLog("selectItemWithTitle: $title");
+// _NSLog("selectItemWithTitle: $title");
 		$this->selectItemAtIndex($this->indexOfItemWithTitle($title));
 		}
 	public function menu() { return $this->menu; }
@@ -1114,10 +1150,10 @@ _NSLog("selectItemWithTitle: $title");
 		return -1;
 		}
 	public function mouseDown(NSEvent $event)
-		{
+		{ // triggered only if there was a change
 // _NSLog($event);
-_NSLog("NSPopupButton mousedown ");
-		$pos=$event->position();
+// _NSLog("NSPopupButton mousedown ");
+//		$pos=$event->position();
 // _NSLog($event->target()->elementId());
 // _NSLog($this->elementId());
 // _NSLog($pos);
@@ -1125,17 +1161,22 @@ _NSLog("NSPopupButton mousedown ");
 		}
 	public function _collectEvents()
 		{ // Warning - this only works correctly if titles are unique!
-		$title=$this->_persist("", $this->titleOfSelectedItem());	// read old/new selected item title
-_NSLog("NSPopUpButton _collectEvents: $title - ".$this->titleOfSelectedItem());
+		global $NSApp;
+		$oldtitle=$this->titleOfSelectedItem();
+// _NSLog($_POST);
+		$title=$this->_persist("", $oldtitle);	// potentially update selected item
+// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $title - ".$this->titleOfSelectedItem());
 	//	_persist($this->elementId, "", "");	// and remove
+		if($title != $oldtitle)
+			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // if changed, queue a mouseDown event for us
 		$this->selectItemWithTitle($title);
-_NSLog($this->elementId()." selected item ".$this->selectedItemIndex);
+// _NSLog("NSPopUpButton ".$this->elementId()." selected item ".$this->selectedItemIndex);
 		parent::_collectEvents();
 		}
 	public function draw()
 		{
 		if($this->isHidden()) return;
-// _NSLog($this->elementId()." draw selected item ".$this->selectedItemIndex);
+// _NSLog("NSPopUpButton ".$this->elementId()." draw selected item ".$this->selectedItemIndex);
 		NSGraphicsContext::currentContext()->text($this->title);
 		html("<select");
 		parameter("id", $this->elementId);
@@ -1822,21 +1863,26 @@ class NSTabView extends NSControl
 		{
 		global $NSApp;
 // _NSLog("NSTabView _collectEvents");
+// _NSLog($_POST);
 		$this->selectedIndex=$this->_persist("selectedIndex", 0);
+		$selectedItem=$this->selectedTabViewItem();
+		if(!is_null($selectedItem))
+			$selectedItem->view()->_collectEvents();
 		$this->clickedItemIndex=-1;
-		for($i=0; $i<count($this->tabViewItems); $i++)
+		$cnt=count($this->tabViewItems);
+		for($i=0; $i<$cnt; $i++)
 			{ // find out which _persist index exists
+// _NSLog($i);
+// _NSLog($this->_persist($i, null));
 			if(!is_null($this->_persist($i, null)))
 				{ // this index was clicked
 				$this->_persist($i, "", "");	// reset event
 				$this->clickedItemIndex=$i;
 // _NSLog($this->classString()." index ".$this->clickedItemIndex);
 				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+				break;	// only one button should have been pressed
 				}
 			}
-		$selectedItem=$this->selectedTabViewItem();
-		if(!is_null($selectedItem))
-			$selectedItem->view()->_collectEvents();
 		parent::_collectEvents();	// and from all subviews
 		}
 	public function display()
@@ -1855,13 +1901,9 @@ class NSTabView extends NSControl
 			{ // add tab buttons and switching logic
 			if(!$item->isHidden())
 				{
-// FIXME: buttons must be able to change state!
-// i.e. these buttons should be made in a way that calling their action
-// will make selectTabViewItemAtIndex being called
-// FIXME: use NSButton or NSMenuItem?
 
-// yes, use ordinary NSButtons and use setTag(tabindex)
-// or we us a NSMatrix of NSButtons as a single subview
+// should use ordinary NSButtons and use setTag(tabindex)
+// in some NSMatrix of NSButtons as a single subview
 
 				html("<input");
 				parameter("id", $this->elementId."-".$index);
@@ -2235,8 +2277,9 @@ if($name)
 	public function _collectEvents()
 		{
 		$str=_persist($this->name, $this->stringValue);
-_NSLog("NSTextField _collectEvents for ".$this->name.": $str");
+// _NSLog("NSTextField _collectEvents for ".$this->name.": $str");
 		$this->setStringValue($str);
+		// if changed, queue a change event?
 		parent::_collectEvents();
 		}
 	public function draw()
