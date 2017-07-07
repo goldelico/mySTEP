@@ -1134,7 +1134,7 @@ class NSPopUpButton extends NSButton
 	public function removeItemWithTitles($titleArray) { }
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
 	public function indexOfSelectedItem() { return $this->selectedItemIndex >= count($this->menu)?-1:$this->selectedItemIndex; }
-	public function titleOfSelectedItem() { return $this->selectedItemIndex < 0 ? null : $this->menu[$this->selectedItemIndex]; }
+	public function titleOfSelectedItem() { return $this->indexOfSelectedItem() < 0 ? null : $this->menu[$this->selectedItemIndex]; }
 	public function selectItemAtIndex($index)
 		{
 		if($this->selectedItemIndex == $index) return;	// no change
