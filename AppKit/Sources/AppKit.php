@@ -806,7 +806,7 @@ class NSButton extends NSControl
 		}
 	public function setButtonType($buttonType)
 		{
-		if($this->buttonType == $buttonType) return;
+		if($this->buttonType === $buttonType) return;
 		$this->buttonType=$buttonType;
 		$this->setNeedsDisplay();
 		}
@@ -1925,6 +1925,8 @@ class NSTabView extends NSControl
 				}
 			}
 		parent::_collectEvents();	// and from all subviews
+		foreach($this->tabViewItems as $item)
+			$item->view()->_collectEvents();	// give items a chance to persist even if swapped out
 		}
 	public function display()
 		{
@@ -2131,8 +2133,8 @@ class NSTableView extends NSControl
 		}
 	public function _collectEvents()
 		{
-		$this->selectedRow=$this->_persist("selectedRow", -1);
-		$this->selectedColumn=$this->_persist("selectedColumn", -1);
+		$this->selectedRow=$this->_persist("selectedRow", $this->selectedRow);
+		$this->selectedColumn=$this->_persist("selectedColumn", $this->selectedColumn);
 		parent::_collectEvents();
 		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
@@ -2233,6 +2235,7 @@ class NSTableView extends NSControl
 		}
 	public function displayDone()
 		{
+// _NSLog("displayDone NSTableView row: ".$this->selectedRow." col: ".$this->selectedColumn);
 		$this->_persist("selectedRow", -1, $this->selectedRow);
 		$this->_persist("selectedColumn", -1, $this->selectedColumn);
 		parent::displayDone();
@@ -2257,7 +2260,7 @@ class NSTextField extends NSControl
 	public function setStringValue($str)
 		{
 // _NSLog("setStringValue for ".$this->name.": $str");
-		if($this->stringValue == $str) return;
+		if($this->stringValue === $str) return;
 		$this->stringValue=$str;
 		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
 		$this->setNeedsDisplay();
@@ -2265,7 +2268,7 @@ class NSTextField extends NSControl
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) 
 		{
-		if($this->htmlValue == $astr) return;
+		if($this->htmlValue === $astr) return;
 		$this->htmlValue=$astr;
 		$this->isEditable=false;
 		$this->wraps=true;
@@ -2285,14 +2288,14 @@ if($name)
 	public function placeholderString() { return $this->placeholder; }
 	public function setPlaceholderString($str)
 		{
-		if($this->placeholder == $str) return;
+		if($this->placeholder === $str) return;
 		$this->placeholder=$str;
 		$this->setNeedsDisplay();
 		}
 	public function backgroundColor() { return $this->backgroundColor; }
 	public function setBackgroundColor($color)
 		{
-		if($color == $this->backgroundColor) return;
+		if($color === $this->backgroundColor) return;
 		$this->backgroundColor=$color;
 		$this->setNeedsDisplay();
 		}
@@ -2430,7 +2433,7 @@ class NSTextView extends NSControl
 		}
 	public function setString($string)
 		{
-		if($string == $this->string) return;	// no change
+		if($string === $this->string) return;	// no change
 		$this->setNeedsDisplay();
 		}
 	public function string() { return $this->string; }
