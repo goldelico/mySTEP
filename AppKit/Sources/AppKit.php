@@ -1104,7 +1104,7 @@ class NSPopUpButton extends NSButton
 	{
 	protected $menu;
 	protected $pullsDown=true;
-	protected $selectedItemIndex;
+	protected $selectedItemIndex=-1;
 
 	public function __construct()
 		{
