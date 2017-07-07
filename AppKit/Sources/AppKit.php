@@ -258,9 +258,15 @@ class NSResponder extends NSObject
 		{
 		return isset(self::$objects[$id])?self::$objects[$id]:null;
 		}
+
 	public function elementId()
 		{
 		return $this->elementId;
+		}
+
+	public function _setElementId($id)
+		{ // used when displaying as NSCell in NSTableView
+		$this->elementId=$id;
 		}
 }
 
@@ -716,7 +722,7 @@ class NSButton extends NSControl
 	protected $title;
 	protected $altTitle;
 	protected $state=NSOffState;
-	protected $hasMixedMode=false;
+	protected $allowsMixedState=false;
 	protected $buttonType;
 	protected $keyEquivalent;	// set to "\r" to make it the default button
 	protected $backgroundColor;
@@ -739,6 +745,7 @@ class NSButton extends NSControl
 */
 		$this->setState($value?NSOnState:NSOffState);
 		}
+	public function setAllowsMixedState($value) { $this->allowsMixedState=$value; }
 	public function description() { return parent::description()." ".$this->title; }
 	public function tag() { return $this->tag; }
 	public function setTag($tag) { $this->tag=$tag; }
@@ -785,7 +792,7 @@ class NSButton extends NSControl
 			$this->setState(NSOffState);
 		else if($this->state == NSOffState)
 			$this->setState(NSOnState);
-		else if($this->hasMixedMode)
+		else if($this->allowsMixedState)
 			$this->setState(NSMixedState);	// choose mixed state if possible
 		else
 			$this->setState(NSOffState);
@@ -860,9 +867,8 @@ class NSButton extends NSControl
 			parameter("class", "NSButton ".(!$this->isSelected()?"NSOnState":"NSOffState"));
 		else
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
-// tristate needs JS: document.getElementById("some-checkbox").indeterminate = true
 		if($this->backgroundColor)
-			parameter("style", "background-color: ".$this->backgroundColor);
+			parameter("style", "background: ".$this->backgroundColor);
 		switch($this->buttonType)
 			{
 				case "Radio":	parameter("type", "radio"); break;
@@ -894,14 +900,25 @@ class NSButton extends NSControl
 		if(!$this->enabled)
 			parameter("disabled", "");
 		if(isset($this->altTitle))
-			{ // use CSS to change contents on hover
+			{
+			// use CSS to change contents on hover
 			}
 		switch($this->state())
 			{
-			case NSMixedState: parameter("intermediate", "intermediate"); break;
-			case NSOnState: parameter("checked", "checked"); break;
+			case NSMixedState:
+				// HTML does now understand this: parameter("intermediate", "intermediate");
+				html("/><script");
+				parameter("type", "text/javascript");
+				html(">");
+				html("document.getElementById(".$this->elementId.").indeterminate=true");
+				html("</script>");
+				break;
+			case NSOnState:
+				parameter("checked", "checked");
+			default:
+				html("/>");
+				break;
 			}
-		html("/>");
 		switch($this->buttonType)
 			{
 			case "CheckBox":
@@ -1428,6 +1445,13 @@ class NSCollectionView extends NSControl
 		if($objects)
 _NSLog("NSCollectionView with 2 parameters is deprecated");
 		}
+	public function _setElementId($id)
+		{ // special because we must make the subelements unique as well
+		parent::_setElementId($id);
+		$index=0;
+		foreach($this->subviews() as $item)
+			$item->_setElementId("$id-".$index++);	// make them unique
+		}
 	public function mouseDown(NSEvent $event)
 		{
 		}
@@ -1524,6 +1548,23 @@ class NSMatrix extends NSControl
 		{
 		parent::__construct();
 		$this->columns=$cols;
+		}
+
+	public function _setElementId($id)
+		{ // special because we must make the subelements unique as well
+		parent::_setElementId($id);
+		$row=0;
+		$col=0;
+		foreach($this->subviews as $item)
+			{
+			$item->_setElementId("$id-$row-$col");	// make subelements unique
+			$col++;
+			if($col >= $this->columns)
+				{
+				$row++;
+				$col=0;
+				}
+			}
 		}
 
 	public function getRowColumnOfCell(&$row, &$col, $cell)
@@ -2153,12 +2194,17 @@ class NSTableView extends NSControl
 				$cell=$column->dataCell();
 				if(is_null($cell))
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
-			//	else
-			//		parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
+				else
+					{
+					$cell->_setElementId($this->elementId."-$row-$index");	// make them unique and attach to table
+					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
+					}
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+// _NSLog("row: $row." col:".$column->identifier()." item:".$item);
+// _NSLog($cell);
 					if(!is_null($cell))
 						{ // insert value into cell and let the cell do the formatting
 						// how can we pass down the onclick handler?
@@ -2168,6 +2214,7 @@ class NSTableView extends NSControl
 					// compatibility if no cells are defined
 					else if(is_object($item) && $item->respondsToSelector("draw"))
 						{
+// _NSLog("deprecated: tableView_objectValueForTableColumn_row should not return NSViews");
 						$item->draw();
 						}
 					else
@@ -2260,14 +2307,12 @@ if($name)
 		$this->width=$width;
 		$this->setName($name);
 		}
-	public function setName($name=null)
+	public function setName($name)
 		{
-		if(is_null($name))
-			$this->name=$this->elementId."-string";	// default name
-		else
-			$this->name=$name;	// override
+		$this->name=$name;
 // _NSLog("NSTextField name: ".$this->name);
 		}
+	public function name() { return $this->name; }
 	public function mouseDown(NSEvent $event)
 		{ // user has pressed return in this (search)field
 // _NSLog("mouseDown");
@@ -2276,8 +2321,9 @@ if($name)
 		}
 	public function _collectEvents()
 		{
-		$str=_persist($this->name, $this->stringValue);
-// _NSLog("NSTextField _collectEvents for ".$this->name.": $str");
+		$name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
+		$str=_persist($name, $this->stringValue);
+// _NSLog("NSTextField _collectEvents for ".$name.": $str");
 		$this->setStringValue($str);
 		// if changed, queue a change event?
 		parent::_collectEvents();
@@ -2295,8 +2341,7 @@ if($name)
 				parameter("style", "background-color: ".$this->backgroundColor);
 			if($this->placeholder)
 				parameter("placeholder", $this->placeholder);
-			// FIXME: _setName should allow to set a global name, e.g. "username" or "password"
-			parameter("name", $this->name);
+			parameter("name", is_null($this->name)?$this->elementId."-string":$this->name);	// default or override name
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
 			switch($this->type)
@@ -2315,21 +2360,30 @@ if($name)
 			}
 		else
 			{
+			if($this->backgroundColor)
+				{
+				html("<span");
+				parameter("style", "background-color: ".$this->backgroundColor);
+				html(">");
+				}
 			if($this->wraps)
 				html(nl2br($this->htmlValue));
 			else
 				html($this->htmlValue);
+			if($this->backgroundColor)
+				html("</span>");
 			}
 		}
 	public function displayDone()
 		{
+		$name=is_null($this->name)?$this->elementId."-string":$this->name;
 		if($this->isHidden())
 			{ // persist stringValue even if text field is currently hidden
 			if($this->isEditable && $this->type != "password")
-				_persist($this->name, $this->stringValue);
+				_persist($name, $this->stringValue);
 			}
 		else if($this->isEditable)
-			_persist($this->name, "", "");	// remove from persistence store (because we have our own <input>)
+			_persist($name, "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
 		}
 }
@@ -2428,9 +2482,10 @@ class NSScrollView extends NSView
 		}
 	public function _collectEvents()
 		{
-		$this->point=NSMakePoint(_persist('scrollerX', null), _persist('scrollerX', null));
+		$this->point=NSMakePoint(_persist('scrollerX', null), _persist('scrollerY', null));
 // _NSLog("point");
 // _NSLog($this->point);
+		// what do we do with this?
 		parent::_collectEvents();
 		}
 
