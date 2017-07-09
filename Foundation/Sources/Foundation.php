@@ -22,6 +22,8 @@
 
 ob_start();	// enable output buffering so that we can sent cookies and headers later than starting to write html
 
+error_reporting(-1);	// report all PHP errors to avoid delayed issues when running on different servers
+
 const NO=false;
 const YES=true;
 const nil=null;
@@ -89,7 +91,7 @@ function _print_backtrace()
 	array_shift($trace);
 	foreach($trace as $stack)
 		{
-		echo "&nbsp;&nbsp;".$stack['class'].$stack['type'].$stack['function']." ".basename($stack['file'])."#".$stack['line']."<br />\n";
+		echo "&nbsp;&nbsp;".(isset($stack['class'])?$stack['class']:"").(isset($stack['type'])?$stack['type']:"").$stack['function']." ".basename($stack['file'])."#".$stack['line']."<br />\n";
 		}
 	echo "<br />\n";
 }
