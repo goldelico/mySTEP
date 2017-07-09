@@ -1278,6 +1278,7 @@ class NSImage extends NSObject
 		if(isset(self::$images[$name]))
 			return self::$images[$name];	// known
 		$image=new NSImage();	// create
+	//	$image=$image->initByReferencingFile($file);
 		if($image->setName($name))
 			return $image;
 		return null;	// was not found
@@ -1728,7 +1729,7 @@ class NSFormCell extends NSView /* NSCell - but then we can't addSubview() */
 	public function setSelected($status)
 		{
 		}
-	public function setToolTip($str)
+	public function setToolTip($str=null)
 		{
 		$this->value->setToolTip($str);
 		}
