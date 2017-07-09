@@ -1219,7 +1219,7 @@ class NSPopUpButton extends NSButton
 	public function displayDone()
 		{
 		if($this->isHidden())	// persist index even if button is currently hidden
-			$this->_persist("", -1, $this->selectedIndex);
+			$this->_persist("", -1, $this->selectedItemIndex);
 		else
 			$this->_persist("", "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
@@ -2460,7 +2460,7 @@ class NSTextView extends NSControl
 	public function displayDone()
 		{
 		if($this->isHidden())	// persist stringValue even if text field is currently hidden
-			$this->_persist("string", $this->stringValue);
+			$this->_persist("string", $this->string);
 		else
 			$this->_persist("string", "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
