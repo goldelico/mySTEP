@@ -2653,7 +2653,7 @@ class NSWindow extends NSResponder
 				html("</script>\n");
 				}
 			}
-		html("<noscript>Your browser does not support JavaScript!</noscript>\n");
+		html("<noscript>Please enable JavaScript. It will make this service more responsive and useable.</noscript>\n");
 		if(isset($this->title))
 			html("<title>"._htmlentities($this->title)."</title>\n");
 		html($this->heads);	// additional tags
