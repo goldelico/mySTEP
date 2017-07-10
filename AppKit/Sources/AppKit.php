@@ -869,13 +869,6 @@ class NSButton extends NSControl
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		if($this->backgroundColor)
 			parameter("style", "background: ".$this->backgroundColor);
-		switch($this->buttonType)
-			{
-				case "Radio":	parameter("type", "radio"); break;
-				case "CheckBox":	parameter("type", "checkbox"); break;
-				default:		parameter("type", "submit");
-						parameter("value", _htmlentities($this->title));
-			}
 		$super=$this->superview();
 // _NSLog($super->classString());
 		if($super->respondsToSelector("getRowColumnOfCell"))
@@ -895,8 +888,24 @@ class NSButton extends NSControl
 			parameter("name", $this->elementId."-ck");
 			$onclick.=";s()";
 			}
-		if(!is_null($this->target))
-			parameter("onclick", $onclick);
+		switch($this->buttonType)
+			{
+				case "Radio":
+					parameter("type", "radio");
+					if(!is_null($this->target))
+						parameter("onchange", $onclick);
+					break;
+				case "CheckBox":
+					parameter("type", "checkbox");
+					if(!is_null($this->target))
+						parameter("onchange", $onclick);
+					break;
+				default:
+					parameter("type", "submit");
+					parameter("value", _htmlentities($this->title));
+					if(!is_null($this->target))
+						parameter("onclick", $onclick);
+			}
 		if(!$this->enabled)
 			parameter("disabled", "");
 		if(isset($this->altTitle))
@@ -973,7 +982,7 @@ class NSMenuItemView extends NSButton
 				parameter("id", $this->elementId);
 				parameter("class", "NSMenuItemView");
 				parameter("name", $this->elementId);
-				parameter("onclick", "e('".$this->elementId."');s()");
+				parameter("onchange", "e('".$this->elementId."');s()");
 				parameter("size", 1);	// make a popup not a combo-box
 				html(">\n");
 				$index=0;
@@ -1199,7 +1208,7 @@ class NSPopUpButton extends NSButton
 		parameter("id", $this->elementId);
 		parameter("class", "NSPopUpButton");
 		parameter("name", $this->elementId);
-		parameter("onclick", "e('".$this->elementId."');".";s()");
+		parameter("onchange", "e('".$this->elementId."');".";s()");
 		parameter("size", 1);	// to make it a popup and not a combo-box
 		html(">\n");
 		$index=0;
@@ -2454,6 +2463,7 @@ class NSTextView extends NSControl
 		parameter("width", NSWidth($this->frame));
 		parameter("height", NSHeight($this->frame));
 		parameter("name", $this->elementId."-string");
+	// not tested	parameter("onchange", "e('".$this->elementId."');".";s()");
 		html(">");
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
