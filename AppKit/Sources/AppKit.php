@@ -1254,7 +1254,7 @@ class NSImage extends NSObject
 			{ // not explicitly set and not (yet) derived
 			$c=parse_url($this->url);
 // _NSLog($c);
-			if($c['scheme'] == "file")
+			if(isset($c['scheme']) && $c['scheme'] == "file")
 				{ // FIXME: check for file://
 // _NSLog($c['path']);
 				$data=NSFileManager::defaultManager()->contentsAtPath($c['path']);
