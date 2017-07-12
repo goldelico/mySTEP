@@ -1325,8 +1325,13 @@ class NSImage extends NSObject
 		else
 			parameter("alt", _htmlentities("unnamed image"));
 		$size=$this->size();
+		$s="";
 		if(NSWidth($size) != 0.0)
-			parameter("style", "width:".NSWidth($size)."px; height:".NSHeight($size)."px;");
+			$s.="width:".NSWidth($size)."px";
+		if(NSHeight($size) != 0.0)
+			$s.="height:".NSHeight($size)."px;";	// how can we specify %?
+		if($s)
+			parameter("style", $s);
 		html(">\n");
 		}
 	public function setName($name)
