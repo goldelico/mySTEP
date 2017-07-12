@@ -871,7 +871,7 @@ class NSButton extends NSControl
 			parameter("style", "background: ".$this->backgroundColor);
 		$super=$this->superview();
 // _NSLog($super->classString());
-		if($super->respondsToSelector("getRowColumnOfCell"))
+		if(!is_null($super) && $super->respondsToSelector("getRowColumnOfCell"))
 			{ // appears to be a Matrix (we could also check $super->isKindOfClass("NSMatrix")
 			$onclick="e('".$super->elementId."')";
 			parameter("name", $super->elementId."-ck");
@@ -1259,10 +1259,14 @@ class NSImage extends NSObject
 // _NSLog($c['path']);
 				$data=NSFileManager::defaultManager()->contentsAtPath($c['path']);
 // _NSLog($data);
+				$el=error_reporting();
+				error_reporting($el & ~E_WARNING);
+// FIXME: can emit a warning: imagecreatefromstring(): empty string or invalid image on line 1263 in file appkit.php
 				$this->gd=imagecreatefromstring($data);
+				error_reporting($el);
 				if($this->gd === false)
 					{
-					_NSLog("can't open ".$this->url);
+//					_NSLog("can't open ".$this->url);
 					$this->size=NSMakeSize(32, 32);
 					}
 				else
