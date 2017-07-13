@@ -14,6 +14,7 @@ export SOURCES+=" ManagedObjectEntity.m"
 export SOURCES+=" CoreDataBase.h"
 export SOURCES+=" SQL.h"
 export SOURCES+=" SQL.m"
+export SOURCES+=" CoreDataBaseGUI.php"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
