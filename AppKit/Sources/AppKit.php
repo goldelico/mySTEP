@@ -172,7 +172,7 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 		}
 	// write output objects
 	public function link($url, $contents)
-		{
+		{ // create a clickable link
 		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
 		}
 	public function externalURLforPath($path)
@@ -2093,6 +2093,13 @@ class NSTableView extends NSControl
 	public function columns()
 		{
 		return $this->columns;
+		}
+	public function columnWithIdentifier($identifier)
+		{
+		foreach($this->columns as $column)
+			if($column->identifier() == $identifier)
+				return $column;
+		return null;
 		}
 	public function setColumns($columns)
 		{
