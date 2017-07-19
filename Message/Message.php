@@ -46,9 +46,11 @@ class NSMailDelivery extends NSObject
 		return true;
 	}
 
-	public static function deliverMessageSubjectTo($body, $subject, $to)
+	public static function deliverMessageSubjectTo($body, $subject, $to, $bcc=null)
 	{
 		$headers=array('Subject' => $subject, 'To' => $to);
+		if(!is_null($bcc))
+			$headers['bcc']=$bcc;
 		// FIXME: convert $body to attributed string (w/o any attributes)
 		return self::deliverMessageHeadersFormatProtocol($body, $headers, self::NSASCIIMailFormat, null);
 	}
