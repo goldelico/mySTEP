@@ -1,12 +1,12 @@
 /*
  * AppKit.css
- * (C) Golden Delicious Computers GmbH&Co. KG, 2014
+ * (C) Golden Delicious Computers GmbH&Co. KG, 2014-17
  * All rights reserved.
  */
 
 /* NSTabView */
 td.NSTabViewItemsBar { background-color: LightSteelBlue }
-/*
+/* does not yet work
 input.NSTabViewItemsButton.NSOnState { color: black; background-color: LightSteelBlue; }
 input.NSTabViewItemsButton.NSOffState { color: black; }
 input.NSTabViewItemsButton:hover { background-color: LightSteelBlue; }
@@ -34,6 +34,11 @@ td.NSMenuItem.NSOffState { background-color: white }
 /* NSTableView */
 tr.NSHeaderView  { background-color: LightSteelBlue }
 th.NSTableHeaderCell { background-color: LightSteelBlue }
+/* :hover can also be used to change the underlining + color */
+th.NSTableHeaderCell.NSSelectable:hover { background-color: PaleTurquoise }
 td.NSTableCell.NSSelected { background-color: LightSteelBlue }
 td.NSTableCell.NSUnselected.NSEven { background-color: white }
 td.NSTableCell.NSUnselected.NSOdd { background-color: PaleTurquoise }
+/* :hover must come after .NSEven and .NSOdd for priority reasons
+/* :hover can also be used to change the underlining + color */
+td.NSTableCell.NSUnselected:hover { background-color: LightSteelBlue }

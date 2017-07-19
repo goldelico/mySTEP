@@ -2189,7 +2189,10 @@ class NSTableView extends NSControl
 			html("<th");
 			parameter("id", $this->elementId."-".$index);
 			parameter("name", $column->identifier());
-			parameter("class", "NSTableHeaderCell");
+			$class="NSTableHeaderCell";
+			if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
+				$class.=" NSSelectable";
+			parameter("class", $class);
 			if(is_null($column->headerCell()))
 				parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
 			else
@@ -2215,7 +2218,12 @@ class NSTableView extends NSControl
 				html("<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
-				parameter("class", "NSTableCell ".($row == $this->selectedRow?"NSSelected":"NSUnselected")." ".($row%2 == 0?"NSEven":"NSOdd"));
+				$class="NSTableCell";
+				$class.=$row == $this->selectedRow?" NSSelected":" NSUnselected";
+				$class.=(($row%2) == 0)?" NSEven":" NSOdd";
+				if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
+					$class.=" NSSelectable";
+				parameter("class", $class);
 				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
 // FIXME: make the element handle onclick...
