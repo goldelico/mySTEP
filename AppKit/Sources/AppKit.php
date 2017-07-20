@@ -3015,7 +3015,9 @@ _NSLog($exts);
 		}
 	public function openApplicationWithArguments($app, $args=array())
 		{ // switch to a different app
-		$bundle=NSBundle::bundleWithPath($this->fullPathForApplication($app));
+		$bundle=NSBundle::mainBundle();
+		if($appname != $bundle->objectForInfoDictionaryKey("CFBundleName"))	// not us...
+			$bundle=NSBundle::bundleWithPath($this->fullPathForApplication($app));
 // _NSLog($bundle);
 		if(!is_null($bundle))
 			{
