@@ -1153,7 +1153,7 @@ class NSPopUpButton extends NSButton
 		}
 	public function selectItemWithTitle($title)
 		{
-// _NSLog("selectItemWithTitle: $title");
+// _NSLog("NSPopUpButton ".$this->elementId()." selectItemWithTitle: $title");
 		$this->selectItemAtIndex($this->indexOfItemWithTitle($title));
 		}
 	public function menu() { return $this->menu; }
@@ -1178,8 +1178,8 @@ class NSPopUpButton extends NSButton
 	public function mouseDown(NSEvent $event)
 		{ // triggered only if there was a change
 // _NSLog($event);
-// _NSLog("NSPopupButton mousedown ");
-//		$pos=$event->position();
+// _NSLog("NSPopUpButton ".$this->elementId()." mouseDown ".$this->titleOfSelectedItem());
+		$pos=$event->position();
 // _NSLog($event->target()->elementId());
 // _NSLog($this->elementId());
 // _NSLog($pos);
@@ -1190,13 +1190,17 @@ class NSPopUpButton extends NSButton
 		global $NSApp;
 		$oldtitle=$this->titleOfSelectedItem();
 // _NSLog($_POST);
-		$title=$this->_persist("", $oldtitle);	// potentially update selected item
-// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $title - ".$this->titleOfSelectedItem());
+// _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
+		$oldtitle=$this->_persist("state", $oldtitle);	// potentially overwrite by persisted hidden state (but don't treat as change event)
+		$title=$this->_persist("", $oldtitle);	// potentially update selected item by form
+// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: ".$oldtitle."[".$this->selectedItemIndex."] -> $title");
 	//	_persist($this->elementId, "", "");	// and remove
-		if($title != $oldtitle)
+		if($title !== $oldtitle)
+			{ // form was updated
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // if changed, queue a mouseDown event for us
-		$this->selectItemWithTitle($title);
-// _NSLog("NSPopUpButton ".$this->elementId()." selected item ".$this->selectedItemIndex);
+			$this->selectItemWithTitle($title);	// and already select for next round
+// _NSLog("NSPopUpButton ".$this->elementId()." queued item ".$this->selectedItemIndex);
+			}
 		parent::_collectEvents();
 		}
 	public function draw()
@@ -1227,10 +1231,15 @@ class NSPopUpButton extends NSButton
 		}
 	public function displayDone()
 		{
-		if($this->isHidden())	// persist index even if button is currently hidden
-			$this->_persist("", -1, $this->selectedItemIndex);
+// _NSLog("NSPopUpButton ".$this->elementId()." displayDone ".$this->titleOfSelectedItem());
+// _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
+		if($this->isHidden())	// persist value even if button is currently hidden
+			{
+			$this->_persist("state", null, $this->titleOfSelectedItem());
+// _NSLog("NSPopUpButton ".$this->elementId()." persist ".$this->titleOfSelectedItem());
+			}
 		else
-			$this->_persist("", "", "");	// remove from persistence store (because we have our own <input>)
+			$this->_persist("state", "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
 		}
 	}
@@ -1893,11 +1902,11 @@ class NSTabView extends NSControl
 		}
 	public function selectTabViewItemAtIndex($index)
 		{
+// _NSLog("selectTabViewItemAtIndex $index");
 		if($index < 0 || $index >= count($this->tabViewItems))
 			return;	// ignore (or could rise an exception)
 		if($this->tabViewItems[$index]->isHidden())
 			return;	// can't select (or we might be able to unhide a tab by a fake POST)
-		NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
 			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[$index]))
 				return;	// reject selection
@@ -1906,7 +1915,7 @@ class NSTabView extends NSControl
 		$this->selectedIndex=$index;
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
-		NSLog("selectTabViewItemAtIndex $index done");
+// _NSLog("selectTabViewItemAtIndex $index done");
 		$this->setNeedsDisplay();
 		}
 	public function selectTabViewItemWithIdentifier($identifier)
