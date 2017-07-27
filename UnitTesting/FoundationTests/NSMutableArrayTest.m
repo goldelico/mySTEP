@@ -18,7 +18,7 @@
 // FIXME: apply withAccuracy to comparing NSPoints and NSSize!
 
 #define XCTAssertEqualPointsWithAccuracy(p1, p2, acc, msg) XCTAssertEqualWithAccuracy(p1.x, p2.x, acc, msg); XCTAssertEqualWithAccuracy(p1.y, p2.y, acc, msg);
-#define XCTAssertEqualizesWithAccuracy(s1, s2, acc, msg) XCTAssertEqualWithAccuracy(s1.width, s2.width, acc, msg); XCTAssertEqualWithAccuracy(s1.height, s2.height, acc, msg);
+#define XCTAssertEqualSizesWithAccuracy(s1, s2, acc, msg) XCTAssertEqualWithAccuracy(s1.width, s2.width, acc, msg); XCTAssertEqualWithAccuracy(s1.height, s2.height, acc, msg);
 
 @implementation NSAffineTransformTest
 
@@ -114,7 +114,7 @@
 	[t rotateByDegrees:30.0];
 	[t translateXBy:5.0 yBy:7.0];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(4.820507, 31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(4.820507, 31.650635), 2e-6, @"");
 }
 
 - (void) test12
@@ -132,7 +132,7 @@
 	[t rotateByDegrees:30.0+180];
 	[t translateXBy:5.0 yBy:7.0];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820508, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820508, -31.650635), 2e-6, @"");
 }
 
 - (void) test20
@@ -140,7 +140,7 @@
 	NSSize sz;
 	[t scaleXBy:2.0 yBy:-3.0];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(40.0, -75.0), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(40.0, -75.0), 2e-6, @"");
 }
 
 - (void) test30
@@ -152,7 +152,7 @@
 	[t appendTransform:t2];
 	[t translateXBy:5.0 yBy:7.0];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test31
@@ -164,7 +164,7 @@
 	[t translateXBy:5.0 yBy:7.0];
 	[t appendTransform:t2];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test32
@@ -176,7 +176,7 @@
 	[t prependTransform:t2];
 	[t translateXBy:5.0 yBy:7.0];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test33
@@ -188,7 +188,7 @@
 	[t translateXBy:5.0 yBy:7.0];
 	[t prependTransform:t2];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test34
@@ -200,7 +200,7 @@
 	[t rotateByDegrees:180.0];
 	[t prependTransform:t2];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test35
@@ -212,7 +212,7 @@
 	[t rotateByDegrees:180.0];
 	[t appendTransform:t2];
 	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 2e-6, @"");
+	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
 }
 
 - (void) test40

@@ -719,7 +719,7 @@ struct c_c
 	[i invoke];	// invoke nil target
 	XCTAssertEqual(invoked, 0, @"");	// has NOT been called
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, nil, @"");	// has been wiped out
+	XCTAssertNil(obj, @"");	// has been wiped out
 }
 
 // FIXME: write a test what happens if we use &self, &_cmd, &a in the called method
@@ -1128,7 +1128,7 @@ struct c_c
 	XCTAssertEqual([test retainCount], (NSUInteger) 2, @"");	// previously set return value should have been released - but has not (but may have been autoreleased)!
 	XCTAssertEqual(invoked, 0, @"");	// has NOT been called
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, nil, @"");	// has been wiped out
+	XCTAssertNil(obj, @"");	// has been wiped out
 	/* conclusion
 	 * invoking a nil target leaks a previously retained returnValue on OS X 10.6
 	 * NOTE: this test is not able to find out if the value is autoreleased later!

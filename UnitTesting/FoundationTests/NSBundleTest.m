@@ -31,7 +31,7 @@
 
 - (void) test01
 {
-	XCTAssertEqual([b bundlePath], @"/System/Library/Frameworks/AddressBook.framework");
+	XCTAssertEqualObjects([b bundlePath], @"/System/Library/Frameworks/AddressBook.framework");
 }
 
 - (void) test02

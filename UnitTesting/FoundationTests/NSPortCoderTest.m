@@ -569,7 +569,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	SEL val=_cmd;
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010d74 65737453 656c6563 746f7200>", @"");
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010f74 65737432 3753656c 6563746f 7200>", @"");
 	// prefix 0x01, 01 bytes length, 0d bytes string, "test27Selector\0"
 }
 
@@ -952,7 +952,7 @@ static NSHashTable *_allConnections;
 {
 	id val=@"constant string";
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"__NSCFConstantString", @"");	// CoreFoundation...
 #else
 	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", @"");
 #endif
@@ -963,7 +963,7 @@ static NSHashTable *_allConnections;
 {
 	id val=[NSString stringWithFormat:@"%d", 1234];
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSTaggedPointerString", @"");	// CoreFoundation...
 #else
 	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", @"");
 #endif
@@ -974,7 +974,7 @@ static NSHashTable *_allConnections;
 {
 	id val=[NSMutableString stringWithFormat:@"%d", 1234];
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"__NSCFString", @"");	// CoreFoundation...
 #else
 	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSMutableString", @"");
 #endif
