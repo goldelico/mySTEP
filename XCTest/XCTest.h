@@ -11,3 +11,12 @@
 
 #define XCTest SenTest
 #define XCTestCase SenTestCase
+
+#define XCTAssertTrue(C)			STAssertTrue(C, nil)
+#define XCTAssertFalse(C)			STAssertFalse(C, nil)
+#define XCTAssertNotNil(O)			STAssertNotNil(O, nil)
+#define XCTAssertNil(O)				STAssertNil(O, nil)
+#define XCTAssertEqual(A, B)		STAssertEquals(A, B, nil)
+#define XCTAssertEqualObjects(A, B)	STAssertEqualObjects(A, B, nil)
+#define XCTAssertThrows(E)			STAssertThrows(E, nil)
+#define XCTAssertNoThrow(E)			STAssertNoThrow(E, nil)
