@@ -6,266 +6,58 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		EEBCCA171693559F00CED788 /* UnitTesting */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EEBCCA24169355E100CED788 /* Build configuration list for PBXAggregateTarget "UnitTesting" */;
-			buildPhases = (
-			);
-			dependencies = (
-				EEC07FB21699EC8400CA1448 /* PBXTargetDependency */,
-				EEBCCA1E169355A800CED788 /* PBXTargetDependency */,
-				EEBCCA1C169355A500CED788 /* PBXTargetDependency */,
-			);
-			name = UnitTesting;
-			productName = UnitTests;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
-		EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
-		EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EE103F0A16F264530037C368 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE103F0916F264530037C368 /* NSPortTest.m */; };
-		EE103F0B16F264530037C368 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE103F0916F264530037C368 /* NSPortTest.m */; };
-		EE27BF610FCAB29200A48A1E /* NSByteSwappingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */; };
-		EE27BF630FCAB29800A48A1E /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */; };
-		EE27BF650FCAB29D00A48A1E /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */; };
-		EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF660FCAB2A300A48A1E /* NSURLTest.m */; };
-		EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3854ED169BF8910089B326 /* NSTextStorageTest.m */; };
-		EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3854ED169BF8910089B326 /* NSTextStorageTest.m */; };
-		EE488A950F90FBC300B3E56F /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */; };
-		EE488AF50F9102C000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
-		EE488BAA0F9102C600B3E56F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
-		EE488BAB0F9102CC00B3E56F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
-		EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
-		EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EE488C3F0F91030800B3E56F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488C3E0F91030800B3E56F /* main.m */; };
-		EE547A9A168BA3A400164AB4 /* NSStringDrawingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */; };
-		EE547A9D168BA4A400164AB4 /* NSLayoutManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */; };
-		EE547ABE168BAC8E00164AB4 /* NSFontTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547ABD168BAC8E00164AB4 /* NSFontTest.m */; };
-		EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
-		EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */; };
-		EE65676418B143C6008CDCE3 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65676218B143C6008CDCE3 /* NSViewTest.m */; };
-		EE65676518B143C6008CDCE3 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65676218B143C6008CDCE3 /* NSViewTest.m */; };
-		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
-		EE80834C16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
-		EE80834D16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
-		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
-		EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
-		EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
-		EEC07F901699EC2500CA1448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EEC07F911699EC2500CA1448 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
-		EEC07F921699EC2500CA1448 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
-		EEC07F931699EC2500CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EEC07FA61699EC3100CA1448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EEC07FA71699EC3100CA1448 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
-		EEC07FA81699EC3100CA1448 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
-		EEC07FA91699EC3100CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EEC08C16169C2B3D00CA1448 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */; };
-		EEC08C17169C2B3D00CA1448 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */; };
-		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */; };
-		EEDB59E2169878070011D22A /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
-		EEDB59E3169878070011D22A /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */; };
-		EEDB59E4169878070011D22A /* NSByteSwappingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */; };
-		EEDB59E5169878070011D22A /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */; };
-		EEDB59E6169878070011D22A /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */; };
-		EEDB59E7169878070011D22A /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF660FCAB2A300A48A1E /* NSURLTest.m */; };
-		EEDB59E8169878070011D22A /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
-		EEDB59EA169878070011D22A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EEDB59EB169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EEDB59F7169878070011D22A /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
-		EEDB59F8169878070011D22A /* NSStringDrawingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */; };
-		EEDB59F9169878070011D22A /* NSLayoutManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */; };
-		EEDB59FA169878070011D22A /* NSFontTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547ABD168BAC8E00164AB4 /* NSFontTest.m */; };
-		EEDB59FB169878070011D22A /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
-		EEDB59FC169878070011D22A /* NSTextFieldCellTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */; };
-		EEDB59FD169878070011D22A /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */; };
-		EEDB59FF169878070011D22A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
-		EEDB5A00169878070011D22A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
-		EEDB5A01169878070011D22A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
-		EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
-		EEE514A3188817D700F96F53 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */; };
-		EEE514A4188817D700F96F53 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */; };
-		EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
-		EEE593D918840B5600F96F53 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE593D718840B5600F96F53 /* NSInvocationTest.m */; };
-		EEF7152716DD27C200CD94B5 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* FunctionsTest.m */; };
-		EEF7152816DD27C200CD94B5 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* FunctionsTest.m */; };
-		EEF742F016E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
-		EEF742F116E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
-		EEF742F416E903D100CD94B5 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F316E903D100CD94B5 /* ABPersonTest.m */; };
-		EEF742F516E903D100CD94B5 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F316E903D100CD94B5 /* ABPersonTest.m */; };
-		EEF742F816E903DB00CD94B5 /* ABGroupTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F716E903DB00CD94B5 /* ABGroupTest.m */; };
-		EEF742F916E903DB00CD94B5 /* ABGroupTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F716E903DB00CD94B5 /* ABGroupTest.m */; };
-		EEF742FC16E903E500CD94B5 /* ABSearchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742FB16E903E500CD94B5 /* ABSearchTest.m */; };
-		EEF742FD16E903E500CD94B5 /* ABSearchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742FB16E903E500CD94B5 /* ABSearchTest.m */; };
-		EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */; };
-		EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */; };
-		EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */; };
-		EEF7448616E9EC3000CD94B5 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */; };
-		EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */; };
-		EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */; };
-		EEF7BCD316E0B2BB00CD94B5 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */; };
-		EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */; };
-		EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */; };
+		EE235B5C1F29CB3400F026E0 /* FoundationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B5B1F29CB3400F026E0 /* FoundationTest.m */; };
+		EE235B741F29D0EA00F026E0 /* FoundationTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */; };
+		EE235B751F29D0EA00F026E0 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B631F29D0EA00F026E0 /* FunctionsTest.m */; };
+		EE235B761F29D0EA00F026E0 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B641F29D0EA00F026E0 /* NSAffineTransformTest.m */; };
+		EE235B771F29D0EA00F026E0 /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B651F29D0EA00F026E0 /* NSAttributedStringTest.m */; };
+		EE235B781F29D0EA00F026E0 /* NSBundleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B661F29D0EA00F026E0 /* NSBundleTest.m */; };
+		EE235B791F29D0EA00F026E0 /* NSByteSwappingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B671F29D0EA00F026E0 /* NSByteSwappingTest.m */; };
+		EE235B7A1F29D0EA00F026E0 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B681F29D0EA00F026E0 /* NSConnectionTest.m */; };
+		EE235B7B1F29D0EA00F026E0 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B691F29D0EA00F026E0 /* NSDistantObjectTest.m */; };
+		EE235B7C1F29D0EA00F026E0 /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */; };
+		EE235B7D1F29D0EA00F026E0 /* NSInvocationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */; };
+		EE235B7E1F29D0EA00F026E0 /* NSMethodSignatureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6C1F29D0EA00F026E0 /* NSMethodSignatureTest.m */; };
+		EE235B7F1F29D0EA00F026E0 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */; };
+		EE235B801F29D0EA00F026E0 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6E1F29D0EA00F026E0 /* NSPortTest.m */; };
+		EE235B811F29D0EA00F026E0 /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B6F1F29D0EA00F026E0 /* NSPredicateTest.m */; };
+		EE235B821F29D0EA00F026E0 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B701F29D0EA00F026E0 /* NSScannerTest.m */; };
+		EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B711F29D0EA00F026E0 /* NSStringTest.m */; };
+		EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B721F29D0EA00F026E0 /* NSURLTest.m */; };
+		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		EEBCCA1B169355A500CED788 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE0C72020F7E7328008B94EE;
-			remoteInfo = Foundation;
-		};
-		EEBCCA1D169355A800CED788 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EED9802D0F875953002E4AD5;
-			remoteInfo = AppKit;
-		};
-		EEC07FB11699EC8400CA1448 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EEC07F851699EC2500CA1448;
-			remoteInfo = AddressBook;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		EE0C71F80F7E7278008B94EE /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
-		EE0C72030F7E7328008B94EE /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
-		EE103F0916F264530037C368 /* NSPortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortTest.m; sourceTree = "<group>"; };
-		EE13454410A04EB700169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../Foundation/Sources; sourceTree = SOURCE_ROOT; };
-		EE13461D10A04ECB00169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../AppKit/Sources; sourceTree = SOURCE_ROOT; };
-		EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSByteSwappingTest.m; sourceTree = "<group>"; };
-		EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSHTTPCookieTest.m; sourceTree = "<group>"; };
-		EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPredicateTest.m; sourceTree = "<group>"; };
-		EE27BF660FCAB2A300A48A1E /* NSURLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLTest.m; sourceTree = "<group>"; };
-		EE3854ED169BF8910089B326 /* NSTextStorageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextStorageTest.m; sourceTree = "<group>"; };
-		EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
-		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
-		EE488C3E0F91030800B3E56F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringDrawingTest.m; sourceTree = "<group>"; };
-		EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSLayoutManagerTest.m; sourceTree = "<group>"; };
-		EE547ABD168BAC8E00164AB4 /* NSFontTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontTest.m; sourceTree = "<group>"; };
-		EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontDescriptorTest.m; sourceTree = "<group>"; };
-		EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewBoundsTest.m; sourceTree = "<group>"; };
-		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE65676218B143C6008CDCE3 /* NSViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewTest.m; sourceTree = "<group>"; };
-		EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
-		EE80828516A8933D00830989 /* gui */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gui; path = ../GNUstep/gui/trunk/Tests/gui; sourceTree = SOURCE_ROOT; };
-		EE80834B16A98EB500830989 /* floatspeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = floatspeed.m; sourceTree = "<group>"; };
-		EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
-		EEC07E3C1699C69000CA1448 /* NSScannerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScannerTest.m; sourceTree = "<group>"; };
-		EEC07F991699EC2500CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC07FAF1699EC3100CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextViewTest.m; sourceTree = "<group>"; };
-		EEC97F73188E88D5007EEF9D /* CoreLocationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreLocationTests.qcodeproj; sourceTree = "<group>"; };
-		EEC97F75188E88DE007EEF9D /* MapKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MapKitTests.qcodeproj; sourceTree = "<group>"; };
-		EEC97F77188E88E6007EEF9D /* MessageTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MessageTests.qcodeproj; sourceTree = "<group>"; };
-		EEC97F79188E88EB007EEF9D /* PDFKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = PDFKitTests.qcodeproj; sourceTree = "<group>"; };
-		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		EE235B591F29CB3300F026E0 /* FoundationTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoundationTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE235B5B1F29CB3400F026E0 /* FoundationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FoundationTest.m; sourceTree = "<group>"; };
+		EE235B5D1F29CB3400F026E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
+		EE235B631F29D0EA00F026E0 /* FunctionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionsTest.m; sourceTree = "<group>"; };
+		EE235B641F29D0EA00F026E0 /* NSAffineTransformTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAffineTransformTest.m; sourceTree = "<group>"; };
+		EE235B651F29D0EA00F026E0 /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
+		EE235B661F29D0EA00F026E0 /* NSBundleTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSBundleTest.m; sourceTree = "<group>"; };
+		EE235B671F29D0EA00F026E0 /* NSByteSwappingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSByteSwappingTest.m; sourceTree = "<group>"; };
+		EE235B681F29D0EA00F026E0 /* NSConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSConnectionTest.m; sourceTree = "<group>"; };
+		EE235B691F29D0EA00F026E0 /* NSDistantObjectTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDistantObjectTest.m; sourceTree = "<group>"; };
+		EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSHTTPCookieTest.m; sourceTree = "<group>"; };
+		EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSInvocationTest.m; sourceTree = "<group>"; };
+		EE235B6C1F29D0EA00F026E0 /* NSMethodSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMethodSignatureTest.m; sourceTree = "<group>"; };
+		EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
+		EE235B6E1F29D0EA00F026E0 /* NSPortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortTest.m; sourceTree = "<group>"; };
+		EE235B6F1F29D0EA00F026E0 /* NSPredicateTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPredicateTest.m; sourceTree = "<group>"; };
+		EE235B701F29D0EA00F026E0 /* NSScannerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScannerTest.m; sourceTree = "<group>"; };
+		EE235B711F29D0EA00F026E0 /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
+		EE235B721F29D0EA00F026E0 /* NSURLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLTest.m; sourceTree = "<group>"; };
+		EE235B731F29D0EA00F026E0 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
-		EEDB59F2169878070011D22A /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEDB5A09169878070011D22A /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMethodSignatureTest.m; sourceTree = "<group>"; };
-		EEE590E318840B2600F96F53 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEE593D718840B5600F96F53 /* NSInvocationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSInvocationTest.m; sourceTree = "<group>"; };
-		EEF7152616DD27C200CD94B5 /* FunctionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionsTest.m; sourceTree = "<group>"; };
-		EEF7425216E9036E00CD94B5 /* AddressBook */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AddressBook; path = ../AddressBook; sourceTree = SOURCE_ROOT; };
-		EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABAddressBookTest.m; path = AddressBook/ABAddressBookTest.m; sourceTree = "<group>"; };
-		EEF742F316E903D100CD94B5 /* ABPersonTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABPersonTest.m; path = AddressBook/ABPersonTest.m; sourceTree = "<group>"; };
-		EEF742F716E903DB00CD94B5 /* ABGroupTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABGroupTest.m; path = AddressBook/ABGroupTest.m; sourceTree = "<group>"; };
-		EEF742FB16E903E500CD94B5 /* ABSearchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABSearchTest.m; path = AddressBook/ABSearchTest.m; sourceTree = "<group>"; };
-		EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAffineTransformTest.m; sourceTree = "<group>"; };
-		EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSConnectionTest.m; sourceTree = "<group>"; };
-		EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDistantObjectTest.m; sourceTree = "<group>"; };
-		EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
-		EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = AddressBookTests.qcodeproj; path = AddressBook/AddressBookTests.qcodeproj; sourceTree = "<group>"; };
-		EEF7EB2B16DB641600CD94B5 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
-		EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
-		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		EE0C72000F7E7328008B94EE /* Frameworks */ = {
+		EE235B561F29CB3300F026E0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */,
-				EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE488AE80F91025400B3E56F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE488BAB0F9102CC00B3E56F /* Cocoa.framework in Frameworks */,
-				EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */,
-				EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07F8F1699EC2500CA1448 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEC07F901699EC2500CA1448 /* Foundation.framework in Frameworks */,
-				EEC07F911699EC2500CA1448 /* AppKit.framework in Frameworks */,
-				EEC07F921699EC2500CA1448 /* Cocoa.framework in Frameworks */,
-				EEC07F931699EC2500CA1448 /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07FA51699EC3100CA1448 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEC07FA61699EC3100CA1448 /* Foundation.framework in Frameworks */,
-				EEC07FA71699EC3100CA1448 /* AppKit.framework in Frameworks */,
-				EEC07FA81699EC3100CA1448 /* Cocoa.framework in Frameworks */,
-				EEC07FA91699EC3100CA1448 /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EED980310F875953002E4AD5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */,
-				EE488AF50F9102C000B3E56F /* AppKit.framework in Frameworks */,
-				EE488BAA0F9102C600B3E56F /* Cocoa.framework in Frameworks */,
-				EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59E9169878070011D22A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEDB59EA169878070011D22A /* Foundation.framework in Frameworks */,
-				EEDB59EB169878070011D22A /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59FE169878070011D22A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEDB59FF169878070011D22A /* Foundation.framework in Frameworks */,
-				EEDB5A00169878070011D22A /* AppKit.framework in Frameworks */,
-				EEDB5A01169878070011D22A /* Cocoa.framework in Frameworks */,
-				EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,271 +68,66 @@
 			isa = PBXGroup;
 			children = (
 				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
-				EEF7EB1F16DB638900CD94B5 /* AddressBook-Tests */,
-				EED980270F87594E002E4AD5 /* AppKit-Tests */,
-				EEC97F72188E88D5007EEF9D /* CoreLocation - Tests */,
-				EE0C70D20F7E7174008B94EE /* Foundation-Tests */,
-				EEC97F74188E88DE007EEF9D /* MapKit - Tests */,
-				EEC97F76188E88E5007EEF9D /* Message - Tests */,
-				EEC97F78188E88EB007EEF9D /* PDFKit - Tests */,
-				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
+				EE235B5A1F29CB3400F026E0 /* FoundationTest */,
 				EE29D8D8058A38830035639B /* Products */,
-				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
-				EE488C3E0F91030800B3E56F /* main.m */,
-				EE488AEC0F91025500B3E56F /* Special-Info.plist */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
 		};
-		EE0C70D20F7E7174008B94EE /* Foundation-Tests */ = {
+		EE235B5A1F29CB3400F026E0 /* FoundationTest */ = {
 			isa = PBXGroup;
 			children = (
-				EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */,
-				EE13454410A04EB700169BC8 /* Sources */,
-				EEF7152616DD27C200CD94B5 /* FunctionsTest.m */,
-				EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */,
-				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
-				EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */,
-				EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */,
-				EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */,
-				EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */,
-				EEE593D718840B5600F96F53 /* NSInvocationTest.m */,
-				EEE514A2188817D700F96F53 /* NSMethodSignatureTest.m */,
-				EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */,
-				EE103F0916F264530037C368 /* NSPortTest.m */,
-				EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */,
-				EEC07E3C1699C69000CA1448 /* NSScannerTest.m */,
-				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
-				EE27BF660FCAB2A300A48A1E /* NSURLTest.m */,
-				EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */,
+				EE235B5B1F29CB3400F026E0 /* FoundationTest.m */,
+				EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */,
+				EE235B631F29D0EA00F026E0 /* FunctionsTest.m */,
+				EE235B641F29D0EA00F026E0 /* NSAffineTransformTest.m */,
+				EE235B651F29D0EA00F026E0 /* NSAttributedStringTest.m */,
+				EE235B661F29D0EA00F026E0 /* NSBundleTest.m */,
+				EE235B671F29D0EA00F026E0 /* NSByteSwappingTest.m */,
+				EE235B681F29D0EA00F026E0 /* NSConnectionTest.m */,
+				EE235B691F29D0EA00F026E0 /* NSDistantObjectTest.m */,
+				EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */,
+				EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */,
+				EE235B6C1F29D0EA00F026E0 /* NSMethodSignatureTest.m */,
+				EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */,
+				EE235B6E1F29D0EA00F026E0 /* NSPortTest.m */,
+				EE235B6F1F29D0EA00F026E0 /* NSPredicateTest.m */,
+				EE235B701F29D0EA00F026E0 /* NSScannerTest.m */,
+				EE235B711F29D0EA00F026E0 /* NSStringTest.m */,
+				EE235B721F29D0EA00F026E0 /* NSURLTest.m */,
+				EE235B731F29D0EA00F026E0 /* NSValueTest.m */,
+				EE235B5D1F29CB3400F026E0 /* Info.plist */,
 			);
-			name = "Foundation-Tests";
-			path = Foundation;
+			path = FoundationTest;
 			sourceTree = "<group>";
 		};
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE5DAEF010A61BD200910F0B /* Special.app */,
-				EEC07F991699EC2500CA1448 /* AddressBook.octest */,
-				EE0C72030F7E7328008B94EE /* Foundation.octest */,
-				EEDB59F2169878070011D22A /* Foundation.octest */,
-				EEDB5A09169878070011D22A /* AppKit.octest */,
-				EEC07FAF1699EC3100CA1448 /* AddressBook.octest */,
-				EEE590E318840B2600F96F53 /* AppKit.octest */,
+				EE235B591F29CB3300F026E0 /* FoundationTest.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		EEC97F72188E88D5007EEF9D /* CoreLocation - Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEC97F73188E88D5007EEF9D /* CoreLocationTests.qcodeproj */,
-			);
-			name = "CoreLocation - Tests";
-			path = CoreLocation;
-			sourceTree = "<group>";
-		};
-		EEC97F74188E88DE007EEF9D /* MapKit - Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEC97F75188E88DE007EEF9D /* MapKitTests.qcodeproj */,
-			);
-			name = "MapKit - Tests";
-			path = MapKit;
-			sourceTree = "<group>";
-		};
-		EEC97F76188E88E5007EEF9D /* Message - Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEC97F77188E88E6007EEF9D /* MessageTests.qcodeproj */,
-			);
-			name = "Message - Tests";
-			path = Message;
-			sourceTree = "<group>";
-		};
-		EEC97F78188E88EB007EEF9D /* PDFKit - Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEC97F79188E88EB007EEF9D /* PDFKitTests.qcodeproj */,
-			);
-			name = "PDFKit - Tests";
-			path = PDFKit;
-			sourceTree = "<group>";
-		};
-		EED980270F87594E002E4AD5 /* AppKit-Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEF7EB2B16DB641600CD94B5 /* AppKitTests.qcodeproj */,
-				EE13461D10A04ECB00169BC8 /* Sources */,
-				EE80834B16A98EB500830989 /* floatspeed.m */,
-				EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */,
-				EE547ABD168BAC8E00164AB4 /* NSFontTest.m */,
-				EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */,
-				EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */,
-				EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */,
-				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
-				EE3854ED169BF8910089B326 /* NSTextStorageTest.m */,
-				EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */,
-				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
-				EE65676218B143C6008CDCE3 /* NSViewTest.m */,
-				EE80828516A8933D00830989 /* gui */,
-			);
-			name = "AppKit-Tests";
-			path = AppKit;
-			sourceTree = "<group>";
-		};
-		EEF7EB1F16DB638900CD94B5 /* AddressBook-Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */,
-				EEF7425216E9036E00CD94B5 /* AddressBook */,
-				EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */,
-				EEF742F716E903DB00CD94B5 /* ABGroupTest.m */,
-				EEF742F316E903D100CD94B5 /* ABPersonTest.m */,
-				EEF742FB16E903E500CD94B5 /* ABSearchTest.m */,
-			);
-			name = "AddressBook-Tests";
-			sourceTree = "<group>";
-		};
-		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EEFFF0EB098DF148002610FC /* AppKit.framework */,
-				EEFFF0EC098DF148002610FC /* Cocoa.framework */,
-				EEFFEFE2098DF088002610FC /* Foundation.framework */,
-				EED109C80F82540300E9AEC6 /* SenTestingKit.framework */,
-			);
-			name = "MacOS X Frameworks";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EE0C72020F7E7328008B94EE /* Foundation */ = {
+		EE235B581F29CB3300F026E0 /* FoundationTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE0C72080F7E732A008B94EE /* Build configuration list for PBXNativeTarget "Foundation" */;
+			buildConfigurationList = EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTest" */;
 			buildPhases = (
-				EE0C71FE0F7E7328008B94EE /* Resources */,
-				EE0C71FF0F7E7328008B94EE /* Sources */,
-				EE0C72000F7E7328008B94EE /* Frameworks */,
-				EED10A120F82590100E9AEC6 /* Cross Compile */,
+				EE235B551F29CB3300F026E0 /* Sources */,
+				EE235B561F29CB3300F026E0 /* Frameworks */,
+				EE235B571F29CB3300F026E0 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = Foundation;
-			productName = Tests;
-			productReference = EE0C72030F7E7328008B94EE /* Foundation.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
-		EE488AE90F91025400B3E56F /* Special */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE488AF00F91025600B3E56F /* Build configuration list for PBXNativeTarget "Special" */;
-			buildPhases = (
-				EE488AE60F91025400B3E56F /* Resources */,
-				EE488AE70F91025400B3E56F /* Sources */,
-				EE488AE80F91025400B3E56F /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Special;
-			productName = Special;
-			productReference = EE5DAEF010A61BD200910F0B /* Special.app */;
-			productType = "com.apple.product-type.application";
-		};
-		EEC07F851699EC2500CA1448 /* AddressBook */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEC07F951699EC2500CA1448 /* Build configuration list for PBXNativeTarget "AddressBook" */;
-			buildPhases = (
-				EEC07F861699EC2500CA1448 /* Resources */,
-				EEC07F871699EC2500CA1448 /* Sources */,
-				EEC07F8F1699EC2500CA1448 /* Frameworks */,
-				EEC07F941699EC2500CA1448 /* Cross Compile */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = AddressBook;
-			productName = Tests;
-			productReference = EEC07F991699EC2500CA1448 /* AddressBook.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
-		EEC07F9B1699EC3100CA1448 /* AddressBook Build and Run */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEC07FAB1699EC3100CA1448 /* Build configuration list for PBXNativeTarget "AddressBook Build and Run" */;
-			buildPhases = (
-				EEC07F9C1699EC3100CA1448 /* Resources */,
-				EEC07F9D1699EC3100CA1448 /* Sources */,
-				EEC07FA51699EC3100CA1448 /* Frameworks */,
-				EEC07FAA1699EC3100CA1448 /* Run Tests */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "AddressBook Build and Run";
-			productName = Tests;
-			productReference = EEC07FAF1699EC3100CA1448 /* AddressBook.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
-		EED9802D0F875953002E4AD5 /* AppKit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EED980360F875953002E4AD5 /* Build configuration list for PBXNativeTarget "AppKit" */;
-			buildPhases = (
-				EED9802E0F875953002E4AD5 /* Resources */,
-				EED9802F0F875953002E4AD5 /* Sources */,
-				EED980310F875953002E4AD5 /* Frameworks */,
-				EED980340F875953002E4AD5 /* Cross Compile */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = AppKit;
-			productName = Tests;
-			productReference = EEE590E318840B2600F96F53 /* AppKit.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
-		EEDB59DF169878070011D22A /* Foundation Build and Run */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEDB59EE169878070011D22A /* Build configuration list for PBXNativeTarget "Foundation Build and Run" */;
-			buildPhases = (
-				EEDB59E0169878070011D22A /* Resources */,
-				EEDB59E1169878070011D22A /* Sources */,
-				EEDB59E9169878070011D22A /* Frameworks */,
-				EEDB59ED169878070011D22A /* Run Tests */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Foundation Build and Run";
-			productName = Tests;
-			productReference = EEDB59F2169878070011D22A /* Foundation.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
-		EEDB59F4169878070011D22A /* AppKit Build and Run */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEDB5A05169878070011D22A /* Build configuration list for PBXNativeTarget "AppKit Build and Run" */;
-			buildPhases = (
-				EEDB59F5169878070011D22A /* Resources */,
-				EEDB59F6169878070011D22A /* Sources */,
-				EEDB59FE169878070011D22A /* Frameworks */,
-				EEDB5A04169878070011D22A /* Run Tests */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "AppKit Build and Run";
-			productName = Tests;
-			productReference = EEDB5A09169878070011D22A /* AppKit.octest */;
-			productType = "com.apple.product-type.bundle";
+			name = FoundationTest;
+			productName = FoundationTest;
+			productReference = EE235B591F29CB3300F026E0 /* FoundationTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -548,10 +135,16 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastTestingUpgradeCheck = 0600;
-				LastUpgradeCheck = 0600;
+				LastTestingUpgradeCheck = 0730;
+				LastUpgradeCheck = 0730;
+				TargetAttributes = {
+					EE235B581F29CB3300F026E0 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
-			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */;
+			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests Kopie" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -566,396 +159,59 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE488AE90F91025400B3E56F /* Special */,
-				EEBCCA171693559F00CED788 /* UnitTesting */,
-				EEC07F851699EC2500CA1448 /* AddressBook */,
-				EEC07F9B1699EC3100CA1448 /* AddressBook Build and Run */,
-				EED9802D0F875953002E4AD5 /* AppKit */,
-				EEDB59F4169878070011D22A /* AppKit Build and Run */,
-				EE0C72020F7E7328008B94EE /* Foundation */,
-				EEDB59DF169878070011D22A /* Foundation Build and Run */,
+				EE235B581F29CB3300F026E0 /* FoundationTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		EE0C71FE0F7E7328008B94EE /* Resources */ = {
+		EE235B571F29CB3300F026E0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE488AE60F91025400B3E56F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07F861699EC2500CA1448 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07F9C1699EC3100CA1448 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EED9802E0F875953002E4AD5 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59E0169878070011D22A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59F5169878070011D22A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */,
+				EE235B741F29D0EA00F026E0 /* FoundationTests.qcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		EEC07F941699EC2500CA1448 /* Cross Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Cross Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd AddressBook; QuantumSTEP=/usr/local/QuantumSTEP ./AddressBookTests.qcodeproj\n";
-		};
-		EEC07FAA1699EC3100CA1448 /* Run Tests */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Tests";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-		EED10A120F82590100E9AEC6 /* Cross Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Cross Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd Foundation; QuantumSTEP=/usr/local/QuantumSTEP ./FoundationTests.qcodeproj\n";
-		};
-		EED980340F875953002E4AD5 /* Cross Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Cross Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd AppKit; QuantumSTEP=/usr/local/QuantumSTEP ./AppKitTests.qcodeproj\n";
-		};
-		EEDB59ED169878070011D22A /* Run Tests */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Tests";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-		EEDB5A04169878070011D22A /* Run Tests */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Tests";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		EE0C71FF0F7E7328008B94EE /* Sources */ = {
+		EE235B551F29CB3300F026E0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */,
-				EE488A950F90FBC300B3E56F /* NSAttributedStringTest.m in Sources */,
-				EE27BF610FCAB29200A48A1E /* NSByteSwappingTest.m in Sources */,
-				EE27BF630FCAB29800A48A1E /* NSHTTPCookieTest.m in Sources */,
-				EE27BF650FCAB29D00A48A1E /* NSPredicateTest.m in Sources */,
-				EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */,
-				EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */,
-				EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEF7152716DD27C200CD94B5 /* FunctionsTest.m in Sources */,
-				EEF7BCD316E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
-				EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
-				EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */,
-				EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
-				EE103F0B16F264530037C368 /* NSPortTest.m in Sources */,
-				EEE593D918840B5600F96F53 /* NSInvocationTest.m in Sources */,
-				EEE514A4188817D700F96F53 /* NSMethodSignatureTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE488AE70F91025400B3E56F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE488C3F0F91030800B3E56F /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07F871699EC2500CA1448 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEF742F116E903C600CD94B5 /* ABAddressBookTest.m in Sources */,
-				EEF742F516E903D100CD94B5 /* ABPersonTest.m in Sources */,
-				EEF742F916E903DB00CD94B5 /* ABGroupTest.m in Sources */,
-				EEF742FD16E903E500CD94B5 /* ABSearchTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEC07F9D1699EC3100CA1448 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEF742F016E903C600CD94B5 /* ABAddressBookTest.m in Sources */,
-				EEF742F416E903D100CD94B5 /* ABPersonTest.m in Sources */,
-				EEF742F816E903DB00CD94B5 /* ABGroupTest.m in Sources */,
-				EEF742FC16E903E500CD94B5 /* ABSearchTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EED9802F0F875953002E4AD5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */,
-				EE547A9A168BA3A400164AB4 /* NSStringDrawingTest.m in Sources */,
-				EE547A9D168BA4A400164AB4 /* NSLayoutManagerTest.m in Sources */,
-				EE547ABE168BAC8E00164AB4 /* NSFontTest.m in Sources */,
-				EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */,
-				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
-				EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */,
-				EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */,
-				EEC08C16169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
-				EE80834C16A98EB500830989 /* floatspeed.m in Sources */,
-				EE65676518B143C6008CDCE3 /* NSViewTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59E1169878070011D22A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEF7448616E9EC3000CD94B5 /* NSConnectionTest.m in Sources */,
-				EEDB59E2169878070011D22A /* NSStringTest.m in Sources */,
-				EEDB59E3169878070011D22A /* NSAttributedStringTest.m in Sources */,
-				EEDB59E4169878070011D22A /* NSByteSwappingTest.m in Sources */,
-				EEDB59E5169878070011D22A /* NSHTTPCookieTest.m in Sources */,
-				EEDB59E6169878070011D22A /* NSPredicateTest.m in Sources */,
-				EEDB59E7169878070011D22A /* NSURLTest.m in Sources */,
-				EEDB59E8169878070011D22A /* NSPortCoderTest.m in Sources */,
-				EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEF7152816DD27C200CD94B5 /* FunctionsTest.m in Sources */,
-				EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
-				EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
-				EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
-				EE103F0A16F264530037C368 /* NSPortTest.m in Sources */,
-				EEE593D818840B5600F96F53 /* NSInvocationTest.m in Sources */,
-				EEE514A3188817D700F96F53 /* NSMethodSignatureTest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEDB59F6169878070011D22A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEDB59F7169878070011D22A /* NSTextContainerTest.m in Sources */,
-				EEDB59F8169878070011D22A /* NSStringDrawingTest.m in Sources */,
-				EEDB59F9169878070011D22A /* NSLayoutManagerTest.m in Sources */,
-				EEDB59FA169878070011D22A /* NSFontTest.m in Sources */,
-				EEDB59FB169878070011D22A /* NSFontDescriptorTest.m in Sources */,
-				EEDB59FC169878070011D22A /* NSTextFieldCellTest.m in Sources */,
-				EEDB59FD169878070011D22A /* NSViewBoundsTest.m in Sources */,
-				EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */,
-				EEC08C17169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
-				EE80834D16A98EB500830989 /* floatspeed.m in Sources */,
-				EE65676418B143C6008CDCE3 /* NSViewTest.m in Sources */,
+				EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */,
+				EE235B5C1F29CB3400F026E0 /* FoundationTest.m in Sources */,
+				EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */,
+				EE235B751F29D0EA00F026E0 /* FunctionsTest.m in Sources */,
+				EE235B7C1F29D0EA00F026E0 /* NSHTTPCookieTest.m in Sources */,
+				EE235B781F29D0EA00F026E0 /* NSBundleTest.m in Sources */,
+				EE235B7E1F29D0EA00F026E0 /* NSMethodSignatureTest.m in Sources */,
+				EE235B7A1F29D0EA00F026E0 /* NSConnectionTest.m in Sources */,
+				EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */,
+				EE235B791F29D0EA00F026E0 /* NSByteSwappingTest.m in Sources */,
+				EE235B761F29D0EA00F026E0 /* NSAffineTransformTest.m in Sources */,
+				EE235B771F29D0EA00F026E0 /* NSAttributedStringTest.m in Sources */,
+				EE235B7D1F29D0EA00F026E0 /* NSInvocationTest.m in Sources */,
+				EE235B811F29D0EA00F026E0 /* NSPredicateTest.m in Sources */,
+				EE235B801F29D0EA00F026E0 /* NSPortTest.m in Sources */,
+				EE235B821F29D0EA00F026E0 /* NSScannerTest.m in Sources */,
+				EE235B7B1F29D0EA00F026E0 /* NSDistantObjectTest.m in Sources */,
+				EE235B7F1F29D0EA00F026E0 /* NSPortCoderTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		EEBCCA1C169355A500CED788 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE0C72020F7E7328008B94EE /* Foundation */;
-			targetProxy = EEBCCA1B169355A500CED788 /* PBXContainerItemProxy */;
-		};
-		EEBCCA1E169355A800CED788 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EED9802D0F875953002E4AD5 /* AppKit */;
-			targetProxy = EEBCCA1D169355A800CED788 /* PBXContainerItemProxy */;
-		};
-		EEC07FB21699EC8400CA1448 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EEC07F851699EC2500CA1448 /* AddressBook */;
-			targetProxy = EEC07FB11699EC8400CA1448 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		EE0C72050F7E7329008B94EE /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EE0C72060F7E7329008B94EE /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE0C72070F7E7329008B94EE /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Default;
-		};
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
 			name = Development;
@@ -980,638 +236,155 @@
 			};
 			name = Default;
 		};
-		EE488AED0F91025600B3E56F /* Development */ = {
+		EE235B5F1F29CB3400F026E0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
 					"$(inherited)",
-					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
 				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Special-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Special;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
 			name = Development;
 		};
-		EE488AEE0F91025600B3E56F /* Deployment */ = {
+		EE235B601F29CB3400F026E0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
-				);
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Special-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Special;
-				SDKROOT = macosx;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE488AEF0F91025600B3E56F /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
-				);
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Special-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Special;
-				SDKROOT = macosx;
-			};
-			name = Default;
-		};
-		EEBCCA181693559F00CED788 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				PRODUCT_NAME = UnitTests;
-			};
-			name = Development;
-		};
-		EEBCCA191693559F00CED788 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				PRODUCT_NAME = UnitTests;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEBCCA1A1693559F00CED788 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				PRODUCT_NAME = UnitTests;
-			};
-			name = Default;
-		};
-		EEC07F961699EC2500CA1448 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = AddressBook;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EEC07F971699EC2500CA1448 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AddressBook;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Deployment;
 		};
-		EEC07F981699EC2500CA1448 /* Default */ = {
+		EE235B611F29CB3400F026E0 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AddressBook;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Default;
-		};
-		EEC07FAC1699EC3100CA1448 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = AddressBook;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EEC07FAD1699EC3100CA1448 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AddressBook;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = FoundationTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEC07FAE1699EC3100CA1448 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AddressBook;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Default;
-		};
-		EED980370F875953002E4AD5 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EED980380F875953002E4AD5 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Deployment;
-		};
-		EED980390F875953002E4AD5 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Default;
-		};
-		EEDB59EF169878070011D22A /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EEDB59F0169878070011D22A /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEDB59F1169878070011D22A /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Foundation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Default;
-		};
-		EEDB5A06169878070011D22A /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SYMBOL_SEPARATION = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = /Developer/Library;
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Development;
-		};
-		EEDB5A07169878070011D22A /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEDB5A08169878070011D22A /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = "Tests-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SenTestingKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = AppKit;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Default;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EE0C72080F7E732A008B94EE /* Build configuration list for PBXNativeTarget "Foundation" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE0C72050F7E7329008B94EE /* Development */,
-				EE0C72060F7E7329008B94EE /* Deployment */,
-				EE0C72070F7E7329008B94EE /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */ = {
+		EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests Kopie" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE1A0192097304E200EAB703 /* Development */,
@@ -1621,72 +394,12 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE488AF00F91025600B3E56F /* Build configuration list for PBXNativeTarget "Special" */ = {
+		EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EE488AED0F91025600B3E56F /* Development */,
-				EE488AEE0F91025600B3E56F /* Deployment */,
-				EE488AEF0F91025600B3E56F /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEBCCA24169355E100CED788 /* Build configuration list for PBXAggregateTarget "UnitTesting" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEBCCA181693559F00CED788 /* Development */,
-				EEBCCA191693559F00CED788 /* Deployment */,
-				EEBCCA1A1693559F00CED788 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEC07F951699EC2500CA1448 /* Build configuration list for PBXNativeTarget "AddressBook" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEC07F961699EC2500CA1448 /* Development */,
-				EEC07F971699EC2500CA1448 /* Deployment */,
-				EEC07F981699EC2500CA1448 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEC07FAB1699EC3100CA1448 /* Build configuration list for PBXNativeTarget "AddressBook Build and Run" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEC07FAC1699EC3100CA1448 /* Development */,
-				EEC07FAD1699EC3100CA1448 /* Deployment */,
-				EEC07FAE1699EC3100CA1448 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EED980360F875953002E4AD5 /* Build configuration list for PBXNativeTarget "AppKit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EED980370F875953002E4AD5 /* Development */,
-				EED980380F875953002E4AD5 /* Deployment */,
-				EED980390F875953002E4AD5 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEDB59EE169878070011D22A /* Build configuration list for PBXNativeTarget "Foundation Build and Run" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEDB59EF169878070011D22A /* Development */,
-				EEDB59F0169878070011D22A /* Deployment */,
-				EEDB59F1169878070011D22A /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEDB5A05169878070011D22A /* Build configuration list for PBXNativeTarget "AppKit Build and Run" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEDB5A06169878070011D22A /* Development */,
-				EEDB5A07169878070011D22A /* Deployment */,
-				EEDB5A08169878070011D22A /* Default */,
+				EE235B5F1F29CB3400F026E0 /* Development */,
+				EE235B601F29CB3400F026E0 /* Deployment */,
+				EE235B611F29CB3400F026E0 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
