@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <AddressBook/AddressBook.h>
 
 
 @interface NSBundleTest : XCTestCase {

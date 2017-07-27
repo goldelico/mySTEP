@@ -26,10 +26,11 @@
 		EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B711F29D0EA00F026E0 /* NSStringTest.m */; };
 		EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B721F29D0EA00F026E0 /* NSURLTest.m */; };
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
+		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		EE235B591F29CB3300F026E0 /* FoundationTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoundationTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE235B591F29CB3300F026E0 /* FoundationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoundationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE235B5B1F29CB3400F026E0 /* FoundationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FoundationTest.m; sourceTree = "<group>"; };
 		EE235B5D1F29CB3400F026E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
@@ -51,6 +52,7 @@
 		EE235B721F29D0EA00F026E0 /* NSURLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLTest.m; sourceTree = "<group>"; };
 		EE235B731F29D0EA00F026E0 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMutableArrayTest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */,
 				EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */,
 				EE235B6C1F29D0EA00F026E0 /* NSMethodSignatureTest.m */,
+				EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */,
 				EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */,
 				EE235B6E1F29D0EA00F026E0 /* NSPortTest.m */,
 				EE235B6F1F29D0EA00F026E0 /* NSPredicateTest.m */,
@@ -98,13 +101,14 @@
 				EE235B731F29D0EA00F026E0 /* NSValueTest.m */,
 				EE235B5D1F29CB3400F026E0 /* Info.plist */,
 			);
-			path = FoundationTest;
+			name = FoundationTest;
+			path = FoundationTests;
 			sourceTree = "<group>";
 		};
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE235B591F29CB3300F026E0 /* FoundationTest.xctest */,
+				EE235B591F29CB3300F026E0 /* FoundationTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -112,9 +116,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EE235B581F29CB3300F026E0 /* FoundationTest */ = {
+		EE235B581F29CB3300F026E0 /* FoundationTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTest" */;
+			buildConfigurationList = EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTests" */;
 			buildPhases = (
 				EE235B551F29CB3300F026E0 /* Sources */,
 				EE235B561F29CB3300F026E0 /* Frameworks */,
@@ -124,9 +128,9 @@
 			);
 			dependencies = (
 			);
-			name = FoundationTest;
+			name = FoundationTests;
 			productName = FoundationTest;
-			productReference = EE235B591F29CB3300F026E0 /* FoundationTest.xctest */;
+			productReference = EE235B591F29CB3300F026E0 /* FoundationTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -136,7 +140,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastTestingUpgradeCheck = 0730;
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0820;
 				TargetAttributes = {
 					EE235B581F29CB3300F026E0 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -144,7 +148,7 @@
 					};
 				};
 			};
-			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests Kopie" */;
+			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -159,7 +163,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE235B581F29CB3300F026E0 /* FoundationTest */,
+				EE235B581F29CB3300F026E0 /* FoundationTests */,
 			);
 		};
 /* End PBXProject section */
@@ -196,6 +200,7 @@
 				EE235B811F29D0EA00F026E0 /* NSPredicateTest.m in Sources */,
 				EE235B801F29D0EA00F026E0 /* NSPortTest.m in Sources */,
 				EE235B821F29D0EA00F026E0 /* NSScannerTest.m in Sources */,
+				EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */,
 				EE235B7B1F29D0EA00F026E0 /* NSDistantObjectTest.m in Sources */,
 				EE235B7F1F29D0EA00F026E0 /* NSPortCoderTest.m in Sources */,
 			);
@@ -207,10 +212,11 @@
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -219,9 +225,10 @@
 		EE1A0193097304E200EAB703 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};
 			name = Deployment;
@@ -229,9 +236,10 @@
 		EE1A0194097304E200EAB703 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};
 			name = Default;
@@ -278,12 +286,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = FoundationTest/Info.plist;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -325,11 +333,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = FoundationTest/Info.plist;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -371,11 +379,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = FoundationTest/Info.plist;
+				INFOPLIST_FILE = FoundationTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTest;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.FoundationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 			};
@@ -384,7 +392,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests Kopie" */ = {
+		EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE1A0192097304E200EAB703 /* Development */,
@@ -394,7 +402,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTest" */ = {
+		EE235B5E1F29CB3400F026E0 /* Build configuration list for PBXNativeTarget "FoundationTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE235B5F1F29CB3400F026E0 /* Development */,

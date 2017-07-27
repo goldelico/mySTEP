@@ -189,7 +189,7 @@
 	XCTAssertEqualObjects([url password], nil, @"");
 	XCTAssertEqualObjects([url port], nil, @"");
 	XCTAssertEqualObjects([url resourceSpecifier], @"/pathtofile;parameters?query#anchor", @"");
-	XCTAssertEqualObjects([url path], @"/pathtofile",nil);
+	XCTAssertEqualObjects([url path], @"/pathtofile", @"");
 	XCTAssertEqualObjects([url query], @"query", @"");
 	XCTAssertEqualObjects([url parameterString], @"parameters", @"");
 	XCTAssertEqualObjects([url fragment], @"anchor", @"");
@@ -443,49 +443,49 @@
 - (void) test23b
 { // when is an empty host // added?
 	NSURL *url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	XCTAssertEqualObjects([url description], @"pathonly -- path/file.html", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"//path/pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", [url description]);
+	//	XCTAssertEqualObjects([url description], @"pathonly -- path/file.html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"//path/pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", @"%@", url);
 	
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
-	XCTAssertEqualObjects([url description], @"pathonly -- file:path/file.html", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- file:path/file.html", [url description]);
+	XCTAssertEqualObjects([url description], @"pathonly -- file:path/file.html", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- file:path/file.html", @"%@", url);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	XCTAssertEqualObjects([url description], @"/pathonly -- path/file.html", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"///pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", [url description]);
+	XCTAssertEqualObjects([url description], @"/pathonly -- path/file.html", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"///pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", @"%@", url);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
-	XCTAssertEqualObjects([url description], @"/pathonly -- file:path/file.html", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:path/file.html", [url description]);
+	XCTAssertEqualObjects([url description], @"/pathonly -- file:path/file.html", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:path/file.html", @"%@", url);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:/path/file.html"]];
-	XCTAssertEqualObjects([url description], @"/pathonly -- file:/path/file.html", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:/path/file.html", [url description]);
+	XCTAssertEqualObjects([url description], @"/pathonly -- file:/path/file.html", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:/path/file.html", @"%@", url);
 		
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:nil];
-	XCTAssertEqualObjects([url description], @"pathonly", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly", [url description]);
+	XCTAssertEqualObjects([url description], @"pathonly", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly", @"%@", url);
 	
 	url=[NSURL URLWithString:@"file:pathonly" relativeToURL:nil];
-	XCTAssertEqualObjects([url description], @"file:pathonly", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"file:pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:pathonly", [url description]);
+	XCTAssertEqualObjects([url description], @"file:pathonly", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"file:pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:pathonly", @"%@", url);
 	
 	url=[NSURL URLWithString:@"file:/pathonly" relativeToURL:nil];
-	XCTAssertEqualObjects([url description], @"file:/pathonly", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"file:/pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///pathonly", [url description]);
+	XCTAssertEqualObjects([url description], @"file:/pathonly", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"file:/pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///pathonly", @"%@", url);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:nil];
-	XCTAssertEqualObjects([url description], @"/pathonly", [url description]);
-	XCTAssertEqualObjects([url absoluteString], @"/pathonly", [url description]);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly", [url description]);
+	XCTAssertEqualObjects([url description], @"/pathonly", @"%@", url);
+	XCTAssertEqualObjects([url absoluteString], @"/pathonly", @"%@", url);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly", @"%@", url);
 	
 	/* conclusions
 	 * // is added each time
@@ -532,7 +532,7 @@
 	XCTAssertEqualObjects([url host], @"host", @"");
 	XCTAssertEqualObjects([url path], @"", @"");
 	XCTAssertEqualObjects([url absoluteString], @"//host", @"");
-	XCTAssertEqualObjects([[url standardizedURL] description], @"host", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"host", @"%@", [url description]);
 	/* conclusions
 	 * //host can be detected even if we have no scheme
 	 * standardization removes the // but absoluteString povides it (may be a bug in Cocoa!)
@@ -556,97 +556,97 @@
 { // normalization of . and ..
 	NSURL *url;
 	url=[NSURL URLWithString:@"file:/file/."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/file/./"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/file//./"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/file/.//"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/file/.//other"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//other", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///file//other", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:./"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:./", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:./", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:./file"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:./file", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:./file", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:.", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:.", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", [url description]);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", @"%@", [url description]);
+	XCTAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello", [url description]);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello", @"%@", [url description]);
+	XCTAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/..file"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there/..file", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there/..file", @"%@", [url description]);
 	url=[NSURL URLWithString:@"data:/file/."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"data:///file/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"data:///file/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"http:/file/."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"http:///file/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"http:///file/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"http:file/."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"http:file/.", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"http:file/.", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/../file"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/file", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/file", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/file/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/../hello"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/../hello/"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other"]];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other/"]];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/file/../"];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/../", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/../", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/file/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/../.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:hello/../../.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../../..", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:hello/../../..", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/../.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", @"%@", [url description]);
 	url=[NSURL URLWithString:@"file:/../../.."];
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file:///", @"%@", [url description]);
 	/* conclusions
 	 * ./ are removed (or simple trailing .)
 	 * /.. removes parent but only for absolute paths or if base is defined (!)
@@ -773,7 +773,8 @@
 	NSURL *url;
 	NSURL *base=[NSURL URLWithString:@"http://a/b/c/d;p?q"];
 
-#define RFC3986(REL, RESULT) url=[NSURL URLWithString:@REL relativeToURL:base]; XCTAssertEqualObjects([[url absoluteURL] description], @RESULT, [url description]);
+#define RFC3986(REL, RESULT) url=[NSURL URLWithString:@REL relativeToURL:base]; \
+		XCTAssertEqualObjects([[url absoluteURL] description], @RESULT, @"%@", [url description]);
 	
 	/* 5.4.1.  Normal Examples
 	 */

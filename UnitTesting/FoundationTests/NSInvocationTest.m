@@ -14,6 +14,16 @@
 
 #import <XCTest/XCTest.h>
 
+// contrary to STAssertEquals(), XCTAssertEqual() can only handle scalar objects
+// https://stackoverflow.com/questions/19178109/xctassertequal-error-3-is-not-equal-to-3
+// http://www.openradar.me/16281876
+
+#define XCTAssertEquals(a, b, format) \
+	XCTAssertEqualObjects( \
+		[NSValue value:&a withObjCType:@encode(typeof(a))], \
+		[NSValue value:&b withObjCType:@encode(typeof(b))], \
+		format);
+
 @interface NSInvocationTest : XCTestCase {
 	int invoked;
 }
@@ -543,7 +553,7 @@ struct c_c
 	[i invoke];
 	XCTAssertEqual(invoked, 15, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, ((struct i_ll) { 0xaadd, 0xbbccddee }), @"");
+	XCTAssertEquals(r, ((struct i_ll) { 0xaadd, 0xbbccddee }), @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 XCTAssertEqualObjects(obj, @"a", @"");
@@ -606,7 +616,7 @@ struct c_c
 	[i invoke];
 	XCTAssertEqual(invoked, -15, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, ((struct c_c) { 'r', 'R' }), @"");
+	XCTAssertEquals(r, ((struct c_c) { 'r', 'R' }), @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
 	 XCTAssertEqualObjects(obj, @"a", @"");
@@ -771,8 +781,8 @@ struct c_c
 	if(sel_isEqual(aSelector, @selector(forward48:b:c:d:e:f:)))
 		return [NSMethodSignature signatureWithObjCTypes:"d@:iqfidf"];	// double return and several int and float, double arguments mixed
 	if(sel_isEqual(aSelector,@selector(forward49:b:c:)))
-	   return [NSMethodSignature signatureWithObjCTypes:"v@:fd{f_d=fd}"];	// double return and several int and float, double arguments mixed
-	   // same for structs...
+		return [NSMethodSignature signatureWithObjCTypes:"v@:fd{f_d=fd}"];	// double return and several int and float, double arguments mixed
+	// same for structs...
 	return [super methodSignatureForSelector:aSelector];	// default
 }
 
@@ -780,7 +790,7 @@ struct c_c
 { // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
 	SEL sel=[anInvocation selector];
 	XCTAssertEqualObjects([anInvocation target], self, @"");
-	XCTAssertTrue(sel_isEqual(_cmd, @selector(forwardInvocation:));
+	XCTAssertTrue(sel_isEqual(_cmd, @selector(forwardInvocation:)), @"");
 	invoked=-99;
 	NSLog(@"** self=%p _cmd=%p %@ sel=%p %@ called **", self, _cmd, NSStringFromSelector(_cmd), sel, NSStringFromSelector(sel));
 #if 0

@@ -829,7 +829,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:[@"" stringByPaddingToLength:257 withString:@"0123456789abcdef" startingAtIndex:0]];
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], 
 						 @"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010002 01013031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663001>",
-						 nil);
+						 @"");
 }
 
 - (void) test49StringUTF8
@@ -900,7 +900,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:[NSCalendarDate dateWithTimeIntervalSince1970:12345678]];
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], 
 						 @"<0101010f 4e534361 6c656e64 61724461 74650000 08000000 99b3c9cc c1010101 0b4e5354 696d655a 6f6e6500 00010101 094e5353 7472696e 67000101 0100010d 4575726f 70652f42 65726c69 6e010101 0101094e 53537472 696e6700 01010100 01142559 2d256d2d 25642025 483a254d 3a255320 257a0101>",
-						 nil);
+						 @"");
 }
 
 - (void) test58TimeZone
@@ -923,7 +923,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:[NSNull null]];
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description],
 						 @"<01010107 4e534e75 6c6c0000 01>",
-						 nil);	// is encoded bycopy as default (!)
+						 @"");	// is encoded bycopy as default (!)
 }
 
 - (void) test62Array
@@ -932,7 +932,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:[NSMutableArray arrayWithObjects:@"1", @"2", [NSNull null], nil]];
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description],
 						 @"<0101010f 4e534d75 7461626c 65417272 61790000 01030101 01094e53 53747269 6e670001 01010001 01310101 0101094e 53537472 696e6700 01010100 01013201 01010107 4e534e75 6c6c0000 0101>",
-						 nil);
+						 @"");
 	// the array (but not its contents) is encoded bycopy as default (!)
 }
 
@@ -943,7 +943,7 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:@"value", @"key1", [NSNull null], @"key2", nil]];
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description],
 						 @"<01010114 4e534d75 7461626c 65446963 74696f6e 61727900 00010201 0101094e 53537472 696e6700 01010100 01046b65 79320101 0101074e 534e756c 6c000001 01010109 4e535374 72696e67 00010101 0001046b 65793101 01010109 4e535374 72696e67 00010101 00010576 616c7565 0101>",
-						 nil);
+						 @"");
 	// the dictionary (but not its contents) is encoded bycopy as default (!)
 }
 #endif

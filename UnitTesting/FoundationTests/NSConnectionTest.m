@@ -105,7 +105,7 @@ encodeWithCoder:
 - (void) setUp
 {
 	NSPort *port=[NSPort port];
-	unsigned int cnt=[[NSConnection allConnections] count];
+	NSUInteger cnt=[[NSConnection allConnections] count];
 	connection=[NSConnection connectionWithReceivePort:port sendPort:port];
 	XCTAssertNotNil(connection, @"");
 	XCTAssertEqual([[NSConnection allConnections] count], cnt+1, @"");	// is added here to the connection list
@@ -115,7 +115,7 @@ encodeWithCoder:
 
 - (void) tearDown;
 {
-	unsigned int cnt=[[NSConnection allConnections] count];
+	NSUInteger cnt=[[NSConnection allConnections] count];
 	[connection	invalidate];
 	XCTAssertEqual([[NSConnection allConnections] count], cnt-1, @"");	// is removed here from the connection list
 	// check if ports are already removed from runloop here
