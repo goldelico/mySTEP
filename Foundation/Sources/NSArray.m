@@ -1,13 +1,13 @@
 /*
  NSArray.m
 
- Array object which stores other objects.
+ Ordered collection of objects.
 
  Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 
  Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
  Date:	March 1995
- mySTEP:	Felipe A. Rodriguez <far@pcmagic.net>
+ mySTEP:	Felipe A. Rodriguez <far@illumenos.com>
  Date:	Mar 1999
 
  This file is part of the mySTEP Library and is provided
@@ -26,6 +26,7 @@
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSPropertyList.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSIndexSet.h>
 
 #import "NSPrivate.h"
 
@@ -448,6 +449,33 @@ static Class __stringClass = Nil;
 	[anotherArray getObjects: &objects[_count]];
 
 	return [NSArray arrayWithObjects: objects count: c];
+}
+
+- (NSArray*) objectsAtIndexes:(NSIndexSet *)indexSet
+{
+	NSUInteger ix = NSNotFound;
+    id ra = nil;
+
+	if (indexSet == nil)
+		[NSException raise:NSInvalidArgumentException format:@"No index set"];
+	else
+		{
+		ra = [NSMutableArray array];
+		ix = [indexSet firstIndex];
+		}
+
+	while (ix != NSNotFound)
+		{
+        if (ix >= _count)
+			{
+			[NSException raise:NSRangeException format:@"Index out of bounds"];
+            return nil;
+        	}
+        [ra addObject: _contents[ix]];
+        ix = [indexSet indexGreaterThanIndex:ix];
+		}
+
+    return ra;
 }
 
 - (void) getObjects:(id*)aBuffer
@@ -1076,6 +1104,25 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 					format: @"Trying to removeLastObject from an empty array."];
 	_count--;
 	[_contents[_count] release];
+}
+
+- (void) removeObjectsAtIndexes:(NSIndexSet*)indexSet
+{
+	NSUInteger ix = NSNotFound;
+
+	if (indexSet == nil)
+		[NSException raise:NSInvalidArgumentException format:@"No index set"];
+	else
+		ix = [indexSet lastIndex];
+
+	if (ix >= _count)
+		[NSException raise:NSRangeException format:@"Index out of bounds"];
+
+	while (ix != NSNotFound)
+		{
+		[self removeObjectAtIndex: ix];
+        ix = [indexSet indexLessThanIndex:ix];
+		}
 }
 
 - (void) removeObjectsFromIndices:(NSUInteger *) indices
