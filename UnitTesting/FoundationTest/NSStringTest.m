@@ -64,28 +64,28 @@
 - (void) testShowCocoaMutabilityAPIofStringConstants
 {
 #ifdef __APPLE__
-	XCTAssertTrue([@"hello" respondsToSelector:@selector(setString:)], nil);
-	XCTAssertTrue([[NSString string] respondsToSelector:@selector(setString:)], nil);
-	XCTAssertTrue([[NSString string] isKindOfClass:[NSMutableString class]], nil);
+	XCTAssertTrue([@"hello" respondsToSelector:@selector(setString:)], @"");
+	XCTAssertTrue([[NSString string] respondsToSelector:@selector(setString:)], @"");
+	XCTAssertTrue([[NSString string] isKindOfClass:[NSMutableString class]], @"");
 #else
-	XCTAssertFalse([@"hello" respondsToSelector:@selector(setString:)], nil);
-	XCTAssertFalse([[NSString string] respondsToSelector:@selector(setString:)], nil);
-	XCTAssertFalse([[NSString string] isKindOfClass:[NSMutableString class]], nil);
+	XCTAssertFalse([@"hello" respondsToSelector:@selector(setString:)], @"");
+	XCTAssertFalse([[NSString string] respondsToSelector:@selector(setString:)], @"");
+	XCTAssertFalse([[NSString string] isKindOfClass:[NSMutableString class]], @"");
 #endif
 }
 
-#define TESTT(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertTrue([INPUT METHOD], nil); }
-#define TESTF(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertFalse([INPUT METHOD], nil); }
-#define TEST0(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertNil([INPUT METHOD], nil); }
-#define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test_##METHOD##NAME; { XCTAssertEqualObjects([INPUT METHOD], OUTPUT, nil); }
-#define TEST2(NAME, INPUT, METHOD, ARG, OUTPUT) - (void) test_##METHOD##NAME; { XCTAssertEqualObjects([INPUT METHOD:ARG], OUTPUT, nil); }
+#define TESTT(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertTrue([INPUT METHOD], @""); }
+#define TESTF(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertFalse([INPUT METHOD], @""); }
+#define TEST0(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { XCTAssertNil([INPUT METHOD], @""); }
+#define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test_##METHOD##NAME; { XCTAssertEqualObjects([INPUT METHOD], OUTPUT, @""); }
+#define TEST2(NAME, INPUT, METHOD, ARG, OUTPUT) - (void) test_##METHOD##NAME; { XCTAssertEqualObjects([INPUT METHOD:ARG], OUTPUT, @""); }
 
 - (void) testMutablility
 {
-	XCTAssertFalse([@"hello" isMutable], nil);
-	XCTAssertTrue([[[@"hello" mutableCopy] autorelease] isMutable], nil);
-	XCTAssertFalse([[NSString string] isMutable], nil);
-	XCTAssertTrue([[NSMutableString string] isMutable], nil);
+	XCTAssertFalse([@"hello" isMutable], @"");
+	XCTAssertTrue([[[@"hello" mutableCopy] autorelease] isMutable], @"");
+	XCTAssertFalse([[NSString string] isMutable], @"");
+	XCTAssertTrue([[NSMutableString string] isMutable], @"");
 }
 
 TEST2(01, @"a:b", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"a", @"b", nil]));
@@ -106,14 +106,14 @@ TESTF(04, @"here/", isAbsolutePath);
 
 - (void) testisEqualToString;
 { // -lowercaseString converts into an Unicode String
-	XCTAssertTrue([@"" isEqualToString:@""], nil);
-	XCTAssertTrue([@"" isEqualToString:[@"" lowercaseString]], nil);	// fails...
-	XCTAssertTrue([[@"" lowercaseString] isEqualToString:@""], nil);
-	XCTAssertTrue([[@"" lowercaseString] isEqualToString:[@"" lowercaseString]], nil);
-	XCTAssertTrue([@"" isEqual:@""], nil);
-	XCTAssertTrue([@"" isEqual:[@"" lowercaseString]], nil);	// fails...
-	XCTAssertTrue([[@"" lowercaseString] isEqual:@""], nil);
-	XCTAssertTrue([[@"" lowercaseString] isEqual:[@"" lowercaseString]], nil);
+	XCTAssertTrue([@"" isEqualToString:@""], @"");
+	XCTAssertTrue([@"" isEqualToString:[@"" lowercaseString]], @"");	// fails...
+	XCTAssertTrue([[@"" lowercaseString] isEqualToString:@""], @"");
+	XCTAssertTrue([[@"" lowercaseString] isEqualToString:[@"" lowercaseString]], @"");
+	XCTAssertTrue([@"" isEqual:@""], @"");
+	XCTAssertTrue([@"" isEqual:[@"" lowercaseString]], @"");	// fails...
+	XCTAssertTrue([[@"" lowercaseString] isEqual:@""], @"");
+	XCTAssertTrue([[@"" lowercaseString] isEqual:[@"" lowercaseString]], @"");
 }
 
 TEST1(01, @"/tmp/scratch.tiff", lastPathComponent, @"scratch.tiff");
@@ -170,28 +170,28 @@ TEST1(10, @"...tiff", pathExtension, @"tiff");
 
 - (void) testpathWithComponents
 {
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:nil]]), @"", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", nil]]), @"", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"", @"", nil]]), @"", nil);	// empty entries are ignored
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", nil]]), @"/", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", nil]]), @"/", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", nil]]), @"/", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"path", nil]]), @"/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"path", @"", @"/", nil]]), @"path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"", nil]]), @"/", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", nil]]), @"/", nil);	// not the inverse of pathComponents
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"path", @"/", nil]]), @"path", nil);	// not the inverse of pathComponents
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", nil]]), @"/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", @"/", nil]]), @"/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", @"/", nil]]), @"/tmp/scratch.tiff", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", @"/", nil]]), @"/", nil);	// multiple / are merged
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/path", @"", @"/", nil]]), @"/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"/path", @"/", nil]]), @"/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some", @"/path", @"/", nil]]), @"/some/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some/", @"/path", @"/", nil]]), @"/some/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/path", @"", @"/", nil]]), @"some/path", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/", @"", @"/", nil]]), @"some", nil);
-	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/some/", @"", @"/path/", nil]]), @"/some/path", nil);
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:nil]]), @"", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", nil]]), @"", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"", @"", nil]]), @"", @"");	// empty entries are ignored
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", nil]]), @"/", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", nil]]), @"/", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", nil]]), @"/", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"path", nil]]), @"/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"path", @"", @"/", nil]]), @"path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"", nil]]), @"/", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", nil]]), @"/", @"");	// not the inverse of pathComponents
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"path", @"/", nil]]), @"path", @"");	// not the inverse of pathComponents
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", nil]]), @"/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", @"/", nil]]), @"/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", @"/", nil]]), @"/tmp/scratch.tiff", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", @"/", nil]]), @"/", @"");	// multiple / are merged
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/path", @"", @"/", nil]]), @"/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"/path", @"/", nil]]), @"/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some", @"/path", @"/", nil]]), @"/some/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some/", @"/path", @"/", nil]]), @"/some/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/path", @"", @"/", nil]]), @"some/path", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/", @"", @"/", nil]]), @"some", @"");
+	XCTAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/some/", @"", @"/path/", nil]]), @"/some/path", @"");
 	/* conclusions
 	 * there appears to be no way to produce a path that ends in a /
 	 * [NSString pathWithComponents:[str pathComponents]] is not always the same str
@@ -345,31 +345,31 @@ TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// impli
 - (void) test90
 {
 	NSString *obj=@"0";
-	XCTAssertEqualObjects([obj self], @"0", nil);
-	XCTAssertFalse([obj class] == [NSString class], nil);	// constant strings have a private class
+	XCTAssertEqualObjects([obj self], @"0", @"");
+	XCTAssertFalse([obj class] == [NSString class], @"");	// constant strings have a private class
 	// starts availability in 10.5
-	XCTAssertEqual([obj boolValue], NO, nil);
-	XCTAssertEqual([obj intValue], 0, nil);
-//	XCTAssertEqual([obj longValue], 0l, nil);
-	XCTAssertEqual([obj longLongValue], 0ll, nil);
-	XCTAssertEqual([obj floatValue], 0.0f, nil);
-	XCTAssertEqual([obj doubleValue], 0.0, nil);
+	XCTAssertEqual([obj boolValue], NO, @"");
+	XCTAssertEqual([obj intValue], 0, @"");
+//	XCTAssertEqual([obj longValue], 0l, @"");
+	XCTAssertEqual([obj longLongValue], 0ll, @"");
+	XCTAssertEqual([obj floatValue], 0.0f, @"");
+	XCTAssertEqual([obj doubleValue], 0.0, @"");
 	obj=@"1";
-	XCTAssertEqualObjects([obj self], @"1", nil);
-	XCTAssertEqual([obj boolValue], YES, nil);
-	XCTAssertEqual([obj intValue], 1, nil);
-//	XCTAssertEqual([obj longValue], 1l, nil);
-	XCTAssertEqual([obj longLongValue], 1ll, nil);
-	XCTAssertEqual([obj floatValue], 1.0f, nil);
-	XCTAssertEqual([obj doubleValue], 1.0, nil);
+	XCTAssertEqualObjects([obj self], @"1", @"");
+	XCTAssertEqual([obj boolValue], YES, @"");
+	XCTAssertEqual([obj intValue], 1, @"");
+//	XCTAssertEqual([obj longValue], 1l, @"");
+	XCTAssertEqual([obj longLongValue], 1ll, @"");
+	XCTAssertEqual([obj floatValue], 1.0f, @"");
+	XCTAssertEqual([obj doubleValue], 1.0, @"");
 	obj=@"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
-	XCTAssertEqualObjects([obj self], @"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679", nil);
-	XCTAssertEqual([obj boolValue], YES, nil);
-	XCTAssertEqual([obj intValue], 3, nil);
-//	XCTAssertEqual([obj longValue], 3l, nil);
-	XCTAssertEqual([obj longLongValue], 3ll, nil);
-	XCTAssertEqual([obj floatValue], 3.1415926535f, nil);
-	XCTAssertEqual([obj doubleValue], 3.14159265358979323846264, nil);
+	XCTAssertEqualObjects([obj self], @"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679", @"");
+	XCTAssertEqual([obj boolValue], YES, @"");
+	XCTAssertEqual([obj intValue], 3, @"");
+//	XCTAssertEqual([obj longValue], 3l, @"");
+	XCTAssertEqual([obj longLongValue], 3ll, @"");
+	XCTAssertEqual([obj floatValue], 3.1415926535f, @"");
+	XCTAssertEqual([obj doubleValue], 3.14159265358979323846264, @"");
 }
 
 @end

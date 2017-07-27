@@ -39,26 +39,26 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 - (void) test1
 {
 	NSAttributedString *s=[[NSAttributedString alloc] initWithString:@"string"];
-	XCTAssertEqualObjects(@"string", [s string], nil);
-	XCTAssertEqual([s length], (NSUInteger) 6, nil);
-	XCTAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, nil);
+	XCTAssertEqualObjects(@"string", [s string], @"");
+	XCTAssertEqual([s length], (NSUInteger) 6, @"");
+	XCTAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], @"");	// return empty NSDictionary and not nil
+	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, @"");
 	[s release];
 }
 
 - (void) test2
 {
 	NSMutableAttributedString *s=[[NSMutableAttributedString alloc] initWithString:@"string"];
-	XCTAssertEqualObjects(@"string", [s string], nil);
-	XCTAssertEqual([s length], (NSUInteger) 6, nil);
-	XCTAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, nil);
+	XCTAssertEqualObjects(@"string", [s string], @"");
+	XCTAssertEqual([s length], (NSUInteger) 6, @"");
+	XCTAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], @"");	// return empty NSDictionary and not nil
+	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 0, @"");
 	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[Mock_NSColor redColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(0, 3)];
-	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, nil);
-	XCTAssertEqual([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 0, nil);
+	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, @"");
+	XCTAssertEqual([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 0, @"");
 	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[Mock_NSColor blueColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(3, 3)];
-	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, nil);
-	XCTAssertEqual([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 1, nil);
+	XCTAssertEqual([[s attributesAtIndex:0 effectiveRange:NULL] count], (NSUInteger) 1, @"");
+	XCTAssertEqual([[s attributesAtIndex:3 effectiveRange:NULL] count], (NSUInteger) 1, @"");
 	[s release];
 }
 

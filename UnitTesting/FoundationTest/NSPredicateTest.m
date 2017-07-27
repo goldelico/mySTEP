@@ -24,7 +24,7 @@
 {
 	NSPredicate *p;
 	p=[NSPredicate predicateWithFormat:@"%K like %@+$b+$c", @"$single", @"b\""];
-	XCTAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + $b) + $c", nil);
+	XCTAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + $b) + $c", @"");
 #if 1
 	if([p respondsToSelector:@selector(subpredicates)])
 		NSLog(@"subpredicates=%@", [(NSCompoundPredicate *)p subpredicates]);
@@ -38,7 +38,7 @@
 																					 @"val_for_$b", @"b",
 																					 @"val_for_$c", @"c",
 																					 nil]];
-	XCTAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + \"val_for_$b\") + \"val_for_$c\"", nil);
+	XCTAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + \"val_for_$b\") + \"val_for_$c\"", @"");
 }
 
 // add many more such tests
@@ -199,9 +199,9 @@
 	NSExpression *e;
 	
 	e = [NSExpression expressionWithFormat: @"3*5+2"];
-	XCTAssertTrue([[e expressionValueWithObject:nil context:nil] intValue] == 17, nil);
+	XCTAssertTrue([[e expressionValueWithObject:nil context:nil] intValue] == 17, @"");
 	e = [NSExpression expressionWithFormat: @"self"];
-	XCTAssertTrue([[e expressionValueWithObject:@"23" context:nil] intValue] == 23, nil);
+	XCTAssertTrue([[e expressionValueWithObject:@"23" context:nil] intValue] == 23, @"");
 }
 #endif
 

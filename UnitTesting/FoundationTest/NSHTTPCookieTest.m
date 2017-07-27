@@ -34,7 +34,7 @@
 										   //		 @"FALSE", NSHTTPCookieDiscard,
 										   //		 @"FALSE", NSHTTPCookieSecure,
 										   nil]];
-	XCTAssertNotNil(c1, nil);		// assert that cookie exists
+	XCTAssertNotNil(c1, @"");		// assert that cookie exists
 }
 
 - (void) test2
@@ -49,7 +49,7 @@
 										   @"FALSE", NSHTTPCookieSecure,
 										   //	 @"http://www.origin.org", NSHTTPCookieOriginURL,
 										   nil]];
-	XCTAssertNotNil(c2, nil);		// assert that cookie exists
+	XCTAssertNotNil(c2, @"");		// assert that cookie exists
 }
 
 // well, tests should NOT depend on the results of previous tests (c1, c2)...
@@ -59,7 +59,7 @@
 	NSDictionary *have=[NSHTTPCookie requestHeaderFieldsWithCookies:
 						[NSArray arrayWithObjects:c1, c2, nil]];
 	NSDictionary *want=[NSDictionary dictionary];
-	XCTAssertEqualObjects(want, have, nil);
+	XCTAssertEqualObjects(want, have, @"");
 	
 	// WARNING: a cookie name or value with a ; is NOT encoded here!
 	

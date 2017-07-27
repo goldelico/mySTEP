@@ -234,12 +234,12 @@ static NSHashTable *_allConnections;
 
 // internal methods - we should not test for them being called or implemented in the same way!
 
-- (void) addClassNamed:(char *) name version:(unsigned int) version
+- (void) addClassNamed:(char *) name version:(NSUInteger) version
 {
-	NSLog(@"-[MockConnection addClassNamed:%s version:%d]", name, version);
+	NSLog(@"-[MockConnection addClassNamed:%s version:%lu]", name, (unsigned long)version);
 }
 
-- (unsigned int) versionForClassNamed:(NSString *) name
+- (NSUInteger) versionForClassNamed:(NSString *) name
 {
 	NSLog(@"-[MockConnection versionForClassNamed:%@]", name);
 	if([name isEqualToString:@"NSString"])
@@ -302,19 +302,19 @@ static NSHashTable *_allConnections;
 - (void) setUp;
 {
 	NSPort *port=[NSPort port];
-	unsigned int cnt=[[NSConnection allConnections] count];
+	NSUInteger cnt=[[NSConnection allConnections] count];
 	connection=[NSConnection connectionWithReceivePort:port sendPort:port];
-	XCTAssertNotNil(connection, nil);
-	XCTAssertEqual([[NSConnection allConnections] count], cnt+1, nil);	// is added here to the connection list
+	XCTAssertNotNil(connection, @"");
+	XCTAssertEqual([[NSConnection allConnections] count], cnt+1, @"");	// is added here to the connection list
 //	NSLog(@"connection object: %@", connection);
 	// check if ports are added to runloop
 }
 
 - (void) tearDown;
 {
-	unsigned int cnt=[[NSConnection allConnections] count];
+	NSUInteger cnt=[[NSConnection allConnections] count];
 	[connection	invalidate];
-	XCTAssertEqual([[NSConnection allConnections] count], cnt-1, nil);	// is removed here from the connection list
+	XCTAssertEqual([[NSConnection allConnections] count], cnt-1, @"");	// is removed here from the connection list
 	// check if ports are already removed from runloop here
 }
 
@@ -322,27 +322,27 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc;
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];
-	XCTAssertEqualObjects([pc connection], connection, nil);
-	XCTAssertNotNil([pc components], nil);
-	XCTAssertTrue([[pc components] isKindOfClass:[NSArray class]], nil);
-	XCTAssertEqual([[pc components] count], 1u, nil);
+	XCTAssertEqualObjects([pc connection], connection, @"");
+	XCTAssertNotNil([pc components], @"");
+	XCTAssertTrue([[pc components] isKindOfClass:[NSArray class]], @"");
+	XCTAssertEqual([[pc components] count], 1u, @"");
 #if 0
 	NSLog(@"components=%@", [pc components]);
 	NSLog(@"components[0]=%@", [[pc components] objectAtIndex:0]);
 	NSLog(@"components[0]=%@", NSStringFromClass([[[pc components] objectAtIndex:0] class]));
 #endif
 #ifdef __mySTEP__
-	XCTAssertTrue([[[pc components] objectAtIndex:0] isKindOfClass:[NSData class]], nil);	// is NSMutableDataMalloc which is NOT a descendant of NSMutableData
+	XCTAssertTrue([[[pc components] objectAtIndex:0] isKindOfClass:[NSData class]], @"");	// is NSMutableDataMalloc which is NOT a descendant of NSMutableData
 #else
-	XCTAssertTrue([[[pc components] objectAtIndex:0] isKindOfClass:[NSMutableData class]], nil);
+	XCTAssertTrue([[[pc components] objectAtIndex:0] isKindOfClass:[NSMutableData class]], @"");
 #endif
-	XCTAssertNotNil([pc connection], nil);
+	XCTAssertNotNil([pc connection], @"");
 	return pc;
 }
 
 - (NSPortCoder *) portCoderForDecode:(NSString *) str
 {
-	unsigned cnt=[str length];
+	NSUInteger cnt=[str length];
 	NSMutableData *data=[NSMutableData dataWithCapacity:cnt/2];
 	NSPortCoder *pc;
 	int i;
@@ -364,14 +364,14 @@ static NSHashTable *_allConnections;
 	NSLog(@"portCoderForDecode: %@ -> %@", str, data);
 #endif
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:[NSArray arrayWithObject:data]] autorelease];
-	XCTAssertNotNil([pc components], nil);
+	XCTAssertNotNil([pc components], @"");
 	return pc;
 }
 
 - (void) test01Init
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	XCTAssertEqualObjects([pc components], [NSArray arrayWithObject:[NSData data]], nil);
+	XCTAssertEqualObjects([pc components], [NSArray arrayWithObject:[NSData data]], @"");
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];	// provide a default object
 }
 
@@ -388,11 +388,11 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	// it is unclear if versionForClassName is signed or not (running the test detects a type mismatch)
-	XCTAssertEqual((int)[pc versionForClassName:@"NSString"], 1, nil);	// appears to be forwarded to matching connection object
+	XCTAssertEqual((int)[pc versionForClassName:@"NSString"], 1, @"");	// appears to be forwarded to matching connection object
 #if 0
 	[(MockConnection *) connection hasCalled:@selector(versionForClassNamed:)];
 #endif
-	XCTAssertEqual((int)[pc versionForClassName:@"NSNull"], 0, nil);
+	XCTAssertEqual((int)[pc versionForClassName:@"NSNull"], 0, @"");
 }
 
 /* more tests */
@@ -400,9 +400,9 @@ static NSHashTable *_allConnections;
 - (void) test04PortCoderConnection
 {
 	NSPortCoder *pc=[[NSPortCoder alloc] initWithReceivePort:[[NSPort new] autorelease] sendPort:[[NSPort new] autorelease] components:nil];
-	XCTAssertEqual([[NSConnection allConnections] count], 1u, nil);	// we already have one from -setUp
-	XCTAssertNotNil([pc connection], nil);	// creates a new connection
-	XCTAssertEqual([[NSConnection allConnections] count], 2u, nil);
+	XCTAssertEqual([[NSConnection allConnections] count], 1u, @"");	// we already have one from -setUp
+	XCTAssertNotNil([pc connection], @"");	// creates a new connection
+	XCTAssertEqual([[NSConnection allConnections] count], 2u, @"");
 	[pc release];
 }
 
@@ -411,7 +411,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=1;
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01>", @"");
 }
 
 - (void) test11Char
@@ -419,7 +419,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val='x';
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78>", @"");
 }
 
 - (void) test12CharM1
@@ -427,7 +427,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=-1;
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ff>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ff>", @"");
 }
 
 - (void) test13Int0
@@ -435,7 +435,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=0;
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 }
 
 - (void) test14Int1
@@ -443,7 +443,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=1;
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101>", @"");
 		// can be encoded in 1 byte - i.e. encoder tries to figure out number of significant bytes
 }
 
@@ -452,7 +452,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=10240;
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<020028>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<020028>", @"");
 		// 2 bytes integer; we also see little-endian encoding (LSB first)
 }
 
@@ -461,7 +461,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	long val=255;
 	[pc encodeValueOfObjCType:@encode(long) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01ff>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01ff>", @"");
 	// 1 byte positive integer
 }
 
@@ -470,7 +470,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	long val=-1;
 	[pc encodeValueOfObjCType:@encode(long) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", @"");
 	// -1 byte negative integer; we also see little-endian encoding (LSB first)
 	// the length field is negative
 }
@@ -480,7 +480,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	unsigned long val=-1;
 	[pc encodeValueOfObjCType:@encode(unsigned long) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", @"");
 	// we also see little-endian encoding (LSB first) - coding depends on bit pattern only; not on signed/unsigned
 }
 
@@ -489,7 +489,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	long long val=12345678987654321LL;
 	[pc encodeValueOfObjCType:@encode(long long) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<07b1f491 6254dc2b>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<07b1f491 6254dc2b>", @"");
 	// 7 significant bytes
 }
 
@@ -498,7 +498,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	long long val=-1L;
 	[pc encodeValueOfObjCType:@encode(long long) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", @"");
 	// - insignificant bytes are not encoded
 	// - type and memory length is not encoded
 }
@@ -508,7 +508,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	float val=M_PI;
 	[pc encodeValueOfObjCType:@encode(float) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04db0f49 40>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04db0f49 40>", @"");
 	// 04 bytes + data -- byte order is the same on PowerPC and Intel Mac
 }
 
@@ -517,7 +517,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	float val=1.0;
 	[pc encodeValueOfObjCType:@encode(float) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f>", @"");
 	// 04 bytes + data, i.e. here is no compression - we also see Little-Endian encoding
 }
 
@@ -526,7 +526,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	double val=M_PI;
 	[pc encodeValueOfObjCType:@encode(double) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<08182d44 54fb2109 40>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<08182d44 54fb2109 40>", @"");
 	// 08 bytes + data
 }
 
@@ -535,7 +535,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	Class val=[NSData class];
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101074e 53446174 6100>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101074e 53446174 6100>", @"");
 	// prefix 0x01, 01 bytes length, 07 bytes string, "NSData\0"
 }
 
@@ -545,10 +545,10 @@ static NSHashTable *_allConnections;
 	Class val=Nil;
 	id have;
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101046e 696c00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101046e 696c00>", @"");
 	pc=[self portCoderForDecode:@"<0101046e 696c00>"];	// <00> returns 'not enough data to decode integer'
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	XCTAssertEqualObjects(have, Nil, nil);
+	XCTAssertEqualObjects(have, Nil, @"");
 }
 
 - (void) test26ClassNSObject
@@ -557,20 +557,20 @@ static NSHashTable *_allConnections;
 	Class val=[NSObject class];
 	id have;
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101094e 534f626a 65637400>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101094e 534f626a 65637400>", @"");
 	// prefix 0x01, 01 bytes length, 09 bytes string, "NSObject\0"
 	pc=[self portCoderForDecode:@"<0101094e 534f626a 65637400>"];
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	XCTAssertEqualObjects(have, [NSObject class], nil);
+	XCTAssertEqualObjects(have, [NSObject class], @"");
 }
 
 - (void) test27Selector
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	SEL val=@selector(testSelector);
+	SEL val=_cmd;
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010d74 65737453 656c6563 746f7200>", nil);
-	// prefix 0x01, 01 bytes length, 0d bytes string, "testSelector\0"
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010d74 65737453 656c6563 746f7200>", @"");
+	// prefix 0x01, 01 bytes length, 0d bytes string, "test27Selector\0"
 }
 
 - (void) test28SelectorUnicode
@@ -579,7 +579,7 @@ static NSHashTable *_allConnections;
 	NSString *u=[NSString stringWithFormat:@"%C", 0x20AC];	// EURO SIGN; UTF8: E2 82 AC
 	SEL val=NSSelectorFromString(u);
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<010104e2 82ac00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<010104e2 82ac00>", @"");
 	// prefix 0x01, 01 bytes length, 04 bytes string, UTF-8 encoded (€ -> 0xe2 0y82 0xac)
 }
 
@@ -588,7 +588,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	SEL val=NULL;	// NULL selector?
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 }
 
 - (void) test30CString
@@ -598,10 +598,10 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<01010943 2d537472 696e6700>";	// prefix 0x01, 01 bytes length, 09 bytes string, "C-String\0"
 	[pc encodeValueOfObjCType:@encode(char *) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(char *) at:&val];
-	XCTAssertTrue(strcmp(val, "C-String") == 0, nil);
+	XCTAssertTrue(strcmp(val, "C-String") == 0, @"");
 }
 
 - (void) test31CNULL
@@ -610,10 +610,10 @@ static NSHashTable *_allConnections;
 	char *val=NULL;
 	id want=@"<00>";	// prefix 0x00
 	[pc encodeValueOfObjCType:@encode(char *) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(char *) at:&val];
-	XCTAssertTrue(val == NULL, nil);
+	XCTAssertTrue(val == NULL, @"");
 }
 
 - (void) test32IntArray
@@ -622,11 +622,11 @@ static NSHashTable *_allConnections;
 	int val[]={ 1, 2, 3, 256, 0 };
 	id want=@"<01010102 01030200 0100>";	// 5 times length, byte(s)
 	[pc encodeValueOfObjCType:@encode(int [5]) at:&val];	// crashes of we specify @encode(int [])
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 	val[0]=val[1]=val[2]=val[3]=val[4]=7;
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(int [5]) at:&val];
-	XCTAssertTrue((val[0] == 1 && val[1] == 2 && val[2] == 3 && val[3] == 256 && val[4] == 0), nil);
+	XCTAssertTrue((val[0] == 1 && val[1] == 2 && val[2] == 3 && val[3] == 256 && val[4] == 0), @"");
 }
 
 - (void) test33IntPointer
@@ -636,7 +636,7 @@ static NSHashTable *_allConnections;
 	int *val=a;
 	id want=@"<010103>";	// looks as if this just encodes the first entry, i.e. *val
 	[pc encodeValueOfObjCType:@encode(int *) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test34NULLIntPointer
@@ -646,7 +646,7 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<00>";	// NULL pointer
 	[pc encodeValueOfObjCType:@encode(int *) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 #if 0	// prints an "unencodable type (v)" error (exception?)
@@ -658,7 +658,7 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<?>";
 	[pc encodeValueOfObjCType:@encode(void) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test36VoidPointer
@@ -667,8 +667,8 @@ static NSHashTable *_allConnections;
 	void *val="C-String";
 	id want=@"<?>";
 	[pc encodeValueOfObjCType:@encode(void *) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
-//	XCTAssertThrows([pc encodeValueOfObjCType:@encode(void *) at:&val], nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
+//	XCTAssertThrows([pc encodeValueOfObjCType:@encode(void *) at:&val], @"");
 }
 
 #endif
@@ -679,11 +679,11 @@ static NSHashTable *_allConnections;
 	NSPoint val=NSMakePoint(1.0, 2.0);
 	NSPoint phave;
 	[pc encodePoint:val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f040000 0040>", nil);	// 04 bytes length each component of the struct
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f040000 0040>", @"");	// 04 bytes length each component of the struct
 	// decode
 	pc=[self portCoderForDecode:@"<04000080 3f040000 0040>"];
 	phave=[pc decodePoint];
-	XCTAssertTrue(NSEqualPoints(phave, val), nil);
+	XCTAssertTrue(NSEqualPoints(phave, val), @"");
 }
 
 - (void) test37Rect
@@ -692,11 +692,11 @@ static NSHashTable *_allConnections;
 	NSRect val=NSMakeRect(10.0, 20.0, 30.0, 40.0);
 	NSRect phave;
 	[pc encodeRect:val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000020 41040000 a0410400 00f04104 00002042>", nil);	// 04 bytes length each component of the struct
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000020 41040000 a0410400 00f04104 00002042>", @"");	// 04 bytes length each component of the struct
 	// decode
 	pc=[self portCoderForDecode:@"<04000020 41040000 a0410400 00f04104 00002042>"];
 	phave=[pc decodeRect];
-	XCTAssertTrue(NSEqualRects(phave, val), nil);
+	XCTAssertTrue(NSEqualRects(phave, val), @"");
 }
 
 - (void) test38Struct
@@ -705,7 +705,7 @@ static NSHashTable *_allConnections;
 	struct testStruct { char x; char *y; } val={ 'x', "y" };	// use a struct where component alignment is important
 	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);
 	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", @"");
 	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
 }
 
@@ -715,7 +715,7 @@ static NSHashTable *_allConnections;
 	union testUnion { char x; char *y; } val={ .y = "y" };
 	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);
 	[pc encodeValueOfObjCType:@encode(union testUnion) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", nil);	// Cocoa simply ignores them
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", @"");	// Cocoa simply ignores them
 }
 
 #if 0	// SIGABORTs on Cocoa
@@ -725,7 +725,7 @@ static NSHashTable *_allConnections;
 	struct testStruct { int x:3, y:5; } val={ 2, 4 };
 //	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);	// can't take address of bitfields
 	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", @"");
 	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
 }
 #endif
@@ -735,7 +735,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<00>";
 	[pc encodeObject:nil];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test40ConstString
@@ -743,7 +743,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents
 	[pc encodeObject:@"String"];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test41EncodeConstString
@@ -751,7 +751,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01065374 72696e67>";
 	[@"String" encodeWithCoder:pc];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test42UTF8String
@@ -759,7 +759,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents -- all immutable strings are encoded in the same format
 	[pc encodeObject:[NSString stringWithUTF8String:"String"]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test43CString
@@ -768,12 +768,12 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents
 	[pc encodeObject:[NSString stringWithCString:"String"]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 	pc=[self portCoderForDecode:want];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);	// this tests portCoderForDecode:
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");	// this tests portCoderForDecode:
 	// have=[pc decodeObject];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	XCTAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
 }
 
 - (void) test44EncodeString
@@ -781,12 +781,12 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01065374 72696e67>";	// contents
 	[[@"xString" substringFromIndex:1] encodeWithCoder:pc];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 	pc=[self portCoderForDecode:want];
 #if 0
 	// we would have to provide the correct version number to the string class...
 	have=[[[NSString alloc] initWithCoder:pc] autorelease];
-	XCTAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
 #endif
 }
 
@@ -794,7 +794,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701>", nil);	// Class(NSMutableString) + Class(NSString) + contents
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701>", @"");	// Class(NSMutableString) + Class(NSString) + contents
 }
 
 - (void) test45MutableStringDecode
@@ -803,7 +803,7 @@ static NSHashTable *_allConnections;
 	id have;
 	NSPortCoder *pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	XCTAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
 }
 
 - (void) test46MutableString2
@@ -813,14 +813,14 @@ static NSHashTable *_allConnections;
 	id want=[NSString stringWithFormat:@"<%@ %@>", code, code];	// exactly 2 repetitions of Class(NSMutableString) + Class(NSString) + contents - so there is no optimization or encoding cache
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test47EncodeMutableString
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[[NSMutableString stringWithString:@"String"] encodeWithCoder:pc];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01065374 72696e67>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01065374 72696e67>", @"");
 }
 
 - (void) test48LongString
@@ -836,14 +836,14 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSString stringWithFormat:@"%C", 0x20AC]];	// EURO SIGN; UTF8: E2 82 AC
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 000103e2 82ac01>", nil);	// 0x01 prefix + Class(NSString) + some internals + UTF-8 string + 0x01 suffix
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 000103e2 82ac01>", @"");	// 0x01 prefix + Class(NSString) + some internals + UTF-8 string + 0x01 suffix
 }
 
 - (void) test50EncodeStringUTF8
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[[NSString stringWithFormat:@"%C", 0x20AC] encodeWithCoder:pc];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0103e282 ac>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0103e282 ac>", @"");
 }
 
 - (void) test51DecodeClassNil
@@ -851,14 +851,14 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForDecode:@"<00>"];	// <00> returns 'not enough data to decode integer'
 	id have;
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	XCTAssertEqualObjects(have, Nil, nil);
+	XCTAssertEqualObjects(have, Nil, @"");
 }
 
 - (void) test52Data
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSData dataWithBytes:"12345" length:5]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74610000 00010531 32333435 01>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74610000 00010531 32333435 01>", @"");
 	// 0x01 prefix + Class(NSData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 }
 
@@ -866,7 +866,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSMutableData dataWithBytes:"12345" length:5]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010e 4e534d75 7461626c 65446174 61000000 01053132 33343501>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010e 4e534d75 7461626c 65446174 61000000 01053132 33343501>", @"");
 	// 0x01 prefix + Class(NSMutableData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 }
 
@@ -874,7 +874,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeDataObject:[NSData dataWithBytes:"12345" length:5]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", @"");
 	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 }
 
@@ -882,7 +882,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeDataObject:[NSMutableData dataWithBytes:"12345" length:5]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", @"");
 	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 }
 
@@ -890,7 +890,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSDate dateWithTimeIntervalSince1970:12345678]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74650000 08000000 99b3c9cc c101>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74650000 08000000 99b3c9cc c101>", @"");
 	// 0x01 prefix + Class(NSDate) + 0x00 + 8 bytes double + 0x01 suffix
 }
 
@@ -907,14 +907,14 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010b 4e535469 6d655a6f 6e650000 01010109 4e535374 72696e67 00010101 00010347 4d540101>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010b 4e535469 6d655a6f 6e650000 01010109 4e535374 72696e67 00010101 00010347 4d540101>", @"");
 }
 
 - (void) test59EncodeTimeZone
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[[NSTimeZone timeZoneForSecondsFromGMT:0] encodeWithCoder:pc];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 00010347 4d5401>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 00010347 4d5401>", @"");
 }
 
 - (void) test61Null
@@ -952,33 +952,33 @@ static NSHashTable *_allConnections;
 {
 	id val=@"constant string";
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", nil);	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
 #else
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", nil);
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", @"");
 #endif
-	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSString", nil);	// is always NSString
+	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSString", @"");	// is always NSString
 }
 
 - (void) test70ClassForPortCoder2
 {
 	id val=[NSString stringWithFormat:@"%d", 1234];
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", nil);	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
 #else
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", nil);
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSString", @"");
 #endif
-	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSString", nil);	// is always NSString
+	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSString", @"");	// is always NSString
 }
 
 - (void) test70ClassForPortCoder3
 {
 	id val=[NSMutableString stringWithFormat:@"%d", 1234];
 #ifdef __APPLE__
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", nil);	// CoreFoundation...
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSCFString", @"");	// CoreFoundation...
 #else
-	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSMutableString", nil);
+	XCTAssertEqualObjects(NSStringFromClass([val class]), @"NSMutableString", @"");
 #endif
-	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSMutableString", nil);	// is always NSMutableString
+	XCTAssertEqualObjects(NSStringFromClass([val classForPortCoder]), @"NSMutableString", @"");	// is always NSMutableString
 }
 
 - (void) test80Exception
@@ -986,7 +986,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	NSException *e=[NSException exceptionWithName:@"name" reason:@"reason" userInfo:[NSDictionary dictionaryWithObject:@"object" forKey:@"key"]];
 	[pc encodeObject:e];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010c 4e534578 63657074 696f6e00 00010101 094e5353 7472696e 67000101 01000104 6e616d65 01010101 094e5353 7472696e 67000101 01000106 72656173 6f6e0101 01010d4e 53446963 74696f6e 61727900 00010101 0101094e 53537472 696e6700 01010100 01036b65 79010101 01094e53 53747269 6e670001 01010001 066f626a 65637401 0101>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010c 4e534578 63657074 696f6e00 00010101 094e5353 7472696e 67000101 01000104 6e616d65 01010101 094e5353 7472696e 67000101 01000106 72656173 6f6e0101 01010d4e 53446963 74696f6e 61727900 00010101 0101094e 53537472 696e6700 01010100 01036b65 79010101 01094e53 53747269 6e670001 01010001 066f626a 65637401 0101>", @"");
 }
 
 - (void) test81Invocation0
@@ -997,7 +997,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:[NSDistantObject proxyWithTarget:0 connection:connection]];
 	[i setSelector:@selector(rootObject)];
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation1
@@ -1008,7 +1008,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation2
@@ -1020,7 +1020,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation3
@@ -1031,7 +1031,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeInvocation:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation4
@@ -1042,7 +1042,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:@"string"];
 	[i setSelector:@selector(self)];
 	[pc encodeInvocation:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation5
@@ -1053,7 +1053,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:@"string"];
 	[i setSelector:@selector(self:)];
 	[pc encodeInvocation:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation6
@@ -1065,7 +1065,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(self:)];
 	// argument is nil
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation7
@@ -1079,7 +1079,7 @@ static NSHashTable *_allConnections;
 	have=@"arg2";	// encode [@"string" testInvocation7:@"args"]
 	[i setArgument:&have atIndex:2];
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation8	// selector name is encoded
@@ -1091,7 +1091,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(testInvocation8:)];
 	[i setArgument:&_cmd atIndex:2];
 	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test81Invocation9
@@ -1103,7 +1103,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(respondsToSelector:)];
 	[i setArgument:&sel atIndex:2];
 	[pc encodeObject:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4e53496e 766f6361 74696f6e 00000101 01104e53 44697374 616e744f 626a6563 74000001 01000101 03010114 72657370 6f6e6473 546f5365 6c656374 6f723a00 01010563 403a3a00 01630101 17646573 63726970 74696f6e 57697468 4c6f6361 6c653a00 01>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4e53496e 766f6361 74696f6e 00000101 01104e53 44697374 616e744f 626a6563 74000001 01000101 03010114 72657370 6f6e6473 546f5365 6c656374 6f723a00 01010563 403a3a00 01630101 17646573 63726970 74696f6e 57697468 4c6f6361 6c653a00 01>", @"");
 }
 
 #if 0
@@ -1116,7 +1116,7 @@ static NSHashTable *_allConnections;
 	// raises an exception: more significant bytes (37) than room to hold them (4)
 	have=[pc decodeRetainedObject];	// should be NSInvocation
 	NSLog(@"textInvocation10: %@", [[[pc components] objectAtIndex:0] description]);
-//	XCTAssertEqualObjects(have, want, nil);
+//	XCTAssertEqualObjects(have, want, @"");
 }
 #endif
 
@@ -1131,7 +1131,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(self)];
 	[i setReturnValue:&r];
 	[pc encodeReturnValue:i];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 #if FIXME	// we can't decode -> "NSString can't decode class version 0"
 	pc=[self portCoderForDecode:have];
 	[pc decodeReturnValue:i];
@@ -1151,7 +1151,7 @@ static NSHashTable *_allConnections;
 #if FIXME	// we can't decode -> "NSString can't decode class version 0"
 	[pc decodeReturnValue:i];
 	[i getReturnValue:&have];
-	XCTAssertEqualObjects(have, want, nil);
+	XCTAssertEqualObjects(have, want, @"");
 #endif
 }
 
@@ -1164,7 +1164,7 @@ static NSHashTable *_allConnections;
 	id obj=[NSCompoundPredicate notPredicateWithSubpredicate:[NSPredicate predicateWithValue:YES]];
 	id want=@"<01010110 4e534469 7374616e 744f626a 65637400 00010400 01>";	// NSCompoundPredicate is encoded byref by default 
 	[pc encodeObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test90ByrefObject
@@ -1172,20 +1172,20 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id obj=@"string", obj2;
 	[pc encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	// try again
 	pc=[self portCoderForEncode];
 	[pc encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	// try another string
 	pc=[self portCoderForEncode];
 	obj2=@"STRING";
 	[pc encodeByrefObject:obj2];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010300 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0102* 0001 -- next object id
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010300 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0102* 0001 -- next object id
 	// try again
 	pc=[self portCoderForEncode];
 	[pc encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	/* conclusions
 	 * byref (local) objects are numbered
 	 * encoding the same object again "remembers" the number
@@ -1203,17 +1203,17 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc1=[self portCoderForEncode];
 	NSPortCoder *pc2=[[[NSPortCoder alloc] initWithReceivePort:[[NSPort new] autorelease] sendPort:[[NSPort new] autorelease] components:nil] autorelease];
-	XCTAssertFalse(pc1 == pc2, nil);
-	XCTAssertFalse([pc1 connection] == [pc2 connection], nil);	// are indeed different connections
+	XCTAssertFalse(pc1 == pc2, @"");
+	XCTAssertFalse([pc1 connection] == [pc2 connection], @"");	// are indeed different connections
 	id obj=@"samestring";
 	[pc1 encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	XCTAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	// now on other connection
 	[pc2 encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc2 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010600 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	XCTAssertEqualObjects([[[pc2 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010600 01>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	// and again on first connection
 	[pc1 encodeByrefObject:obj];
-	XCTAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01010101 104e5344 69737461 6e744f62 6a656374 00000105 0001>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	XCTAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01010101 104e5344 69737461 6e744f62 6a656374 00000105 0001>", @"");	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	/* conclusions
 	 * objects encoded for different connections get a different sequence number (!)
 	 * so there *is* some storage that stores an association tuple (object, connection, number)
@@ -1228,28 +1228,28 @@ static NSHashTable *_allConnections;
 	id obj=@"string";
 	id want=@"<01010109 4e535374 72696e67 00010101 00010673 7472696e 6701>";
 	[pc encodeBycopyObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");
 }
 
 - (void) test93ByRefAndByCopy
 { // find out how byref/bycopy is passed to [pc isByref] [isByCopy]
 	ByRefByCopyTester *obj=[ByRefByCopyTester new];
 	NSPortCoder *pc=[self portCoderForEncode];
-	XCTAssertFalse([pc isByref], nil);
-	XCTAssertFalse([pc isBycopy], nil);
+	XCTAssertFalse([pc isByref], @"");
+	XCTAssertFalse([pc isBycopy], @"");
 	[pc encodeObject:obj];
-	// XCTAssertTrue([obj didSeeByref:0 byCopy:0], nil);
-	XCTAssertFalse([pc isByref], nil);
-	XCTAssertFalse([pc isBycopy], nil);
+	// XCTAssertTrue([obj didSeeByref:0 byCopy:0], @"");
+	XCTAssertFalse([pc isByref], @"");
+	XCTAssertFalse([pc isBycopy], @"");
 	[pc encodeByrefObject:obj];
-	// XCTAssertTrue([obj didSeeByref:1 byCopy:0], nil);
-	XCTAssertFalse([pc isByref], nil);	// is only set while we are within encodeByrefObject
-	XCTAssertFalse([pc isBycopy], nil);
+	// XCTAssertTrue([obj didSeeByref:1 byCopy:0], @"");
+	XCTAssertFalse([pc isByref], @"");	// is only set while we are within encodeByrefObject
+	XCTAssertFalse([pc isBycopy], @"");
 	[pc encodeBycopyObject:obj];
-	// XCTAssertTrue([obj didSeeByref:0 byCopy:1], nil);
-	XCTAssertFalse([pc isByref], nil);
-	XCTAssertFalse([pc isBycopy], nil);	// is only set while we are within encodeBycopyObject
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001>", nil);
+	// XCTAssertTrue([obj didSeeByref:0 byCopy:1], @"");
+	XCTAssertFalse([pc isByref], @"");
+	XCTAssertFalse([pc isBycopy], @"");	// is only set while we are within encodeBycopyObject
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001>", @"");
 	/* conclusions
 	 * byref and bycopy are only valid while an encodeBy*: method is running
 	 */
@@ -1261,7 +1261,7 @@ static NSHashTable *_allConnections;
 	id obj;
 	obj=[NSDistantObject proxyWithLocal:[[NSObject new] autorelease] connection:connection];
 	[pc encodeBycopyObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010700 01>", nil);	// stores the object and assignes a fresh object-id (4 in this case)
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010700 01>", @"");	// stores the object and assignes a fresh object-id (4 in this case)
 }
 
 // FIXME: we don't get an initialized NSDistantObject on cocoa
@@ -1271,7 +1271,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id obj=[NSDistantObject proxyWithTarget:(id) 44 connection:connection];	// this fails on Cocoa
 	[pc encodeBycopyObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 }
 
 - (void) test95DistantObjectRemoteProxy0
@@ -1279,21 +1279,21 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id obj=[NSDistantObject proxyWithTarget:(id) 0 connection:connection];
 	[pc encodeBycopyObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 }
 
 - (void) test96MyClass
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	MyClass *obj=[[[MyClass alloc] init] autorelease];
-	XCTAssertEqual((int)[[obj class] version], 5, nil);
+	XCTAssertEqual((int)[[obj class] version], 5, @"");
 	[pc encodeObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010501 01010d4d 79537570 6572436c 61737300 01070001>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010501 01010d4d 79537570 6572436c 61737300 01070001>", @"");
 	// 0x01 prefix + Class(MyClass) + 1 byte 00 + 01057 (Version 7) + Class(MySuperClass) + 1 byte 00 + 0107 (Version 7) + 0x01 suffix
 	obj=(MyClass *) [[[MySuperClass alloc] init] autorelease];
 	pc=[self portCoderForEncode];
 	[pc encodeObject:obj];
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4d795375 70657243 6c617373 00010107 0001>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4d795375 70657243 6c617373 00010107 0001>", @"");
 	// 0x01 prefix + Class(MySuperClass) + 1 byte 00 + 0107 (Version 7) + 0x01 suffix
 }
 
@@ -1302,9 +1302,9 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	NSPort *port=[NSPort port];
 	[pc encodePortObject:port];
-	XCTAssertEqual([[pc components] count], 2u, nil);
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", nil);	// remains empty
-	XCTAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);	// encodePortObject adds another component - and does not check for a subclass of NSPort
+	XCTAssertEqual([[pc components] count], 2u, @"");
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", @"");	// remains empty
+	XCTAssertEqualObjects([[pc components] objectAtIndex:1], port, @"");	// encodePortObject adds another component - and does not check for a subclass of NSPort
 }
 
 - (void) test98PortObject
@@ -1314,16 +1314,16 @@ static NSHashTable *_allConnections;
 	[pc encodeObject:port];
 	if(![port respondsToSelector:@selector(encodeWithCoder:)])
 		{
-		XCTAssertEqual([[pc components] count], 2u, nil);
-		XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e53506f 72740000 01>", nil);
-		XCTAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);
+		XCTAssertEqual([[pc components] count], 2u, @"");
+		XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e53506f 72740000 01>", @"");
+		XCTAssertEqualObjects([[pc components] objectAtIndex:1], port, @"");
 		// 0x01 prefix + Class(NSPort) + 1 byte 00 (uninitialized?) + 0x01 suffix
 		// and port is also added to the components, i.e. the -encodePortObject method is the more primitive
 		}
 	else
 		{
-		XCTAssertEqual([[pc components] count], 1u, nil);
-		XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010800 01>", nil);
+		XCTAssertEqual([[pc components] count], 1u, @"");
+		XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010800 01>", @"");
 		// 0x01 prefix + Class(NSPort) + 1 byte 00 + 04 bytes value (signature of our MyPort) + 0x01 suffix
 		}
 }
@@ -1332,7 +1332,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:connection];		// encoded as NSDistantObject - gets its own unique serial number!
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010900 01>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010900 01>", @"");
 }
 
 - (void) test99_2OtherConnection
@@ -1340,7 +1340,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	NSConnection *c=[NSConnection connectionWithReceivePort:[[NSPort new] autorelease] sendPort:[[NSPort new] autorelease]];
 	[pc encodeObject:c];	// just another distant object
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010a00 01>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010a00 01>", @"");
 	/* conclusion
 	 * there is no special encoding for "this connection"
 	 * which indicates that [connection rootProxy] and [connection rootObject] is some special code

@@ -23,7 +23,7 @@
 {
 	NSMutableArray *components;
 	NSPort *port=[NSMessagePort port];	// create new message port
-	XCTAssertNotNil(port, nil);
+	XCTAssertNotNil(port, @"");
 	
 	[port setDelegate:self];
 	
@@ -31,10 +31,10 @@
 
 	[port scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	
-	XCTAssertTrue([port isValid], nil);
+	XCTAssertTrue([port isValid], @"");
 	[port sendBeforeDate:[NSDate dateWithTimeIntervalSinceNow:5.0] components:components from:self reserved:0];
 	[port invalidate];
-	XCTAssertFalse([port isValid], nil);
+	XCTAssertFalse([port isValid], @"");
 }
 #endif
 

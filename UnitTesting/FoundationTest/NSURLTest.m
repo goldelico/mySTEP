@@ -22,11 +22,11 @@
 - (void) test10
 {
 	NSURL *url;
-	XCTAssertThrowsSpecificNamed([NSURL URLWithString:nil], NSException, NSInvalidArgumentException, nil);
-	XCTAssertThrowsSpecificNamed([NSURL URLWithString:(NSString *) [NSArray array]], NSException, NSInvalidArgumentException, nil);
-	XCTAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:(NSURL *) @"url"], nil);
+	XCTAssertThrowsSpecificNamed([NSURL URLWithString:nil], NSException, NSInvalidArgumentException, @"");
+	XCTAssertThrowsSpecificNamed([NSURL URLWithString:(NSString *) [NSArray array]], NSException, NSInvalidArgumentException, @"");
+	XCTAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:(NSURL *) @"url"], @"");
 	// this can't be correctly tested
-	// XCTAssertThrows([url description], nil);
+	// XCTAssertThrows([url description], @"");
 	/* conclusions
 	 * passing nil is checked
 	 * type of relativeURL is not checked and fails later
@@ -37,54 +37,54 @@
 { // most complex initialization...
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
 					  relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
-	XCTAssertEqualObjects([url description], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", nil);
-	XCTAssertEqualObjects([url absoluteString], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
-	XCTAssertEqualObjects([[url baseURL] description], @"scheme://user:password@host.domain.org:888/path/absfile.htm", nil);
-	XCTAssertEqualObjects([url fragment], @"fragments", nil);
-	XCTAssertEqualObjects([url host], @"host.domain.org", nil);
-	XCTAssertFalse([url isFileURL], nil);
-	XCTAssertEqualObjects([url parameterString], @"param1;param2", nil);
-	XCTAssertEqualObjects([url password], @"password", nil);
-	XCTAssertEqualObjects([url path], @"/path/file name.htm", nil);
-	XCTAssertEqualObjects([url port], [NSNumber numberWithInt:888], nil);
-	XCTAssertEqualObjects([url query], @"something=other&andmore=more", nil);
-	XCTAssertEqualObjects([url relativePath], @"file name.htm", nil);
-	XCTAssertEqualObjects([url relativeString], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
-	XCTAssertEqualObjects([url scheme], @"scheme", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", nil);
-	XCTAssertEqualObjects([url user], @"user", nil);
+	XCTAssertEqualObjects([url description], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", @"");
+	XCTAssertEqualObjects([url absoluteString], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
+	XCTAssertEqualObjects([[url absoluteURL] description], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
+	XCTAssertEqualObjects([[url baseURL] description], @"scheme://user:password@host.domain.org:888/path/absfile.htm", @"");
+	XCTAssertEqualObjects([url fragment], @"fragments", @"");
+	XCTAssertEqualObjects([url host], @"host.domain.org", @"");
+	XCTAssertFalse([url isFileURL], @"");
+	XCTAssertEqualObjects([url parameterString], @"param1;param2", @"");
+	XCTAssertEqualObjects([url password], @"password", @"");
+	XCTAssertEqualObjects([url path], @"/path/file name.htm", @"");
+	XCTAssertEqualObjects([url port], [NSNumber numberWithInt:888], @"");
+	XCTAssertEqualObjects([url query], @"something=other&andmore=more", @"");
+	XCTAssertEqualObjects([url relativePath], @"file name.htm", @"");
+	XCTAssertEqualObjects([url relativeString], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
+	XCTAssertEqualObjects([url scheme], @"scheme", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", @"");
+	XCTAssertEqualObjects([url user], @"user", @"");
 }
 
 - (void) test12
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note"];
-	XCTAssertEqualObjects([url scheme], @"data", nil);
-	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
+	XCTAssertEqualObjects([url scheme], @"data", @"");
+	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", @"");
 }
 
 - (void) test13
 {
 	NSURL *url=[NSURL URLWithString:@"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
-	XCTAssertEqualObjects([url scheme], @"data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", nil);
-	XCTAssertEqualObjects([url path], nil, nil);
-	XCTAssertEqualObjects([url parameterString], nil, nil);
-	XCTAssertEqualObjects([url query], nil, nil);
-	XCTAssertEqualObjects([url fragment], nil, nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", nil);
+	XCTAssertEqualObjects([url scheme], @"data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", @"");
+	XCTAssertEqualObjects([url path], nil, @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
+	XCTAssertEqualObjects([url query], nil, @"");
+	XCTAssertEqualObjects([url fragment], nil, @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", @"");
 	url=[NSURL URLWithString:@"html:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
-	XCTAssertEqualObjects([url scheme], @"html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"html:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", nil);
-	XCTAssertEqualObjects([url path], nil, nil);
-	XCTAssertEqualObjects([url parameterString], nil, nil);
+	XCTAssertEqualObjects([url scheme], @"html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"html:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", @"");
+	XCTAssertEqualObjects([url path], nil, @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
 	url=[NSURL URLWithString:@"html:image/gif"];
-	XCTAssertEqualObjects([url scheme], @"html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"html:image/gif", nil);
-	XCTAssertEqualObjects([url path], nil, nil);
-	XCTAssertEqualObjects([url parameterString], nil, nil);
+	XCTAssertEqualObjects([url scheme], @"html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"html:image/gif", @"");
+	XCTAssertEqualObjects([url path], nil, @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
 	/* conclusions
 	 * this appears to have neither path nor a parameter string?
 	 * a relative path with no base has a nil path
@@ -94,9 +94,9 @@
 - (void) test14
 { // data: and file: URLs
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
-	XCTAssertEqualObjects([url scheme], @"data", nil);
-	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
+	XCTAssertEqualObjects([url scheme], @"data", @"");
+	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", @"");
 	/* conclusions
 	 * base URL is ignored
 	 */
@@ -105,8 +105,8 @@
 - (void) test14b
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
-	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
+	XCTAssertEqualObjects([url description], @"data:,A%20brief%20note", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", @"");
 	/* conclusions
 	 * base URL is ignored as well
 	 */
@@ -115,41 +115,41 @@
 - (void) test14c
 { // check influence of scheme in string and base
 	NSURL *url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
-	XCTAssertEqualObjects([url description], @"data:data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"data:data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"data:file"]];
-	XCTAssertEqualObjects([url description], @"data -- data:file", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:///data", nil);
-	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"data:file"], nil);
+	XCTAssertEqualObjects([url description], @"data -- data:file", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:///data", @"");
+	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"data:file"], @"");
 	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"data:file"]];
-	XCTAssertEqualObjects([url description], @"data:data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"data:data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	url=[NSURL URLWithString:@"file:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
-	XCTAssertEqualObjects([url description], @"file:data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"file:data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"file:data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"file:data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file:file"]];
-	XCTAssertEqualObjects([url description], @"data -- file:file", nil);
-	XCTAssertEqualObjects([url absoluteString], @"file:///data", nil);
-	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file:file"], nil);
+	XCTAssertEqualObjects([url description], @"data -- file:file", @"");
+	XCTAssertEqualObjects([url absoluteString], @"file:///data", @"");
+	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file:file"], @"");
 	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file"]];
-	XCTAssertEqualObjects([url description], @"data:data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"data:data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"data:data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"data:data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file"]];
-	XCTAssertEqualObjects([url description], @"data -- file", nil);
-	XCTAssertEqualObjects([url absoluteString], @"//data", nil);
-	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file"], nil);
+	XCTAssertEqualObjects([url description], @"data -- file", @"");
+	XCTAssertEqualObjects([url absoluteString], @"//data", @"");
+	XCTAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file"], @"");
 	url=[NSURL URLWithString:@"html:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
-	XCTAssertEqualObjects([url description], @"html:data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"html:data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"html:data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"html:data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	url=[NSURL URLWithString:@"html:/data" relativeToURL:[NSURL URLWithString:@"file:file"]];
-	XCTAssertEqualObjects([url description], @"html:/data", nil);
-	XCTAssertEqualObjects([url absoluteString], @"html:/data", nil);
-	XCTAssertEqualObjects([url baseURL], nil, nil);
+	XCTAssertEqualObjects([url description], @"html:/data", @"");
+	XCTAssertEqualObjects([url absoluteString], @"html:/data", @"");
+	XCTAssertEqualObjects([url baseURL], nil, @"");
 	/* conclusions
 	 * relative URL is only stored if we have no scheme
 	 * if both are relative, // is prefixed
@@ -160,18 +160,18 @@
 - (void) test15
 { // file: urls
 	NSURL *url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
-	XCTAssertEqualObjects([url scheme], @"file", nil);
-	XCTAssertEqualObjects([url host], @"localhost", nil);
-	XCTAssertNil([url user], nil);
-	XCTAssertNil([url password], nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"//localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", nil);
-	XCTAssertEqualObjects([url path], @"/this#is a Path with % < > ?", nil);
-	XCTAssertNil([url query], nil);
-	XCTAssertNil([url parameterString], nil);
-	XCTAssertNil([url fragment], nil);
-	XCTAssertEqualObjects([url absoluteString], @"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", nil);
-	XCTAssertEqualObjects([url relativePath], @"/this#is a Path with % < > ?", nil);
-	XCTAssertEqualObjects([url description], @"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", nil);
+	XCTAssertEqualObjects([url scheme], @"file", @"");
+	XCTAssertEqualObjects([url host], @"localhost", @"");
+	XCTAssertNil([url user], @"");
+	XCTAssertNil([url password], @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"//localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
+	XCTAssertEqualObjects([url path], @"/this#is a Path with % < > ?", @"");
+	XCTAssertNil([url query], @"");
+	XCTAssertNil([url parameterString], @"");
+	XCTAssertNil([url fragment], @"");
+	XCTAssertEqualObjects([url absoluteString], @"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
+	XCTAssertEqualObjects([url relativePath], @"/this#is a Path with % < > ?", @"");
+	XCTAssertEqualObjects([url description], @"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
 	/* conclusions
 	 * if created by fileURLWithPath, the host == "localhost"
 	 * characters not allowed in URLs are %-escaped
@@ -182,20 +182,20 @@
 - (void) test15b
 {
 	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
-	XCTAssertTrue([url isFileURL], nil);
-	XCTAssertEqualObjects([url scheme], @"file", nil);
-	XCTAssertEqualObjects([url host], nil, nil);
-	XCTAssertEqualObjects([url user], nil, nil);
-	XCTAssertEqualObjects([url password], nil, nil);
-	XCTAssertEqualObjects([url port], nil, nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"/pathtofile;parameters?query#anchor", nil);
+	XCTAssertTrue([url isFileURL], @"");
+	XCTAssertEqualObjects([url scheme], @"file", @"");
+	XCTAssertEqualObjects([url host], nil, @"");
+	XCTAssertEqualObjects([url user], nil, @"");
+	XCTAssertEqualObjects([url password], nil, @"");
+	XCTAssertEqualObjects([url port], nil, @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"/pathtofile;parameters?query#anchor", @"");
 	XCTAssertEqualObjects([url path], @"/pathtofile",nil);
-	XCTAssertEqualObjects([url query], @"query", nil);
-	XCTAssertEqualObjects([url parameterString], @"parameters", nil);
-	XCTAssertEqualObjects([url fragment], @"anchor", nil);
-	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;parameters?query#anchor", nil);
-	XCTAssertEqualObjects([url relativePath], @"/pathtofile", nil);
-	XCTAssertEqualObjects([url description], @"file:///pathtofile;parameters?query#anchor", nil);
+	XCTAssertEqualObjects([url query], @"query", @"");
+	XCTAssertEqualObjects([url parameterString], @"parameters", @"");
+	XCTAssertEqualObjects([url fragment], @"anchor", @"");
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;parameters?query#anchor", @"");
+	XCTAssertEqualObjects([url relativePath], @"/pathtofile", @"");
+	XCTAssertEqualObjects([url description], @"file:///pathtofile;parameters?query#anchor", @"");
 	/* conclusions
 	 * if created by fileURLWithPath, the host == "localhost"
 	 * if created by URLWithString: it is as specified
@@ -205,13 +205,13 @@
 - (void) test15c
 {
 	NSURL *url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];
-	XCTAssertEqualObjects([url absoluteString], nil, nil);
+	XCTAssertEqualObjects([url absoluteString], nil, @"");
 	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
-	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;%20parameters?%20query%20#anchor", nil);
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;%20parameters?%20query%20#anchor", @"");
 	url=[NSURL URLWithString:@"http:///this#is a Path with % < > ? # anything!§$%&/"];
-	XCTAssertEqualObjects([url absoluteString], nil, nil);
+	XCTAssertEqualObjects([url absoluteString], nil, @"");
 	url=[NSURL URLWithString:@"http:///validpath#butanythingfragment!§$%&/"];
-	XCTAssertEqualObjects([url absoluteString], nil, nil);
+	XCTAssertEqualObjects([url absoluteString], nil, @"");
 	/* conclusions
 	 * can't have spaces or invalid characters in parameters or query part
 	 * having %20 is ok
@@ -221,8 +221,8 @@
 - (void) test15d
 {
 	NSURL *url=[NSURL URLWithString:@"file:///M%c3%bcller"];	// UTF8...
-	XCTAssertEqualObjects([url absoluteString], @"file:///M%c3%bcller", nil);
-	XCTAssertEqualObjects([url path], ([NSString stringWithFormat:@"/M%Cller", 0x00fc]), nil);
+	XCTAssertEqualObjects([url absoluteString], @"file:///M%c3%bcller", @"");
+	XCTAssertEqualObjects([url path], ([NSString stringWithFormat:@"/M%Cller", 0x00fc]), @"");
 	/* conclusions
 	 * UTF8 esacpes in file paths are resolved into Unicode NSStrings
 	 */
@@ -231,51 +231,51 @@
 - (void) test16
 {
 	NSURL *url=[NSURL URLWithString:@""];	// empty URL is allowed
-	XCTAssertNotNil(url, nil);
-	XCTAssertEqualObjects([url description], @"", nil);
+	XCTAssertNotNil(url, @"");
+	XCTAssertEqualObjects([url description], @"", @"");
 }
 
 - (void) test17
 {
 	NSURL *url=[NSURL URLWithString:@"http://host/confusing?order;of#fragment;and?query"];	// order of query, parameters, fragment mixed up
-	XCTAssertEqualObjects([url path], @"/confusing", nil);
-	XCTAssertEqualObjects([url query], @"order;of", nil);
-	XCTAssertEqualObjects([url parameterString], nil, nil);
-	XCTAssertEqualObjects([url fragment], @"fragment;and?query", nil);
+	XCTAssertEqualObjects([url path], @"/confusing", @"");
+	XCTAssertEqualObjects([url query], @"order;of", @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
+	XCTAssertEqualObjects([url fragment], @"fragment;and?query", @"");
 }
 
 - (void) test17b
 { // trailing / in paths
 	NSURL *url=[NSURL URLWithString:@"http://host/file/"];
-	XCTAssertEqualObjects([url absoluteString], @"http://host/file/", nil);
-	XCTAssertEqualObjects([url path], @"/file", nil);
-	XCTAssertEqualObjects([url relativePath], @"/file", nil);
-	XCTAssertEqualObjects([url relativeString], @"http://host/file/", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http://host/file/", @"");
+	XCTAssertEqualObjects([url path], @"/file", @"");
+	XCTAssertEqualObjects([url relativePath], @"/file", @"");
+	XCTAssertEqualObjects([url relativeString], @"http://host/file/", @"");
 	url=[NSURL URLWithString:@"http://host/file"];
-	XCTAssertEqualObjects([url absoluteString], @"http://host/file", nil);
-	XCTAssertEqualObjects([url path], @"/file", nil);
-	XCTAssertEqualObjects([url relativePath], @"/file", nil);
-	XCTAssertEqualObjects([url relativeString], @"http://host/file", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http://host/file", @"");
+	XCTAssertEqualObjects([url path], @"/file", @"");
+	XCTAssertEqualObjects([url relativePath], @"/file", @"");
+	XCTAssertEqualObjects([url relativeString], @"http://host/file", @"");
 	url=[NSURL URLWithString:@"http:/file/"];
-	XCTAssertEqualObjects([url absoluteString], @"http:/file/", nil);
-	XCTAssertEqualObjects([url path], @"/file", nil);
-	XCTAssertEqualObjects([url relativePath], @"/file", nil);
-	XCTAssertEqualObjects([url relativeString], @"http:/file/", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http:/file/", @"");
+	XCTAssertEqualObjects([url path], @"/file", @"");
+	XCTAssertEqualObjects([url relativePath], @"/file", @"");
+	XCTAssertEqualObjects([url relativeString], @"http:/file/", @"");
 	url=[NSURL URLWithString:@"http:/file"];
-	XCTAssertEqualObjects([url absoluteString], @"http:/file", nil);
-	XCTAssertEqualObjects([url path], @"/file", nil);
-	XCTAssertEqualObjects([url relativePath], @"/file", nil);
-	XCTAssertEqualObjects([url relativeString], @"http:/file", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http:/file", @"");
+	XCTAssertEqualObjects([url path], @"/file", @"");
+	XCTAssertEqualObjects([url relativePath], @"/file", @"");
+	XCTAssertEqualObjects([url relativeString], @"http:/file", @"");
 	url=[NSURL URLWithString:@"http:file/"];
-	XCTAssertEqualObjects([url absoluteString], @"http:file/", nil);
-	XCTAssertEqualObjects([url path], nil, nil);
-	XCTAssertEqualObjects([url relativePath], nil, nil);
-	XCTAssertEqualObjects([url relativeString], @"http:file/", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http:file/", @"");
+	XCTAssertEqualObjects([url path], nil, @"");
+	XCTAssertEqualObjects([url relativePath], nil, @"");
+	XCTAssertEqualObjects([url relativeString], @"http:file/", @"");
 	url=[NSURL URLWithString:@"http:file"];
-	XCTAssertEqualObjects([url absoluteString], @"http:file", nil);
-	XCTAssertEqualObjects([url path], nil, nil);
-	XCTAssertEqualObjects([url relativePath], nil, nil);
-	XCTAssertEqualObjects([url relativeString], @"http:file", nil);
+	XCTAssertEqualObjects([url absoluteString], @"http:file", @"");
+	XCTAssertEqualObjects([url path], nil, @"");
+	XCTAssertEqualObjects([url relativePath], nil, @"");
+	XCTAssertEqualObjects([url relativeString], @"http:file", @"");
 	/* conclusions
 	 * a trailing / is stripped from path and relativePath
 	 * relative paths return nil if there is no baseURL
@@ -286,29 +286,29 @@
 - (void) test18
 { // %escapes embedded
 	NSURL *url=[NSURL URLWithString:@"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33"];
-	XCTAssertEqualObjects([url description], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([url absoluteString], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([[url baseURL] description], nil, nil);
-	XCTAssertEqualObjects([url fragment], @"fragment%33", nil);
-	XCTAssertEqualObjects([url host], @"&host", nil);
-	XCTAssertFalse([url isFileURL], nil);
-	XCTAssertEqualObjects([url parameterString], @"parameter%31", nil);
-	XCTAssertEqualObjects([url password], @"%28password", nil);
-	XCTAssertEqualObjects([url path], @"//path0", nil);
-	XCTAssertEqualObjects([url port], nil, nil);
-	XCTAssertEqualObjects([url query], @"query%32", nil);
-	XCTAssertEqualObjects([url relativePath], @"//path0", nil);
-	XCTAssertEqualObjects([url relativeString], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"//%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([url scheme], @"http", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"http://%25user:%28password@%26host//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([url user], @"%user", nil);
+	XCTAssertEqualObjects([url description], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([url absoluteString], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([[url absoluteURL] description], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([[url baseURL] description], nil, @"");
+	XCTAssertEqualObjects([url fragment], @"fragment%33", @"");
+	XCTAssertEqualObjects([url host], @"&host", @"");
+	XCTAssertFalse([url isFileURL], @"");
+	XCTAssertEqualObjects([url parameterString], @"parameter%31", @"");
+	XCTAssertEqualObjects([url password], @"%28password", @"");
+	XCTAssertEqualObjects([url path], @"//path0", @"");
+	XCTAssertEqualObjects([url port], nil, @"");
+	XCTAssertEqualObjects([url query], @"query%32", @"");
+	XCTAssertEqualObjects([url relativePath], @"//path0", @"");
+	XCTAssertEqualObjects([url relativeString], @"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"//%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([url scheme], @"http", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"http://%25user:%28password@%26host//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([url user], @"%user", @"");
 	
 	url=[NSURL URLWithString:@"ht%39tp://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33"];
-	XCTAssertEqualObjects([url description], @"ht%39tp://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", nil);
-	XCTAssertEqualObjects([url scheme], nil, nil);
-	XCTAssertEqualObjects([url path], @"ht9tp://%user:(password@&host:12//path0", nil);
+	XCTAssertEqualObjects([url description], @"ht%39tp://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33", @"");
+	XCTAssertEqualObjects([url scheme], nil, @"");
+	XCTAssertEqualObjects([url path], @"ht9tp://%user:(password@&host:12//path0", @"");
 	/* conclusions
 	 * %escapes are possible/Users
 	 * they are only resolved if we ask for -host, -path, -relativePath, -user
@@ -323,16 +323,16 @@
 - (void) test19
 { // what does standardizedURL do?
 	NSURL *url=[NSURL URLWithString:@"directory/../other/file%31.html" relativeToURL:[NSURL URLWithString:@"file:/root/file.html"]];
-	XCTAssertEqualObjects([url description], @"directory/../other/file%31.html -- file:/root/file.html", nil);
-	XCTAssertEqualObjects([url path], @"/root/other/file1.html", nil);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"file:///root/other/file%31.html", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"other/file%31.html -- file:/root/file.html", nil);
-	XCTAssertEqualObjects([[url standardizedURL] path], @"/root/other/file1.html", nil);
-	XCTAssertEqualObjects([[[url standardizedURL] absoluteURL] description], @"file:///root/other/file%31.html", nil);
+	XCTAssertEqualObjects([url description], @"directory/../other/file%31.html -- file:/root/file.html", @"");
+	XCTAssertEqualObjects([url path], @"/root/other/file1.html", @"");
+	XCTAssertEqualObjects([[url absoluteURL] description], @"file:///root/other/file%31.html", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"other/file%31.html -- file:/root/file.html", @"");
+	XCTAssertEqualObjects([[url standardizedURL] path], @"/root/other/file1.html", @"");
+	XCTAssertEqualObjects([[[url standardizedURL] absoluteURL] description], @"file:///root/other/file%31.html", @"");
 	
 	url=[NSURL URLWithString:@"directory/../other/file%31.html" relativeToURL:[NSURL URLWithString:@"file:/root/../file.html"]];
-	XCTAssertEqualObjects([url description], @"directory/../other/file%31.html -- file:/root/../file.html", nil);
-	XCTAssertEqualObjects([[[url standardizedURL] absoluteURL] description], @"file:///other/file%31.html", nil);
+	XCTAssertEqualObjects([url description], @"directory/../other/file%31.html -- file:/root/../file.html", @"");
+	XCTAssertEqualObjects([[[url standardizedURL] absoluteURL] description], @"file:///other/file%31.html", @"");
 	
 	/* conclusions:
 	 * works only on the path
@@ -346,16 +346,16 @@
 {
 	NSURL *url=[NSURL URLWithString:@"file:/somefile"];
 	NSURL *url2;
-	XCTAssertEqualObjects([url path], @"/somefile", nil);
+	XCTAssertEqualObjects([url path], @"/somefile", @"");
 	url2=[[NSURL alloc] initWithString:@"http://www.goldelico.com/otherpath" relativeToURL:url];	// try relative string with its own scheme!
-	XCTAssertEqualObjects([url2 scheme], @"http", nil);
-	XCTAssertEqualObjects([url2 host], @"www.goldelico.com", nil);
-	XCTAssertEqualObjects([url2 path], @"/otherpath", nil);
+	XCTAssertEqualObjects([url2 scheme], @"http", @"");
+	XCTAssertEqualObjects([url2 host], @"www.goldelico.com", @"");
+	XCTAssertEqualObjects([url2 path], @"/otherpath", @"");
 	[url2 release];
 	url2=[[NSURL alloc] initWithString:@"other" relativeToURL:url];	// try relative string with its own scheme!
-	XCTAssertEqualObjects([url2 scheme], @"file", nil);
-	XCTAssertNil([url2 host], nil);
-	XCTAssertEqualObjects([url2 path], @"/other", nil);
+	XCTAssertEqualObjects([url2 scheme], @"file", @"");
+	XCTAssertNil([url2 host], @"");
+	XCTAssertEqualObjects([url2 path], @"/other", @"");
 	[url2 release];
 	/* conclusions
 	 * if the string is an URL of its own, that one is returned
@@ -367,40 +367,40 @@
 - (void) test21
 { // inheritance from baseURL?
 	NSURL *url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://file.html;parameters?query=q#fragment"]];
-	XCTAssertEqualObjects([url description], @"pathonly -- http://user:password@host:1234://file.html;parameters?query=q#fragment", nil);
-	XCTAssertEqualObjects([url absoluteString], @"http://user:password@host:1234://pathonly", nil);
-	XCTAssertEqualObjects([[url absoluteURL] description], @"http://user:password@host:1234://pathonly", nil);
-	XCTAssertEqualObjects([[url baseURL] description], @"http://user:password@host:1234://file.html;parameters?query=q#fragment", nil);
-	XCTAssertEqualObjects([url fragment], nil, nil);
-	XCTAssertEqualObjects([url host], @"host", nil);
-	XCTAssertFalse([url isFileURL], nil);
-	XCTAssertEqualObjects([url parameterString], nil, nil);
-	XCTAssertEqualObjects([url password], @"password", nil);
-	XCTAssertEqualObjects([url path], @"//pathonly", nil);
-	XCTAssertEqualObjects([url port], nil, nil);
-	XCTAssertEqualObjects([url query], nil, nil);
-	XCTAssertEqualObjects([url relativePath], @"pathonly", nil);
-	XCTAssertEqualObjects([url relativeString], @"pathonly", nil);
-	XCTAssertEqualObjects([url resourceSpecifier], @"pathonly", nil);
-	XCTAssertEqualObjects([url scheme], @"http", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- http://user:password@host:1234://file.html;parameters?query=q#fragment", nil);
-	XCTAssertEqualObjects([url user], @"user", nil);
+	XCTAssertEqualObjects([url description], @"pathonly -- http://user:password@host:1234://file.html;parameters?query=q#fragment", @"");
+	XCTAssertEqualObjects([url absoluteString], @"http://user:password@host:1234://pathonly", @"");
+	XCTAssertEqualObjects([[url absoluteURL] description], @"http://user:password@host:1234://pathonly", @"");
+	XCTAssertEqualObjects([[url baseURL] description], @"http://user:password@host:1234://file.html;parameters?query=q#fragment", @"");
+	XCTAssertEqualObjects([url fragment], nil, @"");
+	XCTAssertEqualObjects([url host], @"host", @"");
+	XCTAssertFalse([url isFileURL], @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
+	XCTAssertEqualObjects([url password], @"password", @"");
+	XCTAssertEqualObjects([url path], @"//pathonly", @"");
+	XCTAssertEqualObjects([url port], nil, @"");
+	XCTAssertEqualObjects([url query], nil, @"");
+	XCTAssertEqualObjects([url relativePath], @"pathonly", @"");
+	XCTAssertEqualObjects([url relativeString], @"pathonly", @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"pathonly", @"");
+	XCTAssertEqualObjects([url scheme], @"http", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- http://user:password@host:1234://file.html;parameters?query=q#fragment", @"");
+	XCTAssertEqualObjects([url user], @"user", @"");
 	
 	url=[NSURL URLWithString:@"scheme:newuser@otherhost/mixed" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://file.html;parameters?query=q#fragment"]];
-	XCTAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed", nil);
-	XCTAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed", nil);
+	XCTAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed", @"");
+	XCTAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed", @"");
 	
 	url=[NSURL URLWithString:@"scheme:newuser@otherhost/mixed?newquery" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://file.html;parameters?query=q#fragment"]];
-	XCTAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed?newquery", nil);
-	XCTAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed?newquery", nil);
+	XCTAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed?newquery", @"");
+	XCTAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed?newquery", @"");
 	
 	url=[NSURL URLWithString:@"mixed?newquery" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://path/file.html;parameters?query=q#fragment"]];
-	XCTAssertEqualObjects([url description], @"mixed?newquery -- http://user:password@host:1234://path/file.html;parameters?query=q#fragment", nil);
-	XCTAssertEqualObjects([url absoluteString], @"http://user:password@host:1234://path/mixed?newquery", nil);
+	XCTAssertEqualObjects([url description], @"mixed?newquery -- http://user:password@host:1234://path/file.html;parameters?query=q#fragment", @"");
+	XCTAssertEqualObjects([url absoluteString], @"http://user:password@host:1234://path/mixed?newquery", @"");
 	
 	url=[NSURL URLWithString:@"scheme:path/mixed.html" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://path/file.html;parameters?query=q#fragment"]];
-	XCTAssertEqualObjects([url description], @"scheme:path/mixed.html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"scheme:path/mixed.html", nil);
+	XCTAssertEqualObjects([url description], @"scheme:path/mixed.html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"scheme:path/mixed.html", @"");
 	
 	/* conclusions:
 	 * scheme, user/password, host/port are inherited
@@ -417,19 +417,19 @@
 - (void) test23
 { // two relative URLS?
 	NSURL *url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	XCTAssertEqualObjects([url description], @"pathonly -- path/file.html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"//path/pathonly", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", nil);
+	XCTAssertEqualObjects([url description], @"pathonly -- path/file.html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"//path/pathonly", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", @"");
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	XCTAssertEqualObjects([url description], @"/pathonly -- path/file.html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"///pathonly", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", nil);
+	XCTAssertEqualObjects([url description], @"/pathonly -- path/file.html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"///pathonly", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", @"");
 	
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"/path/file.html"]];
-	XCTAssertEqualObjects([url description], @"pathonly -- /path/file.html", nil);
-	XCTAssertEqualObjects([url absoluteString], @"///path/pathonly", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- /path/file.html", nil);
+	XCTAssertEqualObjects([url description], @"pathonly -- /path/file.html", @"");
+	XCTAssertEqualObjects([url absoluteString], @"///path/pathonly", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"pathonly -- /path/file.html", @"");
 	
 	/* conclusions
 	 * it is possible to have two relative URLs
@@ -498,13 +498,13 @@
 - (void) test24
 { // standardization test
 	NSURL *url=[NSURL URLWithString:@"/somewhere/../here/./other/././more/."];
-	XCTAssertEqualObjects([url description], @"/somewhere/../here/./other/././more/.", nil);
-	XCTAssertEqualObjects([url absoluteString], @"/somewhere/../here/./other/././more/.", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/here/other/more/", nil);
+	XCTAssertEqualObjects([url description], @"/somewhere/../here/./other/././more/.", @"");
+	XCTAssertEqualObjects([url absoluteString], @"/somewhere/../here/./other/././more/.", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/here/other/more/", @"");
 	url=[NSURL URLWithString:@"/somewhere/../here/./other/././more/./"];
-	XCTAssertEqualObjects([url description], @"/somewhere/../here/./other/././more/./", nil);
-	XCTAssertEqualObjects([url absoluteString], @"/somewhere/../here/./other/././more/./", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"/here/other/more/", nil);
+	XCTAssertEqualObjects([url description], @"/somewhere/../here/./other/././more/./", @"");
+	XCTAssertEqualObjects([url absoluteString], @"/somewhere/../here/./other/././more/./", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"/here/other/more/", @"");
 	/* conclusions
 	 * something/../ are removed by standardization
 	 * /./ are removed by standardization
@@ -515,11 +515,11 @@
 - (void) test25
 { // another strange case
 	NSURL *url=[NSURL URLWithString:@"//host/path"];
-	XCTAssertEqualObjects([url description], @"//host/path", nil);
-	XCTAssertEqualObjects([url host], @"host", nil);
-	XCTAssertEqualObjects([url path], @"/path", nil);
-	XCTAssertEqualObjects([url absoluteString], @"//host/path", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"host/path", nil);
+	XCTAssertEqualObjects([url description], @"//host/path", @"");
+	XCTAssertEqualObjects([url host], @"host", @"");
+	XCTAssertEqualObjects([url path], @"/path", @"");
+	XCTAssertEqualObjects([url absoluteString], @"//host/path", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"host/path", @"");
 	/* conclusions
 	 * //host can be detected even if we have no scheme
 	 */
@@ -528,10 +528,10 @@
 - (void) test25b
 { // another strange case
 	NSURL *url=[NSURL URLWithString:@"//host"];
-	XCTAssertEqualObjects([url description], @"//host", nil);
-	XCTAssertEqualObjects([url host], @"host", nil);
-	XCTAssertEqualObjects([url path], @"", nil);
-	XCTAssertEqualObjects([url absoluteString], @"//host", nil);
+	XCTAssertEqualObjects([url description], @"//host", @"");
+	XCTAssertEqualObjects([url host], @"host", @"");
+	XCTAssertEqualObjects([url path], @"", @"");
+	XCTAssertEqualObjects([url absoluteString], @"//host", @"");
 	XCTAssertEqualObjects([[url standardizedURL] description], @"host", [url description]);
 	/* conclusions
 	 * //host can be detected even if we have no scheme
@@ -542,11 +542,11 @@
 - (void) test26
 { // check if and where scheme and host name are converted to lower case
 	NSURL *url=[NSURL URLWithString:@"HTTP://WWW.SOMEHOST.COM/PaTh"];
-	XCTAssertEqualObjects([url description], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
-	XCTAssertEqualObjects([url host], @"WWW.SOMEHOST.COM", nil);
-	XCTAssertEqualObjects([url path], @"/PaTh", nil);
-	XCTAssertEqualObjects([url absoluteString], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
+	XCTAssertEqualObjects([url description], @"HTTP://WWW.SOMEHOST.COM/PaTh", @"");
+	XCTAssertEqualObjects([url host], @"WWW.SOMEHOST.COM", @"");
+	XCTAssertEqualObjects([url path], @"/PaTh", @"");
+	XCTAssertEqualObjects([url absoluteString], @"HTTP://WWW.SOMEHOST.COM/PaTh", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"HTTP://WWW.SOMEHOST.COM/PaTh", @"");
 	/* conclusions
 	 * there is no case conversion
 	 */
@@ -659,17 +659,17 @@
 - (void) test28
 { // is a well known port removed?
 	NSURL *url=[NSURL URLWithString:@"http://localhost:80/"];
-	XCTAssertEqualObjects([url description], @"http://localhost:80/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"http://localhost:80/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", nil);
+	XCTAssertEqualObjects([url description], @"http://localhost:80/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"http://localhost:80/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", @"");
 	url=[NSURL URLWithString:@"https://localhost:443/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:443/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:443/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:443/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:443/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:443/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:443/", @"");
 	url=[NSURL URLWithString:@"https://localhost:123/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:123/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:123/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:123/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:123/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:123/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:123/", @"");
 	/* conclusions
 	 * no, never
 	 */
@@ -678,29 +678,29 @@
 - (void) test29
 { // are port numbers "standardized"?
 	NSURL *url=[NSURL URLWithString:@"http://localhost:0080/"];
-	XCTAssertEqualObjects([url description], @"http://localhost:0080/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"http://localhost:0080/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", nil);
+	XCTAssertEqualObjects([url description], @"http://localhost:0080/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"http://localhost:0080/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", @"");
 	url=[NSURL URLWithString:@"https://localhost:1234567890123456789/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:1234567890123456789/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456789/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:1234567890123456789/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456789/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", @"");
 	url=[NSURL URLWithString:@"https://localhost:1234567890123456788/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:1234567890123456788/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456788/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:1234567890123456788/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456788/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", @"");
 	url=[NSURL URLWithString:@"https://localhost:abc/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:abc/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:abc/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:abc/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:abc/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", @"");
 	url=[NSURL URLWithString:@"https://localhost:01234abc/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:01234abc/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:01234abc/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:01234abc/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:01234abc/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", @"");
 	url=[NSURL URLWithString:@"https://localhost:0000/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:0000/", nil);
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:0000/", nil);
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:0/", nil);
+	XCTAssertEqualObjects([url description], @"https://localhost:0000/", @"");
+	XCTAssertEqualObjects([url absoluteString], @"https://localhost:0000/", @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:0/", @"");
 	/* conclusions
 	 * yes, but only during standardization and not for absoluteString
 	 * port humber is converted to integer (limited to 2^31-1) and converted back to a string
@@ -712,24 +712,24 @@
 { // when are NURLs considered -isEqual? Before or after standardization?
 	NSURL *url1=[NSURL URLWithString:@"http://localhost:80/"];
 	NSURL *url2=[NSURL URLWithString:@"http://localhost:80/"];
-	XCTAssertTrue([url1 isEqual:url2], nil);
+	XCTAssertTrue([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost:80/"];
 	url2=[NSURL URLWithString:@"http://localhost:0080/"];
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
 	url2=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
-	XCTAssertTrue([url1 isEqual:url2], nil);
+	XCTAssertTrue([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
 	url2=[NSURL URLWithString:@"http://localhost/dir/file"];
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:/root/file1"]];
 	url2=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:/root/file1"]];
-	XCTAssertTrue([url1 isEqual:url2], nil);
+	XCTAssertTrue([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:///root/file1"]];
 	url2=[NSURL URLWithString:@"file:///root/file2"];
-	XCTAssertEqualObjects([url1 absoluteString], @"file:///root/file2", nil);
-	XCTAssertEqualObjects([url2 absoluteString], @"file:///root/file2", nil);
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertEqualObjects([url1 absoluteString], @"file:///root/file2", @"");
+	XCTAssertEqualObjects([url2 absoluteString], @"file:///root/file2", @"");
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	/* conclusions
 	 * is based on string compare of the initializing string
 	 * not on the concept of standardizedURL
@@ -741,16 +741,16 @@
 { // when are NURLs considered -isEqual? Before or after standardization?
 	NSURL *url1=[NSURL URLWithString:@"http://localhost:80/file"];
 	NSURL *url2=[NSURL URLWithString:@"http://localhost:80/file"];
-	XCTAssertTrue([url1 isEqual:url2], nil);
+	XCTAssertTrue([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost:80/file"];
 	url2=[NSURL URLWithString:@"http://LOCALHOST:80/file"];
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost:80/file"];
 	url2=[NSURL URLWithString:@"HTTP://localhost:80/file"];
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	url1=[NSURL URLWithString:@"http://localhost:80/file"];
 	url2=[NSURL URLWithString:@"http://localhost:80/FILE"];
-	XCTAssertFalse([url1 isEqual:url2], nil);
+	XCTAssertFalse([url1 isEqual:url2], @"");
 	/* conclusions
 	 * compare is case sensitive
 	 */
@@ -758,9 +758,9 @@
 
 - (void) test31
 { // handling unicode in URL string?
-	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/Ueberweisung", 0x00FC]]), nil);
-	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/%Cberweisung", 0x00FC, 0x00DC]]), nil);
-	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://Mueller.de/%Cberweisung", 0x00DC]]), nil);
+	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/Ueberweisung", 0x00FC]]), @"");
+	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/%Cberweisung", 0x00FC, 0x00DC]]), @"");
+	XCTAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://Mueller.de/%Cberweisung", 0x00DC]]), @"");
 	/* conclusion
 	 * unicode characters are rejected everywhere
 	 * i.e. translation from a user typed URL (e.g. browser address text field) to % escapes and Punycode must be done outside this class

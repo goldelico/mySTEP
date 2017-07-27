@@ -60,13 +60,13 @@
 	NSDistantObject *d;
 	NSPort *port=[[NSPort new] autorelease];
 	d=[[NSDistantObject alloc] initWithLocal:obj connection:nil];
-	XCTAssertNil(d, nil);	// does not create objects without connection
+	XCTAssertNil(d, @"");	// does not create objects without connection
 	d=[[NSDistantObject alloc] initWithLocal:obj connection:conn];
-	XCTAssertNotNil(d, nil);	// does not create objects without connection - but we can pass an arbitrary object!
-	XCTAssertEqualObjects([d connectionForProxy], conn, nil);
+	XCTAssertNotNil(d, @"");	// does not create objects without connection - but we can pass an arbitrary object!
+	XCTAssertEqualObjects([d connectionForProxy], conn, @"");
 	NSPortCoder *pc=[[NSPortCoder alloc] initWithReceivePort:port sendPort:port components:nil];
 	[d encodeWithCoder:pc];	// encode with port coder
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 	[conn release];
 	[obj release];
 	[d release];
@@ -80,13 +80,13 @@
 	NSDistantObject *d;
 	NSPort *port=[[NSPort new] autorelease];
 	d=[[NSDistantObject alloc] initWithTarget:obj connection:nil];
-	XCTAssertNil(d, nil);	// does not create objects without connection
+	XCTAssertNil(d, @"");	// does not create objects without connection
 	d=[[NSDistantObject alloc] initWithTarget:obj connection:conn];
-	XCTAssertNotNil(d, nil);	// does not create objects without connection - but we can pass an arbitrary object!
-	XCTAssertEqualObjects([d connectionForProxy], conn, nil);
+	XCTAssertNotNil(d, @"");	// does not create objects without connection - but we can pass an arbitrary object!
+	XCTAssertEqualObjects([d connectionForProxy], conn, @"");
 	NSPortCoder *pc=[[NSPortCoder alloc] initWithReceivePort:port sendPort:port components:nil];
 	[d encodeWithCoder:pc];	// encode with port coder
-	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", @"");
 	[conn release];
 	[obj release];
 	[d release];

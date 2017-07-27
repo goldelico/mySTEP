@@ -20,7 +20,7 @@
 - (void) setUp
 {
 	b=[NSBundle bundleWithPath:@"/System/Library/Frameworks/AddressBook.framework"];
-	XCTAssertNotNil(b, nil);
+	XCTAssertNotNil(b, @"");
 }
 
 - (void) tearDown

@@ -64,11 +64,11 @@ struct c_c
 
 - (void) test00
 { // check initialization precondition
-	XCTAssertThrowsSpecificNamed([NSInvocation invocationWithMethodSignature:nil], NSException, NSInvalidArgumentException, nil);	// invocation with nil signature
-	XCTAssertNoThrow([[NSInvocation alloc] init], nil);	// init raises no exception
-	XCTAssertNil([[NSInvocation alloc] init], nil);	// and returns no object (and prints no warning)
+	XCTAssertThrowsSpecificNamed([NSInvocation invocationWithMethodSignature:nil], NSException, NSInvalidArgumentException, @"");	// invocation with nil signature
+	XCTAssertNoThrow([[NSInvocation alloc] init], @"");	// init raises no exception
+	XCTAssertNil([[NSInvocation alloc] init], @"");	// and returns no object (and prints no warning)
 #if 0	// enable this code to test if the tester comes here
-	XCTAssertTrue(NO, nil);
+	XCTAssertTrue(NO, @"");
 	sleep(19);
 	abort();
 #endif
@@ -89,21 +89,21 @@ struct c_c
 	SEL sel=@selector(invoke01);
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 2, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 2, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	[i invoke];
-	XCTAssertEqual(invoked, 1, nil);
+	XCTAssertEqual(invoked, 1, @"");
 }
 
 - (id) invoke02:arg1 witharg:(id) arg2;
 { // some object arguments and return value
-	//	XCTAssertNotNil(arg1, nil);
-	//	XCTAssertNotNil(arg2, nil);
+	//	XCTAssertNotNil(arg1, @"");
+	//	XCTAssertNotNil(arg2, @"");
 	invoked=2;
 	return [[arg1 description] stringByAppendingString:[arg2 description]];
 }
@@ -114,15 +114,15 @@ struct c_c
 	SEL sel=@selector(invoke02:witharg:);
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	[i invoke];
-	XCTAssertEqual(invoked, 2, nil);
+	XCTAssertEqual(invoked, 2, @"");
 }
 
 - (void) test03_missing_target_or_selector
@@ -131,22 +131,22 @@ struct c_c
 	SEL sel=@selector(invoke01);
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
-	XCTAssertNoThrow([i invoke], nil);	// nil target ignores nil selector
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
+	XCTAssertNoThrow([i invoke], @"");	// nil target ignores nil selector
+	XCTAssertEqual(invoked, 0, @"");
 	[i setTarget:target];
 #ifndef __APPLE__	// segfaults on Apple
-	XCTAssertThrowsSpecificNamed([i invoke], NSException, NSInvalidArgumentException, nil);	// NULL/uninitialized selector throws
+	XCTAssertThrowsSpecificNamed([i invoke], NSException, NSInvalidArgumentException, @"");	// NULL/uninitialized selector throws
 #endif
 	[i setSelector:sel];
-	XCTAssertEqual(invoked, 0, nil);
-	XCTAssertNoThrow([i invoke], nil);
-	XCTAssertEqual(invoked, 1, nil);	// this one was successful
-	XCTAssertThrowsSpecificNamed([i setArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);	// NULL address throws
-	XCTAssertThrowsSpecificNamed([i getArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, nil);
+	XCTAssertEqual(invoked, 0, @"");
+	XCTAssertNoThrow([i invoke], @"");
+	XCTAssertEqual(invoked, 1, @"");	// this one was successful
+	XCTAssertThrowsSpecificNamed([i setArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, @"");	// NULL address throws
+	XCTAssertThrowsSpecificNamed([i getArgument:NULL atIndex:0], NSException, NSInvalidArgumentException, @"");
 	/* conclusions
 	 * an uninitialized/NULL selector throws an exception (NOTE: segfaults on MacOS 10.11)
 	 * an uninitialized/nil target makes the invoication being ignored
@@ -161,21 +161,21 @@ struct c_c
 	SEL sobj=NULL;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
-	XCTAssertNil(obj, nil);
+	XCTAssertNil(obj, @"");
 	NSLog(@"target=%p", target);
 	NSLog(@"target=%@", target);
 	[i getArgument:&obj atIndex:0];	// read back target
 	NSLog(@"obj=%p", obj);
 	NSLog(@"obj=%@", obj);
-	XCTAssertEqual(obj, target, nil);
-	XCTAssertTrue(sobj == NULL, nil);
+	XCTAssertEqual(obj, target, @"");
+	XCTAssertTrue(sobj == NULL, @"");
 	[i getArgument:&sobj atIndex:1];
-	XCTAssertEqual(sobj, sel, nil);
-	XCTAssertThrowsSpecificNamed([i getArgument:&obj atIndex:2], NSException, NSInvalidArgumentException, nil);	// out of bounds
+	XCTAssertEqual(sobj, sel, @"");
+	XCTAssertThrowsSpecificNamed([i getArgument:&obj atIndex:2], NSException, NSInvalidArgumentException, @"");	// out of bounds
 #if 0
 	// this is not documented but reported e.g. thorugh: -[NSInvocation getArgument:atIndex:]: index (2) out of bounds [-1, 1]
 	// but it makes the process crash with a TRACE&BPT trap - maybe it is not working correctly for void return values
@@ -195,45 +195,45 @@ struct c_c
 	SEL sobj=NULL;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
-	XCTAssertNil(obj, nil);
+	XCTAssertNil(obj, @"");
 	[i getArgument:&obj atIndex:0];
-	XCTAssertEqual(obj, target, nil);
-	XCTAssertTrue(sobj == NULL, nil);
+	XCTAssertEqual(obj, target, @"");
+	XCTAssertTrue(sobj == NULL, @"");
 	[i getArgument:&sobj atIndex:1];
-	XCTAssertEqual(sobj, sel, nil);
-	XCTAssertNoThrow([i getArgument:&obj atIndex:2], nil);
-	XCTAssertNil(obj, nil);	// arguments appear to be initialized to nil
-	XCTAssertNoThrow([i getArgument:&obj atIndex:3], nil);
-	XCTAssertNil(obj, nil);	// arguments appear to be initialized to nil
-	XCTAssertThrowsSpecificNamed([i getArgument:&obj atIndex:4], NSException, NSInvalidArgumentException, nil);	// out of bounds
-	XCTAssertNoThrow([i getReturnValue:&obj], nil);	// can be called before [i invoke] is called
-	//	XCTAssertNil(obj, nil);	// this is not guaranteed: "the result of this method is undefined"
+	XCTAssertEqual(sobj, sel, @"");
+	XCTAssertNoThrow([i getArgument:&obj atIndex:2], @"");
+	XCTAssertNil(obj, @"");	// arguments appear to be initialized to nil
+	XCTAssertNoThrow([i getArgument:&obj atIndex:3], @"");
+	XCTAssertNil(obj, @"");	// arguments appear to be initialized to nil
+	XCTAssertThrowsSpecificNamed([i getArgument:&obj atIndex:4], NSException, NSInvalidArgumentException, @"");	// out of bounds
+	XCTAssertNoThrow([i getReturnValue:&obj], @"");	// can be called before [i invoke] is called
+	//	XCTAssertNil(obj, @"");	// this is not guaranteed: "the result of this method is undefined"
 	// this is not documented but reported e.g. though: -[NSInvocation getArgument:atIndex:]: index (2) out of bounds [-1, 1]
-	XCTAssertNoThrow([i getArgument:&obj atIndex:-1], nil);
-	//	XCTAssertNil(obj, nil);
+	XCTAssertNoThrow([i getArgument:&obj atIndex:-1], @"");
+	//	XCTAssertNil(obj, @"");
 	[i setArgument:&self atIndex:2];
 	obj=nil;
-	XCTAssertNil(obj, nil);
-	XCTAssertNoThrow([i getArgument:&obj atIndex:2], nil);
-	XCTAssertEqualObjects(obj, self, nil);
+	XCTAssertNil(obj, @"");
+	XCTAssertNoThrow([i getArgument:&obj atIndex:2], @"");
+	XCTAssertEqualObjects(obj, self, @"");
 	[i setArgument:&i atIndex:2];
 	obj=nil;
-	XCTAssertNil(obj, nil);
-	XCTAssertNoThrow([i getArgument:&obj atIndex:2], nil);
-	XCTAssertEqualObjects(obj, i, nil);
+	XCTAssertNil(obj, @"");
+	XCTAssertNoThrow([i getArgument:&obj atIndex:2], @"");
+	XCTAssertEqualObjects(obj, i, @"");
 	[i setArgument:&self atIndex:-1];	// try to set the return value
 	obj=nil;
-	XCTAssertNil(obj, nil);
-	XCTAssertNoThrow([i getReturnValue:&obj], nil);
-	XCTAssertEqualObjects(obj, self, nil);
+	XCTAssertNil(obj, @"");
+	XCTAssertNoThrow([i getReturnValue:&obj], @"");
+	XCTAssertEqualObjects(obj, self, @"");
 	obj=nil;
-	XCTAssertNil(obj, nil);
-	XCTAssertNoThrow([i getArgument:&obj atIndex:-1], nil);
-	XCTAssertEqualObjects(obj, self, nil);
+	XCTAssertNil(obj, @"");
+	XCTAssertNoThrow([i getArgument:&obj atIndex:-1], @"");
+	XCTAssertEqualObjects(obj, self, @"");
 	/* conlcusions:
 	 * return value is the same as index -1
 	 * the return value can be written/read back like any other argument
@@ -243,8 +243,8 @@ struct c_c
 - (float) invoke12:(double) dbl flt:(float) f
 { // test float arguments and return (have to be passed correctly to FPU)
 	invoked=12;
-	XCTAssertEqual(dbl, (double) 3.14159265358979, nil);
-	XCTAssertEqual(f, (float) 2.71828, nil);
+	XCTAssertEqual(dbl, (double) 3.14159265358979, @"");
+	XCTAssertEqual(f, (float) 2.71828, @"");
 	return dbl+f;
 }
 
@@ -257,19 +257,19 @@ struct c_c
 	float c=-1;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
 	[i setArgument:&b atIndex:3];
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, 12, nil);
+	XCTAssertEqual(invoked, 12, @"");
 	[i getReturnValue:&c];
-	XCTAssertEqual(c, (float) 5.859873, nil);
+	XCTAssertEqual(c, (float) 5.859873, @"");
 	[i getArgument:&c atIndex:3];
-	XCTAssertEqual(c, (float) 2.71828, nil);
+	XCTAssertEqual(c, (float) 2.71828, @"");
 	/* conclusions
 	 * there is no type conversion for float/double
 	 */
@@ -278,14 +278,14 @@ struct c_c
 - (NSString *) invoke13:(NSString *) a b:(NSString *) b c:(NSString *) c d:(NSString *) d e:(NSString *) e f:(NSString *) f g:(NSString *) g
 { // more than fits into registers
 	invoked=13;
-	XCTAssertTrue(sel_isEqual(_cmd, @selector(invoke13:b:c:d:e:f:g:)), nil);
-	XCTAssertEqualObjects(a, @"a", nil);
-	XCTAssertEqualObjects(b, @"b", nil);
-	XCTAssertEqualObjects(c, @"c", nil);
-	XCTAssertEqualObjects(d, @"d", nil);
-	XCTAssertEqualObjects(e, @"e", nil);
-	XCTAssertEqualObjects(f, @"f", nil);
-	XCTAssertEqualObjects(g, @"g", nil);
+	XCTAssertTrue(sel_isEqual(_cmd, @selector(invoke13:b:c:d:e:f:g:)), @"");
+	XCTAssertEqualObjects(a, @"a", @"");
+	XCTAssertEqualObjects(b, @"b", @"");
+	XCTAssertEqualObjects(c, @"c", @"");
+	XCTAssertEqualObjects(d, @"d", @"");
+	XCTAssertEqualObjects(e, @"e", @"");
+	XCTAssertEqualObjects(f, @"f", @"");
+	XCTAssertEqualObjects(g, @"g", @"");
 	return @"r";
 }
 
@@ -296,8 +296,8 @@ struct c_c
 	id obj;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	obj=@"a";
@@ -316,24 +316,24 @@ struct c_c
 	[i setArgument:&obj atIndex:8];
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, 13, nil);
-	XCTAssertEqualObjects(obj, @"g", nil);
+	XCTAssertEqual(invoked, 13, @"");
+	XCTAssertEqualObjects(obj, @"g", @"");
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, @"r", nil);
+	XCTAssertEqualObjects(obj, @"r", @"");
 	[i getArgument:&obj atIndex:2];	// this checks if the arguments are still intact after doing the invoke+return
-	XCTAssertEqualObjects(obj, @"a", nil);
+	XCTAssertEqualObjects(obj, @"a", @"");
 	[i getArgument:&obj atIndex:3];
-	XCTAssertEqualObjects(obj, @"b", nil);
+	XCTAssertEqualObjects(obj, @"b", @"");
 	[i getArgument:&obj atIndex:4];
-	XCTAssertEqualObjects(obj, @"c", nil);
+	XCTAssertEqualObjects(obj, @"c", @"");
 	[i getArgument:&obj atIndex:5];
-	XCTAssertEqualObjects(obj, @"d", nil);
+	XCTAssertEqualObjects(obj, @"d", @"");
 	[i getArgument:&obj atIndex:6];
-	XCTAssertEqualObjects(obj, @"e", nil);
+	XCTAssertEqualObjects(obj, @"e", @"");
 	[i getArgument:&obj atIndex:7];
-	XCTAssertEqualObjects(obj, @"f", nil);
+	XCTAssertEqualObjects(obj, @"f", @"");
 	[i getArgument:&obj atIndex:8];
-	XCTAssertEqualObjects(obj, @"g", nil);
+	XCTAssertEqualObjects(obj, @"g", @"");
 	/* conclusions
 	 * works
 	 */
@@ -342,14 +342,14 @@ struct c_c
 - (unichar) invoke14:(char) a b:(short) b c:(unsigned char) c d:(int) d e:(long) e f:(long long) f g:(char *) g
 { // basic C data types
 	invoked=14;
-	XCTAssertEqual(a, (char) 'a', nil);
-	XCTAssertEqual(b, (short) 0xbbb, nil);
-	XCTAssertEqual(c, (unsigned char) 0xcc, nil);
-	XCTAssertEqual(d, 0xdd00, nil);
-	XCTAssertEqual(e, 0x1e0000eel, nil);
+	XCTAssertEqual(a, (char) 'a', @"");
+	XCTAssertEqual(b, (short) 0xbbb, @"");
+	XCTAssertEqual(c, (unsigned char) 0xcc, @"");
+	XCTAssertEqual(d, 0xdd00, @"");
+	XCTAssertEqual(e, 0x1e0000eel, @"");
 	NSLog(@"%llx", f);
-	XCTAssertEqual(f, 0x1f00ff0000ff00ffll, nil);
-	XCTAssertEqual(g, (char *) "g", nil);
+	XCTAssertEqual(f, 0x1f00ff0000ff00ffll, @"");
+	XCTAssertEqual(g, (char *) "g", @"");
 	return 0x30AB;
 }
 
@@ -367,8 +367,8 @@ struct c_c
 	unichar r=0;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
@@ -380,24 +380,24 @@ struct c_c
 	[i setArgument:&g atIndex:8];
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, 14, nil);
+	XCTAssertEqual(invoked, 14, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, (unichar) 0x30AB, nil);
+	XCTAssertEqual(r, (unichar) 0x30AB, @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
-	 XCTAssertEqualObjects(obj, @"a", nil);
+	 XCTAssertEqualObjects(obj, @"a", @"");
 	 [i getArgument:&obj atIndex:3];
-	 XCTAssertEqualObjects(obj, @"b", nil);
+	 XCTAssertEqualObjects(obj, @"b", @"");
 	 [i getArgument:&obj atIndex:4];
-	 XCTAssertEqualObjects(obj, @"c", nil);
+	 XCTAssertEqualObjects(obj, @"c", @"");
 	 [i getArgument:&obj atIndex:5];
-	 XCTAssertEqualObjects(obj, @"d", nil);
+	 XCTAssertEqualObjects(obj, @"d", @"");
 	 [i getArgument:&obj atIndex:6];
-	 XCTAssertEqualObjects(obj, @"e", nil);
+	 XCTAssertEqualObjects(obj, @"e", @"");
 	 [i getArgument:&obj atIndex:7];
-	 XCTAssertEqualObjects(obj, @"f", nil);
+	 XCTAssertEqualObjects(obj, @"f", @"");
 	 [i getArgument:&obj atIndex:8];
-	 XCTAssertEqualObjects(obj, @"g", nil);
+	 XCTAssertEqualObjects(obj, @"g", @"");
 	 */
 	/* conclusions
 	 * works
@@ -414,15 +414,15 @@ struct c_c
 	NSLog(@"invoke14dfs called");
 	invoked=14;
 	NSLog(@"invoked = %d", invoked);
-	XCTAssertEqual(a, (float) 1.1, nil);
-	XCTAssertEqual(b, 2.2, nil);
+	XCTAssertEqual(a, (float) 1.1, @"");
+	XCTAssertEqual(b, 2.2, @"");
 	NSLog(@"&a=%p a=%g", &a, a);
 	NSLog(@"&b=%p b=%lg", &b, b);
 	NSLog(@"&c=%p", &c);
 	NSLog(@"&c.a=%p c.a=%g", &c.a, c.a);
 	NSLog(@"&c.b=%p c.b=%lg", &c.b, c.b);
-	XCTAssertEqual(c.a, (float) 3.3, nil);
-	XCTAssertEqual(c.b, 4.4, nil);
+	XCTAssertEqual(c.a, (float) 3.3, @"");
+	XCTAssertEqual(c.b, 4.4, @"");
 	NSLog(@"test14dfs done");
 }
 
@@ -440,8 +440,8 @@ struct c_c
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	NSLog(@"test14dfs started");
 	NSLog(@"%lu+%lu -- %lu", sizeof(a), sizeof(b), sizeof(c));
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
@@ -449,7 +449,7 @@ struct c_c
 	[i setArgument:&c atIndex:4];	// pass by copy
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, 14, nil);
+	XCTAssertEqual(invoked, 14, @"");
 }
 
 - (long long) invoke14ll:(char) a b:(long long) b
@@ -457,8 +457,8 @@ struct c_c
 	NSLog(@"invoke14ll called");
 	invoked=-14;
 	NSLog(@"invoked = %d", invoked);
-	XCTAssertEqual(a, (char) 'a', nil);
-	XCTAssertEqual(b, 0x1f00ff0000ff00ffll, nil);
+	XCTAssertEqual(a, (char) 'a', @"");
+	XCTAssertEqual(b, 0x1f00ff0000ff00ffll, @"");
 	NSLog(@"test14ll done");
 	return 0x7fff00ffff00ff00ll;
 }
@@ -473,32 +473,32 @@ struct c_c
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
 	NSLog(@"test14ll started");
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
 	[i setArgument:&b atIndex:3];
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, -14, nil);
+	XCTAssertEqual(invoked, -14, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, 0x7fff00ffff00ff00ll, nil);
+	XCTAssertEqual(r, 0x7fff00ffff00ff00ll, @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
-	 XCTAssertEqualObjects(obj, @"a", nil);
+	 XCTAssertEqualObjects(obj, @"a", @"");
 	 [i getArgument:&obj atIndex:3];
-	 XCTAssertEqualObjects(obj, @"b", nil);
+	 XCTAssertEqualObjects(obj, @"b", @"");
 	 [i getArgument:&obj atIndex:4];
-	 XCTAssertEqualObjects(obj, @"c", nil);
+	 XCTAssertEqualObjects(obj, @"c", @"");
 	 [i getArgument:&obj atIndex:5];
-	 XCTAssertEqualObjects(obj, @"d", nil);
+	 XCTAssertEqualObjects(obj, @"d", @"");
 	 [i getArgument:&obj atIndex:6];
-	 XCTAssertEqualObjects(obj, @"e", nil);
+	 XCTAssertEqualObjects(obj, @"e", @"");
 	 [i getArgument:&obj atIndex:7];
-	 XCTAssertEqualObjects(obj, @"f", nil);
+	 XCTAssertEqualObjects(obj, @"f", @"");
 	 [i getArgument:&obj atIndex:8];
-	 XCTAssertEqualObjects(obj, @"g", nil);
+	 XCTAssertEqualObjects(obj, @"g", @"");
 	 */
 	/* conclusions
 	 * works
@@ -509,11 +509,11 @@ struct c_c
 { // pass structs by copy and by reference
 	NSLog(@"invoke15 called");
 	invoked=15;
-	XCTAssertEqual(a, (char) 'a', nil);
-	XCTAssertEqual(b.a, 0x1234, nil);
-	XCTAssertEqual(b.b, 0x7fff00ffff00ff00ll, nil);
-	XCTAssertEqual(c->a, 0x4321, nil);
-	XCTAssertEqual(c->b, 0x1f00ff0000ff00ffll, nil);
+	XCTAssertEqual(a, (char) 'a', @"");
+	XCTAssertEqual(b.a, 0x1234, @"");
+	XCTAssertEqual(b.b, 0x7fff00ffff00ff00ll, @"");
+	XCTAssertEqual(c->a, 0x4321, @"");
+	XCTAssertEqual(c->b, 0x1f00ff0000ff00ffll, @"");
 	NSLog(@"invoke15 returning");
 	return (struct i_ll) { 0xaadd, 0xbbccddee };
 }
@@ -528,8 +528,8 @@ struct c_c
 	struct i_ll r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	NSLog(@"invoking invoke15 a");
@@ -541,24 +541,24 @@ struct c_c
 	invoked=0;
 	NSLog(@"invoking invoke15 d");
 	[i invoke];
-	XCTAssertEqual(invoked, 15, nil);
+	XCTAssertEqual(invoked, 15, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, ((struct i_ll) { 0xaadd, 0xbbccddee }), nil);
+	XCTAssertEqual(r, ((struct i_ll) { 0xaadd, 0xbbccddee }), @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
-	 XCTAssertEqualObjects(obj, @"a", nil);
+	 XCTAssertEqualObjects(obj, @"a", @"");
 	 [i getArgument:&obj atIndex:3];
-	 XCTAssertEqualObjects(obj, @"b", nil);
+	 XCTAssertEqualObjects(obj, @"b", @"");
 	 [i getArgument:&obj atIndex:4];
-	 XCTAssertEqualObjects(obj, @"c", nil);
+	 XCTAssertEqualObjects(obj, @"c", @"");
 	 [i getArgument:&obj atIndex:5];
-	 XCTAssertEqualObjects(obj, @"d", nil);
+	 XCTAssertEqualObjects(obj, @"d", @"");
 	 [i getArgument:&obj atIndex:6];
-	 XCTAssertEqualObjects(obj, @"e", nil);
+	 XCTAssertEqualObjects(obj, @"e", @"");
 	 [i getArgument:&obj atIndex:7];
-	 XCTAssertEqualObjects(obj, @"f", nil);
+	 XCTAssertEqualObjects(obj, @"f", @"");
 	 [i getArgument:&obj atIndex:8];
-	 XCTAssertEqualObjects(obj, @"g", nil);
+	 XCTAssertEqualObjects(obj, @"g", @"");
 	 */
 	/* conclusions
 	 * works
@@ -576,11 +576,11 @@ struct c_c
 	NSLog(@"invoke15s called");
 	invoked=-15;
 	NSLog(@"invoked = %d", invoked);
-	XCTAssertEqual(a, (char) 'a', nil);
-	XCTAssertEqual(b.a, (char) 'b', nil);
-	XCTAssertEqual(b.b, (char) 'B', nil);
-	XCTAssertEqual(c->a, (char) 'c', nil);
-	XCTAssertEqual(c->b, (char) 'C', nil);
+	XCTAssertEqual(a, (char) 'a', @"");
+	XCTAssertEqual(b.a, (char) 'b', @"");
+	XCTAssertEqual(b.b, (char) 'B', @"");
+	XCTAssertEqual(c->a, (char) 'c', @"");
+	XCTAssertEqual(c->b, (char) 'C', @"");
 	NSLog(@"invoke15s returning");
 	return (struct c_c) { 'r', 'R' };
 }
@@ -595,8 +595,8 @@ struct c_c
 	struct c_c r={ 1, 2 };
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
@@ -604,24 +604,24 @@ struct c_c
 	[i setArgument:&cp atIndex:4];	// pass as pointer to struct on stack
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, -15, nil);
+	XCTAssertEqual(invoked, -15, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, ((struct c_c) { 'r', 'R' }), nil);
+	XCTAssertEqual(r, ((struct c_c) { 'r', 'R' }), @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
-	 XCTAssertEqualObjects(obj, @"a", nil);
+	 XCTAssertEqualObjects(obj, @"a", @"");
 	 [i getArgument:&obj atIndex:3];
-	 XCTAssertEqualObjects(obj, @"b", nil);
+	 XCTAssertEqualObjects(obj, @"b", @"");
 	 [i getArgument:&obj atIndex:4];
-	 XCTAssertEqualObjects(obj, @"c", nil);
+	 XCTAssertEqualObjects(obj, @"c", @"");
 	 [i getArgument:&obj atIndex:5];
-	 XCTAssertEqualObjects(obj, @"d", nil);
+	 XCTAssertEqualObjects(obj, @"d", @"");
 	 [i getArgument:&obj atIndex:6];
-	 XCTAssertEqualObjects(obj, @"e", nil);
+	 XCTAssertEqualObjects(obj, @"e", @"");
 	 [i getArgument:&obj atIndex:7];
-	 XCTAssertEqualObjects(obj, @"f", nil);
+	 XCTAssertEqualObjects(obj, @"f", @"");
 	 [i getArgument:&obj atIndex:8];
-	 XCTAssertEqualObjects(obj, @"g", nil);
+	 XCTAssertEqualObjects(obj, @"g", @"");
 	 */
 	/* conclusions
 	 * works
@@ -631,11 +631,11 @@ struct c_c
 - (struct i_ll *) invoke16:(char) a b:(struct i_ll) b c:(struct i_ll *) c
 { // return struct by reference
 	invoked=16;
-	XCTAssertEqual(a, (char) 'a', nil);
-	XCTAssertEqual(b.a, 1234, nil);
-	XCTAssertEqual(b.b, 123456789ll, nil);
-	XCTAssertEqual(c->a, 4321, nil);
-	XCTAssertEqual(c->b, 987654321ll, nil);
+	XCTAssertEqual(a, (char) 'a', @"");
+	XCTAssertEqual(b.a, 1234, @"");
+	XCTAssertEqual(b.b, 123456789ll, @"");
+	XCTAssertEqual(c->a, 4321, @"");
+	XCTAssertEqual(c->b, 987654321ll, @"");
 	return c;
 }
 
@@ -649,8 +649,8 @@ struct c_c
 	struct i_ll *r=NULL;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
@@ -658,26 +658,26 @@ struct c_c
 	[i setArgument:&cp atIndex:4];	// passs pointer
 	invoked=0;
 	[i invoke];
-	XCTAssertEqual(invoked, 16, nil);
+	XCTAssertEqual(invoked, 16, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual(r, cp, nil);
-	XCTAssertEqual(r->a, c.a, nil);
-	XCTAssertEqual(r->b, c.b, nil);
+	XCTAssertEqual(r, cp, @"");
+	XCTAssertEqual(r->a, c.a, @"");
+	XCTAssertEqual(r->b, c.b, @"");
 	/*
 	 [i getArgument:&obj atIndex:2];
-	 XCTAssertEqualObjects(obj, @"a", nil);
+	 XCTAssertEqualObjects(obj, @"a", @"");
 	 [i getArgument:&obj atIndex:3];
-	 XCTAssertEqualObjects(obj, @"b", nil);
+	 XCTAssertEqualObjects(obj, @"b", @"");
 	 [i getArgument:&obj atIndex:4];
-	 XCTAssertEqualObjects(obj, @"c", nil);
+	 XCTAssertEqualObjects(obj, @"c", @"");
 	 [i getArgument:&obj atIndex:5];
-	 XCTAssertEqualObjects(obj, @"d", nil);
+	 XCTAssertEqualObjects(obj, @"d", @"");
 	 [i getArgument:&obj atIndex:6];
-	 XCTAssertEqualObjects(obj, @"e", nil);
+	 XCTAssertEqualObjects(obj, @"e", @"");
 	 [i getArgument:&obj atIndex:7];
-	 XCTAssertEqualObjects(obj, @"f", nil);
+	 XCTAssertEqualObjects(obj, @"f", @"");
 	 [i getArgument:&obj atIndex:8];
-	 XCTAssertEqualObjects(obj, @"g", nil);
+	 XCTAssertEqualObjects(obj, @"g", @"");
 	 */
 	/* conclusions
 	 * works
@@ -693,9 +693,9 @@ struct c_c
 	id obj;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:nil];
 	[i setSelector:sel];
 	[i setArgument:&self atIndex:2];
@@ -703,13 +703,13 @@ struct c_c
 	// NOTE: we should also test if this is correctly released by the non-called invocation if we have -retainArguments mode
 	[i setReturnValue:&self];
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, self, nil);	// has been stored
+	XCTAssertEqualObjects(obj, self, @"");	// has been stored
 	[i invoke];	// invoke nil target
-	XCTAssertEqual(invoked, 0, nil);	// has NOT been called
+	XCTAssertEqual(invoked, 0, @"");	// has NOT been called
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, nil, nil);	// has been wiped out
+	XCTAssertEqualObjects(obj, nil, @"");	// has been wiped out
 }
 
 // FIXME: write a test what happens if we use &self, &_cmd, &a in the called method
@@ -728,15 +728,15 @@ struct c_c
 	SEL sel=@selector(invoke20);
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 2, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 2, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:target];
 	[i setSelector:sel];
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
-	XCTAssertThrowsSpecificNamed([i invoke], NSException, @"Test Exception", nil);
-	XCTAssertEqual(invoked, 20, nil);	// should not be -20...
+	XCTAssertEqual(invoked, 0, @"");
+	XCTAssertThrowsSpecificNamed([i invoke], NSException, @"Test Exception", @"");
+	XCTAssertEqual(invoked, 20, @"");	// should not be -20...
 }
 
 - (void) invoke30
@@ -779,7 +779,7 @@ struct c_c
 - (void) forwardInvocation:(NSInvocation *)anInvocation
 { // test forward:: and forwardInvocation: - should also test nesting, i.e. modifying the target and sending again
 	SEL sel=[anInvocation selector];
-	XCTAssertEqualObjects([anInvocation target], self, nil);
+	XCTAssertEqualObjects([anInvocation target], self, @"");
 	XCTAssertTrue(sel_isEqual(_cmd, @selector(forwardInvocation:));
 	invoked=-99;
 	NSLog(@"** self=%p _cmd=%p %@ sel=%p %@ called **", self, _cmd, NSStringFromSelector(_cmd), sel, NSStringFromSelector(sel));
@@ -809,32 +809,32 @@ struct c_c
 			int ret='r';
 			id s=self;
 			[anInvocation getArgument:&p atIndex:2];
-			XCTAssertEqual(p, 1, nil);
+			XCTAssertEqual(p, 1, @"");
 			[anInvocation getArgument:&p atIndex:3];
-			XCTAssertEqual(p, 2, nil);
+			XCTAssertEqual(p, 2, @"");
 			[anInvocation getArgument:&p atIndex:4];
-			XCTAssertEqual(p, 3, nil);
+			XCTAssertEqual(p, 3, @"");
 			[anInvocation getArgument:&p atIndex:5];
-			XCTAssertEqual(p, 4, nil);
+			XCTAssertEqual(p, 4, @"");
 			[anInvocation getArgument:&p atIndex:6];
-			XCTAssertEqual(p, 5, nil);
+			XCTAssertEqual(p, 5, @"");
 			[anInvocation getArgument:&p atIndex:7];
-			XCTAssertEqual(p, 6, nil);
+			XCTAssertEqual(p, 6, @"");
 			invoked=42;
 			[anInvocation setReturnValue:&ret];
-			XCTAssertEqualObjects([anInvocation target], s, nil);	// was not overwritten by setReturnValue - even if this is stored in the same register
+			XCTAssertEqualObjects([anInvocation target], s, @"");	// was not overwritten by setReturnValue - even if this is stored in the same register
 			[anInvocation getArgument:&p atIndex:2];
-			XCTAssertEqual(p, 1, nil);
+			XCTAssertEqual(p, 1, @"");
 			[anInvocation getArgument:&p atIndex:3];
-			XCTAssertEqual(p, 2, nil);
+			XCTAssertEqual(p, 2, @"");
 			[anInvocation getArgument:&p atIndex:4];
-			XCTAssertEqual(p, 3, nil);
+			XCTAssertEqual(p, 3, @"");
 			[anInvocation getArgument:&p atIndex:5];
-			XCTAssertEqual(p, 4, nil);
+			XCTAssertEqual(p, 4, @"");
 			[anInvocation getArgument:&p atIndex:6];
-			XCTAssertEqual(p, 5, nil);
+			XCTAssertEqual(p, 5, @"");
 			[anInvocation getArgument:&p atIndex:7];
-			XCTAssertEqual(p, 6, nil);
+			XCTAssertEqual(p, 6, @"");
 		}
 	else if(sel_isEqual(sel, @selector(forward43:b:)))
 		{ // return a string
@@ -846,17 +846,17 @@ struct c_c
 		{ // forward with a modified selector
 			invoked=44;
 			[anInvocation setSelector:@selector(invoke01)];
-			XCTAssertEqual(invoked, 44, nil);
+			XCTAssertEqual(invoked, 44, @"");
 			[anInvocation invoke];
-			XCTAssertEqual(invoked, 1, nil);
+			XCTAssertEqual(invoked, 1, @"");
 		}
 	else if(sel_isEqual(sel, @selector(forward45)))
 		{ // can we forward to another dynamically implemented method?
 			invoked=45;
 			[anInvocation setSelector:@selector(forward40)];
-			XCTAssertEqual(invoked, 45, nil);
+			XCTAssertEqual(invoked, 45, @"");
 			[anInvocation invoke];	// forward with a different selector
-			XCTAssertEqual(invoked, 40, nil);
+			XCTAssertEqual(invoked, 40, @"");
 		}
 	else if(sel_isEqual(sel, @selector(forward46:b:)))
 		{ // we explicitly don't set a return value to see if that raises an exception or something!
@@ -872,20 +872,20 @@ struct c_c
 		float fval=0.0;
 		float r=3.1415;
 		invoked=47;
-		XCTAssertEqual(ival, 0, nil);
-		XCTAssertEqual(fval, 0.0f, nil);
+		XCTAssertEqual(ival, 0, @"");
+		XCTAssertEqual(fval, 0.0f, @"");
 		[anInvocation getArgument:&ival atIndex:2];
-		XCTAssertEqual(ival, 1, nil);
+		XCTAssertEqual(ival, 1, @"");
 		[anInvocation getArgument:&ival atIndex:3];
-		XCTAssertEqual(ival, 2, nil);
+		XCTAssertEqual(ival, 2, @"");
 		[anInvocation getArgument:&fval atIndex:4];
-		XCTAssertEqual(fval, 3.0f, nil);
+		XCTAssertEqual(fval, 3.0f, @"");
 		[anInvocation getArgument:&ival atIndex:5];
-		XCTAssertEqual(ival, 4, nil);
+		XCTAssertEqual(ival, 4, @"");
 		[anInvocation getArgument:&fval atIndex:6];
-		XCTAssertEqual(fval, 5.0f, nil);
+		XCTAssertEqual(fval, 5.0f, @"");
 		[anInvocation getArgument:&fval atIndex:7];
-		XCTAssertEqual(fval, 6.0f, nil);
+		XCTAssertEqual(fval, 6.0f, @"");
 		[anInvocation setReturnValue:&r];
 		}
 	else if(sel_isEqual(sel, @selector(forward48:b:c:d:e:f:)))
@@ -896,22 +896,22 @@ struct c_c
 		double dval=0;
 		double r=3.1415;
 		invoked=48;
-		XCTAssertEqual(ival, 0, nil);
-		XCTAssertEqual(llval, 0ll, nil);
-		XCTAssertEqual(fval, 0.0f, nil);
-		XCTAssertEqual(dval, 0.0, nil);
+		XCTAssertEqual(ival, 0, @"");
+		XCTAssertEqual(llval, 0ll, @"");
+		XCTAssertEqual(fval, 0.0f, @"");
+		XCTAssertEqual(dval, 0.0, @"");
 		[anInvocation getArgument:&ival atIndex:2];
-		XCTAssertEqual(ival, 1, nil);
+		XCTAssertEqual(ival, 1, @"");
 		[anInvocation getArgument:&llval atIndex:3];
-		XCTAssertEqual(llval, -2ll, nil);
+		XCTAssertEqual(llval, -2ll, @"");
 		[anInvocation getArgument:&fval atIndex:4];
-		XCTAssertEqual(fval, 3.0f, nil);
+		XCTAssertEqual(fval, 3.0f, @"");
 		[anInvocation getArgument:&ival atIndex:5];
-		XCTAssertEqual(ival, 4, nil);
+		XCTAssertEqual(ival, 4, @"");
 		[anInvocation getArgument:&dval atIndex:6];
-		XCTAssertEqual(dval, 5.0, nil);
+		XCTAssertEqual(dval, 5.0, @"");
 		[anInvocation getArgument:&fval atIndex:7];
-		XCTAssertEqual(fval, 6.0f, nil);
+		XCTAssertEqual(fval, 6.0f, @"");
 		[anInvocation setReturnValue:&r];
 		}
 	else if(sel_isEqual(sel,@selector(forward49:b:c:)))
@@ -926,9 +926,9 @@ struct c_c
 - (void) test40_simple_forward
 {
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	[self forward40];
-	XCTAssertEqual(invoked, 40, nil);	// should have been invoked
+	XCTAssertEqual(invoked, 40, @"");	// should have been invoked
 	// we could also test parameter passing for indirect calls
 	/* conclusions
 	 * -methodSignatureForSelector must be overwritten or we can't call the dynamically defined method
@@ -941,8 +941,8 @@ struct c_c
 	int ir=0;
 	invoked=0;
 	ir=[self forward41:1 b:2];
-	XCTAssertEqual(invoked, 41, nil);	// should have been invoked
-	XCTAssertEqual(ir, 'r', nil);
+	XCTAssertEqual(invoked, 41, @"");	// should have been invoked
+	XCTAssertEqual(ir, 'r', @"");
 }
 
 - (void) test42_forward_with_many_args
@@ -950,8 +950,8 @@ struct c_c
 	int ir=0;
 	invoked=0;
 	ir=[self forward42:1 b:2 c:3 d:4 e:5 f:6];
-	XCTAssertEqual(invoked, 42, nil);	// should have been invoked
-	XCTAssertEqual(ir, 'r', nil);
+	XCTAssertEqual(invoked, 42, @"");	// should have been invoked
+	XCTAssertEqual(ir, 'r', @"");
 }
 
 - (void) test43_forward_with_string_result
@@ -961,22 +961,22 @@ struct c_c
 	id r=self;
 	invoked=0;
 	r=[self forward43:a b:b];
-	XCTAssertEqual(invoked, 43, nil);	// should have been invoked
-	XCTAssertEqualObjects(r, @"the result", nil);
+	XCTAssertEqual(invoked, 43, @"");	// should have been invoked
+	XCTAssertEqualObjects(r, @"the result", @"");
 }
 
 - (void) test44_nested_invoke
 { // nested invoke
 	invoked=0;
 	[self forward44];
-	XCTAssertEqual(invoked, 1, nil);	// invoke01 should have been invoked in the second step
+	XCTAssertEqual(invoked, 1, @"");	// invoke01 should have been invoked in the second step
 }
 
 - (void) test45_nested_invoke
 { // nested invoke
 	invoked=0;
 	[self forward45];
-	XCTAssertEqual(invoked, 40, nil);	// forward40 should have been invoked in the second step
+	XCTAssertEqual(invoked, 40, @"");	// forward40 should have been invoked in the second step
 }
 
 - (void) test46_missing_setReturnValue
@@ -984,7 +984,7 @@ struct c_c
 	int ir=0;
 	invoked=0;
 	ir=[self forward46:1 b:2];	// does not set a return value!
-	XCTAssertEqual(invoked, 46, nil);	// should have been invoked
+	XCTAssertEqual(invoked, 46, @"");	// should have been invoked
 	XCTAssertEqual(ir, 0, @"unreliable");	// most likely because the stack frame is not initialized - it is not clear if this is reproducible by our implementation
 }
 
@@ -993,8 +993,8 @@ struct c_c
 	float fr=0.0;
 	invoked=0;
 	fr=[self forward47:1 b:2 c:3.0f d:4 e:5 f:6.0];
-	XCTAssertEqual(invoked, 47, nil);	// should have been invoked
-	XCTAssertEqual(fr, 3.1415f, nil);
+	XCTAssertEqual(invoked, 47, @"");	// should have been invoked
+	XCTAssertEqual(fr, 3.1415f, @"");
 }
 
 - (void) test48_forward_double_return
@@ -1002,8 +1002,8 @@ struct c_c
 	double fr=0.0;
 	invoked=0;
 	fr=[self forward48:1 b:-2 c:3.0f d:4 e:5 f:6.0];
-	XCTAssertEqual(invoked, 48, nil);	// should have been invoked
-	XCTAssertEqual(fr, 3.1415, nil);
+	XCTAssertEqual(invoked, 48, @"");	// should have been invoked
+	XCTAssertEqual(fr, 3.1415, @"");
 }
 
 - (void) test49_forward_struct
@@ -1017,7 +1017,7 @@ struct c_c
 		4.4
 	};
 	[self forward49:a b:b c:c];
-	XCTAssertEqual(invoked, 49, nil);
+	XCTAssertEqual(invoked, 49, @"");
 }
 
 // FIXME: forward_struct_return!
@@ -1025,8 +1025,8 @@ struct c_c
 - (id) invoke60:(id) a b:(id) b
 { // return an autoreleased object
 	invoked=60;
-	XCTAssertEqual([a retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([a retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 1, @"");
 	return [[[NSObject alloc] init] autorelease];	// should be placed in the ARP where the -invoke is issued
 }
 
@@ -1042,46 +1042,46 @@ struct c_c
 	NSAutoreleasePool *arp;
 	NSUInteger rc;
 	id r;
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, nil);
-	XCTAssertNotNil(i, nil);
-	XCTAssertEqual([a retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 1, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, @"");
+	XCTAssertNotNil(i, @"");
+	XCTAssertEqual([a retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 1, @"");
 	rc=[target retainCount];
 	[i setTarget:target];
-	XCTAssertEqual([target retainCount], rc, nil);	// has not changed
+	XCTAssertEqual([target retainCount], rc, @"");	// has not changed
 	[i setSelector:sel];
 	[i setArgument:&a atIndex:2];
 	[i setArgument:&b atIndex:3];
-	XCTAssertEqual([a retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([a retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 1, @"");
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	arp=[NSAutoreleasePool new];	// create a private ARP so that r is autoreleased there
 	[i invoke];
-	XCTAssertEqual(invoked, 60, nil);
-	XCTAssertEqual([a retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual(invoked, 60, @"");
+	XCTAssertEqual([a retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 1, @"");
 	[i getReturnValue:&r];
-	XCTAssertEqual([r retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([r retainCount], (NSUInteger) 1, @"");
 	[r retain];
-	XCTAssertEqual([r retainCount], (NSUInteger) 2, nil);
+	XCTAssertEqual([r retainCount], (NSUInteger) 2, @"");
 	[arp release];	// this should release r
-	XCTAssertEqual([r retainCount], (NSUInteger) 1, nil);
-	XCTAssertFalse([i argumentsRetained], nil);
+	XCTAssertEqual([r retainCount], (NSUInteger) 1, @"");
+	XCTAssertFalse([i argumentsRetained], @"");
 	[i retainArguments];
-	XCTAssertTrue([i argumentsRetained], nil);
-	XCTAssertEqual([a retainCount], (NSUInteger) 2, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 2, nil);
-	XCTAssertEqual([r retainCount], (NSUInteger) 2, nil);
+	XCTAssertTrue([i argumentsRetained], @"");
+	XCTAssertEqual([a retainCount], (NSUInteger) 2, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 2, @"");
+	XCTAssertEqual([r retainCount], (NSUInteger) 2, @"");
 	[i retainArguments];
-	XCTAssertEqual([a retainCount], (NSUInteger) 2, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 2, nil);
-	XCTAssertEqual([r retainCount], (NSUInteger) 2, nil);
+	XCTAssertEqual([a retainCount], (NSUInteger) 2, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 2, @"");
+	XCTAssertEqual([r retainCount], (NSUInteger) 2, @"");
 	[arp2 release];	// this releases the invocation - and all retained arguments
-	XCTAssertEqual([a retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([b retainCount], (NSUInteger) 1, nil);
-	XCTAssertEqual([r retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([a retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([b retainCount], (NSUInteger) 1, @"");
+	XCTAssertEqual([r retainCount], (NSUInteger) 1, @"");
 	[r release];
 	/* conclusions
 	 * the current APR is used for invocations (i.e. it does not have a private one)
@@ -1098,27 +1098,27 @@ struct c_c
 	id test;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:nil];
 	[i setSelector:sel];
 	[i setArgument:&self atIndex:2];
 	[i setArgument:&self atIndex:3];
 	test=[NSObject new];
-	XCTAssertEqual([test retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([test retainCount], (NSUInteger) 1, @"");
 	[i setReturnValue:&test];
 	[i retainArguments];
-	XCTAssertEqual([test retainCount], (NSUInteger) 2, nil);
+	XCTAssertEqual([test retainCount], (NSUInteger) 2, @"");
 	invoked=0;
-	XCTAssertEqual(invoked, 0, nil);
+	XCTAssertEqual(invoked, 0, @"");
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, test, nil);	// has been stored
+	XCTAssertEqualObjects(obj, test, @"");	// has been stored
 	[i invoke];	// invoke nil target
-	XCTAssertEqual([test retainCount], (NSUInteger) 2, nil);	// previously set return value should have been released - but has not (but may have been autoreleased)!
-	XCTAssertEqual(invoked, 0, nil);	// has NOT been called
+	XCTAssertEqual([test retainCount], (NSUInteger) 2, @"");	// previously set return value should have been released - but has not (but may have been autoreleased)!
+	XCTAssertEqual(invoked, 0, @"");	// has NOT been called
 	[i getReturnValue:&obj];
-	XCTAssertEqualObjects(obj, nil, nil);	// has been wiped out
+	XCTAssertEqualObjects(obj, nil, @"");	// has been wiped out
 	/* conclusion
 	 * invoking a nil target leaks a previously retained returnValue on OS X 10.6
 	 * NOTE: this test is not able to find out if the value is autoreleased later!
@@ -1133,23 +1133,23 @@ struct c_c
 	id test, test2;
 	NSMethodSignature *ms=[target methodSignatureForSelector:sel];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:ms];
-	XCTAssertNotNil(ms, nil);
-	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, nil);
-	XCTAssertNotNil(i, nil);
+	XCTAssertNotNil(ms, @"");
+	XCTAssertEqual([ms numberOfArguments], (NSUInteger) 4, @"");
+	XCTAssertNotNil(i, @"");
 	[i setTarget:nil];
 	[i setSelector:sel];
 	test=[NSObject new];
-	XCTAssertEqual([test retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([test retainCount], (NSUInteger) 1, @"");
 	[i setArgument:&test atIndex:2];
 	[i retainArguments];
-	XCTAssertEqual([test retainCount], (NSUInteger) 2, nil);
+	XCTAssertEqual([test retainCount], (NSUInteger) 2, @"");
 	test2=[NSObject new];
-	XCTAssertEqual([test2 retainCount], (NSUInteger) 1, nil);
+	XCTAssertEqual([test2 retainCount], (NSUInteger) 1, @"");
 	[i setArgument:&test2 atIndex:2];	// replace
-	XCTAssertEqual([test retainCount], (NSUInteger) 2, nil);	// likely autoreleased
-	XCTAssertEqual([test2 retainCount], (NSUInteger) 2, nil);
+	XCTAssertEqual([test retainCount], (NSUInteger) 2, @"");	// likely autoreleased
+	XCTAssertEqual([test2 retainCount], (NSUInteger) 2, @"");
 	[i setArgument:&test2 atIndex:3];	// set (with retainArguments enabled)
-	XCTAssertEqual([test2 retainCount], (NSUInteger) 3, nil);	// ok, is retained before setting
+	XCTAssertEqual([test2 retainCount], (NSUInteger) 3, @"");	// ok, is retained before setting
 	/* conclusion
 	 * retainArguments only instructs to retain - but does not release
 	 * NOTE: this test is not able to find out if they are autoreleased later!
