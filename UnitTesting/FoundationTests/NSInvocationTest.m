@@ -18,11 +18,12 @@
 // https://stackoverflow.com/questions/19178109/xctassertequal-error-3-is-not-equal-to-3
 // http://www.openradar.me/16281876
 
-#define XCTAssertEquals(a, b, format) \
+#define XCTAssertEquals(a, b, ...) ({ \
+	typeof(a) _a=a; typeof(b) _b=b; \
 	XCTAssertEqualObjects( \
-		[NSValue value:&a withObjCType:@encode(typeof(a))], \
-		[NSValue value:&b withObjCType:@encode(typeof(b))], \
-		format);
+		[NSValue value:&_a withObjCType:@encode(typeof(a))], \
+		[NSValue value:&_b withObjCType:@encode(typeof(b))], \
+		##__VA_ARGS__); })
 
 @interface NSInvocationTest : XCTestCase {
 	int invoked;
