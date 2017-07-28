@@ -43,6 +43,18 @@
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
 		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
 		EEEEFB851F2A1E1B00211520 /* AppKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB841F2A1E1B00211520 /* AppKitTests.m */; };
+		EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */; };
+		EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB951F2A5A5400211520 /* floatspeed.m */; };
+		EEEEFBA21F2A5A5400211520 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB961F2A5A5400211520 /* NSFontDescriptorTest.m */; };
+		EEEEFBA31F2A5A5400211520 /* NSFontTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB971F2A5A5400211520 /* NSFontTest.m */; };
+		EEEEFBA41F2A5A5400211520 /* NSLayoutManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB981F2A5A5400211520 /* NSLayoutManagerTest.m */; };
+		EEEEFBA51F2A5A5400211520 /* NSStringDrawingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB991F2A5A5400211520 /* NSStringDrawingTest.m */; };
+		EEEEFBA61F2A5A5400211520 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9A1F2A5A5400211520 /* NSTextContainerTest.m */; };
+		EEEEFBA71F2A5A5400211520 /* NSTextFieldCellTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9B1F2A5A5400211520 /* NSTextFieldCellTest.m */; };
+		EEEEFBA81F2A5A5400211520 /* NSTextStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9C1F2A5A5400211520 /* NSTextStorageTest.m */; };
+		EEEEFBA91F2A5A5400211520 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */; };
+		EEEEFBAA1F2A5A5400211520 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */; };
+		EEEEFBAB1F2A5A5400211520 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +101,18 @@
 		EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEEEFB841F2A1E1B00211520 /* AppKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppKitTests.m; sourceTree = "<group>"; };
 		EEEEFB861F2A1E1B00211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
+		EEEEFB951F2A5A5400211520 /* floatspeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = floatspeed.m; sourceTree = "<group>"; };
+		EEEEFB961F2A5A5400211520 /* NSFontDescriptorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontDescriptorTest.m; sourceTree = "<group>"; };
+		EEEEFB971F2A5A5400211520 /* NSFontTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontTest.m; sourceTree = "<group>"; };
+		EEEEFB981F2A5A5400211520 /* NSLayoutManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSLayoutManagerTest.m; sourceTree = "<group>"; };
+		EEEEFB991F2A5A5400211520 /* NSStringDrawingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringDrawingTest.m; sourceTree = "<group>"; };
+		EEEEFB9A1F2A5A5400211520 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
+		EEEEFB9B1F2A5A5400211520 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
+		EEEEFB9C1F2A5A5400211520 /* NSTextStorageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextStorageTest.m; sourceTree = "<group>"; };
+		EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextViewTest.m; sourceTree = "<group>"; };
+		EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewBoundsTest.m; sourceTree = "<group>"; };
+		EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewTest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +185,18 @@
 			isa = PBXGroup;
 			children = (
 				EEEEFB841F2A1E1B00211520 /* AppKitTests.m */,
+				EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */,
+				EEEEFB951F2A5A5400211520 /* floatspeed.m */,
+				EEEEFB961F2A5A5400211520 /* NSFontDescriptorTest.m */,
+				EEEEFB971F2A5A5400211520 /* NSFontTest.m */,
+				EEEEFB981F2A5A5400211520 /* NSLayoutManagerTest.m */,
+				EEEEFB991F2A5A5400211520 /* NSStringDrawingTest.m */,
+				EEEEFB9A1F2A5A5400211520 /* NSTextContainerTest.m */,
+				EEEEFB9B1F2A5A5400211520 /* NSTextFieldCellTest.m */,
+				EEEEFB9C1F2A5A5400211520 /* NSTextStorageTest.m */,
+				EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */,
+				EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */,
+				EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */,
 				EEEEFB861F2A1E1B00211520 /* Info.plist */,
 			);
 			path = AppKitTests;
@@ -261,6 +297,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,7 +334,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEEEFBAA1F2A5A5400211520 /* NSViewBoundsTest.m in Sources */,
+				EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */,
+				EEEEFBA41F2A5A5400211520 /* NSLayoutManagerTest.m in Sources */,
+				EEEEFBAB1F2A5A5400211520 /* NSViewTest.m in Sources */,
+				EEEEFBA91F2A5A5400211520 /* NSTextViewTest.m in Sources */,
+				EEEEFBA71F2A5A5400211520 /* NSTextFieldCellTest.m in Sources */,
+				EEEEFBA51F2A5A5400211520 /* NSStringDrawingTest.m in Sources */,
+				EEEEFBA61F2A5A5400211520 /* NSTextContainerTest.m in Sources */,
+				EEEEFBA21F2A5A5400211520 /* NSFontDescriptorTest.m in Sources */,
 				EEEEFB851F2A1E1B00211520 /* AppKitTests.m in Sources */,
+				EEEEFBA31F2A5A5400211520 /* NSFontTest.m in Sources */,
+				EEEEFBA81F2A5A5400211520 /* NSTextStorageTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,7 +553,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -558,7 +606,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -604,7 +652,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
