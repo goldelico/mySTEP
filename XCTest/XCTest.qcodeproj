@@ -3,11 +3,12 @@
 export DEBIAN_DEPENDS="quantumstep-otest"
 export DEBIAN_DEPENDS+=", quantumstep-sentestingkit-framework"
 export DEBIAN_DEPENDS+=", quantumstep-ocunit"
-export FRAMEWORKS="OCUnit"
+export FRAMEWORKS="SenTestingKit"
 export INSTALL_PATH="/Developer/Library/Frameworks"
 export PRODUCT_NAME="XCTest"
 export SOURCES="XCTest.h"
+export SOURCES+=" XCTest.m"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
