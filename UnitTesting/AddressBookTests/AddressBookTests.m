@@ -1,18 +1,18 @@
 //
-//  AppKitTests.m
-//  AppKitTests
+//  AddressBookTests.m
+//  AddressBookTests
 //
-//  Created by H. Nikolaus Schaller on 27.07.17.
+//  Created by H. Nikolaus Schaller on 29.07.17.
 //
 //
 
 #import <XCTest/XCTest.h>
 
-@interface AppKitTests : XCTestCase
+@interface AddressBookTests : XCTestCase
 
 @end
 
-@implementation AppKitTests
+@implementation AddressBookTests
 
 - (void)setUp {
     [super setUp];

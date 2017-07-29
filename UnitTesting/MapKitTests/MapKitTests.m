@@ -1,18 +1,18 @@
 //
-//  FoundationTest.m
-//  FoundationTest
+//  MapKitTests.m
+//  MapKitTests
 //
-//  Created by H. Nikolaus Schaller on 27.07.17.
+//  Created by H. Nikolaus Schaller on 29.07.17.
 //
 //
 
 #import <XCTest/XCTest.h>
 
-@interface FoundationTest : XCTestCase
+@interface MapKitTests : XCTestCase
 
 @end
 
-@implementation FoundationTest
+@implementation MapKitTests
 
 - (void)setUp {
     [super setUp];

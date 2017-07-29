@@ -15,6 +15,11 @@
 			dependencies = (
 				EEEEFB931F2A1E8200211520 /* PBXTargetDependency */,
 				EEEEFB911F2A1E7E00211520 /* PBXTargetDependency */,
+				EEEEFC001F2CBE0800211520 /* PBXTargetDependency */,
+				EEEEFC021F2CBE0800211520 /* PBXTargetDependency */,
+				EEEEFC041F2CBE0800211520 /* PBXTargetDependency */,
+				EEEEFC061F2CBE0800211520 /* PBXTargetDependency */,
+				EEEEFC081F2CBE0800211520 /* PBXTargetDependency */,
 			);
 			name = UnitTests;
 			productName = UnitTests;
@@ -22,7 +27,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		EE235B5C1F29CB3400F026E0 /* FoundationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B5B1F29CB3400F026E0 /* FoundationTest.m */; };
 		EE235B741F29D0EA00F026E0 /* FoundationTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */; };
 		EE235B751F29D0EA00F026E0 /* FunctionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B631F29D0EA00F026E0 /* FunctionsTest.m */; };
 		EE235B761F29D0EA00F026E0 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B641F29D0EA00F026E0 /* NSAffineTransformTest.m */; };
@@ -42,7 +46,6 @@
 		EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B721F29D0EA00F026E0 /* NSURLTest.m */; };
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
 		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
-		EEEEFB851F2A1E1B00211520 /* AppKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB841F2A1E1B00211520 /* AppKitTests.m */; };
 		EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */; };
 		EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB951F2A5A5400211520 /* floatspeed.m */; };
 		EEEEFBA21F2A5A5400211520 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB961F2A5A5400211520 /* NSFontDescriptorTest.m */; };
@@ -55,6 +58,20 @@
 		EEEEFBA91F2A5A5400211520 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */; };
 		EEEEFBAA1F2A5A5400211520 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */; };
 		EEEEFBAB1F2A5A5400211520 /* NSViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */; };
+		EEEEFBB31F2CBC8300211520 /* AddressBookTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBB21F2CBC8300211520 /* AddressBookTests.m */; };
+		EEEEFBC01F2CBC9500211520 /* CoreLocationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBBF1F2CBC9500211520 /* CoreLocationTests.m */; };
+		EEEEFBCD1F2CBCAB00211520 /* MapKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBCC1F2CBCAB00211520 /* MapKitTests.m */; };
+		EEEEFBDA1F2CBCBF00211520 /* MessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBD91F2CBCBF00211520 /* MessageTests.m */; };
+		EEEEFBE71F2CBCD000211520 /* PDFKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBE61F2CBCD000211520 /* PDFKitTests.m */; };
+		EEEEFBF21F2CBD2700211520 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBED1F2CBD2700211520 /* ABAddressBookTest.m */; };
+		EEEEFBF31F2CBD2700211520 /* ABGroupTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBEE1F2CBD2700211520 /* ABGroupTest.m */; };
+		EEEEFBF41F2CBD2700211520 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBEF1F2CBD2700211520 /* ABPersonTest.m */; };
+		EEEEFBF51F2CBD2700211520 /* ABSearchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFBF01F2CBD2700211520 /* ABSearchTest.m */; };
+		EEEEFBF61F2CBD2700211520 /* AddressBookTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFBF11F2CBD2700211520 /* AddressBookTests.qcodeproj */; };
+		EEEEFBF81F2CBD4500211520 /* CoreLocationTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFBF71F2CBD4500211520 /* CoreLocationTests.qcodeproj */; };
+		EEEEFBFA1F2CBD4F00211520 /* MapKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFBF91F2CBD4F00211520 /* MapKitTests.qcodeproj */; };
+		EEEEFBFC1F2CBD5900211520 /* MessageTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFBFB1F2CBD5900211520 /* MessageTests.qcodeproj */; };
+		EEEEFBFE1F2CBD6300211520 /* PDFKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFBFD1F2CBD6300211520 /* PDFKitTests.qcodeproj */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,11 +89,45 @@
 			remoteGlobalIDString = EEEEFB811F2A1E1A00211520;
 			remoteInfo = AppKitTests;
 		};
+		EEEEFBFF1F2CBE0800211520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEEEFBAF1F2CBC8300211520;
+			remoteInfo = AddressBookTests;
+		};
+		EEEEFC011F2CBE0800211520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEEEFBBC1F2CBC9500211520;
+			remoteInfo = CoreLocationTests;
+		};
+		EEEEFC031F2CBE0800211520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEEEFBC91F2CBCAA00211520;
+			remoteInfo = MapKitTests;
+		};
+		EEEEFC051F2CBE0800211520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEEEFBD61F2CBCBF00211520;
+			remoteInfo = MessageTests;
+		};
+		EEEEFC071F2CBE0800211520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEEEFBE31F2CBCD000211520;
+			remoteInfo = PDFKitTests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		EE235B591F29CB3300F026E0 /* FoundationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoundationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE235B5B1F29CB3400F026E0 /* FoundationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FoundationTest.m; sourceTree = "<group>"; };
 		EE235B5D1F29CB3400F026E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
 		EE235B631F29D0EA00F026E0 /* FunctionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunctionsTest.m; sourceTree = "<group>"; };
@@ -99,7 +150,6 @@
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMutableArrayTest.m; sourceTree = "<group>"; };
 		EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEEEFB841F2A1E1B00211520 /* AppKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppKitTests.m; sourceTree = "<group>"; };
 		EEEEFB861F2A1E1B00211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
 		EEEEFB951F2A5A5400211520 /* floatspeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = floatspeed.m; sourceTree = "<group>"; };
@@ -113,6 +163,30 @@
 		EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextViewTest.m; sourceTree = "<group>"; };
 		EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewBoundsTest.m; sourceTree = "<group>"; };
 		EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewTest.m; sourceTree = "<group>"; };
+		EEEEFBB01F2CBC8300211520 /* AddressBookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEFBB21F2CBC8300211520 /* AddressBookTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddressBookTests.m; sourceTree = "<group>"; };
+		EEEEFBB41F2CBC8300211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFBBD1F2CBC9500211520 /* CoreLocationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreLocationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEFBBF1F2CBC9500211520 /* CoreLocationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoreLocationTests.m; sourceTree = "<group>"; };
+		EEEEFBC11F2CBC9500211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFBCA1F2CBCAB00211520 /* MapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEFBCC1F2CBCAB00211520 /* MapKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapKitTests.m; sourceTree = "<group>"; };
+		EEEEFBCE1F2CBCAB00211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFBD71F2CBCBF00211520 /* MessageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MessageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEFBD91F2CBCBF00211520 /* MessageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageTests.m; sourceTree = "<group>"; };
+		EEEEFBDB1F2CBCBF00211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFBE41F2CBCD000211520 /* PDFKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEFBE61F2CBCD000211520 /* PDFKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDFKitTests.m; sourceTree = "<group>"; };
+		EEEEFBE81F2CBCD000211520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEEEFBED1F2CBD2700211520 /* ABAddressBookTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABAddressBookTest.m; sourceTree = "<group>"; };
+		EEEEFBEE1F2CBD2700211520 /* ABGroupTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABGroupTest.m; sourceTree = "<group>"; };
+		EEEEFBEF1F2CBD2700211520 /* ABPersonTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABPersonTest.m; sourceTree = "<group>"; };
+		EEEEFBF01F2CBD2700211520 /* ABSearchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABSearchTest.m; sourceTree = "<group>"; };
+		EEEEFBF11F2CBD2700211520 /* AddressBookTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AddressBookTests.qcodeproj; sourceTree = "<group>"; };
+		EEEEFBF71F2CBD4500211520 /* CoreLocationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreLocationTests.qcodeproj; sourceTree = "<group>"; };
+		EEEEFBF91F2CBD4F00211520 /* MapKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MapKitTests.qcodeproj; sourceTree = "<group>"; };
+		EEEEFBFB1F2CBD5900211520 /* MessageTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MessageTests.qcodeproj; sourceTree = "<group>"; };
+		EEEEFBFD1F2CBD6300211520 /* PDFKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = PDFKitTests.qcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +204,41 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEEEFBAD1F2CBC8300211520 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBBA1F2CBC9500211520 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBC71F2CBCAA00211520 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBD41F2CBCBF00211520 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBE11F2CBCD000211520 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -139,6 +248,11 @@
 				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
 				EE235B5A1F29CB3400F026E0 /* FoundationTests */,
 				EEEEFB831F2A1E1B00211520 /* AppKitTests */,
+				EEEEFBB11F2CBC8300211520 /* AddressBookTests */,
+				EEEEFBBE1F2CBC9500211520 /* CoreLocationTests */,
+				EEEEFBCB1F2CBCAB00211520 /* MapKitTests */,
+				EEEEFBD81F2CBCBF00211520 /* MessageTests */,
+				EEEEFBE51F2CBCD000211520 /* PDFKitTests */,
 				EE29D8D8058A38830035639B /* Products */,
 			);
 			name = BrowserTester;
@@ -147,7 +261,6 @@
 		EE235B5A1F29CB3400F026E0 /* FoundationTests */ = {
 			isa = PBXGroup;
 			children = (
-				EE235B5B1F29CB3400F026E0 /* FoundationTest.m */,
 				EE235B621F29D0EA00F026E0 /* FoundationTests.qcodeproj */,
 				EE235B631F29D0EA00F026E0 /* FunctionsTest.m */,
 				EE235B641F29D0EA00F026E0 /* NSAffineTransformTest.m */,
@@ -177,6 +290,11 @@
 			children = (
 				EE235B591F29CB3300F026E0 /* FoundationTests.xctest */,
 				EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */,
+				EEEEFBB01F2CBC8300211520 /* AddressBookTests.xctest */,
+				EEEEFBBD1F2CBC9500211520 /* CoreLocationTests.xctest */,
+				EEEEFBCA1F2CBCAB00211520 /* MapKitTests.xctest */,
+				EEEEFBD71F2CBCBF00211520 /* MessageTests.xctest */,
+				EEEEFBE41F2CBCD000211520 /* PDFKitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -184,7 +302,6 @@
 		EEEEFB831F2A1E1B00211520 /* AppKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				EEEEFB841F2A1E1B00211520 /* AppKitTests.m */,
 				EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */,
 				EEEEFB951F2A5A5400211520 /* floatspeed.m */,
 				EEEEFB961F2A5A5400211520 /* NSFontDescriptorTest.m */,
@@ -200,6 +317,60 @@
 				EEEEFB861F2A1E1B00211520 /* Info.plist */,
 			);
 			path = AppKitTests;
+			sourceTree = "<group>";
+		};
+		EEEEFBB11F2CBC8300211520 /* AddressBookTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEEEFBED1F2CBD2700211520 /* ABAddressBookTest.m */,
+				EEEEFBEE1F2CBD2700211520 /* ABGroupTest.m */,
+				EEEEFBEF1F2CBD2700211520 /* ABPersonTest.m */,
+				EEEEFBF01F2CBD2700211520 /* ABSearchTest.m */,
+				EEEEFBF11F2CBD2700211520 /* AddressBookTests.qcodeproj */,
+				EEEEFBB21F2CBC8300211520 /* AddressBookTests.m */,
+				EEEEFBB41F2CBC8300211520 /* Info.plist */,
+			);
+			path = AddressBookTests;
+			sourceTree = "<group>";
+		};
+		EEEEFBBE1F2CBC9500211520 /* CoreLocationTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEEEFBBF1F2CBC9500211520 /* CoreLocationTests.m */,
+				EEEEFBF71F2CBD4500211520 /* CoreLocationTests.qcodeproj */,
+				EEEEFBC11F2CBC9500211520 /* Info.plist */,
+			);
+			path = CoreLocationTests;
+			sourceTree = "<group>";
+		};
+		EEEEFBCB1F2CBCAB00211520 /* MapKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEEEFBCC1F2CBCAB00211520 /* MapKitTests.m */,
+				EEEEFBF91F2CBD4F00211520 /* MapKitTests.qcodeproj */,
+				EEEEFBCE1F2CBCAB00211520 /* Info.plist */,
+			);
+			path = MapKitTests;
+			sourceTree = "<group>";
+		};
+		EEEEFBD81F2CBCBF00211520 /* MessageTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEEEFBD91F2CBCBF00211520 /* MessageTests.m */,
+				EEEEFBFB1F2CBD5900211520 /* MessageTests.qcodeproj */,
+				EEEEFBDB1F2CBCBF00211520 /* Info.plist */,
+			);
+			path = MessageTests;
+			sourceTree = "<group>";
+		};
+		EEEEFBE51F2CBCD000211520 /* PDFKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEEEFBE61F2CBCD000211520 /* PDFKitTests.m */,
+				EEEEFBFD1F2CBD6300211520 /* PDFKitTests.qcodeproj */,
+				EEEEFBE81F2CBCD000211520 /* Info.plist */,
+			);
+			path = PDFKitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -239,6 +410,91 @@
 			productReference = EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		EEEEFBAF1F2CBC8300211520 /* AddressBookTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEFBB51F2CBC8300211520 /* Build configuration list for PBXNativeTarget "AddressBookTests" */;
+			buildPhases = (
+				EEEEFBAC1F2CBC8300211520 /* Sources */,
+				EEEEFBAD1F2CBC8300211520 /* Frameworks */,
+				EEEEFBAE1F2CBC8300211520 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AddressBookTests;
+			productName = AddressBookTests;
+			productReference = EEEEFBB01F2CBC8300211520 /* AddressBookTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EEEEFBBC1F2CBC9500211520 /* CoreLocationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEFBC21F2CBC9500211520 /* Build configuration list for PBXNativeTarget "CoreLocationTests" */;
+			buildPhases = (
+				EEEEFBB91F2CBC9500211520 /* Sources */,
+				EEEEFBBA1F2CBC9500211520 /* Frameworks */,
+				EEEEFBBB1F2CBC9500211520 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoreLocationTests;
+			productName = CoreLocationTests;
+			productReference = EEEEFBBD1F2CBC9500211520 /* CoreLocationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EEEEFBC91F2CBCAA00211520 /* MapKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEFBCF1F2CBCAB00211520 /* Build configuration list for PBXNativeTarget "MapKitTests" */;
+			buildPhases = (
+				EEEEFBC61F2CBCAA00211520 /* Sources */,
+				EEEEFBC71F2CBCAA00211520 /* Frameworks */,
+				EEEEFBC81F2CBCAA00211520 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MapKitTests;
+			productName = MapKitTests;
+			productReference = EEEEFBCA1F2CBCAB00211520 /* MapKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EEEEFBD61F2CBCBF00211520 /* MessageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEFBDC1F2CBCBF00211520 /* Build configuration list for PBXNativeTarget "MessageTests" */;
+			buildPhases = (
+				EEEEFBD31F2CBCBF00211520 /* Sources */,
+				EEEEFBD41F2CBCBF00211520 /* Frameworks */,
+				EEEEFBD51F2CBCBF00211520 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MessageTests;
+			productName = MessageTests;
+			productReference = EEEEFBD71F2CBCBF00211520 /* MessageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EEEEFBE31F2CBCD000211520 /* PDFKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEFBE91F2CBCD000211520 /* Build configuration list for PBXNativeTarget "PDFKitTests" */;
+			buildPhases = (
+				EEEEFBE01F2CBCD000211520 /* Sources */,
+				EEEEFBE11F2CBCD000211520 /* Frameworks */,
+				EEEEFBE21F2CBCD000211520 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PDFKitTests;
+			productName = PDFKitTests;
+			productReference = EEEEFBE41F2CBCD000211520 /* PDFKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -260,6 +516,26 @@
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
 					};
+					EEEEFBAF1F2CBC8300211520 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					EEEEFBBC1F2CBC9500211520 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					EEEEFBC91F2CBCAA00211520 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					EEEEFBD61F2CBCBF00211520 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					EEEEFBE31F2CBCD000211520 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */;
@@ -277,9 +553,14 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				EEEEFB8B1F2A1E7300211520 /* UnitTests */,
 				EE235B581F29CB3300F026E0 /* FoundationTests */,
 				EEEEFB811F2A1E1A00211520 /* AppKitTests */,
-				EEEEFB8B1F2A1E7300211520 /* UnitTests */,
+				EEEEFBAF1F2CBC8300211520 /* AddressBookTests */,
+				EEEEFBBC1F2CBC9500211520 /* CoreLocationTests */,
+				EEEEFBC91F2CBCAA00211520 /* MapKitTests */,
+				EEEEFBD61F2CBCBF00211520 /* MessageTests */,
+				EEEEFBE31F2CBCD000211520 /* PDFKitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -301,6 +582,46 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEEEFBAE1F2CBC8300211520 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBF61F2CBD2700211520 /* AddressBookTests.qcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBBB1F2CBC9500211520 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBF81F2CBD4500211520 /* CoreLocationTests.qcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBC81F2CBCAA00211520 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBFA1F2CBD4F00211520 /* MapKitTests.qcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBD51F2CBCBF00211520 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBFC1F2CBD5900211520 /* MessageTests.qcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBE21F2CBCD000211520 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBFE1F2CBD6300211520 /* PDFKitTests.qcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -309,7 +630,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */,
-				EE235B5C1F29CB3400F026E0 /* FoundationTest.m in Sources */,
 				EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */,
 				EE235B751F29D0EA00F026E0 /* FunctionsTest.m in Sources */,
 				EE235B7C1F29D0EA00F026E0 /* NSHTTPCookieTest.m in Sources */,
@@ -343,9 +663,52 @@
 				EEEEFBA51F2A5A5400211520 /* NSStringDrawingTest.m in Sources */,
 				EEEEFBA61F2A5A5400211520 /* NSTextContainerTest.m in Sources */,
 				EEEEFBA21F2A5A5400211520 /* NSFontDescriptorTest.m in Sources */,
-				EEEEFB851F2A1E1B00211520 /* AppKitTests.m in Sources */,
 				EEEEFBA31F2A5A5400211520 /* NSFontTest.m in Sources */,
 				EEEEFBA81F2A5A5400211520 /* NSTextStorageTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBAC1F2CBC8300211520 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBF51F2CBD2700211520 /* ABSearchTest.m in Sources */,
+				EEEEFBF21F2CBD2700211520 /* ABAddressBookTest.m in Sources */,
+				EEEEFBB31F2CBC8300211520 /* AddressBookTests.m in Sources */,
+				EEEEFBF31F2CBD2700211520 /* ABGroupTest.m in Sources */,
+				EEEEFBF41F2CBD2700211520 /* ABPersonTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBB91F2CBC9500211520 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBC01F2CBC9500211520 /* CoreLocationTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBC61F2CBCAA00211520 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBCD1F2CBCAB00211520 /* MapKitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBD31F2CBCBF00211520 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBDA1F2CBCBF00211520 /* MessageTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEFBE01F2CBCD000211520 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEEEFBE71F2CBCD000211520 /* PDFKitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +724,31 @@
 			isa = PBXTargetDependency;
 			target = EEEEFB811F2A1E1A00211520 /* AppKitTests */;
 			targetProxy = EEEEFB921F2A1E8200211520 /* PBXContainerItemProxy */;
+		};
+		EEEEFC001F2CBE0800211520 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEEEFBAF1F2CBC8300211520 /* AddressBookTests */;
+			targetProxy = EEEEFBFF1F2CBE0800211520 /* PBXContainerItemProxy */;
+		};
+		EEEEFC021F2CBE0800211520 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEEEFBBC1F2CBC9500211520 /* CoreLocationTests */;
+			targetProxy = EEEEFC011F2CBE0800211520 /* PBXContainerItemProxy */;
+		};
+		EEEEFC041F2CBE0800211520 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEEEFBC91F2CBCAA00211520 /* MapKitTests */;
+			targetProxy = EEEEFC031F2CBE0800211520 /* PBXContainerItemProxy */;
+		};
+		EEEEFC061F2CBE0800211520 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEEEFBD61F2CBCBF00211520 /* MessageTests */;
+			targetProxy = EEEEFC051F2CBE0800211520 /* PBXContainerItemProxy */;
+		};
+		EEEEFC081F2CBE0800211520 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEEEFBE31F2CBCD000211520 /* PDFKitTests */;
+			targetProxy = EEEEFC071F2CBE0800211520 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -711,6 +1099,731 @@
 			};
 			name = Default;
 		};
+		EEEEFBB61F2CBC8300211520 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = AddressBookTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.AddressBookTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEEEFBB71F2CBC8300211520 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = AddressBookTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.AddressBookTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEEEFBB81F2CBC8300211520 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = AddressBookTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.AddressBookTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
+		EEEEFBC31F2CBC9500211520 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = CoreLocationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.CoreLocationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEEEFBC41F2CBC9500211520 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = CoreLocationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.CoreLocationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEEEFBC51F2CBC9500211520 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = CoreLocationTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.CoreLocationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
+		EEEEFBD01F2CBCAB00211520 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MapKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEEEFBD11F2CBCAB00211520 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MapKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEEEFBD21F2CBCAB00211520 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MapKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MapKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
+		EEEEFBDD1F2CBCBF00211520 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MessageTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MessageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEEEFBDE1F2CBCBF00211520 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MessageTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MessageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEEEFBDF1F2CBCBF00211520 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = MessageTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.MessageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
+		EEEEFBEA1F2CBCD000211520 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = PDFKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.PDFKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		EEEEFBEB1F2CBCD000211520 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = PDFKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.PDFKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		EEEEFBEC1F2CBCD000211520 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = PDFKitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goldelico.PDFKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -742,6 +1855,7 @@
 				EEEEFB8A1F2A1E1B00211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEEEFB8C1F2A1E7300211520 /* Build configuration list for PBXAggregateTarget "UnitTests" */ = {
 			isa = XCConfigurationList;
@@ -749,6 +1863,52 @@
 				EEEEFB8D1F2A1E7300211520 /* Development */,
 				EEEEFB8E1F2A1E7300211520 /* Deployment */,
 				EEEEFB8F1F2A1E7300211520 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEEEFBB51F2CBC8300211520 /* Build configuration list for PBXNativeTarget "AddressBookTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEFBB61F2CBC8300211520 /* Development */,
+				EEEEFBB71F2CBC8300211520 /* Deployment */,
+				EEEEFBB81F2CBC8300211520 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		EEEEFBC21F2CBC9500211520 /* Build configuration list for PBXNativeTarget "CoreLocationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEFBC31F2CBC9500211520 /* Development */,
+				EEEEFBC41F2CBC9500211520 /* Deployment */,
+				EEEEFBC51F2CBC9500211520 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		EEEEFBCF1F2CBCAB00211520 /* Build configuration list for PBXNativeTarget "MapKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEFBD01F2CBCAB00211520 /* Development */,
+				EEEEFBD11F2CBCAB00211520 /* Deployment */,
+				EEEEFBD21F2CBCAB00211520 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		EEEEFBDC1F2CBCBF00211520 /* Build configuration list for PBXNativeTarget "MessageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEFBDD1F2CBCBF00211520 /* Development */,
+				EEEEFBDE1F2CBCBF00211520 /* Deployment */,
+				EEEEFBDF1F2CBCBF00211520 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		EEEEFBE91F2CBCD000211520 /* Build configuration list for PBXNativeTarget "PDFKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEFBEA1F2CBCD000211520 /* Development */,
+				EEEEFBEB1F2CBCD000211520 /* Deployment */,
+				EEEEFBEC1F2CBCD000211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
