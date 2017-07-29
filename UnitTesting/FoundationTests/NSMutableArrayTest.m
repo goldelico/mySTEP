@@ -1,30 +1,25 @@
 //
-//  NSAffineTransformTest.m
+//  NSMutableArrayTest.m
 //  UnitTests
 //
-//  Created by H. Nikolaus Schaller on 07.03.13.
+//  Created by H. Nikolaus Schaller on 27.07.17.
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
 
 
-@interface NSAffineTransformTest : XCTestCase {
-	NSAffineTransform *t;
+@interface NSMutableArrayTest : XCTestCase {
+	NSMutableArray *t;
 }
 
 @end
 
-// FIXME: apply withAccuracy to comparing NSPoints and NSSize!
-
-#define XCTAssertEqualPointsWithAccuracy(p1, p2, acc, msg) XCTAssertEqualWithAccuracy(p1.x, p2.x, acc, msg); XCTAssertEqualWithAccuracy(p1.y, p2.y, acc, msg);
-#define XCTAssertEqualSizesWithAccuracy(s1, s2, acc, msg) XCTAssertEqualWithAccuracy(s1.width, s2.width, acc, msg); XCTAssertEqualWithAccuracy(s1.height, s2.height, acc, msg);
-
-@implementation NSAffineTransformTest
+@implementation NSMutableArrayTest
 
 - (void) setUp
 {
-	t=[[NSAffineTransform alloc] init];	// create unit matrix
+	t=[[NSMutableArray alloc] init];
 	XCTAssertNotNil(t, @"");
 }
 
@@ -35,208 +30,61 @@
 
 - (void) test01
 {
-	NSAffineTransformStruct ts;
-	ts=[t transformStruct];
-	XCTAssertEqual(ts.m11, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m22, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 0.0, @"");
+	XCTAssertEqual([t count], 0, @"");
+	XCTAssertThrowsSpecific([t removeObjectsAtIndexes:nil], NSException);
+	XCTAssertThrowsSpecific([t insertObjects:t atIndexes:nil], NSException);
+	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSetWithIndex:1];
+	XCTAssertThrowsSpecific([t insertObjects:nil atIndexes:indexes], NSException);
+	XCTAssertThrowsSpecific([t objectsAtIndexes:nil], NSException);
 }
 
 - (void) test02
-{
-	NSAffineTransformStruct ts;
-	[t translateXBy:5.0 yBy:7.0];
-	ts=[t transformStruct];
-	XCTAssertEqual(ts.m11, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m22, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 5.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 7.0, @"");
+{ // indexes are as before removeObjectsAtIndexes begins
+	// like at https://developer.apple.com/documentation/foundation/nsmutablearray/1410154-removeobjectsatindexes
+	NSMutableArray *has=[NSMutableArray arrayWithObjects: @"one", @"a", @"two", @"b", @"three", @"four", nil];
+	NSMutableIndexSet *idx=[NSMutableIndexSet indexSetWithIndex:1];
+	NSArray *wants;
+	[idx addIndex:3];
+	[has removeObjectsAtIndexes:idx];
+	wants=[NSArray arrayWithObjects: @"one", @"two", @"three", @"four", nil];
+	XCTAssertEqualObjects(has, wants, @"has: %@", has);
 }
 
 - (void) test03
-{
-	NSAffineTransformStruct ts;
-	[t rotateByDegrees:30.0];
-	ts=[t transformStruct];
-	XCTAssertEqualWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.5, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) -0.5, @"");
-	XCTAssertEqualWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 0.0, @"");
+{ // indexes are after inserting previous indexes
+  // like https://developer.apple.com/documentation/foundation/nsmutablearray/1416482-insertobjects
+	NSMutableArray *has=[NSMutableArray arrayWithObjects: @"one", @"two", @"three", @"four", nil];
+	NSArray *add=[NSArray arrayWithObjects: @"a", @"b", nil];
+	NSArray *wants;
+	NSMutableIndexSet *idx=[NSMutableIndexSet indexSetWithIndex:1];
+	[idx addIndex:3];
+	[has insertObjects:add atIndexes:idx];
+	wants=[NSArray arrayWithObjects: @"one", @"a", @"two", @"b", @"three", @"four", nil];
+	XCTAssertEqualObjects(has, wants, @"has: %@", has);
 }
 
 - (void) test04
-{
-	NSAffineTransformStruct ts;
-	[t translateXBy:5.0 yBy:7.0];
-	[t rotateByDegrees:30.0];
-	ts=[t transformStruct];
-	XCTAssertEqualWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.5, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) -0.5, @"");
-	XCTAssertEqualWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 5.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 7.0, @"");
+{ // indexes may all append to end
+  // like https://developer.apple.com/documentation/foundation/nsmutablearray/1416482-insertobjects
+	NSMutableArray *has=[NSMutableArray arrayWithObjects: @"one", @"two", @"three", @"four", nil];
+	NSArray *add=[NSArray arrayWithObjects: @"a", @"b", nil];
+	NSArray *wants;
+	NSMutableIndexSet *idx=[NSMutableIndexSet indexSetWithIndex:5];
+	[idx addIndex:4];
+	[has insertObjects:add atIndexes:idx];
+	wants=[NSArray arrayWithObjects: @"one", @"two", @"three", @"four", @"a", @"b", nil];
+	XCTAssertEqualObjects(has, wants, @"has: %@", has);
 }
 
 - (void) test05
 {
-	NSAffineTransformStruct ts;
-	[t rotateByDegrees:30.0];
-	[t translateXBy:5.0 yBy:7.0];
-	ts=[t transformStruct];
-	XCTAssertEqualWithAccuracy(ts.m11, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.5, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) -0.5, @"");
-	XCTAssertEqualWithAccuracy(ts.m22, (CGFloat) 0.8660254, 2e-6, @"");
-	XCTAssertEqualWithAccuracy(ts.tX, (CGFloat) 0.830127, 2e-6, @"");
-	XCTAssertEqualWithAccuracy(ts.tY, (CGFloat) 8.562178, 2e-6, @"");
-}
-
-- (void) test10
-{
-	NSPoint pt;
-	[t rotateByDegrees:30.0];
-	[t translateXBy:5.0 yBy:7.0];
-	pt=[t transformPoint:NSMakePoint(10.0, 15.0)];
-	XCTAssertEqualPointsWithAccuracy(pt, NSMakePoint(1.99038, 26.552559), 2e-6, @"");
-}
-
-- (void) test11
-{
-	NSSize sz;
-	[t rotateByDegrees:30.0];
-	[t translateXBy:5.0 yBy:7.0];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(4.820507, 31.650635), 2e-6, @"");
-}
-
-- (void) test12
-{
-	NSPoint pt;
-	[t rotateByDegrees:30.0+180.0];
-	[t translateXBy:5.0 yBy:7.0];
-	pt=[t transformPoint:NSMakePoint(10.0, 15.0)];
-	XCTAssertEqualPointsWithAccuracy(pt, NSMakePoint(-1.99038, -26.552559), 2e-6, @"");
-}
-
-- (void) test13
-{
-	NSSize sz;
-	[t rotateByDegrees:30.0+180];
-	[t translateXBy:5.0 yBy:7.0];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820508, -31.650635), 2e-6, @"");
-}
-
-- (void) test20
-{
-	NSSize sz;
-	[t scaleXBy:2.0 yBy:-3.0];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(40.0, -75.0), 2e-6, @"");
-}
-
-- (void) test30
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t rotateByDegrees:180.0];
-	[t appendTransform:t2];
-	[t translateXBy:5.0 yBy:7.0];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test31
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t rotateByDegrees:180.0];
-	[t translateXBy:5.0 yBy:7.0];
-	[t appendTransform:t2];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test32
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t rotateByDegrees:180.0];
-	[t prependTransform:t2];
-	[t translateXBy:5.0 yBy:7.0];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test33
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t rotateByDegrees:180.0];
-	[t translateXBy:5.0 yBy:7.0];
-	[t prependTransform:t2];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test34
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t2 translateXBy:5.0 yBy:7.0];
-	[t rotateByDegrees:180.0];
-	[t prependTransform:t2];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test35
-{
-	NSSize sz;
-	NSAffineTransform *t2=[[NSAffineTransform new] autorelease];
-	[t2 rotateByDegrees:30.0];
-	[t2 translateXBy:5.0 yBy:7.0];
-	[t rotateByDegrees:180.0];
-	[t appendTransform:t2];
-	sz=[t transformSize:NSMakeSize(20.0, 25.0)];
-	XCTAssertEqualSizesWithAccuracy(sz, NSMakeSize(-4.820505, -31.650635), 4e-6, @"");
-}
-
-- (void) test40
-{
-	NSPoint pt;
-	[t rotateByDegrees:30.0];
-	[t translateXBy:5.0 yBy:7.0];
-	[t invert];
-	pt=[t transformPoint:NSMakePoint(1.99038, 26.5526)];
-	XCTAssertEqualPointsWithAccuracy(pt, NSMakePoint(10.000021, 15.000036), 2e-6, @"");
-}
-
-- (void) test41
-{
-	NSAffineTransformStruct ts;
-	[t scaleBy:0.0];
-	ts=[t transformStruct];
-	XCTAssertEqual(ts.m11, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m22, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 0.0, @"");
-	XCTAssertThrowsSpecific([t invert], NSException, @"");
+	NSMutableArray *has=[NSMutableArray arrayWithObjects: @"one", @"two", @"three", @"four", nil];
+	NSArray *gets, *wants;
+	NSMutableIndexSet *idx=[NSMutableIndexSet indexSetWithIndex:1];
+	[idx addIndex:3];
+	gets=[has objectsAtIndexes:idx];
+	wants=[NSArray arrayWithObjects: @"two", @"four", nil];
+	XCTAssertEqualObjects(gets, wants, @"has: %@", gets);
 }
 
 @end
