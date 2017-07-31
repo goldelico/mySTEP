@@ -5,12 +5,12 @@ export DEBIAN_DEPENDS+=", quantumstep-addressbook-framework"
 export FRAMEWORKS="SenTestingKit"
 export FRAMEWORKS+=" AddressBook"
 export INSTALL_PATH="/Library/UnitTests"
-export PRODUCT_NAME="AddressBook"
+export PRODUCT_NAME="AddressBookTests"
 export SOURCES="ABAddressBookTest.m"
 export SOURCES+=" ABGroupTest.m"
 export SOURCES+=" ABPersonTest.m"
 export SOURCES+=" ABSearchTest.m"
-export WRAPPER_EXTENSION="octest"
+export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

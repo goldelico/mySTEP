@@ -15,7 +15,9 @@ export SOURCES+=" NSTextStorageTest.m"
 export SOURCES+=" NSTextViewTest.m"
 export SOURCES+=" NSViewBoundsTest.m"
 export SOURCES+=" floatspeed.m"
+export SOURCES+=" Info.plist"
+export SOURCES+=" NSViewTest.m"
 export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

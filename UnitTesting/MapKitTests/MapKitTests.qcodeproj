@@ -5,9 +5,11 @@ export DEBIAN_DEPENDS+=", quantumstep-mapkit-framework"
 export FRAMEWORKS="SenTestingKit"
 export FRAMEWORKS+=" MapKit"
 export INSTALL_PATH="/Library/UnitTests"
-export PRODUCT_NAME="MapKit"
+export PRODUCT_NAME="MapKitTests"
 export ROOT="/usr/local/QuantumSTEP"
-export WRAPPER_EXTENSION="octest"
+export SOURCES="MapKitTests.m"
+export SOURCES+=" Info.plist"
+export WRAPPER_EXTENSION="xctest"
 
 #exit
 
@@ -37,4 +39,4 @@ export WRAPPER_EXTENSION="octest"
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
