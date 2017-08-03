@@ -19,23 +19,23 @@
 
 - (void) setUp
 {
-	t=[[NSMutableArray alloc] init];
-	XCTAssertNotNil(t, @"");
 }
 
 - (void) tearDown
 {
-	[t release];
 }
 
 - (void) test01
 {
-	XCTAssertEqual([t count], 0, @"");
-	XCTAssertThrowsSpecific([t removeObjectsAtIndexes:nil], NSException);
-	XCTAssertThrowsSpecific([t insertObjects:t atIndexes:nil], NSException);
-	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSetWithIndex:1];
-	XCTAssertThrowsSpecific([t insertObjects:nil atIndexes:indexes], NSException);
-	XCTAssertThrowsSpecific([t objectsAtIndexes:nil], NSException);
+	NSMutableArray *has=[NSMutableArray array];
+	XCTAssertNotNil(has, @"");
+	XCTAssertEqual([has count], 0, @"");
+	XCTAssertThrowsSpecific([has removeObjectsAtIndexes:nil], NSException);
+	XCTAssertThrowsSpecific([has insertObjects:t atIndexes:nil], NSException);
+	NSMutableIndexSet *idx=[NSMutableIndexSet indexSetWithIndex:1];
+	XCTAssertThrowsSpecific([has insertObjects:nil atIndexes:idx], NSException);
+	// FIXME: this is a method of NSArray and not NSMutableArray...
+	XCTAssertThrowsSpecific([has objectsAtIndexes:nil], NSException);
 }
 
 - (void) test02
