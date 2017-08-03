@@ -484,8 +484,15 @@ _NSLog("sendAction $action to first responder");
 			// header("Cache-Control: pre-check=$ttl", false);	// IE5...
 			if($_SERVER['REQUEST_METHOD'] == "GET")
 				{ // emit requested contents to browser (otherwise we do not need to read+echo the file)
-				$file=$fm->contentsAtPath($path);
-				echo $file;
+				if(true)
+					{ // should be faster
+					@readfile($fm->fileSystemRepresentationWithPath($path));
+					}
+				else
+					{
+					$file=$fm->contentsAtPath($path);
+					echo $file;
+					}
 				}
 			exit;
 			}
