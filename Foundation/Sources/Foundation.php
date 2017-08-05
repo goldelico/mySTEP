@@ -2,19 +2,22 @@
 
 	/*
 	 * Foundation.framework
-	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
+	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2017
 	 * All rights reserved.
 	 */
 
 	/*
-	 * design principle
-	 * resemble Cocoa classes (exceptions: arrays and strings)
-	 * - (type) method:(type) arg1 text:(type) arg2  ->  public function methodText($arg1, $arg2)
-	 * + (type) method:(type) arg1 text:(type) arg2  ->  public static function methodText($arg1, $arg2)
-	 * [object method:p1 text:p2] ->  $object->methodText($1, $2)
-	 * [Class method:p1 text:p2] ->  Class::methodText($1, $2)
+	 * design principle:
+	 * resemble Cocoa classes (exceptions: arrays and strings but this will come)
+	 *
+	 * - (type) method ->  public function method()
+	 * - (type) method:(type) arg1  ->  public function method($arg1)
+	 * - (type) method:(type) arg1 arg:(type) arg2  ->  public function methodArg($arg1, $arg2)
+	 * + (type) method:(type) arg1 arg:(type) arg2  ->  public static function methodArg($arg1, $arg2)
+	 * [object method:p1 arg:p2] ->  $object->methodArg($1, $2)
+	 * [Class method:p1 arg:p2] ->  Class::methodArg($1, $2)
 	 * iVar ->  $this->iVar
-	 * [Class alloc] -> new Class --- but don't use! Use factory class methods
+	 * [Class alloc] -> new Class
 	 */
 
 // global $ROOT must be set by some application
@@ -389,6 +392,7 @@ class NSInvocation extends NSObject
 
 class NSPropertyListSerialization extends NSObject
 	{
+	protected static $plists;
 	public function __construct()
 		{
 		parent::__construct();
@@ -425,16 +429,23 @@ class NSPropertyListSerialization extends NSObject
 		}
 	public static function _propertyListFromPath($filename)
 		{
+// FIXME: potentially use a cache on disk shared between PHP apps?
+		if(isset(self::$plists) && isset(self::$plists[$filename]))
+			return self::$plists[$filename];	// get from cache
 		NSLog("$filename =>");
 		$xml=@simplexml_load_file($filename);
 		if($xml === false)
 			return null;
-		return self::readPropertyListElementFromElement($xml);
+		$pl=self::readPropertyListElementFromElement($xml);
+		if(!isset(self::$plists))
+			self::$plists=array();
+		self::$plists[$filename]=$pl;	// store in cache
+		return $pl;
 		}
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
-		return self::_propertyListFromPath($filename);
+		return self::_propertyListFromPath($filename);	// process file
 		}
 	private static function writePropertyListElementToFile(NSObject $element, $file)
 		{
