@@ -10,25 +10,38 @@
  * sendEvent and mouseDown are called when button is clicked or something modified
  */
 
-// FIXME: make this configurabe (how?)
-// through User-Defaults? Or should the web site be configured???
+global $ROOT;	// must be set by some .app
 
-if(false && $_SERVER['SERVER_PORT'] != 443)
-{ // try to reload page as https
-	if($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
-		header("location: https://".$_SERVER['HTTP_HOST']."/");
-	else
-		header("location: https://".$_SERVER['HTTP_HOST']."/".$_SERVER['REQUEST_URI']);
-	exit;
+require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
+if($_SERVER['SERVER_PORT'] != 443)
+{ // reload page as https
+	$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
+// _NSLog($plist);
+	if($plist)
+		{
+		$servers=$plist['server-setup'];	// get mapping pairs
+		$https="https://".$_SERVER['HTTP_HOST'];	// how it would look like with https
+		foreach($servers as $server)
+			{
+// _NSLog($server);
+			if($server['web'] === $https)	// external root URL
+				{
+//				_NSLog("$https found"); // https found
+				if($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
+					header("location: https://".$_SERVER['HTTP_HOST']."/");
+				else
+					header("location: https://".$_SERVER['HTTP_HOST']."/".$_SERVER['REQUEST_URI']);
+				exit;
+				}
+			}
+		}
 }
+
+require_once "$ROOT/Internal/Frameworks/UserManager.framework/Versions/Current/php/UserManager.php";
 
 const NSOnState=1;
 const NSOffState=0;
 const NSMixedState=-1;
-
-global $ROOT;	// must be set by some .app
-require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
-require_once "$ROOT/Internal/Frameworks/UserManager.framework/Versions/Current/php/UserManager.php";
 
 const NSLeftAlignment="left";
 const NSCenterAlignment="center";
@@ -2978,6 +2991,7 @@ _NSLog($exts);
 				foreach($paths as $path)
 					{
 // _NSLog("path: $path");
+// FIXME: prefer https over http!
 					if(!$shortest || strlen($path) < strlen($shortest))
 						$shortest=$path;
 					}
