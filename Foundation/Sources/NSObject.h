@@ -46,8 +46,6 @@
 - (Class) superclass;
 - (NSZone *) zone;
 
-- (id) _nimp:(SEL) cmd;
-
 @end
 
 @protocol NSCopying
@@ -126,10 +124,12 @@ typedef enum _NSComparisonResult
 
 enum { NSNotFound = NSIntegerMax };
 
+#if 0
 @interface NSObject (Miscellaneous)
 - (id) _subclass:(SEL) cmd;
-- (id) _error:(const char *)aString, ...;
+- (id) _nimp:(SEL) cmd;
 @end
+#endif
 
 #if 0
 @interface NSObject (Old)

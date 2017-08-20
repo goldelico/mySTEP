@@ -238,7 +238,8 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 + (void) setVersion:(NSInteger)aVersion
 {
 	if(aVersion < 0)
-		[self _error:"%s +setVersion: may not set a negative version", class_getName(self)];
+		[NSException raise:NSInvalidArgumentException
+					format:@"%s +setVersion: may not set a negative version", class_getName(self)];
 	class_setVersion(self, aVersion);
 }
 
@@ -513,7 +514,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
+		[NSException raise:NSInvalidArgumentException
+					format:@"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector);
 }
@@ -523,7 +525,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
+		[NSException raise:NSInvalidArgumentException
+					format:@"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, anObject);
 }
@@ -533,7 +536,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s", sel_getName(_cmd)];
+		[NSException raise:NSInvalidArgumentException
+					format:@"invalid selector passed to %s", sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, object1, object2);
 }

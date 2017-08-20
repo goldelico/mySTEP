@@ -102,7 +102,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 #endif
 //		NSLog(@"IMP = %p", msg);
 		if (!msg)
-			return [self _error:"unknown getter %s", sel_getName(s)];
+			[NSException raise:NSInvalidArgumentException
+						format:@"unknown getter %s", sel_getName(s)];
 		}
 	else if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
