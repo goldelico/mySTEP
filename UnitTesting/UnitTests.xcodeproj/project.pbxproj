@@ -45,6 +45,7 @@
 		EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B711F29D0EA00F026E0 /* NSStringTest.m */; };
 		EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B721F29D0EA00F026E0 /* NSURLTest.m */; };
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
+		EE65D7351F4A0F8A00B72355 /* NSKVCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */; };
 		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
 		EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */; };
 		EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB951F2A5A5400211520 /* floatspeed.m */; };
@@ -147,6 +148,7 @@
 		EE235B711F29D0EA00F026E0 /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
 		EE235B721F29D0EA00F026E0 /* NSURLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSURLTest.m; sourceTree = "<group>"; };
 		EE235B731F29D0EA00F026E0 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
+		EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSKVCTest.m; sourceTree = "<group>"; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMutableArrayTest.m; sourceTree = "<group>"; };
 		EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -271,6 +273,7 @@
 				EE235B691F29D0EA00F026E0 /* NSDistantObjectTest.m */,
 				EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */,
 				EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */,
+				EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */,
 				EE235B6C1F29D0EA00F026E0 /* NSMethodSignatureTest.m */,
 				EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */,
 				EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */,
@@ -638,6 +641,7 @@
 				EE235B7A1F29D0EA00F026E0 /* NSConnectionTest.m in Sources */,
 				EE235B841F29D0EA00F026E0 /* NSURLTest.m in Sources */,
 				EE235B791F29D0EA00F026E0 /* NSByteSwappingTest.m in Sources */,
+				EE65D7351F4A0F8A00B72355 /* NSKVCTest.m in Sources */,
 				EE235B761F29D0EA00F026E0 /* NSAffineTransformTest.m in Sources */,
 				EE235B771F29D0EA00F026E0 /* NSAttributedStringTest.m in Sources */,
 				EE235B7D1F29D0EA00F026E0 /* NSInvocationTest.m in Sources */,
@@ -1875,6 +1879,7 @@
 				EEEEFBB81F2CBC8300211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEEEFBC21F2CBC9500211520 /* Build configuration list for PBXNativeTarget "CoreLocationTests" */ = {
 			isa = XCConfigurationList;
@@ -1884,6 +1889,7 @@
 				EEEEFBC51F2CBC9500211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEEEFBCF1F2CBCAB00211520 /* Build configuration list for PBXNativeTarget "MapKitTests" */ = {
 			isa = XCConfigurationList;
@@ -1893,6 +1899,7 @@
 				EEEEFBD21F2CBCAB00211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEEEFBDC1F2CBCBF00211520 /* Build configuration list for PBXNativeTarget "MessageTests" */ = {
 			isa = XCConfigurationList;
@@ -1902,6 +1909,7 @@
 				EEEEFBDF1F2CBCBF00211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEEEFBE91F2CBCD000211520 /* Build configuration list for PBXNativeTarget "PDFKitTests" */ = {
 			isa = XCConfigurationList;
@@ -1911,6 +1919,7 @@
 				EEEEFBEC1F2CBCD000211520 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 /* End XCConfigurationList section */
 	};
