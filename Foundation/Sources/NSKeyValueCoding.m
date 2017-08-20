@@ -80,7 +80,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	/* check for is+str and _str */
 
 	if((s=NSSelectorFromString(str)) && [self respondsToSelector:s])
-		{
+		{ // call getter
 #if 1
 		NSLog(@"selector: %@", NSStringFromSelector(s));
 #endif
@@ -89,29 +89,35 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		type=[sig methodReturnType];
 		msg = objc_msg_lookup(self, s);
 #else
-#if FIXME
-		imp = class_getMethodImplementation(self, s);
-		sc=[self class];
-		struct objc_protocol_list *protocols = sc?sc->protocols:NULL;
-		msg=m?m->method_imp:NULL;
-		type=m?m->method_types:NULL;	// default (if we have an implementation)
-		if(protocols)
-			// do we need to scan through protocols?
-			NSLog(@"not scanning protocols for valueForKey:%@", str);
+#if OLD
+			sc=[self class];
+			struct objc_protocol_list *protocols = sc?sc->protocols:NULL;
+			msg=m?m->method_imp:NULL;
+			type=m?m->method_types:NULL;	// default (if we have an implementation)
+			if(protocols)
+				// do we need to scan through protocols?
+				NSLog(@"not scanning protocols for valueForKey:%@", str);
+			//		NSLog(@"IMP = %p", msg);
+			if (!msg)
+				[NSException raise:NSInvalidArgumentException
+							format:@"unknown getter %s", sel_getName(s)];
 #endif
-#endif
-//		NSLog(@"IMP = %p", msg);
-		if (!msg)
+		Method m=class_getInstanceMethod(object_getClass(self), s);
+		if(!m)
+			// scan protocols?
 			[NSException raise:NSInvalidArgumentException
 						format:@"unknown getter %s", sel_getName(s)];
+		msg=method_getImplementation(m);
+		type=method_getTypeEncoding(m);
+#endif
 		}
 	else if([(sc=[self class]) accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
 			const char *varName=[str UTF8String];
+			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
 			Ivar ivar = object_getInstanceVariable(self, varName, NULL);
 			addr = ((char *) self) + ivar_getOffset(ivar);
 			type = ivar_getTypeEncoding(ivar);
-			// use object_getInstanceVariable(varName) or class_getInstanceVariable(varName)
 		}
 //	NSLog(@"valueForKey type %s", type?type:"not found");
 	if(!type)
