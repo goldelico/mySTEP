@@ -23,4 +23,4 @@ export SOURCES+=" scselect.qcodeproj"
 export SOURCES+=" scutil.qcodeproj"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
