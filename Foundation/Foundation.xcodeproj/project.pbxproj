@@ -58,7 +58,7 @@
 		EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114F90CDF568D0062A8AD /* NSOperation.m */; };
 		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
-		EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */ = {isa = PBXBuildFile; fileRef = EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */; };
+		EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */ = {isa = PBXBuildFile; fileRef = EE24BC0919EB1FB8000AAF75 /* NSSystemDirectories.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5D99D21D7B121200356241 /* NSXPCConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D99D11D7B121200356241 /* NSXPCConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
 		EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57B0DA2C1A40007817B /* NSXMLDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -70,6 +70,8 @@
 		EE6D86A015222673004F9394 /* NSJSONSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D869E15222673004F9394 /* NSJSONSerialization.m */; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };
 		EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE92A8BA1F49C6BA0016750B /* NSRegularExpression.h in Headers */ = {isa = PBXBuildFile; fileRef = EE92A8B81F49C6BA0016750B /* NSRegularExpression.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE92A8BB1F49C6BA0016750B /* NSRegularExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = EE92A8B91F49C6BA0016750B /* NSRegularExpression.m */; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
 		EEA925870C0B004500A846D2 /* control.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257C0C0B004500A846D2 /* control.charSet */; };
 		EEA925880C0B004500A846D2 /* decimal.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257D0C0B004500A846D2 /* decimal.charSet */; };
@@ -389,6 +391,8 @@
 		EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSAffineTransform.h; path = Sources/NSAffineTransform.h; sourceTree = "<group>"; };
 		EE8EFAA00960954D006CCB63 /* NSAffineTransform.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSAffineTransform.m; path = Sources/NSAffineTransform.m; sourceTree = "<group>"; };
 		EE8F689E0D76A0200096A370 /* trunk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = trunk; path = ../GNUstep/base/trunk; sourceTree = SOURCE_ROOT; };
+		EE92A8B81F49C6BA0016750B /* NSRegularExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSRegularExpression.h; path = Sources/NSRegularExpression.h; sourceTree = "<group>"; };
+		EE92A8B91F49C6BA0016750B /* NSRegularExpression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSRegularExpression.m; path = Sources/NSRegularExpression.m; sourceTree = "<group>"; };
 		EEA32EC009537D0C001244CF /* caseconv.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = caseconv.h; sourceTree = "<group>"; };
 		EEA32EC109537D0C001244CF /* cop.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
 		EEA32EC209537D0C001244CF /* cyrillic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cyrillic.h; sourceTree = "<group>"; };
@@ -724,6 +728,8 @@
 				EEA32F2609537D0D001244CF /* NSNull.h */,
 				EEA32F2709537D0D001244CF /* NSNull.m */,
 				EEA32F2809537D0D001244CF /* NSNumber.m */,
+				EE92A8B81F49C6BA0016750B /* NSRegularExpression.h */,
+				EE92A8B91F49C6BA0016750B /* NSRegularExpression.m */,
 				EEA32F4609537D0D001244CF /* NSSortDescriptor.h */,
 				EEA32F4709537D0D001244CF /* NSSortDescriptor.m */,
 				EEA32F4A09537D0D001244CF /* NSString.h */,
@@ -1123,7 +1129,6 @@
 				EEAA862D0A148ED200F2E5B5 /* NSDecimal.h in Headers */,
 				EEAA862E0A148ED200F2E5B5 /* NSDecimalNumber.h in Headers */,
 				EEAA862F0A148ED200F2E5B5 /* NSDictionary.h in Headers */,
-				EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */,
 				EEAA86300A148ED200F2E5B5 /* NSDistantObject.h in Headers */,
 				EEAA86310A148ED200F2E5B5 /* NSDistributedLock.h in Headers */,
 				EEAA86320A148ED200F2E5B5 /* NSDistributedNotificationCenter.h in Headers */,
@@ -1205,6 +1210,8 @@
 				EEAA86850A148ED200F2E5B5 /* NSURLCredentialStorage.h in Headers */,
 				EEAA86860A148ED200F2E5B5 /* NSURLDownload.h in Headers */,
 				EEAA86870A148ED200F2E5B5 /* NSURLProtectionSpace.h in Headers */,
+				EE92A8BA1F49C6BA0016750B /* NSRegularExpression.h in Headers */,
+				EE24BC0A19EB1FB8000AAF75 /* NSSystemDirectories.h in Headers */,
 				EEAA86880A148ED200F2E5B5 /* NSURLProtocol.h in Headers */,
 				EEAA86890A148ED200F2E5B5 /* NSHTTPCookie.h in Headers */,
 				EEAA868A0A148ED200F2E5B5 /* NSHTTPCookieStorage.h in Headers */,
@@ -1460,6 +1467,7 @@
 				EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */,
 				EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */,
 				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
+				EE92A8BB1F49C6BA0016750B /* NSRegularExpression.m in Sources */,
 				EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */,
 				1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */,
 				EE11484F131A432B005DFDD2 /* NSBlock.m in Sources */,
@@ -1993,6 +2001,7 @@
 				EEAD7CED1ED893D400857F32 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */ = {
 			isa = XCConfigurationList;
