@@ -28,6 +28,7 @@ export SOURCES+=" Info.plist"
 export SOURCES+=" NSMutableArrayTest.m"
 export SOURCES+=" NSBundleTest.m"
 export SOURCES+=" NSKVCTest.m"
+export SOURCES+=" NSRegularExpressionTest.m"
 export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
