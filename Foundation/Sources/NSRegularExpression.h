@@ -16,6 +16,17 @@
 @class NSString;
 @class NSError;
 
+typedef enum NSRegularExpressionOptions
+{
+	NSRegularExpressionCaseInsensitive				= 1 << 0,
+	NSRegularExpressionAllowCommentsAndWhitespace	= 1 << 1,
+	NSRegularExpressionIgnoreMetacharacters			= 1 << 2,
+	NSRegularExpressionDotMatchesLineSeparators		= 1 << 3,
+	NSRegularExpressionAnchorsMatchLines			= 1 << 4,
+	NSRegularExpressionUseUnixLineSeparators		= 1 << 5,
+	NSRegularExpressionUseUnicodeWordBoundaries		= 1 << 6
+} NSRegularExpressionOptions;
+
 @interface NSRegularExpression : NSObject <NSCoding, NSCopying, NSMutableCopying>
 {
 	NSString *_pattern;
@@ -25,6 +36,8 @@
 + (NSRegularExpression *) regularExpressionWithPattern:(NSString *) pattern options:(NSUInteger) options error:(NSError **) outError;
 
 - (id) initWithPattern:(NSString *) pattern options:(NSUInteger) options error:(NSError **) outError;
+- (NSString *) pattern;
+- (NSRegularExpressionOptions) options;
 
 - (NSString *) stringByReplacingMatchesInString:(NSString *) string
 										options:(NSUInteger) options

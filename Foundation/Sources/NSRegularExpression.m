@@ -29,6 +29,9 @@
 	return self;
 }
 
+- (NSString *) pattern; { return _pattern; }
+- (NSRegularExpressionOptions) options; { return _option; }
+
 - (NSString *) stringByReplacingMatchesInString:(NSString *) string
 										options:(NSUInteger) options
 										  range:(NSRange) range
