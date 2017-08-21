@@ -14,7 +14,10 @@
 #import <Foundation/NSRange.h>
 
 @class NSString;
+@class NSMutableString;
 @class NSError;
+@class NSArray;
+@class NSEnumerator;
 
 typedef enum NSRegularExpressionOptions
 {
@@ -27,22 +30,72 @@ typedef enum NSRegularExpressionOptions
 	NSRegularExpressionUseUnicodeWordBoundaries		= 1 << 6
 } NSRegularExpressionOptions;
 
-@interface NSRegularExpression : NSObject <NSCoding, NSCopying, NSMutableCopying>
+typedef enum NSMatchingFlags
+{
+	NSMatchingProgress		= 1 << 0,
+	NSMatchingCompleted		= 1 << 1,
+	NSMatchingHitEnd		= 1 << 2,
+	NSMatchingRequiredEnd	= 1 << 3,
+	NSMatchingInternalError	= 1 << 4
+} NSMatchingFlags;
+
+typedef enum NSMatchingOptions
+{
+	NSMatchingReportProgress			= 1 << 0,
+	NSMatchingReportCompletion			= 1 << 1,
+	NSMatchingAnchored					= 1 << 2,
+	NSMatchingWithTransparentBounds		= 1 << 3,
+	NSMatchingWithoutAnchoringBounds	= 1 << 4
+} NSMatchingOptions;
+
+@interface NSTextCheckingResult : NSObject
+// has complex internal clockwork...
+- (NSRange) range;
+@end
+
+@interface NSRegularExpression : NSObject <NSCopying, NSCoding>
 {
 	NSString *_pattern;
 	NSUInteger _options;
 }
 
-+ (NSRegularExpression *) regularExpressionWithPattern:(NSString *) pattern options:(NSUInteger) options error:(NSError **) outError;
++ (NSRegularExpression *) regularExpressionWithPattern:(NSString *) pattern options:(NSRegularExpressionOptions) options error:(NSError **) outError;
++ (NSString *) escapedTemplateForString:(NSString *) string;
++ (NSString *) escapedPatternForString:(NSString *) string;
 
-- (id) initWithPattern:(NSString *) pattern options:(NSUInteger) options error:(NSError **) outError;
+- (id) initWithPattern:(NSString *) pattern options:(NSRegularExpressionOptions) options error:(NSError **) outError;
 - (NSString *) pattern;
 - (NSRegularExpressionOptions) options;
+- (NSUInteger) numberOfCaptureGroups;
 
 - (NSString *) stringByReplacingMatchesInString:(NSString *) string
-										options:(NSUInteger) options
+										options:(NSMatchingOptions) options
 										  range:(NSRange) range
 								   withTemplate:(NSString *) template;
+- (NSUInteger) replaceMatchesInString:(NSMutableString *) string
+							  options:(NSMatchingOptions) options
+								range:(NSRange) range
+						withTemplate:(NSString *) template;
+- (NSString *) replacementStringForResult:(NSTextCheckingResult *) result
+								 inString:(NSString *) string
+								   offset:(NSInteger) offset
+								 template:(NSString *) template;
+- (NSUInteger) numberOfMatchesInString:(NSString *) string
+							   options:(NSMatchingOptions) options
+								 range:(NSRange) range;
+// should be: - enumerateMatchesInString:options:range:usingBlock:
+- (NSEnumerator *) enumerateMatchesInString:(NSString *) string
+									options:(NSMatchingOptions) options
+									  range:(NSRange) range;
+- (NSArray *) matchesInString:(NSString *) string
+					  options:(NSMatchingOptions) options
+						range:(NSRange) range;
+- (NSTextCheckingResult *) firstMatchInString:(NSString *) string
+									  options:(NSMatchingOptions) options
+										range:(NSRange) range;
+- (NSRange) rangeOfFirstMatchInString:(NSString *) string
+							  options:(NSMatchingOptions) options
+								range:(NSRange) range;
 
 @end
 
