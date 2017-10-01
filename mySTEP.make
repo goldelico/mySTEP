@@ -329,7 +329,7 @@ ifneq "$(strip $(SUBPROJECTS))" ""
 	done
 endif
 endif
-	@- chmod -R u+w build	# rm -rf refuses to delete files without write mode
+	@- chmod -Rf u+w build	# rm -rf refuses to delete files without write mode
 	@rm -rf build
 	@echo CLEAN
 
@@ -653,7 +653,7 @@ make_php: bundle
 		then \
 			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
 			php -l "$$PHP" && \
-			chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
 			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
@@ -663,7 +663,7 @@ make_sh: bundle
 	# SHSRCS: $(SHSRCS)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"
 	for SH in $(SHSRCS); do \
-		chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
+		chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
@@ -790,7 +790,7 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	# DEBIAN_RECOMMENDS: $(DEBIAN_RECOMMENDS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	- chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
+	- chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
@@ -803,7 +803,7 @@ ifneq ($(DATA),)
 	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
 	# unprotect
-	- chmod -R u+w "/tmp/$(TMP_DATA)"
+	- chmod -Rf u+w "/tmp/$(TMP_DATA)"
 	# strip all foreign architectures
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
@@ -844,7 +844,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	-@ chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
+	-@ chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
@@ -854,7 +854,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
-	- chmod -R u+w "/tmp/$(TMP_DATA)"
+	- chmod -Rf u+w "/tmp/$(TMP_DATA)"
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
@@ -889,7 +889,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	-@ chmod -R u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
+	-@ chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null
 	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
@@ -933,9 +933,9 @@ ifeq ($(INSTALL),true)
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 ifeq ($(NAME_EXT),bin)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf -))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf -))
 else
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -R u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf - -U --recursive-unlink))
+	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf - -U --recursive-unlink))
 endif
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
@@ -1019,7 +1019,7 @@ else ifeq ($(ARCHITECTURE),MacOS)
 endif
 
 resources:
-	- chmod -R u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null # unprotect resources
+	- chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null # unprotect resources
 # copy resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
