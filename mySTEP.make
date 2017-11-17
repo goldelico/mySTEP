@@ -930,7 +930,7 @@ endif
 install_local:
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $(DEBIAN_ARCHITECTURE) in $(BINARY) and $(PKG)
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 ifeq ($(NAME_EXT),bin)
 	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)'; $(TAR) xpvf -))
@@ -946,7 +946,7 @@ deploy_remote:
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty $$DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	# FIXME: does not copy $(DATA) and $(FILES)
 	- [ -s $(DOWNLOAD) ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
