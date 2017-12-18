@@ -19,15 +19,15 @@
 
 - (id) initWithFrame:(NSRect) frame
 {
-    self = [super initWithFrame:frame];
-    if (self)
+	self = [super initWithFrame:frame];
+	if (self)
 		{
-        // Initialization code here.
+	// Initialization code here.
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changed:) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changed:) name:UIDeviceBatteryStateDidChangeNotification object:nil];
 		[[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
 		}
-    return self;
+	return self;
 }
 
 - (void) drawRect:(NSRect) rect
