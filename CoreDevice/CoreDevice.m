@@ -200,6 +200,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [val intValue]/100.0;
 }
 
+- (float) batteryHealth;
+{
+	NSString *val=[self batteryValue:@"charge_full"];
+	NSString *val2=[self batteryValue:@"charge_full_design"];
+	if(!val || val2 || [val2 intValue] == 0)
+		return -1;	// can't determine
+#if 0
+	NSLog(@"batteryHealth = %@ : %@", val, val2);
+#endif
+	return [val intValue]/[val2 intValue];
+}
+
 - (BOOL) isBatteryMonitoringEnabled;
 {
 	return batteryMonitoringEnabled;

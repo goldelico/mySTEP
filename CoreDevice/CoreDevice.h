@@ -92,6 +92,7 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 - (NSTimeInterval) remainingTime;
 - (float) batteryVoltage;	// in volt
 - (float) batteryDischargingCurrent;	// in Ampere (negative = charging)
+- (float) batteryHealth;	// full capacity vs. design capacity
 - (unsigned int) chargingCycles;
 - (float) chargerVoltage;
 - (BOOL) checkCable;	// if user should check charging cable
