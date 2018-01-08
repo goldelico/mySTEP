@@ -72,6 +72,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) DEBIAN_SECTION - x11
 #   (*) DEBIAN_PRIORITY - optional
 #   - DEBIAN_VERSION - current date/time
+#   (*) DEBIAN_NOPACKAGE - don't build packages
 #   (*) FILES
 #   (*) DATA
 #  download and test (postprocess 2)
@@ -779,11 +780,16 @@ DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main"
 build_deb: make_bundle make_exec make_binary build_debian_packages
 	echo build_deb done
 
+ifeq ($(DEBIAN_NOPACKAGE),)
 build_debian_packages: \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
-	echo build_debian_packages done
+	@echo build_debian_packages done
+else
+build_debian_packages:
+	@echo building_debian_packages skipped
+endif
 
 # FIXME: use different /tmp/data subdirectories for each running make
 # NOTE: don't include /tmp here to protect against issues after typos
@@ -998,7 +1004,7 @@ endif
 
 # FIXME: use dependencies to link only if any object file has changed
 
-# replace this my make_binary and make_bundle
+# replace this by make_binary and make_bundle
 
 # link headers of framework
 
