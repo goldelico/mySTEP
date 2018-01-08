@@ -328,7 +328,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
-		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
+( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -349,6 +349,7 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
 build_architectures:
+ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
 	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
@@ -358,8 +359,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			case "$$DEBIAN_ARCH" in \
-				none ) export ARCHITECTURE=none;; \
-				armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
+			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
@@ -376,6 +376,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		echo "$$DEBIAN_ARCH" done; \
 		done \
 	done
+endif
 endif
 
 __dummy__:
@@ -775,13 +776,8 @@ DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main"
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
 
-ifneq ($(DEBIAN_ARCHITECTURES),none)
 build_deb: make_bundle make_exec make_binary build_debian_packages
 	echo build_deb done
-else
-build_deb: make_bundle make_exec make_binary build_debian_packages
-	echo build_deb done
-endif
 
 build_debian_packages: \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
