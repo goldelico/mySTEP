@@ -60,10 +60,12 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (FRAMEWORK_VERSION)
 #   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
 #   - ARCHITECTURE - the architecture triple to use
+#   - DEBIAN_RELEASE - the release to build (modifies compiler, libs and staging for result)
 #   * DEBIAN_ARCHITECTURES - default
 #  Debian packaging (postprocess 1)
 #   * DEBIAN_PACKAGE_NAME - quantumstep-$PRODUCT_NAME-$WRAPPER-extension
 #   * DEBIAN_DEPENDS - quantumstep-cocoa-framework
+#   (*) DEBIAN_RECOMMENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
 #   (*) DEBIAN_DESCRIPTION
 #   (*) DEBIAN_MAINTAINER
@@ -162,6 +164,7 @@ NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
+### FIXME: make toolchain depend on $(DEBIAN_RELEASE)
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := LANG=C $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
@@ -347,12 +350,16 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 
 build_architectures:
 ifneq ($(DEBIAN_ARCHITECTURES),)
-ifneq ($(DEBIAN_ARCHITECTURES),none)
-	# recursively make for all architectures $(DEBIAN_ARCHITECTURES)
-	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
-		EXIT=1; \
-		case "$$DEBIAN_ARCH" in \
-			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
+# recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
+	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
+	[ "$$RELEASES" ] || RELEASES="staging"; \
+	echo $$RELEASES; \
+	for DEBIAN_RELEASE in $$RELEASES; do \
+		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
+			EXIT=1; \
+			case "$$DEBIAN_ARCH" in \
+				none ) export ARCHITECTURE=none;; \
+				armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
@@ -364,10 +371,11 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
+		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		echo "$$DEBIAN_ARCH" done; \
-		done
-endif
+		done \
+	done
 endif
 
 __dummy__:
@@ -758,14 +766,22 @@ endif
 ifeq ($(DEBIAN_VERSION),)
 DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
+ifeq ($(DEBIAN_RELEASE),)
+DEBIAN_RELEASE := staging
+endif
 
-DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
+DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main"
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
 
+ifneq ($(DEBIAN_ARCHITECTURES),none)
 build_deb: make_bundle make_exec make_binary build_debian_packages
 	echo build_deb done
+else
+build_deb: make_bundle make_exec make_binary build_debian_packages
+	echo build_deb done
+endif
 
 build_debian_packages: \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
@@ -828,7 +844,7 @@ endif
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
 	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
@@ -870,7 +886,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
 	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
@@ -914,7 +930,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
+	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
