@@ -66,6 +66,8 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   * DEBIAN_PACKAGE_NAME - quantumstep-$PRODUCT_NAME-$WRAPPER-extension
 #   * DEBIAN_DEPENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - quantumstep-cocoa-framework
+#   (*) DEBIAN_CONFLICTS - quantumstep-cocoa-framework
+#   (*) DEBIAN_REPLACES - quantumstep-cocoa-framework
 #   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
 #   (*) DEBIAN_DESCRIPTION
 #   (*) DEBIAN_MAINTAINER
@@ -353,7 +355,7 @@ build_architectures:
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
-	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
+	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
 	[ "$$RELEASES" ] || RELEASES="staging"; \
 	echo $$RELEASES; \
 	for DEBIAN_RELEASE in $$RELEASES; do \
@@ -806,6 +808,7 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	# DEBIAN_CONTROL: $(DEBIAN_CONTROL)
 	# DEBIAN_DEPENDS: $(DEBIAN_DEPENDS)
 	# DEBIAN_RECOMMENDS: $(DEBIAN_RECOMMENDS)
+	# DEBIAN_CONFLICTS: $(DEBIAN_CONFLICTS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
@@ -839,15 +842,16 @@ endif
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Priority: $(DEBIAN_PRIORITY)"; \
-	  [ "$(DEBIAN_REPLACES)" ] && echo "Replaces: $(DEBIAN_REPLACES)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
-	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
+	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  echo "$(DEBIAN_REPLACES)" | tr ',' '\n' | ( SEP="Replaces:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  echo "$(DEBIAN_CONFLICTS)" | tr ',' '\n' | ( SEP="Conflicts:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -888,8 +892,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
-	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
+	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -932,8 +936,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $$(echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | sed 's/$(DEBIAN_RELEASE):\(.*\)/\1/g;/[a-z]*:/d' | tr '\n' ',' | sed 's/,$$//g')"; \
-	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "Recommends: $(DEBIAN_RECOMMENDS)"; \
+	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
