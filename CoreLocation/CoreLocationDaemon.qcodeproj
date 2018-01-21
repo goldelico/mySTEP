@@ -5,7 +5,8 @@ export INSTALL_PATH="/System/Library/Frameworks/CoreLocation.framework/Versions/
 export PRODUCT_NAME="CoreLocationDaemon"
 export SOURCES="CoreLocationDaemon.m"
 export SOURCES+=" CoreLocationDaemon-Info.plist"
+export SOURCES+=" cldmain.m"
 export WRAPPER_EXTENSION="app"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
