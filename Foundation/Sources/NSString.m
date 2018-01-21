@@ -2890,6 +2890,29 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return o;
 }
 
+- (NSString *) stringByReplacingCharactersInRange:(NSRange) range withString:(NSString *) replacement;
+{
+	NSMutableString *r=[self mutableCopy];
+	[r replaceCharactersInRange:range withString:replacement];
+	return [r autorelease];
+}
+
+- (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
+										 withString:(NSString *) replacement
+											options:(NSUInteger) mask
+											  range:(NSRange) search;
+{
+	NSMutableString *r=[target mutableCopy];
+	[r replaceOccurrencesOfString:target withString:replacement options:mask range:search];
+	return [r autorelease];
+}
+
+- (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
+										 withString:(NSString *) replacement;
+{
+	return [self stringByReplacingOccurrencesOfString:target withString:replacement options:0 range:NSMakeRange(0, [target length])];
+}
+
 - (NSString *) stringByPaddingToLength:(NSUInteger)len withString:(NSString *) pad startingAtIndex:(NSUInteger) index;
 {
 	NSUInteger count=[self length];
