@@ -77,14 +77,12 @@ BOOL modemLog=NO;
 
 - (BOOL) _isPoweredOn;
 {
-	return [[NSFileManager defaultManager] fileExistsAtPath:@"/sys/devices/platform/usbhs_omap/ehci-omap.0/usb1/1-2"];	// check if OPTION modem is connected on EHCI
+	// find better/universal way - e.g. ask "rfkill wwan" if blocked?
+	return YES;
 }
 
 - (int) _power:(BOOL) on
 {
-	NSString *dev=@"/dev/ttyHS_Application";
-	NSString *gpio=@"/sys/devices/virtual/gpio/gpio186/value";
-	int i;
 	if(modemLog) [self log:@"_power:%d", on];
 	if(ttyPort)
 		{
@@ -92,49 +90,52 @@ BOOL modemLog=NO;
 														name:NSFileHandleReadCompletionNotification
 													  object:ttyPort];	// don't observe any more
 		[ttyPort release];	// will always reconnect!
-		ttyPort=nil;		
+		ttyPort=nil;
 		}
-	for(i=1; i<5; i++)
+	if(on)
 		{
-		NSDate *timeout;
-		if(on)
-			{ // wait until we can access the modem device
-			ttyPort=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
-			if(ttyPort)	// ok, was successfully opened!
-				{
-				if(!modes)
-					modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
-				[lastChunk release];
-				lastChunk=nil;
-				[self _setError:nil];
-				[[NSNotificationCenter defaultCenter] addObserver:self
-														 selector:@selector(_dataReceived:)
-															 name:NSFileHandleReadCompletionNotification 
-														   object:ttyPort];	// make us see notifications
-				[ttyPort readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
-				if(modemLog) [self log:@"Modem port opened: %@", dev];
-				return YES;				
-				}
+		// FIXME: should not block GUI while this script is running...
+		FILE *p=popen("/root/wwan-on", "r");
+		NSString *device;
+		char dev[200];
+		if(!p)
+			{
+			[self _setError:@"Can't run /root/wwan-on."];
+			return NO;	// failed
 			}
-		else
-			{ // wait until no longer registered on EHCI USB port
-				if(![self _isPoweredOn])
-					return YES;
+		fgets(dev, sizeof(dev)-1, p);
+		pclose(p);
+		device=[NSString stringWithUTF8String:dev];
+		device=[device stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		if(modemLog) [self log:@"found device:%@", device];
+		if([device length] == 0)
+			{
+			[self _setError:@"No modem found."];
+			return NO;	// failed
 			}
-		if(modemLog) [self log:@"WWAN pulse %d on: %@", i, gpio];
-		[@"1" writeToFile:gpio atomically:NO];	// wake up modem on GTA04A4
-		timeout=[NSDate dateWithTimeIntervalSinceNow:0.5];
-		// protect against recursion! I.e. some GUI element or timer may try to switch power
-		while([timeout timeIntervalSinceNow] >= 0)
-			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
-		[@"0" writeToFile:gpio atomically:NO];
-		timeout=[NSDate dateWithTimeIntervalSinceNow:4.0];
-		while([timeout timeIntervalSinceNow] >= 0)
-			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+		ttyPort=[[NSFileHandle fileHandleForUpdatingAtPath:device] retain];
+		if(ttyPort)	// ok, was successfully opened!
+			{
+			if(!modes)
+				modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
+			[lastChunk release];
+			lastChunk=nil;
+			[self _setError:nil];
+			[[NSNotificationCenter defaultCenter] addObserver:self
+													 selector:@selector(_dataReceived:)
+														 name:NSFileHandleReadCompletionNotification
+													   object:ttyPort];	// make us see notifications
+			[ttyPort readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
+			if(modemLog) [self log:@"Modem port opened: %@", device];
+			return YES;
+			}
+		if(modemLog) [self log:@"Failed to open command access."];
+		[self _setError:@"Can't access modem."];
+		return NO;
 		}
-	if(modemLog) [self log:@"Failed to control power level."];
-	[self _setError:@"Can't control power."];
-	return NO;
+	system("/root/wwan-off");
+	[self _setError:@"Modem powered off."];
+	return YES;
 }
 
 - (int) _openPort;	// will not reconnect if already connected
@@ -150,20 +151,12 @@ BOOL modemLog=NO;
 
 - (int) _closePort;	// will not power down
 {
-	if(ttyPort)
-		{ // close previous modem
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-															name:NSFileHandleReadCompletionNotification
-														  object:ttyPort];	// don't observe any more
-			[lastChunk release];
-			lastChunk=nil;
-			[modes release];
-			modes=nil;
-			[ttyPort release];
-			ttyPort=nil;
-			// should we power off the modem?
-		}	
-	[self _setError:@"Modem closed."];
+	[self _power:NO];
+	[lastChunk release];
+	lastChunk=nil;
+	[modes release];
+	modes=nil;
+	[ttyPort release];
 	return YES;
 }
 

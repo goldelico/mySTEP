@@ -38,7 +38,7 @@
 - (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
 
 - (CTCarrier *) currentNetwork;	// changes while roaming
-- (NSSet *) networks;	// list of networks that are available
+- (NSSet *) networks;	// set of networks (CTCarrier) that are available
 
 // FIXME: this is not really related to the NetworkInfo! It should be accessible through the modem manager
 - (float) paTemperature;	// temperature of PA in centigrade
