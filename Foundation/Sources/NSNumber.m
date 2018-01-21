@@ -26,11 +26,13 @@
 	- (double) doubleValue				  { return (double)data; } \
 	- (float) floatValue				  { return (float)data; } \
 	- (int) intValue					  { return (int)data; } \
+	- (NSInteger) integerValue;			  { return (NSInteger)data; } \
 	- (long long) longLongValue			  { return (long long)data; } \
 	- (long) longValue					  { return (long)data; } \
 	- (short) shortValue				  { return (short)data; } \
 	- (unsigned char) unsignedCharValue	  { return (unsigned char)data; } \
 	- (unsigned int) unsignedIntValue	  { return (unsigned int)data; } \
+	- (NSUInteger) unsignedIntegerValue;	{ return (NSUInteger)data; } \
 	- (unsigned long) unsignedLongValue   { return (unsigned long)data; } \
 	- (unsigned short) unsignedShortValue { return (unsigned short)data; } \
 	- (unsigned long long) unsignedLongLongValue \
