@@ -217,6 +217,11 @@ static CLHeading *newHeading;
 			 launchIdentifier:NULL])
 				{
 				NSLog(@"could not launch %@", SERVER_ID);
+#if 1
+				// Hack until we have the daemon running...
+				_server=[[CoreLocationDaemon alloc] init];	// add a local daemon object
+				return self;
+#endif
 				[self release];
 				return nil;
 				}
@@ -224,7 +229,7 @@ static CLHeading *newHeading;
 			NSLog(@"daemon launched");
 #endif
 			// FIXME: run the loop or wait otherwise
-			sleep(2);	// wait a little for the server to start
+			sleep(2);	// wait a little for the server process to start
 #if 1
 			NSLog(@"try to contact");
 #endif
@@ -250,70 +255,6 @@ static CLHeading *newHeading;
 		}
 	return self;
 }
-
-#if OLD
-- (id) init
-{
-	NSLog(@"init");
-	if((self=[super init]))
-		{
-		NSString *portName=NSStringFromClass([self class]);
-		NSPort *server=[NSMessagePort port];	// create a new port where we try to vend our-self
-		NSConnection *connection;
-		int i;
-		for(i=0; i<2; i++)
-			{ // the first attempt to register the port may fail in case of a stale port
-#if 1
-			NSLog(@"try: %d %@", i, self);
-#endif
-			if(![[NSMessagePortNameServer sharedInstance] registerPort:server name:portName])
-				{ // failed to register - a server is already running - become client
-					id client;
-#if 1
-					NSLog(@"failed to register as %@", portName);
-#endif
-					NS_DURING
-						connection=[NSConnection connectionWithRegisteredName:portName host:nil];
-						NSLog(@"self1 %@", self);
-						[connection setReplyTimeout:5.0];
-						NSLog(@"self2 %@", self);
-						client=(id)[connection rootProxy];
-						NSLog(@"self3 %@", self);
-					NS_HANDLER	// if the port was stale, retry to become server
-						NSLog(@"could not connect %@ try again", portName);
-						continue;	// try again
-					NS_ENDHANDLER
-#if 1
-					NSLog(@"CLLocationManager client initialized: %@", portName, self);
-#endif
-					[self release];
-					return client;	// return the rootProxy
-				}
-			else
-				{
-#if 1
-				NSLog(@"registered %@", server);
-#endif
-				connection=[NSConnection connectionWithReceivePort:server sendPort:nil];
-				[connection setRootObject:self];	// vend our own services
-#if 0	// TEST if second registration fails
-				server=[NSMessagePort port];	// make another one
-				if(![[NSMessagePortNameServer sharedInstance] registerPort:server name:/*@"other"*/portName])	// try again on same name
-					NSLog(@"failed");	// registering the same name again should fail!
-				else
-					NSLog(@"succeeded");
-#endif
-#if 1
-				NSLog(@"%@ server initialized: %@", portName, self);
-#endif
-				return self;	// return the local handler
-				}
-			}
-		}
-	[self release];
-	return nil;	// finally failed to initialize (neither as server nor as client)
-}
-#endif
 
 - (void) dealloc
 {
@@ -472,52 +413,18 @@ static NSString *lastChunk;
 static NSFileHandle *file;
 static NSArray *modes;
 
-// special code for the W2SG0004 on the GTA04 board
-
-static int startW2SG;
-
 + (NSString *) _device
 { // get this from some *system wide* user default
-	NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyO1 or /dev/cu.usbmodem1d11
-	if(!dev)
-		{
-#ifdef __mySTEP__
-		dev=@"/dev/ttyO1";	// Linux: serial interface for USB receiver
-#else
-		dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
-#endif
-		}
-	return dev;
-}
-
-+ (void) _didNotStart
-{ // timeout - try to retrigger
-#if 1
-	NSLog(@"did not yet receive NMEA");
-#endif
-	if(startW2SG == 3)
-		{ // permanent problem
-			NSError *error=[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDenied userInfo:nil];
-			NSEnumerator *e=[managers objectEnumerator];
-			CLLocationManager *m;
-			NSLog(@"GPS receiver not working");
-			while((m=[e nextObject]))
-				{ // notify all CLLocationManager instances
-					id <CLLocationManagerDelegate> delegate=[m delegate];
-					NS_DURING
-					if([delegate respondsToSelector:@selector(locationManager:didFailWithError:)])
-						[delegate locationManager:m didFailWithError:error];
-					NS_HANDLER
-					; // ignore
-					NS_ENDHANDLER
-				}
-			return;	// trigger again if manager is re-registered
-		}
-#ifdef __mySTEP__
-	// GTA04-specific!
-	system([[NSString stringWithFormat:@"echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 <%@", [self _device]] UTF8String]);	// give a start/stop impulse and set up interface
-#endif
-	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not (yet) receive NMEA records
+	FILE *p=popen("/root/gps-on", "r");
+	NSString *device;
+	char dev[200];
+	if(!p)
+		return nil;	// failed
+	fgets(dev, sizeof(dev)-1, p);
+	pclose(p);
+	device=[NSString stringWithUTF8String:dev];
+	device=[device stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	return device;
 }
 
 + (void) registerManager:(CLLocationManager *) m
@@ -555,10 +462,6 @@ static int startW2SG;
 #endif
 			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
-			startW2SG=0;
-			// power on GPS receiver and antenna (no longer needed on newer kernels)
-			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
-			[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -596,10 +499,8 @@ static int startW2SG;
 			satelliteTime=nil;
 			[satelliteInfo release];
 			satelliteInfo=nil;
-			// send a power down impulse
-			// FIXME: must make sure that we really have started
-			// power off antenna
-			system("echo 0 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 0 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
+			// what do we do on Pyra? is there a gps-off script towrap all this?
+			system("rfkill block gps");
 		}
 }
 
@@ -867,7 +768,6 @@ static int startW2SG;
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
-	[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
 }
 
 @end

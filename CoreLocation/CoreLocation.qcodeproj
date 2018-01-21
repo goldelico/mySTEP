@@ -22,7 +22,9 @@ export SOURCES+=" CoreLocation.h"
 export SOURCES+=" CoreLocationDaemon.qcodeproj"
 export SOURCES+=" cltest.qcodeproj"
 export SOURCES+=" Info.plist"
+export SOURCES+=" CoreLocationDaemon.h"
+export SOURCES+=" CoreLocationDaemon.m"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION

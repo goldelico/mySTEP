@@ -23,83 +23,21 @@
 - (NSString *) purpose;
 @end
 
-int main(int argc, char *argv[])
-{
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-	CoreLocationDaemon *d=[CoreLocationDaemon new];	// create daemon
-    NSConnection *theConnection=[NSConnection new];
-#if 1
-    NSLog(@"Creating connection for %@...", SERVER_ID);
-#endif
-    [theConnection setRootObject:d];
-    if([theConnection registerName:SERVER_ID] == NO)
-		{
-		NSLog(@"Failed to register name %@\n", SERVER_ID);
-		return 1;
-		}	
-	// process events
-#if 1
-    NSLog(@"Running the loop...");
-#endif
-	[[NSRunLoop currentRunLoop] run];	// run until all input sources have been removed (after GPS is shut down)
-#if 1
-    NSLog(@"Exiting daemon for %@", SERVER_ID);
-#endif
-	[d release];
-    [pool release];
-    return 0;	
-}
 
 @implementation CoreLocationDaemon
 
-// special code for the W2SG0004 on the GTA04 board
-
-static int startW2SG;
-
 - (NSString *) _device
 { // get this from some *system wide* user default
-	NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyO1 or /dev/cu.usbmodem1d11
-	if(!dev)
-		{
-#ifdef __mySTEP__
-		dev=@"/dev/ttyO1";	// Linux: serial interface for USB receiver
-#else
-		dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
-#endif
-		}
-	return dev;
-}
-
-- (void) _didNotStart
-{ // timeout - try to retrigger
-#if 1
-	NSLog(@"did not yet receive NMEA");
-#endif
-	if(startW2SG == 3)
-		{ // permanent problem
-			NSError *error=[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDenied userInfo:nil];
-			NSEnumerator *e=[managers objectEnumerator];
-			// FIXME: define a formal prototol (e.g. -delegate) so that we don't need to ask the client for method signatures!
-			CLLocationManager <CoreLocationClientProtocol> *m;
-			NSLog(@"GPS receiver not working");
-			while((m=[e nextObject]))
-				{ // notify all CLLocationManager instances
-					id <CLLocationManagerDelegate> delegate;
-					NS_DURING
-						delegate=[m delegate];
-						if([delegate respondsToSelector:@selector(locationManager:didFailWithError:)])
-							[delegate locationManager:m didFailWithError:error];
-					NS_HANDLER
-						[self unregisterManager:m]; // communication failure
-					NS_ENDHANDLER
-				}
-			return;	// trigger again if manager is re-registered
-		}
-#ifdef __mySTEP__
-	// GTA04-specific!
-	system([[NSString stringWithFormat:@"echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 <%@", [self _device]] UTF8String]);	// give a start/stop impulse and set up interface
-#endif
-	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not (yet) receive NMEA records
+	FILE *p=popen("/root/gps-on", "r");
+	NSString *device;
+	char dev[200];
+	if(!p)
+		return nil;	// failed
+	fgets(dev, sizeof(dev)-1, p);
+	pclose(p);
+	device=[NSString stringWithUTF8String:dev];
+	device=[device stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	return device;
 }
 
 - (void) registerManager:(CLLocationManager *) m
@@ -107,13 +45,14 @@ static int startW2SG;
 #if 1
 	NSLog(@"Daemon: registerManager: %@", m);
 #endif
-//	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
+	//	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
 	if(!managers)
 		{ // set up GPS receiver
 			NSString *dev=[self _device];
+			// handle errors
 #if 1
 			NSLog(@"Start reading NMEA on device file %@", dev);
-#endif	
+#endif
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
 			if(!file)
 				{
@@ -125,19 +64,13 @@ static int startW2SG;
 			managers=[[NSMutableArray arrayWithObject:m] retain];
 			[[NSNotificationCenter defaultCenter] addObserver:self
 													 selector:@selector(_dataReceived:)
-														 name:NSFileHandleReadCompletionNotification 
+														 name:NSFileHandleReadCompletionNotification
 													   object:file];	// make us see notifications
 #if 1
 			NSLog(@"waiting for data on %@", dev);
 #endif
 			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
-			startW2SG=0;
-			// power on GPS receiver and antenna
-			NSLog(@"power on GPS");
-			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
-			system("rfkill unblock gps");
-			[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
 		}
 #if 1
@@ -169,9 +102,9 @@ static int startW2SG;
 			[file release];
 			file=nil;
 			[managers release];
-			managers=nil;		
+			managers=nil;
 			[modes release];
-			modes=nil;		
+			modes=nil;
 			[newLocation release];
 			newLocation=nil;
 			[newHeading release];
@@ -184,7 +117,6 @@ static int startW2SG;
 			// FIXME: must make sure that we really have started
 			// power off antenna
 			NSLog(@"power off GPS");
-			system("echo 0 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 0 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
 			system("rfkill block gps");
 			exit(0);	// last client has unregistered
 		}
@@ -214,9 +146,9 @@ static int startW2SG;
 			NSLog(@"manager: %@", m);
 #endif
 			delegate=[m delegate];
-				[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
+			[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
 			NS_HANDLER
-				[self unregisterManager:m]; // communication failure
+			[self unregisterManager:m]; // communication failure
 			NS_ENDHANDLER
 		}
 	if(!newLocation)
@@ -269,7 +201,7 @@ static int startW2SG;
 #if 0
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
-					//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
+																	//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
 					NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], [newLocation coordinate].latitude);	// llmm.ssssN
 					NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], [newLocation coordinate].longitude);	// lllmm.ssssE
 					NSLog(@"knots=%@", [a objectAtIndex:7]);
@@ -281,7 +213,7 @@ static int startW2SG;
 			else
 				{
 				newLocation->horizontalAccuracy=-1.0;
-				newLocation->verticalAccuracy=-1.0;					
+				newLocation->verticalAccuracy=-1.0;
 				didUpdateLocation=YES;
 				}
 		}
@@ -294,7 +226,7 @@ static int startW2SG;
 			if([[a objectAtIndex:16] length] > 0)
 				{
 				newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
-				newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision				
+				newLocation->verticalAccuracy=[[a objectAtIndex:17] floatValue];		// VDOP vertical precision
 				didUpdateLocation=YES;
 				}
 			while((d=[e nextObject]))
@@ -358,7 +290,7 @@ static int startW2SG;
 				if(numReliableSatellites > 3)
 					{
 					newLocation->altitude=[[a objectAtIndex:9] floatValue];
-					newLocation->verticalAccuracy=10.0;										
+					newLocation->verticalAccuracy=10.0;
 					}
 				else
 					newLocation->verticalAccuracy=-1.0;
@@ -366,14 +298,78 @@ static int startW2SG;
 				NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
 				NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
 				NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
-				// calibrate/compare with Barometer data
+																				// calibrate/compare with Barometer data
 #endif
 				}
 			didUpdateLocation=YES;
 		}
 	else if([cmd isEqualToString:@"$PSRFTXT"])
-		{ // SIRF message
-			// ignore
+		{ // SIRF message from w2sg00x4
+		  // ignore
+		}
+	else if([cmd isEqualToString:@"$GNGNS"])
+		{ // PLS8 - navigation info
+		  // http://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_GNS.html
+			/* seems to have HMS only
+			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
+			[satelliteTime release];
+			satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
+#if 0
+			NSLog(@"ts=%@ -> time=%@", ts, satelliteTime);
+#endif
+			satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
+			[satelliteTime retain];				// keep alive
+			 */
+			if(![[a objectAtIndex:6] isEqualToString:@"N"])	// N = No Fix
+				{ // update data
+					float pos;
+					int deg;
+					// if enabled we could sync the clock...
+					//   sudo(@"date -u '%@'", [time description]);
+					//   /sbin/hwclock --systohc
+					pos=[[a objectAtIndex:2] floatValue];		// ddmm.mmmmm (degrees + minutes)
+					deg=((int) pos)/100;
+					newLocation->coordinate.latitude=deg+(pos-100.0*deg)/60.0;
+					if([[a objectAtIndex:3] isEqualToString:@"S"])
+						newLocation->coordinate.latitude= -newLocation->coordinate.latitude;
+					pos=[[a objectAtIndex:4] floatValue];		// ddmm.mmmmm (degrees + minutes)
+					deg=((int) pos)/100;
+					newLocation->coordinate.longitude=deg+(pos-100.0*deg)/60.0;
+					if([[a objectAtIndex:5] isEqualToString:@"E"])
+						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
+					/*				newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
+					newLocation->course=[[a objectAtIndex:8] floatValue];
+					didUpdateLocation=YES;
+					if(!newHeading)
+						newHeading=[CLHeading new];
+					newHeading->trueHeading=newLocation->course;
+					// and read the compass (if available)
+					didUpdateHeading=YES;
+					 */
+#if 0
+					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
+					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
+																	//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
+					NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], [newLocation coordinate].latitude);	// llmm.ssssN
+					NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], [newLocation coordinate].longitude);	// lllmm.ssssE
+					NSLog(@"knots=%@", [a objectAtIndex:7]);
+					NSLog(@"deg=%@", [a objectAtIndex:8]);
+					// we should smooth velocity with a time constant > 10 seconds
+					// we can also reduce the time constant for higher speed
+#endif
+					numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+					newLocation->altitude=[[a objectAtIndex:10] floatValue];
+				}
+			else
+				{
+				newLocation->horizontalAccuracy=-1.0;
+				newLocation->verticalAccuracy=-1.0;
+				didUpdateLocation=YES;
+				}
+		}
+	else if([cmd isEqualToString:@"$GPVTG"])
+		{ // PLS8 - Course and speed relative to the ground.
+		  // ignore
 		}
 	else
 		{
@@ -397,13 +393,13 @@ static int startW2SG;
 					// check for desiredAccuracy
 					// check for distanceFilter
 					NS_DURING
-						delegate=[m delegate];
-						if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
-							[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
-						if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
-							[delegate locationManager:m didUpdateHeading:newHeading];
+					delegate=[m delegate];
+					if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
+						[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
+					if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
+						[delegate locationManager:m didUpdateHeading:newHeading];
 					NS_HANDLER
-						[self unregisterManager:m]; // communication failure
+					[self unregisterManager:m]; // communication failure
 					NS_ENDHANDLER
 				}
 		}
@@ -428,10 +424,10 @@ static int startW2SG;
 				continue;	// invalid start
 			if([s characterAtIndex:[s length]-3] == '*')
 				{ // assume *hh\n
-					// extract hh and calculate/verify checksum
+				  // extract hh and calculate/verify checksum
 					s=[s substringWithRange:NSMakeRange(0, [s length]-3)];	// get relevant parts - strip off *hh
-					// get bytes and calculate checksum
-					// check checksum
+																			// get bytes and calculate checksum
+																			// check checksum
 				}
 #if 1
 			NSLog(@"NMEA: %@", s);
@@ -469,7 +465,7 @@ static int startW2SG;
 
 - (int) numberOfReliableSatellites;
 {
-	return numReliableSatellites;	
+	return numReliableSatellites;
 }
 
 - (int) numberOfVisibleSatellites;
@@ -479,7 +475,7 @@ static int startW2SG;
 
 - (CLLocationSource) source;
 {
-	// this implementation is very GTA04 specific
+	// this implementation is very GTA04 specific!
 	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
 		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
 	return CLLocationSourceGPS;
