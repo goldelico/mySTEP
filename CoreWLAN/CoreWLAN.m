@@ -507,6 +507,30 @@ extern int system(const char *cmd);
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
 { // is blocking! Should be implemented thread-safe because it is most likely not running in the main thread...
+#if 0
+	/*
+	 Alternative:
+	 Flag ob schon ein Scan läuft
+	 wenn ja, einfach die aktuelle Liste liefern
+	 sonst scan triggern
+	 in separatem NSThread
+	 dort die Zeilen einsammeln
+	 und neue Liste aufbauen
+	 wenn der Thread zuende istund alles verarbeitet,
+	 dann Liste ersetzen
+	 */
+	if(!_task)
+		{ // not yet scanning
+			_task=[NSTask taskWithCommand:@"/usr/bin/iwlist"];
+			// set arguments to _name, @"scanning"
+			// set handler to receive stdout
+			// should be a handler subobject which knows us to replace the network list
+			// this subobject should cover all state (last key, current network record etc.)
+			// since data is arriving in chunks
+			// [_task start]
+		}
+	return _networks;
+#endif
 	NSString *cmd;
 	FILE *f;
 	NSMutableArray *a;
@@ -514,6 +538,7 @@ extern int system(const char *cmd);
 	NSError *dummy;
 	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:15];
 	CWNetwork *n;
+	NSString *key=nil;
 	if(!err) err=&dummy;
 #if 0
 	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
@@ -524,7 +549,7 @@ extern int system(const char *cmd);
 		}
 #endif
 	cmd=[NSString stringWithFormat:@"iwlist '%@' scanning", _name];
-#if 1
+#if 0
 	NSLog(@"popen %@", cmd);
 #endif
 	f=popen([cmd UTF8String], "r");
@@ -549,22 +574,36 @@ extern int system(const char *cmd);
 	while(fgets(line, sizeof(line)-1, f))
 		{
 		char *s;
-		NSString *key;
 		NSString *value;
+		NSString *prev;
+#if 0
 		printf("line=%s", line);
+#endif
 		s=strchr(line, ':');
 		if(!s)
 			s=strchr(line, '=');
-		if(!s)
+		if(s)
+			{ // key = value
+			key=[[NSString stringWithCString:line length:s-line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
+			if([key hasSuffix:@"Scan completed"])
+				continue;	// ignore
+			value=[[NSString stringWithCString:s+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
+			}
+		else
+			{ // value only
+				value=[[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
 			// may be "No scan results"
-			// if available, append to "Bit Rates"
-			continue;
-		key=[[NSString stringWithCString:line length:s-line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
-		if([key hasSuffix:@"Scan completed"])
-			continue;	// ignore
-		value=[[NSString stringWithCString:s+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
+			if([key isEqualToString:@"Bit Rates"])
+				{
+#if 0
+				NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
+#endif
+				}
+			else
+				continue;
+			}
 		if([key hasPrefix:@"Cell"])
-			{
+			{ //special handling
 			NSArray *cell;
 			if([attributes count] > 0)
 				{ // process previous entry
@@ -578,7 +617,15 @@ extern int system(const char *cmd);
 				[attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
 			key=@"Address";
 			}
-		[attributes setObject:value forKey:key];	// collect
+		prev=[attributes objectForKey:key];
+		if(prev)
+			{ // collect if key is the same
+			if([key isEqualToString:@"Bit Rates"])
+				value=[NSString stringWithFormat:@"%@; %@", prev, value];
+			else
+				value=[NSString stringWithFormat:@"%@ %@", prev, value];
+			}
+		[attributes setObject:value forKey:key];	// collect all key: value pairs
 		}
 	if([attributes count] > 0)
 		{ // add last record
@@ -588,7 +635,7 @@ extern int system(const char *cmd);
 			[n release];
 		}
 	pclose(f);
-#if 1
+#if 0
 	NSLog(@"pclose %@", cmd);
 #endif
 	return a;
@@ -623,6 +670,7 @@ extern int system(const char *cmd);
 			// set err
 			return NO;
 		}
+	sleep(1);
 	return YES;
 	
 #if 0	// has no result on our hardware
@@ -743,7 +791,8 @@ extern int system(const char *cmd);
 
 - (NSNumber *) rssi;
 { // in dBm
-	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Signal level:"];
+	NSString *iw=[self _getiwconfig];
+	NSArray *a=[iw componentsSeparatedByString:@"Signal level:"];
 #if 1
 	NSLog(@"iwconfig: %@", a);
 #endif
@@ -845,59 +894,7 @@ extern int system(const char *cmd);
 
 + (BOOL) _activateHardware:(BOOL) flag;
 {
-	return YES;	// no longer required on 3.7 kernel
-	
-#if 1
-	NSLog(@"WLAN _activateHardware:%d", flag);
-#endif
-	if(flag)
-		{ // power on
-			if([[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] > 0)
-				{
-#if 1
-				NSLog(@"WLAN already powered on");
-#endif
-				return YES;	// already powered on
-				}
-#if 1
-			NSLog(@"WLAN power on");
-#endif
-			if(system("VDD=3150000;"
-					  "echo \"255\" >/sys/class/leds/tca6507:6/brightness &&"
-					  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/max_microvolts &&"
-					  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/min_microvolts &&"
-					  "echo \"normal\" >/sys/devices/platform/reg-virt-consumer.4/mode &&"
-					  "echo \"0\" >/sys/class/leds/tca6507:6/brightness") != 0)
-				{
-				NSLog(@"VAUX4 power on failed");
-				return NO;	// something failed
-				}
-			// we should wait until libertas becomes available
-			return YES;
-		}
-	else
-		{
-		if([[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] == 0)
-			{
-#if 1
-			NSLog(@"WLAN already powered down");
-#endif
-			return YES;				
-			}
-		if([self _bluetoothIsActive])
-			{
-#if 1
-			NSLog(@"WLAN not powered down (Bluetooth still active)");
-#endif
-			return YES;	// if bluetooth is still on - ignore
-			}
-#if 1
-		NSLog(@"WLAN power off");
-#endif
-		system("echo \"255\" >/sys/class/leds/tca6507:6/brightness;"
-			   "echo 0 >/sys/devices/platform/reg-virt-consumer.4/max_microvolts");
-		return YES;
-		}
+	return YES;	// no longer required on >= 3.7 kernel
 }
 
 @end
@@ -932,23 +929,38 @@ extern int system(const char *cmd);
  }
 */
 
+// post-process "Frequency" into freq & channel
+// post-process "Quailty" into quality and level
+// post-process bit rates into array
+
 - (id) initWithAttributes:(NSDictionary *) attribs
 { // initialize with attributes
+#if 0
 	NSLog(@"attributes=%@", attribs);
+#endif
 	if((self=[self init]))
 		{
 		NSArray *f=[[attribs objectForKey:@"Frequency"] componentsSeparatedByString:@" "];
+		// FIXME: format isn't very stable... sometimes separates by :and sometimes by =
 		NSArray *q=[[attribs objectForKey:@"Quality"] componentsSeparatedByString:@"="];
+		NSArray *r=[[attribs objectForKey:@"Bit Rates"] componentsSeparatedByString:@";"];
 		NSString *m=[attribs objectForKey:@"Mode"];
+#if 0
+		NSLog(@"frequency: %@", f);
+		NSLog(@"quality: %@", q);
+#endif
 		_bssid=[[attribs objectForKey:@"Address"] retain];
 		if([f count] >= 4)
 			_channel=[[NSNumber alloc] initWithInt:[[f objectAtIndex:3] intValue]];
 		_ieData=nil;
 		_isIBSS=[m hasPrefix:@"Ad-Hoc"];
-		if([q count] >= 3)
+		if([q count] >= 2)
 			{
-			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:2] intValue]];
+			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:0] intValue]];	//something like 49/70
 			_rssi=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:1] intValue]];
+#if 0
+			NSLog(@"rssi = %@", _rssi);
+#endif
 			// quality [[q objectAtIndex:1] intValue]
 			}
 		_phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
@@ -991,7 +1003,9 @@ extern int system(const char *cmd);
 
 - (void) dealloc;
 {
-//	NSLog(@"dealloc %@", self);
+#if 0
+	NSLog(@"dealloc %@", self);
+#endif
 	[_bssid release];
 	[_channel release];
 	[_ieData release];
@@ -1015,7 +1029,7 @@ extern int system(const char *cmd);
 	return [self isEqualToNetwork:other];
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	return [_ssid hash] + [_securityMode hash] + _isIBSS;
 }
@@ -1028,6 +1042,7 @@ extern int system(const char *cmd);
 - (NSNumber *) noise; { return _noise; }
 - (NSNumber *) phyMode; { return _phyMode; }
 - (NSNumber *) rssi; { return _rssi; }
+- (NSInteger) rssiValue; { return [_rssi integerValue]; }
 - (NSNumber *) securityMode; { return _securityMode; }
 - (NSString *) ssid; { return _ssid; }	// ??? what is the difference to bssid?
 

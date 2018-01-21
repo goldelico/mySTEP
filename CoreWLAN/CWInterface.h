@@ -14,8 +14,10 @@
 
 @interface CWInterface : NSObject
 {
+	NSMutableArray *_networks;
 	NSString *_name;
 	SFAuthorization *_authorization;
+	NSTask *_scanner;
 	// add cached values and timestamps
 }
 
@@ -31,7 +33,7 @@
 - (CWInterface *) init;
 - (CWInterface *) initWithInterfaceName:(NSString *) name;
 - (BOOL) isEqualToInterface:(CWInterface *) interface;
-- (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
+- (NSArray *) scanForNetworksWithParameters:(NSDictionary *) params error:(NSError **) err;
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
 - (BOOL) setPower:(BOOL) power error:(NSError **) err;
 

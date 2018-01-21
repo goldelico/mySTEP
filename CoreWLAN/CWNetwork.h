@@ -25,6 +25,8 @@
 
 - (BOOL) isEqualToNetwork:(CWNetwork *) network;		// obnly checks same ssid, securityMode and isIBSS
 
+// Checkme: which ones are on Mac and which ones are our extensions?
+
 - (NSString *) bssid;	// this is the (unique!) MAC address of the base station
 - (NSData *) bssidData;
 - (NSNumber *) channel;
@@ -33,6 +35,7 @@
 - (NSNumber *) noise;
 - (NSNumber *) phyMode;
 - (NSNumber *) rssi;
+- (NSInteger) rssiValue;
 - (NSNumber *) securityMode;
 - (NSString *) ssid;	// this is the network name (may be built from different bssids)
 - (CWWirelessProfile *) wirelessProfile;

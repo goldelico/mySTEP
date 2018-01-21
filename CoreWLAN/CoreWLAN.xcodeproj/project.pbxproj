@@ -29,6 +29,7 @@
 		8DC2EF5B0486A6940098B216 /* CoreWLAN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreWLAN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		EE153EF1145071D80062FB2D /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = /System/Library/Frameworks/SecurityFoundation.framework; sourceTree = "<absolute>"; };
+		EE265AEB20148010001ABC17 /* cwtest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = cwtest.m; sourceTree = "<group>"; };
 		EE311148125F68DB00DF3C91 /* CoreWLAN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLAN.h; sourceTree = "<group>"; };
 		EE311149125F68DB00DF3C91 /* CW8021XProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CW8021XProfile.h; sourceTree = "<group>"; };
 		EE31114A125F68DB00DF3C91 /* CWConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWConfiguration.h; sourceTree = "<group>"; };
@@ -99,13 +100,13 @@
 			isa = PBXGroup;
 			children = (
 				EE311148125F68DB00DF3C91 /* CoreWLAN.h */,
-				EE311168125F69C100DF3C91 /* CoreWLAN.m */,
 				EE311149125F68DB00DF3C91 /* CW8021XProfile.h */,
 				EE31114A125F68DB00DF3C91 /* CWConfiguration.h */,
 				EE31114B125F68DB00DF3C91 /* CWGlobals.h */,
 				EE31114C125F68DB00DF3C91 /* CWInterface.h */,
 				EE31114D125F68DB00DF3C91 /* CWNetwork.h */,
 				EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */,
+				EE311168125F69C100DF3C91 /* CoreWLAN.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -133,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				EE311181125F73FB00DF3C91 /* CoreWLAN_Prefix.pch */,
+				EE265AEB20148010001ABC17 /* cwtest.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -182,6 +184,8 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreWLAN" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -266,7 +270,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CoreWLAN_Prefix.pch;
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				PRODUCT_NAME = CoreWLAN;
@@ -285,7 +289,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CoreWLAN_Prefix.pch;
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				PRODUCT_NAME = CoreWLAN;
@@ -296,26 +300,26 @@
 		1DEB91B208733DA50010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		1DEB91B308733DA50010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
