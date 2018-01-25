@@ -265,28 +265,27 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 				coalesceMask:(NSUInteger)coalesceMask
 					forModes:(NSArray*)modes
 {
-#if 0
-	NSLog(@"enqueue:%@ postingStyle %u coalesceMask: %u forModes: %@",
+#if 1
+	NSLog(@"enqueue:%@ postingStyle %u coalesceMask: %lu forModes: %@",
 		  notification,
 		  postingStyle,
-		  coalesceMask,
+		  (unsigned long)coalesceMask,
 		  modes);
 #endif
 	if (coalesceMask != NSNotificationNoCoalescing)
 		[self dequeueNotificationsMatching:notification
 							  coalesceMask:coalesceMask];
 
-	switch (postingStyle)
-	{
+	switch (postingStyle) {
 		case NSPostNow:
-		[self _postNotification:notification forModes:modes queue:NULL item:NULL];
-		break;
+			[self _postNotification:notification forModes:modes queue:NULL item:NULL];
+			break;
 		case NSPostASAP:
-		[notification _addToQueue:_asapQueue forModes:modes];
-		break;
+			[notification _addToQueue:_asapQueue forModes:modes];
+			break;
 		case NSPostWhenIdle:
-		[notification _addToQueue:_idleQueue forModes:modes];
-		break;
+			[notification _addToQueue:_idleQueue forModes:modes];
+			break;
 	}
 }
 
@@ -296,7 +295,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 					  item:(_NSQueueRegistration *) item
 {
 	NSString *mode;	// check to see if run loop is in a valid mode
-#if 0
+#if 1
 	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
 #endif
 	if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
@@ -331,10 +330,25 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		}
 }
 
++ (BOOL) _runLoopMore
+{ // return YES if the idle queue is not empty - this makes the runloop timeout immediately
+	_NSQueueInstanceList *item;
+#if 1
+	NSLog(@"_runLoopMore mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
+#endif
+	for (item = __notificationQueues; item; item = item->next)
+		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
+			return YES;	// found something
+#if 1
+	NSLog(@"_runLoopMore: no");
+#endif
+	return NO;
+}
+
 + (void) _runLoopIdle
 { // trigger the Idle items
 	_NSQueueInstanceList *item;
-#if 0
+#if 1
 	NSLog(@"_runLoopIdle mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
 	for (item = __notificationQueues; item; item = item->next)
