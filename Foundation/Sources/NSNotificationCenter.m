@@ -1,14 +1,14 @@
-/* 
-   NSNotificationCenter.m
+/*
+ NSNotificationCenter.m
 
-   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-   All rights reserved.
+ Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+ All rights reserved.
 
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+ Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
-   This file is part of the mySTEP Library and is provided under the 
-   terms of the libFoundation BSD type license (See the Readme file).
-*/
+ This file is part of the mySTEP Library and is provided under the
+ terms of the libFoundation BSD type license (See the Readme file).
+ */
 
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSObject.h>
@@ -26,7 +26,7 @@
 
 NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
 
-// Class variables	
+// Class variables
 static NSNotificationCenter *_defaultCenter = nil;
 static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
@@ -34,8 +34,8 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 @interface GSNoteObserver : NSObject
 {
 @public
-    id observer;						// observer that will receive selector
-    SEL selector;						// in a postNotification:
+	id observer;						// observer that will receive selector
+	SEL selector;						// in a postNotification:
 }
 
 - (BOOL) isEqual:other;
@@ -48,11 +48,11 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (BOOL) isEqual:(id)other
 {
-    if (![other isKindOfClass:[GSNoteObserver class]])
-    	return NO;
+	if (![other isKindOfClass:[GSNoteObserver class]])
+		return NO;
 
-	return (observer == ((GSNoteObserver *)other)->observer) 
-			&& sel_isEqual(selector, ((GSNoteObserver *)other)->selector);
+	return (observer == ((GSNoteObserver *)other)->observer)
+	&& sel_isEqual(selector, ((GSNoteObserver *)other)->selector);
 }
 
 - (unsigned) hash
@@ -68,11 +68,11 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 - (void) postNotification:(NSNotification*)notification
 {
 #if 0
-	NSLog(@"postNotification %@", notification, observer);
+	NSLog(@"postNotification %@", notification);
 	NSLog(@"  observer=%p", observer);
 	NSLog(@"  observer=%@", observer);
 #endif
-    [observer performSelector:selector withObject:notification];
+	[observer performSelector:selector withObject:notification];
 #if 0
 	NSLog(@"posted");
 #endif
@@ -83,7 +83,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 @interface GSNoteObjectObservers : NSObject				// Register for objects
 {														// to observer mapping
-    NSHashTable *observerItems;
+	NSHashTable *observerItems;
 }
 
 - (id) init;
@@ -98,14 +98,14 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (id) init
 {
-    observerItems = NSCreateHashTable(NSObjectHashCallBacks, DEFAULT_CAPACITY);
-    return self;
+	observerItems = NSCreateHashTable(NSObjectHashCallBacks, DEFAULT_CAPACITY);
+	return self;
 }
 
 - (void) dealloc
 {
-    NSFreeHashTable(observerItems);
-    [super dealloc];
+	NSFreeHashTable(observerItems);
+	[super dealloc];
 }
 
 - (NSUInteger) count				{ return NSCountHashTable(observerItems); }
@@ -115,17 +115,17 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 	NSHashEnumerator items = NSEnumerateHashTable(observerItems);
 	id reg;
 
-    while((reg = (id)NSNextHashEnumeratorItem(&items)))
+	while((reg = (id)NSNextHashEnumeratorItem(&items)))
 		[list addObject:reg];
 }
 
 - (void) addObserver:(id)observer selector:(SEL)selector
 {
 	GSNoteObserver *reg = [[GSNoteObserver alloc] autorelease];
-
+	NSLog(@"addObserver: %p:%@ selector:%@", observer, observer, NSStringFromSelector(selector));
 	reg->observer = observer;
 	reg->selector = selector;
-    NSHashInsertIfAbsent(observerItems, reg);
+	NSHashInsertIfAbsent(observerItems, reg);
 }
 
 - (void) removeObserver:(id)observer
@@ -136,22 +136,22 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 	NSHashEnumerator itemsEnum = NSEnumerateHashTable(observerItems);
 
 	[list autorelease];
-    
-    while((reg = (id)NSNextHashEnumeratorItem(&itemsEnum)))
+
+	while((reg = (id)NSNextHashEnumeratorItem(&itemsEnum)))
 		if (reg->observer == observer)
 			[list addObject:reg];
-    
-    for (i = [list count]-1; i >= 0; i--)
+
+	for (i = [list count]-1; i >= 0; i--)
 		NSHashRemove(observerItems, [list objectAtIndex:i]);
 }
 
 @end /* GSNoteObjectObservers */
 
 
-@interface GSNoteDictionary : NSObject					// Register for objects 
+@interface GSNoteDictionary : NSObject					// Register for objects
 {														// to observer mapping
-    NSMapTable *objectObservers;
-    GSNoteObjectObservers *nilObjectObservers;
+	NSMapTable *objectObservers;
+	GSNoteObjectObservers *nilObjectObservers;
 }
 
 - (id) init;
@@ -166,18 +166,18 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 - (id) init
 {
-    objectObservers = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, 
-								NSObjectMapValueCallBacks, DEFAULT_CAPACITY);
-    nilObjectObservers = [GSNoteObjectObservers new];
+	objectObservers = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+									   NSObjectMapValueCallBacks, DEFAULT_CAPACITY);
+	nilObjectObservers = [GSNoteObjectObservers new];
 
-    return self;
+	return self;
 }
 
 - (void) dealloc
 {
-    NSFreeMapTable(objectObservers);
-    [nilObjectObservers release];
-    [super dealloc];
+	NSFreeMapTable(objectObservers);
+	[nilObjectObservers release];
+	[super dealloc];
 }
 
 - (id) listToNotifyForObject:(id)object
@@ -185,66 +185,66 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 	GSNoteObjectObservers *reg = nil;
 	NSUInteger count;
 	NSMutableArray *list;
-    
-    if (object)
+
+	if (object)
 		reg = (id)NSMapGet(objectObservers, object);
-    count = [reg count] + [nilObjectObservers count];
-    list = [[[NSMutableArray alloc] initWithCapacity:count] autorelease];
-    [reg addObjectsToList:list];
-    [nilObjectObservers addObjectsToList:list];
-    
-    return list;
+	count = [reg count] + [nilObjectObservers count];
+	list = [[[NSMutableArray alloc] initWithCapacity:count] autorelease];
+	[reg addObjectsToList:list];
+	[nilObjectObservers addObjectsToList:list];
+
+	return list;
 }
 
 - (void) addObserver:(id)observer selector:(SEL)selector object:(id)object
 {
 	GSNoteObjectObservers *reg;
-    
-    if (object) 
+
+	if (object)
 		{
-		if (!(reg = (id)NSMapGet(objectObservers, object))) 
+		if (!(reg = (id)NSMapGet(objectObservers, object)))
 			{
 			reg = [[GSNoteObjectObservers new] autorelease];
 			NSMapInsert(objectObservers, object, reg);
-		}	}
-    else
+			}	}
+	else
 		reg = nilObjectObservers;
-    
-    [reg addObserver:observer selector:selector];
+
+	[reg addObserver:observer selector:selector];
 }
 
 - (void) removeObserver:(id)observer object:(id)object
 {
-GSNoteObjectObservers *reg;
+	GSNoteObjectObservers *reg;
 
 	reg = (object) ? NSMapGet(objectObservers, object) : nilObjectObservers;
-    [reg removeObserver:observer];
+	[reg removeObserver:observer];
 }
 
 - (void) removeObserver:(id)observer
 {
-id obj, reg;
-NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
+	id obj, reg;
+	NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 
-    while (NSNextMapEnumeratorPair(&regEnum, (void*)&obj, (void*)&reg))
+	while (NSNextMapEnumeratorPair(&regEnum, (void*)&obj, (void*)&reg))
 		[reg removeObserver:observer];
 
-    [nilObjectObservers removeObserver:observer];
+	[nilObjectObservers removeObserver:observer];
 }
 
 @end /* GSNoteDictionary */
 
 //*****************************************************************************
 //
-// 		NSNotificationCenter 
+// 		NSNotificationCenter
 //
 //*****************************************************************************
 
-@implementation NSNotificationCenter 
+@implementation NSNotificationCenter
 
 + (void) initialize
 {
-    if (_defaultCenter == nil) 
+	if (_defaultCenter == nil)
 		_defaultCenter = [self new];
 }
 
@@ -257,21 +257,21 @@ NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 		_nameToObjects = [NSMutableDictionary new];	// this requires that NSDictionary overwrites allocWithZone and not only alloc
 		_nullNameToObjects = [GSNoteDictionary new];
 		}
-    return self;
+	return self;
 }
 
 - (void) dealloc
 {
-    [_nameToObjects release];
-    [_nullNameToObjects release];
+	[_nameToObjects release];
+	[_nullNameToObjects release];
 
-    [super dealloc];
+	[super dealloc];
 }
 
-- (void) addObserver:(id)observer 
-			selector:(SEL)selector 
-			name:(NSString*)notificationName 
-			object:(id)object
+- (void) addObserver:(id)observer
+			selector:(SEL)selector
+				name:(NSString*)notificationName
+			  object:(id)object
 {
 #if 0
 	NSLog(@"addObserver %@", observer);
@@ -280,31 +280,31 @@ NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 	NSLog(@"object %@", object);
 #endif
 	GSNoteDictionary *reg;
-    if (notificationName == nil)
+	if (notificationName == nil)
 		reg = _nullNameToObjects;
-    else 
+	else
 		{
-		if (!(reg = [_nameToObjects objectForKey:notificationName])) 
+		if (!(reg = [_nameToObjects objectForKey:notificationName]))
 			{
 			reg = [[GSNoteDictionary new] autorelease];
 			[_nameToObjects setObject:reg forKey:notificationName];
-		}	}
+			}	}
 
-    [reg addObserver:observer selector:selector object:object];
-//	NSLog(@"done");
+	[reg addObserver:observer selector:selector object:object];
+	//	NSLog(@"done");
 }
 
-- (void) removeObserver:(id)observer 
-				   name:(NSString*)notificationName 
-				   object:(id)object
+- (void) removeObserver:(id)observer
+				   name:(NSString*)notificationName
+				 object:(id)object
 {
-GSNoteDictionary *reg;
+	GSNoteDictionary *reg;
 
-    if (notificationName == nil)
+	if (notificationName == nil)
 		reg = _nullNameToObjects;
-    else
+	else
 		reg = [_nameToObjects objectForKey:notificationName];
-    [reg removeObserver:observer object:object];
+	[reg removeObserver:observer object:object];
 }
 
 - (void) removeObserver:observer
@@ -312,26 +312,26 @@ GSNoteDictionary *reg;
 	NSString *name;
 	NSEnumerator *enumerator = [_nameToObjects keyEnumerator];
 
-    while ((name = [enumerator nextObject]))
+	while ((name = [enumerator nextObject]))
 		[[_nameToObjects objectForKey:name] removeObserver:observer];
 
-    [_nullNameToObjects removeObserver:observer];
+	[_nullNameToObjects removeObserver:observer];
 }
 
 - (void) postNotificationName:(NSString*)notificationName object:object
 {
 	NSNotification *notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:nil];
-    [self postNotification: notice];
-    [notice release];
+	[self postNotification: notice];
+	[notice release];
 }
 
-- (void) postNotificationName:(NSString*)notificationName 
+- (void) postNotificationName:(NSString*)notificationName
 					   object:object
-					   userInfo:(NSDictionary*)userInfo;
+					 userInfo:(NSDictionary*)userInfo;
 {
 	NSNotification *notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:userInfo];
 	[self postNotification: notice];
-    [notice release];
+	[notice release];
 }
 
 - (void) postNotification:(NSNotification*)notice
@@ -340,29 +340,29 @@ GSNoteDictionary *reg;
 	GSNoteDictionary *reg;								// registered observers
 	NSString *notificationName = [notice name];
 	id object = [notice object];
-												
-    if (notificationName == nil)
-		[NSException raise:NSInvalidArgumentException
-					 format:@"NSNotification: notification name is nil"];
-												// get objects to notify with
- 												// registered notification name
-    reg = [_nameToObjects objectForKey:notificationName];	
-    name = [reg listToNotifyForObject:object];
-												// get objects to notify with 
-												// no notification name
-    noname = [_nullNameToObjects listToNotifyForObject:object];
 
-												// send notifications
+	if (notificationName == nil)
+		[NSException raise:NSInvalidArgumentException
+					format:@"NSNotification: notification name is nil"];
+	// get objects to notify with
+	// registered notification name
+	reg = [_nameToObjects objectForKey:notificationName];
+	name = [reg listToNotifyForObject:object];
+	// get objects to notify with
+	// no notification name
+	noname = [_nullNameToObjects listToNotifyForObject:object];
+
+	// send notifications
 #if 0
 	NSLog(@"post notification %@", notice);
 	NSLog(@"  name %@", name);
 	NSLog(@"  noname %@", noname);
 #endif
 	NS_DURING
-		[name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
-		[noname makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
+	[name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
+	[noname makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
 	NS_HANDLER
-		NSLog(@"Exception during postNotification %@: %@", notice, [localException reason]);
+	NSLog(@"Exception during postNotification %@: %@", notice, [localException reason]);
 	NS_ENDHANDLER
 }
 
@@ -372,7 +372,7 @@ GSNoteDictionary *reg;
 
 + (void) initialize
 {
-    if (_defaultDistributedCenter == nil) 
+	if (_defaultDistributedCenter == nil)
 		_defaultDistributedCenter = (NSDistributedNotificationCenter *) [[self notificationCenterForType:NSLocalNotificationCenterType] retain];
 }
 
@@ -389,7 +389,7 @@ GSNoteDictionary *reg;
 {
 	if((self=[super init]))
 		{
-		
+
 		}
 	return self;
 }
@@ -400,7 +400,7 @@ GSNoteDictionary *reg;
 			  object:(NSString *) anObject
   suspensionBehavior:(NSNotificationSuspensionBehavior) suspensionBehavior;
 {
-	
+
 }
 
 - (void) postNotificationName:(NSString *) notificationName
@@ -416,7 +416,7 @@ GSNoteDictionary *reg;
 					 userInfo:(NSDictionary *) userInfo
 					  options:(NSUInteger) options;
 {
-	
+
 }
 
 - (void) setSuspended:(BOOL) flag;
