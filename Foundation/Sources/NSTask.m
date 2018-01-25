@@ -40,17 +40,22 @@ userInfo: nil]
 static void _catchChildExit(int sig);
 
 // Class variables
+NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";	// public
+
 static NSMutableArray *__taskList = nil;
-static NSNotification *__taskDidTerminate = nil;	// notification sent to NSTask class on SIGCHLD
+static NSNotification *__didReceiveSignal = nil;	// notification sent to NSTask class on SIGCHLD
 static BOOL __notifyTaskDidTerminate=YES;
-static int __childExitCount=0;
+static int __childExitSignalCount=0;
 static NSNotificationQueue *__notificationQueue = nil;
-NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
+static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification";	// internal
 
 @implementation NSTask
 
 - (void) _collectChild
 { // collect termination status
+#if 1
+	NSLog(@"_collectChild: %@", self);
+#endif
 	if (waitpid(_taskPID, &_terminationStatus, WNOHANG) == _taskPID)
 		{
 		_task.hasCollected = YES;
@@ -83,7 +88,6 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 			NSLog(@"b. tasklist=%@", __taskList);
 #endif
 			[__taskList removeObjectIdenticalTo:self];	// may issue a [self dealloc]
-			__childExitCount--;
 #if 0
 			NSLog(@"c. tasklist count=%d", [__taskList count]);
 			NSLog(@"c. tasklist=%@", __taskList);
@@ -94,18 +98,19 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 + (void) initialize
 {
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc addObserver: self
-		   selector: @selector(_taskDidTerminate:)
-			   name: NSTaskDidTerminateNotification
-			 object: self];
 	__taskList = [NSMutableArray new];
-	__taskDidTerminate = [NOTE(DidTerminate) retain];	// we must prepare this notfication so that it can be processed in a signal handler
-	[__taskDidTerminate _makeSignalSafe];	// will be called in signal context!
+	__didReceiveSignal = [NOTE(_DidSignal_) retain];	// we must prepare this notfication so that it can be processed in a signal handler
+	[__didReceiveSignal _makeSignalSafe];	// will be called in signal context!
+	[nc addObserver: self
+		   selector: @selector(_didReceiveSignal:)
+			   name: NSTask_DidSignal_Notification
+			 object: self];
 	__notifyTaskDidTerminate=YES;
 	__notificationQueue = [NSNotificationQueue defaultQueue];
 	(void)signal(SIGCHLD, _catchChildExit);				// set sig handler to catch child exit
-#if 0
+#if 1
 	fprintf(stderr, "NSTask: _catchChildExit installed\n");
+	fprintf(stderr, "NSTask: __didReceiveSignal = %s\n", [[__didReceiveSignal description] UTF8String]);
 #endif
 }
 
@@ -148,6 +153,20 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 	[super dealloc];
 }
 
+- (void) _checkIfLaunched:(SEL) cmd
+{
+	if (!_task.hasLaunched)
+		[NSException raise: NSInvalidArgumentException
+					format: @"NSTask - task has not yet launched (%@)", NSStringFromSelector(cmd)];
+}
+
+- (void) _checkIfNotLaunched:(SEL) cmd
+{
+	if (_task.hasLaunched)
+		[NSException raise: NSInvalidArgumentException
+					format: @"NSTask - task has not already been launched (%@)", NSStringFromSelector(cmd)];
+}
+
 - (NSString *) description;
 {
 	return [NSString stringWithFormat:@"NSTask: path=%@ args=%@ env=%@ pwd=%@", _launchPath, _arguments, _environment, _currentDirectoryPath];
@@ -163,37 +182,25 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 - (void) setEnvironment:(NSDictionary*)env
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
-
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_environment, env);
 }
 
 - (void) setArguments:(NSArray*)args
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
-
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_arguments, args);
 }
 
 - (void) setCurrentDirectoryPath:(NSString*)path
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
-
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_currentDirectoryPath, path);
 }
 
 - (void) setLaunchPath:(NSString*)path
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
-
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_launchPath, path);
 }
 
@@ -204,25 +211,19 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 - (void) setStandardInput:(id)fd
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_standardInput,fd);
 }
 
 - (void) setStandardOutput:(id)fd
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_standardOutput,fd);
 }
 
 - (void) setStandardError:(id)fd
 {
-	if (_task.hasLaunched)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has been launched"];
+	[self _checkIfNotLaunched:_cmd];
 	ASSIGN(_standardError,fd);
 }
 
@@ -232,23 +233,22 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 - (BOOL) isRunning
 {
-	return (_task.hasLaunched == NO || _task.hasTerminated == YES) ? NO : YES;
+	return _task.hasLaunched && !_task.hasTerminated;
 }
 
 - (int) terminationStatus
 {
-	if (_task.hasLaunched == NO)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has not yet launched"];
-	if (_task.hasTerminated == NO)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has not yet terminated"];
+	[self _checkIfLaunched:_cmd];
 
 	if (!_task.hasCollected)
 		[self _collectChild];
 	if (!_task.hasCollected)
 		[NSException raise: NSInvalidArgumentException
 					format: @"NSTask - could not collect termination status"];
+
+	if (!_task.hasTerminated)
+		[NSException raise: NSInvalidArgumentException
+					format: @"NSTask - task has not yet terminated"];
 
 	return _terminationStatus;
 }
@@ -261,7 +261,7 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 static int getfd(NSTask *self, id object, BOOL read, int def)
 { // extract file descriptor
-#if 1
+#if 0
 	NSLog(@"getfd(%@, def=%d)", object, def);
 #endif
 	if(!object)
@@ -298,7 +298,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	if (_launchPath == nil)
 		[NSException raise: NSInvalidArgumentException
 					format: @"NSTask: no launch path set"];
-#if 1
+#if 0
 	NSLog(@"executable=%s", [_launchPath fileSystemRepresentation]);
 #endif
 	if (![[NSFileManager defaultManager] isExecutableFileAtPath:_launchPath])
@@ -318,10 +318,9 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		args[i+1] = [[[a objectAtIndex: i] description] UTF8String];
 	args[argCount+1] = NULL;
 
-	// CHECKME: is this a good decision? or should we use $HOME?
 	if(_currentDirectoryPath == nil)
-		{ // use launch path to set the directory
-			_currentDirectoryPath =[_launchPath stringByDeletingLastPathComponent];
+		{ // use default directory
+			_currentDirectoryPath =NSHomeDirectory();
 			[_currentDirectoryPath retain];
 		}
 	path = [_currentDirectoryPath fileSystemRepresentation];
@@ -338,72 +337,67 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		envl[i] = [s UTF8String];
 		}
 	envl[envCount] = 0;
-#if 1
+#if 0
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif
 	_task.hasLaunched = YES;		// we may receive the SIGCHLD before our fork returns...
-	switch (pid = fork())	// fork to create a child process
-	{
+	switch (pid = fork()){	// fork to create a child process
 		case -1:
-		[NSException raise: NSInvalidArgumentException			// error
-					format: @"NSTask - failed to create child process"];
-		case 0:
-	{ // child process -- fork returns zero
-#if 1
-		NSLog(@"child process");
+			[NSException raise: NSInvalidArgumentException			// error
+						format: @"NSTask - failed to create child process"];
+		case 0: { // child process -- fork returns zero
+#if 0
+			NSLog(@"child process");
 #endif
-		// WARNING: don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
-		if(idesc != 0) dup2(idesc, 0);	// redirect
-		if(odesc != 1) dup2(odesc, 1);	// redirect
-		if(edesc != 2) dup2(edesc, 2);	// redirect
-		if(idesc > 2) close(idesc);	// original is no longer used after redirect
-		if(odesc > 2) close(odesc);	// original is no longer used after redirect
-		if(edesc > 2) close(edesc);	// original is no longer used after redirect
-									// close unused ends of NSPipes to free up file descriptors
-		if([_standardInput isKindOfClass:[NSPipe class]])
-			[[_standardInput fileHandleForWriting] closeFile];
-		if([_standardOutput isKindOfClass:[NSPipe class]])
-			[[_standardOutput fileHandleForReading] closeFile];
-		if([_standardError isKindOfClass:[NSPipe class]])
-			[[_standardError fileHandleForReading] closeFile];
-		// try to switch working directory
-		if(chdir(path) == 0)
-			{
-#if 1
-			NSLog(@"child %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
+			// WARNING: don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
+			if(idesc != 0) dup2(idesc, 0);	// redirect
+			if(odesc != 1) dup2(odesc, 1);	// redirect
+			if(edesc != 2) dup2(edesc, 2);	// redirect
+			if(idesc > 2) close(idesc);	// original is no longer used after redirect
+			if(odesc > 2) close(odesc);	// original is no longer used after redirect
+			if(edesc > 2) close(edesc);	// original is no longer used after redirect
+										// close unused ends of NSPipes to free up file descriptors
+			if([_standardInput isKindOfClass:[NSPipe class]])
+				[[_standardInput fileHandleForWriting] closeFile];
+			if([_standardOutput isKindOfClass:[NSPipe class]])
+				[[_standardOutput fileHandleForReading] closeFile];
+			if([_standardError isKindOfClass:[NSPipe class]])
+				[[_standardError fileHandleForReading] closeFile];
+			// try to switch working directory
+			if(chdir(path) == 0)
+				{
+#if 0
+				NSLog(@"child %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
 #endif
-			execve(executable, (char *const *)args, (char *const *)envl);	// and execute
-			NSLog(@"NSTask: unable to execve %s - exiting", executable);
-			}
-		else
-			NSLog(@"NSTask: unable to change directory to %s - exiting", path);
-		_task.hasTerminated=YES;	// since we did not execve, we still share the address space with our parent
-		exit(127);
-	}
-		default:
-	{ // parent process -- fork returns PID of child
-		_taskPID = pid;
-		// close unused ends of NSPipes to free up file descriptors
-		if([_standardInput isKindOfClass:[NSPipe class]])
-			[[_standardInput fileHandleForReading] closeFile];
-		if([_standardOutput isKindOfClass:[NSPipe class]])
-			[[_standardOutput fileHandleForWriting] closeFile];
-		if([_standardError isKindOfClass:[NSPipe class]])
-			[[_standardError fileHandleForWriting] closeFile];
-#if 1
-		NSLog(@"parent %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
+				execve(executable, (char *const *)args, (char *const *)envl);	// and execute
+				NSLog(@"NSTask: unable to execve %s - exiting", executable);
+				}
+			else
+				NSLog(@"NSTask: unable to change directory to %s - exiting", path);
+			_task.hasTerminated=YES;	// since we did not execve, we still share the address space with our parent
+			exit(127);
+		}
+		default: { // parent process -- fork returns PID of child
+			_taskPID = pid;
+			// close unused ends of NSPipes to free up file descriptors
+			if([_standardInput isKindOfClass:[NSPipe class]])
+				[[_standardInput fileHandleForReading] closeFile];
+			if([_standardOutput isKindOfClass:[NSPipe class]])
+				[[_standardOutput fileHandleForWriting] closeFile];
+			if([_standardError isKindOfClass:[NSPipe class]])
+				[[_standardError fileHandleForWriting] closeFile];
+#if 0
+			NSLog(@"parent %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
 #endif
-		break;
-	}
+			break;
+		}
 	}
 }
 
 - (void) interrupt
 {
-	if (_task.hasLaunched == NO)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has not yet launched"];
+	[self _checkIfLaunched:_cmd];
 
 	if (!_task.hasTerminated)
 		{
@@ -417,9 +411,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 - (void) terminate
 {
-	if (_task.hasLaunched == NO)
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has not yet launched"];
+	[self _checkIfLaunched:_cmd];
 
 	if (!_task.hasTerminated)
 		{
@@ -434,6 +426,8 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 - (BOOL) suspend;
 {
+	[self _checkIfLaunched:_cmd];
+
 	if(_suspendCount++ == 0)
 		{ // first suspend
 		  // send SIGSTOP
@@ -445,6 +439,8 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 - (BOOL) resume;
 {
+	[self _checkIfLaunched:_cmd];
+
 	if(--_suspendCount == 0)
 		{ // matching first suspend
 		  // send SIGSTART
@@ -459,22 +455,30 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #if 0
 	NSLog(@"waitUntilExit");
 #endif
+	[self retain];	// _collectChild may dealloc
 	while([self isRunning])
 		{
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];	// will return if we catch a signal, e.g. SIGCHLD
 		}
+	[self release];
 #if 0
 	NSLog(@"didExit %@", self);
 #endif
 }
 
-+ (void) _taskDidTerminate:(NSNotification *)aNotification
-{ // we receive this notification from the runloop at next idle time after _catchChildExit() - our clients may receive this as well!
+/* glue with signal handler */
+
++ (void) _didReceiveSignal:(NSNotification *)aNotification
+{ // we receive this notification from the runloop at next idle time after _catchChildExit()
+#if 1
+	NSLog(@"_didReceiveSignal: %@", aNotification);
+#endif
 	do
 		{
 		NSAutoreleasePool *pool = [NSAutoreleasePool new];
 		NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
 		NSTask *anObject;
+		// NOTE: if application calls system() or popen() we may be notified even if no NSTask is involved - then we will not collect anyone
 		while ((anObject = (NSTask*)[enumerator nextObject]))
 			{
 			if (!anObject->_task.hasCollected)
@@ -488,12 +492,13 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #if 0
 		NSLog(@"e. tasklist count=%d", [__taskList count]);
 #endif
-		} while(__childExitCount > 0 && [__taskList count] > 0);	// we have lost some signal while processing the task loop
-	__notifyTaskDidTerminate=YES;	// reenable queuing another notification
-#if 1
-	if(__childExitCount != 0)	// system() may disturb our counter
+		__childExitSignalCount--;	// signal has been matched
+		} while(__childExitSignalCount > 0 && [__taskList count] > 0);	// we probably have lost some signal while processing the task loop
+	__notifyTaskDidTerminate=YES;	// reenable queueing another notification
+#if 0
+	if(__childExitSignalCount != 0)	// system() may disturb our counter and if a SIGNAL occurs between the while() and __notifyTaskDidTerminate=YES
 		{
-		NSLog(@"did probably loose %d SIGCHLD notification(s)", __childExitCount);
+		NSLog(@"did probably loose %d SIGCHLD notification(s)", __childExitSignalCount);
 		NSLog(@"  tasklist count=%lu", (unsigned long)[__taskList count]);
 		NSLog(@"  tasklist=%@", __taskList);
 		}
@@ -509,24 +514,24 @@ static void _catchChildExit(int sig)
 #endif
 	if(sig == SIGCHLD)
 		{
-		__childExitCount++;	// this includes children created through the system() call!
+		__childExitSignalCount++;	// this includes children created through the system() call!
 		if(__notifyTaskDidTerminate)
 			{ /* coalesce by not enqueueing more than once */
 				__notifyTaskDidTerminate=NO;	// ignore further signals until we have received this notification through the runloop - CHECKME: might this create a short blind period?
-				/* NOTE: __taskDidTerminate must be initialized signalsafe and modes must be nil
+				/* NOTE: __didReceiveSignal must be initialized signalsafe and modes must be nil
 				 * we should also not do coalescing in signal handler context
 				 */
-				[__notificationQueue enqueueNotification:__taskDidTerminate
+				[__notificationQueue enqueueNotification:__didReceiveSignal
 											postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
 											coalesceMask:NSNotificationNoCoalescing
 												forModes:nil];
-#if 0
-				fprintf(stderr, "_catchChildExit notification queued count=%d\n", __childExitCount);
+#if 1
+				fprintf(stderr, "_catchChildExit notification queued count=%d\n", __childExitSignalCount);
 #endif
 			}
-#if 0
+#if 1
 		else
-			fprintf(stderr, "_catchChildExit skipped count=%d\n", __childExitCount);
+			fprintf(stderr, "_catchChildExit skipped count=%d\n", __childExitSignalCount);
 #endif
 		}
 }
