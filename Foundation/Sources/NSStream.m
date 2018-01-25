@@ -221,6 +221,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
+#if 1
+	NSLog(@"read:maxLength:");
+#endif
 	NSInteger n=read(_fd, buffer, len);
 	if(n < 0)
 		return n;	// error
