@@ -1,20 +1,20 @@
-/* 
-   NSFileHandle.m
+/*
+ NSFileHandle.m
 
-   Implementation of NSFileHandle for mySTEP
+ Implementation of NSFileHandle for mySTEP
 
-   Copyright (C) 1997 Free Software Foundation, Inc.
+ Copyright (C) 1997 Free Software Foundation, Inc.
 
-   Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	1997
+ Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
+ Date:	1997
 
-   Complete rewrite based on NSStream:
-   Dr. H. Nikolaus Schaller <hns@computer.org>
-   Date: Jan 2006
- 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ Complete rewrite based on NSStream:
+ Dr. H. Nikolaus Schaller <hns@computer.org>
+ Date: Jan 2006
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 // CODE NOT TESTED
 
@@ -59,7 +59,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 @implementation NSFileHandle
 
 + (void) initialize;
-{  
+{
 	if(self == [NSFileHandle class])
 		{
 		signal(SIGPIPE, SIG_IGN);	// If SIGPIPE is not ignored, we will abort on any attempt to write to a pipe/socket that has been closed by the other end!
@@ -87,21 +87,21 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 {
 	if(!__stderr)
 		__stderr=[[self alloc] initWithFileDescriptor:2 closeOnDealloc:NO];
-    return __stderr;
+	return __stderr;
 }
 
 + (id) fileHandleWithStandardInput
 {
 	if(!__stdin)
 		__stdin=[[self alloc] initWithFileDescriptor:0 closeOnDealloc:NO];
-    return __stdin;
+	return __stdin;
 }
 
 + (id) fileHandleWithStandardOutput
 {
 	if(!__stdout)
 		__stdout=[[self alloc] initWithFileDescriptor:1 closeOnDealloc:NO];
-    return __stdout;
+	return __stdout;
 }
 
 + (id) fileHandleWithNullDevice
@@ -113,7 +113,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (id) initWithFileDescriptor:(int) fd
 {
-    return [self initWithFileDescriptor:fd closeOnDealloc:NO];
+	return [self initWithFileDescriptor:fd closeOnDealloc:NO];
 }
 
 - (id) initWithFileDescriptor:(int) fd closeOnDealloc:(BOOL) flag;
@@ -145,7 +145,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"NSFileHandle dealloc");
 #endif
 	[self finalize];
@@ -179,6 +179,66 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	listen([self fileDescriptor], 128);
 }
 
+#define FRAGMENT (10*1024)
+
+- (NSData *) readDataOfLength:(NSUInteger) length;
+{
+	unsigned char *buffer=NULL;
+	NSUInteger bufpos=0;
+	NSUInteger ulen;
+	int len;
+#if 1
+	NSLog(@"NSFileHandle: readDataOfLength %u", length);
+#endif
+	if([_inputStream getBuffer:&buffer length:&ulen])
+		return [NSData dataWithBytes:buffer length:MIN(ulen, length)];	// buffer is directly available
+	while(length > 0)
+		{ // read in chunks and enlarge buffer if required
+			if(bufpos == 0)
+				buffer=objc_malloc(bufpos+FRAGMENT);
+			else
+				buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next chunk
+			if(!buffer)
+				return nil;	// we can't allocate a buffer
+#if 0
+			NSLog(@"bufsize=%u read length=%u", bufpos+FRAGMENT, MIN(length, FRAGMENT));
+#endif
+			errno=0;
+			len=read([_inputStream _readFileDescriptor], buffer+bufpos, MIN(length, FRAGMENT));	// fetch as much as possible but still in chunks
+#if 1
+			NSLog(@"returned length=%u err=%s", len, strerror(errno));
+#endif
+			if(len == 0)
+				break;	// EOF
+			if(len < 0)
+				{ // error
+					if(errno == EWOULDBLOCK)
+						{ // there is currently no more data available
+#if 1
+							NSLog(@"NSFileHandle: no more data available - %s", strerror(errno));
+#endif
+							errno=0;	// don't report
+							break;
+						}
+					objc_free(buffer);
+					[NSException raise:NSFileHandleOperationException format:@"NSFileHandle: failed to read data - %s", strerror(errno)];
+					return nil;
+				}
+			bufpos+=len;
+			length-=len;
+		}
+#if 1
+	NSLog(@"NSFileHandle: readDataOfLength => %u", bufpos, strerror(errno));
+#endif
+	if(bufpos == 0)
+		{
+		objc_free(buffer);
+		return [NSData data];	// empty data
+		}
+	buffer=objc_realloc(buffer, bufpos);	// free unused buffer space
+	return [NSData dataWithBytesNoCopy:buffer length:bufpos freeWhenDone:YES];	// take over responsibility for buffer
+}
+
 - (NSData *) readDataToEndOfFile;
 { // read as much as we can hold in an NSData
 	return [self readDataOfLength:NSIntegerMax];
@@ -190,75 +250,29 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	NSData *r=nil;
 	unsigned char *buffer;
 	NSUInteger len;
+#if 0
+	NSLog(@"availableData 1: %d", errno);
+#endif
 	if([_inputStream getBuffer:&buffer length:&len])
 		return [NSData dataWithBytes:buffer length:len];	// buffer was directly available
 	fd=[_inputStream _readFileDescriptor];
 	fcntl(fd, F_SETFL, O_NONBLOCK);		// don't block
 	NS_DURING
-		r=[self readDataToEndOfFile];
-		// we should save errno here!
+	r=[self readDataToEndOfFile];
+#if 1
+	NSLog(@"availableData 2: %d", errno);
+#endif
+	// we should save errno here!
 	NS_HANDLER
-		fcntl(fd, F_SETFL, O_ASYNC);	// back to normal operation even in case of an exception
-		[localException raise];			// re-raise
+	fcntl(fd, F_SETFL, O_ASYNC);	// back to normal operation even in case of an exception
+	[localException raise];			// re-raise
 	NS_ENDHANDLER
 	fcntl(fd, F_SETFL, O_ASYNC);		// back to normal operation
+	// we should restore errno here!
+#if 0
+	NSLog(@"availableData 3: %d %@", errno, r);
+#endif
 	return r;
-}
-
-#define FRAGMENT (10*1024)
-
-- (NSData *) readDataOfLength:(NSUInteger) length;
-{
-	unsigned char *buffer=NULL;
-	NSUInteger bufpos=0;
-	NSUInteger ulen;
-	int len;
-#if 0
-	NSLog(@"NSFileHandle: readDataOfLength %u", length);
-#endif
-	if([_inputStream getBuffer:&buffer length:&ulen])
-		return [NSData dataWithBytes:buffer length:MIN(ulen, length)];	// buffer is directly available
-	do
-		{ // read in chunks and enlarge buffer if required
-		if(bufpos == 0)
-			buffer=objc_malloc(bufpos+FRAGMENT);
-		else
-			buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next chunk
-		if(!buffer)
-			return nil;	// we can't allocate a buffer
-#if 0
-		NSLog(@"bufsize=%u read length=%u", bufpos+FRAGMENT, MIN(length, FRAGMENT));
-#endif
-		len=[_inputStream read:buffer+bufpos maxLength:MIN(length, FRAGMENT)];	// fetch as much as possible but still in chunks
-#if 0
-		NSLog(@"returned length=%u err=%s", len, strerror(errno));
-#endif
-		if(len == 0)
-			break;	// EOF
-		if(len < 0)
-			{ // error
-			if(errno == EWOULDBLOCK)
-				{ // there is currently no more data available
-#if 0
-				NSLog(@"NSFileHandle: no more data available - %s", strerror(errno));
-#endif
-				errno=0;	// don't report
-				break;
-				}
-			objc_free(buffer);
-			[NSException raise:NSFileHandleOperationException format:@"NSFileHandle: failed to read data - %s", strerror(errno)];	
-			return nil;
-			}
-		bufpos+=len;
-		length-=len;
-		} while(length > 0);
-	if(bufpos == 0)
-		{
-		objc_free(buffer);
-		return [NSData data];	// empty data
-		}
-	buffer=objc_realloc(buffer, bufpos);	// free unused buffer space
-	return [NSData dataWithBytesNoCopy:buffer length:bufpos freeWhenDone:YES];	// take over responsibility for buffer
 }
 
 - (void) readInBackgroundAndNotify;
@@ -299,7 +313,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	off_t result=lseek([_outputStream _writeFileDescriptor], 0, SEEK_CUR);
 	if(result < 0)
 		[NSException raise:NSFileHandleOperationException
-					format:@"failed to determine offset in NSFileHandle - %s", strerror(errno)];	
+					format:@"failed to determine offset in NSFileHandle - %s", strerror(errno)];
 	return (unsigned long long) result;
 }
 
@@ -308,7 +322,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	off_t result=lseek([_outputStream _writeFileDescriptor], 0l, SEEK_END);
 	if(result < 0)
 		[NSException raise:NSFileHandleOperationException
-					format:@"failed to seek to EOF in NSFileHandle - %s", strerror(errno)];	
+					format:@"failed to seek to EOF in NSFileHandle - %s", strerror(errno)];
 	return (unsigned long long) result;
 }
 
@@ -317,7 +331,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	off_t result=lseek([_outputStream _writeFileDescriptor], (off_t) offset, SEEK_SET);
 	if(result < 0)
 		[NSException raise:NSFileHandleOperationException
-					format:@"failed to move to offset in NSFileHandle - %s", strerror(errno)];	
+					format:@"failed to move to offset in NSFileHandle - %s", strerror(errno)];
 }
 
 - (void) synchronizeFile; { fsync([_outputStream _writeFileDescriptor]); }
@@ -326,7 +340,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 {
 	if(ftruncate([_outputStream _writeFileDescriptor], size) < 0)
 		[NSException raise:NSFileHandleOperationException
-					format:@"failed to truncate in NSFileHandle - %s", strerror(errno)];	
+					format:@"failed to truncate in NSFileHandle - %s", strerror(errno)];
 	[self seekToFileOffset:size];
 }
 
@@ -337,7 +351,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	len=[_outputStream write:[data bytes] maxLength:cnt];
 	if(len < 0 || len != cnt)
 		[NSException raise:NSFileHandleOperationException
-					format:@"failed to write to NSFileHandle - %s", strerror(errno)];	
+					format:@"failed to write to NSFileHandle - %s", strerror(errno)];
 }
 
 // internal methods
@@ -351,59 +365,58 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 #endif
 	if(mode == kIsNotWaiting)
 		{ // don't wait
-		if(_readMode != kIsNotWaiting)
-		   	{ // remove current modes from runloop
-			e=[_readModes objectEnumerator];
-			while((m=[e nextObject]))
-				[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:m];
-			[_readModes release];
-			_readModes=nil;
-			_readMode=mode;	
-			}
-		return;
+			if(_readMode != kIsNotWaiting)
+				{ // remove current modes from runloop
+					e=[_readModes objectEnumerator];
+					while((m=[e nextObject]))
+						[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:m];
+					[_readModes release];
+					_readModes=nil;
+					_readMode=mode;
+				}
+			return;
 		}
 	else
 		{ // set mode
-		if(_readMode != kIsNotWaiting)
-			[NSException raise:NSFileHandleOperationException
-					format:@"already running a background notification for NSFileHandle"];	
-		else
-			{ // add to runloop
-			if(!modes)
-				modes=[NSArray arrayWithObject:NSDefaultRunLoopMode];	// default mode
-			_readModes=[modes retain];	// save modes so that we can remove properly if mode is set to kIsNotWaiting
-			e=[_readModes objectEnumerator];
-			while((m=[e nextObject]))
-				[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:m];
-			_readMode=mode;	
-			}
+			if(_readMode != kIsNotWaiting)
+				[NSException raise:NSFileHandleOperationException
+							format:@"already running a background notification for NSFileHandle"];
+			else
+				{ // add to runloop
+					if(!modes)
+						modes=[NSArray arrayWithObject:NSDefaultRunLoopMode];	// default mode
+					_readModes=[modes retain];	// save modes so that we can remove properly if mode is set to kIsNotWaiting
+					e=[_readModes objectEnumerator];
+					while((m=[e nextObject]))
+						[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:m];
+					_readMode=mode;
+				}
 		}
 }
 
 /*
  FIXME:
  because we receive from untrustworthy sources here, we must protect against malformed headers trying to create buffer overflows.
- This might also be some very lage constant for record length which wraps around the 32bit address limit (e.g. a negative record length).
+ This might also be some very large constant for record length which wraps around the 32bit address limit (e.g. a negative record length).
  Ending up in infinite loops blocking the system.
  */
 
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event
 {
-#if 0
+#if 1
 	NSLog(@"[%@ %@] event=%d readmode=%d", NSStringFromClass([self class]), NSStringFromSelector(_cmd), event, _readMode);
 #endif
-    if(stream == _inputStream) 
+	errno=0;
+	if(stream == _inputStream)
 		{
-		switch(event)
-			{
+		switch(event) {
 			default:
 				break;
-			case NSStreamEventOpenCompleted: 	// ignore
+			case NSStreamEventOpenCompleted:	// ignore
 				return;
-			case NSStreamEventHasBytesAvailable:
-				{ // NSInputStream notifies successful select() on listen() by "readable event"
-					if(_readMode & kIsListening)
-						{ // listen is successful
+			case NSStreamEventHasBytesAvailable: { // NSInputStream notifies successful select() on listen() by "readable event"
+				if(_readMode & kIsListening)
+					{ // listen is successful
 						int newfd=accept([_inputStream _readFileDescriptor], NULL, NULL);	// sender's socket is ignored
 						NSNumber *error=[NSNumber numberWithInt:errno];
 						NSFileHandle *newfh=[[NSFileHandle alloc] initWithFileDescriptor:newfd];
@@ -416,22 +429,22 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 																			  nil]];
 						[newfh release];
 						return;
-						}
-					if(!(_readMode & kIsWaiting))
-						{ // fetch data for immediate notification
+					}
+				if(!(_readMode & kIsWaiting))
+					{ // fetch data for immediate notification
 						NSData *data=[self availableData];	// as much as we can get
 						NSNumber *error=[NSNumber numberWithInt:errno];
 						if(_readMode & kIsReadingToEOF)
 							{
 							if(errno)
 								{ // some error occurred
-								[self _setReadMode:kIsNotWaiting inModes:nil];
-								[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadToEndOfFileCompletionNotification
-																					object:self
-																					userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																						data, NSFileHandleNotificationDataItem,
-																						error, NSFileHandleError,
-																						nil]];
+									[self _setReadMode:kIsNotWaiting inModes:nil];
+									[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadToEndOfFileCompletionNotification
+																						object:self
+																					  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+																								data, NSFileHandleNotificationDataItem,
+																								error, NSFileHandleError,
+																								nil]];
 								}
 							else
 								{
@@ -442,27 +455,27 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 								}
 							}
 						else
-							{ // not to EOF
-							[self _setReadMode:kIsNotWaiting inModes:nil];
-							[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
-																				object:self
-																				userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																					data, NSFileHandleNotificationDataItem,
-																					error, NSFileHandleError,
-																					nil]];
+							{
+								[self _setReadMode:kIsNotWaiting inModes:nil];
+							// if([data length] > 0) // not to EOF - report only if we really have got data
+									[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
+																						object:self
+																					  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+																								data, NSFileHandleNotificationDataItem,
+																								error, NSFileHandleError,
+																								nil]];
 							}
-						}
-					else
-						{ // waiting
+					}
+				else
+					{ // waiting
 						[self _setReadMode:kIsNotWaiting inModes:nil];
 						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleDataAvailableNotification object:self];
-						}
-					return;
-				}
-			case NSStreamEventEndEncountered:
-				{
-					if(!(_readMode & kIsWaiting))
-						{ // final notification
+					}
+				return;
+			}
+			case NSStreamEventEndEncountered: {
+				if(!(_readMode & kIsWaiting))
+					{ // final notification
 						NSNumber *error=[NSNumber numberWithInt:0];	// fine
 						if(_readMode & kIsReadingToEOF)
 							{
@@ -477,7 +490,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 							_inputBuffer=nil;
 							}
 						else
-							{
+							{ // report empty NSData
 							[self _setReadMode:kIsNotWaiting inModes:nil];
 							[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
 																				object:self
@@ -486,30 +499,29 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 																				  error, NSFileHandleError,
 																				  nil]];
 							}
-						}
-					else
-						{ // waiting mode
+					}
+				else
+					{ // waiting mode
 						[self _setReadMode:kIsNotWaiting inModes:nil];
 						// ??
 						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleDataAvailableNotification object:self];
-						}
-					return;
-				}
-			}
-		}
-	else if(stream == _outputStream)
-		{
-		switch(event)
-			{
-			default:
-				break;
-			case NSStreamEventOpenCompleted: 	// ignore
+					}
 				return;
 			}
 		}
+		}
+	else if(stream == _outputStream)
+		{
+		switch(event) {
+			default:
+				break;
+			case NSStreamEventOpenCompleted:	// ignore
+				return;
+		}
+		}
 	NSLog(@"An error %@ occurred on the event %lu of stream %@ of %@", [stream streamError], (unsigned long)event, stream, self);
 }
-				
+
 @end // NSFileHandle
 
 @implementation NSPipe
@@ -528,8 +540,8 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 		int fd[2];
 		if(pipe(fd))
 			{ // system error on pipe creation
-			[self release];
-			return nil;
+				[self release];
+				return nil;
 			}
 		read=[[NSFileHandle alloc] initWithFileDescriptor:fd[0] closeOnDealloc:YES];
 		write=[[NSFileHandle alloc] initWithFileDescriptor:fd[1] closeOnDealloc:YES];
