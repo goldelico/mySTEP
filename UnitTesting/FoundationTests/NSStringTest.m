@@ -340,9 +340,22 @@ TEST1(21, @"~/path", stringByStandardizingPath, [NSHomeDirectory() stringByAppen
 TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// implicitly assumes that /.. is the same as /
 
 // add many more such tests
-// FIXME: test creation, conversions, appending, mutability, sorting, isEqual, intValue, floatValue etc.
+// FIXME: test creation, conversions, appending, mutability, sorting, isEqual etc.
 
-- (void) test90
+- (void) testReplacements
+{
+	NSString *obj=@"abcdefgabcdefg";
+	XCTAssertEqualObjects([obj self], @"abcdefgabcdefg", @"");
+	XCTAssertEqualObjects([obj stringByReplacingOccurrencesOfString:@"def" withString:@"rep"], @"abcrepgabcrepg", @"");	// two pattern matches and replacements
+	XCTAssertEqualObjects([obj stringByReplacingOccurrencesOfString:@"def" withString:@"rep" options:0 range:NSMakeRange(0, 6)], @"abcrepgabcdefg", @"");	// range covers only one pattern
+	XCTAssertEqualObjects([obj stringByReplacingOccurrencesOfString:@"def" withString:@"rep" options:0 range:NSMakeRange(0, 5)], @"abcdefgabcdefg", @"");	// pattern must be fully in range
+	XCTAssertEqualObjects([obj stringByReplacingOccurrencesOfString:@"def" withString:@"rep" options:0 range:NSMakeRange(3, 3)], @"abcrepgabcdefg", @"");	// pattern is in range
+	XCTAssertEqualObjects([obj stringByReplacingOccurrencesOfString:@"def" withString:@"rep" options:0 range:NSMakeRange(4, 3)], @"abcdefgabcdefg", @"");	// pattern must be fully in range
+	// replacing range
+	// replacing with options
+}
+
+- (void) testGetNumericalValues
 {
 	NSString *obj=@"0";
 	XCTAssertEqualObjects([obj self], @"0", @"");
