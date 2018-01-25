@@ -177,6 +177,7 @@
 		case NSXMLCommentKind:
 			// escape -- in comments
 			if(documentKind != NSXMLDocumentTextKind)
+				//what if there is --> part of the string???
 				[str appendFormat:@"<!--%@-->", _objectValue];
 			break;
 		case NSXMLTextKind:

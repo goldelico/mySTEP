@@ -513,7 +513,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop has any idle notifications and timeout immediately
 		{
-#if 1
+#if 0
 		NSLog(@"_runLoopForMode:%@ beforeDate:%@ - has idle notifications", mode, before);
 #endif
 		timeout.tv_sec = 0;
@@ -607,7 +607,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	// FIXME: we must only select until the next timer fires and loop until we have reached the before-date - or any input watcher has data to process
 
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
-#if 1
+#if 0
 	NSLog(@"NSRunLoop select returned %d", select_return);
 #endif
 	anyInput=NO;
@@ -624,7 +624,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if(select_return == 0)
 		{
-#if 1
+#if 0
 		NSLog(@"NSRunLoop run idle");
 #endif
 		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
@@ -655,7 +655,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					NSObject *w = NSMapGet(rfd_2_object, (void*)fd_index);
 					// FIXME: is it possible that some other handler or _runLoopASAP has removed this watcher while we did wait/select?
 					NSAssert(w, NSInternalInconsistencyException);
-#if 1
+#if 0
 					NSLog(@"_readFileDescriptorReady: %@", w);
 #endif
 					[w _readFileDescriptorReady];	// notify
@@ -701,7 +701,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 - (BOOL) runMode:(NSString *) mode beforeDate:(NSDate *) limit_date
 { // block until limit_date or input becomes available - triggers timers (repeatedly)
-#if 1
+#if 0
 	NSLog(@"runMode:%@ beforeDate:%@", mode, limit_date);
 #endif
 	// should run once if we have any timers (?)

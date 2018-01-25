@@ -53,7 +53,7 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 
 - (void) _collectChild
 { // collect termination status
-#if 1
+#if 0
 	NSLog(@"_collectChild: %@", self);
 #endif
 	if (waitpid(_taskPID, &_terminationStatus, WNOHANG) == _taskPID)
@@ -108,7 +108,7 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 	__notifyTaskDidTerminate=YES;
 	__notificationQueue = [NSNotificationQueue defaultQueue];
 	(void)signal(SIGCHLD, _catchChildExit);				// set sig handler to catch child exit
-#if 1
+#if 0
 	fprintf(stderr, "NSTask: _catchChildExit installed\n");
 	fprintf(stderr, "NSTask: __didReceiveSignal = %s\n", [[__didReceiveSignal description] UTF8String]);
 #endif
@@ -470,7 +470,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 + (void) _didReceiveSignal:(NSNotification *)aNotification
 { // we receive this notification from the runloop at next idle time after _catchChildExit()
-#if 1
+#if 0
 	NSLog(@"_didReceiveSignal: %@", aNotification);
 #endif
 	do
@@ -509,7 +509,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 static void _catchChildExit(int sig)
 { // this is a signal handler - don't allocate memory or put anything into an ARP (like NSLog does)!
-#if 1
+#if 0
 	fprintf(stderr, "_catchChildExit %d\n", sig);
 #endif
 	if(sig == SIGCHLD)
@@ -525,7 +525,7 @@ static void _catchChildExit(int sig)
 											postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
 											coalesceMask:NSNotificationNoCoalescing
 												forModes:nil];
-#if 1
+#if 0
 				fprintf(stderr, "_catchChildExit notification queued count=%d\n", __childExitSignalCount);
 #endif
 			}

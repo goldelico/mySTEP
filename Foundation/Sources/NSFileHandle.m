@@ -187,7 +187,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	NSUInteger bufpos=0;
 	NSUInteger ulen;
 	int len;
-#if 1
+#if 0
 	NSLog(@"NSFileHandle: readDataOfLength %u", length);
 #endif
 	if([_inputStream getBuffer:&buffer length:&ulen])
@@ -205,7 +205,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 #endif
 			errno=0;
 			len=read([_inputStream _readFileDescriptor], buffer+bufpos, MIN(length, FRAGMENT));	// fetch as much as possible but still in chunks
-#if 1
+#if 0
 			NSLog(@"returned length=%u err=%s", len, strerror(errno));
 #endif
 			if(len == 0)
@@ -214,7 +214,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 				{ // error
 					if(errno == EWOULDBLOCK)
 						{ // there is currently no more data available
-#if 1
+#if 0
 							NSLog(@"NSFileHandle: no more data available - %s", strerror(errno));
 #endif
 							errno=0;	// don't report
@@ -227,7 +227,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 			bufpos+=len;
 			length-=len;
 		}
-#if 1
+#if 0
 	NSLog(@"NSFileHandle: readDataOfLength => %u", bufpos, strerror(errno));
 #endif
 	if(bufpos == 0)
@@ -259,7 +259,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	fcntl(fd, F_SETFL, O_NONBLOCK);		// don't block
 	NS_DURING
 	r=[self readDataToEndOfFile];
-#if 1
+#if 0
 	NSLog(@"availableData 2: %d", errno);
 #endif
 	// we should save errno here!
@@ -403,7 +403,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event
 {
-#if 1
+#if 0
 	NSLog(@"[%@ %@] event=%d readmode=%d", NSStringFromClass([self class]), NSStringFromSelector(_cmd), event, _readMode);
 #endif
 	errno=0;
@@ -457,13 +457,12 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 						else
 							{
 								[self _setReadMode:kIsNotWaiting inModes:nil];
-							// if([data length] > 0) // not to EOF - report only if we really have got data
-									[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
-																						object:self
-																					  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																								data, NSFileHandleNotificationDataItem,
-																								error, NSFileHandleError,
-																								nil]];
+								[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
+																					object:self
+																				  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+																							data, NSFileHandleNotificationDataItem,
+																							error, NSFileHandleError,
+																							nil]];
 							}
 					}
 				else

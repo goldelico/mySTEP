@@ -80,7 +80,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"NSStream dealloc %@", self);
 #endif
 	if(_streamStatus != NSStreamStatusClosed)
@@ -200,7 +200,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		// FIXME: how can we be removed from ALL runloops?
 		// _removeWatcher should be a class method of NSRunLoop!
 		[[NSRunLoop currentRunLoop] _removeWatcher:self];
-#if 1
+#if 0
 		NSLog(@"close(%d) %@", _fd, self);
 #endif
 		close(_fd);
@@ -221,7 +221,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-#if 1
+#if 0
 	NSLog(@"read:maxLength:");
 #endif
 	NSInteger n=read(_fd, buffer, len);
@@ -466,7 +466,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		{
 		// FIXME: how can we be removed from ALL runloops?
 		[[NSRunLoop currentRunLoop] _removeWatcher:self];
-#if 1
+#if 0
 		NSLog(@"close(%d) %@", _fd, self);
 #endif
 		close(_fd);
@@ -649,12 +649,12 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	static BOOL sslInitialized=NO;
 	struct sockaddr_in _addr;
 	socklen_t addrlen=sizeof(_addr);
-#if 1
+#if 0
 	NSLog(@"open %@", self);
 #endif
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
-#if 1
+#if 0
 		NSLog(@"status %lu for %@", (unsigned long)_streamStatus, self);
 #endif
 		[self _sendErrorWithDomain:@"already open" code:0];

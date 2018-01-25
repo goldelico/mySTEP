@@ -122,7 +122,9 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 - (void) addObserver:(id)observer selector:(SEL)selector
 {
 	GSNoteObserver *reg = [[GSNoteObserver alloc] autorelease];
+#if 0
 	NSLog(@"addObserver: %p:%@ selector:%@", observer, observer, NSStringFromSelector(selector));
+#endif
 	reg->observer = observer;
 	reg->selector = selector;
 	NSHashInsertIfAbsent(observerItems, reg);

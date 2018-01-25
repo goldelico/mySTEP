@@ -265,7 +265,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 				coalesceMask:(NSUInteger)coalesceMask
 					forModes:(NSArray*)modes
 {
-#if 1
+#if 0
 	NSLog(@"enqueue:%@ postingStyle %u coalesceMask: %lu forModes: %@",
 		  notification,
 		  postingStyle,
@@ -295,7 +295,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 					  item:(_NSQueueRegistration *) item
 {
 	NSString *mode;	// check to see if run loop is in a valid mode
-#if 1
+#if 0
 	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
 #endif
 	if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
@@ -333,13 +333,13 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 + (BOOL) _runLoopMore
 { // return YES if the idle queue is not empty - this makes the runloop timeout immediately
 	_NSQueueInstanceList *item;
-#if 1
+#if 0
 	NSLog(@"_runLoopMore mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
 	for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			return YES;	// found something
-#if 1
+#if 0
 	NSLog(@"_runLoopMore: no");
 #endif
 	return NO;
@@ -348,7 +348,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 + (void) _runLoopIdle
 { // trigger the Idle items
 	_NSQueueInstanceList *item;
-#if 1
+#if 0
 	NSLog(@"_runLoopIdle mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
 	for (item = __notificationQueues; item; item = item->next)
