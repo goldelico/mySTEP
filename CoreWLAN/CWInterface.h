@@ -14,10 +14,11 @@
 
 @interface CWInterface : NSObject
 {
-	NSMutableArray *_networks;
+	NSArray *_networks;	// networks found after last scanForNetworksWithParameters:
 	NSString *_name;
 	SFAuthorization *_authorization;
-	NSTask *_scanner;
+	id _scanner;	// internal type
+	CWNetwork *_associatedNetwork;
 	// add cached values and timestamps
 }
 

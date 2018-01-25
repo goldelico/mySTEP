@@ -17,6 +17,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <AppKit/NSApplication.h>	// for event loop modes
 #import <CoreWLAN/CoreWLAN.h>
 #import <SecurityFoundation/SFAuthorization.h>
 
@@ -111,7 +112,7 @@ extern int system(const char *cmd);
 	return [self isEqualToProfile:other];
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
 	return [_ssid hash]
 	+ [_password hash]
@@ -169,7 +170,7 @@ extern int system(const char *cmd);
 	return [self isEqualToConfiguration:other];
 }
 
-- (unsigned int) hash;
+- (NSUInteger) hash;
 {
 	return [_preferredNetworks hash]
 	+ [_rememberedNetworks hash]
@@ -211,87 +212,315 @@ extern int system(const char *cmd);
 
 @end
 
-@implementation CWInterface
+@interface IWListScanner : NSObject
+{ // scan for networks in a background process using iwlist scan command
+	NSArray *_modes;
+	NSTask *_task;
+	NSFileHandle *_stdoutput;
+	NSString *_lastChunk;	// for merging chunks from reading the file
+	NSString *_key;	// last key that has been processed
+	NSMutableDictionary *_attributes;	// key & value
+	NSMutableArray *_networks;	// new list of CWNetworks
+	/* nonretained */ CWInterface *_delegate;	// notify when done by [_delegate _setNetworks:array]
+}
+@end
+
+@implementation IWListScanner
+
+- (id) init;
+{
+	if((self=[super init]))
+		{
+		_modes=[[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, NSModalPanelRunLoopMode, nil];
+		_attributes=[[NSMutableDictionary alloc] initWithCapacity:10];
+		}
+	return self;
+}
+
+- (void) dealloc;
+{
+#if 1
+	NSLog(@"IWListScanner dealloc");
+#endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadCompletionNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSTaskDidTerminateNotification object:nil];
+	if(_task && [_task isRunning])
+		[_task terminate];
+	[_stdoutput release];
+	[_task release];
+	[_lastChunk release];
+	[_key release];
+	[_attributes release];
+	[_networks release];
+	[_modes release];
+	[super dealloc];
+}
+
+- (void) setDelegate:(CWInterface *) delegate; { _delegate=delegate; }
+
+- (void) startScanning:(NSError **) err;
+{ // start the background process if it is not yet running
+#if 1
+	NSLog(@"startScanning");
+#endif
+	if(!_task && !_networks && _delegate)
+		{ // not yet scanning or waiting for end of last data stream
+			NSPipe *p;
+#if 1
+			NSLog(@"new task");
+#endif
+			_task=[NSTask new];
+			[_task setLaunchPath:@"/sbin/iwlist"];			// on base OS
+			[_task setArguments:[NSArray arrayWithObjects:[_delegate name], @"scanning", nil]];
+			p=[NSPipe pipe];
+			_stdoutput=[[p fileHandleForReading] retain];
+			[_task setStandardOutput:p];
+			//			[_task setStandardError:p];	// use a single pipe for both stdout and stderr
+										// add initializer that we pass the pipe to
+										// it does all setup we need...
+			[_lastChunk release]; _lastChunk=nil;
+			[_networks release]; _networks=[[NSMutableArray alloc] initWithCapacity:10];
+			[_attributes removeAllObjects];
+			_lastChunk=@"";
+			[_key release];
+			_key=@"";
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(terminateNotification:) name:NSTaskDidTerminateNotification object:_task];
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadCompletionNotification object:_stdoutput];
+			[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// start to process incoming data asynchronously
+			NS_DURING
+#if 1
+			NSLog(@"launch %@", _task);
+#endif
+			[_task launch];
+			NS_HANDLER
+			NSLog(@"Could not launch %@ due to %@ because %@.", [_task launchPath], [localException name], [localException reason]);
+			NS_ENDHANDLER
+		}
+}
+
+- (void) stopScanning
+{
+	[_task terminate];
+}
 
 /* sample output
- 
+
  gta04:~# iwconfig
  lo        no wireless extensions.
- 
+
  hso0      no wireless extensions.
- 
+
  usb0      no wireless extensions.
- 
+
  pan0      no wireless extensions.
- 
- wlan13    IEEE 802.11b/g  ESSID:""  
-			Mode:Managed  Frequency:2.412 GHz  Access Point: Not-Associated   
-			Bit Rate:0 kb/s   Tx-Power=15 dBm   
-			Retry short limit:8   RTS thr=2347 B   Fragment thr=2346 B   
-			Encryption key:off
-			Power Management:off
-			Link Quality:0  Signal level:0  Noise level:0
-			Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-			Tx excessive retries:0  Invalid misc:0   Missed beacon:0
- 
+
+ wlan13    IEEE 802.11b/g  ESSID:""
+ Mode:Managed  Frequency:2.412 GHz  Access Point: Not-Associated
+ Bit Rate:0 kb/s   Tx-Power=15 dBm
+ Retry short limit:8   RTS thr=2347 B   Fragment thr=2346 B
+ Encryption key:off
+ Power Management:off
+ Link Quality:0  Signal level:0  Noise level:0
+ Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+ Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
  gta04:~# ifconfig wlan13   (is down!)
- wlan13    Link encap:Ethernet  HWaddr 00:19:88:3d:ff:eb  
-			BROADCAST MULTICAST  MTU:1500  Metric:1
-			RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-			TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-			collisions:0 txqueuelen:1000 
-			RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
- 
+ wlan13    Link encap:Ethernet  HWaddr 00:19:88:3d:ff:eb
+ BROADCAST MULTICAST  MTU:1500  Metric:1
+ RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+ TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+ collisions:0 txqueuelen:1000
+ RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
  gta04:~# iwlist wlan13 scan
  wlan13    No scan results
- 
- gta04:~# iwlist wlan13 scanning     
+
+ gta04:~# iwlist wlan13 scanning
  wlan13		Scan completed :
-			Cell 01 - Address: 00:**:BF:**:CE:E6
-					ESSID:"******"
-					Mode:Managed
-					Frequency:2.427 GHz (Channel 4)
-					Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
-					Encryption key:off
-					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
-							11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
-							48 Mb/s; 54 Mb/s
- 
+ Cell 01 - Address: 00:**:BF:**:CE:E6
+ ESSID:"******"
+ Mode:Managed
+ Frequency:2.427 GHz (Channel 4)
+ Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
+ Encryption key:off
+ Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
+ 11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
+ 48 Mb/s; 54 Mb/s
+
  another example:
- 
+
  bb-debian:~# iwlist wlan1 scan
  wlan1     Scan completed :
-			Cell 01 - Address: 00:**:**:9B:**:E9
-					ESSID:"****-4"
-					Mode:Managed
-					Frequency:2.417 GHz (Channel 2)
-					Quality=96/100  Signal level=-53 dBm  Noise level=-96 dBm
-					Encryption key:on
-					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 11 Mb/s; 9 Mb/s
-						18 Mb/s; 36 Mb/s; 54 Mb/s; 6 Mb/s; 12 Mb/s
-						24 Mb/s; 48 Mb/s
-					IE: IEEE 802.11i/WPA2 Version 1
-					Group Cipher : CCMP
-					Pairwise Ciphers (1) : CCMP
-					Authentication Suites (1) : PSK
-			Cell 02 - Address: 46:**:**:58:**:D5
-					ESSID:"MacBookPro"
-					Mode:Ad-Hoc
-					Frequency:2.462 GHz (Channel 11)
-					Quality=99/100  Signal level=-33 dBm  Noise level=-96 dBm
-					Encryption key:off
-					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
-						11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
-						48 Mb/s; 54 Mb/s
- 
- bb-debian:~# 
+ Cell 01 - Address: 00:**:**:9B:**:E9
+ ESSID:"****-4"
+ Mode:Managed
+ Frequency:2.417 GHz (Channel 2)
+ Quality=96/100  Signal level=-53 dBm  Noise level=-96 dBm
+ Encryption key:on
+ Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 11 Mb/s; 9 Mb/s
+ 18 Mb/s; 36 Mb/s; 54 Mb/s; 6 Mb/s; 12 Mb/s
+ 24 Mb/s; 48 Mb/s
+ IE: IEEE 802.11i/WPA2 Version 1
+ Group Cipher : CCMP
+ Pairwise Ciphers (1) : CCMP
+ Authentication Suites (1) : PSK
+ Cell 02 - Address: 46:**:**:58:**:D5
+ ESSID:"MacBookPro"
+ Mode:Ad-Hoc
+ Frequency:2.462 GHz (Channel 11)
+ Quality=99/100  Signal level=-33 dBm  Noise level=-96 dBm
+ Encryption key:off
+ Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
+ 11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
+ 48 Mb/s; 54 Mb/s
 
- 
+ bb-debian:~#
+
+
  */
 
-/*
- * we could also run a global iweven in a NSTask to get notifications about wireless events
- */
+- (void) processLine:(NSString *) line
+{ // parse output if iwlist scan arriving line by line
+	NSRange r={NSNotFound, 0};
+	NSString *prev;
+	NSString *value;
+#if 1
+	NSLog(@"processLine: %@", line);
+#endif
+	if(line)
+		{
+		r=[line rangeOfString:@":"];	// key:value
+		if(r.location == NSNotFound)
+			r=[line rangeOfString:@"="];	// key=value
+		if(r.location != NSNotFound)
+			{ // (new) key = value
+				[_key release];
+				_key=[line substringToIndex:r.location];	// everything up to delimiter
+				_key=[_key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
+				[_key retain];
+				if([_key hasSuffix:@"Scan completed"])
+					return;	// ignore
+				value=[line substringFromIndex:NSMaxRange(r)];	// take everything behind delimiter
+			}
+		else
+			{ // value only - repeat previous key
+				if([_key isEqualToString:@"Bit Rates"])
+					{
+#if 0
+					NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
+#endif
+					}
+				else
+					return;
+				value=line;	// take full line
+			}
+		value=[value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
+		}
+	if(!line || [_key hasPrefix:@"Cell"])
+		{ // special handling for EOF or line starting with "Cell"
+			NSArray *cell;
+#if 0
+			NSLog(@"process %@: %@", _key, _attributes);
+#endif
+			if([_attributes count] > 0)
+				{ // process previous entry
+					CWNetwork *n=[[CWNetwork alloc] initWithAttributes:_attributes];
+#if 0
+					NSLog(@"found %@ %@", n, _attributes);
+#endif
+					[_networks addObject:n];
+					[n release];
+					[_attributes removeAllObjects];	// clear for next record
+					[_key release];
+					_key=@"";
+				}
+			if(!line)
+				{ // end of file
+				[_delegate _setNetworks:_networks];	// notify delegate about new network list
+				[_networks release];
+				_networks=nil;
+				return;
+				}
+			cell=[_key componentsSeparatedByString:@" "];
+			if([cell count] >= 2)
+				[_attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
+			[_key release];
+			_key=@"Address";
+		}
+	prev=[_attributes objectForKey:_key];
+	if(prev)
+		{ // collect if key is the same
+			if([_key isEqualToString:@"Bit Rates"])
+				value=[NSString stringWithFormat:@"%@; %@", prev, value];	// needs different separator
+			else
+				value=[NSString stringWithFormat:@"%@ %@", prev, value];
+		}
+	[_attributes setObject:value forKey:_key];	// collect all key: value pairs
+#if 0
+	NSLog(@"attribs: %@", _attributes);
+#endif
+}
+
+// FIXME: this may arrive before the last data block!
+
+- (void) terminateNotification:(NSNotification *) n;
+{
+#if 1
+	NSLog(@"terminateNotification %@", n);
+#endif
+	if([_task terminationStatus] == 0)
+		{ // ok
+		  // 	[self processLine:_lastChunk];	// process last line w/o \n
+		}
+	[_task release];
+	_task=nil;
+	[_stdoutput release];
+	_stdoutput=nil;
+}
+
+- (void) processData:(NSData *) line;
+{ // we have received a new data block from the serial line
+	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
+	NSArray *lines;
+	int l;
+#if 0
+	NSLog(@"processData: %@", line);
+	NSLog(@"string=%@", s);
+#endif
+	if(_lastChunk)
+		s=[_lastChunk stringByAppendingString:s];	// append to last chunk
+		lines=[s componentsSeparatedByString:@"\n"];	// split into lines
+		for(l=0; l<[lines count]-1; l++)
+			{ // process all lines except last chunk
+				s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
+				[self processLine:s];
+			}
+#if 0
+	NSLog(@"string=%@", s);
+#endif
+	[_lastChunk release];
+	_lastChunk=[[lines lastObject] retain];
+}
+
+- (void) dataReceived:(NSNotification *) n;
+{
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
+	int err=[[[n userInfo] objectForKey:@"NSFileHandleError"] intValue];
+#if 1
+	NSLog(@"dataReceived:_ %@", n);
+#endif
+
+		{
+		[self processData:data];	// parse data as line
+		[[n object] readInBackgroundAndNotifyForModes:_modes];	// and trigger more notifications
+		}
+	[arp release];
+}
+
+@end
+
+@implementation CWInterface
 
 + (CWInterface *) interface;
 {
@@ -310,6 +539,10 @@ extern int system(const char *cmd);
 	char line[256];
 	if(!supportedInterfaces)
 		supportedInterfaces=[NSMutableArray new];
+#if 1
+	else
+		return supportedInterfaces;	// collect only once to avoid repeated calls to popen()
+#endif
 	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
 	if([self _activateHardware:YES])
 		{
@@ -360,17 +593,38 @@ extern int system(const char *cmd);
 }
 
 - (CWInterface *) initWithInterfaceName:(NSString *) n;
-{
+{ // make them named singletons!
+	static NSMutableDictionary *_interfaces;
+	CWInterface *inter=[_interfaces objectForKey:n];
+	if(inter)
+		{
+#if 1
+		NSLog(@"return singleton %@", inter);
+#endif
+		[self release];
+		return [inter retain];
+		}
 	if((self=[super init]))
 		{
 		_name=[n retain];
+		if(!_interfaces)
+			_interfaces=[[NSMutableDictionary alloc] initWithCapacity:10];
+#if 1
+		NSLog(@"store singleton %@", self);
+#endif
+		[_interfaces setObject:self forKey:n];
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
+#if 0
+	NSLog(@"CWInterface dealloc");	// should not happen
+#endif
 	[_name release];
+	[_scanner setDelegate:nil];
+	[_scanner release];
 	[super dealloc];
 }
 
@@ -379,7 +633,7 @@ extern int system(const char *cmd);
 	return [_name isEqualToString:[interface name]];
 }
 
-- (unsigned int) hash;
+- (NSUInteger) hash
 {
 	return [_name hash];
 }
@@ -454,6 +708,8 @@ extern int system(const char *cmd);
 		// set err
 		return NO;
 		}
+	[_associatedNetwork autorelease];
+	_associatedNetwork=[network retain];
 #if 1
 	NSLog(@"associated to %@", network);
 #endif
@@ -462,6 +718,8 @@ extern int system(const char *cmd);
  
 - (void) disassociate;
 {
+	[_associatedNetwork release];
+	_associatedNetwork=nil;
 	// CHECKME: is that really a disassociate?
 	// FIXME: we should set SSID="" to disassociate
 //	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
@@ -505,32 +763,26 @@ extern int system(const char *cmd);
 	return YES;
 }
 
+- (void) _setNetworks:(NSArray *) networks;
+{ // swap in new network list
+#if 1
+	NSLog(@"_setNetworks: %@", networks);
+#endif
+	[_networks autorelease];
+	_networks=[networks retain];
+}
+
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
 { // is blocking! Should be implemented thread-safe because it is most likely not running in the main thread...
-#if 0
-	/*
-	 Alternative:
-	 Flag ob schon ein Scan läuft
-	 wenn ja, einfach die aktuelle Liste liefern
-	 sonst scan triggern
-	 in separatem NSThread
-	 dort die Zeilen einsammeln
-	 und neue Liste aufbauen
-	 wenn der Thread zuende istund alles verarbeitet,
-	 dann Liste ersetzen
-	 */
-	if(!_task)
-		{ // not yet scanning
-			_task=[NSTask taskWithCommand:@"/usr/bin/iwlist"];
-			// set arguments to _name, @"scanning"
-			// set handler to receive stdout
-			// should be a handler subobject which knows us to replace the network list
-			// this subobject should cover all state (last key, current network record etc.)
-			// since data is arriving in chunks
-			// [_task start]
+#if 1
+	if(!_scanner)
+		{
+		_scanner=[IWListScanner new];
+		[_scanner setDelegate:self];
 		}
-	return _networks;
-#endif
+	[_scanner startScanning:err];
+	return _networks;	// already scanning - return what we know
+#else
 	NSString *cmd;
 	FILE *f;
 	NSMutableArray *a;
@@ -639,11 +891,12 @@ extern int system(const char *cmd);
 	NSLog(@"pclose %@", cmd);
 #endif
 	return a;
+#endif
 }
 
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
 {
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, channel];
+	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, (unsigned int) channel];
 	NSError *dummy;
 	if(!err) err=&dummy;
 	if(system([cmd UTF8String]) != 0)
@@ -689,6 +942,8 @@ extern int system(const char *cmd);
 
 - (SFAuthorization *) authorization; { return _authorization; }
 - (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
+
+// FIXME: store in _associatedNetwork
 
 - (NSString *) bssid;
 {
@@ -811,6 +1066,9 @@ extern int system(const char *cmd);
 		NSString *m=[a objectAtIndex:1];
 		if([m hasPrefix:@"off"])
 			return [NSNumber numberWithInt:kCWSecurityModeOpen];
+#if 1
+		NSLog(@"Encdyption mode: %@", m);
+#endif
 		}
 	return [NSNumber numberWithInt:kCWSecurityModeOpen];
 }
@@ -970,6 +1228,7 @@ extern int system(const char *cmd);
 			_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeOpen];
 		else 
 			{ // assume "on"
+			  // process multiple entries!
 				m=[attribs objectForKey:@"IE"];
 				if([m hasPrefix:@"WEP"])
 					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWEP];
@@ -1065,8 +1324,8 @@ extern int system(const char *cmd);
 - (CWWirelessProfile *) init; 
 - (BOOL) isEqualToProfile:(CWWirelessProfile *) profile; 
  - (BOOL) isEqual:(id) other; 
-- (unsigned int) hash;
- 
+ - (NSUInteger) hash;
+
 - (NSString *) passphrase;
 - (void) setPassphrase:(NSString *) str;	// copy
 - (NSNumber *) securityMode;
