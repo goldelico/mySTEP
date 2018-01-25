@@ -46,7 +46,7 @@
 	return self;
 }
 
-- (NSString *) description; { return [NSString stringWithFormat:@"%@: %@ -> %@\n%@", NSStringFromClass([self class]), _name, _object, _info]; }
+- (NSString *) description; { return [NSString stringWithFormat:@"%@: %@ -> %@\ninfo = %@", NSStringFromClass([self class]), _name, _object, _info]; }
 
 - (void) dealloc
 {
