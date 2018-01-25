@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 		printf("%s\n", [str UTF8String]);
 		}
 #if 0
-	// turn off only if it was already off
+	// turn off only if it was off before
 	if(![cw setPower:NO error:&err])
 		{
 		NSLog(@"WLAN power off error: %@", err);

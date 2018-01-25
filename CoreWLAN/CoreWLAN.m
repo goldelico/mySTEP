@@ -239,7 +239,7 @@ extern int system(const char *cmd);
 
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"IWListScanner dealloc");
 #endif
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadCompletionNotification object:nil];
@@ -260,13 +260,13 @@ extern int system(const char *cmd);
 
 - (void) startScanning:(NSError **) err;
 { // start the background process if it is not yet running
-#if 1
+#if 0
 	NSLog(@"startScanning");
 #endif
 	if(!_task && !_networks && _delegate)
 		{ // not yet scanning or waiting for end of last data stream
 			NSPipe *p;
-#if 1
+#if 0
 			NSLog(@"new task");
 #endif
 			_task=[NSTask new];
@@ -288,7 +288,7 @@ extern int system(const char *cmd);
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadCompletionNotification object:_stdoutput];
 			[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// start to process incoming data asynchronously
 			NS_DURING
-#if 1
+#if 0
 			NSLog(@"launch %@", _task);
 #endif
 			[_task launch];
@@ -384,7 +384,7 @@ extern int system(const char *cmd);
 	NSRange r={NSNotFound, 0};
 	NSString *prev;
 	NSString *value;
-#if 1
+#if 0
 	NSLog(@"processLine: %@", line);
 #endif
 	if(line)
@@ -465,7 +465,7 @@ extern int system(const char *cmd);
 
 - (void) terminateNotification:(NSNotification *) n;
 {
-#if 1
+#if 0
 	NSLog(@"terminateNotification %@", n);
 #endif
 	if([_task terminationStatus] == 0)
@@ -507,7 +507,7 @@ extern int system(const char *cmd);
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
 	int err=[[[n userInfo] objectForKey:@"NSFileHandleError"] intValue];
-#if 1
+#if 0
 	NSLog(@"dataReceived:_ %@", n);
 #endif
 
@@ -567,7 +567,7 @@ extern int system(const char *cmd);
 			}
 		else
 			[self _activateHardware:NO];	// can't open
-#if 1
+#if 0
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
 		}
@@ -598,7 +598,7 @@ extern int system(const char *cmd);
 	CWInterface *inter=[_interfaces objectForKey:n];
 	if(inter)
 		{
-#if 1
+#if 0
 		NSLog(@"return singleton %@", inter);
 #endif
 		[self release];
@@ -609,7 +609,7 @@ extern int system(const char *cmd);
 		_name=[n retain];
 		if(!_interfaces)
 			_interfaces=[[NSMutableDictionary alloc] initWithCapacity:10];
-#if 1
+#if 0
 		NSLog(@"store singleton %@", self);
 #endif
 		[_interfaces setObject:self forKey:n];
@@ -765,7 +765,7 @@ extern int system(const char *cmd);
 
 - (void) _setNetworks:(NSArray *) networks;
 { // swap in new network list
-#if 1
+#if 0
 	NSLog(@"_setNetworks: %@", networks);
 #endif
 	[_networks autorelease];
@@ -773,8 +773,7 @@ extern int system(const char *cmd);
 }
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
-{ // is blocking! Should be implemented thread-safe because it is most likely not running in the main thread...
-#if 1
+{
 	if(!_scanner)
 		{
 		_scanner=[IWListScanner new];
@@ -782,116 +781,6 @@ extern int system(const char *cmd);
 		}
 	[_scanner startScanning:err];
 	return _networks;	// already scanning - return what we know
-#else
-	NSString *cmd;
-	FILE *f;
-	NSMutableArray *a;
-	char line[256];
-	NSError *dummy;
-	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:15];
-	CWNetwork *n;
-	NSString *key=nil;
-	if(!err) err=&dummy;
-#if 0
-	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
-	if(system([cmd UTF8String]) != 0)
-		{ // interface does not exist
-			// set err
-			return NO;
-		}
-#endif
-	cmd=[NSString stringWithFormat:@"iwlist '%@' scanning", _name];
-#if 0
-	NSLog(@"popen %@", cmd);
-#endif
-	f=popen([cmd UTF8String], "r");
-	if(!f)
-		{
-		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
-		return nil;
-		}
-	a=[NSMutableArray arrayWithCapacity:10];
-	/*
-	 wlan13		Scan completed :
-				Cell 01 - Address: 00:**:BF:**:CE:E6
-					ESSID:"******"
-					Mode:Managed
-					Frequency:2.427 GHz (Channel 4)
-					Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
-					Encryption key:off
-					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
-						11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
-						48 Mb/s; 54 Mb/s
-	 */
-	while(fgets(line, sizeof(line)-1, f))
-		{
-		char *s;
-		NSString *value;
-		NSString *prev;
-#if 0
-		printf("line=%s", line);
-#endif
-		s=strchr(line, ':');
-		if(!s)
-			s=strchr(line, '=');
-		if(s)
-			{ // key = value
-			key=[[NSString stringWithCString:line length:s-line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
-			if([key hasSuffix:@"Scan completed"])
-				continue;	// ignore
-			value=[[NSString stringWithCString:s+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
-			}
-		else
-			{ // value only
-				value=[[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
-			// may be "No scan results"
-			if([key isEqualToString:@"Bit Rates"])
-				{
-#if 0
-				NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
-#endif
-				}
-			else
-				continue;
-			}
-		if([key hasPrefix:@"Cell"])
-			{ //special handling
-			NSArray *cell;
-			if([attributes count] > 0)
-				{ // process previous entry
-				n=[[CWNetwork alloc] initWithAttributes:attributes];
-				[a addObject:n];
-				[n release];
-				[attributes removeAllObjects];	// clear for next record
-				}
-			cell=[key componentsSeparatedByString:@" "];
-			if([cell count] >= 2)
-				[attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
-			key=@"Address";
-			}
-		prev=[attributes objectForKey:key];
-		if(prev)
-			{ // collect if key is the same
-			if([key isEqualToString:@"Bit Rates"])
-				value=[NSString stringWithFormat:@"%@; %@", prev, value];
-			else
-				value=[NSString stringWithFormat:@"%@ %@", prev, value];
-			}
-		[attributes setObject:value forKey:key];	// collect all key: value pairs
-		}
-	if([attributes count] > 0)
-		{ // add last record
-			n=[[CWNetwork alloc] initWithAttributes:attributes];
-			if(n)
-				[a addObject:n];
-			[n release];
-		}
-	pclose(f);
-#if 0
-	NSLog(@"pclose %@", cmd);
-#endif
-	return a;
-#endif
 }
 
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
