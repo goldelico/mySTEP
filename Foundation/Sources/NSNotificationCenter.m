@@ -356,7 +356,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 	// send notifications
 #if 0
-	NSLog(@"post notification %@", notice);
+	NSLog(@"postNotification: %@", notice);
 	NSLog(@"  name %@", name);
 	NSLog(@"  noname %@", noname);
 #endif
