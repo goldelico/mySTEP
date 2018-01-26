@@ -217,10 +217,6 @@ extern int system(const char *cmd);
 	NSArray *_modes;
 	NSTask *_task;
 	NSFileHandle *_stdoutput;
-	NSString *_lastChunk;	// for merging chunks from reading the file
-	NSString *_key;	// last key that has been processed
-	NSMutableDictionary *_attributes;	// key & value
-	NSMutableArray *_networks;	// new list of CWNetworks
 	/* nonretained */ CWInterface *_delegate;	// notify when done by [_delegate _setNetworks:array]
 }
 @end
@@ -232,7 +228,6 @@ extern int system(const char *cmd);
 	if((self=[super init]))
 		{
 		_modes=[[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, NSModalPanelRunLoopMode, nil];
-		_attributes=[[NSMutableDictionary alloc] initWithCapacity:10];
 		}
 	return self;
 }
@@ -248,10 +243,6 @@ extern int system(const char *cmd);
 		[_task terminate];
 	[_stdoutput release];
 	[_task release];
-	[_lastChunk release];
-	[_key release];
-	[_attributes release];
-	[_networks release];
 	[_modes release];
 	[super dealloc];
 }
@@ -263,8 +254,10 @@ extern int system(const char *cmd);
 #if 0
 	NSLog(@"startScanning");
 #endif
-	if(!_task && !_networks && _delegate)
-		{ // not yet scanning or waiting for end of last data stream
+	if(!_delegate)
+		return;
+	if(!_task)
+		{ // not yet scanning or still waiting for end of last data stream
 			NSPipe *p;
 #if 0
 			NSLog(@"new task");
@@ -278,15 +271,9 @@ extern int system(const char *cmd);
 			//			[_task setStandardError:p];	// use a single pipe for both stdout and stderr
 										// add initializer that we pass the pipe to
 										// it does all setup we need...
-			[_lastChunk release]; _lastChunk=nil;
-			[_networks release]; _networks=[[NSMutableArray alloc] initWithCapacity:10];
-			[_attributes removeAllObjects];
-			_lastChunk=@"";
-			[_key release];
-			_key=@"";
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(terminateNotification:) name:NSTaskDidTerminateNotification object:_task];
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadCompletionNotification object:_stdoutput];
-			[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// start to process incoming data asynchronously
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadToEndOfFileCompletionNotification object:_stdoutput];
+			[_stdoutput readToEndOfFileInBackgroundAndNotifyForModes:_modes];	// collect data and notify once when done
 			NS_DURING
 #if 0
 			NSLog(@"launch %@", _task);
@@ -379,143 +366,114 @@ extern int system(const char *cmd);
 
  */
 
-- (void) processLine:(NSString *) line
-{ // parse output if iwlist scan arriving line by line
-	NSRange r={NSNotFound, 0};
-	NSString *prev;
-	NSString *value;
+- (void) dataReceived:(NSNotification *) n;
+{ // all data received
+	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
+	int err=[[[n userInfo] objectForKey:@"NSFileHandleError"] intValue];
 #if 0
-	NSLog(@"processLine: %@", line);
+	NSLog(@"CoreWLAN dataReceived:_ %@", data);
 #endif
-	if(line)
+	NSString *s=[[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
+	NSEnumerator *e=[[s componentsSeparatedByString:@"\n"] objectEnumerator];
+	NSString *line;
+	NSMutableArray *networks=[NSMutableArray arrayWithCapacity:10];
+	NSString *key=@"";	// last key that has been processed
+	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:10];
+	while((line=[e nextObject]))
 		{
-		r=[line rangeOfString:@":"];	// key:value
-		if(r.location == NSNotFound)
-			r=[line rangeOfString:@"="];	// key=value
-		if(r.location != NSNotFound)
-			{ // (new) key = value
-				[_key release];
-				_key=[line substringToIndex:r.location];	// everything up to delimiter
-				_key=[_key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
-				[_key retain];
-				if([_key hasSuffix:@"Scan completed"])
-					return;	// ignore
-				value=[line substringFromIndex:NSMaxRange(r)];	// take everything behind delimiter
-			}
-		else
-			{ // value only - repeat previous key
-				if([_key isEqualToString:@"Bit Rates"])
-					{
+		NSRange r={NSNotFound, 0};
+		NSString *prev;
+		NSString *value;
 #if 0
-					NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
+		NSLog(@"processLine: %@", line);
 #endif
-					}
-				else
-					return;
-				value=line;	// take full line
-			}
-		value=[value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
-		}
-	if(!line || [_key hasPrefix:@"Cell"])
-		{ // special handling for EOF or line starting with "Cell"
-			NSArray *cell;
-#if 0
-			NSLog(@"process %@: %@", _key, _attributes);
-#endif
-			if([_attributes count] > 0)
-				{ // process previous entry
-					CWNetwork *n=[[CWNetwork alloc] initWithAttributes:_attributes];
-#if 0
-					NSLog(@"found %@ %@", n, _attributes);
-#endif
-					[_networks addObject:n];
-					[n release];
-					[_attributes removeAllObjects];	// clear for next record
-					[_key release];
-					_key=@"";
+			r=[line rangeOfString:@":"];	// key:value
+			if(r.location == NSNotFound)
+				r=[line rangeOfString:@"="];	// key=value
+			if(r.location != NSNotFound)
+				{ // (new) key = value
+					[key release];
+					key=[line substringToIndex:r.location];	// everything up to delimiter
+					key=[key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
+					[key retain];
+					if([key hasSuffix:@"Scan completed"])
+						continue;	// ignore
+					value=[line substringFromIndex:NSMaxRange(r)];	// take everything behind delimiter
 				}
-			if(!line)
-				{ // end of file
-				[_delegate _setNetworks:_networks];	// notify delegate about new network list
-				[_networks release];
-				_networks=nil;
-				return;
-				}
-			cell=[_key componentsSeparatedByString:@" "];
-			if([cell count] >= 2)
-				[_attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
-			[_key release];
-			_key=@"Address";
-		}
-	prev=[_attributes objectForKey:_key];
-	if(prev)
-		{ // collect if key is the same
-			if([_key isEqualToString:@"Bit Rates"])
-				value=[NSString stringWithFormat:@"%@; %@", prev, value];	// needs different separator
 			else
-				value=[NSString stringWithFormat:@"%@ %@", prev, value];
-		}
-	[_attributes setObject:value forKey:_key];	// collect all key: value pairs
+				{ // value only - repeat previous key
+					if([key isEqualToString:@"Bit Rates"])
+						{
 #if 0
-	NSLog(@"attribs: %@", _attributes);
+						NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
 #endif
+						}
+					else
+						continue;
+					value=line;	// take full line
+				}
+			value=[value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
+		if([key hasPrefix:@"Cell"])
+			{ // special handling for EOF or line starting with "Cell"
+				NSArray *cell;
+#if 0
+				NSLog(@"process %@: %@", key, _attributes);
+#endif
+				if([attributes count] > 0)
+					{ // process previous entry
+						CWNetwork *n=[[CWNetwork alloc] initWithAttributes:attributes];
+#if 0
+						NSLog(@"found %@ %@", n, _attributes);
+#endif
+						[networks addObject:n];
+						[n release];
+						[attributes removeAllObjects];	// clear for next record
+						[key release];
+						key=@"";
+					}
+				cell=[key componentsSeparatedByString:@" "];
+				if([cell count] >= 2)
+					[attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
+				[key release];
+				key=@"Address";
+			}
+		prev=[attributes objectForKey:key];
+		if(prev)
+			{ // collect if key is the same
+				if([key isEqualToString:@"Bit Rates"])
+					value=[NSString stringWithFormat:@"%@; %@", prev, value];	// needs different separator
+				else
+					value=[NSString stringWithFormat:@"%@ %@", prev, value];
+			}
+		[attributes setObject:value forKey:key];	// collect all key: value pairs
+#if 0
+		NSLog(@"attribs: %@", attributes);
+#endif
+		}
+	if([attributes count] > 0)
+		{ // process last entry
+			CWNetwork *n=[[CWNetwork alloc] initWithAttributes:attributes];
+#if 0
+			NSLog(@"found %@ %@", n, _attributes);
+#endif
+			[networks addObject:n];
+			[n release];
+		}
+	[_delegate _setNetworks:networks];	// notify delegate about new network list
 }
-
-// FIXME: this may arrive before the last data block!
 
 - (void) terminateNotification:(NSNotification *) n;
 {
 #if 0
-	NSLog(@"terminateNotification %@", n);
+	NSLog(@"CoreWLAN terminateNotification %@", n);
 #endif
 	if([_task terminationStatus] == 0)
 		{ // ok
-		  // 	[self processLine:_lastChunk];	// process last line w/o \n
 		}
 	[_task release];
 	_task=nil;
 	[_stdoutput release];
 	_stdoutput=nil;
-}
-
-- (void) processData:(NSData *) line;
-{ // we have received a new data block from the serial line
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
-	NSArray *lines;
-	int l;
-#if 0
-	NSLog(@"processData: %@", line);
-	NSLog(@"string=%@", s);
-#endif
-	if(_lastChunk)
-		s=[_lastChunk stringByAppendingString:s];	// append to last chunk
-		lines=[s componentsSeparatedByString:@"\n"];	// split into lines
-		for(l=0; l<[lines count]-1; l++)
-			{ // process all lines except last chunk
-				s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
-				[self processLine:s];
-			}
-#if 0
-	NSLog(@"string=%@", s);
-#endif
-	[_lastChunk release];
-	_lastChunk=[[lines lastObject] retain];
-}
-
-- (void) dataReceived:(NSNotification *) n;
-{
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
-	int err=[[[n userInfo] objectForKey:@"NSFileHandleError"] intValue];
-#if 0
-	NSLog(@"dataReceived:_ %@", n);
-#endif
-
-		{
-		[self processData:data];	// parse data as line
-		[[n object] readInBackgroundAndNotifyForModes:_modes];	// and trigger more notifications
-		}
-	[arp release];
 }
 
 @end
@@ -956,7 +914,7 @@ extern int system(const char *cmd);
 		if([m hasPrefix:@"off"])
 			return [NSNumber numberWithInt:kCWSecurityModeOpen];
 #if 1
-		NSLog(@"Encdyption mode: %@", m);
+		NSLog(@"Encryption mode: %@", m);
 #endif
 		}
 	return [NSNumber numberWithInt:kCWSecurityModeOpen];
