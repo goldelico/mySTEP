@@ -41,10 +41,10 @@
 	enum
 		{
 			kIsNotWaiting=0,
-			kIsListening=0x01,
-			kIsReading=0x02,
-			kIsReadingToEOF=0x04,
-			kIsWaiting=0x08
+			kIsListening,
+			kIsReading,
+			kIsReadingToEOF,
+			kIsWaiting
 		} _readMode;	// mutually excluding waiting modes
 	BOOL _closeOnDealloc;
 }
