@@ -23,15 +23,15 @@
 
 @interface _NSHTTPSerialization : NSObject
 { // for handling a single protocol entity according to http://www.faqs.org/ftp/rfc/rfc2616.pdf
-	NSMutableArray *_requestQueue;		// all queued requests		
+	NSMutableArray *_requestQueue;		// all queued requests
 	_NSHTTPURLProtocol *_currentRequest;	// current request
-	// sending
+											// sending
 	NSOutputStream *_outputStream;
 	NSInputStream *_headerStream;			// header while sending
 	NSInputStream *_bodyStream;				// for sending the body
 	BOOL _shouldClose;								// server will close after current request - we must requeue other requests on a new connection
 	BOOL _sendChunked;								// sending with transfer-encoding: chunked
-	// receiving
+													// receiving
 	NSInputStream *_inputStream;
 	unsigned _statusCode;							// status code defined by response
 	NSMutableDictionary *_headers;		// received headers
@@ -41,7 +41,7 @@
 	char _lastChr;										// previouds character while reading header
 	BOOL _readingBody;								// done with reading header
 	BOOL _isChunked;									// transfer-encoding: chunked
-	BOOL _willClose;									// server has announced to close the connection	
+	BOOL _willClose;									// server has announced to close the connection
 }
 
 + (_NSHTTPSerialization *) serializerForProtocol:(_NSHTTPURLProtocol *) protocol;	// get connection queue for handling this request (may create a new one)
@@ -318,7 +318,7 @@ static NSMutableDictionary *_httpConnections;
 	[_httpConnections removeObjectsForKeys:keys];		// remove us from the list of active connections if we are still there
 	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes any pending requests from the queue and reschedules in a new/different serializer queue
 	[self autorelease];
-}	
+}
 
 - (BOOL) connectToServer
 { // we have no open connection yet
@@ -373,7 +373,7 @@ static NSMutableDictionary *_httpConnections;
 	[_outputStream open];
 	[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// and schedule for reception
 	return YES;
-}		
+}
 
 - (void) startLoadingNextRequest
 {
@@ -406,7 +406,7 @@ static NSMutableDictionary *_httpConnections;
 	NSLog(@"request: %@", header);
 #endif
 	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];	// CHECKME:
-	// CHECKME: what about lower/uppercase in the user provided header fields???
+																				// CHECKME: what about lower/uppercase in the user provided header fields???
 	requestHeaders=[[request allHTTPHeaderFields] mutableCopy];		// start with the provided headers first so that we can overwrite and remove spurious headers
 	if(!requestHeaders) requestHeaders=[[NSMutableDictionary alloc] initWithCapacity:5];	// no headers provided by request
 	if([request HTTPShouldHandleCookies])
@@ -449,7 +449,7 @@ static NSMutableDictionary *_httpConnections;
 		}
 	else
 		[requestHeaders removeObjectForKey:@"Date"];	// must not send a Date: header if we have no body
-	//	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
+														//	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
 	[requestHeaders removeObjectForKey:@"Keep-Alive"];	// HHTP 1.0 feature
 #if 1
 	NSLog(@"headers to send: %@", requestHeaders);
@@ -542,8 +542,8 @@ static NSMutableDictionary *_httpConnections;
 	NSLog(@"body received %@", self);
 #endif
 	_readingBody=NO;	// start over reading headers/trailer
-	// apply MD5 checking [_headers objectForKey:@"Content-MD5"]
-	// apply content-encoding (after MD5)
+						// apply MD5 checking [_headers objectForKey:@"Content-MD5"]
+						// apply content-encoding (after MD5)
 	if(!_isChunked)
 		[self trailerReceived];	// there is no trailer if not chunked
 }
@@ -628,136 +628,132 @@ static NSMutableDictionary *_httpConnections;
 
 - (void) handleInputEvent:(NSStreamEvent) event
 {
-	switch(event)
-	{
-		case NSStreamEventOpenCompleted:
-	{ // ready to receive header
+	switch(event) {
+		case NSStreamEventOpenCompleted: { // ready to receive header
 #if 1
-		NSLog(@"HTTP input stream opened");
+			NSLog(@"HTTP input stream opened");
 #endif
-		return;
-	}
-		case NSStreamEventHasBytesAvailable:
-		{
-		unsigned char buffer[512];
-		unsigned maxLength=sizeof(buffer);
-		int len;
-		if(_readingBody && (!_isChunked || _chunkLength > 0))
-			{
-			if(_isChunked && _chunkLength < maxLength)
-				maxLength=_chunkLength;	// limit to current chunk size
-			if(_contentLength > 0 && _contentLength < maxLength)
-				maxLength=_contentLength;	// limit to expected size
-			}
-		else
-			maxLength=1;	// so that we don't miss the Content-Length: header entry even if it directly precedes the \r\n\r\nbody
-		len=[_inputStream read:buffer maxLength:maxLength];
-		if(len == 0)
-			return;	// ignore (or when does this occur? - if EOF by server?)
-		if(len <= 0)
-			{
-			NSDictionary *info=[NSDictionary
-								dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error", nil];
+			return;
+		}
+		case NSStreamEventHasBytesAvailable: {
+			unsigned char buffer[512];
+			unsigned maxLength=sizeof(buffer);
+			int len;
+			if(_readingBody && (!_isChunked || _chunkLength > 0))
+				{
+				if(_isChunked && _chunkLength < maxLength)
+					maxLength=_chunkLength;	// limit to current chunk size
+				if(_contentLength > 0 && _contentLength < maxLength)
+					maxLength=_contentLength;	// limit to expected size
+				}
+			else
+				maxLength=1;	// so that we don't miss the Content-Length: header entry even if it directly precedes the \r\n\r\nbody
+			len=[_inputStream read:buffer maxLength:maxLength];
+			if(len == 0)
+				return;	// ignore EOF by server
+			if(len <= 0)
+				{
+				NSDictionary *info=[NSDictionary
+									dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error", nil];
 #if 1
-			NSLog(@"receive error %s", strerror(errno));
+				NSLog(@"receive error %s", strerror(errno));
 #endif
-			[_currentRequest didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:info]];
+				[_currentRequest didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:info]];
+				[self endOfUseability];
+				return;
+				}
+#if 0
+			NSLog(@"received %d bytes", len);
+#endif
+			if(_readingBody)
+				{
+				if(_isChunked && _chunkLength == 0)
+					{ // reading chunk size
+#if 0
+						NSLog(@"will process %02x into %@", buffer[0], _headerLine);
+#endif
+						if(buffer[0] == '\r')
+							return;	// ignore CR
+						if(buffer[0] == '\n')
+							{ // decode chunk length
+								if([_headerLine length] > 0)
+									{ // there should follow a CRLF after the body resulting in a empty line
+										NSScanner *sc=[NSScanner scannerWithString:_headerLine];
+#if 1
+										NSLog(@"chunk length=%@", _headerLine);
+#endif
+										_chunkLength=0;
+										if(![sc scanHexInt:&_chunkLength])	// is hex coded (we even ignore an optional 0x)
+											{
+											NSLog(@"invalid chunk length %@", _headerLine);
+											[_currentRequest didFailWithError:[NSError errorWithDomain:@"invalid chunk length" code:0 userInfo:0]];
+											[self endOfUseability];
+											return;
+											}
+										// may be followed by ; name=var
+										if(_chunkLength == 0)
+											[self bodyReceived];	// done reading body - continue with trailer
+										[_headerLine setString:@""];	// has been processed
+									}
+							}
+						else
+							[_headerLine appendFormat:@"%c", buffer[0]&0xff];	// we should try to optimize that...
+						return;
+					}
+				[_currentRequest didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
+				if(_chunkLength > 0)
+					_chunkLength-=len;	// if this becomes 0 we are looking for the next chunk length
+				if(_contentLength > 0)
+					{
+					_contentLength -= len;
+					if(_contentLength == 0)
+						{ // we have received as much as expected
+							[self bodyReceived];
+						}
+					}
+				return;
+				}
+#if 0
+			NSLog(@"will process %02x _lastChr=%02x into %@", buffer[0], _lastChr, _headerLine);
+#endif
+			if(_lastChr == '\n')
+				{ // first character in new line received
+					if(buffer[0] != ' ' && buffer[0] != '\t')
+						{ // process what we have (even if empty)
+							[self processHeaderLine:_headerLine];
+							[_headerLine setString:@""];	// has been processed
+						}
+				}
+			if(buffer[0] == '\r')
+				return;	// ignore in headers
+			if(buffer[0] != '\n')
+				[_headerLine appendFormat:@"%c", buffer[0]&0xff];	// we should try to optimize that...
+			_lastChr=buffer[0];
+#if 0
+			NSLog(@"did process %02x _lastChr=%02x into", buffer[0], _lastChr, _headerLine);
+#endif
+			return;
+		}
+		case NSStreamEventEndEncountered: {
+#if 1
+			NSLog(@"input connection closed by server: %@", self);
+#endif
+			if(!_readingBody)
+				[_currentRequest didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
+			if([_headers objectForKey:@"content-length"])
+				{
+				if(_contentLength > 0)
+					{
+					[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while receiving body" code:0 userInfo:nil]];	// we did not receive the announced contentLength
+					}
+				}
+			else
+				[self bodyReceived];	// implicit content length defined by EOF
 			[self endOfUseability];
 			return;
-			}
-#if 0
-		NSLog(@"received %d bytes", len);
-#endif
-		if(_readingBody)
-			{
-			if(_isChunked && _chunkLength == 0)
-				{ // reading chunk size
-#if 0
-					NSLog(@"will process %02x into %@", buffer[0], _headerLine);
-#endif
-					if(buffer[0] == '\r')
-						return;	// ignore CR
-					if(buffer[0] == '\n')
-						{ // decode chunk length
-							if([_headerLine length] > 0)
-								{ // there should follow a CRLF after the body resulting in a empty line
-									NSScanner *sc=[NSScanner scannerWithString:_headerLine];
-#if 1
-									NSLog(@"chunk length=%@", _headerLine);
-#endif
-									_chunkLength=0;
-									if(![sc scanHexInt:&_chunkLength])	// is hex coded (we even ignore an optional 0x)
-										{
-										NSLog(@"invalid chunk length %@", _headerLine);
-										[_currentRequest didFailWithError:[NSError errorWithDomain:@"invalid chunk length" code:0 userInfo:0]];
-										[self endOfUseability];
-										return;
-										}
-									// may be followed by ; name=var
-									if(_chunkLength == 0)
-										[self bodyReceived];	// done reading body - continue with trailer
-									[_headerLine setString:@""];	// has been processed
-								}
-						}
-					else
-						[_headerLine appendFormat:@"%c", buffer[0]&0xff];	// we should try to optimize that...
-					return;
-				}
-			[_currentRequest didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
-			if(_chunkLength > 0)
-				_chunkLength-=len;	// if this becomes 0 we are looking for the next chunk length
-			if(_contentLength > 0)
-				{
-				_contentLength -= len;
-				if(_contentLength == 0)
-					{ // we have received as much as expected
-						[self bodyReceived];
-					}
-				}
-			return;
-			}
-#if 0
-		NSLog(@"will process %02x _lastChr=%02x into %@", buffer[0], _lastChr, _headerLine);
-#endif
-		if(_lastChr == '\n')
-			{ // first character in new line received
-				if(buffer[0] != ' ' && buffer[0] != '\t')
-					{ // process what we have (even if empty)
-						[self processHeaderLine:_headerLine];
-						[_headerLine setString:@""];	// has been processed
-					}
-			}
-		if(buffer[0] == '\r')
-			return;	// ignore in headers
-		if(buffer[0] != '\n')
-			[_headerLine appendFormat:@"%c", buffer[0]&0xff];	// we should try to optimize that...
-		_lastChr=buffer[0];
-#if 0
-		NSLog(@"did process %02x _lastChr=%02x into", buffer[0], _lastChr, _headerLine);
-#endif
-		return;
-		}
-		case NSStreamEventEndEncountered:
-		{
-#if 1
-		NSLog(@"input connection closed by server: %@", self);
-#endif
-		if(!_readingBody)
-			[_currentRequest didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
-		if([_headers objectForKey:@"content-length"])
-			{
-			if(_contentLength > 0)
-				{
-				[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while receiving body" code:0 userInfo:nil]];	// we did not receive the announced contentLength
-				}
-			}
-		else
-			[self bodyReceived];	// implicit content length defined by EOF
-		[self endOfUseability];
-		return;
 		}
 		default:
-		break;
+			break;
 	}
 	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [_inputStream streamError], (unsigned long)event, _inputStream, self);
 	[_currentRequest didFailWithError:[_inputStream streamError]];
@@ -771,137 +767,138 @@ static NSMutableDictionary *_httpConnections;
 	 Host: de.wikipedia.org
 	 Content-Type: application/x-www-form-urlencoded
 	 Content-Length: 24
-	 
+
 	 search=Katzen&go=Artikel  <- body
 	 */
-	switch(event)
-	{
-		case NSStreamEventOpenCompleted:
-	{ // ready to send header
+	switch(event) {
+		case NSStreamEventOpenCompleted: { // ready to send header
 #if 1
-		NSLog(@"HTTP output stream opened");
+			NSLog(@"HTTP output stream opened");
 #endif
-		return;
-	}
-		case NSStreamEventHasSpaceAvailable:
-		{
-		unsigned char buffer[512];	// max size of chunks to send to TCP subsystem to avoid blocking
-		if(_headerStream)
-			{ // we are still sending the header
-				if([_headerStream hasBytesAvailable])
-					{ // send next part until done
-						int len=[_headerStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
-						if(len < 0)
-							{
-							NSDictionary *info=[NSDictionary
-												dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error"];
-#if 1
-							NSLog(@"error while reading from HTTPHeader stream %s", strerror(errno));
-#endif
-							[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPHeaderStream" code:errno userInfo:info]];
-							[self endOfUseability];
-							}
-						else
-							{
-							[_outputStream write:buffer maxLength:len];	// send
-#if 1
-							NSLog(@"%d bytes header sent", len);
-#endif
-							}
-						return;	// done sending next chunk
-					}
-#if 1
-				NSLog(@"header completely sent");
-#endif
-				[_headerStream close];
-				[_headerStream release];	// done sending header, continue with body (if available)
-				_headerStream=nil;
-			}
-		if(_bodyStream)
-			{ // we are still sending the body
-				if([_bodyStream hasBytesAvailable])	// FIXME: if we send chunked this is not the correct indication and we should stall sending until new data becomes available
-					{ // send next part until done
-						int len=[_bodyStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
-						if(len < 0)
-							{
-							NSDictionary *info=[NSDictionary
-												dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error"];
-#if 1
-							NSLog(@"error while reading from HTTPBody stream %s", strerror(errno));
-#endif
-							[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:info]];
-							[self endOfUseability];
-							return;	// done
-							}
-						else
-							{
-							if(_sendChunked)
+			return;
+		}
+		case NSStreamEventHasSpaceAvailable: {
+			unsigned char buffer[512];	// max size of chunks to send to TCP subsystem to avoid blocking
+			if(_headerStream)
+				{ // we are still sending the header
+					if([_headerStream hasBytesAvailable])
+						{ // send next part until done
+							int len=[_headerStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
+							if(len == 0)
+								[self stream:_headerStream handleEvent:NSStreamEventEndEncountered];
+							if(len < 0)
 								{
-								char chunkLen[32];
-								sprintf(chunkLen, "%x\r\n", len);
-								[_outputStream write:(unsigned char *) chunkLen maxLength:strlen(chunkLen)];	// send length
-								[_outputStream write:buffer maxLength:len];	// send what we have
-								[_outputStream write:(unsigned char *) "\r\n" maxLength:2];	// and a CRLF
+								NSDictionary *info=[NSDictionary
+													dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error"];
 #if 1
-								NSLog(@"chunk with %d bytes sent\nHeader: %s", len, chunkLen);
+								NSLog(@"error while reading from HTTPHeader stream %s", strerror(errno));
 #endif
-								if(len != 0)
-									return;	// more to send (at least a 0-length header)
+								[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPHeaderStream" code:errno userInfo:info]];
+								[self endOfUseability];
 								}
 							else
 								{
-								[_outputStream write:buffer maxLength:len];	// send what we have
+								[_outputStream write:buffer maxLength:len];	// send
 #if 1
-								NSLog(@"%d bytes body sent", len);
+								NSLog(@"%d bytes header sent", len);
 #endif
+								}
+							return;	// done sending next chunk
+						}
+#if 1
+					NSLog(@"header completely sent");
+#endif
+					[_headerStream close];
+					[_headerStream release];	// done sending header, continue with body (if available)
+					_headerStream=nil;
+				}
+			if(_bodyStream)
+				{ // we are still sending the body
+					if([_bodyStream hasBytesAvailable])	// FIXME: if we send chunked this is not the correct indication and we should stall sending until new data becomes available
+						{ // send next part until done
+							int len=[_bodyStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
+							if(len == 0)
+								[self stream:_headerStream handleEvent:NSStreamEventEndEncountered];
+							if(len < 0)
+								{
+								NSDictionary *info=[NSDictionary
+													dictionaryWithObjectsAndKeys:[NSString stringWithUTF8String:strerror(errno)], @"Error"];
+#if 1
+								NSLog(@"error while reading from HTTPBody stream %s", strerror(errno));
+#endif
+								[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:info]];
+								[self endOfUseability];
 								return;	// done
 								}
-							}
-					}
+							else
+								{
+								if(_sendChunked)
+									{
+									char chunkLen[32];
+									sprintf(chunkLen, "%x\r\n", len);
+									[_outputStream write:(unsigned char *) chunkLen maxLength:strlen(chunkLen)];	// send length
+									[_outputStream write:buffer maxLength:len];	// send what we have
+									[_outputStream write:(unsigned char *) "\r\n" maxLength:2];	// and a CRLF
 #if 1
-				NSLog(@"body completely sent");
+									NSLog(@"chunk with %d bytes sent\nHeader: %s", len, chunkLen);
 #endif
-				[_bodyStream close];	// close body stream (if open)
-				[_bodyStream release];
-				_bodyStream=nil;
-				// we might send additional headers according to the protocol - but we have already sent them
-				// this would only be useful if we want to allow the client to add/modify headers while generating the body stram
-				// in that case we would have to mark all headers if they are sent before or after the chunked body and send only the minimum headers before
-			}
-		if(_shouldClose)
-			{	// we have announced Connection: close
+									if(len != 0)
+										return;	// more to send (at least a 0-length header)
+									}
+								else
+									{
+									[_outputStream write:buffer maxLength:len];	// send what we have
 #if 1
-				NSLog(@"can't keep connection alive because we announced Connection: close");
+									NSLog(@"%d bytes body sent", len);
 #endif
-				[_outputStream close];
-				[_outputStream release];
-				_outputStream=nil;
-			}
-		else
-			[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// unschedule until we send the next request
-		return;
+									return;	// done
+									}
+								}
+						}
+#if 1
+					NSLog(@"body completely sent");
+#endif
+					[_bodyStream close];	// close body stream (if open)
+					[_bodyStream release];
+					_bodyStream=nil;
+					// we might send additional headers according to the protocol - but we have already sent them
+					// this would only be useful if we want to allow the client to add/modify headers while generating the body stram
+					// in that case we would have to mark all headers if they are sent before or after the chunked body and send only the minimum headers before
+				}
+			if(_shouldClose)
+				{	// we have announced Connection: close
+#if 1
+					NSLog(@"can't keep connection alive because we announced Connection: close");
+#endif
+					[_outputStream close];
+					[_outputStream release];
+					_outputStream=nil;
+				}
+			else
+				[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// unschedule until we send the next request
+			return;
 		}
 		case NSStreamEventEndEncountered:
-		if([_headerStream hasBytesAvailable])
-			[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending header" code:errno userInfo:nil]];
-		else if([_bodyStream hasBytesAvailable])
-			[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending body" code:errno userInfo:nil]];
-		else
-			{
+			if([_headerStream hasBytesAvailable])
+				[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending header" code:errno userInfo:nil]];
+			else if([_bodyStream hasBytesAvailable])
+				[_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending body" code:errno userInfo:nil]];
+			else
+				{
 #if 1
-			NSLog(@"server has disconnected - can't keep alive: %@", self);
+				NSLog(@"server has disconnected - can't keep alive: %@", self);
 #endif
-			}
-		[_headerStream close];
-		[_headerStream release];	// done sending header
-		_headerStream=nil;
-		[_bodyStream close];	// close body stream (if open)
-		[_bodyStream release];
-		_bodyStream=nil;
-		[self endOfUseability];
-		return;
+				}
+			[_headerStream close];
+			[_headerStream release];	// done sending header
+			_headerStream=nil;
+			[_bodyStream close];	// close body stream (if open)
+			[_bodyStream release];
+			_bodyStream=nil;
+			[self endOfUseability];
+			return;
 		default:
-		break;
+			break;
 	}
 	NSLog(@"An error %@ occurred on the event %08lx of stream %@ of %@", [_outputStream streamError], (unsigned long)event, _outputStream, self);
 	[_currentRequest didFailWithError:[_outputStream streamError]];
@@ -913,7 +910,7 @@ static NSMutableDictionary *_httpConnections;
 #if 0
 	NSLog(@"stream:%@ handleEvent:%x for:%@", stream, event, self);
 #endif
-	if(stream == _inputStream) 
+	if(stream == _inputStream)
 		[self handleInputEvent:event];
 	else if(stream == _outputStream)
 		[self handleOutputEvent:event];
@@ -1034,29 +1031,27 @@ static NSMutableDictionary *_httpConnections;
 {
 	NSDictionary *headers=[response allHeaderFields];
 	NSString *loc;
-	switch([response statusCode])
-	{
+	switch([response statusCode]) {
 		case 100:
-		return;	// continue - ignore
-		case 401:
-		{
-		// FIXME: read auth challenge from HTTP headers
-		NSURLAuthenticationChallenge *chall=nil;
-		[_client URLProtocol:self didReceiveAuthenticationChallenge:chall];
-		// retry or abort?
-		return;
+			return;	// continue - ignore
+		case 401: {
+			// FIXME: read auth challenge from HTTP headers
+			NSURLAuthenticationChallenge *chall=nil;
+			[_client URLProtocol:self didReceiveAuthenticationChallenge:chall];
+			// retry or abort?
+			return;
 		}
 		case 407:
-		// notify client and add authentication info + repeat
-		break;
+			// notify client and add authentication info + repeat
+			break;
 		case 503:	// retry
-		// check if within reasonable future (retry-after) and then repeat
-		break;
-		// case 206:	// optional
+					// check if within reasonable future (retry-after) and then repeat
+			break;
+			// case 206:	// optional
 		case 304:
-		[_client URLProtocol:self cachedResponseIsValid:_cachedResponse];	// will get data from cache
-		[_client URLProtocol:self didLoadData:[_cachedResponse data]];	// and pass data from cache
-		return;
+			[_client URLProtocol:self cachedResponseIsValid:_cachedResponse];	// will get data from cache
+			[_client URLProtocol:self didLoadData:[_cachedResponse data]];	// and pass data from cache
+			return;
 	}
 	if(([response statusCode]/100 == 3) && (loc=[headers objectForKey:@"Location"]))
 		{ // redirect
@@ -1066,11 +1061,11 @@ static NSMutableDictionary *_httpConnections;
 		}
 	// FIXME: there are response-headers that control how the response should be cached, i.e. translate into cacheStoragePolicy
 	[_client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:0];	// notify client
-	
+
 	/* how do we generate these:
 	 - (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
 	 */
-	
+
 }
 
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
@@ -1162,28 +1157,26 @@ static NSMutableDictionary *_httpConnections;
 
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event
 {
-	if(stream == _inputStream) 
+	if(stream == _inputStream)
 		{
-		switch(event)
-			{
-				case NSStreamEventHasBytesAvailable:
-				{
+		switch(event) {
+			case NSStreamEventHasBytesAvailable: {
 				NSLog(@"FTP input stream has bytes available");
 				// implement FTP protocol
 				//			[_client URLProtocol:self didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
 				return;
-				}
-				case NSStreamEventEndEncountered:	// can this occur in parallel to NSStreamEventHasBytesAvailable???
+			}
+			case NSStreamEventEndEncountered:	// can this occur in parallel to NSStreamEventHasBytesAvailable???
 				NSLog(@"FTP input stream did end");
 				[_client URLProtocolDidFinishLoading:self];
 				return;
-				case NSStreamEventOpenCompleted:
+			case NSStreamEventOpenCompleted:
 				// prepare to receive header
 				NSLog(@"FTP input stream opened");
 				return;
-				default:
+			default:
 				break;
-			}
+		}
 		}
 	else if(stream == _outputStream)
 		{
@@ -1215,7 +1208,7 @@ static NSMutableDictionary *_httpConnections;
 	NSString *enc=@"unknown";
 	if(!data)
 		{
-		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't load file" 
+		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't load file"
 																	   code:0
 																   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 																			 [_request URL], @"URL",
@@ -1226,7 +1219,7 @@ static NSMutableDictionary *_httpConnections;
 	r=[[NSURLResponse alloc] initWithURL:[_request URL]
 								MIMEType:nil	// should try to substitute from file extension
 				   expectedContentLength:[data length]
-						textEncodingName:enc];	
+						textEncodingName:enc];
 	[_client URLProtocol:self didReceiveResponse:r cacheStoragePolicy:NSURLRequestUseProtocolCachePolicy];
 	if(!_stopLoading)
 		[_client URLProtocol:self didLoadData:data];
@@ -1252,11 +1245,11 @@ static NSMutableDictionary *_httpConnections;
 {
 	NSURLResponse *r;
 	NSData *data=[NSData data];	// about provides no data
-	// we could pass different content depending on the [url path]
+								// we could pass different content depending on the [url path]
 	r=[[NSURLResponse alloc] initWithURL:[_request URL]
 								MIMEType:@"text/html"
 				   expectedContentLength:[data length]
-						textEncodingName:@"utf-8"];	
+						textEncodingName:@"utf-8"];
 	[_client URLProtocol:self didReceiveResponse:r cacheStoragePolicy:NSURLRequestUseProtocolCachePolicy];
 	if(!_stopLoading)
 		[_client URLProtocol:self didLoadData:data];
@@ -1272,9 +1265,9 @@ static NSMutableDictionary *_httpConnections;
 @implementation _NSDataURLProtocol	// RFC2397 http://www.ietf.org/rfc/rfc2397.txt
 
 /* examples
- 
+
  data:,A%20brief%20note
- 
+
  data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw
  AAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFz
  ByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSp
@@ -1282,9 +1275,9 @@ static NSMutableDictionary *_httpConnections;
  ZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uis
  F81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PH
  hhx4dbgYKAAA7
- 
+
  data:text/plain;charset=iso-8859-7,%be%fg%be
- 
+
  */
 
 + (BOOL) canInitWithRequest:(NSURLRequest *) request;
@@ -1308,7 +1301,7 @@ static NSMutableDictionary *_httpConnections;
 	BOOL base64=NO;
 	if(comma.location == NSNotFound)
 		{
-		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't load data" 
+		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't load data"
 																	   code:0
 																   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 																			 [_request URL], @"URL",
@@ -1319,12 +1312,12 @@ static NSMutableDictionary *_httpConnections;
 	types=[[[path substringToIndex:comma.location] componentsSeparatedByString:@";"] objectEnumerator];
 	while((type=[types nextObject]))
 		{ // process mediatype etc.
-		if([type isEqualToString:@"base64"])
-			base64=YES;
-		else if([type hasPrefix:@"charset="])
-			encoding=[type substringFromIndex:8];
-		else if([type length] > 0)
-			mime=type;
+			if([type isEqualToString:@"base64"])
+				base64=YES;
+			else if([type hasPrefix:@"charset="])
+				encoding=[type substringFromIndex:8];
+			else if([type length] > 0)
+				mime=type;
 		}
 	path=[path substringFromIndex:comma.location+1];	// part after ,
 	if(base64)
@@ -1334,7 +1327,7 @@ static NSMutableDictionary *_httpConnections;
 	r=[[NSURLResponse alloc] initWithURL:[_request URL]
 								MIMEType:mime
 				   expectedContentLength:[data length]
-						textEncodingName:encoding];	
+						textEncodingName:encoding];
 	[_client URLProtocol:self didReceiveResponse:r cacheStoragePolicy:NSURLRequestUseProtocolCachePolicy];
 	if(!_stopLoading)
 		[_client URLProtocol:self didLoadData:data];
