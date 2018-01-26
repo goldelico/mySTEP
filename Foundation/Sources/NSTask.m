@@ -58,6 +58,9 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 #endif
 	if (waitpid(_taskPID, &_terminationStatus, WNOHANG) == _taskPID)
 		{
+#if 0
+		NSLog(@"NSTask collect: %@", self);
+#endif
 		_task.hasCollected = YES;
 		_task.hasTerminated = YES;
 
@@ -522,7 +525,7 @@ static void _catchChildExit(int sig)
 				 * we should also not do coalescing in signal handler context
 				 */
 				[__notificationQueue enqueueNotification:__didReceiveSignal
-											postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
+											postingStyle:NSPostASAP	// a signal interrupts the runloop
 											coalesceMask:NSNotificationNoCoalescing
 												forModes:nil];
 #if 0
