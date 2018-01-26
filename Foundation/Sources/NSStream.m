@@ -91,13 +91,6 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (id) delegate { return _delegate; }
 - (void) setDelegate:(id) delegate { _delegate=delegate; }
-- (void) _sendEvent:(NSStreamEvent) event; { [_delegate stream:self handleEvent:event]; }
-
-- (void) _sendDidOpenEvent
-{
-	_streamStatus=NSStreamStatusOpen;
-	[self _sendEvent:NSStreamEventOpenCompleted];
-}
 
 - (void) close
 {
@@ -108,12 +101,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
-		[self _sendErrorWithDomain:@"already open" code:0];
+		[self _setStreamErrorWithDomain:@"already open" code:0];
 		return;
 		}
 	_streamStatus=NSStreamStatusOpening;	// until we really handle the event in the runloop
-	// FIXME: handle mode(s)
-	[self performSelector:@selector(_sendDidOpenEvent) withObject:nil afterDelay:0.0];	// send from runloop
 }
 
 - (id) propertyForKey:(NSString *) key { return SUBCLASS; }
@@ -121,21 +112,22 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSError *) streamError { return _streamError; }
 
-- (void) _sendError:(NSError *) err;
+- (void) _setStreamError:(NSError *) err;
 {
 	_streamStatus=NSStreamStatusError;
 	ASSIGN(_streamError, err);
-	[_delegate stream:self handleEvent:NSStreamEventErrorOccurred];
 }
 
-- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
+// deprecate?
+
+- (void) _setStreamErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
 {
-	[self _sendError:[NSError errorWithDomain:domain code:code userInfo:dict]];
+	[self _setStreamError:[NSError errorWithDomain:domain code:code userInfo:dict]];
 }
 
-- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code;
+- (void) _setStreamErrorWithDomain:(NSString *)domain code:(NSInteger)code;
 {
-	[self _sendError:[NSError errorWithDomain:domain code:code userInfo:nil]];
+	[self _setStreamError:[NSError errorWithDomain:domain code:code userInfo:nil]];
 }
 
 - (NSStreamStatus) streamStatus { return _streamStatus; }
@@ -175,7 +167,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return self;
 }
 
-- (int) _readFileDescriptor; { return _fd; }
+- (int) _readFileDescriptor; { return _streamStatus == NSStreamStatusAtEnd?-1:_fd; }	// don't schedule after EOF detected
 
 - (id) initWithFileAtPath:(NSString *) path
 {
@@ -210,8 +202,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 }
 
 - (BOOL) hasBytesAvailable;
-{ // how do we check? special call to select()? should we read some bytes in advance?
-	return YES;
+{ // how do we check for empty files or pipes? special call to select()? should we read some bytes in advance?
+	return _streamStatus != NSStreamStatusAtEnd;
 }
 
 - (BOOL) getBuffer:(unsigned char **) buffer length:(NSUInteger *) len;
@@ -221,14 +213,27 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
+	NSInteger n;
+	int oldStatus=_streamStatus;
 #if 0
 	NSLog(@"read:maxLength:");
 #endif
-	NSInteger n=read(_fd, buffer, len);
+	_streamStatus=NSStreamStatusReading;
+	n=read(_fd, buffer, len);
 	if(n < 0)
+		{
+#if 0
+		NSLog(@"read:maxLength: error %d %s", errno, strerror(errno));
+#endif
+		if(errno == EWOULDBLOCK || errno == EAGAIN || errno == EINTR)
+			return 0;	// did fall through in non-blocking mode or was interrupted by signal
+		[self _setStreamErrorWithDomain:@"read error" code:errno];
 		return n;	// error
+		}
 	if(n == 0)
-		_streamStatus=NSStreamStatusAtEnd, [self _sendEvent:NSStreamEventEndEncountered];
+		_streamStatus=NSStreamStatusAtEnd;
+	else
+		_streamStatus=oldStatus;
 	return n;
 }
 
@@ -256,11 +261,22 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 }
 
 - (void) _readFileDescriptorReady
-{
-	// check status
-	_streamStatus=NSStreamStatusReading;
-	// should we read one buffer full in advance to know if we are at end of file or anything is available???
-	[self _sendEvent:NSStreamEventHasBytesAvailable];
+{ //called from NSRunLoop if we are scheduled and there is something to read
+#if 0
+	NSLog(@"_readFileDescriptorReady: status=%d", _streamStatus);
+#endif
+	if(_streamStatus == NSStreamStatusOpening)
+		{
+		_streamStatus=NSStreamStatusOpen;
+		[_delegate stream:self handleEvent:NSStreamEventOpenCompleted];
+		}
+	else if(_streamStatus == NSStreamStatusError)
+		[_delegate stream:self handleEvent:NSStreamEventErrorOccurred];
+	else if(_streamStatus == NSStreamStatusAtEnd)
+		// FIXME: should this be done exactly once?
+		[_delegate stream:self handleEvent:NSStreamEventEndEncountered];
+	else
+		[_delegate stream:self handleEvent:NSStreamEventHasBytesAvailable];
 }
 
 @end
@@ -285,7 +301,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
  #endif
  if(_streamStatus != NSStreamStatusNotOpen)
  {
- [self _sendErrorWithDomain:@"already open" code:0];
+ [self _setStreamErrorWithDomain:@"already open" code:0];
  return;
  }
  //	_streamStatus=NSStreamStatusOpening;
@@ -303,14 +319,25 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	NSInteger n;
 	if(_output->ssl)
+		{
+		int oldStatus=_streamStatus;
+#if 1
+		NSLog(@"ssl read:maxLength:");
+#endif
+		_streamStatus=NSStreamStatusReading;
 		n=SSL_read(_output->ssl, buffer, len);
-	else
-		n=read(_fd, buffer, len);
-	if(n < 0)
-		return n;	// error
-	if(n == 0)
-		_streamStatus=NSStreamStatusAtEnd, [self _sendEvent:NSStreamEventEndEncountered];
-	return n;
+		if(n < 0)
+			{
+			_streamStatus=NSStreamStatusError;
+			return n;	// error
+			}
+		if(n == 0)
+			_streamStatus=NSStreamStatusAtEnd;
+		else
+			_streamStatus=oldStatus;
+		return n;
+		}
+	return [super read:buffer maxLength:len];
 }
 
 @end
@@ -354,6 +381,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 {
 	NSInteger remain=_capacity-_position;
+	if(remain == 0)
+		_streamStatus=NSStreamStatusAtEnd;
 	if(len > remain)
 		len=remain;	// limit
 	memcpy(buffer, _buffer+_position, len);
@@ -475,17 +504,26 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	[super close];
 }
 
-- (BOOL) hasSpaceAvailable; { return _streamStatus != NSStreamStatusClosed; }	// how to check?
+- (BOOL) hasSpaceAvailable; { return _streamStatus != NSStreamStatusAtEnd; }
 
 - (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
-	NSInteger n=write(_fd, buffer, len);
+	NSInteger n;
+	int oldStatus=_streamStatus;
+#if 0
+	NSLog(@"write:maxLength:");
+#endif
+	_streamStatus=NSStreamStatusWriting;
+	n=write(_fd, buffer, len);
 	if(n < 0)
 		{
 #if 1
 		NSLog(@"write error %s", strerror(errno));
 #endif
+		_streamStatus=NSStreamStatusError;
+		return n;	// error
 		}
+	_streamStatus=oldStatus;
 	return n;
 }
 
@@ -500,10 +538,19 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 }
 
 - (void) _writeFileDescriptorReady
-{
-	// check status
-	_streamStatus=NSStreamStatusWriting;
-	[self _sendEvent:NSStreamEventHasSpaceAvailable];
+{ //called from NSRunLoop if we are scheduled and can can write
+#if 0
+	NSLog(@"_writeFileDescriptorReady: status=%d", _streamStatus);
+#endif
+	if(_streamStatus == NSStreamStatusOpening)
+		{
+		_streamStatus=NSStreamStatusOpen;
+		[_delegate stream:self handleEvent:NSStreamEventOpenCompleted];
+		}
+	else if(_streamStatus == NSStreamStatusError)
+		[_delegate stream:self handleEvent:NSStreamEventErrorOccurred];
+	else
+		[_delegate stream:self handleEvent:NSStreamEventHasSpaceAvailable];
 }
 
 - (id) propertyForKey:(NSString *) key
@@ -546,6 +593,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 {
 	NSInteger room=_capacity-_position;
+	if(room == 0)
+		_streamStatus=NSStreamStatusAtEnd;
 	if(room > len)
 		room=len;	// limit to request
 	memcpy(_buffer+_position, buffer, room);
@@ -657,7 +706,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 #if 0
 		NSLog(@"status %lu for %@", (unsigned long)_streamStatus, self);
 #endif
-		[self _sendErrorWithDomain:@"already open" code:0];
+		[self _setStreamErrorWithDomain:@"already open" code:0];
 		return;
 		}
 #if 0
@@ -665,20 +714,18 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 #endif
 	if(!_host)
 		{
-		[self _sendErrorWithDomain:@"nil host for stream socket open" code:0];
+		[self _setStreamErrorWithDomain:@"nil host for stream socket open" code:0];
 		return;
 		}
-	_streamStatus=NSStreamStatusOpening;
+	[super open];
 	_addr.sin_family=AF_INET;
 	inet_aton([[_host address] cString], &_addr.sin_addr);
 	_addr.sin_port=htons(_port);
-#if 1	// DONTBLOCK_ON_CONNECT
-	fcntl(_fd, F_SETFL, O_NONBLOCK);	// don't block but run in the background
-#endif
+	fcntl(_fd, F_SETFL, O_NONBLOCK);	// don't block and run connect() in the background
 	if(connect(_fd, (struct sockaddr *) &_addr, addrlen) < 0 && errno != EINPROGRESS)
 		{
 		NSLog(@"connect error %s", strerror(errno));
-		[self _sendErrorWithDomain:@"can't connect socket" code:0];
+		[self _setStreamErrorWithDomain:@"can't connect socket" code:0];
 		return;
 		}
 	fcntl(_fd, F_SETFL, O_ASYNC);	// block during normal operation - but not while waiting for connection
@@ -712,11 +759,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		ssl = SSL_new(ctx);
 		if(SSL_set_fd(ssl, _fd))
 			{ // error
-				[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
+				[self _setStreamErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
 			}
 		if(SSL_connect(ssl))
 			{ // error
-				[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
+				[self _setStreamErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
 			}
 		}
 }
@@ -747,10 +794,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		{ // connect is successfull
 			// cancel timeout
 			// FIXME: handle ssl connection setup
-			[self _sendDidOpenEvent];
 		}
-	else
-		[super _writeFileDescriptorReady];
+	[super _writeFileDescriptorReady];
 }
 
 - (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
@@ -758,11 +803,15 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	if(ssl)
 		{
 		NSInteger n;
+		// FIXME handle status writing etc.
 		n=SSL_write(ssl, buffer, len);	// SSL
+		if(n == 0)
+			;
+		if(n < 0)
+			;
 		return n;
 		}
-	else
-		return [super write:buffer maxLength:len];
+	return [super write:buffer maxLength:len];
 }
 
 @end

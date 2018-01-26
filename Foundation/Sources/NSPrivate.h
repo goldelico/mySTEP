@@ -552,10 +552,9 @@ enum _INVOCATION_MODE {
 
 @interface NSStream (NSPrivate)
 
-- (void) _sendEvent:(NSStreamEvent) event;
-- (void) _sendError:(NSError *) err;
-- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code;
-- (void) _sendErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
+- (void) _setStreamError:(NSError *) err;
+- (void) _setStreamErrorWithDomain:(NSString *)domain code:(NSInteger)code;
+// - (void) _setStreamErrorWithDomain:(NSString *)domain code:(NSInteger)code userInfo:(NSDictionary *) dict;
 
 @end
 
