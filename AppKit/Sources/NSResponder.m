@@ -230,6 +230,11 @@
 		[self noResponderFor:_cmd];
 }
 
+- (NSUndoManager *) undoManager;
+{
+	return [_nextResponder undoManager];
+}
+
 - (void) noResponderFor:(SEL)eventSelector
 {
 #if 1
