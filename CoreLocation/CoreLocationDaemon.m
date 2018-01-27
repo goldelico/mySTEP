@@ -410,7 +410,7 @@
 	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
 	NSArray *lines;
 	int l;
-#if 0
+#if 1
 	NSLog(@"data=%@", line);
 	NSLog(@"string=%@", s);
 #endif
@@ -443,13 +443,12 @@
 
 - (void) _dataReceived:(NSNotification *) n;
 {
-#if 0
+#if 1
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
-	[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
 }
 
 - (int) numberOfReceivedSatellites;
