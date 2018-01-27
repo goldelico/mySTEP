@@ -917,6 +917,7 @@ static NSString *__fontCollections = nil;
 	[super dealloc];
 }
 
+// CHECKME: is this runModal-safe?
 - (void) _notify;
 {
 	[[NSApp targetForAction:@selector(changeFont:)] changeFont:self];	// send to the first responder
@@ -967,6 +968,7 @@ static NSString *__fontCollections = nil;
 - (void) setPanelFont:(NSFont *) fontObject isMultiple:(BOOL) multiple	
 {
 	NSUInteger mask=NSFontPanelStandardModesMask;
+	// CHECKME: is this runModal-safe?
 	id target=[NSApp targetForAction:@selector(validModesForFontPanel:)];
 	if(target)
 		mask=[target validModesForFontPanel:self];
