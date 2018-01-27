@@ -458,10 +458,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 	[self finishLaunching];
 	_app.isRunning = YES;
-	do { // embrace with private autorelease pool and exception handler
-		NSEvent *e;
-		NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	do {
+		NSAutoreleasePool *arp=[NSAutoreleasePool new]; // embrace with private autorelease pool
 		NS_DURING // protect against exceptions
+		NSEvent *e;
 		NSInteger windowitemsbefore=_windowItems;
 #if 1
 		NS_TIME_START(sendEvent);
@@ -509,22 +509,107 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
 		NS_ENDHANDLER
 		[arp release];
-	}
-	while(_app.isRunning);
+	} while(_app.isRunning);
 	NSDebugLog(@"NSApplication end of run loop\n");	
 	[self terminate:self];
 }
 
+- (NSInteger) runModalSession:(NSModalSession)as
+{ // Run the main event loop but make one window modal (unless it is hidden by another one)
+	if(!as)
+		[NSException raise: NSInvalidArgumentException
+					format: @"null pointer passed to runModalSession:"];
+	if (as != _session)
+		[NSException raise: NSInvalidArgumentException
+					format: @"runModalSession: with wrong session"];
+	[as->window makeKeyAndOrderFront: self];
+	as->windowTag = [as->window windowNumber];	// should be assigned now
+#if 0
+	NSLog(@"runModalSession: as = %p", as);
+	NSLog(@"  as->window %@", as->window);
+	NSLog(@"  as->windowTag %ld", (long)as->windowTag);
+#endif
+
+	do
+		{
+		NSAutoreleasePool *arp=[NSAutoreleasePool new]; // embrace with private autorelease pool
+		NS_DURING // protect against exceptions
+		NSEvent *e=[self nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantFuture] inMode:NSModalPanelRunLoopMode dequeue:YES];
+		NSWindow *ew=[e window];
+#if 1
+		NSLog(@"runModalSession event %@", e);
+#endif
+		if(ew == as->window)
+			{ // event is for the modal window
+				NSWindow *w = [NSApp windowWithWindowNumber:as->windowTag];	// check if the server still knows us by tag
+				BOOL was = as->visible;
+				if(w == nil || (!(as->visible = [w isVisible]) && was))
+					{
+#if 1
+					NSLog(@"window was visible: event window %d %@", [[e window] windowNumber], [e window]);
+					NSLog(@"                    as->window %@", as->window);
+					NSLog(@"                    as->windowTag %d -> %@", as->windowTag, w);
+#endif
+					[self stopModal];			// if window was visible but has now gone away: end the session
+					}
+				else
+					[self sendEvent:e];	// dispatch to the event window (which is the modal window)
+			}
+		else if([ew level] > [as->window level])
+			{
+#if 1
+			NSLog(@"runModalSession higher Level: %@", [e window]);
+#endif
+			[self sendEvent:e];	// the window can (at least potentially) hide the modal panel
+			}
+		else if([ew worksWhenModal])
+			{
+#if 1
+			NSLog(@"runModalSession worksWhenModal: %@", [e window]);
+#endif
+			[self sendEvent:e];	// the window has explicity opted to receive events
+			}
+		// FIXME: check if we clicked into the title bar to always allow moving windows (which is done in NSThemeFrame of the window)
+		else
+			{ // queue events for all other windows for processing later by endModalSession
+				NSEventType t = [e type];
+				if (t == NSLeftMouseDown || (t == NSRightMouseDown))
+					NSBeep();
+				else
+					{
+					if (!as->nonModalEventsQueue)
+						as->nonModalEventsQueue = [NSMutableArray new];
+					[as->nonModalEventsQueue addObject: e];
+					}
+			}
+		if(_app.windowsNeedUpdate)
+			[self updateWindows];
+		NS_HANDLER
+		NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
+		NS_ENDHANDLER
+		[arp release];
+		} while(as->runState == NSRunContinuesResponse);
+	NSAssert(_session == as, @"Session was changed while running");
+#if 1
+	NSLog(@"runModalSession: runState = %ld", (long)as->runState);
+#endif
+	return as->runState;
+}
+
 - (NSInteger) runModalForWindow:(NSWindow*)aWindow
 {
-	NSModalSession s = 0;
+	NSModalSession s = NULL;
 	NSInteger r;	// Run a modal event loop
-#if 1
+#if 0
 	NSLog(@"runModalForWindow: %@", aWindow);
 #endif	
 	NS_DURING
 		{
 		s = [self beginModalSessionForWindow:aWindow];
+#if 0
+		NSLog(@"runModalForWindow: session = %p", s);
+		NSLog(@"runState = %ld", (long)s->runState);
+#endif
 		while((r = [self runModalSession: s]) == NSRunContinuesResponse)
 			{
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
@@ -548,6 +633,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	return r;
 }
 
+- (NSInteger) runModalForWindow:(NSWindow *) aWindow relativeToWindow:(NSWindow *) docWindow;	/* DEPRECATED */
+{
+	// is this an alternate name for beginSheet?
+	// and built-in didEndSelector?
+	return -1;
+}
+
 - (void) beginSheet:(NSWindow *) sheet
 		 modalForWindow:(NSWindow *) doc
 			modalDelegate:(id) delegate
@@ -555,7 +647,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				contextInfo:(void *) context;
 {
 	NSInteger r;
-	NSModalSession s = 0;
+	NSModalSession s = NULL;
 	void (*didend)(id, SEL, NSWindow *, NSInteger, void *);
 	didend = (void (*)(id, SEL, NSWindow *, NSInteger, void *))[delegate methodForSelector:selector];
 	[doc _attachSheet:sheet];
@@ -567,6 +659,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NS_DURING
 		{
 			s = [self beginModalSessionForWindow:sheet];
+#if 1
+			NSLog(@"beginSheet: session = %p", s);
+#endif
 			while((r = [self runModalSession: s]) == NSRunContinuesResponse)
 					{
 						NSAutoreleasePool *arp=[NSAutoreleasePool new];
@@ -590,87 +685,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	[doc _attachSheet:nil];	// no sheet attached
 	if(didend)
 		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
-}
-
-- (NSInteger) runModalSession:(NSModalSession)as
-{
-	NSEvent *e;
-	if (as != _session)
-		[NSException raise: NSInvalidArgumentException format: @"runModalSession: with wrong session"];
-//	[as->window displayIfNeeded];
-	[as->window makeKeyAndOrderFront: self];
-	as->windowTag = [as->window windowNumber];	// should be assigned now
-#if 1
-		NSLog(@"new session: as->window %@", as->window);
-		NSLog(@"						 as->windowTag %ld", (long)as->windowTag);
-#endif
-		
-	while((e = [self _eventMatchingMask:NSAnyEventMask dequeue:YES])
-		 && (as->runState == NSRunContinuesResponse))
-		{
-		NSWindow *ew=[e window];
-#if 1
-		NSLog(@"event %@", e);
-#endif
-		if(ew == as->window)
-				{ // event is for the modal window
-				NSWindow *w = [NSApp windowWithWindowNumber:as->windowTag];	// check if the server still knows us by tag
-				BOOL was = as->visible;
-				if(w == nil || (!(as->visible = [w isVisible]) && was))
-					{
-#if 0
-					NSLog(@"window was visible: event window %d %@", [[e window] windowNumber], [e window]);
-					NSLog(@"                    as->window %@", as->window);
-					NSLog(@"                    as->windowTag %d -> %@", as->windowTag, w);
-#endif
-					[self stopModal];			// if window was visible but has now gone away: end the session
-					}
-				else
-					[self sendEvent:e];	// dispatch to the event window (which is the modal window)
-				}
-		else if([ew level] > [as->window level])
-			{
-#if 0
-			NSLog(@"higher Level: %@", [e window]);
-#endif
-			[self sendEvent:e];	// the window can (at least potentially) hide the modal panel			
-			}
-		else if([ew worksWhenModal])
-			{
-#if 0
-			NSLog(@"worksWhenModal: %@", [e window]);
-#endif
-			[self sendEvent:e];	// the window has explicity opted to receive events
-			}
-		// FIXME: check if we clicked into the title bar to always allow moving windows (which is done in NSThemeFrame of the window)
-		else
-			{ // queue events for all other windows for processing by endModalSession
-			NSEventType t = [e type];
-			if (t == NSLeftMouseDown || (t == NSRightMouseDown))
-				NSBeep();
-			else
-				{
-				if (!as->nonModalEventsQueue)
-					as->nonModalEventsQueue = [NSMutableArray new];				
-				[as->nonModalEventsQueue addObject: e];
-				}
-			}
-		}
-	
-	if (_app.windowsNeedUpdate)
-			{
-#if 1
-			NSLog(@"_app.windowsNeedUpdate");
-#endif
-			[self updateWindows];				// update other visible windows
-			}
-
-	NSAssert(_session == as, @"Session was changed while running");
-#if 1
-	NSLog(@"runModalSession: %ld", (long)as->runState);
-#endif
-
-	return as->runState;
 }
 
 - (void) abortModal
@@ -699,7 +713,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 #if 0
 	NSLog(@"stopModalWithCode: %d", returnCode);
-	abort();
+	//	abort();
 #endif
 	if (_session == 0)
 		[NSException raise: NSInvalidArgumentException
@@ -708,36 +722,49 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if (returnCode == NSRunContinuesResponse)
 		[NSException raise: NSInvalidArgumentException
 					 format: @"stopModalWithCode: NSRunContinuesResponse ?"];
- 
+
 	_session->runState = returnCode;
 }
 
 - (NSModalSession) beginModalSessionForWindow:(NSWindow*)aWindow
 {
-	NSModalSession s;
-	s = (NSModalSession) objc_calloc(1, sizeof(*s));
-	if(s != NULL)
+#if 0
+	NSLog(@"beginModalSessionForWindow: %@", aWindow);
+#endif
+	NSModalSession s = (NSModalSession) objc_calloc(1, sizeof(*s));
+	NSLog(@"runState = %ld", (long)s->runState);
+	if(s)
 		{
 		s->runState = NSRunContinuesResponse;
-		s->window = aWindow; 
+		s->window = aWindow;
 		s->previous = _session;
 		_session = s;
 		}
+#if 0
+	NSLog(@"session = %p", s);
+#endif
+	if(![aWindow isVisible])
+		[aWindow center];
 	return s;
 }
 
 - (NSModalSession) beginModalSessionForWindow:(NSWindow *)aWindow relativeToWindow:(NSWindow *) other
 {
-	NSModalSession s;
+#if 0
+	NSLog(@"beginModalSessionForWindow:relativeToWindow: %@", aWindow);
+#endif
 	DEPRECATED;
-	s = (NSModalSession) objc_calloc(1, sizeof(*s));
-	if(s != NULL)
+	NSModalSession s = (NSModalSession) objc_calloc(1, sizeof(*s));
+	if(s)
 		{
 		s->runState = NSRunContinuesResponse;
-		s->window = aWindow; 
+		s->window = aWindow;
 		s->previous = _session;
 		_session = s;
 		}
+#if 0
+	NSLog(@"session = %p", s);
+#endif
 	return s;
 }
 
@@ -752,7 +779,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSModalSession tmp = _session;
 
-	if (aSession == 0)
+	if (!aSession)
 		[NSException raise: NSInvalidArgumentException
 					 format: @"null pointer passed to endModalSession:"];
 
@@ -796,7 +823,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSArray *_windowList=[self windows];
 	NSInteger i = [_windowList count];				// find a replacement
-#if 1
+#if 0
 	NSLog(@"NSApp: windowWillClose - %ld open windows", (long)i);
 #endif
 	if(!_app.isHidden && [aNotification object] == _keyWindow && [self isActive])
@@ -1142,6 +1169,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (BOOL) sendAction:(SEL)aSelector to:(id) aTarget from:(id) sender
 {
 	id target=[self targetForAction:aSelector to:aTarget from:sender];
+#if 0
+	NSLog(@"sendAction: %@ to %@ -> %@ from %@", NSStringFromSelector(aSelector), aTarget, target, sender);
+#endif
 	if(!target)
 		return NO;
 	NS_DURING
@@ -1156,11 +1186,38 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	if(!aSelector)
 		return nil;
-	if(aTarget)
-		return aTarget; // responds...
-	return [self targetForAction:aSelector];	// look up in responder chain
+	if(!aTarget)
+		aTarget=[self targetForAction:aSelector];	// look up firstResponder in responder chain
+	else if(![aTarget respondsToSelector:aSelector])
+		return nil;	// explicit target does not respond
+	if(_session && aTarget)
+		{ // modal panel is running
+		  // FIXME: should allow objects with -window returning session->window, i.e. buttons with menu shortcuts etc.
+			// or the window-buttons itself
+#if 0
+			NSLog(@"targetForAction:%@ to:%@ from:%@ while modalSessionFor: %@", NSStringFromSelector(aSelector), aTarget, sender, _session->window);
+#endif
+			if([sender respondsToSelector:@selector(window)])
+				{
+				if([sender window] == _session->window)
+					return aTarget;	// sender is inside the modal window
+#if 0
+				// Window may be completely hiding the panel and amke invisible
+				// but what about the menu? what is the sender of the menu? Does it have a level?
+				if([[sender window] level] > [_session->window level])
+					return aTarget;	// also accept higher level windows hiding the modal one
+#endif
+				}
+#if 1
+			if(aTarget == NSApp)
+				return aTarget;	// handle overall actions (hide, unhide, orderFrontPanels, showHelp etc.)
+#endif
+			if(aTarget != _session->window)
+				return nil; // not the session window
+		}
+	return aTarget;
 }
-	
+
 - (id) targetForAction:(SEL)aSelector
 { // look up in responder chain
 	id responder;
@@ -1206,6 +1263,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	docController=[NSDocumentController sharedDocumentController];
 	if(docController && [docController respondsToSelector: aSelector])
 		return docController;
+	// document controller's delegate?
 	return nil; // no responder available
 }
 
