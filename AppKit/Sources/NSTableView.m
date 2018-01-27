@@ -258,7 +258,7 @@
 															inView:self
 															editor:[_window fieldEditor:YES forObject:aCell]
 														  delegate:self	
-															 start:(int)0	 
+															 start:(int)0
 															length:(int)0];
 										}
 									// shouldn't we handle first responder???
@@ -267,6 +267,7 @@
 								}
 							else
 								{
+								// FIXME: update sort descriptor
 									if([[_tableView delegate] respondsToSelector:@selector(tableView:didClickTableColumn:)])
 										[[_tableView delegate] tableView:_tableView didClickTableColumn:tableColumn];
 									// handle first responder???
@@ -1422,6 +1423,11 @@
 #if 1
 	NSLog(@"mouseDown row=%ld col=%ld rows=%ld", (long)_clickedRow, (long)_clickedColumn, (long)_numberOfRows);
 #endif
+
+	// FIXME: handle click into header cell
+	// LRU-update sort-descriptors (if one exists for the column)
+	// and/or report column click
+	// and handle column selection
 	if(_lastSelectedRow >= 0)
 		{ // pre-existing sel
 		if ((_lastSelectedRow == row) && [event clickCount] > 1)									
@@ -2031,23 +2037,27 @@
 - (void) setHighlightedTableColumn:(NSTableColumn *) tc; { _highlightedTableColumn=tc; }
 - (void) setVerticalMotionCanBeginDrag:(BOOL) flag; { _tv.verticalMotionCanBeginDrag=flag; }
 
-- (NSArray *) sortDescriptors;
-{
-	NSMutableArray *a=[NSMutableArray arrayWithCapacity:[_tableColumns count]];
-	NSEnumerator *e=[_tableColumns objectEnumerator];
-	NSTableColumn *col;
-	while((col=[e nextObject]))
-		[a addObject:[col sortDescriptorPrototype]];	// if nil-> raises exception
-	return a;
-}
+// will form a LRU list if table column is clicked
+- (NSArray *) sortDescriptors; { return _sortDescriptors; }
 
 - (void) setSortDescriptors:(NSArray *) sd;
 {
-	NSInteger i, count=[sd count];
-	if(count != [_tableColumns count])
-		return;	// should raise exception
-	for(i=0; i<count; i++)
-		[[_tableColumns objectAtIndex:i] setSortDescriptorPrototype:[sd objectAtIndex:i]];
+	NSArray *old=[self sortDescriptors];
+	if(!sd)
+		sd=[NSArray array];	// create an empty one
+	else
+		sd=[sd copy];
+	if([sd isEqual:old])
+		{
+		[sd release];
+		return;
+		}
+	[old retain];
+	[_sortDescriptors release];
+	_sortDescriptors=sd;
+	if([_dataSource respondsToSelector:@selector(tableView:sortDescriptorsDidChange:)])
+		[_dataSource tableView:self sortDescriptorsDidChange:old];
+	[old release];
 }
 
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol
@@ -2102,7 +2112,7 @@
 		_draggingSourceOperationMaskForLocal=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForLocal"];
 		_draggingSourceOperationMaskForRemote=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForNonLocal"];
 		[aDecoder decodeIntForKey:@"NSTableViewDraggingDestinationStyle"];
-		// [aDecoder decodeObject:@"NSSortDescriptors"]; --- isn't this stored in the table column?
+		_sortDescriptors=[[aDecoder decodeObjectForKey:@"NSSortDescriptors"] retain];
 		_indicatorImages = [NSMutableArray new];
 		i=[_tableColumns count];
 		while(i-- > 0)
@@ -2111,7 +2121,7 @@
 		_selectedRows = [NSMutableIndexSet new];
 		_lastSelectedRow = _lastSelectedColumn = -1;	// empty selection
 		_editingRow = _editingColumn = -1;
-		[aDecoder decodeObjectForKey:@"NSAutosaveName"];
+		_autosaveName=[[aDecoder decodeObjectForKey:@"NSAutosaveName"] retain];
 		// we might also have to load some settings from autosaved values!
 		[self setDelegate:[aDecoder decodeObjectForKey:@"NSDelegate"]];	// only used for NSComboBox - dataSource&delegate are usually set by a NSNibOutletConnector
 		_dataSource=[aDecoder decodeObjectForKey:@"NSDataSource"];	// not retained

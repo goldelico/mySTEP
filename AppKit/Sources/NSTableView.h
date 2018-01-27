@@ -77,6 +77,7 @@ typedef NSUInteger NSTableViewDropOperation;
 	NSMutableIndexSet *_selectedColumns; 
 	NSMutableIndexSet *_selectedRows;
 	NSTableColumn *_highlightedTableColumn;	// weak reference
+	NSArray *_sortDescriptors;	// LRU list so that the last clicked column comes first
     id _dataSource;
     id _target;
     SEL _action;
