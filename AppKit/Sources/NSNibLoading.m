@@ -280,6 +280,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
+	id object;
 #if 0
 	NSLog(@"NSCustomObject initWithCoder %@", coder);
 #endif
@@ -293,11 +294,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSLog(@"object=%@", object);
 	NSLog(@"extension=%@", extension);
 #endif
-	self=[[[self autorelease] nibInstantiate] retain];	// instantiate immediately
+	object=[[self nibInstantiate] retain];	// instantiate immediately
 #if 0
-	NSLog(@"custom object=%@", self);
+	NSLog(@"custom object=%@", object);
+	NSLog(@"custom object class=%@", NSStringFromClass([object class]));
+	NSLog(@"custom object class class=%@", NSStringFromClass([[object class] class]));
+	NSLog(@"custom object superclass=%@", NSStringFromClass([object superclass]));
 #endif
-	return self;
+	[self release];
+	return object;
 }
 
 - (void) dealloc;
@@ -322,14 +327,17 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if([className isEqualToString:@"NSApplication"])
 		return [NSApplication sharedApplication];
 	if(object)
-		return object;
+		return object;	// already instantiated
 	class=NSClassFromString(className);
+#if 0
+	NSLog(@"nibInstantiate %@", NSStringFromClass(class));
+#endif
 	if(!class)
 		{
 		NSLog(@"class %@ not linked for Custom Object", className);
 		class=[NSObject class];
 		}
-	return object=[[class alloc] init];
+	return object=[[class alloc] init];	// retained until we dealloc
 }
 
 @end
@@ -827,7 +835,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NS_DURING
 		NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, object);
 	NS_HANDLER
-		NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, NSStringFromClass([object class]));
+		NSLog(@"unarchiver:%@ didDecodeObject:%@ exception = %@", unarchiver, NSStringFromClass([object class]), localException);
 	NS_ENDHANDLER
 #endif
 	if([decodedObjects containsObject:object])
@@ -1015,14 +1023,22 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 	e=[decodedObjects objectEnumerator];	// make objects awake from nib (in no specific order)
 	t=[table objectForKey:NSNibTopLevelObjects];
+#if 0
+	NSLog(@"toplevel = %@", t);
+#endif
+	if(!t)
+		t=[NSMutableArray arrayWithCapacity:[decodedObjects count]];
 	while((o=[e nextObject]))
 		{
+#if 0
+		NSLog(@"try awakeFromNib: %@", NSStringFromClass([o class]));
+#endif
 		if(o == rootObject)
 			o=owner;	// replace
-		if([t indexOfObjectIdenticalTo:o])
+		if([t indexOfObjectIdenticalTo:o] != NSNotFound)
 			{
-				NSLog(@"instantiateNibWithExternalNameTable: duplicate object: %@", o);
-				continue;
+			NSLog(@"instantiateNibWithExternalNameTable: duplicate object: %@", o);
+			continue;
 			}
 		[t addObject:o];
 		if([o respondsToSelector:@selector(awakeFromNib)])
