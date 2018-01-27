@@ -705,8 +705,7 @@ static BOOL __userKeyEquivalents = YES;
 		for (i = 0; i < [self numberOfItems]; i++)
 			{ // warning!!! a validator might change the menu cells array by adding/removing cells - therefore compare dynamically to numberOfItems
 			NSMenuItem *item = [_menuItems objectAtIndex:i];
-			SEL action = [item action];
-			NSObject *validator = nil;
+			NSObject *validator;
 			BOOL wasEnabled;
 			BOOL shouldBeEnabled;		
 			if([item hasSubmenu])					// recursively update submenu items if any
@@ -721,18 +720,11 @@ static BOOL __userKeyEquivalents = YES;
 #if 0
 			NSLog(@"find validator for action %@", NSStringFromSelector(action));
 #endif
-			if(!action)
-				validator=nil;  // nil action - will disable
-			else
-				{ // check target if defined or responder chain
-				validator = [item target];
-				if(!validator || ![validator respondsToSelector:action])
-					validator=[NSApp targetForAction:action];	// go through responder chain
-				}
+			validator=[NSApp targetForAction:[item action] to:[item target] from:self];	// go through responder chain
 #if 0
 			NSLog(@"validator for action %@ = %@", NSStringFromSelector(action), validator);
 #endif
-			if(validator != nil)
+			if(validator)
 				{ 
 #if 0
 				NSLog(@"check if validator=%@ conforms to protocol NSMenuValidation", validator);
@@ -777,21 +769,7 @@ static BOOL __userKeyEquivalents = YES;
 		return;
 	NSLog(@"perform: \"%@\" for cell title", [item title]);
 	NSLog(@"target: [%@ %@%@]", [item target], NSStringFromSelector([item action]), item);
-	action = [item action];
-	// Search the target
-	if((target = [item target]))
-		{
-		if(![target respondsToSelector:action])
-			return; // target is defined explicitly but does not respond
-		}
-	else
-		target=[NSApp targetForAction:action];	// get first responder
-	NSLog(@"targetForAction = %@", target);
-	NS_DURING
-		[target performSelector:action withObject:item];	// find proper responder
-	NS_HANDLER
-		NSLog(@"Exception for Menu Item action method: %@", [localException reason]);
-	NS_ENDHANDLER
+	[NSApp sendAction:[item action] to:[item target] from:self];
 }
 
 - (BOOL) performKeyEquivalent:(NSEvent*)event
