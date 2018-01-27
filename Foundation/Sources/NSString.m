@@ -782,30 +782,29 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 }
 
-- (id) _initWithData:(NSData *)data;
+- (id) _initWithData:(NSData *) data encoding:(NSStringEncoding *) e;
 { // deduct encoding from data
-	NSStringEncoding e;
 	const unsigned char *t = [data bytes];
 	static char xml[]="<?xml version=\"1.0\" encoding=\"UTF-8\"";
 	if(t == NULL)
 		return nil;
 	if((t[0]==0xFF) && (t[1]==0xFE))
-		e = NSUnicodeStringEncoding;
+		*e = NSUnicodeStringEncoding;
 	else if((t[1]==0xFF) && (t[0]==0xFE))
-		e = NSUnicodeStringEncoding;
+		*e = NSUnicodeStringEncoding;
 	else if(memcmp(t, xml, sizeof(xml)-1) == 0) // check for verbatim header
 		{
 #if 0
 		NSLog(@"assume UTF-8 for xml header: %s", xml);
 #endif
-		e = NSUTF8StringEncoding;
+		*e = NSUTF8StringEncoding;
 		}
 	else
-		e = __cStringEncoding;
+		*e = __cStringEncoding;
 #if 0
 	NSLog(@"enc=%d data=%@", e, data);
 #endif
-	return [self initWithData:data encoding:e];
+	return [self initWithData:data encoding:*e];
 }
 
 - (id) initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
@@ -930,28 +929,28 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) initWithContentsOfFile:(NSString*)path
 {
-	return [self _initWithData:[NSData dataWithContentsOfFile: path]];	// deduct encoding from contents
+	NSStringEncoding e;
+	return [self _initWithData:[NSData dataWithContentsOfFile: path] encoding:&e];	// deduct encoding from contents
 }
 
 - (id) initWithContentsOfFile:(NSString *)path
 					 encoding:(NSStringEncoding)enc
 						error:(NSError **)error;
 {
-	// load if specified encoding fits
-	return NIMP;
+	return [self initWithData:[NSData dataWithContentsOfFile:path] encoding:enc];
 }
 
 - (id) initWithContentsOfFile:(NSString *)path
 				 usedEncoding:(NSStringEncoding *)enc
 						error:(NSError **)error;
 {
-	// try different encodings
-	return NIMP;
+	return [self _initWithData:[NSData dataWithContentsOfFile:path] encoding:enc];
 }
 
 - (id) initWithContentsOfURL:(NSURL*)url
 {
-	return [self _initWithData:[NSData dataWithContentsOfURL: url]];	// deduct encoding from contents
+	NSStringEncoding e;
+	return [self _initWithData:[NSData dataWithContentsOfURL: url] encoding:&e];	// deduct encoding from contents
 }
 
 - (id) initWithContentsOfURL:(NSURL *)url
