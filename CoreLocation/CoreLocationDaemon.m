@@ -371,6 +371,10 @@
 		{ // PLS8 - Course and speed relative to the ground.
 		  // ignore
 		}
+	else if([cmd isEqualToString:@"$GNGSA"])
+		{ // PLS8 - Glonass info
+		  // ignore
+		}
 	else
 		{
 #if 1
@@ -405,13 +409,13 @@
 		}
 }
 
-- (void) _parseNMEA183:(NSData *) line;
+- (void) _processRawData:(NSData *) data;
 { // we have received a new data block from the serial line
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
+	NSString *s=[[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
 	NSArray *lines;
 	int l;
-#if 1
-	NSLog(@"data=%@", line);
+#if 0
+	NSLog(@"data=%@", data);
 	NSLog(@"string=%@", s);
 #endif
 	if(lastChunk)
@@ -429,7 +433,7 @@
 																			// get bytes and calculate checksum
 																			// check checksum
 				}
-#if 1
+#if 0
 			NSLog(@"NMEA: %@", s);
 #endif
 			[self _processNMEA183:s];
@@ -443,11 +447,11 @@
 
 - (void) _dataReceived:(NSNotification *) n;
 {
-#if 1
+#if 0
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
-	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
+	[self _processRawData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 }
 
@@ -475,7 +479,7 @@
 - (CLLocationSource) source;
 {
 	// this implementation is very GTA04 specific!
-	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
+	if([[NSString stringWithContentsOfFile:@"/sys/class/gpio/gpio144/value"] boolValue])
 		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
 	return CLLocationSourceGPS;
 }

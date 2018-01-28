@@ -50,7 +50,7 @@
 - (NSString *) _device;
 - (void) _didNotStart;
 - (void) _processNMEA183:(NSString *) line;	// process complete line
-- (void) _parseNMEA183:(NSData *) line;	// process data fragment
+- (void) _processRawData:(NSData *) data;	// process data fragment
 - (void) _dataReceived:(NSNotification *) n;
 
 
