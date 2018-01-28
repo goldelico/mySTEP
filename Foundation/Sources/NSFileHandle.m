@@ -217,36 +217,6 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 				[NSException raise:NSFileHandleOperationException format:@"NSFileHandle: failed to read data - %d %d %s",status, errno,  strerror(errno)];
 				return nil;
 				}
-#if OLD
-			// fixme: if read:maxLength: already handles end of file, we don't have to process here!
-			NSLog(@"NSFileHandle: stream status = %d", (int)[_inputStream streamStatus]);
-			if(len == 0)	// or should we better ask streamStatus?
-				{ // EOF
-					if(bufpos == 0)
-						{ // end of file
-#if 0
-							NSLog(@"NSFileHandle: EOF stream status = %d", (int)[_inputStream streamStatus]);
-#endif
-							[self stream:_inputStream handleEvent:NSStreamEventEndEncountered];
-							return nil;
-						}
-					break;
-				}
-			if(len < 0)
-				{ // error
-#if 0
-					NSLog(@"NSFileHandle: error %d %s", errno, strerror(errno));
-#endif
-					if(errno == EWOULDBLOCK || errno == EAGAIN)
-						{ // there is currently no more data available
-							break;
-						}
-					// handle EINTR?
-					objc_free(buffer);
-					[NSException raise:NSFileHandleOperationException format:@"NSFileHandle: failed to read data - %s", strerror(errno)];
-					return nil;
-				}
-#endif
 			bufpos+=len;
 			length-=len;
 		}
@@ -487,7 +457,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 						// streamStatus == NSStreamStatusAtEnd should be checked by notification handler
 						if([stream streamStatus] != NSStreamStatusOpen || [data length] == 0)
 							{ // pipe has no data despite sending an event!
-								NSLog(@"empty data: status = %d error = %@", (int)[stream streamStatus], [stream streamError]);
+								NSLog(@"NSFileHandle: empty data: status = %d error = %@", (int)[stream streamStatus], [stream streamError]);
 							}
 #endif
 						[self _setReadMode:kIsNotWaiting inModes:nil];
