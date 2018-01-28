@@ -32,15 +32,15 @@
 {
 	NSEnumerator *e;
 	NSDictionary *d;
-	NSLog(@"location: %@", newloc);
+	printf("location: %s\n", [[newloc description] UTF8String]);
 #ifdef __mySTEP__
-	NSLog(@"time: %@", [mngr satelliteTime]);
-	NSLog(@"%d of %d satellites on %@ ant",
+	printf("time: %s\n", [[[mngr satelliteTime] description] UTF8String]);
+	printf("%d of %d satellites on %s ant\n",
 		  [mngr numberOfReceivedSatellites], [mngr numberOfVisibleSatellites],
-		  ([mngr source]&CLLocationSourceExternalAnt)?@"ext":@"int");
+		  ([mngr source]&CLLocationSourceExternalAnt)?"ext":"int");
 	e=[[mngr satelliteInfo] objectEnumerator];
 	while((d=[e nextObject]))
-		NSLog(@"%@ az=%@ el=%@ s/n=%@%@", [d objectForKey:@"PRN"], [d objectForKey:@"azimuth"], [d objectForKey:@"elevation"], [d objectForKey:@"SNR"], [[d objectForKey:@"used"] boolValue]?@" *":@"");
+		printf("%s az=%s el=%s s/n=%s%s\n", [[d objectForKey:@"PRN"] UTF8String], [[d objectForKey:@"azimuth"] UTF8String], [[d objectForKey:@"elevation"] UTF8String], [[d objectForKey:@"SNR"] UTF8String], [[d objectForKey:@"used"] boolValue]?" *":"");
 #endif
 }
 
@@ -56,7 +56,7 @@
 
 - (void) locationManager:(CLLocationManager *) mngr didReceiveNMEA:(NSString *) str;
 {
-	NSLog(@"NMEA: %@", str);
+	printf("NMEA: %s\n", [str UTF8String]);
 }
 
 @end
