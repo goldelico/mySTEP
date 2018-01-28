@@ -226,7 +226,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		NSLog(@"read:maxLength: error %d %s", errno, strerror(errno));
 #endif
 		if(errno == EWOULDBLOCK || errno == EAGAIN || errno == EINTR)
+			{
+			_streamStatus=oldStatus;
 			return 0;	// did fall through in non-blocking mode or was interrupted by signal
+			}
 		[self _setStreamErrorWithDomain:@"read error" code:errno];
 		return n;	// error
 		}
