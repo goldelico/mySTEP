@@ -594,7 +594,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		[arp release];
 #if 1
 		if(__NSAllocatedObjects > _prevAllocated)
-			NSLog(@"leaked objects per loop %lu", __NSAllocatedObjects - _prevAllocated);
+			fprintf(stderr, "_runLoopForMode: idle leaked objects per loop %lu\n", __NSAllocatedObjects - _prevAllocated);
 #endif
 		[NSNotificationQueue _runLoopIdle];			// still dispatch pending notifications if we timeout (incl. task terminated)
 		return NO;	// don't wait - we have no watchers
@@ -682,7 +682,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		[arp release];
 #if 1
 	if(__NSAllocatedObjects > _prevAllocated)
-		NSLog(@"leaked objects per loop %lu", __NSAllocatedObjects - _prevAllocated);
+		fprintf(stderr, "_runLoopForMode: select_return %d leaked objects per loop %lu\n", select_return, __NSAllocatedObjects - _prevAllocated);
 #endif
 	return anyInput;
 }
