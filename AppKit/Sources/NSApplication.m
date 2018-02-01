@@ -1170,7 +1170,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	id target=[self targetForAction:aSelector to:aTarget from:sender];
 #if 0
-	NSLog(@"sendAction: %@ to %@ -> %@ from %@", NSStringFromSelector(aSelector), aTarget, target, sender);
+	NSLog(@"sendAction: %@", NSStringFromSelector(aSelector));
+	NSLog(@"  to %@ -> %@", aTarget, target);
+	NSLog(@"  from %@", sender);
 #endif
 	if(!target)
 		return NO;
