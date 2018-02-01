@@ -36,8 +36,9 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (IBAction) _popUpItemAction:(id) sender;
 { // some popup item has been selected
+  // sender is the menu and not the item!?!
 #if 0
-	NSLog(@"%@ _popUpItemAction:%@", self, sender);
+	NSLog(@"%@ _popUpItemAction: sender = %@ %@", self, NSStringFromClass([sender class]), sender);
 #endif
 	[self selectItem:sender];
 	[_controlView performClick:_controlView];	// and notify whomever wants to know
@@ -207,7 +208,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	c=[[[NSMenuItem alloc] initWithTitle:title 
 								  action:@selector(_popUpItemAction:)
 						   keyEquivalent:@""] autorelease];
-	[c setTarget:self];
+	[c setTarget:self];	// make us the menu item target
 	i=[self indexOfItemWithTitle:title];	// already defined?
 #if 0
 	NSLog(@"i=%d", i);
