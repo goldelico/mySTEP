@@ -767,9 +767,13 @@ static BOOL __userKeyEquivalents = YES;
 	NSMenuItem *item=[_menuItems objectAtIndex:index];
 	if(![item isEnabled])
 		return;
+#if 0
 	NSLog(@"perform: \"%@\" for cell title", [item title]);
 	NSLog(@"target: [%@ %@%@]", [item target], NSStringFromSelector([item action]), item);
-	[NSApp sendAction:[item action] to:[item target] from:self];
+#endif
+	// NSMenuWillSendActionNotification
+	[NSApp sendAction:[item action] to:[item target] from:item];	// the NSMenuItem is the sender
+	// NSMenuDidSendActionNotification
 }
 
 - (BOOL) performKeyEquivalent:(NSEvent*)event
