@@ -425,11 +425,15 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleDataAvailableNotification object:self];
 					}
 				else if(_readMode == kIsReadingToEOF)
-					{ // read (nonblocking) as much as we can and collect
+					{ // read (nonblocking) as much as we can and collect - may report 0 length
 						NSData *data=[self availableData];	// as much as we can get
 #if 0
 						NSLog(@"kIsReadingToEOF: status = %d error = %@ data = %@", (int)[stream streamStatus], [stream streamError], data);
 #endif
+						if(!_inputBuffer)
+							_inputBuffer=[data mutableCopy];
+						else
+							[_inputBuffer appendData:data];	// collect to buffer and stay in readMode
 						if([stream streamStatus] != NSStreamStatusOpen)
 							{ // we have now StreamStatusAtEnd or some error has occurred
 								NSNumber *error=[NSNumber numberWithInt:errno];
@@ -437,23 +441,16 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 								[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadToEndOfFileCompletionNotification
 																					object:self
 																				  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																							data, NSFileHandleNotificationDataItem,
+																							_inputBuffer, NSFileHandleNotificationDataItem,
 																							error, NSFileHandleError,
 																							nil]];
-							}
-						else
-							{ // collect
-								if(!_inputBuffer)
-									_inputBuffer=[data mutableCopy];
-								else
-									[_inputBuffer appendData:data];	// collect to buffer and stay in readMode
 							}
 					}
 				else
 					{ // read (nonblocking) as much as we can and deliver
 						NSData *data=[self availableData];	// as much as we can get
 						NSNumber *error=[NSNumber numberWithInt:errno];
-#if 1
+#if 0
 						// streamStatus == NSStreamStatusAtEnd should be checked by notification handler
 						if([stream streamStatus] != NSStreamStatusOpen || [data length] == 0)
 							{ // pipe has no data despite sending an event!
@@ -461,12 +458,13 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 							}
 #endif
 						[self _setReadMode:kIsNotWaiting inModes:nil];
-						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
-																			object:self
-																		  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																					data, NSFileHandleNotificationDataItem,
-																					error, NSFileHandleError,
-																					nil]];
+						if([data length] != 0)	// never report 0 length
+							[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
+																				object:self
+																			  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+																						data, NSFileHandleNotificationDataItem,
+																						error, NSFileHandleError,
+																						nil]];
 					}
 				return;
 			}
