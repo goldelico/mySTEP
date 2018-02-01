@@ -52,9 +52,9 @@ typedef enum _CLAuthorizationStatus
 // @property(assign, nonatomic) id<CLLocationManagerDelegate> delegate;
 	id <CLLocationManagerDelegate> delegate;
 //	@property(readonly, nonatomic) CLLocation *location;
-//	CLLocation *location;
+	CLLocation *location;
 //	@property(readonly, nonatomic) CLHeading *heading;
-//	CLHeading *heading;
+	CLHeading *heading;
 //	@property(readonly, nonatomic) NSSet *monitoredRegions;
 	// NSSet *monitoredRegions;	// persistent by application (!) i.e. we may store in UserDefaults
 //	@property(copy, nonatomic) NSString *purpose;

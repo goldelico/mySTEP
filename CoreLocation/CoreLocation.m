@@ -176,14 +176,29 @@ static CLHeading *newHeading;
 	return NO;
 }
 
+- (void) didUpdateHeading:(CLHeading *) newHeading;
+{
+	[heading autorelease];
+	heading=[newHeading retain];
+	[delegate locationManager:self didUpdateHeading:newHeading];
+}
+
+- (void) didUpdateToLocation:(CLLocation *) newLocation;
+{
+	CLLocation *oldLocation=location;
+	[location autorelease];
+	location=[newLocation retain];
+	[delegate locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
+}
+
 - (CLHeading *) heading;
 {
-	return nil;
+	return heading;
 }
 
 - (CLLocation *) location;
 {
-	return nil;
+	return location;
 }
 
 - (id) init;
@@ -219,7 +234,11 @@ static CLHeading *newHeading;
 				NSLog(@"could not launch %@", SERVER_ID);
 #if 1
 				// Hack until we have the daemon running...
-				_server=[[CoreLocationDaemon alloc] init];	// add a local daemon object
+				static CoreLocationDaemon *_sharedDaemon;
+				if(!_sharedDaemon)
+					_sharedDaemon=[[CoreLocationDaemon alloc] init];	// add a local daemon object but share for all CLLocation instances
+				_server=_sharedDaemon;
+				NSLog(@"server = %@", _server);
 				return self;
 #endif
 				[self release];
@@ -258,12 +277,18 @@ static CLHeading *newHeading;
 
 - (void) dealloc
 {
+#if 1
+	NSLog(@"CLLocationManager dealloc");
+#endif
 	[purpose release];
 	[_server release];
 	[self stopMonitoringSignificantLocationChanges];
 	[self stopUpdatingHeading];
 	[self stopUpdatingLocation];
 	[super dealloc];
+#if 1
+	NSLog(@"CLLocationManager deallocated");
+#endif
 }
 
 - (void) dismissHeadingCalibrationDisplay;
@@ -382,6 +407,7 @@ static CLHeading *newHeading;
 
 - (NSArray *) satelliteInfo
 {
+	NSLog(@"%@ satelliteInfo", self);
 	NS_DURING	// protect against communication problems
 	NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteInfo], NSArray *);
 	NS_HANDLER
@@ -391,388 +417,6 @@ static CLHeading *newHeading;
 }
 
 @end
-
-#if OLD
-
-// we should  integrate sensor data from GPS, barometric Altimeter, Gyroscope, Accelerometer, and Compass 
-// though a Kalman-Bucy filter
-
-// private methods to handle NMEA data from a serial interface
-
-@implementation CLLocationManager (GPSNMEA)
-
-// this should be a system-wide service i.e. access through DO!
-// the first user process launches the service which stops itself if the last
-// user process stops
-
-// FIXME: send heading updates
-
-// FIXME: make this iVars?
-static NSMutableArray *managers;	// list of all managers
-static NSString *lastChunk;
-static NSFileHandle *file;
-static NSArray *modes;
-
-+ (NSString *) _device
-{ // get this from some *system wide* user default
-	FILE *p=popen("/root/gps-on", "r");
-	NSString *device;
-	char dev[200];
-	if(!p)
-		return nil;	// failed
-	fgets(dev, sizeof(dev)-1, p);
-	pclose(p);
-	device=[NSString stringWithUTF8String:dev];
-	device=[device stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	return device;
-}
-
-+ (void) registerManager:(CLLocationManager *) m
-{
-#if 1
-	NSLog(@"registerManager: %@", m);
-#endif
-	if(![self locationServicesEnabled])
-		return;	// ignore
-	/*
-	 * check if permanently enabled
-	 * otherwise ask user
-	 */
-	if(!managers)
-		{ // set up GPS receiver and wait for first fix
-			NSString *dev=[self _device];
-#if 1
-			NSLog(@"Start reading NMEA on device file %@", dev);
-#endif	
-			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
-			if(!file)
-				{
-				NSLog(@"was not able to open device file %@", dev);
-				// create an error object!
-				[[m delegate] locationManager:m didFailWithError:nil];
-				return;
-				}
-			managers=[[NSMutableArray arrayWithObject:m] retain];
-			[[NSNotificationCenter defaultCenter] addObserver:self
-													 selector:@selector(_dataReceived:)
-														 name:NSFileHandleReadCompletionNotification 
-													   object:file];	// make us see notifications
-#if 1
-			NSLog(@"waiting for data on %@", dev);
-#endif
-			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
-			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
-			return;
-		}
-	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
-		return;	// already started
-	[managers addObject:m];
-}
-
-+ (void) unregisterManager:(CLLocationManager *) m
-{
-#if 1
-	NSLog(@"unregisterManager: %@", m);
-#endif
-	[managers removeObjectIdenticalTo:m];
-	if(managers && [managers count] == 0)
-		{ // was last consumer; stop GPS receiveer
-			[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-															name:NSFileHandleReadCompletionNotification
-														  object:file];	// don't observe any more
-			[file closeFile];
-#if 1
-			NSLog(@"Location: file closed");
-#endif
-			[file release];
-			file=nil;
-			[managers release];
-			managers=nil;		
-			[modes release];
-			modes=nil;		
-			[newLocation release];
-			newLocation=nil;
-			[newHeading release];
-			newHeading=nil;
-			[satelliteTime release];
-			satelliteTime=nil;
-			[satelliteInfo release];
-			satelliteInfo=nil;
-			// what do we do on Pyra? is there a gps-off script towrap all this?
-			system("rfkill block gps");
-		}
-}
-
-+ (void) _processNMEA183:(NSString *) line;
-{ // process NMEA183 record (components separated by ",")
-	NSArray *a=[line componentsSeparatedByString:@","];
-	NSString *cmd=[a objectAtIndex:0];
-	CLLocation *oldLocation=[[newLocation copy] autorelease];	// save a copy
-	BOOL didUpdateLocation=NO;
-	BOOL didUpdateHeading=NO;
-	NSEnumerator *e;
-	CLLocationManager *m;
-	e=[managers objectEnumerator];
-	while((m=[e nextObject]))
-		{ // notify all CLLocationManager instances
-			id <CLLocationManagerDelegate> delegate=[m delegate];
-			NS_DURING
-				[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
-			NS_HANDLER
-				; // ignore
-			NS_ENDHANDLER
-		}
-	if(!newLocation)
-		newLocation=[CLLocation new];
-#if 0
-	NSLog(@"a=%@", a);
-#endif
-	[newLocation->timestamp release];
-	newLocation->timestamp=[NSDate new];			// now (as seen by system time)
-	if(newHeading)
-		{
-		[newHeading->timestamp release];
-		newHeading->timestamp=[newLocation->timestamp retain];		// now (as seen by system time)
-		}
-	if([cmd isEqualToString:@"$GPRMC"])
-		{ // minimum recommended navigation info (this is mainly used by CLLocation)
-			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
-			[satelliteTime release];
-			satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
-#if 0
-			NSLog(@"ts=%@ -> time=%@", ts, satelliteTime);
-#endif
-			satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
-			[satelliteTime retain];				// keep alive
-			if([[a objectAtIndex:2] isEqualToString:@"A"])	// A=Active, V=Void
-				{ // update data
-					float pos;
-					int deg;
-					// if enabled we could sync the clock...
-					//   sudo(@"date -u '%@'", [time description]);
-					//   /sbin/hwclock --systohc
-					pos=[[a objectAtIndex:3] floatValue];		// ddmm.mmmmm (degrees + minutes)
-					deg=((int) pos)/100;
-					newLocation->coordinate.latitude=deg+(pos-100.0*deg)/60.0;
-					if([[a objectAtIndex:4] isEqualToString:@"S"])
-						newLocation->coordinate.latitude= -newLocation->coordinate.latitude;
-					pos=[[a objectAtIndex:5] floatValue];		// ddmm.mmmmm (degrees + minutes)
-					deg=((int) pos)/100;
-					newLocation->coordinate.longitude=deg+(pos-100.0*deg)/60.0;
-					if([[a objectAtIndex:6] isEqualToString:@"E"])
-						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
-					newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
-					newLocation->course=[[a objectAtIndex:8] floatValue];
-					didUpdateLocation=YES;
-					if(!newHeading)
-						newHeading=[CLHeading new];
-					newHeading->trueHeading=newLocation->course;
-					// and read the compass (if available)
-					didUpdateHeading=YES;
-#if 0
-					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
-					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
-//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
-					NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], [newLocation coordinate].latitude);	// llmm.ssssN
-					NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], [newLocation coordinate].longitude);	// lllmm.ssssE
-					NSLog(@"knots=%@", [a objectAtIndex:7]);
-					NSLog(@"deg=%@", [a objectAtIndex:8]);
-					// we should smooth velocity with a time constant > 10 seconds
-					// we can also reduce the time constant for higher speed
-#endif
-				}
-			else
-				{
-				newLocation->horizontalAccuracy=-1.0;
-				newLocation->verticalAccuracy=-1.0;					
-				didUpdateLocation=YES;
-				}
-		}
-	else if([cmd isEqualToString:@"$GPGSA"])
-		{ // satellite info
-			NSMutableDictionary *d;
-			int i;
-			e=[satelliteInfo objectEnumerator];
-			// check mode B for no fix, 2D fix, 3D to control verticalAccuracy
-			if([[a objectAtIndex:16] length] > 0)
-				{
-				newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
-				newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision				
-				didUpdateLocation=YES;
-				}
-			while((d=[e nextObject]))
-				[d setObject:[NSNumber numberWithBool:NO] forKey:@"used"];	// clear
-			for(i=0; i<12; i++)
-				{ // check which satellites are used for a position fix
-				int sat=[[a objectAtIndex:3+i] intValue];
-				if(sat == 0) continue;
-				e=[satelliteInfo objectEnumerator];
-				while((d=[e nextObject]))
-					{
-					if([[d objectForKey:@"PRN"] intValue] == sat)
-						{
-						[d setObject:[NSNumber numberWithBool:YES] forKey:@"used"];	// used in position fix
-						continue;	// found
-						}
-					}
-				}
-		}
-	else if([cmd isEqualToString:@"$GPGSV"])
-		{ // satellites in view (might need several messages to get a full list)
-			int i;
-			const int satPerRecord=4;	// there may be less records!
-			const int entriesPerSat=4;
-			int sat=satPerRecord*([[a objectAtIndex:2] intValue]-1);	// first satellite (index starting at 0 while NMEA starts at 1)
-			numVisibleSatellites=[[a objectAtIndex:3] intValue];
-			if(sat >= 0 && sat < numVisibleSatellites)
-				{ // record is ok
-					if(!satelliteInfo)
-						satelliteInfo=[[NSMutableArray alloc] initWithCapacity:satPerRecord*numVisibleSatellites];
-					else
-						[satelliteInfo removeObjectsInRange:NSMakeRange(numVisibleSatellites, [satelliteInfo count]-numVisibleSatellites)];
-					while([satelliteInfo count] < numVisibleSatellites)
-						[satelliteInfo addObject:[NSMutableDictionary dictionaryWithCapacity:entriesPerSat]];	// create more entries
-#if 0
-					NSLog(@"#S visible=%d", numVisibleSatellites);
-#endif
-					for(i=0; i<satPerRecord && sat < numVisibleSatellites; i++)
-						{ // 4 entries per satellite
-							NSMutableDictionary *s=[satelliteInfo objectAtIndex:sat++];
-							[s setObject:[a objectAtIndex:4+entriesPerSat*i] forKey:@"PRN"];
-							[s setObject:[a objectAtIndex:5+entriesPerSat*i] forKey:@"elevation"];	// use intValue - 00-90 (can also be negative!)
-							[s setObject:[a objectAtIndex:6+entriesPerSat*i] forKey:@"azimuth"];	// use intValue - 000-359
-							[s setObject:[a objectAtIndex:7+entriesPerSat*i] forKey:@"SNR"];		// use intValue - can be @""
-						}
-				}
-			else
-				NSLog(@"bad NMEA: %@", line);
-		}
-	else if([cmd isEqualToString:@"$GPGGA"])
-		{ // more location info (e.g. altitude above geoid)
-			numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
-#if 0
-			NSLog(@"#S received=%d", numSatellites);
-#endif
-			// FIXME: reports 0 if we have no satellites
-			if([[a objectAtIndex:8] length] > 0)
-				{
-				newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
-				// check for altitude units
-				if(numReliableSatellites > 3)
-					{
-					newLocation->altitude=[[a objectAtIndex:9] floatValue];
-					newLocation->verticalAccuracy=10.0;										
-					}
-				else
-					newLocation->verticalAccuracy=-1.0;
-#if 0
-				NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
-				NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
-				NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
-				// calibrate/compare with Barometer data
-#endif
-				}
-			didUpdateLocation=YES;
-		}
-	else if([cmd isEqualToString:@"$PSRFTXT"])
-		{ // SIRF
-		// ignore
-		}
-	else
-		{
-#if 1
-		NSLog(@"unrecognized %@", cmd);
-#endif
-		}
-	if(didUpdateLocation || didUpdateHeading)
-		{ // notify interested delegates
-		[newLocation->timestamp release];
-		newLocation->timestamp=[NSDate new];			// now (as seen by system time)
-		if(newHeading)
-			{
-			[newHeading->timestamp release];
-			newHeading->timestamp=[newLocation->timestamp retain];		// now (as seen by system time)
-			}
-		e=[managers objectEnumerator];
-		while((m=[e nextObject]))
-			{ // notify all CLLocationManager instances
-				id <CLLocationManagerDelegate> delegate=[m delegate];
-				// check for desiredAccuracy
-				// check for distanceFilter
-				if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
-					{
-					NS_DURING
-						[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
-					NS_HANDLER
-						; // ignore
-					NS_ENDHANDLER
-					}
-				if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
-					{
-					NS_DURING
-						[delegate locationManager:m didUpdateHeading:newHeading];
-					NS_HANDLER
-						; // ignore
-					NS_ENDHANDLER
-					}
-			}
-		}
-}
-
-+ (void) _parseNMEA183:(NSData *) line;
-{ // we have received a new data block from the serial line
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
-	NSArray *lines;
-	int l;
-#if 0
-	NSLog(@"data=%@", line);
-	NSLog(@"string=%@", s);
-#endif
-	if(lastChunk)
-		s=[lastChunk stringByAppendingString:s];	// append to last chunk
-	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
-	for(l=0; l<[lines count]-1; l++)
-		{ // process lines except last chunk
-			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
-			if(![s hasPrefix:@"$"])
-				continue;	// invalid start
-			if([s characterAtIndex:[s length]-3] == '*')
-				{ // assume *hh\n
-					// extract hh and calculate/verify checksum
-					s=[s substringWithRange:NSMakeRange(0, [s length]-3)];	// get relevant parts - strip off *hh
-					// get bytes and calculate checksum
-					// check checksum
-				}
-#if 0
-			NSLog(@"NMEA: %@", s);
-#endif
-			NS_DURING	// protect against problems in delegates
-				[self _processNMEA183:s];
-			NS_HANDLER
-				NSLog(@"Exception during _processNMEA183: %@", localException);
-			NS_ENDHANDLER
-		}
-#if 0
-	NSLog(@"string=%@", s);
-#endif
-	[lastChunk release];
-	lastChunk=[[lines lastObject] retain];
-}
-
-+ (void) _dataReceived:(NSNotification *) n;
-{
-#if 0
-	NSLog(@"_dataReceived %@", n);
-#endif
-	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
-	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
-	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
-}
-
-@end
-
-#endif
 
 // FIXME: quite inefficient - this means that the daemon sends a DO message and we ignore it...
 // i.e. we should control the daemon that we do (not) want to see this more than once

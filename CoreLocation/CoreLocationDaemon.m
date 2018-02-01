@@ -126,7 +126,6 @@
 { // process NMEA183 record (components separated by ",")
 	NSArray *a=[line componentsSeparatedByString:@","];
 	NSString *cmd=[a objectAtIndex:0];
-	CLLocation *oldLocation=[[newLocation copy] autorelease];	// save a copy
 	BOOL didUpdateLocation=NO;
 	BOOL didUpdateHeading=NO;
 	NSEnumerator *e;
@@ -163,6 +162,7 @@
 		[newHeading->timestamp release];
 		newHeading->timestamp=[newLocation->timestamp retain];		// now (as seen by system time)
 		}
+	NS_DURING
 	if([cmd isEqualToString:@"$GPRMC"])
 		{ // minimum recommended navigation info (this is mainly used by CLLocation)
 			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
@@ -217,7 +217,7 @@
 				didUpdateLocation=YES;
 				}
 		}
-	else if([cmd isEqualToString:@"$GPGSA"])
+	else if([cmd isEqualToString:@"$GPGSA"] || [cmd isEqualToString:@"$GNGSA"])
 		{ // satellite info
 			NSMutableDictionary *d;
 			int i;
@@ -229,6 +229,7 @@
 				newLocation->verticalAccuracy=[[a objectAtIndex:17] floatValue];		// VDOP vertical precision
 				didUpdateLocation=YES;
 				}
+			// FIXME: separate between GPS and GNSS and delete only one type per record
 			while((d=[e nextObject]))
 				[d setObject:[NSNumber numberWithBool:NO] forKey:@"used"];	// clear
 			for(i=0; i<12; i++)
@@ -246,7 +247,7 @@
 						}
 				}
 		}
-	else if([cmd isEqualToString:@"$GPGSV"])
+	else if([cmd isEqualToString:@"$GPGSV"] || [cmd isEqualToString:@"$GLGSV"])
 		{ // satellites in view (might need several messages to get a full list)
 			int i;
 			const int satPerRecord=4;	// there may be less records!
@@ -309,6 +310,7 @@
 		}
 	else if([cmd isEqualToString:@"$GNGNS"])
 		{ // PLS8 - navigation info
+#if 0
 		  // http://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_GNS.html
 			/* seems to have HMS only
 			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
@@ -366,13 +368,10 @@
 				newLocation->verticalAccuracy=-1.0;
 				didUpdateLocation=YES;
 				}
+#endif
 		}
 	else if([cmd isEqualToString:@"$GPVTG"])
-		{ // PLS8 - Course and speed relative to the ground.
-		  // ignore
-		}
-	else if([cmd isEqualToString:@"$GNGSA"])
-		{ // PLS8 - Glonass info
+		{ // PLS8 - vector track and speed relative to the ground.
 		  // ignore
 		}
 	else
@@ -381,8 +380,11 @@
 		NSLog(@"unrecognized %@", cmd);
 #endif
 		}
+	NS_HANDLER
+		NSLog(@"NEMA parsing error: %@", localException);	// most likely a malformed record where some array index does not exist
+	NS_ENDHANDLER
 	if(didUpdateLocation || didUpdateHeading)
-		{ // notify interested delegates
+		{ // notify interested managers
 			[newLocation->timestamp release];
 			newLocation->timestamp=[NSDate new];			// now (as seen by system time)
 			if(newHeading)
@@ -397,13 +399,12 @@
 					// check for desiredAccuracy
 					// check for distanceFilter
 					NS_DURING
-					delegate=[m delegate];
-					if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
-						[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
-					if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
-						[delegate locationManager:m didUpdateHeading:newHeading];
+					if(didUpdateLocation)
+						[m didUpdateToLocation:newLocation];
+					if(didUpdateHeading)
+						[m didUpdateHeading:newHeading];
 					NS_HANDLER
-					[self unregisterManager:m]; // communication failure
+					[self unregisterManager:m]; // communication failed with this manager
 					NS_ENDHANDLER
 				}
 		}
