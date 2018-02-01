@@ -821,6 +821,9 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (BOOL) _sendActionFrom:(NSView *) from
 { // based on stack trace
+#if 0
+	NSLog(@"_sendActionFrom: %@", from);
+#endif
 	if([from respondsToSelector:@selector(sendAction:to:)])
 		return [(NSControl *) from sendAction:[self action] to:[self target]];
 	return [NSApp sendAction:[self action] to:[self target] from:from];
@@ -839,7 +842,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	if([self action])
 		{
 		NS_DURING
-		[self _sendActionFrom:v];
+			[self _sendActionFrom:v];
 		NS_HANDLER
 			{
 #if 0
