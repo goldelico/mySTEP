@@ -732,6 +732,7 @@ extern int system(const char *cmd);
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
 {
+	// should start scanning every 10 seconds
 	if(!_scanner)
 		{
 		_scanner=[IWListScanner new];
@@ -768,6 +769,7 @@ extern int system(const char *cmd);
 	if(system([cmd UTF8String]) != 0)
 		{ // interface does not exist
 			// set err
+			*err=nil;
 			return NO;
 		}
 	sleep(1);
