@@ -122,7 +122,9 @@
 - (void) locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
 	float angle = [newLocation course];			// rotate in movement direction
-	NSLog(@"new location: %@", newLocation);
+#if 1
+	NSLog(@"new location: %@ %@", manager, newLocation);
+#endif
 	if(angle >= 0.0)
 		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
 			//

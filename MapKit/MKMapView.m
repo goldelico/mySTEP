@@ -812,6 +812,7 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 		{
 			[delegate mapViewWillStartLocatingUser:self];
 			userLocation=[MKUserLocation new];	// create
+			[userLocation _setMapView:self];
 #if 1
 			NSLog(@"userLocation: %@", userLocation);
 #endif
@@ -858,6 +859,26 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 - (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
 - (BOOL) showsUserLocation; { return userLocation != nil; }
 - (MKUserLocation *) userLocation; { return userLocation; }
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
+{ // forwarded from MKUserLocation
+#if 1
+	NSLog(@"MKUserLocation did send locationManager:didUpdateToLocation:");
+#endif
+	// FIXME: needs to redraw MKUserLocation only
+	[self setNeedsDisplay:YES];	// redraw
+	[delegate mapView:self didUpdateUserLocation:userLocation];
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateHeading:(CLHeading *) head;
+{
+
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
+{
+	[delegate mapView:self didFailToLocateUserWithError:err];
+}
 
 - (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
 {
