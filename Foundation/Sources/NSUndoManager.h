@@ -49,18 +49,18 @@ extern NSString *NSUndoCloseGroupingRunLoopOrdering;
 @interface NSUndoManager : NSObject
 {
 @private
-    NSMutableArray	*_redoStack;
-    NSMutableArray	*_undoStack;
-    NSString		*_actionName;
-    id			_group;
-    id			_nextTarget;
-    NSArray		*_modes;
-    BOOL		_isRedoing;
-    BOOL		_isUndoing;
-    BOOL		_groupsByEvent;
-    BOOL		_registeredUndo;
-    unsigned		_disableCount;
-    unsigned		_levelsOfUndo;
+	NSMutableArray	*_redoStack;
+	NSMutableArray	*_undoStack;
+	NSString		*_actionName;
+	id			_group;
+	id			_nextTarget;
+	NSArray		*_modes;
+	BOOL		_isRedoing;
+	BOOL		_isUndoing;
+	BOOL		_groupsByEvent;
+	BOOL		_registeredUndo;
+	unsigned		_disableCount;
+	unsigned		_levelsOfUndo;
 }
 
 - (void) beginUndoGrouping;
