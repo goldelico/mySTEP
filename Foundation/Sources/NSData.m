@@ -59,7 +59,6 @@
 #import <Foundation/NSURL.h>
 #import "NSPrivate.h"
 #include <zlib.h>
-#include <stdlib.h>
 
 #if	HAVE_MMAP
 #include <sys/mman.h>

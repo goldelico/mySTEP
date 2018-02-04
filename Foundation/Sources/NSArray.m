@@ -1135,9 +1135,6 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 /* Byte-wise swap two items of size SIZE. */
 
 #define SWAP(a, b, size) \
