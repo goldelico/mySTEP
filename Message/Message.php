@@ -17,6 +17,13 @@ class NSMailDelivery extends NSObject
 	const NSSMTPDeliveryProtocol="NSSMTPDeliveryProtocol";
 	const NSSendmailDeliveryProtocol="NSSendmailDeliveryProtocol";	// not used
 
+	private static $sender;
+
+	public static function setSender($mail)
+	{
+		self::$sender=$mail;
+	}
+
 	public static function isEmailValid($mail)
 	{
 		if(filter_var($mail, FILTER_VALIDATE_EMAIL) == false)
@@ -63,14 +70,17 @@ class NSMailDelivery extends NSObject
 		if(is_null($protocol)) $protocol=self::NSSMTPDeliveryProtocol;
 		if($protocol != self::NSSMTPDeliveryProtocol)
 			return false;
-		// optionally define some default From: header...
 		$hdrs="";
+		// should check if sender isValid
+		if(isset(self::$sender) && self::$sender != "")
+			$hdrs.="From: ".self::$sender."\r\n";
 		foreach($headers as $key => $value)
 			{ // translate into mail headers
 			if(is_array($value))
 				$headers[$key]=$value=implode(',', $value);	// merge into list
 			if($key == 'To' || $key == 'Subject')
 				continue;	// skip
+			// should check if To, Bcc, CC are isValid
 			$hdrs.="$key: $value\r\n";	// convert
 			}
 		if($format == self::NSASCIIMailFormat)
@@ -159,7 +169,7 @@ I.e. we scan the body for attachments and add them
 
 *****/
 			}
-		return mail($headers['To'], $headers['Subject'], $msg);
+		return mail($headers['To'], $headers['Subject'], $msg, $hdrs);
 	}
 
 }
