@@ -66,6 +66,7 @@ typedef struct _NSX11GraphicsState
 { // describes one output window
 	NSRect _windowRect;					// window in NSScreen coords (required to flip window coordinates and to clip composite operations)
 	XRectangle _dirty;					// dirty area
+	GC _neutralGC;						// this is a GC with neutral image processing options
 	_NSX11Screen *_nsscreen;			// cached pointer from NSWindow
 	NSAffineTransform *_textMatrix;
 	NSAffineTransform *_textLineMatrix;
