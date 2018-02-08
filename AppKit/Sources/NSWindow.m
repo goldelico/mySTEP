@@ -2050,8 +2050,6 @@ static NSButtonCell *sharedCell;
 		}
 }
 
-#define USE_PERFORMER_WITH_DELAY_0	0	// appears to work with queue now so we may remove the performer solution
-
 - (void) setViewsNeedDisplay:(BOOL) flag
 {
 	static NSArray *gsmodes;	// modes that redisplay the window
@@ -2068,9 +2066,7 @@ static NSButtonCell *sharedCell;
 								 NSModalPanelRunLoopMode,
 								 NSEventTrackingRunLoopMode,
 								 nil];
-#if USE_PERFORMER_WITH_DELAY_0
-					[self performSelector:@selector(displayIfNeeded) withObject:nil afterDelay:0.0 inModes:gsmodes];
-#else	// using a NSNotificationQueue should make sure that we call it only once if we have several setViewsNeedDisplay:YES
+					// using a NSNotificationQueue makes sure that we call it only once if we have several setViewsNeedDisplay:YES
 					if(!autoDisplayNotification)
 						autoDisplayNotification=[[NSNotification notificationWithName:NSDisplayWindowIfNeeded object:self] retain];
 					[[NSNotificationQueue defaultQueue] enqueueNotification:autoDisplayNotification
@@ -2080,20 +2076,15 @@ static NSButtonCell *sharedCell;
 #if 0
 					NSLog(@"setViewsNeedDisplay: rc=%d %p %@", [self retainCount], self, self);
 #endif
-#endif
 				}
 			else if(!flag)
 				{ // cancel any pending request
-#if USE_PERFORMER_WITH_DELAY_0
-					[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(displayIfNeeded) object:nil];
-#else
 					// this makes a problem since the notification retains the object!
 					// i.e. if we call this dequeue operation in the -dealloc we try to re-retain
 					[[NSNotificationQueue defaultQueue]	dequeueNotificationsMatching:autoDisplayNotification
 																		coalesceMask:NSNotificationCoalescingOnName|NSNotificationCoalescingOnSender];
 					[autoDisplayNotification release];	// no longer needed
 					autoDisplayNotification=nil;
-#endif
 					_w.viewsNeedDisplay = flag;
 				}
 			else
