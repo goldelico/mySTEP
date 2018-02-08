@@ -382,7 +382,7 @@ static NSCountedSet *__pb;
 		else
 			_window = [[NSWindow alloc] initWithContentRect: rect
 												  styleMask: NSBorderlessWindowMask
-													backing: NSBackingStoreRetained
+													backing: NSBackingStoreBuffered
 													  defer: YES];	// dont't draw or orderFront
 #if 0
 		{ // show cache window */
@@ -391,7 +391,7 @@ static NSCountedSet *__pb;
 			[_window release];
 			_window = [[NSWindow alloc] initWithContentRect: rect
 												  styleMask: NSTitledWindowMask
-													backing: NSBackingStoreRetained
+													backing: NSBackingStoreBuffered
 													  defer: YES];	// dont't draw or orderFront now
 			[_window setTitle:@"CachedImageRep"];
 			[_window orderFront:nil];

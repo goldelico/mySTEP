@@ -185,7 +185,7 @@ static id _NSGetAlertPanel(NSString *icon,
 		
 		p = [[NSPanel alloc] initWithContentRect:(NSRect){{0,0},{rect.size.width,162}}
 									   styleMask: NSTitledWindowMask
-										 backing: NSBackingStoreRetained
+										 backing: NSBackingStoreBuffered	// Retained makes random BadMatch problems in XGetImage() in backend
 										   defer: YES
 										  screen: nil];
 #if 0

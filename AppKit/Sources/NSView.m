@@ -2530,8 +2530,8 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 			[__toolTipText setSelectable:NO];
 
 			__toolTipWindow = [[NSPanel alloc] initWithContentRect:wRect
-							 styleMask:NSBorderlessWindowMask
-							 backing:NSBackingStoreNonretained	
+														 styleMask:NSBorderlessWindowMask
+														   backing:NSBackingStoreBuffered	// nonretained has backend problems
 							 defer:YES];
 			[__toolTipWindow setWorksWhenModal:YES];
 			[__toolTipWindow setBackgroundColor:y];
