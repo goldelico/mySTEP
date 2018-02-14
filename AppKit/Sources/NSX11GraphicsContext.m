@@ -1094,112 +1094,112 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				case NSCurveToBezierPathElement: {
 #if 0	// untested but should be better
 
-				// FIXME: we should better create a path by subdividig the path or by using some algorithm like the following:
+					// FIXME: we should better create a path by subdividig the path or by using some algorithm like the following:
 
-				// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
+					// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
 
-				unsigned int i, steps=10;
-				float x, xd, xdd, xddd, xdd_per_2, xddd_per_2, xddd_per_6;
-				float y, yd, ydd, yddd, ydd_per_2, yddd_per_2, yddd_per_6;
-				double t = 1.0 / steps;
-				double t3 = 3.0 * t;
-				double tt = t * t;
-				double tt3 = 3.0 * tt;
-				x = p[0].x;
-				xd = (p[1].x - p[0].x) * t3;
-				xdd_per_2 = (p[0].x - 2 * p[1].x + p[2].x) * tt3;
-				xddd_per_2 = (3 * (p[1].x - p[2].x) + p[3].x - p[0].x) * tt * t3;
-				xddd = xddd_per_2 + xddd_per_2;
-				xdd = xdd_per_2 + xdd_per_2;
-				xddd_per_6 = xddd_per_2 * (1.0 / 3.0);
-				y = p[0].y;
-				yd = (p[1].y - p[0].y) * t3;
-				ydd_per_2 = (p[0].y - 2 * p[1].y + p[2].y) * tt3;
-				yddd_per_2 = (3 * (p[1].y - p[2].y) + p[3].y - p[0].y) * tt * t3;
-				yddd = yddd_per_2 + yddd_per_2;
-				ydd = ydd_per_2 + ydd_per_2;
-				yddd_per_6 = yddd_per_2 * (1.0 / 3.0);
+					unsigned int i, steps=10;
+					float x, xd, xdd, xddd, xdd_per_2, xddd_per_2, xddd_per_6;
+					float y, yd, ydd, yddd, ydd_per_2, yddd_per_2, yddd_per_6;
+					double t = 1.0 / steps;
+					double t3 = 3.0 * t;
+					double tt = t * t;
+					double tt3 = 3.0 * tt;
+					x = p[0].x;
+					xd = (p[1].x - p[0].x) * t3;
+					xdd_per_2 = (p[0].x - 2 * p[1].x + p[2].x) * tt3;
+					xddd_per_2 = (3 * (p[1].x - p[2].x) + p[3].x - p[0].x) * tt * t3;
+					xddd = xddd_per_2 + xddd_per_2;
+					xdd = xdd_per_2 + xdd_per_2;
+					xddd_per_6 = xddd_per_2 * (1.0 / 3.0);
+					y = p[0].y;
+					yd = (p[1].y - p[0].y) * t3;
+					ydd_per_2 = (p[0].y - 2 * p[1].y + p[2].y) * tt3;
+					yddd_per_2 = (3 * (p[1].y - p[2].y) + p[3].y - p[0].y) * tt * t3;
+					yddd = yddd_per_2 + yddd_per_2;
+					ydd = ydd_per_2 + ydd_per_2;
+					yddd_per_6 = yddd_per_2 * (1.0 / 3.0);
 
-				// uses 14 additions per step
+					// uses 14 additions per step
 
-				for(i=0; i < steps; i++)
-					{
-					addPoint(state, NSMakePoint(x, y));
-					x = x + xd + xdd_per_2 + xddd_per_6;
-					xd = xd + xdd + xddd_per_2;
-					xdd = xdd + xddd;
-					xdd_per_2 = xdd_per_2 + xddd_per_2;
-					y = y + yd + ydd_per_2 + yddd_per_6;
-					yd = yd + ydd + yddd_per_2;
-					ydd = ydd + yddd;
-					ydd_per_2 = ydd_per_2 + yddd_per_2;
-					}
-				addPoint(state, next=NSMakePoint(x, y));	// add last one (should be p3)
+					for(i=0; i < steps; i++)
+						{
+						addPoint(state, NSMakePoint(x, y));
+						x = x + xd + xdd_per_2 + xddd_per_6;
+						xd = xd + xdd + xddd_per_2;
+						xdd = xdd + xddd;
+						xdd_per_2 = xdd_per_2 + xddd_per_2;
+						y = y + yd + ydd_per_2 + yddd_per_6;
+						yd = yd + ydd + yddd_per_2;
+						ydd = ydd + yddd;
+						ydd_per_2 = ydd_per_2 + yddd_per_2;
+						}
+					addPoint(state, next=NSMakePoint(x, y));	// add last one (should be p3)
 
-				// or http://www.antigrain.com/research/adaptive_bezier/
+					// or http://www.antigrain.com/research/adaptive_bezier/
 
-				// is there a better algorithm? That resembles Bresenham or CORDIC that
-				//
-				// - works with integer values
-				// - moves one pixel per step either in x or y direction
-				// - is not based on a predefined number of steps
-				// - uses screen resolution as the smoothness limit
-				//
+					// is there a better algorithm? That resembles Bresenham or CORDIC that
+					//
+					// - works with integer values
+					// - moves one pixel per step either in x or y direction
+					// - is not based on a predefined number of steps
+					// - uses screen resolution as the smoothness limit
+					//
 
 #else
-				// straight forward - works
-				NSPoint p0=current;
-				NSPoint p1=[_state->_ctm transformPoint:points[0]];
-				NSPoint p2=[_state->_ctm transformPoint:points[1]];
-				NSPoint p3=[_state->_ctm transformPoint:points[2]];
-				float t;
+					// straight forward - works
+					NSPoint p0=current;
+					NSPoint p1=[_state->_ctm transformPoint:points[0]];
+					NSPoint p2=[_state->_ctm transformPoint:points[1]];
+					NSPoint p3=[_state->_ctm transformPoint:points[2]];
+					float t;
 #if 0
-				NSLog(@"pointsForPath: curved element");
-				NSLog(@"p0=%@ p1=%@ p2=%@ p3=%@", NSStringFromPoint(p0), NSStringFromPoint(p1), NSStringFromPoint(p2), NSStringFromPoint(p3));
+					NSLog(@"pointsForPath: curved element");
+					NSLog(@"p0=%@ p1=%@ p2=%@ p3=%@", NSStringFromPoint(p0), NSStringFromPoint(p1), NSStringFromPoint(p2), NSStringFromPoint(p3));
 #endif
 
-				/* here is DeCasteljau Algorithm avoiding sqares and cubes
+					/* here is DeCasteljau Algorithm avoiding sqares and cubes
 
-				 uses 12 multiplications, 12 additions, 12 subtractions per arbitrary point
+					 uses 12 multiplications, 12 additions, 12 subtractions per arbitrary point
 
-				 // simple linear interpolation between two points
-				 void lerp (point &dest, point &a, point &b, float t)
-				 {
-				 dest.x = a.x + (b.x-a.x)*t;
-				 dest.y = a.y + (b.y-a.y)*t;
-				 }
+					 // simple linear interpolation between two points
+					 void lerp (point &dest, point &a, point &b, float t)
+					 {
+					 dest.x = a.x + (b.x-a.x)*t;
+					 dest.y = a.y + (b.y-a.y)*t;
+					 }
 
-				 // evaluate a point on a bezier-curve. t goes from 0 to 1.0
-				 void bezier (point &dest, float t)
-				 {
-				 point ab,bc,cd,abbc,bccd;
-				 lerp (ab, a,b,t);           // point between a and b (green)
-				 lerp (bc, b,c,t);           // point between b and c (green)
-				 lerp (cd, c,d,t);           // point between c and d (green)
-				 lerp (abbc, ab,bc,t);       // point between ab and bc (blue)
-				 lerp (bccd, bc,cd,t);       // point between bc and cd (blue)
-				 lerp (dest, abbc,bccd,t);   // point on the bezier-curve (black)
-				 }
+					 // evaluate a point on a bezier-curve. t goes from 0 to 1.0
+					 void bezier (point &dest, float t)
+					 {
+					 point ab,bc,cd,abbc,bccd;
+					 lerp (ab, a,b,t);           // point between a and b (green)
+					 lerp (bc, b,c,t);           // point between b and c (green)
+					 lerp (cd, c,d,t);           // point between c and d (green)
+					 lerp (abbc, ab,bc,t);       // point between ab and bc (blue)
+					 lerp (bccd, bc,cd,t);       // point between bc and cd (blue)
+					 lerp (dest, abbc,bccd,t);   // point on the bezier-curve (black)
+					 }
 
-				 */
-				// FIXME: we should adjust the step size to the size of the path
-				for(t=0.1; t<=0.9; t+=0.1)
-					{ // very simple and slow approximation
-					  // uses 16 multiplications, 2 scaling, 7 additions per step
-						float t1=(1.0-t);
-						float t1sq=t1*t1;
-						float t1cub=t1*t1sq;
-						float t2=t*t;
-						float t3=t*t2;
-						NSPoint pnt;
-						pnt.x=p0.x*t1cub+3.0*(p1.x*t*t1sq+p2.x*t2*t1)+p3.x*t3;
-						pnt.y=p0.y*t1cub+3.0*(p1.y*t*t1sq+p2.y*t2*t1)+p3.y*t3;
-						addPoint(state, pnt);
-					}
-				addPoint(state, next=p3);	// move to final point (if not already there)
+					 */
+					// FIXME: we should adjust the step size to the size of the path
+					for(t=0.1; t<=0.9; t+=0.1)
+						{ // very simple and slow approximation
+						  // uses 16 multiplications, 2 scaling, 7 additions per step
+							float t1=(1.0-t);
+							float t1sq=t1*t1;
+							float t1cub=t1*t1sq;
+							float t2=t*t;
+							float t3=t*t2;
+							NSPoint pnt;
+							pnt.x=p0.x*t1cub+3.0*(p1.x*t*t1sq+p2.x*t2*t1)+p3.x*t3;
+							pnt.y=p0.y*t1cub+3.0*(p1.y*t*t1sq+p2.y*t2*t1)+p3.y*t3;
+							addPoint(state, pnt);
+						}
+					addPoint(state, next=p3);	// move to final point (if not already there)
 #endif
-				current=next;
-				break;
+					current=next;
+					break;
 				}
 				case NSClosePathBezierPathElement:
 					addPoint(state, first);
@@ -1374,8 +1374,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{ // region exists
 			if(flag)
 				{
-					XDestroyRegion(_state->_clip);	// delete previous
-					_state->_clip=r;	// save
+				XDestroyRegion(_state->_clip);	// delete previous
+				_state->_clip=r;	// save
 				}
 			else
 				{ // intersect with existing region
@@ -1572,7 +1572,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		return;	// completely outside
 	if(y > _state->_clipBox.y+_state->_clipBox.height || y+height <  _state->_clipBox.y)
 		return;	// completely outside
-	// FIXME: if partially outside, reduce area to be processed
+				// FIXME: if partially outside, reduce area to be processed
 	// CHECKME: does the compositing operation apply to text drawing?
 	//	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 	//		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
@@ -1604,10 +1604,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	if(!img)
 		{ // NSBackingStoreRetained sometimes returns BadMatch and nil
-		NSLog(@"glyph: could not XGetImage (%d, %d, %u, %u)", x, y, width, height);
-		[[NSColor redColor] set];	// will set _gc
-		XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, x, y, width, height);
-		return;	// can't allocate or fetch
+			NSLog(@"glyph: could not XGetImage (%d, %d, %u, %u)", x, y, width, height);
+			[[NSColor redColor] set];	// will set _gc
+			XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, x, y, width, height);
+			return;	// can't allocate or fetch
 		}
 	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
 	stroke = Pixel2RGBA8(img->depth, values.foreground);	// translate 565 or 888 color to RGBA8
@@ -1769,9 +1769,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
 					for(i=0; i<cnt; i++)
 						{
-							NSGlyph g=glyphs[i];
-							buf[i].byte1=g>>8;
-							buf[i].byte2=g;
+						NSGlyph g=glyphs[i];
+						buf[i].byte1=g>>8;
+						buf[i].byte2=g;
 						}
 				}
 			width=XTextWidth16(font, buf, (int) cnt);	// width in pixels
@@ -2785,12 +2785,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) flushGraphics;
 {
-#if 1
+#if 0
 	NSLog(@"X11 flushGraphics");
 #endif
 	if(_isDoubleBuffered(self) && _dirty.width > 0 && _dirty.height > 0)
 		{ // copy dirty area (if any) from back to front buffer
-#if 1
+#if 0
 			NSLog(@"flushing backing store buffer: %@ of %@", NSStringFromXRect(_dirty), self);
 #endif
 			if(!_neutralGC)
@@ -3620,6 +3620,7 @@ static NSFileHandle *fh;
 + (void) _handleNewEvents;
 {
 	int count;
+	NSMutableSet *contextsNeedingFlush=nil;
 	while((count = XPending(_display)) > 0)		// while X events are pending - we don't use the count except for debugging
 		{
 		// FIXME: the lastXWin/lastMotionEvent mechanism isn't used any more
@@ -3741,23 +3742,23 @@ static NSFileHandle *fh;
 				break;
 			}
 			case ButtonRelease: {
-			NSDebugLog(@"ButtonRelease");
-			if(xe.xbutton.button == Button1)
-				type=NSLeftMouseUp;
-			else if(xe.xbutton.button == Button3)
-				type=NSRightMouseUp;
-			else
-				type=NSOtherMouseUp;
-			e = [NSEvent mouseEventWithType:type		// create NSEvent
-								   location:X11toScreen(xe.xbutton)	// relative to the current window
-							  modifierFlags:__modFlags
-								  timestamp:X11toTimestamp(xe.xbutton)
-							   windowNumber:windowNumber
-									context:(void *) self
-								eventNumber:xe.xbutton.serial
-								 clickCount:clickCount
-								   pressure:1.0];
-			break;
+				NSDebugLog(@"ButtonRelease");
+				if(xe.xbutton.button == Button1)
+					type=NSLeftMouseUp;
+				else if(xe.xbutton.button == Button3)
+					type=NSRightMouseUp;
+				else
+					type=NSOtherMouseUp;
+				e = [NSEvent mouseEventWithType:type		// create NSEvent
+									   location:X11toScreen(xe.xbutton)	// relative to the current window
+								  modifierFlags:__modFlags
+									  timestamp:X11toTimestamp(xe.xbutton)
+								   windowNumber:windowNumber
+										context:(void *) self
+									eventNumber:xe.xbutton.serial
+									 clickCount:clickCount
+									   pressure:1.0];
+				break;
 			}
 			case CirculateNotify:	// a change to the stacking order
 				NSDebugLog(@"CirculateNotify\n");
@@ -3782,7 +3783,7 @@ static NSFileHandle *fh;
 				NSDebugLog(@"ColormapNotify\n");
 				break;
 			case ConfigureNotify:					// window has been moved or resized by window manager
-				NSDebugLog(@"ConfigureNotify\n");
+				NSLog(@"ConfigureNotify\n");
 				[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
 #if 1
 				e = [NSEvent otherEventWithType:NSAppKitDefined
@@ -3851,50 +3852,56 @@ static NSFileHandle *fh;
 										 clickCount:1
 										   pressure:1.0];
 				break;
-			case Expose: {
-			_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) graphicsContext];
-			if(_isDoubleBuffered(ctxt))
-				{ // copy from backing store
-					_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
-																											// FIXME - we should collect and merge all expose events into a single one
-																											// we should also be able to postpone expose events after resizing the window
-																											// or setDirtyRect should setup a timer to flush after a while...
-																											//			[ctxt flushGraphics];	// plus anything else we need to flush anyway
-				}
-			else
-				{ // queue up an expose event
-					NSSize sz;
-					if(windowScale != 1.0)
-						sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
-					else
-						sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
+			case Expose: { // a portion of a window became exposed
+				_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) graphicsContext];
+				NSLog(@"Expose: doubleBufered=%d", _isDoubleBuffered(ctxt));
+				if(_isDoubleBuffered(ctxt))
+					{ // copy from backing store
+						_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
+																												// FIXME - we should try to collect and merge all expose events into a single one
+																												// we should also be able to postpone expose events after resizing the window
+																												// or setDirtyRect should setup a timer to flush after a while...
+						// we could also collect here and do one flush at the end of _handleNewEvents
+						if(!contextsNeedingFlush)
+							contextsNeedingFlush=[NSMutableSet setWithObject:ctxt];
+						else
+							[contextsNeedingFlush addObject:ctxt];
+						// [ctxt flushGraphics];	// plus anything else we need to flush anyway
+					}
+				else
+					{ // queue up an expose event
+						NSSize sz;
+						if(windowScale != 1.0)
+							sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
+						else
+							sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
 #if 1
-					NSLog(@"not double buffered expose %@ -> %@", NSMapGet(__WindowNumToNSWindow, (void *) thisXWin),
-						  //  NSStringFromXRect(xe.xexpose),
-						  NSStringFromSize(sz));
+						NSLog(@"unbuffered expose %@ -> %@", NSMapGet(__WindowNumToNSWindow, (void *) thisXWin),
+							  //  NSStringFromXRect(xe.xexpose),
+							  NSStringFromSize(sz));
 #endif
-					xe.xexpose.y+=xe.xexpose.height;	// X11 specifies top left while we expect bottom left
-					e = [NSEvent otherEventWithType:NSAppKitDefined
-										   location:X11toScreen(xe.xexpose)
-									  modifierFlags:0
-										  timestamp:0
-									   windowNumber:windowNumber
-											context:(void *) self
-											subtype:NSWindowExposedEventType
-											  data1:sz.width
-											  data2:sz.height];	// truncated to (int)
-				}
-			break;
+						xe.xexpose.y+=xe.xexpose.height;	// X11 specifies top left while we expect bottom left
+						e = [NSEvent otherEventWithType:NSAppKitDefined
+											   location:X11toScreen(xe.xexpose)
+										  modifierFlags:0
+											  timestamp:0
+										   windowNumber:windowNumber
+												context:(void *) self
+												subtype:NSWindowExposedEventType
+												  data1:sz.width
+												  data2:sz.height];	// truncated to (int)
+					}
+				break;
 			}
 			case FocusIn: {
-			// keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
+				// keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
 #if 0
 				NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
 #endif
 				break;
 			}
 			case FocusOut: {
-			// keyboard focus has left one of our windows
+				// keyboard focus has left one of our windows
 #if 0
 				NSDebugLog(@"FocusOut");
 #endif
@@ -3912,14 +3919,14 @@ static NSFileHandle *fh;
 			case KeyPress:							// a key has been pressed
 			case KeyRelease: {
 				// a key has been released
-			NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
-			char buf[256];
-			KeySym ksym;
-			NSString *keys = @"";
-			unsigned short keyCode = 0;
-			unsigned mflags;
-			// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
-			unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
+				NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
+				char buf[256];
+				KeySym ksym;
+				NSString *keys = @"";
+				unsigned short keyCode = 0;
+				unsigned mflags;
+				// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
+				unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
 #if 1
 				{
 				int idx;
@@ -3934,41 +3941,41 @@ static NSFileHandle *fh;
 				 */
 				}
 #endif
-			buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+				buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
 #if 1
-			NSLog(@"Process key event");
+				NSLog(@"Process key event");
 #endif
-			mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
-			if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
-				{
-				if(count == 0)
-					keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
-				else
-					keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
-				__modFlags=mflags;							// may also be modified
-				}
-			else
-				{ // if we have neither a keyCode nor characters we have just changed a modifier Key
-					if(eventType == NSKeyUp)
-						__modFlags &= ~mflags;	// just reset flags defined by this key
+				mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
+				if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
+					{
+					if(count == 0)
+						keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
 					else
-						__modFlags=mflags;		// if modified
-					eventType=NSFlagsChanged;
-				}
-			e= [NSEvent keyEventWithType:eventType
-								location:NSZeroPoint
-						   modifierFlags:__modFlags
-							   timestamp:X11toTimestamp(xe.xkey)
-							windowNumber:windowNumber
-								 context:(void *) self
-							  characters:keys
-			 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
-							   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
-								 keyCode:keyCode];
+						keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
+					__modFlags=mflags;							// may also be modified
+					}
+				else
+					{ // if we have neither a keyCode nor characters we have just changed a modifier Key
+						if(eventType == NSKeyUp)
+							__modFlags &= ~mflags;	// just reset flags defined by this key
+						else
+							__modFlags=mflags;		// if modified
+						eventType=NSFlagsChanged;
+					}
+				e= [NSEvent keyEventWithType:eventType
+									location:NSZeroPoint
+							   modifierFlags:__modFlags
+								   timestamp:X11toTimestamp(xe.xkey)
+								windowNumber:windowNumber
+									 context:(void *) self
+								  characters:keys
+				 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
+								   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
+									 keyCode:keyCode];
 #if 1
-			NSLog(@"xKeyEvent -> %@", e);
+				NSLog(@"xKeyEvent -> %@", e);
 #endif
-			break;
+				break;
 			}
 
 			case KeymapNotify:						// reports the state of the
@@ -4004,7 +4011,7 @@ static NSFileHandle *fh;
 				break;								// by another client
 
 			case MotionNotify: {
-			  // the mouse has moved
+				// the mouse has moved
 				NSDebugLog(@"MotionNotify");
 				if(xe.xmotion.state & Button1Mask)
 					type = NSLeftMouseDragged;
@@ -4137,6 +4144,10 @@ static NSFileHandle *fh;
 			[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
 			}
 		}
+#if 0
+	NSLog(@"expose count = %u",[contextsNeedingFlush count]);
+#endif
+	[contextsNeedingFlush makeObjectsPerformSelector:@selector(flushGraphics)];	// flush all expose events
 }
 
 - (void) _sendEvent:(NSEvent *) e;
