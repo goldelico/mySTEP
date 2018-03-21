@@ -2497,6 +2497,7 @@ class NSTextView extends NSControl
 	public function setString($string)
 		{
 		if($string === $this->string) return;	// no change
+		$this->string=$string;
 		$this->setNeedsDisplay();
 		}
 	public function string() { return $this->string; }
