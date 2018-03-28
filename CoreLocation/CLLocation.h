@@ -15,13 +15,11 @@ typedef double CLLocationSpeed;
 
 typedef struct _CLLocationCoordinate2D
 {
-	CLLocationDegrees latitude;
-	CLLocationDegrees longitude;
+	CLLocationDegrees latitude;		// positive values are north or aequator
+	CLLocationDegrees longitude;	// positive values are east of Greenwich
 } CLLocationCoordinate2D;
 
-#if 0	// NAN macro is missing on some platforms
 const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
-#endif
 
 #import <CoreLocation/CLLocationManager.h>	// defines CLLocationDistance
 
