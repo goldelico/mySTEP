@@ -646,7 +646,7 @@ static NSColor *__borderedBackgroundColor = nil;
 				inView:(NSView*)controlView
 {
 	NSDebugLog (@"NSCell drawWithFrame:inView:");
-	
+	[self setControlView:controlView];
 	if(_c.bezeled) 
 		{
 #if 0

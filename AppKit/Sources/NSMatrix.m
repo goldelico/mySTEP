@@ -239,13 +239,16 @@ typedef struct {
 
 - (void) getNumberOfRows:(NSInteger*)rowCount columns:(NSInteger*)columnCount
 {
-    *rowCount = _numRows;
-    *columnCount = _numCols;
+	*rowCount = _numRows;
+	*columnCount = _numCols;
 }
 
 - (void) putCell:(NSCell*)newCell atRow:(NSInteger)row column:(NSInteger)column
 {
-	[_cells replaceObjectAtIndex:(row * _numCols) + column withObject:newCell];
+	NSInteger idx=(row * _numCols) + column;
+	[[_cells objectAtIndex:idx] setControlView:nil];
+	[_cells replaceObjectAtIndex:idx withObject:newCell];
+	[newCell setControlView:self];
 	[self setNeedsDisplayInRect:[self cellFrameAtRow:row column:column]];
 }
 
@@ -257,8 +260,11 @@ typedef struct {
 		return;
 	
 	while(i--)
-		[_cells removeObjectAtIndex:((i * _numCols) + column)];
-	
+		{
+		NSUInteger idx=(i * _numCols) + column;
+		[[_cells objectAtIndex:idx] setControlView:nil];
+		[_cells removeObjectAtIndex:idx];
+		}
 	_numCols--;
 	
 	if (_numCols == 0)
@@ -273,7 +279,10 @@ typedef struct {
 		return;
 	
 	while(i--)
+		{
+		[[_cells objectAtIndex:removalPoint] setControlView:nil];
 		[_cells removeObjectAtIndex:removalPoint];
+		}
 	
 	_numRows--;
 	
