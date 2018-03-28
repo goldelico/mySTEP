@@ -218,7 +218,6 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	_NSQueueRegistration *next;					// Notifications From a Queue
 	id name = [notification name];
 	id object = [notification object];
-	// find in ASAP notification in queue
 #if 0
 	NSLog(@"dequeueNotificationsMatching:%@ coalesceMask: %u name: %@ object: %@",
 		  notification,
@@ -244,7 +243,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		if (((!(coalesceMask & NSNotificationCoalescingOnName) || [name isEqual:item->name]) &&
 			 !(coalesceMask & NSNotificationCoalescingOnSender)) || (object == item->object))
 			{
-			_NSRemoveFromQueue(_asapQueue, item);
+			_NSRemoveFromQueue(_idleQueue, item);
 			continue;
 			}
 		}
