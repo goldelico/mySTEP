@@ -26,6 +26,30 @@
 
 @implementation CoreLocationDaemon
 
+- (id) init
+{
+	if((self=[super init]))
+		{
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(locationUpdateNotification:) name:@"CLLocationUpdateLocation" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(headingUpdateNotification:) name:@"CLLocationUpdateHeading" object:nil];
+		}
+	return self;
+}
+
+- (void) dealloc;
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[managers release];
+	[lastChunk release];
+	[file release];
+	[modes release];
+	[newLocation release];
+	[newHeading release];
+	[satelliteTime release];
+	[satelliteInfo release];
+	[super dealloc];
+}
+
 - (NSString *) _device
 { // get this from some *system wide* user default
 	FILE *p=popen("/root/gps-on", "r");
@@ -40,7 +64,7 @@
 	return device;
 }
 
-- (void) registerManager:(CLLocationManager *) m
+- (void) registerManager:(byref CLLocationManager *) m
 {
 #if 1
 	NSLog(@"Daemon: registerManager: %@", m);
@@ -82,7 +106,7 @@
 	[managers addObject:m];
 }
 
-- (void) unregisterManager:(CLLocationManager *) m
+- (void) unregisterManager:(byref CLLocationManager *) m
 {
 #if 1
 	NSLog(@"Daemon unregisterManager: %@", m);
@@ -142,12 +166,12 @@
 			id <CLLocationManagerDelegate> delegate;
 			NS_DURING
 #if 0
-			NSLog(@"manager: %@", m);
+				NSLog(@"locationManager: %@ didReceiveNMEA: %@", m, line);
 #endif
-			delegate=[m delegate];
-			[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
+				delegate=[m delegate];
+				[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
 			NS_HANDLER
-			[self unregisterManager:m]; // communication failure
+				[self unregisterManager:m]; // communication failure
 			NS_ENDHANDLER
 		}
 	if(!newLocation)
@@ -188,16 +212,16 @@
 					pos=[[a objectAtIndex:5] floatValue];		// ddmm.mmmmm (degrees + minutes)
 					deg=((int) pos)/100;
 					newLocation->coordinate.longitude=deg+(pos-100.0*deg)/60.0;
-					if([[a objectAtIndex:6] isEqualToString:@"E"])
+					if([[a objectAtIndex:6] isEqualToString:@"W"])
 						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
 					newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
 					newLocation->course=[[a objectAtIndex:8] floatValue];
-					didUpdateLocation=YES;
+					didUpdateLocation=[[a objectAtIndex:3] length] > 0;	// if GPS reports position - may be empty even if it reports "A"
 					if(!newHeading)
 						newHeading=[CLHeading new];
 					newHeading->trueHeading=newLocation->course;
 					// and read the compass (if available)
-					didUpdateHeading=YES;
+					didUpdateHeading=[[a objectAtIndex:7] length] > 0;
 #if 0
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
@@ -212,6 +236,7 @@
 				}
 			else
 				{
+				newLocation->coordinate=kCLLocationCoordinate2DInvalid;
 				newLocation->horizontalAccuracy=-1.0;
 				newLocation->verticalAccuracy=-1.0;
 				didUpdateLocation=YES;
@@ -279,7 +304,12 @@
 		}
 	else if([cmd isEqualToString:@"$GPGGA"])
 		{ // more location info (e.g. altitude above geoid)
-			numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+			int val=[[a objectAtIndex:7] intValue];	// # satellites being received
+			if(val != numReliableSatellites)
+				{
+				numReliableSatellites=val;
+				didUpdateLocation=YES;
+				}
 #if 0
 			NSLog(@"#S received=%d", numSatellites);
 #endif
@@ -301,8 +331,8 @@
 				NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
 																				// calibrate/compare with Barometer data
 #endif
+				didUpdateLocation=YES;
 				}
-			didUpdateLocation=YES;
 		}
 	else if([cmd isEqualToString:@"$PSRFTXT"])
 		{ // SIRF message from w2sg00x4
@@ -337,7 +367,7 @@
 					pos=[[a objectAtIndex:4] floatValue];		// ddmm.mmmmm (degrees + minutes)
 					deg=((int) pos)/100;
 					newLocation->coordinate.longitude=deg+(pos-100.0*deg)/60.0;
-					if([[a objectAtIndex:5] isEqualToString:@"E"])
+					if([[a objectAtIndex:5] isEqualToString:@"W"])
 						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
 					/*				newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
 					newLocation->course=[[a objectAtIndex:8] floatValue];
@@ -364,6 +394,7 @@
 				}
 			else
 				{
+				newLocation->coordinate=kCLLocationCoordinate2DInvalid;
 				newLocation->horizontalAccuracy=-1.0;
 				newLocation->verticalAccuracy=-1.0;
 				didUpdateLocation=YES;
@@ -383,6 +414,24 @@
 	NS_HANDLER
 		NSLog(@"NEMA parsing error: %@", localException);	// most likely a malformed record where some array index does not exist
 	NS_ENDHANDLER
+
+#if 1
+	// FIXME: should not use flags but check by isEqual if anything has really changed!!!
+	// and coalesce by using some notification queue
+	{
+	static NSNotification *locationUpdate;
+	static NSNotification *headingUpdate;
+	if(!locationUpdate)
+		locationUpdate=[[NSNotification notificationWithName:@"CLLocationUpdateLocation" object:self userInfo:nil] retain];
+	if(!headingUpdate)
+		headingUpdate=[[NSNotification notificationWithName:@"CLLocationUpdateHeading" object:self userInfo:nil] retain];
+	if(didUpdateLocation)
+		[[NSNotificationQueue defaultQueue] enqueueNotification:locationUpdate postingStyle:NSPostWhenIdle];
+	if(didUpdateHeading)
+		[[NSNotificationQueue defaultQueue] enqueueNotification:locationUpdate postingStyle:NSPostWhenIdle];
+	}
+#else
+
 	if(didUpdateLocation || didUpdateHeading)
 		{ // notify interested managers
 			[newLocation->timestamp release];
@@ -395,7 +444,6 @@
 			e=[managers objectEnumerator];
 			while((m=[e nextObject]))
 				{ // notify all CLLocationManager instances
-					id <CLLocationManagerDelegate> delegate;
 					// check for desiredAccuracy
 					// check for distanceFilter
 					NS_DURING
@@ -408,6 +456,7 @@
 					NS_ENDHANDLER
 				}
 		}
+#endif
 }
 
 - (void) _processRawData:(NSData *) data;
@@ -456,6 +505,43 @@
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 }
 
+- (void) locationUpdateNotification:(NSNotification *) NSNotification
+{
+	NSEnumerator *e=[managers objectEnumerator];
+	CLLocationManager <CoreLocationClientProtocol> *m;
+#if 1
+	NSLog(@"locationUpdateNotification");
+#endif
+	while((m=[e nextObject]))
+		{ // notify all CLLocationManager instances
+			// check for desiredAccuracy
+			// check for distanceFilter
+			NS_DURING
+				[m didUpdateToLocation:newLocation];
+			NS_HANDLER
+				[self unregisterManager:m]; // communication failed with this manager
+			NS_ENDHANDLER
+		}
+}
+
+- (void) headingUpdateNotification:(NSNotification *) NSNotification
+{
+	NSEnumerator *e=[managers objectEnumerator];
+	CLLocationManager <CoreLocationClientProtocol> *m;
+#if 1
+	NSLog(@"headingUpdateNotification");
+#endif
+	while((m=[e nextObject]))
+		{ // notify all CLLocationManager instances
+			NS_DURING
+				[m didUpdateHeading:newHeading];
+			NS_HANDLER
+				[self unregisterManager:m]; // communication failed with this manager
+			NS_ENDHANDLER
+		}
+
+}
+
 - (int) numberOfReceivedSatellites;
 { // count all satellites with SNR > 0
 	NSEnumerator *e=[satelliteInfo objectEnumerator];
@@ -485,12 +571,12 @@
 	return CLLocationSourceGPS;
 }
 
-- (NSDate *) satelliteTime
+- (bycopy NSDate *) satelliteTime
 {
 	return satelliteTime;
 }
 
-- (NSArray *) satelliteInfo
+- (bycopy NSArray *) satelliteInfo
 {
 	return satelliteInfo;
 }
