@@ -124,12 +124,10 @@ typedef enum _NSComparisonResult
 
 enum { NSNotFound = NSIntegerMax };
 
-#if 0
 @interface NSObject (Miscellaneous)
 - (id) _subclass:(SEL) cmd;
 - (id) _nimp:(SEL) cmd;
 @end
-#endif
 
 #if 0
 @interface NSObject (Old)
