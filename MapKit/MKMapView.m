@@ -166,6 +166,9 @@ static int alreadyLoading=0;
 
 static MKMapRect _MKMapRectForCoordinateRegion(MKCoordinateRegion reg)
 { // convert corner points (may have different center!)
+#if 1
+	NSLog(@"_MKMapRectForCoordinateRegion %lg %lg %lg %lg", reg.center.latitude, reg.center.longitude, reg.span.latitudeDelta, reg.span.longitudeDelta);
+#endif
 	MKMapPoint sw=MKMapPointForCoordinate((CLLocationCoordinate2D) { reg.center.latitude-0.5*reg.span.latitudeDelta, reg.center.longitude-0.5*reg.span.longitudeDelta });
 	MKMapPoint ne=MKMapPointForCoordinate((CLLocationCoordinate2D) { reg.center.latitude+0.5*reg.span.latitudeDelta, reg.center.longitude+0.5*reg.span.longitudeDelta });
 	return (MKMapRect) { sw, (MKMapSize) { ne.x-sw.x, ne.y-sw.y }};
@@ -229,7 +232,6 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 - (void) setFrameSize:(NSSize) newSize
 { // keep contents centered
-#if 1
 	NSRect frame=[self frame];
 	float fx=newSize.width / frame.size.width;
 	float fy=newSize.height / frame.size.height;
@@ -241,59 +243,10 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 	//	visibleMapRect.origin.y *= fy;
 	visibleMapRect.size.height *= fy;
 	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
-#endif
 	[super setFrameSize:newSize];
 	[self setNeedsDisplay:YES];
 }
 
-#if OLD
-
-- (void) setFrame:(NSRect) frameRect
-{ // adjust aspect ratio
-#if 0
-	NSRect frame=[self frame];
-	float fx=frameRect.size.width / frame.size.width;
-	float fy=frameRect.size.height / frame.size.height;
-	// adjust for movement of frame.origin!
-	visibleMapRect.origin.x += 0.5*visibleMapRect.size.width;	// keep center stable
-	//	visibleMapRect.origin.x *= fx;
-	visibleMapRect.size.width *= fx;
-	visibleMapRect.origin.x -= 0.5*visibleMapRect.size.width;	// new left edge
-	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
-	//	visibleMapRect.origin.y *= fy;
-	visibleMapRect.size.height *= fy;
-	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
-#endif
-	// lock setFrameSize to change visibleMapRect again!
-	[super setFrame:frameRect];	// this will/may call setFrameSize
-	// unlock
-	[self setNeedsDisplay:YES];
-}
-
-- (void) setBounds:(NSRect) boundsRect
-{ // adjust aspect ratio
-#if 0
-	NSRect frame=[self frame];
-	float fx=frameRect.size.width / frame.size.width;
-	float fy=frameRect.size.height / frame.size.height;
-	// adjust for movement of frame.origin!
-	visibleMapRect.origin.x += 0.5*visibleMapRect.size.width;	// keep center stable
-	//	visibleMapRect.origin.x *= fx;
-	visibleMapRect.size.width *= fx;
-	visibleMapRect.origin.x -= 0.5*visibleMapRect.size.width;	// new left edge
-	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
-	//	visibleMapRect.origin.y *= fy;
-	visibleMapRect.size.height *= fy;
-	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
-#endif
-	[super setBounds:boundsRect];
-}
-
-- (void) setBoundsSize:(NSSize) newSize
-{
-	[super setBoundsSize:newSize];
-}
-#endif
 - (id) initWithCoder:(NSCoder *) aDecoder;
 {
 	self=[super initWithCoder:aDecoder];
@@ -307,6 +260,8 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 - (void) dealloc;
 {
+	// FIXME: never called???
+	[self setShowsUserLocation:NO];	// deallocate MKUserLocation etc.
 	[annotations release];
 	[overlays release];
 	[userLocation release];
@@ -490,9 +445,9 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 #if 1
 	{
 	NSString *str=@"I am the MKMapView\n";
-	str=[str stringByAppendingFormat:@"%@\n", [annotations description]];
-	str=[str stringByAppendingFormat:@"%@\n", MKStringFromMapRect(visibleMapRect)];
-	str=[str stringByAppendingFormat:@"%@\n", MKStringFromMapRect(worldMap)];
+	str=[str stringByAppendingFormat:@"annotations: %@\n", [annotations description]];
+	str=[str stringByAppendingFormat:@"visible: %@\n", MKStringFromMapRect(visibleMapRect)];
+	str=[str stringByAppendingFormat:@"world: %@\n", MKStringFromMapRect(worldMap)];
 	[str drawInRect:NSMakeRect(10.0, 10.0, 1000.0, 300.0) withAttributes:nil];
 	}
 #endif	
@@ -811,41 +766,48 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 	if(flag && !userLocation)
 		{
 			[delegate mapViewWillStartLocatingUser:self];
-			userLocation=[MKUserLocation new];	// create
-			[userLocation _setMapView:self];
-#if 1
-			NSLog(@"userLocation: %@", userLocation);
-#endif
+			userLocation=[MKUserLocation new];	// create tracking annotation
 			[self addAnnotation:userLocation];
+			locationManager=[CLLocationManager new];	// we don't get notifications from the Annotation
+			[locationManager setDelegate:(id <CLLocationManagerDelegate>) self];
+			[locationManager startUpdatingLocation];
 		}
 	else if(!flag && userLocation)
 		{
 			[self removeAnnotation:userLocation];
+			[locationManager stopUpdatingLocation];
 			[userLocation release];
 			userLocation=nil;
+			[locationManager setDelegate:nil];
+			[locationManager release];
+			locationManager=nil;
 			[delegate mapViewDidStopLocatingUser:self];
 		}
+#if 1
+	NSLog(@"userLocation: %@", userLocation);
+	NSLog(@"locationManager: %@ %@", locationManager, [locationManager delegate]);
+#endif
 }
 
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {
+	[self setVisibleMapRect:rect animated:NO];
 }
 
 - (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
 {
 #if 1
-	NSLog(@"setVisibleMapRect:%@", MKStringFromMapRect(rect));
+	NSLog(@"setVisibleMapRect:%@ animated:%d", MKStringFromMapRect(rect), flag);
 #endif
-	//	rect=[self mapRectThatFits:rect edgePadding:insets];
 	if([delegate respondsToSelector:@selector(mapView:regionWillChangeAnimated:)])
 		[delegate mapView:self regionWillChangeAnimated:flag];
 	if(flag)
 		{
 		// animate by defining a timer and the delta
 		}
+	[self setNeedsDisplay:YES];		// redisplay old
 	visibleMapRect=rect;
-	[self setNeedsDisplay:YES];
-	[self setVisibleMapRect:rect];
+	[self setNeedsDisplay:YES];		// display new
 	if([delegate respondsToSelector:@selector(mapView:regionDidChangeAnimated:)])
 		[delegate mapView:self regionDidChangeAnimated:flag];
 }
@@ -859,26 +821,6 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 - (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
 - (BOOL) showsUserLocation; { return userLocation != nil; }
 - (MKUserLocation *) userLocation; { return userLocation; }
-
-- (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
-{ // forwarded from MKUserLocation
-#if 1
-	NSLog(@"MKUserLocation did send locationManager:didUpdateToLocation:");
-#endif
-	// FIXME: needs to redraw MKUserLocation only
-	[self setNeedsDisplay:YES];	// redraw
-	[delegate mapView:self didUpdateUserLocation:userLocation];
-}
-
-- (void) locationManager:(CLLocationManager *) mngr didUpdateHeading:(CLHeading *) head;
-{
-
-}
-
-- (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
-{
-	[delegate mapView:self didFailToLocateUserWithError:err];
-}
 
 - (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
 {
@@ -894,8 +836,34 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 - (MKMapRect) visibleMapRect; { return visibleMapRect; }
 
+/* since we don't receive notifications from the userLocation object we need our own locationManager */
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
+{
+#if 1
+	NSLog(@"did receive locationManager: %@ didUpdateToLocation: %@", mngr, newloc);
+#endif
+	// FIXME: needs to redraw MKUserLocation only
+	// [[self viewForAnnotation:userLocation] setNeedsDisplay:YES] ?
+	[self setNeedsDisplay:YES];	// redraw
+	[delegate mapView:self didUpdateUserLocation:userLocation];
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateHeading:(CLHeading *) head;
+{
+
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
+{
+	[delegate mapView:self didFailToLocateUserWithError:err];
+}
+
 - (void) _scaleBy:(float) factor aroundCenter:(MKMapPoint) center
 {
+#if 1
+	NSLog(@"_scaleBy: %f", factor);
+#endif
 	if(zoomEnabled)
 		{
 		MKMapRect v=[self visibleMapRect];
@@ -1040,15 +1008,17 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 
 @implementation MKPlacemark // based on CLPlacemark
 
-- (NSString *) subtitle;
+- (void) dealloc
 {
-	return @"MKPlacemark subtitle";
+	[title release];
+	[subtitle release];
+	[super dealloc];
 }
 
-- (NSString *) title;
-{
-	return @"MKPlacemark title";
-}
+- (NSString *) subtitle; { return subtitle; }
+- (NSString *) title; { return title; }
+- (void) setSubtitle:(NSString *) str; { [subtitle autorelease]; subtitle=[str copy]; }
+- (void) setTitle:(NSString *) str; { [title autorelease]; title=[str copy]; }
 
 - (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
 {
@@ -1056,8 +1026,8 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 }
 
 - (void) setCoordinate:(CLLocationCoordinate2D) pos
-{
-	//	[super setCoordinate:pos];
+{ // translate from MKAnnotation protocol to inherited method...
+	[super setCoordinate:pos];
 }
 
 - (CLLocationCoordinate2D) coordinate;

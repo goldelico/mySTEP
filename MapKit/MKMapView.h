@@ -53,12 +53,13 @@ typedef struct UIEdgeInsets
 
 @interface MKMapView : UIView
 {
-	MKMapRect visibleMapRect;	
+	MKMapRect visibleMapRect;
 	NSMutableArray *annotations;
 	NSMutableArray *overlays;	// back to front
 	NSMapTable *viewForAnnotation;
 	NSMapTable *viewForOverlay;
 	id <MKMapViewDelegate> delegate;
+	CLLocationManager *locationManager;
 	MKUserLocation *userLocation;
 	MKMapType mapType;
 	BOOL scrollEnabled;
