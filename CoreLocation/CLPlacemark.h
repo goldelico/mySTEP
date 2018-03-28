@@ -6,6 +6,8 @@
 //  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+// update to 10.8+ API
+
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CLLocation.h>
 
@@ -17,6 +19,7 @@
 
 - (NSDictionary *) addressDictionary;
 - (CLLocationCoordinate2D) coordinate;
+- (void) setCoordinate:(CLLocationCoordinate2D) pos;
 - (NSString *) thoroughfare;		// street
 - (NSString *) subThoroughfare;		// street number
 - (NSString *) locality;			// city
