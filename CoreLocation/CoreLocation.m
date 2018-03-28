@@ -22,6 +22,18 @@ NSString *const kCLErrorDomain=@"CLErrorDomain";
 - (NSDate *) timestamp; { return timestamp; }
 - (CLLocationAccuracy) verticalAccuracy; { return verticalAccuracy; }
 
+- (BOOL) isEqual:(id)object
+{
+	if(((CLLocation *)object) -> altitude != altitude) return NO;
+	if(((CLLocation *)object) -> coordinate.latitude != coordinate.latitude) return NO;
+	if(((CLLocation *)object) -> coordinate.longitude != coordinate.longitude) return NO;
+	if(((CLLocation *)object) -> course != course) return NO;
+	if(((CLLocation *)object) -> horizontalAccuracy != horizontalAccuracy) return NO;
+	if(((CLLocation *)object) -> speed != speed) return NO;
+	if(((CLLocation *)object) -> verticalAccuracy != verticalAccuracy) return NO;
+	return [((CLLocation *)object) ->timestamp isEqual:timestamp];
+}
+
 - (NSString *) description
 {
 	return [NSString stringWithFormat:@"<%lg, %lg> +/- %lgm (speed %lg kph / heading %lg) @ %@",
@@ -32,12 +44,14 @@ NSString *const kCLErrorDomain=@"CLErrorDomain";
 			timestamp];
 }
 
+/* there should be a unit test example like http://studyswift.blogspot.de/2016/07/cllocationdistance-distance-between-two.html */
 - (CLLocationDistance) distanceFromLocation:(const CLLocation *) loc;
 {
+	CLLocationCoordinate2D b=[loc coordinate];
 	if(!loc)
 		return FLT_MAX;
-	// Großkreisentfernung berechnen
-	return -1.0;
+	/* use WGS84 average */
+	return 6371000.8*acos(sin(coordinate.latitude)*sin(b.latitude) + cos(coordinate.latitude)*cos(b.latitude)*cos(b.longitude-coordinate.longitude));
 }
 
 - (void) dealloc
@@ -108,22 +122,7 @@ NSString *const kCLErrorDomain=@"CLErrorDomain";
 
 @end
 
-#if OLD
-@interface CLLocationManager (GPSNMEA)
-+ (void) registerManager:(CLLocationManager *) m;
-+ (void) unregisterManager:(CLLocationManager *) m;
-+ (void) _processNMEA183:(NSString *) line;	// process complete line
-+ (void) _parseNMEA183:(NSData *) line;	// process data fragment
-+ (void) _dataReceived:(NSNotification *) n;
-@end
-
-static CLLocation *newLocation;
-static CLHeading *newHeading;
-#endif
-
 @implementation CLLocationManager
-
-// FIXME: there must be multiple delegates - one for each remote connection!
 
 - (id <CLLocationManagerDelegate>) delegate; { return delegate; }
 - (CLLocationAccuracy) desiredAccuracy; { return desiredAccuracy; }
@@ -178,6 +177,8 @@ static CLHeading *newHeading;
 
 - (void) didUpdateHeading:(CLHeading *) newHeading;
 {
+	// FIXME: we could filter real changes
+
 	[heading autorelease];
 	heading=[newHeading retain];
 	[delegate locationManager:self didUpdateHeading:newHeading];
@@ -186,8 +187,14 @@ static CLHeading *newHeading;
 - (void) didUpdateToLocation:(CLLocation *) newLocation;
 {
 	CLLocation *oldLocation=location;
+
+	// FIXME: we could filter real changes
+
 	[location autorelease];
 	location=[newLocation retain];
+#if 0
+	NSLog(@"didUpdateToLocation: %@ -> %@", delegate, newLocation);
+#endif
 	[delegate locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
 }
 
@@ -318,8 +325,11 @@ static CLHeading *newHeading;
 - (void) startUpdatingLocation;
 {
 	// FIXME: first call after being stopped should scan for a first location update
+#if 0
+	NSLog(@"startUpdatingLocation");
 	NSLog(@"_server=%@", _server);
 	NSLog(@"manager=%@", self);
+#endif
 	NS_DURING
 		[_server registerManager:self];
 	NS_HANDLER
@@ -358,7 +368,7 @@ static CLHeading *newHeading;
 - (int) numberOfReceivedSatellites;
 { // count all satellites with SNR > 0
 	NS_DURING	// protect against communication problems
-	 NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReceivedSatellites], int);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReceivedSatellites], int);
 	NS_HANDLER
 		NSLog(@"Exception during numberOfReceivedSatellites: %@", localException);
 	NS_ENDHANDLER
@@ -368,9 +378,9 @@ static CLHeading *newHeading;
 - (int) numberOfReliableSatellites;
 {
 	NS_DURING	// protect against communication problems
-	NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReliableSatellites], int);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfReliableSatellites], int);
 	NS_HANDLER
-	NSLog(@"Exception during numberOfReliableSatellites: %@", localException);
+		NSLog(@"Exception during numberOfReliableSatellites: %@", localException);
 	NS_ENDHANDLER
 	return 0;
 }
@@ -378,9 +388,9 @@ static CLHeading *newHeading;
 - (int) numberOfVisibleSatellites;
 {
 	NS_DURING	// protect against communication problems
-	NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfVisibleSatellites], int);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server numberOfVisibleSatellites], int);
 	NS_HANDLER
-	NSLog(@"Exception during numberOfVisibleSatellites: %@", localException);
+		NSLog(@"Exception during numberOfVisibleSatellites: %@", localException);
 	NS_ENDHANDLER
 	return 0;
 }
@@ -388,9 +398,9 @@ static CLHeading *newHeading;
 - (CLLocationSource) source;
 {
 	NS_DURING	// protect against communication problems
-	NS_VALUERETURN([(CoreLocationDaemon *) _server source], CLLocationSource);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server source], CLLocationSource);
 	NS_HANDLER
-	NSLog(@"Exception during source: %@", localException);
+		NSLog(@"Exception during source: %@", localException);
 	NS_ENDHANDLER
 	return CLLocationSourceUnknown;
 }
@@ -398,20 +408,22 @@ static CLHeading *newHeading;
 - (NSDate *) satelliteTime
 {
 	NS_DURING	// protect against communication problems
-	NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteTime], NSDate *);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteTime], NSDate *);
 	NS_HANDLER
-	NSLog(@"Exception during satelliteTime: %@", localException);
+		NSLog(@"Exception during satelliteTime: %@", localException);
 	NS_ENDHANDLER
 	return nil;
 }
 
 - (NSArray *) satelliteInfo
 {
+#if 0
 	NSLog(@"%@ satelliteInfo", self);
+#endif
 	NS_DURING	// protect against communication problems
-	NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteInfo], NSArray *);
+		NS_VALUERETURN([(CoreLocationDaemon *) _server satelliteInfo], NSArray *);
 	NS_HANDLER
-	NSLog(@"Exception during satelliteInfo: %@", localException);
+		NSLog(@"Exception during satelliteInfo: %@", localException);
 	NS_ENDHANDLER
 	return nil;
 }
@@ -424,7 +436,7 @@ static CLHeading *newHeading;
 @implementation NSObject (CLLocationManagerDelegate)
 
 - (void) locationManager:(CLLocationManager *) mngr didReceiveNMEA:(NSString *) str;
-{
+{ // default delegate method
 	// [_server dontSendNMEAtoManager:mngr];
 	return;
 }
