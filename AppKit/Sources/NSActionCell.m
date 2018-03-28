@@ -128,6 +128,13 @@ static Class __controlClass;
 		[(NSControl *)_controlView updateCell: self];
 }
 
+- (void) setIntegerValue:(NSInteger)anInt
+{
+	[super setIntegerValue:anInt];
+	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
+		[(NSControl *)_controlView updateCell: self];
+}
+
 - (void) setObjectValue:(id <NSCopying>)obj
 {
 	id oldValue=_contents;
