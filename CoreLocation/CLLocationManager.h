@@ -122,3 +122,8 @@ typedef enum _CLLocationSource
 - (bycopy NSArray *) satelliteInfo;	// NSDictionaries with strings
 
 @end
+
+@interface CLLocationManager (Private)
+- (void) didUpdateHeading:(CLHeading *) newHeading;
+- (void) didUpdateToLocation:(CLLocation *) newLocation;
+@end
