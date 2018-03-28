@@ -533,10 +533,12 @@ additionalEventParamDescriptor:(id) params
 						{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
 #if 1
 							NSLog(@"App is already running with pid=%d", pid);
+							// should bring it to front???
 #endif
 							if([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]])
 								{ // process exists
 									id a;
+									BOOL r;
 #if 1
 									NSLog(@"process exists");
 									NSLog(@"contact by DO");
@@ -554,15 +556,16 @@ additionalEventParamDescriptor:(id) params
 												a = [a rootProxy];	// get root proxy
 											}
 										}
-#if 0
+#if 1
 									NSLog(@"connection to application=%@", a);
 #endif
 									[[a retain] autorelease];	// FIXME: do we really need that???
 									// if we are sending to ourselves, a is the delegate - and should respond to this method!
-									NS_VALUERETURN([a _application:a openURLs:params withOptions:options], BOOL);	// call the handler of GSListener
+									r=[a _application:a openURLs:params withOptions:options];
+									NS_VALUERETURN(r, BOOL);	// call the handler of GSListener
 									NS_HANDLER
-									NSLog(@"exception while contacting other application: %@", localException);
-									return NO;	// timeout - did not respond
+										NSLog(@"exception while contacting other application: %@", localException);
+										return NO;	// timeout - did not respond
 									NS_ENDHANDLER
 								}
 							else
