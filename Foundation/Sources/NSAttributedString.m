@@ -167,13 +167,15 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[super dealloc];	// this is NSMutableString's dealloc
 }
 
-// FIXME: to make this wrapper work completely, all getter methods (e.g. capitalizedString, intValue,
-// compare, componentsSeparatedByString, etc. of NSString must be based on some primitives that are wrappers here!
+- (void) getCharacters:(unichar*)buffer				{ [[_astring string] getCharacters:buffer]; }
+- (void) getCharacters:(unichar*)buffer range:(NSRange)aRange
+													{ [[_astring string] getCharacters:buffer range:aRange]; }
 
 - (unichar) characterAtIndex:(NSUInteger) index; { return [[_astring string] characterAtIndex:index]; }
 - (NSUInteger) length; { return [[_astring string] length]; }
+- (NSMutableString *) mutableString; { return [_astring mutableString]; }
 
-// make all changes update the attributed _astring
+// subclass responsibility of NSMutableString
 
 - (void) deleteCharactersInRange:(NSRange) range;
 {
