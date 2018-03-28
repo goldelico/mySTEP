@@ -126,7 +126,7 @@ NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
 		{
 		newobject = (id)&((_object_layout)newobject)[1];
 #if 0
-		fprintf(stderr, "%p [%s copyObject:%lu]\n", newobject, class_getName(object_getClass((id)obj)), size);
+		fprintf(stderr, "NSCopyObject: %p [%s copyObject:%lu]\n", newobject, class_getName(object_getClass((id)obj)), size);
 #endif
 		object_setClass(newobject, object_getClass((id)obj));	// same as original
 		memcpy(newobject, obj, size);
@@ -484,7 +484,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (void) doesNotRecognizeSelector:(SEL)aSelector
 {
 	[NSException raise:NSInvalidArgumentException
-				format:@"NSObject %@[%@ %@]: selector not recognized",
+				format:@"*** %@[%@ %@]: selector not recognized",
 	 class_isMetaClass(object_getClass(self))?@"+":@"-",
 	 NSStringFromClass([self class]),
 	 NSStringFromSelector(aSelector)];
@@ -494,7 +494,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	[NSException raise:NSInvalidArgumentException
 				format:@"*** subclass %@ should override %@%@",
-	 class_isMetaClass(object_getClass([self class]))?@"+":@"-",
+	 NSStringFromClass([self class]),
+	 class_isMetaClass(object_getClass(self))?@"+":@"-",
 	 NSStringFromSelector(cmd)];
 	return nil;
 }
