@@ -481,14 +481,16 @@
 	return d;
 }
 
-#if __APPLE__
 - (NSMutableString *) mutableString;
 {
-	// CHECKME: is this a copy or the original??? And, Attributes are moved front/back if we insert/delete through NSMutableString methods?
+#if __APPLE__
+	// CHECKME: is this a copy or the original??? And, are Attributes moved front/back if we insert/delete through NSMutableString methods?
 	// we might cache since this is called pretty often
 	return [_concreteString mutableString];
-}
+#else
+	return [super mutableString];
 #endif
+}
 
 - (void) removeAttribute:(NSString *) name range:(NSRange)aRange
 {
@@ -544,12 +546,14 @@
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
-#if __APPLE__
 - (NSString *) string;
 {
+#if __APPLE__
 	return [_concreteString string];
-}
+#else
+	return [super string];
 #endif
+}
 
 // CHECKME: do we need to wrap other superclass methods?
 
