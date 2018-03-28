@@ -27,6 +27,17 @@
 	[super dealloc];
 }
 
+- (BOOL) isEqual:(id)object
+{
+	if(((CLHeading *)object) -> headingAccuracy != headingAccuracy) return NO;
+	if(((CLHeading *)object) -> magneticHeading != magneticHeading) return NO;
+	if(((CLHeading *)object) -> trueHeading != trueHeading) return NO;
+	if(((CLHeading *)object) -> x != x) return NO;
+	if(((CLHeading *)object) -> y != y) return NO;
+	if(((CLHeading *)object) -> z != z) return NO;
+	return [((CLHeading *)object) ->timestamp isEqual:timestamp];
+}
+
 - (NSString *) description
 {
 	return [NSString stringWithFormat:@"magneticHeading %lg trueHeading %lg accuracy %lg x %lg y %lg z %lg a %lg @ %@",
