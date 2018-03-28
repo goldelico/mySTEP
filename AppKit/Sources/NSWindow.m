@@ -1759,6 +1759,8 @@ static NSButtonCell *sharedCell;
 			[_context _makeKeyWindow];
 		if(_initialFirstResponder && !_firstResponder && ![self makeFirstResponder:_initialFirstResponder])
 			NSLog(@"refused initialFirstResponder %@", _initialFirstResponder);
+		else if(!_initialFirstResponder)
+			NSLog(@"has no initialFirstResponder: %@", self);
 		[_firstResponder becomeFirstResponder];
 		}
 	else if(_w.isOneShot)
