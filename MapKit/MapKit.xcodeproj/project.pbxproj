@@ -45,7 +45,6 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE59A609159109E500ADD1C9 /* flag_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE59A608159109E500ADD1C9 /* flag_32.png */; };
 		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE71B541159302E800C4E869 /* CLGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B53D159302E800C4E869 /* CLGeocoder.m */; };
@@ -73,6 +72,10 @@
 		EEB23D901258B5850018A9F3 /* MKGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D8F1258B5850018A9F3 /* MKGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23DB51258B6410018A9F3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EEC35EE215930B89008B3D25 /* CLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAF48EF14697F3C00A1196E /* CLExtensions.m */; };
+		EEFE5CA52066876000E2C05B /* flag_green_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEFE5CA42066876000E2C05B /* flag_green_32.png */; };
+		EEFE5CA82066F01A00E2C05B /* flag_cyan_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEFE5CA62066F01A00E2C05B /* flag_cyan_32.png */; };
+		EEFE5CA92066F01A00E2C05B /* flag_orange_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEFE5CA72066F01A00E2C05B /* flag_orange_32.png */; };
+		EEFE5CAB2066F0F500E2C05B /* flag_red_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEFE5CAA2066F0F500E2C05B /* flag_red_32.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,7 +107,6 @@
 		EE31DF14125A359D00DF3C91 /* MKOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
 		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
-		EE59A608159109E500ADD1C9 /* flag_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_32.png; path = ../../Icons/Harmony/PNG/flag_32.png; sourceTree = SOURCE_ROOT; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE71B53D159302E800C4E869 /* CLGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLGeocoder.m; path = ../CoreLocation/CLGeocoder.m; sourceTree = SOURCE_ROOT; };
 		EE71B53E159302E800C4E869 /* CLHeading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLHeading.m; path = ../CoreLocation/CLHeading.m; sourceTree = SOURCE_ROOT; };
@@ -137,6 +139,10 @@
 		EEB23D8F1258B5850018A9F3 /* MKGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGeometry.h; sourceTree = "<group>"; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 		EEC3672315936725008B3D25 /* CLLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLLocation.h; path = ../CoreLocation/CLLocation.h; sourceTree = SOURCE_ROOT; };
+		EEFE5CA42066876000E2C05B /* flag_green_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_green_32.png; path = Icons/flag_green_32.png; sourceTree = "<group>"; };
+		EEFE5CA62066F01A00E2C05B /* flag_cyan_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_cyan_32.png; path = Icons/flag_cyan_32.png; sourceTree = "<group>"; };
+		EEFE5CA72066F01A00E2C05B /* flag_orange_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_orange_32.png; path = Icons/flag_orange_32.png; sourceTree = "<group>"; };
+		EEFE5CAA2066F0F500E2C05B /* flag_red_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_red_32.png; path = Icons/flag_red_32.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,7 +205,10 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EE59A608159109E500ADD1C9 /* flag_32.png */,
+				EEFE5CAA2066F0F500E2C05B /* flag_red_32.png */,
+				EEFE5CA42066876000E2C05B /* flag_green_32.png */,
+				EEFE5CA62066F01A00E2C05B /* flag_cyan_32.png */,
+				EEFE5CA72066F01A00E2C05B /* flag_orange_32.png */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 				EE9E75581467EB390029F8D8 /* PreinstalledTiles */,
@@ -409,8 +418,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+				EEFE5CAB2066F0F500E2C05B /* flag_red_32.png in Resources */,
 				EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */,
-				EE59A609159109E500ADD1C9 /* flag_32.png in Resources */,
+				EEFE5CA92066F01A00E2C05B /* flag_orange_32.png in Resources */,
+				EEFE5CA52066876000E2C05B /* flag_green_32.png in Resources */,
+				EEFE5CA82066F01A00E2C05B /* flag_cyan_32.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
