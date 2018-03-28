@@ -13,9 +13,17 @@
 @interface MyDocument : NSDocument <CLLocationManagerDelegate, MKMapViewDelegate>
 {
 	CLLocationManager *loc;
-	IBOutlet MKMapView *map; 
+	IBOutlet MKMapView *map;
+	BOOL autorotateCourse;		// GPS
+	BOOL autorotateMagnetic;	// magnetic
+	BOOL autoUpdate;			// location
+	BOOL autoZoom;
 }
 
+- (IBAction) trackCourse:(id) sender;
+- (IBAction) trackMagnetic:(id) sender;
+- (IBAction) trackLocation:(id) sender;
+- (IBAction) autoZoom:(id) sender;
 - (IBAction) rotateLeft:(id) sender;
 - (IBAction) rotateRight:(id) sender;
 

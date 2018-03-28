@@ -59,7 +59,7 @@
 	[super windowControllerDidLoadNib:aController];
 	// Add any code here that needs to be executed once the windowController has loaded the document's window.
 	pmk=[[MKPlacemark alloc] initWithCoordinate:(CLLocationCoordinate2D) { 31.134358, 29.979175 } addressDictionary:nil];
-	//	[pmk setTitle:@"Cheops Pyramid"];
+	[pmk setTitle:@"Cheops Pyramid"];
 	[map addAnnotation:pmk];
 	[pmk release];
 	[map setShowsUserLocation:YES];
@@ -107,7 +107,7 @@
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
 	float angle = [newHeading magneticHeading];	// rotate north
-	if(angle >= 0.0)
+	if(autorotateMagnetic && angle >= 0.0)
 		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
 			//
 			// on iOS:
@@ -125,7 +125,7 @@
 #if 1
 	NSLog(@"new location: %@ %@", manager, newLocation);
 #endif
-	if(angle >= 0.0)
+	if(autorotateCourse && angle >= 0.0)
 		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
 			//
 			// on iOS:
@@ -135,7 +135,65 @@
 			[map setBoundsRotation:angle];
 			[map setNeedsDisplay:YES];
 		}
-	[map setCenterCoordinate:[newLocation coordinate]];	// center
+	if(autoUpdate)
+		{
+		if(autoZoom)
+			{
+			double range=50*[newLocation speed];	// speed is in m/s
+			range=MAX(range, 3*[newLocation horizontalAccuracy]);
+			range=MAX(range, 30);	// apply some reasonable system minimum
+			NSLog(@"autozoom %lf m", range);
+			[map setRegion:MKCoordinateRegionMakeWithDistance([newLocation coordinate], range, range) animated:YES];
+			}
+		else
+			[map setCenterCoordinate:[newLocation coordinate] animated:YES];	// center
+		}
+}
+
+- (IBAction) trackCourse:(id) sender;
+{
+	autorotateCourse=!autorotateCourse;
+	autorotateMagnetic=NO;
+	if(!autorotateMagnetic && !autorotateCourse)
+		{ // turned off
+			[map setBoundsRotation:0];
+			[map setNeedsDisplay:YES];
+		}
+}
+
+- (IBAction) trackMagnetic:(id) sender;
+{
+	autorotateMagnetic=!autorotateMagnetic;
+	autorotateCourse=NO;
+	if(!autorotateMagnetic && !autorotateCourse)
+		{ // turned off
+		[map setBoundsRotation:0];
+		[map setNeedsDisplay:YES];
+		}
+}
+
+- (IBAction) trackLocation:(id) sender;
+{
+	autoUpdate=!autoUpdate;
+}
+
+- (IBAction) autoZoom:(id) sender;
+{
+	autoZoom=!autoZoom;
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *) menuItem
+{
+	NSString *action=NSStringFromSelector([menuItem action]);
+	if([action isEqualToString:@"trackCourse"])
+		[menuItem setState:autorotateCourse];
+	else if([action isEqualToString:@"trackMagnetic"])
+		[menuItem setState:autorotateMagnetic];
+	else if([action isEqualToString:@"trackLocation"])
+		[menuItem setState:autoUpdate];
+	else if([action isEqualToString:@"autoZoom"])
+		[menuItem setState:autoZoom];
+	return YES;
 }
 
 - (IBAction) rotateLeft:(id) sender;
@@ -152,37 +210,37 @@
 
 - (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view calloutAccessoryControlTapped:(UIControl *) control;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view didChangeDragState:(MKAnnotationViewDragState) state fromOldState:(MKAnnotationViewDragState) oldState;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didAddAnnotationViews:(NSArray *) views;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didAddOverlayViews:(NSArray *) views;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didDeselectAnnotationView:(MKAnnotationView *) view;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didFailToLocateUserWithError:(NSError *) error;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didSelectAnnotationView:(MKAnnotationView *) view;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView didUpdateUserLocation:(MKUserLocation *) location;
@@ -192,47 +250,49 @@
 
 - (void) mapView:(MKMapView *) mapView regionDidChangeAnimated:(BOOL) flag;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapView:(MKMapView *) mapView regionWillChangeAnimated:(BOOL) flag;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (MKAnnotationView *) mapView:(MKMapView *) mapView viewForAnnotation:(id <MKAnnotation>) annotation;
 {
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 	return nil;
 }
 
 - (MKOverlayView *) mapView:(MKMapView *) mapView viewForOverlay:(id <MKOverlay>) overlay;
 {
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 	return nil;
 }
 
 - (void) mapViewDidFailLoadingMap:(MKMapView *) mapView withError:(NSError *) error;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapViewDidFinishLoadingMap:(MKMapView *) mapView;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapViewDidStopLocatingUser:(MKMapView *) mapView;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapViewWillStartLoadingMap:(MKMapView *) mapView;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 - (void) mapViewWillStartLocatingUser:(MKMapView *) mapView;
 {
-
+	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 }
 
 @end
