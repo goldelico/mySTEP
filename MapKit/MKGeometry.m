@@ -54,14 +54,14 @@ CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint)
 	return loc;
 }
 
-// FIXME: the rect becomes distorted when represented as "span"!
-// FIXME: there is no reverse function for this
+// this asks for a Unit-Test!!!
 
 MKCoordinateRegion MKCoordinateRegionForMapRect(MKMapRect rect)
 {
+	double lat=MKMapRectGetWidth(rect)/(360/(2*M_PI*EQUATOR_RADIUS));
+	double lng=MKMapRectGetHeight(rect)/(360/(2*M_PI*POLE_RADIUS));	// adjust by cos(lat)?
 	return MKCoordinateRegionMake(MKCoordinateForMapPoint(MKMapPointMake(MKMapRectGetMidX(rect), MKMapRectGetMidY(rect))),
-								  MKCoordinateSpanMake( // FIXME:
-													   /* lat */ 0.0, /* lng */ 0.0 )
+								  MKCoordinateSpanMake(lat, lng)
 								  );
 }
 
@@ -69,6 +69,8 @@ MKCoordinateRegion MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2D cen
 													  CLLocationDistance lat,
 													  CLLocationDistance lng)
 {
+	lat*=POINTS_PER_METER*360/(2*M_PI*EQUATOR_RADIUS);
+	lng*=POINTS_PER_METER*360/(2*M_PI*POLE_RADIUS);	// adjust by cos(lat)?
 	return MKCoordinateRegionMake(center, MKCoordinateSpanMake(lat, lng));
 }
 
@@ -201,7 +203,9 @@ void MKMapRectDivide(MKMapRect rect, MKMapRect *slice, MKMapRect *remainder, dou
 
 MKMapRect MKMapRectRemainder(MKMapRect rect);
 {
-	For a rectangle that lies on the 180th meridian, this function isolates the portion that lies outside the boundary, wraps it to the opposite side of the map, and returns that rectangle.
+	// For a rectangle that lies on the 180th meridian,
+	// this function isolates the portion that lies outside the boundary,
+	// wraps it to the opposite side of the map, and returns that rectangle.
 }
 
 CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b)	// convert to CLLocation and ask CL for distance (?)
@@ -213,6 +217,8 @@ CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b)	// conve
 	// vert dist:  meters(MKMapHeight * fabs(b.origin.y - a.origin.y))
 	// besser: in CLLocationCoordinate2D umrechnen
 	// und Großkreis ansetzen
+	CLLocation *a=[CLLocation initWithMapPoint:a];
+	return [a distanceFromLocation:b];
 }
 
 #endif
