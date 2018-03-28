@@ -1220,6 +1220,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	return aTarget;
 }
 
+// FIXME: it is said that for contextual menus the responder chain is different
+// not starting with key or main window but the window the context menu resides in
+
 - (id) targetForAction:(SEL)aSelector
 { // look up in responder chain
 	id responder;
@@ -1236,6 +1239,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		}
 	if([_keyWindow respondsToSelector: aSelector])
 		return _keyWindow;
+	responder = [_keyWindow windowController];
+	if(responder != nil && [responder respondsToSelector: aSelector])
+		return responder;
 	responder = [_keyWindow delegate];
 	if(responder != nil && [responder respondsToSelector: aSelector])
 		return responder;
@@ -1251,22 +1257,30 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			}
 		if([_mainWindow respondsToSelector: aSelector])
 			return _mainWindow;
+		responder = [_mainWindow windowController];
+		if(responder != nil && [responder respondsToSelector: aSelector])
+			return responder;
 		responder = [_mainWindow delegate];
 		if(responder != nil && [responder respondsToSelector: aSelector])
 			return responder;
 		}
-	// check application
-	if([self respondsToSelector: aSelector])
-		return self;
+	// NSDocument
+	responder = [[_mainWindow windowController] document];
+	if(responder != nil && [responder respondsToSelector: aSelector])
+		return responder;
+	// check application - CHECKME: NSApp is usually the nextResponder of NSWindow! I.e. will be already catched
+	responder = NSApp;
+	if(responder != nil && [responder respondsToSelector: aSelector])
+		return responder;
 	// check application delegate
-	if(_delegate != nil && [_delegate respondsToSelector: aSelector])
-		return _delegate;
+	responder = [NSApp delegate];
+	if(responder != nil && [responder respondsToSelector: aSelector])
+		return responder;
 	// check document controller (if it exists)
 	docController=[NSDocumentController sharedDocumentController];
 	if(docController && [docController respondsToSelector: aSelector])
 		return docController;
-	// document controller's delegate?
-	return nil; // no responder available
+	return nil; // no responder found
 }
 
 - (BOOL) tryToPerform:(SEL)aSelector with:anObject
