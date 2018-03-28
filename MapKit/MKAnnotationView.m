@@ -110,12 +110,39 @@
 {
 	if(self=[super initWithAnnotation:a reuseIdentifier:ident])
 		{
-		NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"flag_32" ofType:@"png"];
-		[self setImage:[[[NSImage alloc] initWithContentsOfFile:path] autorelease]];
+		if([a isKindOfClass:[MKUserLocation class]])
+			{
+			NSString *colorFile=[[NSBundle bundleForClass:[self class]] pathForResource:@"flag_cyan_32" ofType:@"png"];;
+			[self setImage:[[[NSImage alloc] initWithContentsOfFile:colorFile] autorelease]];
+			}
+		else
+			[self setPinColor:MKPinAnnotationColorRed];
 		centerOffset=(NSPoint) { -5.0, -3.0 };
 		[self setDraggable:NO];	
 		}
 	return self;
+}
+
+- (MKPinAnnotationColor) pinColor; { return pinColor; }
+- (BOOL) animatesDrop; { return animatesDrop; }
+- (void) setAnimatesDrop:(BOOL) flag; { animatesDrop=flag; }
+
+- (void) setPinColor:(MKPinAnnotationColor) color
+{
+	NSString *colorFile;
+	switch(pinColor=color) {
+		case MKPinAnnotationColorRed:
+			colorFile=@"flag_red_32";
+			break;
+		case MKPinAnnotationColorGreen:
+			colorFile=@"flag_green_32";
+			break;
+		case MKPinAnnotationColorPurple:
+		default:
+			colorFile=@"flag_orange_32";
+	}
+	colorFile=[[NSBundle bundleForClass:[self class]] pathForResource:colorFile ofType:@"png"];
+	[self setImage:[[[NSImage alloc] initWithContentsOfFile:colorFile] autorelease]];
 }
 
 - (void) prepareForReuse;
