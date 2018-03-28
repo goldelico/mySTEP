@@ -3034,7 +3034,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 + (id) stringWithCString:(const char*)byteString
 {
-	return [[[GSMutableString alloc] initWithCString:byteString] autorelease];
+	return [[[_mutableStringClass alloc] initWithCString:byteString] autorelease];
 }
 
 + (id) stringWithCString:(const char*)byteString length:(unsigned int)length
@@ -3043,11 +3043,30 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 												  length:length] autorelease];
 }
 
-- (void) appendFormat:(NSString*)format, ...;		{ SUBCLASS; }
-- (void) appendString:(NSString*)aString;			{ SUBCLASS; }
+- (void) insertString:(NSString*)aString atIndex:(unsigned)loc
+{
+	[self replaceCharactersInRange:(NSRange){loc, 0} withString:aString];
+}
+
+- (void) appendString:(NSString*)aString
+{
+	[self replaceCharactersInRange:(NSRange){_count, 0} withString:aString];
+}
+
+- (void) appendFormat:(NSString*)format, ...
+{
+	va_list ap;
+	id tmp;
+	va_start(ap, format);
+	tmp = [[NSString alloc] initWithFormat:format arguments:ap];
+	va_end(ap);
+	[self appendString:tmp];
+	[tmp release];
+}
+
 - (void) deleteCharactersInRange:(NSRange)range;	{ SUBCLASS; }
 - (id) initWithCapacity:(NSUInteger)capacity;			{ return SUBCLASS; }
-- (void) insertString:(NSString*)aString atIndex:(NSUInteger)index;	{ SUBCLASS; }
+
 - (void) replaceCharactersInRange:(NSRange)range withString:(NSString*)aString; { SUBCLASS; }
 - (NSUInteger) replaceOccurrencesOfString: (NSString*)replace
 							   withString: (NSString*)by
@@ -3409,9 +3428,45 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 										freeWhenDone: flag] autorelease] mutableCopy];
 }
 
+- (id) initWithCoder:(id)aCoder
+{
+	unsigned cap;
+	if([aCoder allowsKeyedCoding])
+		{
+		[self release];
+		return [[aCoder decodeObjectForKey:@"NS.string"] retain];
+		}
+	[aCoder decodeValueOfObjCType: @encode(unsigned) at: &cap];
+	[self initWithCapacity:cap];
+	// FIXME: should we encode as UTF8?
+	if ((_count = cap) > 0)
+		[aCoder decodeArrayOfObjCType: @encode(unichar)
+								count: _count
+								   at: _uniChars];
+	return self;
+}
+
 - (id) copyWithZone:(NSZone *) z
 {
 	return [[_mutableStringClass alloc] initWithString:self];
+}
+
+- (void) setString:(NSString*)aString
+{
+	int len = [aString length];
+	if (_capacity < len)
+		{
+		_capacity = (len < 2) ? 2 : len;
+		_uniChars = objc_realloc(_uniChars, sizeof(unichar)*_capacity);
+		}
+	[aString getCharacters: _uniChars];
+	_count = len;
+	if(_cString)
+		{ // release cached cString
+			objc_free(_cString);
+			_cString=NULL;
+		}
+	_hash = 0;
 }
 
 - (void) deleteCharactersInRange:(NSRange)range
@@ -3462,63 +3517,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #if 0
 	NSLog(@"  -> \"%@\" offset=%d _count=%d", self, offset, _count);
 #endif
-}
-
-- (void) insertString:(NSString*)aString atIndex:(unsigned)loc
-{
-	[self replaceCharactersInRange:(NSRange){loc, 0} withString:aString];
-}
-
-- (void) appendString:(NSString*)aString
-{
-	[self replaceCharactersInRange:(NSRange){_count, 0} withString:aString];
-}
-
-- (void) appendFormat:(NSString*)format, ...
-{
-	va_list ap;
-	id tmp;
-	va_start(ap, format);
-	tmp = [[NSString alloc] initWithFormat:format arguments:ap];
-	va_end(ap);
-	[self appendString:tmp];
-	[tmp release];
-}
-
-- (void) setString:(NSString*)aString
-{
-	int len = [aString length];
-	if (_capacity < len)
-		{
-		_capacity = (len < 2) ? 2 : len;
-		_uniChars = objc_realloc(_uniChars, sizeof(unichar)*_capacity);
-		}
-	[aString getCharacters: _uniChars];
-	_count = len;
-	if(_cString)
-		{ // release cached cString
-			objc_free(_cString);
-			_cString=NULL;
-		}
-	_hash = 0;
-}
-
-- (id) initWithCoder:(id)aCoder
-{
-	unsigned cap;
-	if([aCoder allowsKeyedCoding])
-		{
-		[self release];
-		return [[aCoder decodeObjectForKey:@"NS.string"] retain];
-		}
-	[aCoder decodeValueOfObjCType: @encode(unsigned) at: &cap];
-	[self initWithCapacity:cap];
-	// FIXME: should we encode as UTF8?
-	if ((_count = cap) > 0)
-		[aCoder decodeArrayOfObjCType: @encode(unichar)
-								count: _count
-								   at: _uniChars];
-	return self;
 }
 
 /**
@@ -3582,6 +3580,29 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		while (range.length > 0);
 		}
 	return count;
+}
+
+/* we do NOT inherit from NSMutableString! */
+
+- (void) insertString:(NSString*)aString atIndex:(unsigned)loc
+{
+	[self replaceCharactersInRange:(NSRange){loc, 0} withString:aString];
+}
+
+- (void) appendString:(NSString*)aString
+{
+	[self replaceCharactersInRange:(NSRange){_count, 0} withString:aString];
+}
+
+- (void) appendFormat:(NSString*)format, ...
+{
+	va_list ap;
+	id tmp;
+	va_start(ap, format);
+	tmp = [[NSString alloc] initWithFormat:format arguments:ap];
+	va_end(ap);
+	[self appendString:tmp];
+	[tmp release];
 }
 
 @end /* GSMutableString */
