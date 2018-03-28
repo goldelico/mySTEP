@@ -13,7 +13,9 @@
 - (CLLocationCoordinate2D) coordinate;
 /* optional */
 - (NSString *) subtitle;
+- (void) setSubtitle:(NSString *) subtitle;
 - (NSString *) title;
+- (void) setTitle:(NSString *) title;
 - (void) setCoordinate:(CLLocationCoordinate2D) pos;	// changed by user
 @end
 

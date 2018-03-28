@@ -7,7 +7,6 @@
 //
 
 #import <MapKit/MKAnnotation.h>
-#import <MapKit/MKMapView.h>
 #import <CoreLocation/CoreLocation.h>
 
 // This is a proxy for the core location data (and updates automatically)
@@ -18,7 +17,6 @@
 	/* readonly, nonatomic */ CLLocation *location;
 	/* retain, nonatomic */ NSString *subtitle;
 	/* retain, nonatomic */ NSString *title;
-	/* nonretained */ MKMapView *_mapView;
 }
 
 - (CLLocation *) location;
@@ -27,8 +25,6 @@
 - (void) setTitle:(NSString *) str;
 
 - (CLLocationManager *) locationManager;
-
-- (void) _setMapView:(MKMapView *) mapView;
 
 @end
 

@@ -13,6 +13,8 @@
 
 @interface MKPlacemark : CLPlacemark <MKAnnotation>
 {
+	NSString *subtitle;	// for MKAnnotation
+	NSString *title;
 }
 
 /* address Dictionary uses constants from <ABAddressBook/ABGlobals.h> */

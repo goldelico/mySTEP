@@ -10,42 +10,6 @@
 
 @implementation MKUserLocation
 
-// FIXME: how do we know our MKMapView?
-// e.g. make the MKMapView the delegate and forward these messages
-
-- (void) _setMapView:(MKMapView *) mapView;
-{
-	_mapView=mapView;
-}
-
-- (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
-{
-	[_mapView locationManager:mngr didFailWithError:err];
-}
-
-- (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
-{
-	NSLog(@"MKUserLocation did send locationManager:didUpdateToLocation:");
-	[location release];
-	location=[newloc retain];
-#if 1
-//	NSLog(@"old location: %@", old);
-	NSLog(@"new location %@: %@", mngr, newloc);
-	// prints e.g. new location: <+48.01499810, +11.58788030> +/- 161.00m (speed 0.00 mps / course -1.00) @ 2011-04-22 11:01:22 +0200
-	// anyways we have to call:
-#endif
-	[_mapView locationManager:mngr didUpdateToLocation:newloc fromLocation:old];
-}
-
-- (void) locationManager:(CLLocationManager *) mngr didUpdateHeading:(CLHeading *) head;
-{
-	NSLog(@"MKUserLocation did send locationManager:didUpdateHeading:");
-#if 1
-	NSLog(@"new heading %@: %@", mngr, head);
-#endif
-	[_mapView locationManager:mngr didUpdateHeading:head];
-}
-
 - (id) init
 {
 	if((self=[super init]))
@@ -70,10 +34,10 @@
 	[manager release];
 	[subtitle release];
 	[title release];
-	[super dealloc];	
+	[super dealloc];
 }
 
-- (CLLocationCoordinate2D) coordinate; { return [location coordinate]; }
+- (CLLocationCoordinate2D) coordinate; { return location?[location coordinate]:kCLLocationCoordinate2DInvalid; }
 - (void) setCoordinate:(CLLocationCoordinate2D) pos; { return; }	// ignore
 - (NSString *) subtitle; { return subtitle; }
 - (NSString *) title; { return title; }
@@ -88,12 +52,43 @@
 {
 	NSString *str;
 	// fprintf(stderr, "MKUserLocation description: location =%p\n", location);
-	CLLocationCoordinate2D l; /*=[location coordinate]*/;
+	CLLocationCoordinate2D l=[location coordinate];
 	// fprintf(stderr, "MKUserLocation coordinate %lg %lg\n", l.latitude, l.longitude);
 	str= [NSString stringWithFormat:@"MKUserLocation (%lg %lg)", l.latitude, l.longitude];
 	// fprintf(stderr, "MKUserLocation str=%s\n", [str UTF8String]);
 	// fprintf(stderr, " class=%s\n", [NSStringFromClass([str class]) UTF8String]);
 	return str;
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
+{
+	return;
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
+{
+#if 1
+	NSLog(@"MKUserLocation did receive locationManager:didUpdateToLocation:");
+#endif
+	[location release];
+	location=[newloc retain];
+#if 1
+	//	NSLog(@"old location: %@", old);
+	NSLog(@"new location %@: %@", mngr, newloc);
+	// prints e.g. new location: <+48.01499810, +11.58788030> +/- 161.00m (speed 0.00 mps / course -1.00) @ 2011-04-22 11:01:22 +0200
+	// anyways we have to call:
+#endif
+	// unfortunately we can't notify the MKAnnotationView
+}
+
+- (void) locationManager:(CLLocationManager *) mngr didUpdateHeading:(CLHeading *) head;
+{
+#if 0
+	NSLog(@"MKUserLocation did receive locationManager:didUpdateHeading:");
+#endif
+#if 0
+	NSLog(@"new heading %@: %@", mngr, head);
+#endif
 }
 
 @end
