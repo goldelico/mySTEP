@@ -565,8 +565,11 @@
 
 - (CLLocationSource) source;
 {
-	// this implementation is very GTA04 specific!
-	if([[NSString stringWithContentsOfFile:@"/sys/class/gpio/gpio144/value"] boolValue])
+	// FIXME: should search for/sys/class/extcon/*/name == "antenna-detect"
+	NSString *state=[NSString stringWithContentsOfFile:@"/sys/class/extcon/extcon0/state"];
+	if(!state)
+		return CLLocationSourceGPS;	// unknown
+	if([state boolValue])
 		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
 	return CLLocationSourceGPS;
 }
