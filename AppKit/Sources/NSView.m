@@ -579,13 +579,15 @@ printing
 {
 	if(__toolTipOwnerView == self)
 		[self mouseExited:nil];	// call before releasing anything
+	// FIXME: release gState if we have a private one
+	[_subviews makeObjectsPerformSelector:@selector(_setWindow:) withObject:nil];	// nullify window
+	[_subviews makeObjectsPerformSelector:@selector(_setSuperview:) withObject:nil];	// nullify superview
 	[_bounds2frame release];
 	[_frame2bounds release];
 	[_bounds2base release];
 	[_base2bounds release];
 	[_dragTypes release];
-	// FIXME: release gState if we have a private one
-	[_subviews release];
+	[_subviews release];	// may release subviews (which now have no superview)
 	[super dealloc];
 }
 
@@ -710,7 +712,7 @@ printing
 		[_superview willRemoveSubview:self];
 		[[_superview subviews] removeObjectIdenticalTo:self];	// this is the extra release mentioned in the documentation
 		[self viewWillMoveToSuperview:nil];
-		_superview = nil;
+		[self _setSuperview:nil];
 		[self viewDidMoveToSuperview];
 #if 0
 		NSLog(@"removeFromSuperviewWithoutNeedingDisplay after: %@", [super_view subviews]);
@@ -779,7 +781,7 @@ printing
 	_nInvalidRects=0;	// clear cache
 	if(newWindow)
 	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
-	 [self _addRectNeedingDisplay:_bounds];	// set bounds as the first and only invalid rect
+		[self _addRectNeedingDisplay:_bounds];	// set bounds as the first and only invalid rect
 //		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
 	_v.needsDisplaySubviews=YES;	// mark to redraw subviews
 	[self viewDidMoveToWindow];
