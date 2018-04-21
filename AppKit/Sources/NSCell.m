@@ -523,12 +523,13 @@ static NSColor *__borderedBackgroundColor = nil;
 }
 
 - (void) selectWithFrame:(NSRect)aRect					// similar to editWith-
-				  inView:(NSView*)controlView	 		// Frame method but can
-				  editor:(NSText*)textObject	 		// be called from more
+				  inView:(NSView*)controlView			// Frame method but can
+				  editor:(NSText*)textObject			// be called from more
 				delegate:(id)anObject	 				// than just mouseDown
 				   start:(NSInteger)selStart
 				  length:(NSInteger)selLength
 {
+	NSAssert(!_c.editing, @"still editing");
 	if(controlView && textObject && _c.type == NSTextCellType)
 		{
 		NSWindow *w;
@@ -536,6 +537,9 @@ static NSColor *__borderedBackgroundColor = nil;
 #if 1
 		NSLog(@"NSCell -selectWithFrame: %@", self);
 		NSLog(@"	current window=%@", [textObject window]);
+
+		// FIXME: superview may have become a dangling pointer!!!?
+
 		NSLog(@"	current superview=%@", [textObject superview]);
 		NSLog(@"	current firstResponder=%@", [[textObject window] firstResponder]);
 #endif
