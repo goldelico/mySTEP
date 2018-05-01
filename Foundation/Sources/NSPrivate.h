@@ -111,16 +111,20 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 @end
 
+@interface NSAutoreleasePool (NSPrivate)
++ (void *) _autoFree:(void *) pointer;
+void *_autoFreedBufferWithLength(NSUInteger bytes);
+@end
 
 @interface NSString (NSPrivate)
 
-// + (NSString *) _stringWithFormat:(NSString*)format arguments:(va_list)args;
 + (NSString *) _string:(void *) bytes withEncoding:(NSStringEncoding) encoding length:(int) len;
 + (NSString *) _stringWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 + (id) _initWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 - (NSUInteger) _baseLength;			// methods for working with decomposed strings
 - (NSString *) _stringByExpandingXMLEntities;
 - (NSString *) _unicharString;	// convert CString into unichar string
+- (NSMutableArray*) _mutablePathComponents;
 
 @end
 
@@ -364,7 +368,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 + (id) dataWithStaticBytes:(const void*)sbytes length:(NSUInteger ) length;
 #endif
 
-- (void *) _autoFreeBytesWith0:(BOOL) flag;		// return a "autofreed" copy - optionally with a trailing 0
+- (void *) _bytesWith0;		// return a "autofreed" copy with a trailing 0 suffix
 
 - (id) _initWithBase64String:(NSString *) str;
 - (NSString *) _base64String;
