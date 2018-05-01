@@ -42,13 +42,14 @@
 	struct __FileManagerFlags
 		{
 			unsigned int shallow:1;
-			unsigned int followLinks:1;
+			unsigned int followLinks:1;	/* always NO */
 			unsigned int reserved:6;
 		} _fm;
 }
 
 - (NSDictionary *) directoryAttributes;
 - (NSDictionary *) fileAttributes;
+- (NSUInteger) level;
 - (void) skipDescendents;								// Skip subdirectories
 
 @end /* NSDirectoryEnumerator */

@@ -1,4 +1,4 @@
-/* 
+/*
  NSFileManager.m
  
  Copyright (C) 1997 Free Software Foundation, Inc.
@@ -47,7 +47,6 @@
 # define DIR_enum_item struct dirent
 #endif
 
-#define DIR_enum_state DIR
 // determine filesystem max path length
 #ifdef _POSIX_VERSION
 #include <limits.h>						// for PATH_MAX
@@ -998,6 +997,11 @@ static NSFileManager *__fm = nil;
 - (NSDictionary*) fileAttributes
 {
     return [__fm fileAttributesAtPath:_filePath traverseLink:_fm.followLinks];
+}
+
+- (NSUInteger) level;
+{
+	return [_pathStack count];
 }
 
 - (void) skipDescendents								// Skip subdirectories
