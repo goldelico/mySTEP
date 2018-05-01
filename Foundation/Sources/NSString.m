@@ -649,8 +649,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
-	//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
-	//	fprintf(stderr, "result=%p\n", result);
+											//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
+											//	fprintf(stderr, "result=%p\n", result);
 
 	// FIXME: somehow handle %S and other specifiers!
 
@@ -684,7 +684,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(*format_to_go)
 				{ // if there is anything to print...
 					len=vasprintf(&buffer, format_to_go, arg_list);	// Print the part before the '%@' - will be malloc'ed
-					// fprintf(stderr, "buffer=%p\n", buffer);
+																	// fprintf(stderr, "buffer=%p\n", buffer);
 					if(len < 0)
 						{ // error
 							free(buffer);
@@ -697,8 +697,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				}
 			if(!mode)
 				{ // done
-				// we return a (mutable!) replacement object - to be correct,we should  autorelease the result and return [self initWithString:result];
-				return result;
+				  // we return a (mutable!) replacement object - to be correct,we should  autorelease the result and return [self initWithString:result];
+					return result;
 				}
 			while((formatter_pos = strchr(format_to_go, '%')))
 				{ // Skip arguments already processed by last vasprintf().
@@ -1284,11 +1284,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	//	NSBackwardsSearch		= 4,
 	//	NSAnchoredSearch		= 8
 
-	switch (mask)
-	{ //  evaluate lowest 4 bits - others must be 0
+	switch (mask) { //  evaluate lowest 4 bits - others must be 0
 		case NSLiteralSearch+NSCaseInsensitiveSearch:
-		case NSAnchoredSearch+NSLiteralSearch+NSCaseInsensitiveSearch:
-		{						// search forward case insensitive literal
+		case NSAnchoredSearch+NSLiteralSearch+NSCaseInsensitiveSearch: {						// search forward case insensitive literal
 			myIndex = aRange.location;
 			myEndIndex = maxRange - strLength;
 			strFirstCharacter = [aString characterAtIndex:0];
@@ -1320,8 +1318,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSBackwardsSearch+NSLiteralSearch+NSCaseInsensitiveSearch:
-		case NSAnchoredSearch+NSBackwardsSearch+NSLiteralSearch+NSCaseInsensitiveSearch:
-		{						// search backward case insensitive literal
+		case NSAnchoredSearch+NSBackwardsSearch+NSLiteralSearch+NSCaseInsensitiveSearch: {						// search backward case insensitive literal
 			myIndex = maxRange - strLength;
 			myEndIndex = aRange.location;
 			strFirstCharacter = [aString characterAtIndex:0];
@@ -1354,8 +1351,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSLiteralSearch:
-		case NSAnchoredSearch+NSLiteralSearch:
-		{										// search forward literal
+		case NSAnchoredSearch+NSLiteralSearch: {										// search forward literal
 			SEL charAtIndexSEL = @selector(characterAtIndex:);
 			unichar (*aStringIMP)(id, SEL, unsigned);
 			unichar (*selfIMP)(id, SEL, unsigned);
@@ -1395,8 +1391,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSBackwardsSearch+NSLiteralSearch:
-		case NSAnchoredSearch+NSBackwardsSearch+NSLiteralSearch:
-		{										// search backward literal
+		case NSAnchoredSearch+NSBackwardsSearch+NSLiteralSearch: {										// search backward literal
 			myEndIndex = aRange.location;
 			myIndex = maxRange - strLength;
 			strFirstCharacter = [aString characterAtIndex:0];
@@ -1427,9 +1422,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSCaseInsensitiveSearch:
-		case NSAnchoredSearch+NSCaseInsensitiveSearch:
-		{								// search forward case insensitive
-										// temporary cure for a memory issue: the following method allocates autoreleased objects!
+		case NSAnchoredSearch+NSCaseInsensitiveSearch: {								// search forward case insensitive
+																						// temporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 			unsigned int strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
@@ -1485,9 +1479,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSBackwardsSearch+NSCaseInsensitiveSearch:
-		case NSAnchoredSearch+NSBackwardsSearch+NSCaseInsensitiveSearch:
-		{								// search backward case insensitive
-										// teporary cure for a memory issue: the following method allocates autoreleased objects!
+		case NSAnchoredSearch+NSBackwardsSearch+NSCaseInsensitiveSearch: {								// search backward case insensitive
+																										// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 			unsigned int strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
@@ -1545,9 +1538,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			break;
 
 		case NSBackwardsSearch:
-		case NSAnchoredSearch+NSBackwardsSearch:
-		{												// search backward
-														// teporary cure for a memory issue: the following method allocates autoreleased objects!
+		case NSAnchoredSearch+NSBackwardsSearch: {												// search backward
+																								// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 			unsigned int strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
@@ -1603,9 +1595,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 		case 0:
 		case NSAnchoredSearch:
-		default:
-		{												// search forward
-														// teporary cure for a memory issue: the following method allocates autoreleased objects!
+		default: {												// search forward
+																// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 			unsigned int strBaseLength = [aString _baseLength];
 			GSSequence *strFirstCharacterSeq;
@@ -2666,50 +2657,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	//	NSLog(@"c=%@", c);
 	return [[self class] pathWithComponents:c];
-#if OLD
-	NSMutableString *s = [[self stringByExpandingTildeInPath] mutableCopy]; // Expand `~' in path
-	NSRange search = {0, [s length]};
-	NSRange found = [s rangeOfString:@"//" options:NSLiteralSearch range:search];
-
-	if ([s hasPrefix: @"/private"])						// Remove `/private' - not useful but according to documentation
-		[s deleteCharactersInRange:((NSRange){0,7})];
-
-	while (found.length)
-		{
-		[s deleteCharactersInRange: (NSRange){found.location, 1}];
-		search.length = [s length];
-		found = [s rangeOfString:@"//" options:0 range:search];
-		}
-	// Condense `/./'
-	found = [s rangeOfString:@"/./" options:NSLiteralSearch range:search];
-	while (found.length)
-		{
-		[s deleteCharactersInRange: (NSRange){found.location, 2}];
-		search.length = [s length];
-		found = [s rangeOfString:@"/./" options:0 range:search];
-		}
-	// Condense `/../'
-	found = [s rangeOfString:@"/../" options:NSLiteralSearch range:search];
-	while (found.length)
-		{
-		if (found.location > 0)
-			{
-			NSRange r = {0, found.location};
-
-			found = [s rangeOfCharacterFromSet: pathSeps
-									   options: NSBackwardsSearch
-										 range: r];
-			found.length = r.length - found.location + 3;	// Add the `/../'
-			[s deleteCharactersInRange: found];
-			}
-		else
-			[s deleteCharactersInRange: (NSRange){found.location, 3}];
-		search.length = [s length];
-		found = [s rangeOfString:@"/../" options:0 range:search];
-		}
-
-	return [s autorelease];
-#endif
 }
 
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set
@@ -3230,9 +3177,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(!_cString)
 				{
 				NS_DURING
-					[self cString];	// this may fail with character conversion error!
+				[self cString];	// this may fail with character conversion error!
 				NS_HANDLER
-					return NO;	// failed - i.e. we have some non-convertible characters so we can't be equal
+				return NO;	// failed - i.e. we have some non-convertible characters so we can't be equal
 				NS_ENDHANDLER
 				}
 			return memcmp(_cString, aString->_cString, _count) == 0;
@@ -4038,10 +3985,10 @@ int __CFConstantStringClassReference [];
 		return NO;
 	if(!aString->_cString)
 		{
-			if(aString->_count > 0)
-				[aString cString];					// if an object is a unichar
-			else									// str but does not yet have a
-				return YES; /* both are empty */	// C str allocated, create it
+		if(aString->_count > 0)
+			[aString cString];					// if an object is a unichar
+		else									// str but does not yet have a
+			return YES; /* both are empty */	// C str allocated, create it
 		}
 	
 	return (memcmp(_cString, aString->_cString, _count) == 0) ? YES : NO;
