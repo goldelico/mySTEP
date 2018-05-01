@@ -1019,22 +1019,27 @@ static NSFileManager *__fm = nil;
 
 - (id) nextObject
 { // finds the next file according to the top
-    [_fileName release];			// enumerator.  if there is a next file it
-    [_filePath release];			// is put in _fileName.  if the current 
-    _fileName = _filePath = nil;	// file is a directory and if isRecursive
+    			// enumerator.  if there is a next file it
+    			// is put in _fileName.  if the current
+    	// file is a directory and if isRecursive
 	// calls recurseIntoDirectory:currentFile.  if current file is a 
 	// symlink to a directory and if isRecursive and followLinks calls 
 	// recurseIntoDirectory:currentFile.  if at end of current dir pops 
 	// stack and attempts to find the next entry in the parent.  Then
 	// sets currentFile to nil if there are no more files to enumerate.
-    while ([_pathStack count]) 
+	[_fileName release];
+	[_filePath release];
+	_fileName = _filePath = nil;
+    while ([_pathStack count])
 		{
-		DIR_enum_state *dir = (DIR*)[[_enumStack lastObject] pointerValue];
+		DIR *dir = (DIR*)[[_enumStack lastObject] pointerValue];
 		DIR_enum_item *dirbuf = readdir(dir);
 		struct stat statbuf;
 		const char *cpath;
-		
-		if (dirbuf) 
+#if 0
+		NSLog(@"dir = %p dirbuf = %p path=%@", dir, dirbuf, [_pathStack lastObject]);
+#endif
+		if (dirbuf)
 			{							// Skip "." and ".." directory entries
 				if (strcmp(dirbuf->d_name, ".") == 0 
 					|| strcmp(dirbuf->d_name, "..") == 0)
@@ -1042,50 +1047,77 @@ static NSFileManager *__fm = nil;
 				if (strncmp(dirbuf->d_name, "._", 2) == 0)
 					continue;				// skip resource forks
 				// Name of current file
-				_fileName = [__fm stringWithFileSystemRepresentation:dirbuf->d_name
-															  length:strlen(dirbuf->d_name)];
-				_fileName = [[[_pathStack lastObject]
-							  stringByAppendingPathComponent:_fileName] retain];
+				_fileName = [__fm stringWithFileSystemRepresentation:dirbuf->d_name  length:strlen(dirbuf->d_name)];
+				_fileName = [[_pathStack lastObject] stringByAppendingPathComponent:_fileName];
 				// Full path of current file
 				_filePath = [_topPath stringByAppendingPathComponent:_fileName];
+				_filePath=_fileName;
+				[_fileName retain];
 				[_filePath retain];
-				// Check if directory
-				cpath = [__fm fileSystemRepresentationWithPath:_filePath];
-				// Do not follow links
-				//			if (!_fm.followLinks) 
-				{
-				if (lstat(cpath, &statbuf) < 0)
-					break;
-				// If link then return it as link
-				if (S_IFLNK == (S_IFMT & statbuf.st_mode)) 
-					break;
-				}
-				// Follow links check for directory
-				if (stat(cpath, &statbuf) < 0)
-					break;
-				if (S_IFDIR == (S_IFMT & statbuf.st_mode) && !_fm.shallow) 
-					{						// recurses into directory `path', push
-						DIR *dir;				// path relative to root of search onto
+#if 0
+				NSLog(@"fileName=%@ filepath=%@", _fileName, _filePath);
+#endif
+				if(_fm.shallow)
+					break;	// no need to check for directory
+				if (!_fm.followLinks)
+					{ // default is not to follow symlinks
+#if 0
+					NSLog(@"lstat(%s, %p)", cpath, &statbuf);
+#endif
+					lstat(cpath, &statbuf);
+					if (lstat(cpath, &statbuf) < 0)
+						break;
+					// If link (even into directoy) then return it as link and don't traverse
+					if (S_IFLNK == (S_IFMT & statbuf.st_mode))
+						break;
+					}
+				else
+					{ // Follow links check for directory
+#if 0
+					NSLog(@"stat(%s, %p)", cpath, &statbuf);
+#endif
+					if (stat(cpath, &statbuf) < 0)
+						break;
+						// FIXME: should readlink and substitute file name for _pathStack
+					}
+#if 0
+				NSLog(@"statbuf.st_mode=%08x", statbuf.st_mode);
+#endif
+				if (S_IFDIR == (S_IFMT & statbuf.st_mode))
+					{	// recurses into directory `path', push
+						// path relative to root of search onto
 						// _pathStack and push system dir
 						// enumerator on enumPath
 						if ((dir = opendir(cpath)))
-							{
-							[_pathStack addObject: _fileName ];
+							{ // if successfully opened
+#if 0
+							NSLog(@"traverse %@", _fileName);
+#endif
+							[_pathStack addObject: _fileName];
 							[_enumStack addObject: [NSValue valueWithPointer:dir]];
-							}	}
-				
+							}
+					}
+#if 0
+				NSLog(@"done %@", _fileName);
+#endif
 				break;
 			}
 		else
-			{
-			closedir((DIR*)[[_enumStack lastObject] pointerValue]);
+			{ // end of this directory (or readdir eror), go up one level
+#if 0
+				NSLog(@"go up one level");
+#endif
+			closedir(dir);
 			[_enumStack removeLastObject];
 			[_pathStack removeLastObject];
 			[_fileName release];
 			[_filePath release];
-			_fileName = _filePath = nil;
-			}	}
-	
+				_fileName = _filePath = nil;	// if we end the while loop due to empty stack, this will return nil
+			}
+		}
+#if 0
+	NSLog(@"return %@ retaincnt=%u", _fileName, [_fileName retainCount]);
+#endif
     return _fileName ;
 }
 
