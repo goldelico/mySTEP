@@ -384,6 +384,15 @@ static IMP appendImp;
 
 - (const void*) bytes	{ SUBCLASS return NULL; }
 
+- (void *) _bytesWith0;
+{ // bytes with 0-suffix
+	unsigned len=[self length];
+	void *buffer=_autoFreedBufferWithLength(len+1);
+	memcpy(buffer, (char *)[self bytes], len);	// get bytes
+	((char *) buffer)[len]='\0';
+	return buffer;
+}
+
 - (NSString *) description
 {
 	const char *src = [self bytes];
@@ -433,17 +442,6 @@ static IMP appendImp;
 		[NSException raise: NSRangeException
 					format: @"-[NSData getBytes:range:] Range: %@ Size: %d", NSStringFromRange(aRange), s];	// goes behind end
 	memcpy(buffer, ((char *)[self bytes]) + aRange.location, aRange.length);
-}
-
-- (void *) _autoFreeBytesWith0:(BOOL) flag;
-{
-	unsigned len=[self length];
-	void *buffer=objc_malloc(len+(flag?1:0));
-	memcpy(buffer, (char *)[self bytes], len);	// get bytes
-	if(flag)
-		((char *) buffer)[len]='\0';
-	[NSData dataWithBytesNoCopy:buffer length:len+(flag?1:0) freeWhenDone:YES];	// "autofree"
-	return buffer;
 }
 
 // could be optimized to avoid copying if we know that we don't have mutable data and handle responsibility of the buffer
@@ -2403,4 +2401,22 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 - (int) shmID												{ return shmid; }
 
 @end
+
 #endif	/* HAVE_SHMCTL	*/
+
+@implementation NSAutoreleasePool (NSPrivate)
+
++ (void *) _autoFree:(void *) pointer;
+{ // wrap in autoreleased NSData object
+	if(pointer)
+		[[[NSData alloc] initWithBytesNoCopy:pointer length:0] autorelease];
+	return pointer;
+}
+
+// FIXME: should sit close to objc_malloc
+void *_autoFreedBufferWithLength(NSUInteger bytes)
+{
+	return [NSAutoreleasePool _autoFree:objc_malloc(bytes)];
+}
+
+@end
