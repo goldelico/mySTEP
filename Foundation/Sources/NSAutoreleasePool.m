@@ -36,9 +36,8 @@ struct autorelease_array_list
 								// actually recorded in an NSAutoreleasePool, 
 								// and are not sent a `release' message.
 static BOOL __autoreleaseEnabled = YES;
-static IMP __allocImp;
-static IMP __initImp;
-								// When the _released_count of a pool gets over 
+static BOOL __enableCache = YES;	// disable for debugging
+								// When the _released_count of a pool gets over
 								// this value, we raise an exception.  This can 
 								// be adjusted with -setPoolCountThreshhold 
 static unsigned __poolCountThreshold = UINT_MAX;
@@ -106,8 +105,6 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 #if 0
 		fprintf(stderr, "current thread %p\n", objc_thread_get_data());
 #endif
-		__allocImp = [self methodForSelector: @selector(allocWithZone:)];
-		__initImp = [self instanceMethodForSelector: @selector(init)];
 		}
 }
 
@@ -130,11 +127,9 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	return (id) NSAllocateObject(self, 0, z);
 }
 
-#if 0
-+ (id) new
++ (void) showPools;
 {
-	id arp = (*__allocImp)(self, @selector(allocWithZone:), NSDefaultMallocZone());
-	return (*__initImp)(arp, @selector(init));
+	NIMP;
 }
 #endif
 
