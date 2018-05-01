@@ -795,7 +795,7 @@ const char *objc_skip_typespec (const char *type)
 				void *addr=objc_malloc(len);
 				if(addr)
 					{
-					[NSData dataWithBytesNoCopy:addr length:len];	// take autorelease-ownership
+					[NSAutoreleasePool _autoFree:addr];
 					NSLog(@"allocated: %p[%u]", addr, len);
 					[self decodeValueOfObjCType:type+1 at:addr];	// decode object pointed to					
 					}
