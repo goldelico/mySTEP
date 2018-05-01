@@ -994,6 +994,7 @@ static IMP appendImp;
 	length = bufferSize;
 	return self;
 }
+
 // NSCoding	Protocol
 - (Class) classForArchiver			{ return dataMalloc; }		// Not static
 - (Class) classForCoder				{ return dataMalloc; }		// when decoded
@@ -1349,12 +1350,14 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	if ((fseek(f, 0L, SEEK_END)) != 0)			// Seek to end of the file
 		{
 		fclose(f);
+		[self release];
 		return GSError(self,@"Seek end of file failed - %s",strerror(errno));
 		}
 
 	if ((length = ftell(f)) == -1)					// Determine length of file
 		{
 		fclose(f);
+		[self release];
 		return GSError(self, @"Ftell failed - %s", strerror(errno));
 		}
 
@@ -1364,6 +1367,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	if ((fseek(f, 0L, SEEK_SET)) != 0)
 		{
 		fclose(f);
+		[self release];
 		return GSError(self, @"fseek SEEK_SET failed - %s", strerror(errno));	// does a [self release] which does objc_free(bytes)
 		}
 #if 0
@@ -1386,6 +1390,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 			if (newBytes == NULL)
 				{
 				fclose(f);
+				[self release];
 				return GSError(self, @"realloc failed for %s - %s", p, strerror(errno));
 				}
 			bytes=newBytes;
@@ -1397,6 +1402,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		{ // did not read the full file
 			int err=errno;
 			fclose(f);
+			[self release];
 			return GSError(self, @"Fread of file %@ failed - %s", path, strerror(err));
 		}
 	fclose(f);
