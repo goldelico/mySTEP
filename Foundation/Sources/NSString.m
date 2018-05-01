@@ -908,7 +908,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (const char *) cStringUsingEncoding:(NSStringEncoding)enc;
 {
-	return [[self dataUsingEncoding:enc allowLossyConversion:NO] _autoFreeBytesWith0:YES];	// convert and return 0-terminated string
+	return [[self dataUsingEncoding:enc allowLossyConversion:NO] _bytesWith0];	// convert and return 0-terminated string
 }
 
 - (BOOL) getCString:(char *)buffer maxLength:(NSUInteger)maxLength encoding:(NSStringEncoding)enc;
@@ -1070,12 +1070,15 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 // a little slow because we malloc and copy twice
 
-- (const char *) UTF8String;	{
+- (const char *) UTF8String;
+{
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif
-	return [[self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] _autoFreeBytesWith0:YES]; }
-- (const char *) lossyCString;	{ return [[self dataUsingEncoding:__cStringEncoding allowLossyConversion:YES] _autoFreeBytesWith0:YES]; }
+	return [[self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] _bytesWith0];
+}
+
+- (const char *) lossyCString;	{ return [[self dataUsingEncoding:__cStringEncoding allowLossyConversion:YES] _bytesWith0]; }
 
 - (NSString*) stringByAppendingFormat:(NSString*)format,...
 {
