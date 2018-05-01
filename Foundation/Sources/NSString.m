@@ -639,17 +639,18 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			   locale:(NSDictionary*)locale
 			arguments:(va_list)arg_list
 {
+	// FIXME: avoid the copy by providing a _mutableUTF8String method
 	const char *format_cp = [format UTF8String];
 	int format_len = strlen (format_cp);
-	char *format_cp_copy = objc_malloc(format_len+1);	// buffer for a mutable copy of the format string
+	char *format_cp_copy=_autoFreedBufferWithLength(format_len+1);	// buffer for a mutable copy of the format string
 	char *format_to_go = format_cp_copy;				// pointer into the format string while processing
 	NSMutableString *result=[[NSMutableString alloc] initWithCapacity:2*format_len+20];	// this assumes some minimum result size
 	[self release];	// we return a (mutable!) replacement object - to be really correct, we should autorelease the result and return [self initWithString:result];
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
-											//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
-											//	fprintf(stderr, "result=%p\n", result);
+	//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
+	//	fprintf(stderr, "result=%p\n", result);
 
 	// FIXME: somehow handle %S and other specifiers!
 
@@ -683,20 +684,22 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(*format_to_go)
 				{ // if there is anything to print...
 					len=vasprintf(&buffer, format_to_go, arg_list);	// Print the part before the '%@' - will be malloc'ed
-																	//			fprintf(stderr, "buffer=%p\n", buffer);
-					if(len > 0)
-						[result appendString:[NSString _stringWithUTF8String:buffer length:len]];
-					else if(len < 0)
+					// fprintf(stderr, "buffer=%p\n", buffer);
+					if(len < 0)
 						{ // error
 							free(buffer);
-							objc_free(format_cp_copy);
 							[result release];
 							return nil;
 						}
+					if(len > 0)
+						[result appendString:[NSString _stringWithUTF8String:buffer length:len]];
 					free(buffer);
 				}
 			if(!mode)
-				return result;	// we return a (mutable!) replacement object - to be correct, autorelease the result and return [self initWithString:result];
+				{ // done
+				// we return a (mutable!) replacement object - to be correct,we should  autorelease the result and return [self initWithString:result];
+				return result;
+				}
 			while((formatter_pos = strchr(format_to_go, '%')))
 				{ // Skip arguments already processed by last vasprintf().
 					char *spec_pos; 			// Position of conversion specifier.
