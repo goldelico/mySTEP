@@ -32,7 +32,7 @@
 @class NSString;
 @class NSWindow;
 @class NSGraphicsContext;
-@class NSTrackingArea; 
+@class NSTrackingArea;
 
 
 typedef enum _NSEventType
@@ -306,10 +306,10 @@ enum
 @end
 
 enum {
-    NSBackspaceKey		= 8,
-    NSCarriageReturnKey	= 13,
-    NSDeleteKey			= 0x7f,
-    NSBacktabKey		= 25
+	NSBackspaceKey		= 8,
+	NSCarriageReturnKey	= 13,
+	NSDeleteKey			= 0x7f,
+	NSBacktabKey		= 25
 };
 
 enum {
