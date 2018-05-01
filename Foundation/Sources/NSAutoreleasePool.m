@@ -59,8 +59,7 @@ init_pool_cache (struct autorelease_thread_vars *tv)
 	OBJC_MALLOC (tv->pool_cache, id, tv->pool_cache_size);
 }
 
-static void
-push_pool_to_cache (struct autorelease_thread_vars *tv, id p)
+static void push_pool_to_cache (struct autorelease_thread_vars *tv, NSAutoreleasePool *p)
 {
 #if 0
 	fprintf(stderr, "NSAutoreleasePool push_pool_to_cache tv=%p p=%p\n", tv, p);
@@ -76,8 +75,7 @@ push_pool_to_cache (struct autorelease_thread_vars *tv, id p)
 	tv->pool_cache[tv->pool_cache_count++] = p;
 }
 
-static id
-pop_pool_from_cache (struct autorelease_thread_vars *tv)
+static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {
 #if 0
 	fprintf(stderr, "NSAutoreleasePool pop_pool_from_cache tv=%p\n", tv);
@@ -131,14 +129,16 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {
 	NIMP;
 }
-#endif
 
 // this are private methods!
 // CHECKME: do we still need this?
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
 + (void) setPoolCountThreshhold:(unsigned)c	{ __poolCountThreshold = c; }
 + (void) enableDoubleReleaseCheck:(BOOL)en	{ }
+
+/* standard methods */
 - (oneway void) release						{ [self dealloc]; }
+- (void) drain								{ [self dealloc]; }
 
 - (NSString *) description; { return [NSString stringWithFormat:@"%p %@ released:%u", self, NSStringFromClass([self class]), _released_count]; }
 
@@ -212,7 +212,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	if (_released->count == _released->size)	// if the current one is full.
 		{
 		if (_released->next)				// There is an already-allocated
-			{			 					// one in the chain; use it. 
+			{								// one in the chain; use it.
 			_released = _released->next;
 			_released->count = 0;
 			}
@@ -236,30 +236,15 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	(_released->count)++;					// Keep track of the total number  
 											// of objects autoreleased across
 	THREAD_VARS->total_objects_count++;		// all pools.
-										 
+
 	_released_count++;						// Track total number of objects
 }											// autoreleased in this pool
-
-- (void) _dealloc							// actually dealloc this auto pool
-{
-	// FIXME: this should be part of drain!
-	struct autorelease_array_list *a;
-#if 0
-	fprintf(stderr, "ARP dealloc %p\n", self);
-#endif
-	for (a = _released_head; a;)
-		{
-		void *n = a->next;
-		objc_free(a);
-		a = n;
-		}
-	[super dealloc];
-}
 
 - (void) dealloc
 {
 	struct autorelease_thread_vars *tv;
 	NSAutoreleasePool **cp;
+	struct autorelease_array_list *released;
 #if 0
 	fprintf(stderr, "arp drain %p - initial memory=%lu\n", self, NSRealMemoryAvailable());
 #endif
@@ -271,65 +256,58 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	// is if an exception threw us up the stack.
 	if (_child)
 		[_child dealloc];
-	[self drain];
+	for(released = _released_head; released; released=released->next)
+		{ // just release objects added to array containers
+			id *p=released->objects;
+			id *e=p+released->count;	// end of array block
+			while(p < e)
+				{
+				id anObject;
+				if((anObject=*p))
+					{
+					*p++=nil;	// take out of the list
+#if 0
+					fprintf(stderr, "ARP: release object %p\n", anObject);
+#endif
+					[anObject release];
+					}
+				else
+					p++;
+				}
+		}
 	tv = THREAD_VARS;							// Uninstall ourselves as the
 	cp = &(tv->current_pool);					// current pool; install our
 	*cp = _parent;								// parent pool
 	if (*cp)
 		(*cp)->_child = nil;
-
-	// FIXME: the [self _dealloc] should be part of -drain!
-
-	if(tv->thread_in_dealloc)					// cleanup if thread in dealloc
+	if(!__enableCache || tv->thread_in_dealloc)		// cleanup if thread in dealloc
 		{
-		[self _dealloc];						// actually dealloc self
+		struct autorelease_array_list *next;
+		for(released = _released_head; released; released=next)
+			{ // release array container chain
+				next = released->next;
+				objc_free(released);
+			}
+		_released_head=NULL;
 		if(!(_parent))							// if no parent we are top pool
 			{
 			while(tv->pool_cache_count)			// release inactive pools in
 				{								// the pools stack cache
-					id pool = pop_pool_from_cache(tv);
-					[pool _dealloc];
+					NSAutoreleasePool *pool = pop_pool_from_cache(tv);
+					NSDeallocateObject(pool);	// ignore retainCount
 				}
 			if (tv->pool_cache)
-				objc_free(tv->pool_cache);
+				OBJC_FREE(tv->pool_cache);
 			}
+		NSDeallocateObject(self);	// deallocate ignoring retainCount
 		}
 	else										// Don't deallocate self, just
 		push_pool_to_cache (tv, self);			// push to cache for later use
 #if 0
-	fprintf(stderr, "arp drain -    done memory=%lu\n", NSRealMemoryAvailable());
+	fprintf(stderr, "arp dealloc -    done memory=%lu\n", NSRealMemoryAvailable());
 #endif
 	return;
 	[super dealloc];	// make compiler happy
-}
-
-- (void) drain;
-{
-	struct autorelease_array_list *released;
-	// FIXME: check if already drained!
-	released = _released_head;
-	while(released)
-		{
-		id *p=released->objects;
-		id *e=p+released->count;
-		while(p < e)
-			{
-			id anObject;
-			if((anObject=*p))
-				{
-				*p++=nil;	// take out of the list
-#if 0
-				fprintf(stderr, "ARP: release object %p\n", anObject);
-#endif
-				[anObject release];
-				}
-			else
-				p++;
-			}
-		released = released->next;
-		}
-	// CHECKME: is ARP memory deallocated correctly?
-	_released_head=NULL;
 }
 
 - (id) retain
