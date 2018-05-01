@@ -104,7 +104,7 @@ NSGraphicsContext *GSCurrentContext(void)
 }
 
 
-@implementation NSGraphicsContext 
+@implementation NSGraphicsContext
 
 + (void) initialize
 {
