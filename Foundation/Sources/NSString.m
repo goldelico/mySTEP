@@ -787,10 +787,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) _initWithData:(NSData *) data encoding:(NSStringEncoding *) e;
 { // deduct encoding from data
-	const unsigned char *t = [data bytes];
 	static char xml[]="<?xml version=\"1.0\" encoding=\"UTF-8\"";
+	const unsigned char *t = [data bytes];
 	if(t == NULL)
+		{
+		[self release];
 		return nil;
+		}
 	if((t[0]==0xFF) && (t[1]==0xFE))
 		*e = NSUnicodeStringEncoding;
 	else if((t[1]==0xFF) && (t[0]==0xFE))
@@ -816,10 +819,19 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	int len;
 	unichar *s, *sp;
 	unsigned char *b, *end;
+	if(!data)
+		{
+		// CHECKME: raise exception?
+		[self release];
+		return nil;
+		}
 	len=[data length];
 	sp=s=objc_malloc(sizeof(*s)*len);	// assume that as max. length
 	if(!s)
+		{
+		[self release];
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
+		}
 	b=(unsigned char *) [data bytes];
 	end=b+len;
 	if(encoding == NSUnicodeStringEncoding)
