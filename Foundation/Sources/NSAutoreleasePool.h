@@ -37,6 +37,7 @@
 }
 
 + (void) addObject:(id) anObject;
++ (void) showPools;	/* not implemented */
 - (void) addObject:(id) anObject;
 - (id) autorelease;
 - (void) drain;
