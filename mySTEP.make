@@ -1076,7 +1076,8 @@ endif
 	# linked.
 ifeq ($(WRAPPER_EXTENSION),)
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
-	- ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
+	# link is no longer needed since we assume /usr/bin/$(ARCHITECTURE) to come in the $PATH before /usr/bin
+	# - ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
 else ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
