@@ -8,13 +8,25 @@
 
 #import <CoreMotion/CMLogItem.h>
 
-
 typedef struct _CMMagneticField
 { // in uTesla
 	double x;
 	double y;
 	double z;
 } CMMagneticField;
+
+typedef enum {
+	CMMagneticFieldCalibrationAccuracyUncalibrated=-1,
+	CMMagneticFieldCalibrationAccuracyLow,
+	CMMagneticFieldCalibrationAccuracyMedium,
+	CMMagneticFieldCalibrationAccuracyHigh
+} CMMagneticFieldCalibrationAccuracy;
+
+typedef struct _CMCalibratedMagneticField
+{ // in uTesla
+	CMMagneticField field;
+	CMMagneticFieldCalibrationAccuracy accuracy;
+} CMCalibratedMagneticField;
 
 @interface CMMagnetometerData : CMLogItem
 {

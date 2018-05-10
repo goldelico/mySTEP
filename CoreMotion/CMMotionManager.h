@@ -8,10 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+@class CMDeviceMotion;
 
 @interface CMMotionManager : NSObject
 {
 
 }
+
+- (void) startDeviceMotionUpdates;
+- (void) stopDeviceMotionUpdates;
+- (CMDeviceMotion *) deviceMotion;
 
 @end

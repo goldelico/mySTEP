@@ -30,7 +30,8 @@ typedef enum _CMAttitudeReferenceFrame
 
 @interface CMAttitude : NSObject <NSCoding, NSCopying>
 {
-
+	CMQuaternion _quaternion;
+	CMRotationMatrix _rotationMatrix;
 }
 
 - (double) pitch;
