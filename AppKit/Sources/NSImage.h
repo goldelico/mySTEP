@@ -198,6 +198,7 @@ extern NSString *const NSImageNameFlowViewTemplate;
 		    fromRect:(NSRect) src
 		   operation:(NSCompositingOperation) op
 		    fraction:(CGFloat) fraction;
+- (void) drawInRect:(NSRect) rect;
 - (void) drawInRect:(NSRect) rect
 		   fromRect:(NSRect) src
 		  operation:(NSCompositingOperation) op
