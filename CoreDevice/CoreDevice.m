@@ -414,7 +414,19 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) playInputClick;
 {
 	// check system preferences if it is enabled/disabled
-	// FIXME: use vibramotor!
+	AudioServicesStopSystemSound(kSystemSoundID_Vibrate);
+	NSArray *pattern=
+	[NSArray arrayWithObjects:
+	 [NSNumber numberWithBool:YES],
+	 [NSNumber numberWithFloat:50],
+	 [NSNumber numberWithBool:NO],
+	 [NSNumber numberWithFloat:100],
+	 nil];
+	NSMutableDictionary *dict=
+	[NSMutableDictionary dictionaryWithObjectsAndKeys:pattern, @"VibePattern",
+	 [NSNumber numberWithDouble:1.0],
+	 nil];
+	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, dict);
 	[[NSSound soundNamed:@"Click"] play];
 }
 
@@ -425,6 +437,52 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) playVibraCall;
 {
 	// check system preferences if it is enabled/disabled
+	AudioServicesStopSystemSound(kSystemSoundID_Vibrate);
+	NSArray *pattern=
+	[NSArray arrayWithObjects:
+	 [NSNumber numberWithBool:YES],
+	 [NSNumber numberWithFloat:100],
+	 [NSNumber numberWithBool:NO],
+	 [NSNumber numberWithFloat:200],
+	 [NSNumber numberWithBool:YES],
+	 [NSNumber numberWithFloat:100],
+	 [NSNumber numberWithBool:NO],
+	 [NSNumber numberWithFloat:200],
+	 [NSNumber numberWithBool:YES],
+	 [NSNumber numberWithFloat:100],
+	 [NSNumber numberWithBool:NO],
+	 [NSNumber numberWithFloat:200],
+	 nil];
+	NSMutableDictionary *dict=
+	[NSMutableDictionary dictionaryWithObjectsAndKeys:pattern, @"VibePattern",
+	 [NSNumber numberWithDouble:1.0],
+	 nil];
+	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, dict);
 }
 
 @end
+
+// should be provided through #import <AudioToolbox/AudioToolbox.h>
+void AudioServicesStopSystemSound(SystemSoundID sound)
+{
+
+}
+
+void AudioServicesPlaySystemSound(SystemSoundID sound)
+{
+	AudioServicesPlaySystemSoundWithVibration(sound, nil, nil);
+}
+
+void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDictionary *pattern)
+{
+#if 1
+	NSLog(@"AudioServicesPlaySystemSoundWithVibration: %x %@ %@", sound, arg, pattern);
+#endif
+	if(sound == kSystemSoundID_Vibrate)
+		{
+		// if(!pattern) provide default
+		// open("/dev/input/rumble")
+		// create ff structures and
+		// run the ioctl
+		}
+}

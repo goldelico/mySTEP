@@ -98,3 +98,13 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 - (BOOL) checkCable;	// if user should check charging cable
 
 @end
+
+// should be provided through #import <AudioToolbox/AudioToolbox.h>
+typedef unsigned int SystemSoundID;
+#define kSystemSoundID_FlashScreen 0xffe
+#define kSystemSoundID_Vibrate 0xfff
+#define kSystemSoundID_UserPreferredAlert = 0x1000
+void AudioServicesPlayAlertSound(SystemSoundID sound);
+void AudioServicesPlaySystemSound(SystemSoundID sound);
+void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDictionary *pattern);
+void AudioServicesStopSystemSound(SystemSoundID sound);
