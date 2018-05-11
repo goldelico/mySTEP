@@ -57,9 +57,13 @@
 		_deviceMotion=[CMDeviceMotion new];
 	// if not yet located, locate iio devices
 	// read iio values
-	// store values in CMDeviceMotion object
-	_deviceMotion->_gravity.x=(float)rand()/((float)3*RAND_MAX)-0.5;
-	_deviceMotion->_gravity.y=(float)rand()/((float)3*RAND_MAX)-0.5;
+	// store values in _deviceMotion object
+#if 1
+	NSLog(@"read iio accelerometers");
+#endif
+#define K 0.4
+	_deviceMotion->_gravity.x=K*((float)rand()/((float)RAND_MAX)-0.5);
+	_deviceMotion->_gravity.y=K*((float)rand()/((float)RAND_MAX)-0.5);
 	_deviceMotion->_gravity.z=1;
 	return _deviceMotion;
 }

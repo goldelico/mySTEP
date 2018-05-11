@@ -8,6 +8,14 @@
 
 #import <CoreMotion/CMLogItem.h>
 
+/*
+ * if device is held in portrait orientation and facing the display
+ *   X-axis runs through the device from left (-) to right (+)
+ *   Y-axis through the device from bottom (-) to top (+)
+ *   Z-axis runs from the back (-) through the screen to the front (+)
+ * values are in units of "µT"
+ */
+
 typedef struct _CMMagneticField
 { // in uTesla
 	double x;

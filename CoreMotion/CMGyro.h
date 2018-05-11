@@ -8,6 +8,13 @@
 
 #import <CoreMotion/CMLogItem.h>
 
+/*
+ * if device is held in portrait orientation and facing the display
+ *   X-axis means tilting back (-?) and forth (+?)
+ *   Y-axis means tilting left and right
+ *   Z-axis means turing the screen
+ * values are in units of "°/s" ???
+ */
 
 typedef struct _CMRotationRate
 {
