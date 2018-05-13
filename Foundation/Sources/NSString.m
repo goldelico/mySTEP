@@ -2866,7 +2866,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 											options:(NSUInteger) mask
 											  range:(NSRange) search;
 {
-	NSMutableString *r=[target mutableCopy];
+	NSMutableString *r=[self mutableCopy];
 	[r replaceOccurrencesOfString:target withString:replacement options:mask range:search];
 	return [r autorelease];
 }
@@ -2874,7 +2874,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
 										 withString:(NSString *) replacement;
 {
-	return [self stringByReplacingOccurrencesOfString:target withString:replacement options:0 range:NSMakeRange(0, [target length])];
+	return [self stringByReplacingOccurrencesOfString:target withString:replacement options:0 range:NSMakeRange(0, [self length])];
 }
 
 - (NSString *) stringByPaddingToLength:(NSUInteger)len withString:(NSString *) pad startingAtIndex:(NSUInteger) index;
@@ -3452,7 +3452,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	int offset;
 	unsigned stringLength, maxRange = NSMaxRange(aRange);
-#if 0
+#if 0	// this seems to be recursive!
 	NSLog(@"%@ replaceCharactersInRange:%@ withString:\"%@\" (len=%d)", self, NSStringFromRange(aRange), aString, [aString length]);
 #endif
 	if(maxRange > _count)
@@ -3479,7 +3479,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			_cString=NULL;
 		}
 	_hash = 0;
-#if 0
+#if 0	// this seems to be recursive!
 	NSLog(@"  -> \"%@\" offset=%d _count=%d", self, offset, _count);
 #endif
 }
