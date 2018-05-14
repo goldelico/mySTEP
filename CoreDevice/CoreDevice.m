@@ -462,10 +462,37 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 @end
 
+#ifdef __linux__
+
+#include <linux/input.h>
+
 // should be provided through #import <AudioToolbox/AudioToolbox.h>
+
+static int rumbleFd = -1;
+static struct input_event event;
+static struct ff_effect e;
+
 void AudioServicesStopSystemSound(SystemSoundID sound)
 {
+	if(sound == kSystemSoundID_Vibrate)
+		{
+		if(rumbleFd < 0 || e.id < 0)
+			return;	// no effect running
 
+		// Stop the effect
+		event.type = EV_FF;
+		event.code = e.id;
+		event.value = 0;	// stop
+
+		if (write(rumbleFd, (const void *)&event, sizeof(event)) < 0)
+			perror("rumble write");
+
+		// Remove the effect
+		if (e.id >= 0 && ioctl(rumbleFd, EVIOCRMFF, e.id) < 0)
+			perror("rumble remove");
+
+		e.id = -1;
+		}
 }
 
 void AudioServicesPlaySystemSound(SystemSoundID sound)
@@ -476,13 +503,76 @@ void AudioServicesPlaySystemSound(SystemSoundID sound)
 void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDictionary *pattern)
 {
 #if 1
-	NSLog(@"AudioServicesPlaySystemSoundWithVibration: %x %@ %@", sound, arg, pattern);
+	NSLog(@"AudioServicesPlaySystemSoundWithVibration: %08x %@ %@", sound, arg, pattern);
 #endif
 	if(sound == kSystemSoundID_Vibrate)
 		{
-		// if(!pattern) provide default
-		// open("/dev/input/rumble")
-		// create ff structures and
-		// run the ioctl
+		NSArray *durations=[pattern objectForKey:@"VibePattern"];
+		NSNumber *intensity=[pattern objectForKey:@"Intensity"];
+
+		AudioServicesStopSystemSound(sound);	// stop and remove previous effect
+
+		// Open rumble device if not yet open
+		if(rumbleFd < 0)
+			{
+			rumbleFd = open("/dev/input/rumble", O_RDWR);
+			if (rumbleFd < 0)
+				{
+				perror("rumble open");
+				return;	// can't open
+				}
+			}
+
+		// Translate pattern
+		NSEnumerator *f=[durations objectEnumerator];
+		int timeoutMs=0;
+		id o;
+		// NOTE: for handling complex patterns, we must add our own timer!
+		while((o=[f nextObject]))
+			{ //take the last YES pattern
+				NSLog(@"try %@ %d", o, [o boolValue]);
+			if([o boolValue])
+				{
+				o=[f nextObject]
+				timeoutMs=1000*[o doubleValue];
+				NSLog(@"to %@ %d", o, timeoutMs);
+				}
+			else
+				[f nextObject];
+			}
+
+		// Define the new event
+		e.type = FF_RUMBLE;
+		e.id = -1;	// will be assigned by ioctl
+		e.direction = 0;
+		e.trigger.button = 0;
+		e.trigger.interval = 0;
+		e.replay.length = timeoutMs <= 0 ? timeoutMs : 3000;
+		e.replay.delay = 0;
+		float i=[intensity floatValue];
+		i=MAX(MIN(i, 1.0), 0.0);	//range limit
+		e.u.rumble.strong_magnitude = (0xffff*i);
+		e.u.rumble.weak_magnitude = e.u.rumble.strong_magnitude;	// play both channels for Pyra!
+
+#if 1
+		NSLog(@"AudioServicesPlaySystemSoundWithVibration: replaylength=%d e.magnitude=%d", e.replay.length, e.u.rumble.strong_magnitude);
+#endif
+
+		// Write the event
+		if (ioctl(rumbleFd, EVIOCSFF, &e) < 0)
+			{
+			perror("rumble upload");
+			return;
+			}
+
+		// Play the effect
+		event.type = EV_FF;
+		event.code = e.id;
+		event.value = 1;	// repeat once
+
+		if (write(rumbleFd, (const void *)&event, sizeof(event)) < 0)
+			perror("rumble write");
 		}
 }
+
+#endif
