@@ -173,7 +173,7 @@
 		[self setKey:currentValue];	// pass key to parent
 	else if([elementName isEqualToString:@"data"])
 		{
-		NSData *d=[[NSData alloc] _initWithBase64String:currentValue?currentValue:@""];
+		NSData *d=[[NSData alloc] _initWithBase64String:currentValue?(NSString *) currentValue:@""];
 		if(!d)
 			{
 #if 0
@@ -234,6 +234,7 @@
 - (NSString *) propertyListScanUnquotedString;
 - (id) propertyListScanPropertyListDictionary:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err withBrace:(BOOL) flag;
 - (id) propertyListScanPropertyListElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
+- (id) propertyListScanJSONElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
 @end
 
 @implementation NSScanner (NSPropertyList)
@@ -272,29 +273,32 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 
 - (NSString *) propertyListScanQuotedString;
 { // first quote aready absorbed - scan until second quote; handle \n etc. - return nil on unexpected isAtEnd
-	NSString *str=@"";
+	NSMutableString *str=[NSMutableString stringWithCapacity:10];
 	static NSCharacterSet *stopChars;
 #if 0
 	NSLog(@"propertyListScanQuotedString");
 #endif
-	if(!stopChars) stopChars=[[NSCharacterSet characterSetWithCharactersInString:@"\\\""] retain];	// backslash or ending quote
+	if(!stopChars)
+		stopChars=[[NSCharacterSet characterSetWithCharactersInString:@"\\\""] retain];	// backslash for escape or ending quote
 	while(![self isAtEnd])
 		{
-		NSString *jnk;
+		NSString *chunk;
 		int val;
-		if(![self scanUpToCharactersFromSet:stopChars intoString:&jnk])	// until closing quote or intermediate backslash
-			jnk=@"";
-		str=[str stringByAppendingString:jnk];	// splice together
+		if(![self scanUpToCharactersFromSet:stopChars intoString:&chunk])	// until closing quote or intermediate backslash
+			chunk=@"";
+		[str appendString:chunk];	// splice together
 		if([self scanString:@"\"" intoString:NULL])
 			return str;	// end of string
 		[self scanString:@"\\" intoString:NULL];	// must be the backslash
 		if([self scanString:@"U" intoString:NULL])
 			{ // hex Unicode
 			unichar chr=0x00a4;
-			str=[str stringByAppendingFormat:@"%C", chr];	// splice together
+				// FIXME:
+			[str appendFormat:@"%C", chr];	// splice together
 			}
 		else if([self scanString:@"0" intoString:NULL])
 			{ // octal
+			  // FIXME:
 			}
 		else if([self scanString:@"\n" intoString:NULL])
 			{ // \ + newline
@@ -302,15 +306,19 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			}
 		else if([self scanString:@"n" intoString:NULL])
 			{ // \n
-			str=[str stringByAppendingString:@"\n"];
+			[str appendString:@"\n"];
 			}
 		else if([self scanString:@"r" intoString:NULL])
-			{ // \n
-			str=[str stringByAppendingString:@"\r"];
+			{ // \r
+			[str appendString:@"\r"];
+			}
+		else if([self scanString:@"\\" intoString:NULL])
+			{ // escaped backslash
+				[str appendString:@"\\"];
 			}
 		else if([self scanInt:&val])
-			{ // decimal
-			str=[str stringByAppendingFormat:@"%c", val];	// splice together
+			{ // \ddd
+			[str appendFormat:@"%c", val];	// splice together
 			}
 		}
 	return nil;	// unterminated!
@@ -469,6 +477,111 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		*err=@"error in reading string - unexpected EOF";
 		return nil;
 		}
+	return val;
+}
+
+- (id) propertyListScanJSONElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
+{ // parse JSON elements
+	id val=nil;
+	double dval;
+	[self propertyListSkipSpaceAndComments];
+	while([self scanString:@";" intoString:NULL])
+		[self propertyListSkipSpaceAndComments];	// skip ignorable ;
+	if([self isAtEnd])
+		{
+		*err=@"unexpected EOF";
+		return nil;
+		}
+#if 0
+	NSRange range=NSMakeRange([self scanLocation], 15);
+	if(NSMaxRange(range) > [[self string] length])
+		range.length=[[self string] length]-range.location;	// limit
+	NSString *next=[[self string] substringWithRange:range];
+	NSLog(@"propertyListScanJSONElement %@", next);
+#endif
+	if([self scanString:@"{" intoString:NULL])
+		{ // { key:value, key:value } - NSDictionary
+			val=[NSMutableDictionary dictionaryWithCapacity:10];
+			[self propertyListSkipSpaceAndComments];
+			if(![self scanString:@"}" intoString:NULL])
+				{
+				while(YES)
+					{ // parse elements until }
+						id key;
+						id value;
+						key=[self propertyListScanJSONElement:opt errorDescription:err];
+						if(!key)
+							return nil;
+						[self propertyListSkipSpaceAndComments];
+						if(![self scanString:@":" intoString:NULL])
+							{
+							*err=@"missing : to separate key and value";
+							return nil;
+							}
+						value=[self propertyListScanJSONElement:opt errorDescription:err];
+						if(!value)
+							return nil;
+						[val setObject:value forKey:key];
+						[self propertyListSkipSpaceAndComments];
+						if([self scanString:@"}" intoString:NULL])
+							break;
+						if(![self scanString:@"," intoString:NULL])
+							;	// ignore missing , or not?
+					}
+				}
+		}
+	else if([self scanString:@"[" intoString:NULL])
+		{ // [ value, value, ...] - NSArray
+			val=[NSMutableArray arrayWithCapacity:10];
+			[self propertyListSkipSpaceAndComments];
+			if(![self scanString:@"]" intoString:NULL])
+				{
+				while(YES)
+					{ // parse elements until ]
+						id value;
+						value=[self propertyListScanJSONElement:opt errorDescription:err];
+						if(!value)
+							return nil;
+						[val addObject:value];
+						[self propertyListSkipSpaceAndComments];
+						if([self scanString:@"]" intoString:NULL])
+							break;
+						if(![self scanString:@"," intoString:NULL])
+							;	// ignore missing , or not?
+					}
+				}
+		}
+	else if([self scanString:@"\"" intoString:NULL])
+		{ // string
+			val=[self propertyListScanQuotedString];
+			if(!val)
+				{
+				*err=@"invalid string";
+				return nil;
+				}
+		}
+	else if([self scanDouble:&dval])
+		{
+		if(dval <= INT_MAX && dval >= INT_MIN && dval == (double)(int) dval)	// seems to have precise int representation
+			val=[NSNumber numberWithInt:(int) dval];
+		else
+			val=[NSNumber numberWithDouble:dval];
+		}
+	else if([self scanString:@"null" intoString:NULL])
+		val=[NSNull null];
+	else if([self scanString:@"true" intoString:NULL])
+		val=[NSNumber numberWithBool:YES];
+	else if([self scanString:@"false" intoString:NULL])
+		val=[NSNumber numberWithBool:NO];
+	else
+		{
+		NSString *next=[[self string] substringFromIndex:[self scanLocation]];
+		next=[next stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+		*err=[NSString stringWithFormat:@"unknown JSON element: %@", [next substringToIndex:MIN(15, [next length])]];
+		}
+#if 0
+	NSLog(@"JSON parsed: %@ %@", val, *err);
+#endif
 	return val;
 }
 
@@ -1290,6 +1403,9 @@ next:
 	[str appendFormat:@"<%@>%@</%@>\n", [tag _stringByExpandingXMLEntities], [value _stringByExpandingXMLEntities], [tag _stringByExpandingXMLEntities]];
 }
 
+// FIXME: make this private methods for all relevant object classes and error for NSObject
+// to get rid of isKindOfClass ladder
+
 + (BOOL) _appendStringTo:(NSMutableString *) str fromXMLPropertyListElement:(id) plist errorDescription:(NSString **) errorString;
 { // encode element as XML
 	if(!plist)
@@ -1316,9 +1432,8 @@ next:
 				return NO;
 			}
 		[str appendString:@"</dict>\n"];
-		return YES;	// ok
 		}
-	if([plist isKindOfClass:[NSArray class]])
+	else if([plist isKindOfClass:[NSArray class]])
 		{
 		NSEnumerator *enumerator=[plist objectEnumerator];
 		id o;
@@ -1329,14 +1444,12 @@ next:
 				return NO;
 			}
 		[str appendString:@"</array>\n"];
-		return YES;	// ok
 		}
-	if([plist isKindOfClass:[NSString class]])	// what about attributed strings??
+	else if([plist isKindOfClass:[NSString class]])	// what about attributed strings??
 		{
 		[self _appendStringTo:str fromXMLEscapedValue:plist tag:@"string"];
-		return YES;
 		}
-	if([plist isKindOfClass:[NSNumber class]])
+	else if([plist isKindOfClass:[NSNumber class]])
 		{
 		if([plist isKindOfClass:[GSFloatNumber class]] || [plist isKindOfClass:[GSDoubleNumber class]])
 			[str appendFormat:@"<real>%@</real>\n", plist];
@@ -1344,29 +1457,126 @@ next:
 			[str appendString:[plist boolValue]?@"<true/>":@"<false/>"];
 		else
 			[str appendFormat:@"<integer>%@</integer>\n", plist];
-		return YES;
 		}
-	if([plist isKindOfClass:[NSData class]])
+	else if([plist isKindOfClass:[NSData class]])
 		{
 			[str appendString:@"<data>\n"];
 			[str appendString:[(NSData *) plist _base64String]];
 			[str appendString:@"</data>\n"];
 		}
-	if([plist isKindOfClass:[NSDate class]])
+	else if([plist isKindOfClass:[NSDate class]])
 		{
 			[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
 		}
-	if(errorString)
-		*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as property list", NSStringFromClass([plist class])];
-	return NO;
+	else
+		{
+		if(errorString)
+			*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as property list", NSStringFromClass([plist class])];
+		return NO;
+		}
+	return YES;
+}
+
++ (BOOL) _appendStringTo:(NSMutableString *) str fromJSONPropertyListElement:(id) plist level:(NSInteger) level errorDescription:(NSString **) errorString;
+{ // encode element as JSON
+	NSInteger l=level;
+	while(l > 0)
+		{ // indent as requested
+			[str appendString:@"  "];
+			l--;
+		}
+	if(!plist)
+		{
+		if(errorString)
+			*errorString=@"Can't encode nil object";
+		return NO;
+		}
+	else if([plist isKindOfClass:[NSDictionary class]])
+		{
+		NSEnumerator *enumerator=[plist keyEnumerator];
+		id key;
+		BOOL first=YES;
+		[str appendString:level>=0?@"{\n":@"{"];
+		while((key=[enumerator nextObject]))
+			{
+			if(!first)
+				[str appendString:level >= 0?@",\n":@","];
+			if(![self _appendStringTo:str fromJSONPropertyListElement:key level:level+1 errorDescription:errorString])
+				return NO;
+			if(level >= 0)
+				[str appendString:@" : "];
+			else
+				[str appendString:@":"];
+			if(![self _appendStringTo:str fromJSONPropertyListElement:[(NSDictionary *) plist objectForKey:key] level:level errorDescription:errorString])
+				return NO;
+			first=NO;
+			}
+		[str appendString:level>=0?@"\n}":@"}"];
+		}
+	else if([plist isKindOfClass:[NSArray class]])
+		{
+		NSEnumerator *enumerator=[plist objectEnumerator];
+		id o;
+		BOOL first=YES;
+		[str appendString:@"["];
+		while((o=[enumerator nextObject]))
+			{
+			if(!first)
+				[str appendString:level >= 0?@",\n":@","];
+			if(![self _appendStringTo:str fromJSONPropertyListElement:o level:level+1 errorDescription:errorString])
+				return NO;
+			first=NO;
+			}
+		[str appendString:level>=0?@"\n]":@"]"];
+		}
+	else if([plist isKindOfClass:[NSString class]])	// what about attributed strings??
+		{
+		plist=[plist stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];	// double esacpe
+		plist=[plist stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];	// esacpe quote
+		[str appendFormat:@"\"%@\"", plist];
+		}
+	else if([plist isKindOfClass:[NSNumber class]])
+		{
+		if([plist isKindOfClass:[GSBoolNumber class]])
+			[str appendString:[plist boolValue]?@"true":@"false"];
+		else
+			[str appendFormat:@"%@", plist];
+		}
+	else if([plist isKindOfClass:[NSNull class]])
+		{
+		[str appendString:@"null"];
+		}
+#if 0		// can we really encode NSData as JSON?
+	else if([plist isKindOfClass:[NSData class]])
+		{
+		// well, we should convert to Unicode and quote
+		[str appendString:@"<data>\n"];
+		[str appendString:[(NSData *) plist _base64String]];
+		[str appendString:@"</data>\n"];
+		}
+#endif
+	else if([plist isKindOfClass:[NSDate class]])
+		{
+		// encode as  ISO-8601 string (quoted?)
+		[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
+		}
+	else
+		{ // unknown object trype (e.g. NSURL)
+		if(errorString)
+			*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as JSON list", NSStringFromClass([plist class])];
+		// seems to raise an exception on Cocoa
+		return NO;
+		}
+	if(level >= 0)
+		[str appendString:@"\n"];
+	return YES;
 }
 
 + (NSString *) _stringFromPropertyList:(id) plist format:(NSPropertyListFormat) format errorDescription:(NSString **) errorString;
 { // encode as string
-	switch(format)
-		{
-		case NSPropertyListXMLFormat_v1_0:
-			{
+	NSInteger level=0;
+	switch(format) {
+		case NSPropertyListXMLFormat_v1_0: {
 			NSMutableString *s=[NSMutableString stringWithCapacity:300];
 			[s appendFormat:@"<?xml %@?>\n", @"version=\"1.0\" ecnoding=\"UTF-8\""];
 			[s appendFormat:@"<!DOCTYPE %@>\n", @"plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\""];
@@ -1375,10 +1585,17 @@ next:
 				return nil;
 			[s appendString:@"</plist>\n"];
 			return s;
-			}
+		}
+		case NSPropertyListJSONFormat: level=INT_MIN;
+		case NSPropertyListJSONPrettyPrintedFormat: {
+			NSMutableString *s=[NSMutableString stringWithCapacity:300];
+			if(![self _appendStringTo:s fromJSONPropertyListElement:plist level:level errorDescription:errorString])
+				return nil;
+			return s;
+		}
 		default:
 			break;
-		}
+	}
 	if(errorString)
 		*errorString=@"Invalid format";
 	return nil;
@@ -1396,6 +1613,7 @@ next:
 	[arp release];	// and release
 	if(!o)
 		return NO;  // no - does not load
+	// check if fmt == format!
 	return YES;
 }
 
@@ -1491,19 +1709,32 @@ next:
 	else
 		str=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 #if 0
-	NSLog(@"  str %@", str);
+	NSLog(@"OpenStep/StringsFile str %@", str);
 #endif
 	sc=[NSScanner scannerWithString:str];
 	[sc setCharactersToBeSkipped:nil];	// skip nothing
 	[sc propertyListSkipSpaceAndComments];
 	loc=[sc scanLocation];
-	if([sc scanString:@"(" intoString:NULL])
-		{ // array on top level
+	if([sc scanString:@"[" intoString:NULL] || [sc scanString:@"{" intoString:NULL])
+		{ // try JSON array or object on top level
+		[sc setScanLocation:loc];
+		plist=[sc propertyListScanJSONElement:opt errorDescription:errorString];
+#if 0
+		if(!plist)
+			NSLog(@"JSON error: %@", [[sc string] substringFromIndex:[sc scanLocation]]);
+#endif
+			// FIXME: should we accept trailing ";" ?
+		fmt=NSPropertyListJSONFormat;
+		}
+	if(!plist && [sc scanString:@"(" intoString:NULL])
+		{ // try array on top level
+			fmt=NSPropertyListOpenStepFormat;
 			[sc setScanLocation:loc];
 			plist=[sc propertyListScanPropertyListElement:opt errorDescription:errorString];
 		}
 	if(!plist)
 		{ // try top level dictionary (w/o { })
+			fmt=NSPropertyListOpenStepFormat;
 			plist=[sc propertyListScanPropertyListDictionary:opt errorDescription:errorString withBrace:[sc scanString:@"{" intoString:NULL]];
 		}
 	if(plist)
@@ -1514,18 +1745,22 @@ next:
 			*errorString=[NSString stringWithFormat:@"found extra elements before end of file: %@", plist];
 			return nil;
 			}
-		*format=NSPropertyListOpenStepFormat;
 #if 0
 		NSLog(@"propertyListFromData found OpenStep format: %@", plist);
 #endif
+		if(plist)
+			*format=fmt;
 		return plist;
 		}
 #if 0
 	NSLog(@"openstep error %@", *errorString);
 #endif
-	*errorString=@"unknown file format";
+	if(!*errorString)
+		*errorString=@"unknown file format";
 	return nil;	// can't determine format / is not an OpenStep or StingsFile format
 }
+
+// should we swap the roles to avoid converting string to data and back again?
 
 + (id) _propertyListFromString:(NSString *) string mutabilityOption:(NSPropertyListMutabilityOptions) opt
 						format:(NSPropertyListFormat *) format errorDescription:(NSString **) errorString;
