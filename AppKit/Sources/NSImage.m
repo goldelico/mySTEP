@@ -295,7 +295,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) lockFocus
 { // lock focus on cache
 	NSGraphicsContext *ctxt;
-#if 1
+	NSWindow *cw;
+	NSAffineTransform *ctm;
+#if 0
 	NSLog(@"lockFocus: %@", self);
 #endif
 	// here we should also check the caching mode settings
@@ -305,11 +307,25 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			if(!_cache)
 				[NSException raise:NSImageCacheException format:@"can't create cached image representation"];
 			[[_cache window] _allocateGraphicsContext];
+#if 0
+			NSLog(@"cache: %@", _cache);
+			NSLog(@"cache window: %@", [_cache window]);
+#endif
 		}
+	cw=[_cache window];
+	ctxt=[cw graphicsContext];
 	[NSGraphicsContext saveGraphicsState];
-	ctxt=[[_cache window] graphicsContext];
-	[NSGraphicsContext setCurrentContext:ctxt];
-	// [ctxt _setCTM: ...] define CTM so that we really draw into the cache tile, i.e. move the origin - any maybe we need to flip
+#if 0
+	NSLog(@"setCurrentContext: %@", ctxt);
+#endif
+	[NSGraphicsContext setCurrentContext:ctxt];	// is part of graphicsState
+#if 0
+	NSLog(@"setGraphicsState: %d", [cw gState]);
+#endif
+	[NSGraphicsContext setGraphicsState:[cw gState]];	// select private state&context if possible
+	ctm=[NSAffineTransform transform];
+		// define CTM so that we really draw into the associated cache tile, i.e. move the origin - any maybe we need to flip
+	[ctxt _setCTM:ctm];
 	[ctxt _addClip:[NSBezierPath bezierPathWithRect:[_cache rect]] reset:YES];
 }
 
