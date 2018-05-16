@@ -93,24 +93,24 @@
 			id sc=[NSString stringWithContentsOfFile:[device stringByAppendingPathComponent:@"in_accel_scale"]];
 			if(sc)
 				{
-				scaleX=scaleY=scaleZ=[sc doubleValue]/9.81;	// iio returns kg/s^2
-				accel=[device retain];
-
-				/* should use device configuration database */
-				NSString *model=[[[UIDevice new] autorelease] model];
-
 				/* on GTA04A5 it turns out that some axis are inverted
 				 compared to the GTA04A4. This should have been
 				 handled/unified by the kernel, but it isn't.
 
-				 Values					GTA04A4		GTA04A5		Pyra(Phone)
-										X / Y / Z	X / Y / Z
-				 Device
+				 Device					GTA04A4		GTA04A5		Pyra(Phone)
+				 Raw iio data			X / Y / Z	X / Y / Z	X/Y/Z
 				 - flat on table		0 / 0 / +1	0 / 0 / -1	0/0/-1
 				 - upright (phone2ear)	0 / +1 / 0	0 / +1 / 0	+1/0/0
 				 - on left edge			+1 / 0 / 0	-1 / 0 / 0	0/-1/0
 
 				 */
+
+				scaleX=scaleY=scaleZ=-[sc doubleValue]/9.81;	// iio returns kg/s^2
+				accel=[device retain];
+
+				/* should use device configuration database */
+				NSString *model=[[[UIDevice new] autorelease] model];
+
 
 #if 0
 				NSLog(@"model for accelerometers = %@", model);
@@ -118,16 +118,18 @@
 				if([model rangeOfString:@"GTA04A5"].location != NSNotFound)
 					{
 #if 0
-					NSLog(@"invert Y");
+					NSLog(@"invert X&Z");
 #endif
-					scaleY=-scaleY;	// invert Y axis of GTA04A5
+					scaleX=-scaleX;	// invert Y axis of GTA04A5
+					scaleZ=-scaleZ;	// invert Y axis of GTA04A5
 					}
+				// Note: PyraPhone needs a different processing!
 				else if([model rangeOfString:@"Pyra"].location != NSNotFound)
 					{
 #if 0
-					NSLog(@"invert Y&Z"),
+					NSLog(@"invert X&Z"),
 #endif
-					scaleY=-scaleY;	// invert Y axis of Pyra
+					scaleX=-scaleX;	// invert X axis of Pyra
 					scaleZ=-scaleZ;	// invert Z axis of Pyra
 					}
 				break;
