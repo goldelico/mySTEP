@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
 	while(YES)
 		{
 		CMDeviceMotion *dm=[cm deviceMotion];
-		NSLog(@"%@", dm);
+		char *str=[[dm description] UTF8String];
+		printf("%s\n", str);
 		[[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];	// run for another second
 		}
 	[cm stopDeviceMotionUpdates];
