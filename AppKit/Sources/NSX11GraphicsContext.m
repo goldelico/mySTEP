@@ -2174,6 +2174,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 */
 		atm=[NSAffineTransform transform];
 		[atm translateXBy:-origin.x yBy:-origin.y];		// we will scan through XImage which is thought to be relative to the drawing origin
+#if 0
+		NSLog(@"state %p", _state);
+		NSLog(@"ctm %@", _state->_ctm);
+#endif
 		[atm prependTransform:_state->_ctm];
 		[atm invert];				// get reverse mapping (XImage coordinates to unit square)
 		width=[rep pixelsWide];
