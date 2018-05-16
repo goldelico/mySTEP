@@ -11,6 +11,7 @@
 #import "CoreLocationDaemon.h"
 
 NSString *const kCLErrorDomain=@"CLErrorDomain";
+const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
 
 @implementation CLLocation
 

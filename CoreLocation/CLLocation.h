@@ -19,7 +19,7 @@ typedef struct _CLLocationCoordinate2D
 	CLLocationDegrees longitude;	// positive values are east of Greenwich
 } CLLocationCoordinate2D;
 
-const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
+extern const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid;
 
 #import <CoreLocation/CLLocationManager.h>	// defines CLLocationDistance
 
