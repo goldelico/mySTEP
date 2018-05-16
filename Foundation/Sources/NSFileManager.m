@@ -1006,8 +1006,12 @@ static NSFileManager *__fm = nil;
 	return [_pathStack count];
 }
 
-- (void) skipDescendents								// Skip subdirectories
-{
+// something for FoundationTests:
+// if called while we got a plain file, this aborts reading the current directory
+// what happens if called before the first nextObject? probably nothing
+
+- (void) skipDescendents
+{// Skip remainder of current directory
 	if ([_pathStack count])
 		{
 		closedir((DIR*)[[_enumStack lastObject] pointerValue]);
@@ -1053,7 +1057,6 @@ static NSFileManager *__fm = nil;
 				_fileName = [[_pathStack lastObject] stringByAppendingPathComponent:_fileName];
 				// Full path of current file
 				_filePath = [_topPath stringByAppendingPathComponent:_fileName];
-				_filePath=_fileName;
 				[_fileName retain];
 				[_filePath retain];
 #if 0
@@ -1061,12 +1064,12 @@ static NSFileManager *__fm = nil;
 #endif
 				if(_fm.shallow)
 					break;	// no need to check for directory
+				cpath=[__fm fileSystemRepresentationWithPath:_filePath];
 				if (!_fm.followLinks)
 					{ // default is not to follow symlinks
 #if 0
 						NSLog(@"lstat(%s, %p)", cpath, &statbuf);
 #endif
-						lstat(cpath, &statbuf);
 						if (lstat(cpath, &statbuf) < 0)
 							break;
 						// If link (even into directoy) then return it as link and don't traverse
