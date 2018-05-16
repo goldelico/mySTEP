@@ -93,9 +93,9 @@
 				 Values					GTA04A4		GTA04A5		Pyra(Phone)
 										X / Y / Z	X / Y / Z
 				 Device
-				 - flat on table		0 / 0 / +1	0 / 0 / -1	0/0/-
-				 - upright (phone2ear)	0 / +1 / 0	0 / +1 / 0	+/0/0
-				 - on right edge		-1 / 0 / 0	+1 / 0 / 0	0/-/0
+				 - flat on table		0 / 0 / +1	0 / 0 / -1	0/0/-1
+				 - upright (phone2ear)	0 / +1 / 0	0 / +1 / 0	+1/0/0
+				 - on left edge			+1 / 0 / 0	-1 / 0 / 0	0/-1/0
 
 				 */
 
@@ -105,10 +105,9 @@
 				if([model rangeOfString:@"GTA04A5"].location != NSNotFound)
 					{
 #if 0
-					NSLog(@"invert X&Z");
+					NSLog(@"invert Y");
 #endif
-					scaleX=-scaleX;	// invert X axis of GTA04A5
-					scaleZ=-scaleZ;	// invert Z axis of GTA04A5
+					scaleY=-scaleY;	// invert Y axis of GTA04A5
 					}
 				else if([model rangeOfString:@"Pyra"].location != NSNotFound)
 					{
