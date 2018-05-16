@@ -7,6 +7,7 @@
 //
 
 #import <CoreMotion/CoreMotion.h>
+#import <CoreDevice/CoreDevice.h>
 
 @implementation CMAccelerometer
 
@@ -60,13 +61,16 @@
 	NSLog(@"read iio accelerometers");
 #endif
 	static NSString *accel;
-	static double scale;
+	static double scaleX;
+	static double scaleY;
+	static double scaleZ;
 	if(!accel)
 		{
 		NSError *error;
 		NSString *dir=@"/sys/bus/iio/devices/";
 		NSEnumerator *e=[[[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:&error] objectEnumerator];
 		NSString *device;
+
 		while((device=[e nextObject]))
 			{
 			device=[dir stringByAppendingPathComponent:device];
@@ -76,8 +80,44 @@
 			id sc=[NSString stringWithContentsOfFile:[device stringByAppendingPathComponent:@"in_accel_scale"]];
 			if(sc)
 				{
-				scale=[sc doubleValue]/9.81;	// iio returns kg/s^2
+				scaleX=scaleY=scaleZ=[sc doubleValue]/9.81;	// iio returns kg/s^2
 				accel=[device retain];
+
+				/* should use device configuration database */
+				NSString *model=[[[UIDevice new] autorelease] model];
+
+				/* on GTA04A5 it turns out that some axis are inverted
+				 compared to the GTA04A4. This should have been
+				 handled/unified by the kernel, but it isn't.
+
+				 Values					GTA04A4		GTA04A5		Pyra(Phone)
+										X / Y / Z	X / Y / Z
+				 Device
+				 - flat on table		0 / 0 / +1	0 / 0 / -1	0/0/-
+				 - upright (phone2ear)	0 / +1 / 0	0 / +1 / 0	+/0/0
+				 - on right edge		-1 / 0 / 0	+1 / 0 / 0	0/-/0
+
+				 */
+
+#if 0
+				NSLog(@"model for accelerometers = %@", model);
+#endif
+				if([model rangeOfString:@"GTA04A5"].location != NSNotFound)
+					{
+#if 0
+					NSLog(@"invert X&Z");
+#endif
+					scaleX=-scaleX;	// invert X axis of GTA04A5
+					scaleZ=-scaleZ;	// invert Z axis of GTA04A5
+					}
+				else if([model rangeOfString:@"Pyra"].location != NSNotFound)
+					{
+#if 0
+					NSLog(@"invert Y&Z"),
+#endif
+					scaleY=-scaleY;	// invert Y axis of Pyra
+					scaleZ=-scaleZ;	// invert Z axis of Pyra
+					}
 				break;
 				}
 			}
@@ -87,13 +127,9 @@
 		}
 	if(accel)
 		{
-		_deviceMotion->_gravity.x=scale*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_x_raw"]] intValue];
-		_deviceMotion->_gravity.y=scale*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_y_raw"]] intValue];
-		_deviceMotion->_gravity.z=scale*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_z_raw"]] intValue];
-		// swap&scale depending on device model adjustments
-		// should read the Device database...
-		// GTA04A5:
-		_deviceMotion->_gravity.x=-_deviceMotion->_gravity.x;
+		_deviceMotion->_gravity.x=scaleX*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_x_raw"]] intValue];
+		_deviceMotion->_gravity.y=scaleY*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_y_raw"]] intValue];
+		_deviceMotion->_gravity.z=scaleZ*[[NSString stringWithContentsOfFile:[accel stringByAppendingPathComponent:@"in_accel_z_raw"]] intValue];
 		}
 #else
 	// debugging
