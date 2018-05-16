@@ -25,6 +25,13 @@
 - (CMRotationRate) rotationRate; { return _rotationRate; }
 - (CMAcceleration) userAcceleration; { return _userAcceleration; }
 
+- (NSString *) description;
+{
+	// FIXME: add others
+	return [NSString stringWithFormat:@"g.x=%+4.1lf g.y=%+4.1lf g.z=%+4.1lf", _gravity.x, _gravity.y, _gravity.z];
+}
+
+
 @end
 
 @implementation CMGyro
@@ -40,6 +47,12 @@
 @end
 
 @implementation CMMotionManager
+
+- (void) dealloc
+{
+	[self stopDeviceMotionUpdates];
+	[super dealloc];
+}
 
 - (void) startDeviceMotionUpdates;
 {
