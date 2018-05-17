@@ -111,32 +111,45 @@
 				/* should use device configuration database */
 				NSString *model=[[[UIDevice new] autorelease] model];
 
+				/* to make things worse,
+				 * some devices can have multiple sensors with different orientations!
+				 */
+
+				NSString *chip=[NSString stringWithContentsOfFile:[device stringByAppendingPathComponent:@"name"]];
+				chip=[chip stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 #if 0
-				NSLog(@"model for accelerometers = %@", model);
+				NSLog(@"model for accelerometers = %@ chip name = %@ device = %@", model, chip, device);
 #endif
 				if([model rangeOfString:@"GTA04A5"].location != NSNotFound)
 					{
-#if 0
-					NSLog(@"invert X&Z");
-#endif
-					scaleX=-scaleX;	// invert Y axis of GTA04A5
-					scaleZ=-scaleZ;	// invert Y axis of GTA04A5
+					if([chip isEqualToString:@"bno055"])
+						{ // bno055
+						scaleX *= -1;	// invert X axis of GTA04A5
+						scaleZ *= -1;	// invert Z axis of GTA04A5
+						}
+					else
+						{ // bmc150_accel
+						scaleY *= -1;	// invert Y axis of GTA04A5
+						scaleZ *= -1;	// invert Z axis of GTA04A5
+						}
 					}
-				// Note: PyraPhone needs a different processing!
+				else if([model rangeOfString:@"GTA15"].location != NSNotFound)
+					{ // PyraPhone needs a different processing!
+
+					}
 				else if([model rangeOfString:@"Pyra"].location != NSNotFound)
 					{
-#if 0
-					NSLog(@"invert X&Z"),
-#endif
-					scaleX=-scaleX;	// invert X axis of Pyra
-					scaleZ=-scaleZ;	// invert Z axis of Pyra
+					scaleX *= -1;	// invert X axis of Pyra
+					scaleZ *= -1;	// invert Z axis of Pyra
 					}
+				else
+					; // assume GTA04A3/4 with bma180
 				break;
 				}
 			}
 #if 0
-		NSLog(@"iio accel found: %@ scale=%g", accel, scale);
+		NSLog(@"iio accel found: %@ scaleX=%g %g %g", accel, scaleX, scaleY, scaleZ);
 #endif
 		}
 	if(accel)
