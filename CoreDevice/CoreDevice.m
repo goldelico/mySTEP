@@ -333,8 +333,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) model;
 {
-	// read /sys/firmware/devicetree/base/model
-	return @"GTA04";	// should be read from sysinfo database or device tree
+	// should be read from sysinfo database
+	NSString *str=[NSString stringWithContentsOfFile:@"/sys/firmware/devicetree/base/model"];	// 0-terminated!
+	return str?[str substringToIndex:[str length]-1]:@"Letux";
 }
 
 - (BOOL) isMultitaskingSupported;	/* always YES */
