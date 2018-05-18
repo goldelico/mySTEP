@@ -532,7 +532,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) drawInRect:(NSRect) rect
 { // shortcut introduced in OSX 10.9
-	[self drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]
+	[self drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
 - (void) dissolveToPoint:(NSPoint)p fraction:(CGFloat)f
