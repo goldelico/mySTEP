@@ -47,6 +47,7 @@
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
 		EE65D7351F4A0F8A00B72355 /* NSKVCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */; };
 		EE65D7371F4B1F4600B72355 /* NSRegularExpressionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */; };
+		EE85EFF720B47512000C1D34 /* NSPropertyListSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = EE85EFF620B47512000C1D34 /* NSPropertyListSerialization.m */; };
 		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
 		EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */; };
 		EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB951F2A5A5400211520 /* floatspeed.m */; };
@@ -151,6 +152,7 @@
 		EE235B731F29D0EA00F026E0 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSKVCTest.m; sourceTree = "<group>"; };
 		EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSRegularExpressionTest.m; sourceTree = "<group>"; };
+		EE85EFF620B47512000C1D34 /* NSPropertyListSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPropertyListSerialization.m; sourceTree = "<group>"; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMutableArrayTest.m; sourceTree = "<group>"; };
 		EEEEFB821F2A1E1B00211520 /* AppKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -251,8 +253,8 @@
 			children = (
 				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
 				EE235B5A1F29CB3400F026E0 /* FoundationTests */,
-				EEEEFB831F2A1E1B00211520 /* AppKitTests */,
 				EEEEFBB11F2CBC8300211520 /* AddressBookTests */,
+				EEEEFB831F2A1E1B00211520 /* AppKitTests */,
 				EEEEFBBE1F2CBC9500211520 /* CoreLocationTests */,
 				EEEEFBCB1F2CBCAB00211520 /* MapKitTests */,
 				EEEEFBD81F2CBCBF00211520 /* MessageTests */,
@@ -282,6 +284,7 @@
 				EE235B6D1F29D0EA00F026E0 /* NSPortCoderTest.m */,
 				EE235B6E1F29D0EA00F026E0 /* NSPortTest.m */,
 				EE235B6F1F29D0EA00F026E0 /* NSPredicateTest.m */,
+				EE85EFF620B47512000C1D34 /* NSPropertyListSerialization.m */,
 				EE235B701F29D0EA00F026E0 /* NSScannerTest.m */,
 				EE235B711F29D0EA00F026E0 /* NSStringTest.m */,
 				EE235B721F29D0EA00F026E0 /* NSURLTest.m */,
@@ -654,6 +657,7 @@
 				EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */,
 				EE235B7B1F29D0EA00F026E0 /* NSDistantObjectTest.m in Sources */,
 				EE235B7F1F29D0EA00F026E0 /* NSPortCoderTest.m in Sources */,
+				EE85EFF720B47512000C1D34 /* NSPropertyListSerialization.m in Sources */,
 				EE65D7371F4B1F4600B72355 /* NSRegularExpressionTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
