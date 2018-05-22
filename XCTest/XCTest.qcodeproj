@@ -8,6 +8,7 @@ export INSTALL_PATH="/Developer/Library/Frameworks"
 export PRODUCT_NAME="XCTest"
 export SOURCES="XCTest.h"
 export SOURCES+=" XCTest.m"
+export SOURCES+=" XCTest-Info.plist"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"

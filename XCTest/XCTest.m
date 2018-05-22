@@ -9,4 +9,11 @@
 
 #import <XCTest/XCTest.h>
 
-/* empty */
+#ifdef __mySTEP__
+
+void _Cocoa_dummy(void)
+{
+	[SenTest class];	// reference SenTestingKit so that it is linked against
+}
+
+#endif
