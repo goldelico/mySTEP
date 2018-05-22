@@ -44,7 +44,7 @@
 		}
 #endif
 	XCTAssertEqual(NSSwapShort(0x1234), (unsigned short)0x3412, @"NSSwapShort failed");
-	XCTAssertEqual(NSSwapLong(0x12345678L), 0x78563412UL, @"NSSwapLong failed");
+	XCTAssertEqual(NSSwapLong(0x12345678L), 0x7856341200000000UL, @"NSSwapLong failed");
 	XCTAssertEqual(NSSwapLongLong(0x123456789abcdef0LL), 0xf0debc9a78563412LL, @"NSSwapLongLong failed");
 	XCTAssertEqual(NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt)), ((NSHostByteOrder() == NS_LittleEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapBigFloatToHost failed");
 	XCTAssertEqual(NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)), ((NSHostByteOrder() == NS_BigEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapLittleFloatToHost failed");
