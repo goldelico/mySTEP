@@ -166,8 +166,6 @@
 	NSArray *pitches;
 	NSArray *expect;
 	NSPredicate *p;
-	NSDictionary *d;
-	
 	
 	pitches = [NSArray arrayWithObjects:
 			   @"Do", @"Re", @"Mi", @"Fa", @"So", @"La", nil];

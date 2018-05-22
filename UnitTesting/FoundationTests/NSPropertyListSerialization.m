@@ -25,16 +25,16 @@
 - (void) test1
 {
 	NSError *error=nil;
-	id obj=[NSMuableDictionary dictionaryWithCapacity:100];
+	id obj=[NSMutableDictionary dictionaryWithCapacity:100];
 	NSJSONWritingOptions opts=0;
 #if 1
 	opts=NSJSONWritingPrettyPrinted;
 #endif
-	[obj setObject:[NSNull null] forKey:"NSNull"];
-	[obj setObject:[NSNumber numberWithBool:NO] forKey:"bool_no"];
-	[obj setObject:[NSNumber numberWithBool:YES] forKey:"bool_yes"];
-	[obj setObject:[NSNumber numberWithInt:12345] forKey:"integer"];
-	[obj setObject:[NSNumber numberWithDouble:M_PI] forKey:"float"];
+	[obj setObject:[NSNull null] forKey:@"NSNull"];
+	[obj setObject:[NSNumber numberWithBool:NO] forKey:@"bool_no"];
+	[obj setObject:[NSNumber numberWithBool:YES] forKey:@"bool_yes"];
+	[obj setObject:[NSNumber numberWithInt:12345] forKey:@"integer"];
+	[obj setObject:[NSNumber numberWithDouble:M_PI] forKey:@"float"];
 	// raises an exception if we find an NSURL inside!!!
 	// raises exception if obj is nil!!!
 	NSData *data=[NSJSONSerialization dataWithJSONObject:obj options:opts error:&error];
