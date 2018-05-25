@@ -25,7 +25,7 @@
 - (void) setUp
 {
 	t=[[NSAffineTransform alloc] init];	// create unit matrix
-	XCTAssertNotNil(t, @"");
+	XCTAssertNotNil(t);
 }
 
 - (void) tearDown
@@ -37,12 +37,12 @@
 {
 	NSAffineTransformStruct ts;
 	ts=[t transformStruct];
-	XCTAssertEqual(ts.m11, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.m12, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m21, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.m22, (CGFloat) 1.0, @"");
-	XCTAssertEqual(ts.tX, (CGFloat) 0.0, @"");
-	XCTAssertEqual(ts.tY, (CGFloat) 0.0, @"");
+	XCTAssertEqual(ts.m11, (CGFloat) 1.0);
+	XCTAssertEqual(ts.m12, (CGFloat) 0.0);
+	XCTAssertEqual(ts.m21, (CGFloat) 0.0);
+	XCTAssertEqual(ts.m22, (CGFloat) 1.0);
+	XCTAssertEqual(ts.tX, (CGFloat) 0.0);
+	XCTAssertEqual(ts.tY, (CGFloat) 0.0);
 }
 
 - (void) test02
