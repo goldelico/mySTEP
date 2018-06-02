@@ -115,6 +115,9 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 	png_structp read_ptr;
 	png_infop read_info_ptr, end_info_ptr;
 	png_uint_32 y, width, height;
+	int unit;
+	png_uint_32 res_x, res_y;
+	NSSize size;
 	int num_pass, pass;
 	int bit_depth, color_type, intent;
 	unsigned long row_bytes;
@@ -239,6 +242,32 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 						 bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
 						 bytesPerRow: row_bytes
 						 bitsPerPixel: png_get_bit_depth(read_ptr, read_info_ptr)] autorelease];
+
+#if 0	// this header may not exist...
+	if(png_get_sCAL(read_ptr, read_info_ptr, &unit, &size.width, &size.height))
+		{ // PNG defines physical size
+	  // skalieren?
+		NSLog(@"PNG default size: %@", NSStringFromSize([imageRep size]));
+		NSLog(@"PNG calibrated size: %@", NSStringFromSize(size));
+	  //		[imageRep setSize:size];
+		}
+#endif
+
+	if(png_get_pHYs(read_ptr, read_info_ptr, &res_x, &res_y, &unit))
+		{
+		if(unit == PNG_RESOLUTION_METER)
+			{ // scale by dots per meter
+			res_x = 0.0254*res_x;	// convert and round to DPI
+			res_y = 0.0254*res_y;
+			if(res_x > 0 && res_y > 0)	// protect against data leading to DIV0
+				{
+				size = NSMakeSize((72*width)/res_x, (72*height)/res_y);	// convert to point
+				NSLog(@"PNG default size: %@", NSStringFromSize([imageRep size]));
+				NSLog(@"PNG calibrated size: %@", NSStringFromSize(size));
+				[imageRep setSize:size];
+				}
+			}
+		}
 
 	buffer = (char *) [imageRep bitmapData];
 
