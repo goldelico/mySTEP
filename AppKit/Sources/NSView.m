@@ -226,28 +226,16 @@ static NSUInteger __toolTipSequenceCounter = 0;
 @implementation NSAffineTransform (NSPrivate)
 
 - (NSRect) _transformRect:(NSRect) aRect;
-{ // get the smallest rectangle that covers all 4 transformed points (which are not necessarily a rectangle!)
+{ // get the smallest (nonrotated) rectangle that covers all 4 transformed points (which are not necessarily a rectangle!)
 	NSPoint p1=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))];
 	NSPoint p2=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))];
 	NSPoint p3=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))];
-	NSPoint p4=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))];	
-	CGFloat minx=p1.x;
-	CGFloat miny=p1.y;
-	CGFloat maxx=p1.x;
-	CGFloat maxy=p1.y;
-	if(p2.x < minx) minx=p2.x;
-	if(p3.x < minx) minx=p3.x;
-	if(p4.x < minx) minx=p4.x;
-	if(p2.y < miny) miny=p2.y;
-	if(p3.y < miny) miny=p3.y;
-	if(p4.y < miny) miny=p4.y;
-	if(p2.x > maxx) maxx=p2.x;
-	if(p3.x > maxx) maxx=p3.x;
-	if(p4.x > maxx) maxx=p4.x;
-	if(p2.y > maxy) maxy=p2.y;
-	if(p3.y > maxy) maxy=p3.y;
-	if(p4.y > maxy) maxy=p4.y;
-	return NSMakeRect(minx, miny, maxx-minx, maxy-miny);
+	NSPoint p4=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))];
+	p1.x=MIN(MIN(p1.x, p2.x), MIN(p3.x, p4.x));	// get total minimum
+	p1.y=MIN(MIN(p1.y, p2.y), MIN(p3.y, p4.y));	// get total minimum
+	p4.x=MAX(MAX(p1.x, p2.x), MAX(p3.x, p4.x));	// get total maximum
+	p4.y=MAX(MAX(p1.y, p2.y), MAX(p3.y, p4.y));	// get total maximum
+	return (NSRect){p1, { p4.x-p1.x, p4.y-p1.y } };
 }
 
 @end
