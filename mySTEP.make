@@ -77,6 +77,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) DEBIAN_NOPACKAGE - don't build packages
 #   (*) FILES
 #   (*) DATA
+#   (+) DEBDIST - where to store the binary-arch files
 #  download and test (postprocess 2)
 #   () EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
 #   * INSTALL_PATH
@@ -773,8 +774,9 @@ endif
 ifeq ($(DEBIAN_RELEASE),)
 DEBIAN_RELEASE := staging
 endif
-
+ifeq ($(DEBDIST),)
 DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main"
+endif
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
