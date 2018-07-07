@@ -531,12 +531,16 @@ void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDi
 		// NOTE: for handling complex patterns, we must add our own timer!
 		while((o=[f nextObject]))
 			{ //take the last YES pattern
-				NSLog(@"try %@ %d", o, [o boolValue]);
+#if 1
+			NSLog(@"try %@ %d", o, [o boolValue]);
+#endif
 			if([o boolValue])
 				{
-				o=[f nextObject]
-				timeoutMs=1000*[o doubleValue];
+				o=[f nextObject];
+				timeoutMs=[o doubleValue];
+#if 1
 				NSLog(@"to %@ %d", o, timeoutMs);
+#endif
 				}
 			else
 				[f nextObject];
@@ -548,7 +552,7 @@ void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDi
 		e.direction = 0;
 		e.trigger.button = 0;
 		e.trigger.interval = 0;
-		e.replay.length = timeoutMs <= 0 ? timeoutMs : 3000;
+		e.replay.length = timeoutMs >= 0 ? timeoutMs : 3000;
 		e.replay.delay = 0;
 		float i=[intensity floatValue];
 		i=MAX(MIN(i, 1.0), 0.0);	//range limit
