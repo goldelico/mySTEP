@@ -1052,7 +1052,7 @@ ifneq ($(WRAPPER_EXTENSION),)
 ifneq ($(strip $(INFOPLISTS)),)
 # should reject multiple Info.plists
 # should expand ${EXECUTABLE_NAME} and other macros!
-	- cp "$(INFOPLISTS)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+	- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 else
 # create a default Info.plist
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
