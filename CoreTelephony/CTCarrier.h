@@ -17,7 +17,7 @@
 	NSString	*cellID;
 	float		strength;
 	float		dBm;
-	float		networkType;
+	float		networkSpeed;
 }
 
 - (NSString *) carrierName;

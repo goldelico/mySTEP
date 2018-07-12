@@ -15,12 +15,14 @@
  ** rmmod hso && modprobe hso may help - but also end in a kernel panic
  ** GUI may hang if we allow buttons to be pressed recursively while we wait for timeouts
  ** modem remains enabled if application terminates (or system is shut down)
- ** 
+ **
  */
 
 #import "CTPrivate.h"
 
 #include <signal.h>
+
+/* communicate with the hardware */
 
 @interface CTModemManager (ModemHardware)
 
@@ -36,19 +38,100 @@
 - (void) _writeCommand:(NSString *) str;
 - (void) _setError:(NSString *) msg;
 
+// runAT...
+
 @end
 
-@interface CTModemManager (ATCommandsGTM601)
+/* send specific AT commands */
 
-- (int) _openHSO;	// open and initialize modem
-- (int) _closeHSO;
+@interface CTModemManager (ATCommands)
+
+- (int) _openModem;	// open and initialize modem
+- (int) _closeModem;
 - (void) _processLine:(NSString *) line;
+- (void) _initModem;
+- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries;
 
 @end
 
-// FIXME: split into low-end (modem serial - Private) and high-end methods (AT command level) and user-level
+@implementation CTModemManager
 
-@implementation CTModemManager (ModemHardware)
+/* NIB-safe Singleton pattern */
+
+#define SINGLETON_CLASS		CTModemManager
+#define SINGLETON_VARIABLE	modemManager
+#define SINGLETON_HANDLE	modemManager
+
+/* static part */
+
+static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
+
++ (id) allocWithZone:(NSZone *)zone
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		return [super allocWithZone:zone];
+	}
+	return SINGLETON_VARIABLE;
+}
+
+- (id) copyWithZone:(NSZone *)zone { return self; }
+
+- (id) retain { return self; }
+
+- (unsigned) retainCount { return UINT_MAX; }
+
+- (void) release {}
+
+- (id) autorelease { return self; }
+
++ (SINGLETON_CLASS *) SINGLETON_HANDLE
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		[[self alloc] init];
+	}
+	return SINGLETON_VARIABLE;
+}
+
+/* customized part */
+
+- (id) init
+{
+	//    Class myClass = [self class];
+	//    @synchronized(myClass)
+	{
+	if (!SINGLETON_VARIABLE && (self = [super init]))
+		{
+		SINGLETON_VARIABLE = self;
+		/* custom initialization here */
+		}
+	}
+	return self;
+}
+
+- (void) dealloc
+{ // should not happen for a singleton!
+#if 1
+	NSLog(@"CTModemManager dealloc");
+	abort();
+#endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSFileHandleReadCompletionNotification
+												  object:ttyPort];	// don't observe any more
+	[self _closeModem];
+	[error release];
+	[super dealloc];
+	modemManager=nil;
+}
+
+@end
+
+// FIXME: split into low-end (modem serial - Private) and high-end methods (AT command level) and user-level (GUI)
+
+@implementation CTModemManager (Logging)
 
 BOOL modemLog=NO;
 
@@ -59,8 +142,10 @@ BOOL modemLog=NO;
 
 - (void) log:(NSString *) format, ...
 {
-	// this is certainly not fast...
-	NSString *name=[NSString stringWithFormat:@"/tmp/%@.log", [[NSBundle bundleForClass:[self class]] bundleIdentifier]];
+	static NSString *name;
+	if(!name)
+		name=[[NSString stringWithFormat:@"/tmp/%@.log", [[NSBundle bundleForClass:[self class]] bundleIdentifier]] retain];
+	// open/append/close is certainly not fast...
 	FILE *f=fopen([name fileSystemRepresentation], "a");
 	if(f)
 		{
@@ -70,10 +155,14 @@ BOOL modemLog=NO;
 		fprintf(f, "%s: %s%s", [[[NSDate date] description] UTF8String], [msg UTF8String], [msg hasSuffix:@"\n"]?"":"\n");
 		fprintf(stderr, "%s: %s%s", [[[NSDate date] description] UTF8String], [msg UTF8String], [msg hasSuffix:@"\n"]?"":"\n");
 		[msg release];
-		va_end (ap);		
+		va_end (ap);
 		fclose(f);
 		}
 }
+
+@end
+
+@implementation CTModemManager (ModemHardware)
 
 - (BOOL) _isPoweredOn;
 {
@@ -95,7 +184,7 @@ BOOL modemLog=NO;
 	if(on)
 		{
 		// FIXME: should not block GUI while this script is running...
-		FILE *p=popen("/root/wwan-on", "r");
+		FILE *p=popen("/root/wwan-on Application", "r");	// open the Application port (needs latest Letux-kernel) to receive unsolicited messages
 		NSString *device;
 		char dev[200];
 		if(!p)
@@ -144,12 +233,12 @@ BOOL modemLog=NO;
 	if(ttyPort)
 		{ // already open
 			[self _setError:nil];
-			return YES;			
+			return YES;
 		}
 	return [self _power:YES];
 }
 
-- (int) _closePort;	// will not power down
+- (int) _closePort;	// will also power down
 {
 	[self _power:NO];
 	[lastChunk release];
@@ -222,63 +311,6 @@ BOOL modemLog=NO;
 
 - (BOOL) isAvailable; {	return ttyPort != nil; }
 
-@end
-
-@implementation CTModemManager (ATCommandsGTM601)
-
-- (int) _openHSO;
-{
-	if(![self _openPort])
-		return NO;
-	pinStatus=CTPinStatusUnknown;	// needs to check again
-	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
-	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
-		{
-		[self _setError:@"Failed to intialize modem."];
-		return NO;			
-		}
-	//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
-	// FIXME:
-	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
-	[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
-	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
-	[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
-	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
-	[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
-	[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
-	[self runATCommand:@"AT_OUHCIP=1"];	// report HSDPA call in progress		
-	[self runATCommand:@"AT_OSSYS=1"];	// report system (GSM / UTRAN)		
-	[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature		
-	[self runATCommand:@"AT+COPS"];		// report RING etc.		
-	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
-	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
-	[self runATCommand:@"AT_OPCMENABLE=1"];	// renable voice PCM
-	return YES;
-}
-
-- (int) _closeHSO;
-{
-	if(modemLog) [self log:@"_closeHSO"];
-	if(ttyPort)
-		{
-		[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
-		[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
-		[self _closePort];
-		}
-	// should we power off the modem?
-	pinStatus=CTPinStatusUnknown;	// needs to check again
-	return YES;
-}
-
-- (void) setUnsolicitedTarget:(id) t action:(SEL) a;
-{
-#if 1
-	NSLog(@"setUnsolicitedTarget:");
-#endif
-	unsolicitedTarget=t;
-	unsolicitedAction=a;
-}
-
 // FIXME: queue up or protect against recursions
 
 - (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
@@ -286,7 +318,7 @@ BOOL modemLog=NO;
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	if(modemLog) [self log:@"run %@", cmd];
 	status=CTModemTimeout;	// default status
-	if(ttyPort || [self _openHSO])	// _openHSO may run recursively to initialize the modem
+	if(ttyPort || [self _openModem])	// _openHSO may run recursively to initialize the modem
 		{
 		NSDate *timeout=[NSDate dateWithTimeIntervalSinceNow:seconds];
 		done=NO;
@@ -326,14 +358,14 @@ BOOL modemLog=NO;
 
 - (void) _collectResponse:(NSString *) line
 {
-	[response appendString:line];
+	[response addObject:line];
 }
 
-- (NSString *) runATCommandReturnResponse:(NSString *) cmd
+- (NSArray *) runATCommandReturnResponse:(NSString *) cmd
 { // collect response in string
-	NSMutableString *sr=response;	// save response (if we are a nested call)
-	NSMutableString *r=[NSMutableString stringWithCapacity:100];
-	response=r;	
+	NSMutableArray *sr=response;	// save response (if we are a nested call)
+	NSMutableArray *r=[NSMutableArray arrayWithCapacity:3];
+	response=r;
 	[self _setError:nil];
 	if([self runATCommand:cmd target:self action:@selector(_collectResponse:)] != CTModemOk)
 		{
@@ -342,6 +374,8 @@ BOOL modemLog=NO;
 		r=nil;	// wasn't able to get response
 		}
 	response=sr;	// restore
+	while([[r lastObject] length] == 0)
+		[r removeLastObject];	// remove trailing empty lines, e.g. before OK
 	return r;
 }
 
@@ -377,9 +411,9 @@ BOOL modemLog=NO;
 				}
 			if(target && action)
 				{ // anything between the AT echo and OK/ERROR
-				[target performSelector:action withObject:line];	// repsonse to current command
-				return;
-				}			
+					[target performSelector:action withObject:line];	// repsonse to current command
+					return;
+				}
 		}
 	if(!atstarted && [line hasPrefix:@"AT"])	// is some echoed AT command
 		atstarted=YES;	// divert future responses - FIXME: may not work reliably if echoing is slow
@@ -387,94 +421,154 @@ BOOL modemLog=NO;
 		[unsolicitedTarget performSelector:unsolicitedAction withObject:line afterDelay:0.0];	// unsolicited response - process in main runloop!
 }
 
+- (void) setUnsolicitedTarget:(id) t action:(SEL) a;
+{
+#if 1
+	NSLog(@"setUnsolicitedTarget:");
+#endif
+	unsolicitedTarget=t;
+	unsolicitedAction=a;
+}
+
 @end
 
-@implementation CTModemManager
+@implementation CTModemManager (ATCommands)
 
-/* NIB-safe Singleton pattern */
+/* modem model dependent stuff */
+/* could this be handled by subclassing? */
 
-#define SINGLETON_CLASS		CTModemManager
-#define SINGLETON_VARIABLE	modemManager
-#define SINGLETON_HANDLE	modemManager
-
-/* static part */
-
-static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
-
-+ (id) allocWithZone:(NSZone *)zone
-{
-	//   @synchronized(self)
-	{
-	if (! SINGLETON_VARIABLE)
-		return [super allocWithZone:zone];
-	}
-    return SINGLETON_VARIABLE;
+- (BOOL) isGTM601
+{ // OPTION GTM601W
+	if(!_ati)
+		[self _openModem];
+	return [_ati containsObject:@"Model: GTM601"];
 }
 
-- (id) copyWithZone:(NSZone *)zone { return self; }
-
-- (id) retain { return self; }
-
-- (unsigned) retainCount { return UINT_MAX; }
-
-- (void) release {}
-
-- (id) autorelease { return self; }
-
-+ (SINGLETON_CLASS *) SINGLETON_HANDLE
-{
-	//   @synchronized(self)
-	{
-	if (! SINGLETON_VARIABLE)
-		[[self alloc] init];
-    }
-    return SINGLETON_VARIABLE;
+- (BOOL) isPxS8
+{ // Cinterion PHS8/PLS8
+	if(!_ati)
+		[self _openModem];
+	return [_ati containsObject:@"Cinterion"];
 }
 
-/* customized part */
-
-- (id) init
+- (void) _initModem
 {
-	//    Class myClass = [self class];
-	//    @synchronized(myClass)
-	{
-	if (!SINGLETON_VARIABLE && (self = [super init]))
-		{
-		SINGLETON_VARIABLE = self;
-		/* custom initialization here */
+	if([self isGTM601])
+		{ // initialize GTM601
+		  //	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
+		  // FIXME:
+		  //	[self runATCommand:@"AT+CSCS=????"];	// define character set
+			[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
+			[self runATCommand:@"AT_OPONI=1"];	// report current network registration
+			[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
+			[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
+			[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate
+			[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate
+			[self runATCommand:@"AT_OUHCIP=1"];	// report HSDPA call in progress
+			[self runATCommand:@"AT_OSSYS=1"];	// report system (GSM / UTRAN)
+			[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature
+		  // do on per-call basis
+		  //	[self runATCommand:@"AT_OPCMENABLE=1"];	// renable voice PCM
 		}
-    }
-    return self;
+	else if([self isPxS8])
+		{ // Cinterion initialize PxS8
+		}
 }
 
-- (void) dealloc
-{ // should not happen for a singleton!
+- (int) _openModem;
+{
+	if(![self _openPort])
+		return NO;
+	pinStatus=CTPinStatusUnknown;	// needs to check again
+									// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
+	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
+		{
+		[self _setError:@"Failed to intialize modem."];
+		return NO;
+		}
+	[self runATCommand:@"AT+COPS"];		// report RING etc.
+	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
+	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
+	_ati=[[self runATCommandReturnResponse:@"ATI"] retain];	// determine modem type
 #if 1
-	NSLog(@"CTModemManager dealloc");
-	abort();
+	NSLog(@"ATI=%@", _ati);
 #endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:NSFileHandleReadCompletionNotification
-												  object:ttyPort];	// don't observe any more
-	[self _closeHSO];
-	[error release];
-	[super dealloc];
-	modemManager=nil;
+	[self _initModem];
+	return YES;
+}
+
+- (int) _closeModem;
+{
+	if(modemLog) [self log:@"_closeHSO"];
+	if(ttyPort)
+		{
+		[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
+		[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
+		[self _closePort];
+		}
+	// should we power off the modem?
+	pinStatus=CTPinStatusUnknown;	// needs to check again
+	[_ati release];
+	_ati=nil;
+	return YES;
+}
+
+- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries;
+{
+
+	// FIXME:	if([self isGTM601])
+
+	NSArray *result=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
+	NSString *pinpuk=[result lastObject];
+	NSArray *a=[pinpuk componentsSeparatedByString:@" "];
+#if 0
+	NSLog(@"PIN/PUK retries: %@", pinpuk);
+#endif
+	if([a count] == 3)
+		{
+		*pinretries=[[a objectAtIndex:1] intValue];
+		*pukretries=[[a objectAtIndex:2] intValue];
+#if 1
+		NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
+#endif
+		return YES;
+		}
+	return NO;	// failed to read
+}
+
+- (void) _unlocked2;
+{
+	NSEnumerator *e;
+	NSString *line;
+	if([self isGTM601])
+		{
+		e=[[self runATCommandReturnResponse:@"AT_OSIMOP"] objectEnumerator];
+		while(line=[e nextObject])
+			[unsolicitedTarget performSelector:unsolicitedAction withObject:line];
+		e=[[self runATCommandReturnResponse:@"AT+CSQ"] objectEnumerator];
+		while(line=[e nextObject])
+			[unsolicitedTarget performSelector:unsolicitedAction withObject:line];
+		}
 }
 
 - (void) _unlocked;
-{ // run additional commands after successful unlocking and report results to unsolicited delegate
+{ // run additional commands after successful unlocking and report any results to unsolicited delegate
 	pinStatus=CTPinStatusUnlocked;	// now unlocked
-	[unsolicitedTarget performSelector:unsolicitedAction withObject:[self runATCommandReturnResponse:@"AT_OSIMOP"] afterDelay:0.0];
-	[unsolicitedTarget performSelector:unsolicitedAction withObject:[self runATCommandReturnResponse:@"AT+CSQ"] afterDelay:0.0];
+	[self performSelector:@selector(_unlocked2) withObject:nil afterDelay:0.0];
 }
 
 - (CTPinStatus) pinStatus;
 { // get current PIN status
 	if(pinStatus == CTPinStatusUnknown)
 		{ // ask modem
-			// we could also check if modem has AT_OAIR? => 1
-			NSString *pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
+			if([self isGTM601])
+				{
+				// check if modem has AT_OAIR? => 1
+				// if([[self runATCommandReturnResponse:@"AT_OAIR?"] containsObject:@"1"])
+				// return CTPinStatusAirplaneMode;
+				}
+			NSArray *result=[self runATCommandReturnResponse:@"AT+CPIN?"];
+			NSString *pinstatus=[result lastObject];
 			if(!pinstatus)
 				{
 				if([error hasPrefix:@"+CME ERROR: SIM not inserted"])
@@ -520,7 +614,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if(pinStatus == CTPinStatusAirplaneMode)
 			return YES;	// already set
 		[self setUnsolicitedTarget:nil action:NULL];	// user app must restore after exiting airplane mode!
-		[self runATCommand:@"AT_OAIR=1"];
+		if([self isGTM601])
+			[self runATCommand:@"AT_OAIR=1"];
 		pinStatus=CTPinStatusAirplaneMode;
 		// [self _closeHSO] + [self _power:NO]
 		// power off modem (if possible)
@@ -530,7 +625,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		if(pinStatus != CTPinStatusAirplaneMode)
 			return YES;	// already disabled
-		[self runATCommand:@"AT_OAIR=0"];
+		if([self isGTM601])
+			[self runATCommand:@"AT_OAIR=0"];
 		pinStatus=CTPinStatusUnknown;	// check on next call for pinStatus
 		return YES;
 		}
@@ -539,33 +635,61 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) reset;
 {
 	if(modemLog) [self log:@"--- reset ---"];
-	[self setUnsolicitedTarget:nil action:NULL];
-	if([self runATCommand:@"AT+CHUP"] == CTModemOk &&
-	   [self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
+	if([self isGTM601])
 		{
-		int i;
-		NSDate *timeout;
-		[self _closePort];
-		[self _setError:@"Resetting Modem."];
-		for(i=1; i<10; i++)
+		[self setUnsolicitedTarget:nil action:NULL];
+		if([self runATCommand:@"AT+CHUP"] == CTModemOk &&
+		   [self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
 			{
-			if(![self _isPoweredOn])
-				break;	// wait until modem has disappeared on USB
-			timeout=[NSDate dateWithTimeIntervalSinceNow:1.0];
+			int i;
+			NSDate *timeout;
+			[self _closePort];
+			[self _setError:@"Resetting Modem."];
+			for(i=1; i<10; i++)
+				{
+				if(![self _isPoweredOn])
+					break;	// wait until modem has disappeared on USB
+				timeout=[NSDate dateWithTimeIntervalSinceNow:1.0];
+				while([timeout timeIntervalSinceNow] >= 0)
+					[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+				}
+			[self _setError:@"Modem disappeared."];
+			timeout=[NSDate dateWithTimeIntervalSinceNow:5.0];	// leave some time for modem to come up again - or calling [self _openHSO] will turn it off instead of on...
 			while([timeout timeIntervalSinceNow] >= 0)
 				[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+			[self _setError:nil];	// ok
 			}
-		[self _setError:@"Modem disappeared."];
-		timeout=[NSDate dateWithTimeIntervalSinceNow:5.0];	// leave some time for modem to come up again - or calling [self _openHSO] will turn it off instead of on...
-		while([timeout timeIntervalSinceNow] >= 0)
-			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
-		[self _setError:nil];	// ok
+		else
+			{
+			[self _closePort];
+			[self _setError:@"Can't reset Modem."];
+			}
 		}
-	else
-		{
-		[self _closePort];
-		[self _setError:@"Can't reset Modem."];
-		}
+}
+
+// can we mix this into single method? optionally with a parameter?
+- (void) setupPCM;
+{
+	CTModemManager *mm=[CTModemManager modemManager];
+	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
+	[mm runATCommand:@"AT_OPCMENABLE=1"];
+	[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+}
+
+- (void) setupVoice;
+{
+	system("killall arecord aplay;"	// stop any running audio forwarding
+		   "arecord -fS16_LE -r8000 | aplay -Dhw:1,0 &"	// forward microphone -> network
+		   "arecord -Dhw:1,0 -fS16_LE -r8000 | aplay &"	// forward network -> handset/earpiece
+		   );
+}
+
+- (void) terminatePCM;
+{
+	CTModemManager *mm=[CTModemManager modemManager];
+	system("killall arecord aplay");	// stop audio forwarding
+	// error handling?
+	[mm runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
 }
 
 @end
@@ -595,37 +719,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[okButton setTitle:@"Cancel"];
 			break;
 		case CTPinStatusUnlocked:
-			[message setStringValue:@"Already unlocked"];
-			[okButton setTitle:@"Cancel"];
+			[message setStringValue:@"SIM already unlocked"];
+			[okButton setTitle:@"Close"];
 			break;
 		case CTPinStatusPINRequired: {
-			NSString *pinpuk=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
-			if([pinpuk length] > 0)
-				{ // split into pin and puk retries
-					NSArray *a=[pinpuk componentsSeparatedByString:@" "];
-#if 0
-					NSLog(@"PIN/PUK retries: %@", pinpuk);
-#endif
-					if([a count] == 3)
-						{
-						int pinretries=[[a objectAtIndex:1] intValue];
-						int pukretries=[[a objectAtIndex:2] intValue];
-#if 1
-						NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
-#endif
-						if(pukretries != 10)
-							[message setStringValue:[NSString stringWithFormat:@"%d PUK / %d PIN retries", pukretries, pinretries]];
-						else
-							[message setStringValue:[NSString stringWithFormat:@"%d PIN retries", pinretries]];
-						}
+			int pinretries=0;
+			int pukretries=0;
+			if([self getPinCount:&pinretries pukCount:&pukretries])
+				{
+					if(pukretries != 10)
+						[message setStringValue:[NSString stringWithFormat:@"%d PUK / %d PIN retries", pukretries, pinretries]];
+					else
+						[message setStringValue:[NSString stringWithFormat:@"%d PIN retries", pinretries]];
 					[pin setEditable:YES];
 					[okButton setTitle:@"Unlock"];
 				}
-			break;			
+			break;
 		}
 		default:
-			[message setStringValue:@"Unknown SIM status"];			
-		}
+			[message setStringValue:@"Unknown SIM status"];
+	}
 	[pin setStringValue:@""];	// clear
 	[pinPanel setBackgroundColor:[NSColor blackColor]];
 	[pinPanel center];
@@ -636,11 +749,14 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (IBAction) pinOk:(id) sender;
 { // a new pin has been provided
 	NSString *p=[pin stringValue];
+#if 1
+	NSLog(@"pinOk: %@ %@", [okButton title], sender);
+#endif
 	if(![[okButton title] isEqualToString:@"Unlock"])	// either we have no SIM or are already unlocked
 		{ // cancel
-		[pinPanel orderOut:self];
+			[pinPanel orderOut:self];
 			[pinKeypadPanel orderOut:self];
-		return;
+			return;
 		}
 	// store temporarily so that we can check if it returns OK or not
 	// if ok, we can save the PIN
@@ -663,6 +779,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (IBAction) pinKey:(id) sender;
 {
+#if 1
+	NSLog(@"pinKey: %@ %@", [sender title], sender);
+#endif
 	if([[sender title] isEqualToString:@"C"])
 		[pin setStringValue:@""];	// clear
 	else
@@ -681,15 +800,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				case CTPinStatusUnknown: {
 					if([error isEqualToString:@"timeout"])
 						{ // we may have lost the modem connection
-						[self _closeHSO];	// disconnect modem tty and reconnect
-						continue;
+							[self _closeModem];	// disconnect modem tty and reconnect
+							continue;
 						}
 					if([error hasPrefix:@"+CME ERROR: Sim interface not started yet"])
 						{ // we were too fast for the modem (or the modem is shutting down through impulse???)
-						sleep(2);
-						continue;	// try again
+							sleep(2);
+							continue;	// try again
 						}
-					return NO;				
+					return NO;
 				}
 				case CTPinStatusNoSIM:
 					[[NSAlert alertWithMessageText:@"NO SIM"
@@ -703,7 +822,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				case CTPinStatusPINRequired:
 					if(p && [self sendPIN:p])
 						return YES;	// sending PIN provided by code was successful - otherwise open panel
-					// loop while panel is open (so that the user can cancel it)
+									// loop while panel is open (so that the user can cancel it)
 					[self orderFrontPinPanel:nil];
 					// loop modal while panel is open and block the application
 					// return YES only if PIN was successfully provided, NO if cancelled
@@ -711,5 +830,5 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 		}
 }
-	
+
 @end

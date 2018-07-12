@@ -22,7 +22,7 @@ typedef enum _CTPinStatus
 	NSFileHandle *ttyPort;
 	NSArray *modes;
 	NSString *lastChunk;	// for handling strings that arrive in chunks
-	NSMutableString /*nonretained*/ *response;
+	NSMutableArray /*nonretained*/ *response;
 	NSString *error;		// updated if runATCommand returns CTModemError
 	IBOutlet NSPanel *pinPanel;
 	IBOutlet NSTextField *message;
@@ -34,6 +34,7 @@ typedef enum _CTPinStatus
 	SEL action;	// for current AT command
 	SEL unsolicitedAction;
 	CTPinStatus pinStatus;
+	NSArray *_ati;	// modem identification
 	enum {
 		CTModemTimeout,
 		CTModemError,
@@ -46,12 +47,14 @@ typedef enum _CTPinStatus
 + (CTModemManager *) modemManager;
 + (void) enableLog:(BOOL) flag;
 
+// FIXME: separate public and private API
+
 - (void) setUnsolicitedTarget:(id) target action:(SEL) action;
 
 - (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
 - (int) runATCommand:(NSString *) cmd target:(id) target action:(SEL) action;	// default timeout = 2 seconds
 - (int) runATCommand:(NSString *) cmd;
-- (NSString *) runATCommandReturnResponse:(NSString *) cmd;
+- (NSArray *) runATCommandReturnResponse:(NSString *) cmd;
 
 - (NSString *) error;
 - (BOOL) isAvailable;

@@ -18,7 +18,7 @@
 @interface CTCarrier (Private)
 - (void) _setCarrierName:(NSString *) n;
 - (void) _setStrength:(float) s;
-- (void) _setNetworkType:(float) s;
+- (void) _setNetworkSpeed:(float) s;
 - (void) _setdBm:(float) s;
 - (void) _setCellID:(NSString *) n;
 @end

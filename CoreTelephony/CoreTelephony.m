@@ -35,7 +35,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if (! SINGLETON_VARIABLE)
 		return [super allocWithZone:zone];
 	}
-    return SINGLETON_VARIABLE;
+	return SINGLETON_VARIABLE;
 }
 
 - (id) copyWithZone:(NSZone *)zone { return self; }
@@ -54,8 +54,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	{
 	if (! SINGLETON_VARIABLE)
 		[[self alloc] init];
-    }
-    return SINGLETON_VARIABLE;
+	}
+	return SINGLETON_VARIABLE;
 }
 
 /* customized part */
@@ -74,8 +74,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[CTTelephonyNetworkInfo telephonyNetworkInfo];	// initialize
 		[m checkPin:nil];		// could read from a keychain if specified - nil asks the user
 		}
-    }
-    return self;
+	}
+	return self;
 }
 
 - (void) dealloc
@@ -106,9 +106,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSString *err;
 	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
 	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
-#if 1	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
-	[mm runATCommand:@"AT_OPCMENABLE=1"];
-	[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+#if 1
+	[mm setupPCM];
 	[mm runATCommand:@"AT+VIP=0"];
 #endif
 	if([mm runATCommand:cmd target:nil action:NULL timeout:120.0])	// ATD blocks only until connection is setup and remote ringing starts; so don't timeout too early!
@@ -131,21 +130,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	 BUSY
 	 NO ANSWER
 	 CONNECT
-	 
+
 	 could also use AT+CEER to get a more precise information
 	 */
 	if([err isEqualToString:@""])
 		{
-		
+
 		}
 	return nil;	// not successfull
 }
 
 - (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) number;
 { // send a SMS
-	// AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
-	// +CMS ERROR: 304
-	
+  // AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
+  // +CMS ERROR: 304
+
 	return NO;
 }
 
@@ -169,11 +168,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			break;
 		case 3:
 			[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
-			// process +CMGL: responses
-			// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
-			// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
-			// same for cell broadcasts (?) AT+CPMS="BM"
-			break;			
+																					// process +CMGL: responses
+																					// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
+																					// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
+																					// same for cell broadcasts (?) AT+CPMS="BM"
+			break;
 	}
 	[self performSelector:_cmd withObject:nil afterDelay:5.0];
 }
@@ -220,7 +219,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) peerPhoneNumber
 { // caller ID or called ID
-	// can we read that from the Modem so that we never have to set it?
+  // can we read that from the Modem so that we never have to set it?
 	return peer;
 }
 
@@ -232,10 +231,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) terminate;
 {
-	[[CTModemManager modemManager] runATCommand:@"AT+CHUP"];
-	system("killall arecord aplay");	// stop audio forwarding
-	// error handling?
-	[[CTModemManager modemManager] runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
+	CTModemManager *mm=[CTModemManager modemManager];
+	[mm runATCommand:@"AT+CHUP"];
+	[mm terminatePCM];
 }
 
 - (void) hold;
@@ -262,7 +260,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// if CTCallStateIncoming
 }
 
-// set 
+// set
 - (void) handsfree:(BOOL) flag;	// switch on handsfree speakers (or headset?)
 {
 #if 1
@@ -307,7 +305,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 { // 0..9, a-c, #, *
 	if([digit length] != 1)
 		return;	// we could loop over all digits with a little delay
-	// check if this is a valid digit
+				// check if this is a valid digit
 	NSLog(@"send DTMF: %@", digit);
 	// if this already blocks until the tone has been sent, we can simply loop over all characters
 	if(![[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+VTS=%@", digit]] != CTModemOk)
@@ -328,6 +326,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[super dealloc];
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@: carrier=%@ iso=%@ country=%@ network=%@ strength=%.2f dBm=%g speed=%.1gG cell=%@",
+			[super description], carrierName, isoCountryCode, mobileCountryCode, mobileNetworkCode, strength, dBm, networkSpeed, cellID];
+}
+
 - (NSString *) carrierName; { return carrierName; }
 - (NSString *) isoCountryCode; { return isoCountryCode; }
 - (NSString *) mobileCountryCode; { return mobileCountryCode; }
@@ -336,7 +340,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (float) strength; { return strength; }	// signal strength (0..1.0)
 - (float) dBm; { return dBm; }		// signal strength (in dBm)
-- (float) networkSpeed; { return networkType; }	// 1.0, 2.0, 2.5, 3.0, 3.5 etc.
+- (float) networkSpeed; { return networkSpeed; }	// 1.0, 2.0, 2.5, 3.0, 3.5 etc.
 - (NSString *) cellID;	 { return cellID; }	// current cell ID
 - (BOOL) canChoose; { return YES; }	// is permitted to select (if there are alternatives)
 
@@ -344,7 +348,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _setCarrierName:(NSString *) n; { [carrierName autorelease]; carrierName=[n retain]; }
 - (void) _setStrength:(float) s; { strength=s; }
-- (void) _setNetworkType:(float) s; { networkType=s; }
+- (void) _setNetworkSpeed:(float) s; { networkSpeed=s; }
 - (void) _setdBm:(float) s; { dBm=s; }
 - (void) _setCellID:(NSString *) n; { [cellID autorelease]; cellID=[n retain]; }
 
@@ -362,11 +366,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 	if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
 		{ // set up WWAN connection
-			// FIXME: this should be carrier specific!!!
+		  // FIXME: this should be carrier specific!!!
 			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
 			NSString *apn=@"web.vodafone.de";	// lookup in some database? Or let the user choose by a prefPane?
 			NSString *protocol=@"IP";	// either "IP" or "PPP"
-			// FXIME: make configurable if user wants to use 3G
+										// FXIME: make configurable if user wants to use 3G
 			[mm runATCommand:@"AT_OPSYS=3,2"];	// register to any network in any mode
 			[mm runATCommand:@"AT_OWANCALLUNSOL=1"];	// receive unsolicited _OWANCALL messages
 			[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
@@ -384,7 +388,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (CTCarrierWWANState) WWANstate;
 { // ask the modem
-	// FIXME: this may be a little slow if we call it too often
+  // FIXME: this may be a little slow if we call it too often
 	// so we should cache the state and update only if last value is older than e.g. 1 second
 #if 1
 	char bfr[512];
@@ -400,10 +404,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 #else
 	// does not work well since it may get called recursively (why???) - but would be the correct way of checking connectivity
-	
+
 	CTModemManager *mm=[CTModemManager modemManager];
-	NSString *r=[mm runATCommandReturnResponse:@"AT_OWANCALL?"];
-	NSArray *a=[r componentsSeparatedByString:@" "];	// r is nil on errors
+	NSArray *a=[mm runATCommandReturnResponse:@"AT_OWANCALL?"];
 #if 1
 	NSLog(@"a=%@", a);
 #endif
@@ -439,7 +442,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if (! SINGLETON_VARIABLE)
 		return [super allocWithZone:zone];
 	}
-    return SINGLETON_VARIABLE;
+	return SINGLETON_VARIABLE;
 }
 
 - (id) copyWithZone:(NSZone *) zone { return self; }
@@ -458,8 +461,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	{
 	if (! SINGLETON_VARIABLE)
 		[[self alloc] init];
-    }
-    return SINGLETON_VARIABLE;
+	}
+	return SINGLETON_VARIABLE;
 }
 
 /* customized part */
@@ -478,17 +481,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		currentNetwork=[subscriberCellularProvider retain];	// default: the same
 		[subscriberCellularProvider _setCarrierName:@"No Carrier"];	// default if we can't read the SIM
 		m=[CTModemManager modemManager];
-		[m setUnsolicitedTarget:self action:@selector(processUnsolicitedInfo:)];
+		[m setUnsolicitedTarget:self action:@selector(_processUnsolicitedInfo:)];
 		}
 	}
-    return self;
+	return self;
 }
 
 - (void) dealloc
 { // should not be possible for a singleton!
 	NSLog(@"CTTelephonyNetworkInfo dealloc");
-	abort();
 	[subscriberCellularProvider release];
+	abort();
 	[super dealloc];
 }
 
@@ -499,7 +502,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) _processUnsolicitedInfo:(NSString *) line
 {
 #if 1
-	NSLog(@"processUnsolicitedInfo: %@", line);
+	NSLog(@"_processUnsolicitedInfo: %@", line);
 #endif
 	if(!line) return;	// if called with result from directly running a command
 	if([line hasPrefix:@"RING"] || [line hasPrefix:@"+CRING:"])
@@ -542,9 +545,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 					}
 				if([call _callState] == kCTCallStateConnected)
 					{ // found the call that was established
-						system("killall arecord aplay");	// stop audio forwarding
-						// error handling?
-						[[CTModemManager modemManager] runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
+						CTModemManager *mm=[CTModemManager modemManager];
+						[mm terminatePCM];
 						[call _setCallState:kCTCallStateDisconnected];
 						[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
 						break;
@@ -559,15 +561,16 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	if([line hasPrefix:@"+COLP:"])
 		{
+		CTModemManager *mm=[CTModemManager modemManager];
 		NSEnumerator *e=[[[CTCallCenter callCenter] currentCalls] objectEnumerator];
 		CTCall *call;
 		while((call=[e nextObject]))
 			{ // update connection state to connected
 				if([call _callState] == kCTCallStateDialing)
 					{ // found the call that was dialling
-					[call _setCallState:kCTCallStateConnected];
-					[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
-					break;
+						[call _setCallState:kCTCallStateConnected];
+						[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
+						break;
 					}
 			}
 #if 1
@@ -589,27 +592,23 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			   "amixer set 'Analog Left Main Mic' cap;"
 			   "amixer set 'Analog Left Headset Mic' nocap");
 #if 0	// does not work! Modem mutes all voice signals if we do that *during* a call
-		CTModemManager *mm=[CTModemManager modemManager];
 		[mm runATCommand:@"AT_OPCMENABLE=1"];
 		[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
 		[mm runATCommand:@"AT+VIP=0"];
 #endif
 		[call handsfree:YES];	// switch profile and enable speakers
 		[call volume:1.0];
-		
+
 		// FIXME: recording a phone call should only be possible under active user's control
-		
-		system("killall arecord aplay;"	// stop any running audio forwarding
-			   "arecord -fS16_LE -r8000 | aplay -Dhw:1,0 &"	// forward microphone -> network
-			   "arecord -Dhw:1,0 -fS16_LE -r8000 | aplay &"	// forward network -> handset/earpiece
-			   );
+
+		[mm setupVoice];
 		return;
 		}
 	if([line hasPrefix:@"_OPON:"])
 		{ // current visited network - _OPON: <cs>,<oper>,<src>
-			// cs=8bit code
-			// src=3 -> SE13 hex format
-			// src=4 -> MCCMNC in decimal
+		  // cs=8bit code
+		  // src=3 -> SE13 hex format
+		  // src=4 -> MCCMNC in decimal
 			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
 			CTCarrier *carrier=[ni subscriberCellularProvider];
 			NSScanner *sc=[NSScanner scannerWithString:line];
@@ -631,12 +630,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			s=[NSMutableString string];
 			while([name length] >= 2)
 				{ // eat each 2 characters
-				unichar c1=[name characterAtIndex:0];
-				unichar c2=[name characterAtIndex:1];
-				c1=(c1 > '9') ? tolower(c1)-'a'+10 : c1 - '0';
-				c2=(c2 > '9') ? tolower(c2)-'a'+10 : c2 - '0';
-				[s appendFormat:@"%c", (c1<<4)+c2];
-				name=[name substringFromIndex:2];
+					unichar c1=[name characterAtIndex:0];
+					unichar c2=[name characterAtIndex:1];
+					c1=(c1 > '9') ? tolower(c1)-'a'+10 : c1 - '0';
+					c2=(c2 > '9') ? tolower(c2)-'a'+10 : c2 - '0';
+					[s appendFormat:@"%c", (c1<<4)+c2];
+					name=[name substringFromIndex:2];
 				}
 			name=s;
 #if 1
@@ -661,7 +660,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	if([line hasPrefix:@"_OEANT:"])
 		{ // antenna level - _OEANT: <n> (0..5 but 4 is the maximum ever reported)
+		  // GTAM601W on GTA04A5 reports 5 as well
+#if 1
+			NSLog(@"OEANT: %@", line);
+			NSLog(@"substr: %@", [line substringFromIndex:8]);
+#endif
 			float strength=[[line substringFromIndex:8] floatValue]/4.0;
+			NSLog(@"strength=%g", strength);
 			if(strength > 1.0) strength=1.0;	// limit
 			[currentNetwork _setStrength:strength];
 			[delegate signalStrengthDidUpdate:currentNetwork];
@@ -672,18 +677,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 			NSLog(@"GSM capability: %@", line);
 #endif
-			switch([[line substringFromIndex:8] intValue]) {
+			switch([[line substringFromIndex:7] intValue]) {
 				case 1:
-					[currentNetwork _setNetworkType:2.0];	// GSM
+					[currentNetwork _setNetworkSpeed:2.0];	// GSM
 					break;
 				case 2:
-					[currentNetwork _setNetworkType:2.5];	// GPRS
+					[currentNetwork _setNetworkSpeed:2.5];	// GPRS
 					break;
 				case 3:
-					[currentNetwork _setNetworkType:2.75];	// EDGE - see http://en.wikipedia.org/wiki/2G#Evolution
+					[currentNetwork _setNetworkSpeed:2.75];	// EDGE - see http://en.wikipedia.org/wiki/2G#Evolution
 					break;
 				default:
-					[currentNetwork _setNetworkType:0.0];	// unknown
+					[currentNetwork _setNetworkSpeed:0.0];	// unknown
 			}
 			[delegate signalStrengthDidUpdate:currentNetwork];
 			return;
@@ -693,20 +698,20 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 			NSLog(@"WCDMA capability: %@", line);
 #endif
-			switch([[line substringFromIndex:8] intValue]) { // see http://3g4g.blogspot.com/2007/05/3g-39g.html
+			switch([[line substringFromIndex:9] intValue]) { // see http://3g4g.blogspot.com/2007/05/3g-39g.html
 				default:
 					return;	// non-wcdma - don't overwrite
 				case 1:
-					[currentNetwork _setNetworkType:3.0];	// WCDMA
+					[currentNetwork _setNetworkSpeed:3.0];	// WCDMA
 					break;
 				case 2:
-					[currentNetwork _setNetworkType:3.5];	// WCDMA+HSDPA
+					[currentNetwork _setNetworkSpeed:3.5];	// WCDMA+HSDPA
 					break;
 				case 3:
-					[currentNetwork _setNetworkType:3.6];	// WCDMA+HSUPA
+					[currentNetwork _setNetworkSpeed:3.6];	// WCDMA+HSUPA
 					break;
 				case 4:
-					[currentNetwork _setNetworkType:3.75];	// WCDMA+HSDPA+HSUPA
+					[currentNetwork _setNetworkSpeed:3.75];	// WCDMA+HSDPA+HSUPA
 					break;
 			}
 			[delegate signalStrengthDidUpdate:currentNetwork];
@@ -714,21 +719,24 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	if([line hasPrefix:@"_OSSYSI:"])
 		{ // selected system: 0=GSM, 2=UTRAN, 3=No Service
-			// notify through CTCarrier/CTTelephonyNetworkInfo
+		  // notify through CTCarrier/CTTelephonyNetworkInfo
 			NSLog(@"selected system: %@", line);
 			return;
 		}
 	if([line hasPrefix:@"_OUHCIP:"])
 		{ // HSDPA call in progress: 1
-			// notify through CTCarrier/CTTelephonyNetworkInfo
+		  // notify through CTCarrier/CTTelephonyNetworkInfo
 			NSLog(@"HSDPA: %@", line);
 			return;
 		}
 	if([line hasPrefix:@"_OPATEMP:"])
 		{ // PA temperature
+			NSArray *a=[line componentsSeparatedByString:@" "];
 			NSLog(@"PA TEMP: %@", line);
-			paTemp=[[[line componentsSeparatedByString:@" "] objectAtIndex:1] intValue];
+			if([a count] == 3)
+				paTemp=[[a objectAtIndex:2] intValue];
 			// check for overtemperature and pop up some alert
+			// or should it be done by delegate?
 			[delegate signalStrengthDidUpdate:currentNetwork];
 			return;
 		}
@@ -753,8 +761,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				}
 			else if(state == 1)
 				{ // became connected
-					NSString *data=[[CTModemManager modemManager] runATCommandReturnResponse:[NSString stringWithFormat:@"AT_OWANDATA=%u", context]];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
-					NSArray *a=[data componentsSeparatedByString:@","];
+					NSArray *data=[[CTModemManager modemManager] runATCommandReturnResponse:[NSString stringWithFormat:@"AT_OWANDATA=%u", context]];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
+					NSArray *a=[[data lastObject] componentsSeparatedByString:@","];
 #if 1
 					NSLog(@"Internet config: %@", a);
 #endif
@@ -778,9 +786,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 							// i.e. we should write the DNS entries into that database (/Library/Preferences/SystemConfiguration/NetworkInterfaces.plist)
 							// and trigger the interface namer for an update
 							// or add interface-specific record(s) to /etc/network/interfaces
-							
+
 							// notify connection speed [[a objectAtIndex:7] intValue] in kbit/s
-							
+
 #if 1
 							NSLog(@"new resolv.conf: %@", resolv);
 #endif
@@ -791,29 +799,29 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 							[@"1" writeToFile:@"/proc/sys/net/ipv4/ip_forward" atomically:NO];	// enable forwarding
 							system("iptables -t nat -A POSTROUTING -o hso0 -j MASQUERADE");
 #endif
-						}	
+						}
 				}
-			else 
+			else
 				{ // error
-					NSString *error=[[CTModemManager modemManager] runATCommandReturnResponse:@"AT_OWANNWERROR?"];
+					NSArray *error=[[CTModemManager modemManager] runATCommandReturnResponse:@"AT_OWANNWERROR?"];
 #if 1
 					NSLog(@"WWAN error=%@", error);
 #endif
 				}
 			// FIXME: how do we know the "carrier"?
-			//			[[[CTTelephonyNetworkInfo telephonyNetworkInfo] delegate] currentNetworkDidUpdate:self];	// notify				
+			//			[[[CTTelephonyNetworkInfo telephonyNetworkInfo] delegate] currentNetworkDidUpdate:self];	// notify
 			[delegate signalStrengthDidUpdate:currentNetwork];
 		}
 	// the following responses are not really "unsolicted" but are handled as if they were
 	if([line hasPrefix:@"_ONCI:"])
 		{ // neighbour cell info
-			// notify through CTCarrier/CTTelephonyNetworkInfo
+		  // notify through CTCarrier/CTTelephonyNetworkInfo
 			NSLog(@"neighbour cell: %@", line);
 			return;
 		}
 	if([line hasPrefix:@"_OBSI:"])
 		{ // base station location - _OBSI=<id>,<lat>,<long>
-			// notify through CTCarrier/CTTelephonyNetworkInfo
+		  // notify through CTCarrier/CTTelephonyNetworkInfo
 			NSLog(@"base station location: %@", line);
 			// forward to CLLocation?
 			return;
@@ -887,12 +895,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [NSSet set];
 	// geht auch ohne PIN
 	// ask AT+COPS=? - blockiert sehr lange (30-60 Sekunden)
-	// +COPS: (1,"E-Plus","E-Plus","26203",0),(2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",2),(1,"T-Mobile D","TMO D","26201",0),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"Vodafone.de","voda DE","26202",2),(1,"T-Mobile D","TMO D","26201",2),,(0,1,2,3,4),(0,1,2)	
+	// +COPS: (1,"E-Plus","E-Plus","26203",0),(2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",2),(1,"T-Mobile D","TMO D","26201",0),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"Vodafone.de","voda DE","26202",2),(1,"T-Mobile D","TMO D","26201",2),,(0,1,2,3,4),(0,1,2)
 	// +COPS: (2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",0),(1,"E-Plus","E-Plus","26203",2),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"T-Mobile D","TMO D","26201",0),(1,"T-Mobile D","TMO D","26201",2),(1,"Vodafone.de","voda DE","26202",2),,(0,1,2,3,4),(0,1,2)
 	// 	at+cops=0  -- automatisch
 	//  at+cops=1,2,26207  -- feste Wahl, Format <numerisch>
 	// ohne SIM: +COPS: 0,0,"Limited Service",2
-	// "1&1" scheint auch "26202" zu melden -> 26202 = physikalisches Netz (D1, D2, E1, E2) 
+	// "1&1" scheint auch "26202" zu melden -> 26202 = physikalisches Netz (D1, D2, E1, E2)
 	return nil;
 }
 
