@@ -856,6 +856,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 			return;
 		}
+	/* PLS8 messages */
+	if([line hasPrefix:@"^SBC:"])
+		{
+
+		}
 }
 
 - (CTCarrier *) subscriberCellularProvider;
