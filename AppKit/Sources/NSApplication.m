@@ -963,44 +963,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
 	NSAutoreleasePool *pool=[NSAutoreleasePool new];
-#if 0
+#if 1
 	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
 #endif
 	if(!expiration)
 		expiration=[NSDate distantPast];	// fall through immediately
-#if OLD
-	for(;;)
-		{ // If there are no matching events in the queue, wait for next events to arrive
-			limit=[currentLoop limitDateForMode:mode];	// limit by any pending timers - this will already poll the input sources (at least on MacOS!)
-			if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
-				break;	// found one
-#if 0
-			NSLog(@"limitDateForMode:%@ = %@ - exp = %@", mode, [currentLoop limitDateForMode:mode], expiration);
-#endif
-			limit=[limit earlierDate:expiration];	// limit to given expiration
-#if 0
-			NSLog(@"earlier: %@", limit);
-#endif
-			if(![currentLoop runMode:mode beforeDate:limit])		// blocks until (more) input arrives or the next scheduled timeout occurs
-				{
-				NSLog(@"no input sources for mode: %@", mode);
-				break;
-				}
-#if 0
-			NSLog(@"after runloop: %@", limit);
-#endif
-			if([expiration timeIntervalSinceNow] < 0)
-				break;	// untilDate has expired
-#if 0
-			NSLog(@"ARP release");
-#endif
-			[pool release];					// release current
-#if 0
-			NSLog(@"ARP released");
-#endif
-			pool=[NSAutoreleasePool new];	// and create a new pool
- 		}
-#else
 	do
 		{
 		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
@@ -1008,8 +975,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(![currentLoop runMode:mode beforeDate:expiration])
 			break;	// did not run once - will either return on input event or reaching expiration date
 		} while([expiration timeIntervalSinceNow] > 0.0);	// still not expired
-#endif
-#if 0
+#if 1
 	NSLog(@"ARP release with event: %@", _currentEvent);
 #endif
 	[_currentEvent retain];
