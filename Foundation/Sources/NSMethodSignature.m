@@ -125,8 +125,19 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 	const char *types=NULL;
 	Method m;
 	Class c;
-#if 0
+	if(!receiver)
+		{ /* waht does this mean? */
+		fprintf(stderr, "mySTEP_objc_msg_forward2 called with nil receiver\n");
+		abort();
+		}
+#if 1
 	fprintf(stderr, "mySTEP_objc_msg_forward2 called\n");
+	c=object_getClass(receiver);
+	if(strcmp(class_getName(c), "Object") == 0)
+		{
+		fprintf(stderr, "mySTEP_objc_msg_forward2 called with Object receiver\n");
+		abort();
+		}
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
 #endif
@@ -135,7 +146,7 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 	m=class_getInstanceMethod(c, sel);
 	if(m)
 		types=method_getTypeEncoding(m);
-#if 0
+#if 1
 	fprintf(stderr, "types = %s\n", types);
 #endif
 	if(types)
@@ -150,7 +161,7 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 						format: @"%c[%s %s]: unrecognized selector sent to instance %p",
 								(class_isMetaClass(c) ? '+' : '-'),
 								class_getName(c), sel_getName(sel), receiver];
-#if 0
+#if 1
 	NSLog(@"mySTEP_objc_msg_forward2: sig = %@", sig);
 #endif
 #if 0
