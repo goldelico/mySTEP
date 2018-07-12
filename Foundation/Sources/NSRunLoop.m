@@ -211,8 +211,12 @@
 
 - (void) fire
 { // untimed performers are being processed or timer has fired
+	id theTarget=target;
+	SEL theAction=selector;
+	id theArgument=argument;
 #if 0
 	NSLog(@"fire %@ retainCount=%d", self, [self retainCount]);
+	NSLog(@"  target retainCount=%d", [target retainCount]);
 #endif
 	if(timer != nil)
 		{
@@ -221,7 +225,7 @@
 #endif
 		[[[NSRunLoop currentRunLoop] _timedPerformers] removeObjectIdenticalTo:self];	// remove us from performers list
 		}
-	[target performSelector:selector withObject:argument];
+	[theTarget performSelector:theAction withObject:theArgument];
 }
 
 - (id) initWithSelector:(SEL)aSelector
