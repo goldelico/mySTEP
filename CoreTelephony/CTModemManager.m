@@ -374,7 +374,7 @@ BOOL modemLog=NO;
 		r=nil;	// wasn't able to get response
 		}
 	response=sr;	// restore
-	while([[r lastObject] length] == 0)
+	while([r count] && [[r lastObject] length] == 0)
 		[r removeLastObject];	// remove trailing empty lines, e.g. before OK
 	return r;
 }
