@@ -512,33 +512,61 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) performSelector:(SEL)aSelector
 {
-	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
+	IMP msg;
+	Class c=object_getClass(self);
+	if(class_isMetaClass(c))
+		msg=method_getImplementation(class_getClassMethod((Class) self, aSelector));	// if someone calls [[Class class] performSelector...]
+	else
+		msg=class_getMethodImplementation(c, aSelector);
 
 	if (!msg)
 		[NSException raise:NSInvalidArgumentException
-					format:@"invalid selector passed to %s", sel_getName(_cmd)];
+					format:@"invalid selector %s passed to %s", sel_getName(aSelector), sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector);
 }
 
 - (id) performSelector:(SEL)aSelector withObject:anObject
 {
-	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
+	IMP msg;
+#if 0
+	NSLog(@"performSelector: %@ for object %@", NSStringFromSelector(aSelector), self);
+#endif
+	Class c=object_getClass(self);
+	//	NSLog(@"class: %@", c);	// fails because the metaclass does not implement -description!
+	// this may call mySTEP_objc_msg_forward2 with nil receiver if the method is not implemented!
+	if(class_isMetaClass(c))
+#if 0
+		NSLog(@"isClass: %@", self),
+#endif
+		msg=method_getImplementation(class_getClassMethod((Class) self, aSelector));	// if someone calls [[Class class] performSelector...]
+	else
+#if 0
+		NSLog(@"isObject: %@", self),
+#endif
+		msg=class_getMethodImplementation(c, aSelector);
 
 	if (!msg)
 		[NSException raise:NSInvalidArgumentException
-					format:@"invalid selector passed to %s", sel_getName(_cmd)];
-
+					format:@"invalid selector %s passed to %s", sel_getName(aSelector), sel_getName(_cmd)];
+#if 0
+	NSLog(@"performSelector: %@ for object %@ imp=%p", NSStringFromSelector(aSelector), self, msg);
+#endif
 	return (*msg)(self, aSelector, anObject);
 }
 
 - (id) performSelector:(SEL)aSelector withObject:object1 withObject:object2
 {
-	IMP msg = class_getMethodImplementation(object_getClass(self), aSelector);
+	IMP msg;
+	Class c=object_getClass(self);
+	if(class_isMetaClass(c))
+		msg=method_getImplementation(class_getClassMethod((Class) self, aSelector));	// if someone calls [[Class class] performSelector...]
+	else
+		msg=class_getMethodImplementation(c, aSelector);
 
 	if (!msg)
 		[NSException raise:NSInvalidArgumentException
-					format:@"invalid selector passed to %s", sel_getName(_cmd)];
+					format:@"invalid selector %s passed to %s", sel_getName(aSelector), sel_getName(_cmd)];
 
 	return (*msg)(self, aSelector, object1, object2);
 }
