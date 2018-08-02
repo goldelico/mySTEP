@@ -572,33 +572,34 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 - (NSString *) description
 {	
 	const char *types[] = {
-		"NSLeftMouseDown",	// 1
-		"NSLeftMouseUp",
-		"NSRightMouseDown",
-		"NSRightMouseUp",
-		"NSMouseMoved",
-		"NSLeftMouseDragged",
-		"NSRightMouseDragged",
-		"NSMouseEntered",
-		"NSMouseExited",
-		"NSKeyDown",
-		"NSKeyUp",
-		"NSFlagsChanged",
-		"NSAppKitDefined",
-		"NSSystemDefined",
-		"NSApplicationDefined",
-		"NSPeriodic",
-		"NSCursorUpdate",
+		"?0?",
+		"LeftMouseDown",
+		"LeftMouseUp",
+		"RightMouseDown",
+		"RightMouseUp",
+		"MouseMoved",
+		"LeftMouseDragged",
+		"RightMouseDragged",
+		"MouseEntered",
+		"MouseExited",
+		"KeyDown",
+		"KeyUp",
+		"FlagsChanged",
+		"AppKitDefined",
+		"SystemDefined",
+		"ApplicationDefined",
+		"Periodic",
+		"CursorUpdate",
 		"?18?",
 		"?19?",
 		"?20?",
 		"?21?",
-		"NSScrollWheel",
-		"NSTabletPoint",
-		"NSTabletProximity",
-		"NSOtherMouseDown",
-		"NSOtherMouseUp",
-		"NSOtherMouseDragged",
+		"ScrollWheel",
+		"TabletPoint",
+		"TabletProximity",
+		"OtherMouseDown",
+		"OtherMouseUp",
+		"OtherMouseDragged",
 	};
 	if(sizeof(types)/sizeof(types[0]) != NSOtherMouseDragged) // should be optimized away by compiler as dead code if both constants are the same
 		NSLog(@"NSOtherMouseDragged=%d sizeof(types)=%lu", NSOtherMouseDragged, sizeof(types)/sizeof(types[0]));
@@ -616,22 +617,22 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSMouseMoved:
 		case NSScrollWheel:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %ld, Context = %p,"
-				@" event number = %ld, click = %ld, pressure = %f",
-				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				@"NSEvent: type=%s loc={ %g,%g} time=%.1f"
+				@" flags=0x%x win=%p winNum=%ld ctxt=%p"
+				@" event number=%ld click=%ld pressure=%f",
+				types[event_type], location_point.x, location_point.y, event_time,
+				modifier_flags, [self window], (long)_windowNum, event_context,
 				(long)event_data.mouse.event_num, (long)event_data.mouse.click,
 				event_data.mouse.pressure];
 	
 		case NSMouseEntered:
 		case NSMouseExited:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %ld, Context = %p, "
-				@" event number = %ld, tracking number = %ld, user data = %p",
-				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				@"NSEvent: type=%s loc={ %g,%g} time=%.1f"
+				@" flags=0x%x win=%p winNum=%ld ctxt=%p"
+				@" event number=%ld tracking number=%ld user data=%p",
+				types[event_type], location_point.x, location_point.y, event_time,
+				modifier_flags, [self window], (long)_windowNum, event_context,
 				(long)event_data.tracking.event_num,
 				(long)event_data.tracking.tracking_num,
 				event_data.tracking.user_data];
@@ -640,14 +641,12 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSKeyUp:
 		case NSFlagsChanged:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %ld, Context = %p, "
-				@" repeat = %s, keys = %@, ukeys = %@, keyCode = 0x%x",
-				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, (long)_windowNum, event_context,
-				(event_data.key.repeat ? "YES" : "NO"),
-				event_data.key.char_keys, event_data.key.unmodified_keys,
-				event_data.key.key_code];
+				@"NSEvent: type=%s loc={ %g,%g} time=%.1f"
+				@" flags=0x%x win=%p winNum=%ld ctxt=%p"
+				@" chars=%@ unmodchars=%@ repeat=%d keyCode=%ld",
+				types[event_type], location_point.x, location_point.y, event_time,
+				modifier_flags, [self window], (long)_windowNum, event_context,
+				event_data.key.char_keys, event_data.key.unmodified_keys, event_data.key.repeat, (long)event_data.key.key_code];
 	
 		case NSPeriodic:
 		case NSCursorUpdate:
@@ -655,22 +654,22 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSSystemDefined:
 		case NSApplicationDefined:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
-				@" time = %f, window = %ld, Context = %p, "
-				@" subtype = %d, data1 = %lx, data2 = %lx",
-				types[event_type - 1], location_point.x, location_point.y,
-				[self _modifier_flags], event_time, (long)_windowNum, event_context,
+				@"NSEvent: type=%s loc={ %g,%g} time=%.1f"
+				@" flags=0x%x win=%p winNum=%ld ctxt=%p"
+				@" subtype=%d data1=%lx data2=%lx",
+				types[event_type], location_point.x, location_point.y, event_time,
+				modifier_flags, [self window], (long)_windowNum, event_context,
 				event_data.misc.sub_type, (long)event_data.misc.data1,
 				(long)event_data.misc.data2];
 		case NSTabletPoint:
 		case NSTabletProximity:
 			// NIMP;
 			break;			
-			case NSRotate:
-			case NSBeginGesture:
-			case NSEndGesture:
-			case NSMagnify:
-			case NSSwipe:				
+		case NSRotate:
+		case NSBeginGesture:
+		case NSEndGesture:
+		case NSMagnify:
+		case NSSwipe:
 //				NIMP;
 				break;
 		}
