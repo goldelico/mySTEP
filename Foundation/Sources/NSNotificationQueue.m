@@ -40,9 +40,9 @@ static NSNotificationQueue *__defaultQueue = nil;
 	Queue layout
 
 	Queue             Elem              Elem              Elem
- head ---------> prev -----------> prev -----------> prev --> nil
- nil <-- next <----------- next <----------- next
- tail --------------------------------------------->
+	head ---------> prev -----------> prev -----------> prev --> nil
+	nil <-- next <----------- next <----------- next
+	tail --------------------------------------------->
  */
 
 
@@ -312,7 +312,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	_NSQueueRegistration *item = _idleQueue->head;
 	while(item)
 		{
-		_NSQueueRegistration *n = item->next;	// get next before removing item
+		_NSQueueRegistration *n = item->prev;	// get next before removing item
 		[self _postNotification:item->notification forModes:item->modes queue:_idleQueue item:item];
 		item=n;
 		}
@@ -323,7 +323,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	_NSQueueRegistration *item = _asapQueue->head;
 	while(item)
 		{
-		_NSQueueRegistration *n = item->next;	// get next before removing item
+		_NSQueueRegistration *n = item->prev;	// get next before removing item
 		[self _postNotification:item->notification forModes:item->modes queue:_asapQueue item:item];
 		item=n;
 		}
