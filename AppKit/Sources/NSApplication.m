@@ -2070,6 +2070,9 @@ NSWindow *w;
 	if(_delegate == anObject)
 		return;
 
+	if(anObject == self)
+		[NSException raise:NSInvalidArgumentException format:@"don't make yourself your own delegate"];
+
 #define IGNORE_(notif_name) [n removeObserver:_delegate \
 								name:NSApplication##notif_name##Notification \
 								object:self]
