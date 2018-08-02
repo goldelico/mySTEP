@@ -456,8 +456,6 @@ BOOL modemLog=NO;
 	if([self isGTM601])
 		{ // initialize GTM601
 		  //	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
-		  // FIXME:
-		  //	[self runATCommand:@"AT+CSCS=????"];	// define character set
 			[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
 			[self runATCommand:@"AT_OPONI=1"];	// report current network registration
 			[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
@@ -471,7 +469,8 @@ BOOL modemLog=NO;
 		  //	[self runATCommand:@"AT_OPCMENABLE=1"];	// renable voice PCM
 		}
 	else if([self isPxS8])
-		{ // Cinterion initialize PxS8
+		{ // initialize Cinterion PxS8
+		  //			[self runATCommand:@"AT^SIND=..."];	// report some URCs
 		}
 }
 
@@ -489,6 +488,7 @@ BOOL modemLog=NO;
 	[self runATCommand:@"AT+COPS"];		// report RING etc.
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
 	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
+	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	_ati=[[self runATCommandReturnResponse:@"ATI"] retain];	// determine modem type
 #if 1
 	NSLog(@"ATI=%@", _ati);
