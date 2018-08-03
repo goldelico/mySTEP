@@ -36,7 +36,6 @@
 - (void) _processData:(NSData *) line;
 - (void) _dataReceived:(NSNotification *) n;
 - (void) _writeCommand:(NSString *) str;
-- (void) _setError:(NSString *) msg;
 
 // runAT...
 
@@ -398,7 +397,6 @@ BOOL modemLog=NO;
 			   [line hasPrefix:@"NO CARRIER"] ||
 			   [line hasPrefix:@"NO ANSWER"])
 				{ // reponse to AT command
-					[error release];
 					/* e.g.
 					 +CME ERROR: SIM PIN required
 					 +CME ERROR: FDN Mismatch -- FDN = fixed dialling number
