@@ -59,9 +59,13 @@ int main(int argc, char *argv[])
 	[CTModemManager enableLog:YES];
 	CTModemManager *mm=[CTModemManager modemManager];
 	CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+	CTCallCenter *cc=[CTCallCenter callCenter];
 	[ni setDelegate:[NTDelegate new]];
-	[[CTCallCenter callCenter] setDelegate:[CCDelegate new]];
-	[mm orderFrontPinPanel:nil];
+	[cc setDelegate:[CCDelegate new]];
+	if([mm pinStatus] != CTPinStatusUnlocked)
+		[mm orderFrontPinPanel:nil];
+	if(argc == 2)
+		NSLog(@"call = %@", [cc dial:[NSString stringWithUTF8String:argv[1]]]);	/* allows +, *, # and spaces within numbers */
 	NSLog(@"cttest: run loop");
 	// we must run the application and not only the runloop - or window events are not processed
 	[[NSApplication sharedApplication] run];
