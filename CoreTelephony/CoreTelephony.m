@@ -42,9 +42,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (id) retain { return self; }
 
-- (unsigned) retainCount { return UINT_MAX; }
+- (NSUInteger) retainCount { return UINT_MAX; }
 
-- (void)release {}
+- (oneway void) release {}
 
 - (id) autorelease { return self; }
 
@@ -106,10 +106,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSString *err;
 	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
 	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
-#if 1
 	[mm setupPCM];
-	[mm runATCommand:@"AT+VIP=0"];
-#endif
 	if([mm runATCommand:cmd target:nil action:NULL timeout:120.0])	// ATD blocks only until connection is setup and remote ringing starts; so don't timeout too early!
 		{ // successfull call setup
 			CTCall *call=[[CTCall new] autorelease];
@@ -142,10 +139,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) number;
 { // send a SMS
-  // AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
-  // +CMS ERROR: 304
-
-	return NO;
+	CTModemManager *mm=[CTModemManager modemManager];
+	NSString *cmd=[NSString stringWithFormat:@"AT+CMGS=\"%@\”\n%@\z", number, message];
+	return [mm runATCommand:cmd target:nil action:NULL timeout:5.0];
 }
 
 // FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
@@ -263,6 +259,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 // set
 - (void) handsfree:(BOOL) flag;	// switch on handsfree speakers (or headset?)
 {
+	system("amixer set 'DAC1 Analog' off;"
+		   "amixer set 'DAC2 Analog' on;"
+		   //"amixer set  'Codec Operation Mode' 'Option 1 (audio)'");
+		   "amixer set  'Codec Operation Mode' 'Option 2 (voice/audio)'");
+	system("amixer set Earpiece 100%;"
+		   "amixer set 'Earpiece Mixer AudioL2' on;"
+		   /* "amixer set 'Earpiece Mixer AudioR2' off;" -- does not exist */
+		   "amixer set 'Earpiece Mixer Voice' off");
+	system("amixer set 'Analog' 5;"
+		   "amixer set TX1 'Analog';"
+		   "amixer set 'TX1 Digital' 12;"
+		   "amixer set 'Analog Left AUXL' nocap;"
+		   "amixer set 'Analog Right AUXR' nocap;"
+		   "amixer set 'Analog Left Main Mic' cap;"
+		   "amixer set 'Analog Left Headset Mic' nocap");
 #if 1
 	NSLog(@"handsfree: %d", flag);
 #endif
@@ -364,25 +375,32 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"connectWWAN %d", flag);
 #endif
-	if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
-		{ // set up WWAN connection
-		  // FIXME: this should be carrier specific!!!
-			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
-			NSString *apn=@"web.vodafone.de";	// lookup in some database? Or let the user choose by a prefPane?
-			NSString *protocol=@"IP";	// either "IP" or "PPP"
-										// FXIME: make configurable if user wants to use 3G
-			[mm runATCommand:@"AT_OPSYS=3,2"];	// register to any network in any mode
-			[mm runATCommand:@"AT_OWANCALLUNSOL=1"];	// receive unsolicited _OWANCALL messages
-			[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
-			// secure: 0=no, 1=pap, 2=chap
-			// [mm runATCommand:[NSString stringWithFormat:@"AT_OPDPP=%u,%u,\"%@\",\"%@\"", context, secure, passwd, user]];
-			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,1,1", context]];	// context #1, start, send unsolicited response
+	if([mm isGTM601])
+		{
+		if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
+			{ // set up WWAN connection
+			  // FIXME: this should be carrier specific!!!
+				// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
+				NSString *apn=@"web.vodafone.de";	// lookup in some database? Or let the user choose by a prefPane?
+				NSString *protocol=@"IP";	// either "IP" or "PPP"
+											// FXIME: make configurable if user wants to use 3G
+				[mm runATCommand:@"AT_OPSYS=3,2"];	// register to any network in any mode
+				[mm runATCommand:@"AT_OWANCALLUNSOL=1"];	// receive unsolicited _OWANCALL messages
+				[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
+				// secure: 0=no, 1=pap, 2=chap
+				// [mm runATCommand:[NSString stringWithFormat:@"AT_OPDPP=%u,%u,\"%@\",\"%@\"", context, secure, passwd, user]];
+				[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,1,1", context]];	// context #1, start, send unsolicited response
+			}
+		else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
+			{ // disable WWAN connection
+				system("ifconfig hso0 down");	// we could make the ifconfig up/down trigger our daemon...
+				sleep(1);
+				[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,0,1", context]];	// stop
+			}
 		}
-	else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
-		{ // disable WWAN connection
-			system("ifconfig hso0 down");	// we could make the ifconfig up/down trigger our daemon...
-			sleep(1);
-			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,0,1", context]];	// stop
+	else if([mm isPxS8])
+		{
+
 		}
 }
 
@@ -559,6 +577,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSLog(@"cell broadcast message: %@", line);
 		return;
 		}
+	if([line hasPrefix:@"+CLIP:"])
+		{
+		NSLog(@"CLIP message: %@", line);
+		return;
+		}
 	if([line hasPrefix:@"+COLP:"])
 		{
 		CTModemManager *mm=[CTModemManager modemManager];
@@ -576,21 +599,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 		NSLog(@"connection established: %@", call);
 #endif
-		system("amixer set 'DAC1 Analog' off;"
-			   "amixer set 'DAC2 Analog' on;"
-			   //"amixer set  'Codec Operation Mode' 'Option 1 (audio)'");
-			   "amixer set  'Codec Operation Mode' 'Option 2 (voice/audio)'");
-		system("amixer set Earpiece 100%;"
-			   "amixer set 'Earpiece Mixer AudioL2' on;"
-			   /* "amixer set 'Earpiece Mixer AudioR2' off;" -- does not exist */
-			   "amixer set 'Earpiece Mixer Voice' off");
-		system("amixer set 'Analog' 5;"
-			   "amixer set TX1 'Analog';"
-			   "amixer set 'TX1 Digital' 12;"
-			   "amixer set 'Analog Left AUXL' nocap;"
-			   "amixer set 'Analog Right AUXR' nocap;"
-			   "amixer set 'Analog Left Main Mic' cap;"
-			   "amixer set 'Analog Left Headset Mic' nocap");
 #if 0	// does not work! Modem mutes all voice signals if we do that *during* a call
 		[mm runATCommand:@"AT_OPCMENABLE=1"];
 		[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
@@ -602,6 +610,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		// FIXME: recording a phone call should only be possible under active user's control
 
 		[mm setupVoice];
+		return;
+		}
+	if([line hasPrefix:@"+CREG:"])
+		{
+		NSLog(@"network registration: %@", line);
 		return;
 		}
 	if([line hasPrefix:@"_OPON:"])
@@ -858,7 +871,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	/* PLS8 messages */
 	if([line hasPrefix:@"^SBC:"])
-		{
+		{ // under/overvoltage
+			[delegate signalStrengthDidUpdate:currentNetwork];
+			return;
+		}
+	if([line hasPrefix:@"^SYSSTART"])
+		{ // normal or AIRPLANE MODE
 
 		}
 }

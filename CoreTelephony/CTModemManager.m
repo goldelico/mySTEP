@@ -49,7 +49,7 @@
 - (int) _closeModem;
 - (void) _processLine:(NSString *) line;
 - (void) _initModem;
-- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries;
+- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries facility:(NSString **) facility;
 
 @end
 
@@ -450,10 +450,13 @@ BOOL modemLog=NO;
 }
 
 - (void) _initModem
-{
+{ // enable URCs and do some setup
+  //	[self runATCommand:@"AT+CSCS=????"];	// define character set
+	[self runATCommand:@"AT+COPS"];		// report RING etc.
+	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
+	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
 	if([self isGTM601])
 		{ // initialize GTM601
-		  //	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
 			[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
 			[self runATCommand:@"AT_OPONI=1"];	// report current network registration
 			[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
@@ -468,7 +471,12 @@ BOOL modemLog=NO;
 		}
 	else if([self isPxS8])
 		{ // initialize Cinterion PxS8
-		  //			[self runATCommand:@"AT^SIND=..."];	// report some URCs
+		  //	[self runATCommand:@"AT^SIND=..."];	// report some URCs
+			[self runATCommand:@"AT+CREG=2"];	// report network registration
+			[self runATCommand:@"AT^SAD=10"];	// turn off RX diversity
+			// it seems as if the PxS8 can't report many URCs
+			// so we have to poll for AT+CSQ etc.
+			// i.e. use the polling loop in CTCallCenter
 		}
 }
 
@@ -477,17 +485,14 @@ BOOL modemLog=NO;
 	if(![self _openPort])
 		return NO;
 	pinStatus=CTPinStatusUnknown;	// needs to check again
-									// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
+	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
 		{
 		[self _setError:@"Failed to intialize modem."];
 		return NO;
 		}
-	[self runATCommand:@"AT+COPS"];		// report RING etc.
-	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
-	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
-	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	_ati=[[self runATCommandReturnResponse:@"ATI"] retain];	// determine modem type
+	//	[[self runATCommandReturnResponse:@"AT_OID"] componentsSeparatedByString:@"\n"];	// get firmware version to handle differently
 #if 1
 	NSLog(@"ATI=%@", _ati);
 #endif
@@ -511,21 +516,67 @@ BOOL modemLog=NO;
 	return YES;
 }
 
-- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries;
-{
-
-	// FIXME:	if([self isGTM601])
-
-	NSArray *result=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
-	NSString *pinpuk=[result lastObject];
-	NSArray *a=[pinpuk componentsSeparatedByString:@" "];
-#if 0
-	NSLog(@"PIN/PUK retries: %@", pinpuk);
-#endif
-	if([a count] == 3)
+- (BOOL) getPinCount:(int *) pinretries pukCount:(int *) pukretries facility:(NSString **) facility;
+{ // for current PIN status (i.e. PIN, PIN2, PH-SIM, PH-NET)
+	*facility=@"";	// default
+	if([self isGTM601])
 		{
-		*pinretries=[[a objectAtIndex:1] intValue];
-		*pukretries=[[a objectAtIndex:2] intValue];
+		NSArray *result=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
+		NSString *pinpuk=[result lastObject];
+		NSArray *a=[pinpuk componentsSeparatedByString:@" "];
+		// FIXME: handle PH-NET etc. like we do for PxS8
+#if 0
+		NSLog(@"PIN/PUK retries: %@", pinpuk);
+#endif
+		if([a count] == 3)
+			{
+			*pinretries=[[a objectAtIndex:1] intValue];
+			*pukretries=[[a objectAtIndex:2] intValue];
+#if 1
+			NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
+#endif
+			return YES;
+			}
+		}
+	else if([self isPxS8])
+		{
+		NSArray *result=[self runATCommandReturnResponse:@"AT^SPIC?"];	// determine facility
+		NSString *pinpuk=[result lastObject];
+		NSArray *a;
+		NSString *code;
+#if 1
+		NSLog(@"PIN/PUK code: %@", pinpuk);
+#endif
+		if([pinpuk rangeOfString:@"2"].location != NSNotFound)
+			*facility=@"PIN2", code=@"P2";
+		else if([pinpuk rangeOfString:@"PH-NET"].location != NSNotFound)
+			*facility=@"PH-NET", code=@"PN";
+		else if([pinpuk rangeOfString:@"PH-SIM"].location != NSNotFound)
+			*facility=@"PH-SIM", code=@"PS";
+		else if([pinpuk rangeOfString:@"SIM"].location != NSNotFound)
+			*facility=@"", code=@"SC";
+		else
+			return NO;
+		result=[self runATCommandReturnResponse:[NSString stringWithFormat:@"AT^SPIC=%@", code]];	// get PIN count
+		pinpuk=[result lastObject];
+#if 1
+		NSLog(@"PIN retries: %@", pinpuk);
+#endif
+		a=[[result lastObject] componentsSeparatedByString:@" "];
+		if([a count] == 2)
+			*pinretries=[[a objectAtIndex:1] intValue];
+		else
+			return NO;
+		result=[self runATCommandReturnResponse:[NSString stringWithFormat:@"AT^SPIC=%@,1", code]];	// get PUK count
+		pinpuk=[result lastObject];
+#if 1
+		NSLog(@"PUK retries: %@", pinpuk);
+#endif
+		a=[[result lastObject] componentsSeparatedByString:@" "];
+		if([a count] == 2)
+			*pukretries=[[a objectAtIndex:1] intValue];
+		else
+			return NO;
 #if 1
 		NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
 #endif
@@ -534,10 +585,11 @@ BOOL modemLog=NO;
 	return NO;	// failed to read
 }
 
-- (void) _unlocked2;
+- (void) _delayedUnlock;
 {
 	NSEnumerator *e;
 	NSString *line;
+	if(modemLog) [self log:@"delayed unlock"];
 	if([self isGTM601])
 		{
 		e=[[self runATCommandReturnResponse:@"AT_OSIMOP"] objectEnumerator];
@@ -549,10 +601,10 @@ BOOL modemLog=NO;
 		}
 }
 
-- (void) _unlocked;
+- (void) _unlock;
 { // run additional commands after successful unlocking and report any results to unsolicited delegate
 	pinStatus=CTPinStatusUnlocked;	// now unlocked
-	[self performSelector:@selector(_unlocked2) withObject:nil afterDelay:0.0];
+	[self performSelector:@selector(_delayedUnlock) withObject:nil afterDelay:0.0];
 }
 
 - (CTPinStatus) pinStatus;
@@ -583,11 +635,11 @@ BOOL modemLog=NO;
 				}
 			if([pinstatus hasPrefix:@"+CPIN: READY"])
 				{ // response to AT+CPIN? - PIN is ok!
-					[self _unlocked];
+					[self _unlock];
 					return pinStatus;
 				}
-			if([pinstatus hasPrefix:@"+CPIN: SIM PIN"] || [pinstatus hasPrefix:@"+CPIN: SIM PUK"])
-				{ // user needs to provide pin
+			if([pinstatus hasPrefix:@"+CPIN: "])
+				{ // user needs to provide pin/puk
 					return pinStatus=CTPinStatusPINRequired;
 				}
 			[self _setError:@"Can't determine PIN status"];
@@ -601,7 +653,7 @@ BOOL modemLog=NO;
 	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
 		{ // is accepted
 			if(modemLog) [self log:@"send PIN accepted"];
-			[self _unlocked];
+			[self _unlock];
 			return YES;
 		}
 	if(modemLog) [self log:@"send PIN rejected"];
@@ -611,6 +663,7 @@ BOOL modemLog=NO;
 
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
 {
+	if(modemLog) [self log:@"change PIN"];
 	[self reset];
 	// AT+CPIN="old","new"
 	return NO;
@@ -646,7 +699,7 @@ BOOL modemLog=NO;
 
 - (void) reset;
 {
-	if(modemLog) [self log:@"--- reset ---"];
+	if(modemLog) [self log:@"reset"];
 	if([self isGTM601])
 		{
 		[self setUnsolicitedTarget:nil action:NULL];
@@ -682,14 +735,24 @@ BOOL modemLog=NO;
 // can we mix this into single method? optionally with a parameter?
 - (void) setupPCM;
 {
-	CTModemManager *mm=[CTModemManager modemManager];
 	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
-	[mm runATCommand:@"AT_OPCMENABLE=1"];
-	[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+	if(modemLog) [self log:@"setup PCM"];
+	if([self isGTM601])
+		{
+		[self runATCommand:@"AT_OPCMENABLE=1"];
+		[self runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+		[self runATCommand:@"AT+VIP=0"];
+		}
+	else if([self isPxS8])
+		{
+
+		}
 }
 
 - (void) setupVoice;
 {
+	if(modemLog) [self log:@"setup Voice"];
+	// check for HW vs. SW routing
 	system("killall arecord aplay;"	// stop any running audio forwarding
 		   "arecord -fS16_LE -r8000 | aplay -Dhw:1,0 &"	// forward microphone -> network
 		   "arecord -Dhw:1,0 -fS16_LE -r8000 | aplay &"	// forward network -> handset/earpiece
@@ -698,10 +761,17 @@ BOOL modemLog=NO;
 
 - (void) terminatePCM;
 {
-	CTModemManager *mm=[CTModemManager modemManager];
+	if(modemLog) [self log:@"terminate PCM"];
 	system("killall arecord aplay");	// stop audio forwarding
 	// error handling?
-	[mm runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
+	if([self isGTM601])
+		{
+		[self runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
+		}
+	else if([self isPxS8])
+		{
+
+		}
 }
 
 @end
@@ -737,14 +807,17 @@ BOOL modemLog=NO;
 		case CTPinStatusPINRequired: {
 			int pinretries=0;
 			int pukretries=0;
-			if([self getPinCount:&pinretries pukCount:&pukretries])
+			NSString *facility=nil;
+			if([self getPinCount:&pinretries pukCount:&pukretries facility:&facility])
 				{
-					if(pukretries != 10)
-						[message setStringValue:[NSString stringWithFormat:@"%d PUK / %d PIN retries", pukretries, pinretries]];
-					else
-						[message setStringValue:[NSString stringWithFormat:@"%d PIN retries", pinretries]];
-					[pin setEditable:YES];
-					[okButton setTitle:@"Unlock"];
+				if(facility)
+					facility=[facility stringByAppendingString:@" "];
+				if(pukretries != 10)
+					[message setStringValue:[NSString stringWithFormat:@"%d %@PUK / %d PIN retries", facility, pukretries, pinretries]];
+				else
+					[message setStringValue:[NSString stringWithFormat:@"%d %@PIN retries", facility, pinretries]];
+				[pin setEditable:YES];
+				[okButton setTitle:@"Unlock"];
 				}
 			break;
 		}
