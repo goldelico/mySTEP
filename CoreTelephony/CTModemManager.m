@@ -559,17 +559,26 @@ BOOL modemLog=NO;
 { // get current PIN status
 	if(pinStatus == CTPinStatusUnknown)
 		{ // ask modem
+			NSArray *result;
+			NSString *pinstatus;
 			if([self isGTM601])
 				{
-				// check if modem has AT_OAIR? => 1
-				// if([[self runATCommandReturnResponse:@"AT_OAIR?"] containsObject:@"1"])
-				// return CTPinStatusAirplaneMode;
+				if([[self runATCommandReturnResponse:@"AT_OAIR?"] containsObject:@"1"])
+					return CTPinStatusAirplaneMode;
 				}
-			NSArray *result=[self runATCommandReturnResponse:@"AT+CPIN?"];
-			NSString *pinstatus=[result lastObject];
+			else if([self isPxS8])
+				{
+				if(![[self runATCommandReturnResponse:@"AT+CFUN?"] containsObject:@"1"])
+					return CTPinStatusAirplaneMode;
+				}
+			result=[self runATCommandReturnResponse:@"AT+CPIN?"];
+			pinstatus=[result lastObject];
 			if(!pinstatus)
 				{
-				if([error hasPrefix:@"+CME ERROR: SIM not inserted"])
+				if(modemLog) [self log:@"AT+CPIN? error %@", error];
+				if([error hasPrefix:@"+CME ERROR: SIM not inserted"])	// GTM601W
+					return CTPinStatusNoSIM;
+				if([error hasPrefix:@"+CME ERROR: SIM failure"])	// PxS8
 					return CTPinStatusNoSIM;
 				}
 			if([pinstatus hasPrefix:@"+CPIN: READY"])
@@ -614,6 +623,8 @@ BOOL modemLog=NO;
 		[self setUnsolicitedTarget:nil action:NULL];	// user app must restore after exiting airplane mode!
 		if([self isGTM601])
 			[self runATCommand:@"AT_OAIR=1"];
+		else if([self isPxS8])
+			[self runATCommand:@"AT+CFUN=4"];
 		pinStatus=CTPinStatusAirplaneMode;
 		// [self _closeHSO] + [self _power:NO]
 		// power off modem (if possible)
@@ -625,6 +636,8 @@ BOOL modemLog=NO;
 			return YES;	// already disabled
 		if([self isGTM601])
 			[self runATCommand:@"AT_OAIR=0"];
+		else if([self isPxS8])
+			[self runATCommand:@"AT+CFUN=1"];
 		pinStatus=CTPinStatusUnknown;	// check on next call for pinStatus
 		return YES;
 		}
