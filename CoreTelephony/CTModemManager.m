@@ -568,7 +568,7 @@ BOOL modemLog=NO;
 				}
 			else if([self isPxS8])
 				{
-				if(![[self runATCommandReturnResponse:@"AT+CFUN?"] containsObject:@"1"])
+				if(![[self runATCommandReturnResponse:@"AT+CFUN?"] containsObject:@"+CFUN: 1"])
 					return CTPinStatusAirplaneMode;
 				}
 			result=[self runATCommandReturnResponse:@"AT+CPIN?"];
@@ -629,8 +629,6 @@ BOOL modemLog=NO;
 		else if([self isPxS8])
 			[self runATCommand:@"AT+CFUN=4"];
 		pinStatus=CTPinStatusAirplaneMode;
-		// [self _closeHSO] + [self _power:NO]
-		// power off modem (if possible)
 		return YES;
 		}
 	else
