@@ -600,9 +600,12 @@ BOOL modemLog=NO;
 	if(modemLog) [self log:@"send PIN"];
 	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
 		{ // is accepted
+			if(modemLog) [self log:@"send PIN accepted"];
 			[self _unlocked];
 			return YES;
 		}
+	if(modemLog) [self log:@"send PIN rejected"];
+	pinStatus=CTPinStatusUnknown;
 	return NO;	// no SIM, wrong PIN or already unlocked
 }
 
