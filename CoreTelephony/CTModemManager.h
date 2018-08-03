@@ -47,6 +47,9 @@ typedef enum _CTPinStatus
 + (CTModemManager *) modemManager;
 + (void) enableLog:(BOOL) flag;
 
+- (BOOL) isGTM601;
+- (BOOL) isPxS8;
+
 // FIXME: separate public and private API
 
 - (void) setUnsolicitedTarget:(id) target action:(SEL) action;
@@ -68,6 +71,11 @@ typedef enum _CTPinStatus
 
 - (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet - must be called to enable the modem!
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
+
+- (void) setupPCM;	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
+- (void) setupVoice;
+- (void) terminatePCM;
+
 
 - (void) reset;	// reset modem to CTPinStatusPINRequired
 - (BOOL) setAirplaneMode:(BOOL) flag;
