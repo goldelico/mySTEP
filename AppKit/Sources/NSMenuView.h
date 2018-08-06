@@ -23,25 +23,24 @@
 
 @interface NSMenuView : NSView
 {
-    @private
+	@private
 	NSMenu *_menumenu;		// the menu data to be displayed (not the context menu defined by NSResponder!)
 	NSFont *_font;
-	NSPanel *_menuWindow;
 	NSMenuView *_attachedMenuView;
 	NSMutableArray *_cells;	// all cells
 	NSRect *_rectOfCells;	// sized using realloc()
-    NSInteger _highlightedItemIndex;
-    CGFloat _horizontalEdgePadding;
-    CGFloat _imageAndTitleOffset;
-    CGFloat _imageAndTitleWidth;
-    CGFloat _keyEquivalentOffset;
-    CGFloat _keyEquivalentWidth;
-    CGFloat _stateImageOffset;
-    CGFloat _stateImageWidth;
+	NSInteger _highlightedItemIndex;
+	CGFloat _horizontalEdgePadding;
+	CGFloat _imageAndTitleOffset;
+	CGFloat _imageAndTitleWidth;
+	CGFloat _keyEquivalentOffset;
+	CGFloat _keyEquivalentWidth;
+	CGFloat _stateImageOffset;
+	CGFloat _stateImageWidth;
 	CGFloat _neededSize;
-    BOOL _needsSizing;
-    BOOL _isHorizontal;
-    BOOL _isResizingHorizontally;
+	BOOL _needsSizing;
+	BOOL _isHorizontal;
+	BOOL _isResizingHorizontally;
 	BOOL _needsScrolling;
 	BOOL _isStatusBar;
 	BOOL _isContextMenu;

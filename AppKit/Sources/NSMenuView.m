@@ -80,6 +80,7 @@
 
 - (void) attachSubmenuForItemAtIndex:(NSInteger) index;
 {
+	NSPanel *menuWindow;
 	NSRect r;
 	NSMenu *submenu=[[_menumenu itemAtIndex:index] submenu];
 #if 0
@@ -90,28 +91,26 @@
 		return; // ignore empty submenus
 	if([_attachedMenuView menu] == submenu)
 		return;	// already attached
-	[self detachSubmenu];	// detach any other submenus before attaching a new submenu
+	if(_attachedMenuView != self)
+		[self detachSubmenu];	// detach any other submenus before attaching a new submenu
 	[submenu update];		// enable/disable menu items
-	if(!_menuWindow)
-		{ // create a new submenu window
-		_menuWindow=[[NSPanel alloc] initWithContentRect:NSMakeRect(0.0, 0.0, 50.0, 50.0)
-											   styleMask:NSBorderlessWindowMask
-												 backing:NSBackingStoreBuffered
-												   defer:YES];	// will be released on close
-		[_menuWindow setWorksWhenModal:YES];
-		[_menuWindow setLevel:NSSubmenuWindowLevel];
+	menuWindow=[[NSPanel alloc] initWithContentRect:NSMakeRect(0.0, 0.0, 50.0, 50.0)
+										  styleMask:NSBorderlessWindowMask
+											backing:NSBackingStoreBuffered
+											  defer:YES];	// will be released on close
+	[menuWindow setWorksWhenModal:YES];
+	[menuWindow setLevel:NSSubmenuWindowLevel];
 #if 1
-		NSLog(@"win=%@", _menuWindow);
-		NSLog(@"index=%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
-		NSLog(@"converted rect=%@", NSStringFromRect([self convertRect:[self rectOfItemAtIndex:index] toView:nil]));
-		NSLog(@"autodisplay=%d", [_menuWindow isAutodisplay]);
+	NSLog(@"win=%@", menuWindow);
+	NSLog(@"index=%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
+	NSLog(@"converted rect=%@", NSStringFromRect([self convertRect:[self rectOfItemAtIndex:index] toView:nil]));
+	NSLog(@"autodisplay=%d", [menuWindow isAutodisplay]);
 #endif
-		}
 #if 1
-	[_menuWindow setTitle:[submenu title]];
+	[menuWindow setTitle:[submenu title]];
 #endif
-	_attachedMenuView=[[[self class] alloc] initWithFrame:[[_menuWindow contentView] frame]];	// make new NSMenuView of matching size
-	[_menuWindow setContentView:_attachedMenuView];	// make content view
+	_attachedMenuView=[[[self class] alloc] initWithFrame:[[menuWindow contentView] frame]];	// make new NSMenuView of matching size
+	[menuWindow setContentView:_attachedMenuView];	// make content view
 #if 0
 	NSLog(@"attachedMenuView=%@", _attachedMenuView);
 #endif
@@ -129,7 +128,7 @@
 											   onScreen:[_window screen]
 										  preferredEdge:(_isHorizontal?NSMinYEdge:NSMaxXEdge)	// default: below or to the right
 									  popUpSelectedItem:0];	// this should resize the submenu window and show the first item
-	[_menuWindow orderFront:self];  // finally, make it visible
+	[menuWindow orderFront:self];  // finally, make it visible
 #if 0
 	NSLog(@"attachSubmenu done");
 #endif
@@ -138,21 +137,26 @@
 - (NSMenu *) attachedMenu; { return [_attachedMenuView menu]; }
 
 - (NSMenuView *) attachedMenuView; { return _attachedMenuView; }
+- (void) _setAttachedMenuView:(NSMenuView *) view; { _attachedMenuView=view; }	// used e.g. by NSPopUpButtonCell
 
 - (void) detachSubmenu;
 {
-	NSPanel *win;
 	if(_attachedMenuView)
 		{
-		[self setHighlightedItemIndex:-1];				// remove any highlighting
-		[[self attachedMenu] setSupermenu:nil];			// detach supermenu
-		[_attachedMenuView detachSubmenu];				// recursively detach
-#if 0
+		NSPanel *win;
+		if(_attachedMenuView != self)
+			{
+			[self setHighlightedItemIndex:-1];				// remove any highlighting
+			[[self attachedMenu] setSupermenu:nil];			// detach supermenu
+			[_attachedMenuView detachSubmenu];				// recursively detach
+			}
+#if 1
 		NSLog(@"detachSubmenu %@", _attachedMenuView);
 #endif
-		win=(NSPanel *) [_attachedMenuView window];
+		[self retain];	// we may be a child of that NSPanel
+		[[_attachedMenuView window] close];	// reelases the NSPanel
 		_attachedMenuView=nil;		// no longer attached
-		[win orderOut:nil];			// make invisible but keep cached
+		[self release];
 		}
 }
 
@@ -848,7 +852,7 @@
 #if 0
 	NSLog(@"trackWithEvent: %@", event);
 #endif
-	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
+	if(_attachedMenuView && _attachedMenuView != self && [_attachedMenuView trackWithEvent:event])
 		return YES;	// yes, it has been successfully handled by the submenu(s)
 	p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
 	if([event type] == NSPeriodic)
@@ -935,7 +939,7 @@
 	NSInteger idx;
 	BOOL stayOpen=NO;
 #if 1
-	NSLog(@"mouseDown:%@", theEvent);
+	NSLog(@"NSMenuView mouseDown:%@", theEvent);
 #endif
 	[NSApp preventWindowOrdering];
 	[self update];	// update/enable menu(s)
@@ -947,6 +951,9 @@
 		// FIXME: we may not even have to check this. If we are deactivated, we should simply hide the menu windows like any other panel
 		if(![NSApp isActive])	// was deactivated (FIXME: do we ever see this as an event???)
 			{ // detach all open submenu items
+#if 1
+			NSLog(@"NSApp is not/no longer active: %@", NSApp);
+#endif
 			[self detachSubmenu];
 			break;
 			}
@@ -974,16 +981,21 @@
 	if(_needsScrolling)
 		[NSEvent stopPeriodicEvents];	// was generating scroll events
 	mv=self;
-	while([mv attachedMenuView])
-		mv=[mv attachedMenuView];	// go down to lowest open submenu level
+	if(_attachedMenuView !=self)
+		{ // go down to lowest open submenu level
+		while([mv attachedMenuView])
+			mv=[mv attachedMenuView];
+		}
 	idx=[mv highlightedItemIndex];
 #if 1
-	NSLog(@"item selected %ld", (long)idx);
+	NSLog(@"NSMenuView item selected %ld", (long)idx);
 #endif
 	[self setHighlightedItemIndex:-1];	// unhighligt my item
-	[self detachSubmenu];				// detach all open submenu items
+	[mv retain];	// may be owned by the NSPanel
+	[self detachSubmenu];	// detach all open submenu items - might also close our panel
 	if(idx >= 0)
 		[[mv menu] performActionForItemAtIndex:idx];	// finally perform action - processes responder chain
+	[mv release];
 }
 
 // - (void) mouseDragged:(NSEvent *) theEvent; { return; }
@@ -995,8 +1007,8 @@
 
 + (void) popUpContextMenu:(NSMenu *) menu withEvent:(NSEvent *) event forView:(NSView *) view withFont:(NSFont *) font;
 {
-	static NSPanel *win;
-	static NSMenuView *menuView;
+	NSPanel *win;
+	NSMenuView *menuView;
 	NSRect r;
 	NSInteger item;	// item to pop up when scrolling
 #if 1
@@ -1009,24 +1021,22 @@
 	if(!menu || !event || !view)
 		return;
 //	[menu update];					// enable/disable menu items
-	if(!win)
-			{
-				win=[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
-									styleMask:NSBorderlessWindowMask
-									  backing:NSBackingStoreBuffered
-										defer:YES];
-				[win setWorksWhenModal:YES];
-				[win setLevel:NSSubmenuWindowLevel];
+	win=[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
+								   styleMask:NSBorderlessWindowMask
+									backing:NSBackingStoreBuffered
+									   defer:YES];
+	[win setWorksWhenModal:YES];
+	[win setLevel:NSSubmenuWindowLevel];
 #if 0
-				[win setTitle:@"Context Menu"];
+	[win setTitle:@"Context Menu"];
 #endif
-				menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
-				[menuView setFont:font];		// set default font
-				[menuView setHorizontal:NO];	// make popup menu vertical
-				[menuView _setContextMenu:YES];	// close on mouseUp
-				[[win contentView] addSubview:menuView];	// add to view hiearachy
-			}
+	menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
+	[menuView setFont:font];		// set default font
+	[menuView setHorizontal:NO];	// make popup menu vertical
+	[menuView _setContextMenu:YES];	// close on mouseUp
+	[[win contentView] addSubview:menuView];	// add to view hiearachy
 	[menuView setMenu:menu];		// define to manage selected menu
+	[menuView _setAttachedMenuView:menuView];	// make us our own attachedMenuView so that the panel is closed after menu selection
 #if 0
 	NSLog(@"win=%@", win);
 	NSLog(@"autodisplay=%d", [win isAutodisplay]);
@@ -1048,7 +1058,6 @@
 							 popUpSelectedItem:item];
 	[win orderFront:self];		// make visible
 	[menuView mouseDown:event];	// pass event down - runs a tracking loop
-	[win orderOut:nil];	// and close after tracking ends
 }
 
 @end
