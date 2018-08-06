@@ -418,9 +418,11 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[_controlView updateCell:self];
 }
 
+// this is quite similar to -[NSMenuView attachSubmenuForItemAtIndex:]
+
 - (void) attachPopUpWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
 {
-	NSMenuView *menuView;
+	NSPanel *menuPanel;
 	NSRect r;
 #if 0
 	NSLog(@"attachPopUpWithFrame %08x", _menu);
@@ -431,19 +433,19 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 		return;
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSPopUpButtonCellWillPopUpNotification object:self];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSPopUpButtonCellWillPopUpNotification object:controlView];
-	//	[[NSMenuView _currentOpen_controlView] detachSubmenu];	// close if any other menu is open
+	// FIXME: [[NSMenuView _currentOpen_controlView] detachSubmenu];	// close if any main menu is open
 	[_menu update];		// enable/disable menu items
-	menuView=[[[NSMenuView class] alloc] initWithFrame:(NSRect) { NSZeroPoint, cellFrame.size }];	// make new NSMenuView
-	[menuView setFont:[self font]];			// same font as the popup button
-	[menuView setHorizontal:NO];		// make popup menu vertical
-	[menuView _setHorizontalResize:NO];		// don't resize width!
-	[menuView _setContextMenu:YES];			// close on selection
-	_menuPanel=[[[NSPanel alloc] initWithContentRect:(NSRect) { NSZeroPoint, cellFrame.size }
+	_menuView=[[[NSMenuView class] alloc] initWithFrame:(NSRect) { NSZeroPoint, cellFrame.size }];	// make new NSMenuView
+	[_menuView setFont:[self font]];			// same font as the popup button
+	[_menuView setHorizontal:NO];		// make popup menu vertical
+	[_menuView _setHorizontalResize:NO];		// don't resize width!
+	[_menuView _setContextMenu:YES];			// close on selection
+	menuPanel=[[[NSPanel alloc] initWithContentRect:(NSRect) { NSZeroPoint, cellFrame.size }
 									styleMask:NSBorderlessWindowMask
 									  backing:NSBackingStoreBuffered
 										defer:YES] retain];	// will be released on close
-	[_menuPanel setWorksWhenModal:YES];
-	[_menuPanel setLevel:NSSubmenuWindowLevel];
+	[menuPanel setWorksWhenModal:YES];
+	[menuPanel setLevel:NSSubmenuWindowLevel];
 #if 0
 	NSLog(@"win=%@", _menuWindow);
 	NSLog(@"autodisplay=%d", [_menuWindow isAutodisplay]);
@@ -451,9 +453,10 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 	[_menuWindow setTitle:@"PopUpButton Menu"];
 #endif
-	[[_menuPanel contentView] addSubview:menuView];	// add to view hiearachy
-	[menuView release];	// now retained by view hierarchy
-	[menuView setMenu:_menu];			// define to manage selected menu
+	[[menuPanel contentView] addSubview:_menuView];	// add to view hiearachy
+	[_menuView release];	// now retained by view hierarchy
+	[_menuView setMenu:_menu];			// define to manage selected menu
+	[_menuView _setAttachedMenuView:_menuView];	// make us our own attachedMenuView so that the panel is closed after menu selection
 #if 0
 	NSLog(@"cellFrame=%@", NSStringFromRect(cellFrame));
 	NSLog(@"view Frame=%@", NSStringFromRect([controlView frame]));
@@ -471,25 +474,22 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #endif
 	r.origin.y-=2.0;	// adjust
 	if(_pullsDown)
-		[menuView setWindowFrameForAttachingToRect:r
-										  onScreen:[_menuPanel screen]
+		[_menuView setWindowFrameForAttachingToRect:r
+										  onScreen:[menuPanel screen]
 									 preferredEdge:_preferredEdge	// attach below
 								 popUpSelectedItem:-1];
 	else
-		[menuView setWindowFrameForAttachingToRect:r
-										  onScreen:[_menuPanel screen]
+		[_menuView setWindowFrameForAttachingToRect:r
+										  onScreen:[menuPanel screen]
 									 preferredEdge:NSMaxXEdge	// attach to the right
 								 popUpSelectedItem:_selectedItem];
-	[_menuPanel orderFront:self];		// make visible
+	[menuPanel orderFront:self];		// make visible
 }
 
 - (void) dismissPopUp;
 {
-#if 0
-	NSLog(@"dimiss popup");
-#endif
-	[_menuPanel close];
-	_menuPanel=nil;
+	[[_menuView window] close];	// will also release the panel
+	_menuView=nil;
 }
 
 - (void) performClickWithFrame:(NSRect) frame inView:(NSView *) controlView;
@@ -498,36 +498,23 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 	NSLog(@"performClickWithFrame %@ - %@ - %@", _menu, event, controlView);
 #endif
-	// how to handle frame? Simulate as a mouseDown event and use frame as the location?
+	// how to handle frame? Simulate as a mouseDown event and use frame center as the location?
 	[NSMenu popUpContextMenu:_menu withEvent:event forView:controlView withFont:nil];
 }
 
 - (BOOL) trackMouse:(NSEvent *)event
 			 inRect:(NSRect)cellFrame
 			 ofView:(NSView *)controlView
-	   untilMouseUp:(BOOL)flag
+	   untilMouseUp:(BOOL)flag	// ignored
 {
-#if 0
+#if 1
 	NSLog(@"NSPopUpButtonCell trackMouse:inRect:...");
 #endif
 	[self attachPopUpWithFrame:cellFrame inView:controlView];	// open menu
-	[[[[_menuPanel contentView] subviews] lastObject] mouseDown:event];	// ignore cellFrame etc.
-#if 0
-	while([event type] != NSLeftMouseUp)
-		{ // loop until mouse goes up
-		NSMenuView *menuView=[[[_menuWindow contentView] subviews] lastObject];
-		NSLog(@"NSPopUpButonCell event = %@", event);
-		NSLog(@"NSPopUpButonCell menuView = %@", menuView);
-		if(![menuView trackWithEvent:event])
-			;	// now outside
-		event = [NSApp nextEventMatchingMask:NSLeftMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask 
-								   untilDate:[NSDate distantFuture]
-									  inMode:NSEventTrackingRunLoopMode 
-									 dequeue:YES];
-		}
-#endif
+	[_menuView mouseDown:event];	// ignore cellFrame etc.
+#if 1
 	NSLog(@"NSPopUpButtonCell trackMouse:inRect: done...");
-	[self dismissPopUp];
+#endif
 	return YES;	// did go up
 }
 

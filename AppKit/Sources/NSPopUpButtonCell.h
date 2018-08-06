@@ -38,7 +38,7 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 
 @interface NSPopUpButtonCell : NSMenuItemCell
 {
-	NSPanel *_menuPanel;
+	NSMenuView *_menuView;
 	NSInteger _selectedItem;
 	NSPopUpArrowPosition _arrowPosition;
 	NSRectEdge _preferredEdge;
