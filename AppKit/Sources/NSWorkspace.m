@@ -433,7 +433,7 @@ static BOOL __fileSystemChanged = NO;
 - (void) findApplications
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSArray *path=NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory,	NSAllDomainsMask, YES);
+	NSArray *path=NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory, NSAllDomainsMask, YES);
 	//	NSArray *path=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSApplicationSearchPath"];
 	NSEnumerator *p=[path objectEnumerator];
 	NSString *dir;
