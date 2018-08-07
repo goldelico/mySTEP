@@ -4144,6 +4144,10 @@ static NSFileHandle *fh;
 		} // end of event type switch
 		if(e != nil)
 			{
+#if 0
+			NSLog(@"post %@", e);
+			NSLog(@"to NSApp=%@", NSApp);
+#endif
 			[NSApp postEvent:e atStart:NO];			// add event to app queue
 			[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
 			}
