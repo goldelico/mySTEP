@@ -21,14 +21,14 @@
 
 @interface NSMenuItemCell : NSButtonCell
 {
-    @protected
+	@protected
 	NSMenuItem	*menuItem;				// the menuItem we will view
-    NSSize		size;					// total size
-    CGFloat		stateImageWidth;
-    CGFloat		imageWidth;
-    CGFloat		titleWidth;
-    CGFloat		keyEquivalentWidth;
-    int			keyEquivGlyphWidth;
+	NSSize		size;					// total size
+	CGFloat		stateImageWidth;
+	CGFloat		imageWidth;
+	CGFloat		titleWidth;
+	CGFloat		keyEquivalentWidth;
+	int			keyEquivGlyphWidth;
 	BOOL		needsSizing;			// recalculate size if needed
 	BOOL		needsDisplay;
 }

@@ -146,6 +146,7 @@ static BOOL __userKeyEquivalents = YES;
 	if(self)
 		{
 		[self setAlignment:NSLeftTextAlignment];
+		[self setOffStateImage:nil];
 		[self setOnStateImage:nil]; // set checkmark
 		[self setMixedStateImage:nil]; // set horizontal line
 		}
@@ -312,7 +313,7 @@ static BOOL __userKeyEquivalents = YES;
 		_toolTip=[[coder decodeObjectForKey:@"NSToolTip"] retain];
 		_onStateImage=[[coder decodeObjectForKey:@"NSOnImage"] retain];
 		_mixedStateImage=[[coder decodeObjectForKey:@"NSMixedImage"] retain];
-		_offStateImage=[[coder decodeObjectForKey:@"NSImage"] retain];	// try NSImage
+		_offStateImage=[[coder decodeObjectForKey:@"NSOffImage"] retain];	// try NSImage
 		_isAlternate=[coder decodeIntForKey:@"NSIsAlternate"];
 		_attributedTitle=[[coder decodeObjectForKey:@"NSAttributedTitle"] retain];
 		// FIXME
@@ -765,7 +766,7 @@ static BOOL __userKeyEquivalents = YES;
 	SEL action;
 	id target;
 	NSMenuItem *item=[_menuItems objectAtIndex:index];
-	if(![item isEnabled])
+	if([item isSeparatorItem] || ![item isEnabled] || [item submenu])
 		return;
 #if 0
 	NSLog(@"perform: \"%@\" for cell title", [item title]);

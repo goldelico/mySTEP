@@ -134,13 +134,12 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 }
 
 - (NSImage *) _stateImage;
-{ // get state image dependent on menuItem
-	switch([menuItem state])
-		{
+{ // get state image depending on menuItem
+	switch([menuItem state]) {
 		case NSOffState:
-		default:			return [menuItem offStateImage];
-		case NSOnState:		return [menuItem onStateImage];
-		case NSMixedState:	return [menuItem mixedStateImage];
+		default:			return [menuItem offStateImage]?:[NSImage imageNamed:@"NSMenuUnchecked"];
+		case NSMixedState:	return [menuItem mixedStateImage]?:[NSImage imageNamed:@"NSMenuMixedState"];
+		case NSOnState:		return [menuItem onStateImage]?:[NSImage imageNamed:@"NSMenuCheckmark"];
 		}
 }
 
@@ -263,7 +262,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSAttributedString *as;
 	BOOL isHorizontal;
 	CGFloat horizontalEdgePadding;
-#if 0
+#if 1
 	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 #endif
 	if(!needsSizing)
@@ -281,7 +280,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	else
 		[super setTitle:@""];
 #endif	
-#if 0
+#if 1
 	NSLog(@"menuItem celltype=%d", [self type]);
 	NSLog(@"menuItem isSeparatorItem=%d", [menuItem isSeparatorItem]);
 #endif
@@ -292,7 +291,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	if(as)
 		{
 		size=[as size];	// title size/height determines everything
-#if 0
+#if 1
 		NSLog(@"menuItem %@ size=%@", [as string], NSStringFromSize(size));
 #endif
 		}
@@ -301,13 +300,13 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	if([menuItem isSeparatorItem])
 		size.height*=0.8;		// reduce size of separator items to 80% - title should be an empty string and size being determined by font
 	titleWidth=size.width;		// determine by text length
-#if 0
-	NSLog(@"%@.size=%@", [menuItem title], NSStringFromSize(size));
+#if 1
+	NSLog(@"%@.cellSize=%@", [menuItem title], NSStringFromSize(size));
 #endif
+	stateImageWidth=0.0;
 	if(!isHorizontal)
 		{ // vertical menu has state image, key equivalents, submenu arrow
 		int i;
-		NSSize sz={ 0.0, 1.0 };
 #if 0
 		NSLog(@"calcSize vertical");
 		NSLog(@"key equiv=%@", [self _keyEquivalentString]);
@@ -333,21 +332,18 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 				default: continue;
 				}
 			if(img)
-				{ // image exists
-				NSSize s;
-#if 0
-				NSLog(@"%d img=%@", i, img);
+				{ // image exists - enlarge
+				NSSize s=[img size];
+#if 1
+				NSLog(@"%d s=%@ img=%@", i, NSStringFromSize(s), img);
 #endif
-				s=[img size];
-				if(s.width > sz.width)
-					sz.width=s.width;
-				if(s.height > sz.height)
-					sz.height=s.height;
+				stateImageWidth=MAX(stateImageWidth, s.width);
+				size.height=MAX(size.height, s.height);	// enlarge cell to maximum height
 				}
 			}
-		if(!isHorizontal && sz.height > size.height)
-			size.height=sz.height;	// enlarge cell to maximum height
-		stateImageWidth=sz.width;	// use maximum width
+#if 1
+			NSLog(@"%@.cellSize=%@", [menuItem title], NSStringFromSize(size));
+#endif
 		}
 	else
 		{ // horizontal menu
@@ -359,7 +355,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		stateImageWidth=0.0;		// not required
 		}
 	if([menuItem image])
-		{ // has menu item image
+		{ // has explicit menu item image
 		NSSize s;
 #if 0
 		NSLog(@"NSMenuItem image: %@", [menuItem image]);
@@ -369,8 +365,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		NSLog(@"NSMenuItem image size=%@", NSStringFromSize(s));
 #endif
 		imageWidth=s.width;			// full image width
-		if(!isHorizontal && s.height > size.height)
-			size.height=s.height;	// enlarge cell height
+		if(!isHorizontal)
+			size.height=MAX(size.height, s.height);	// enlarge cell height by item image
 		}
 	else
 		imageWidth=0.0;			// no image
@@ -518,7 +514,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSImage *i=[self _stateImage];  // current state image
 	NSSize sz;
 	if(!i || stateImageWidth == 0.0)
-		return;	// empty or don't draw
+		return;	// empty or don't draw or use default?
 //	[i compositeToPoint:NSMakePoint(0.0, 0.0) operation:NSCompositeHighlight];
 	frame=[self stateImageRectForBounds:frame];	// translate
 #if 0
@@ -680,6 +676,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	if(![aDecoder allowsKeyedCoding])
 		return NIMP;
 	menuItem = [[aDecoder decodeObjectForKey:@"NSMenuItem"] retain];
+	[menuItem setOffStateImage:[aDecoder decodeObjectForKey:@"NSOffImage"]];
 	[menuItem setMixedStateImage:[aDecoder decodeObjectForKey:@"NSMixedImage"]];
 	[menuItem setOnStateImage:[aDecoder decodeObjectForKey:@"NSOnImage"]];
 	return self;

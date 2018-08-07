@@ -146,9 +146,9 @@
 	nc=[NSNotificationCenter defaultCenter];
 	if(textView)
 		{ // disconnect from text view
+			[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
 			[textView setPostsFrameChangedNotifications:NO];	// no need to notify any more...
 			[textView setTextContainer:nil];
-			[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
 			[textView release];
 			textView=nil;
 		}

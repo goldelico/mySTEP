@@ -341,6 +341,7 @@
 		_bx.boxType = [aDecoder decodeIntForKey:@"NSBoxType"];
 		_bx.titlePosition = [aDecoder decodeIntForKey:@"NSTitlePosition"];
 		_bx.transparent=[aDecoder decodeBoolForKey:@"NSTransparent"];
+		/*	??? =  */ [aDecoder decodeBoolForKey:@"IBNSBoxIsUsingDocumentContentView"];
 #if 0
 		NSLog(@"offsets=%@", NSStringFromSize(_offsets));
 		NSLog(@"borderType=%d", _bx.borderType);

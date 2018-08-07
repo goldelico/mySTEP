@@ -43,7 +43,6 @@
 	BOOL _isResizingHorizontally;
 	BOOL _needsScrolling;
 	BOOL _isStatusBar;
-	BOOL _isContextMenu;
 	BOOL _isTornOff;
 }
 

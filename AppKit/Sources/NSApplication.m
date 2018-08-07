@@ -196,11 +196,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //			exit(1);
 			c=self;
 			}
-#if 1
+#if 0
 		NSLog(@"class = %@", NSStringFromClass(c));
 #endif
 		if(![c isKindOfClass:[self class]])
-		   NSLog(@"Warning: Principal class (%@ %p) of main bundle is not subclass of %@ (%p)", NSStringFromClass(c), c, NSStringFromClass([self class]), [self class]);
+			NSLog(@"Warning: Principal class (%@ %p) of main bundle is not subclass of %@ (%p)", NSStringFromClass(c), c, NSStringFromClass([self class]), [self class]);
 		[c new];	// create instance -init will set NSApp
 		NSAssert(c && NSApp, @"initialization error");
 		[arp release];
@@ -551,9 +551,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				if(w == nil || (!(as->visible = [w isVisible]) && was))
 					{
 #if 1
-					NSLog(@"window was visible: event window %d %@", [[e window] windowNumber], [e window]);
+					NSLog(@"window was visible: event window %ld %@", (long)[[e window] windowNumber], [e window]);
 					NSLog(@"                    as->window %@", as->window);
-					NSLog(@"                    as->windowTag %d -> %@", as->windowTag, w);
+					NSLog(@"                    as->windowTag %ld -> %@", (long)as->windowTag, w);
 #endif
 					[self stopModal];			// if window was visible but has now gone away: end the session
 					}
@@ -1318,7 +1318,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (BOOL) isActive
 { // if active application is defined and is our pid
 	NSDictionary *app=[[NSWorkspace sharedWorkspace] activeApplication];
-#if 1
+#if 0
 	NSLog(@"active app=%@", app);
 #endif
 	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();
@@ -1608,7 +1608,7 @@ NSWindow *w;
 			[NSException raise: NSInternalInconsistencyException format: @"Unable to open about panel model file."];
 		}
 #if 1
-	NSLog(@"options %@", optionsDictionary);
+	NSLog(@"orderFrontStandardAboutPanelWithOptions: %@", optionsDictionary);
 #endif
 	[_credits setStringValue:[optionsDictionary objectForKey:@"Credits"]];
 	[_applicationName setStringValue:[optionsDictionary objectForKey:@"ApplicationName"]];
