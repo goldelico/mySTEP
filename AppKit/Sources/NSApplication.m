@@ -666,9 +666,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					{
 						NSAutoreleasePool *arp=[NSAutoreleasePool new];
 						[self nextEventMatchingMask:NSAnyEventMask
-															untilDate:[NSDate distantFuture]
-																 inMode:NSModalPanelRunLoopMode
-																dequeue:NO];	// wait for but don't process events
+										  untilDate:[NSDate distantFuture]
+											 inMode:NSModalPanelRunLoopMode
+											dequeue:NO];	// wait for but don't process events
 						[arp release];
 					}
 			[self endModalSession: s];
@@ -893,9 +893,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(NSUInteger)mask dequeue:(BOOL)dequeue
 {
-#if OLD
-	[_mainWindow flushWindow];	// this will enqueue any pending events from the X server
-#endif
 	if(mask)
 		{
 		NSUInteger i, cnt;
@@ -915,10 +912,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					}
 			}
 		}
-#if OLD
-	if(_app.windowsNeedUpdate)	// needs to send an update message to all visible windows
-		[self updateWindows];	// FIXME: according to doc this should not be called during NSEventTrackingRunLoopMode! But then, we don't get window updates???
-#endif
 #if 0
 	NSLog(@"_eventMatchingMask no event found");
 #endif
@@ -964,7 +957,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
 	NSAutoreleasePool *pool=[NSAutoreleasePool new];
 #if 1
-	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
+	NSLog(@"nextEventMatchingMask:%08lx untilDate:%@ inMode:%@", (unsigned long)mask, expiration, mode);
 #endif
 	if(!expiration)
 		expiration=[NSDate distantPast];	// fall through immediately
@@ -974,6 +967,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			break;	// found one
 		if(![currentLoop runMode:mode beforeDate:expiration])
 			break;	// did not run once - will either return on input event or reaching expiration date
+#if 1
+		NSLog(@"event queue length %lu", (unsigned long)[_eventQueue count]);
+#endif
 		} while([expiration timeIntervalSinceNow] > 0.0);	// still not expired
 #if 1
 	NSLog(@"ARP release with event: %@", _currentEvent);
@@ -991,10 +987,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	else
 		NSLog(@"postEvent:atStart:NO %@", event);
 #endif
-	if(!flag)
-		[_eventQueue addObject: event];
-	else
+	if(flag)
 		[_eventQueue insertObject:event atIndex:0];
+	else
+		[_eventQueue addObject: event];
 }
 
 - (void) doCommandBySelector:(SEL) sel;
