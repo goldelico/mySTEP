@@ -87,8 +87,8 @@ enum {
 	NSUInteger _keyEquivalentModifierMask;
 	NSUInteger _highlightMask;
 	NSUInteger _stateMask;
-    float _periodicDelay;
-    float _periodicInterval;
+	float _periodicDelay;
+	float _periodicInterval;
 	NSButtonType _buttonType;	// saved internally
 	NSBezelStyle _bezelStyle;
 	NSImageScaling _imageScaling;
