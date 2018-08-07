@@ -350,7 +350,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
-	NSString *ident=[[NSBundle mainBundle] bundleIdentifier];
+	NSString *name=[infoDict objectForKey:@"CFBundleName"];
+	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
 	NSString *error;
 	NSDictionary *plist;
 #if 1
@@ -367,13 +368,17 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
 #endif
+	if(!ident)
+		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
+	if(!ident)
+		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
 	plist=[NSDictionary dictionaryWithObjectsAndKeys:
-				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
-				 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"], @"NSApplicationName",
-				 ident, @"NSApplicationBundleIdentifier",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
 				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
+				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
+				 ident, @"NSApplicationBundleIdentifier",
+				 name, @"NSApplicationName",
 				 nil];
 	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
 												contents:[NSPropertyListSerialization dataFromPropertyList:plist
@@ -1313,7 +1318,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (BOOL) isActive
 { // if active application is defined and is our pid
 	NSDictionary *app=[[NSWorkspace sharedWorkspace] activeApplication];
-#if 0
+#if 1
 	NSLog(@"active app=%@", app);
 #endif
 	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();
