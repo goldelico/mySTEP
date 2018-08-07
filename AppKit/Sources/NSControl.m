@@ -427,6 +427,7 @@ static Class __controlCellClass = Nil;
 #endif
 			[self setEnabled:[aDecoder decodeBoolForKey:@"NSEnabled"]];	// enable/disable current cell (unless setEnabled is overwritten)
 			}
+		/*	??? =  */ [aDecoder decodeBoolForKey:@"NSAllowsLogicalLayoutDirection"];
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_tag];
