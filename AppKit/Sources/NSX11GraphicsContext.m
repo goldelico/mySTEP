@@ -821,6 +821,9 @@ typedef struct
 
 - (BOOL) isDrawingToScreen	{ return YES; }
 
+- (void) _setScale:(CGFloat) scale;	{ _scale=scale; }
+- (CGFloat) _scale; { return _scale; }
+
 #pragma mark PDFOperators
 
 - (void) _setColor:(NSColor *) color;
@@ -1379,7 +1382,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				}
 			else
 				{ // intersect with existing region
-#if 0
+#if 1
 					{
 					XRectangle box;
 					XClipBox(r, &box);
@@ -1847,6 +1850,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite into unit square using current CTM, current compositingOp & fraction etc.
 	BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
+#if 1
+	NSLog(@"_draw %@", rep);
+#endif
 #if USE_XRENDER
 	if(_picture)
 		{
@@ -2045,6 +2051,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					[self _copyBits:state fromRect:[(NSCachedImageRep *) rep rect] toPoint:NSZeroPoint];
 					return YES;
 					}
+				NSLog(@"no context for cached image rep");
 				return NO;
 			}
 
@@ -2135,13 +2142,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		xScanRect.height=scanRect.size.height;
 		xScanRect.x=scanRect.origin.x;
 		xScanRect.y=scanRect.origin.y;	// X11 specifies upper left corner
-#if 0
+#if 1
 		NSLog(@"  scan box=%@", NSStringFromXRect(xScanRect));
 #endif
 		/*
 		 * clip to visible area (by clipping box, window and screen - note: window may be partially outside of screen)
 		 */
-#if 0
+#if 1
 		NSLog(@"  clip box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
 		xClipRect=xScanRect;
@@ -2164,7 +2171,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 		 */
 
-#if 0
+#if 1
 		NSLog(@"  final clipped scan box=%@", NSStringFromXRect(xClipRect));
 #endif
 		if(xClipRect.width == 0 || xClipRect.height == 0)
@@ -2174,7 +2181,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 */
 		atm=[NSAffineTransform transform];
 		[atm translateXBy:-origin.x yBy:-origin.y];		// we will scan through XImage which is thought to be relative to the drawing origin
-#if 0
+#if 1
 		NSLog(@"state %p", _state);
 		NSLog(@"ctm %@", _state->_ctm);
 #endif
@@ -2187,6 +2194,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		else
 			[atm scaleXBy:width yBy:-height];	// and directly map to flipped pixel coordinates
 		atms=[atm transformStruct];	// extract raw coordinate transform
+		if(atms.m22 < 0)
+		{
+		atms.tY+=height;
+		}
 		/*
 		 * get current screen image for compositing
 		 */
@@ -2287,10 +2298,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				x=0;
 				pnt.x=atms.m11*(x+xClipRect.x-xScanRect.x) + atms.m12*(y+xClipRect.y-xScanRect.y)+atms.tX;	// first bitmap point of this scan line
 				pnt.y=atms.m21*(x+xClipRect.x-xScanRect.x) + atms.m22*(y+xClipRect.y-xScanRect.y)+atms.tY;
+#if 0
+				NSLog(@"draw pixel(%f, %f) at (%d, %d)", pnt.x, pnt.y, x, y);
+#endif
 				for(; x<img->width; x++, pnt.x+=atms.m11, pnt.y+=atms.m21)	// track sampling point avoiding new calculations
 					{
 					if(mustFetch)
 						dest=XGetRGBA8(img, x, y);	// get current image value
+#if 0
+					NSLog(@"draw pixel(%f, %f) at (%d, %d)", pnt.x, pnt.y, x, y);
+#endif
 					if(_compositingOperation != NSCompositeClear)
 						{ // get smoothed RGBA from bitmap
 						  // we should pipeline this through core-image like filter modules
@@ -2414,8 +2431,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
+  // note: here, we can't scale the image!
 	XRectangle src, dest;
-#if 0
+#if 1
 	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
 	NSLog(@"  clip box %@", NSStringFromRect([self _clipBox]));
 #endif
@@ -2433,32 +2451,33 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		src.y=srcRect.origin.y;
 		src.width=srcRect.size.width;
 		dest.width=src.width;
-		dest.height=src.height;
 		if(srcRect.size.height < 0)
 			{
 			src.height=-srcRect.size.height;	// negative if not flipped
+			dest.height=src.height;
 			src.y-=src.height;					// caller expects he has specified bottom+left of rect
 			dest.y=(int)(destPoint.y)-dest.height;
 			}
 		else
 			{
 			src.height=srcRect.size.height;
+			dest.height=src.height;
 			dest.y=destPoint.y;
 			}
 		dest.x=destPoint.x;
-#if 0
+#if 1
 		NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
 		NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
 		NSLog(@"  dest-win=%d", _graphicsPort);
 #endif
 #if 0
-		XSetForeground(_display, gc, 0x555555);
-		XFillRectangles(_display, ((Window) _graphicsPort), gc, &src, 1);
+		XSetForeground(_display, _state->_gc, 0x555555);
+		XFillRectangles(_display, ((Window) _graphicsPort), _state->_gc, &src, 1);
 		_setDirtyRect(self, src.x, src.y, src.width, src.height);
 #endif
 #if 0
-		XSetForeground(_display, gc, 0xaaaaaa);
-		XFillRectangles(_display, ((Window) _graphicsPort), gc, &dest, 1);
+		XSetForeground(_display, _state->_gc, 0xaaaaaa);
+		XFillRectangles(_display, ((Window) _graphicsPort), _state->_gc, &dest, 1);
 		_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
 #endif
 		XCopyArea(_display,
@@ -3865,7 +3884,7 @@ static NSFileHandle *fh;
 																												// FIXME - we should try to collect and merge all expose events into a single one
 																												// we should also be able to postpone expose events after resizing the window
 																												// or setDirtyRect should setup a timer to flush after a while...
-						// we could also collect here and do one flush at the end of _handleNewEvents
+																												// we could also collect here and do one flush at the end of _handleNewEvents
 						if(!contextsNeedingFlush)
 							contextsNeedingFlush=[NSMutableSet setWithObject:ctxt];
 						else
@@ -3920,15 +3939,15 @@ static NSFileHandle *fh;
 			case GravityNotify:						// window is moved because
 				NSDebugLog(@"GravityNotify\n");		// of a change in the size
 				break;								// of its parent
-			case KeyPress:							// a key has been pressed
+			case KeyPress:							// a key has been pressed or released
 			case KeyRelease: {
-				// a key has been released
 				NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
 				char buf[256];
 				KeySym ksym;
 				NSString *keys = @"";
 				unsigned short keyCode = 0;
 				unsigned mflags;
+				BOOL autorepeat=NO;
 				// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
 				unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
 #if 1
@@ -3966,6 +3985,17 @@ static NSFileHandle *fh;
 							__modFlags=mflags;		// if modified
 						eventType=NSFlagsChanged;
 					}
+				if (xe.type == KeyRelease && XEventsQueued(_display, QueuedAfterReading))
+					{
+					XEvent next;
+					XPeekEvent(_display, &next);
+					if (next.type == KeyPress && next.xkey.time == xe.xkey.time &&
+						next.xkey.keycode == xe.xkey.keycode)
+						{
+						autorepeat=YES;
+						// skip keyup event?
+						}
+					}
 				e= [NSEvent keyEventWithType:eventType
 									location:NSZeroPoint
 							   modifierFlags:__modFlags
@@ -3974,7 +4004,7 @@ static NSFileHandle *fh;
 									 context:(void *) self
 								  characters:keys
 				 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
-								   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
+								   isARepeat:autorepeat
 									 keyCode:keyCode];
 #if 1
 				NSLog(@"xKeyEvent -> %@", e);
@@ -4144,7 +4174,7 @@ static NSFileHandle *fh;
 		} // end of event type switch
 		if(e != nil)
 			{
-			[NSApp postEvent:e atStart:NO];			// add event to app queue
+			[NSApp postEvent:e atStart:NO];			// add event to end of app queue
 			[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
 			}
 		}
