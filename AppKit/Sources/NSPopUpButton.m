@@ -439,7 +439,6 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[_menuView setFont:[self font]];			// same font as the popup button
 	[_menuView setHorizontal:NO];		// make popup menu vertical
 	[_menuView _setHorizontalResize:NO];		// don't resize width!
-	[_menuView _setContextMenu:YES];			// close on selection
 	menuPanel=[[[NSPanel alloc] initWithContentRect:(NSRect) { NSZeroPoint, cellFrame.size }
 									styleMask:NSBorderlessWindowMask
 									  backing:NSBackingStoreBuffered
@@ -533,8 +532,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	_arrowPosition=[aDecoder decodeIntForKey:@"NSArrowPosition"];
 	_preferredEdge=[aDecoder decodeIntForKey:@"NSPreferredEdge"];
 	
-/*	_respectAlignment= */[aDecoder decodeObjectForKey:@"NSMenuItemRespectAlignment"];
-	
+/*	_respectAlignment = */ [aDecoder decodeBoolForKey:@"NSMenuItemRespectAlignment"];
+
 	// _autoenablesItems=?
 	if([aDecoder containsValueForKey:@"NSSelectedIndex"])
 		[self selectItemAtIndex:[aDecoder decodeIntForKey:@"NSSelectedIndex"]];	// try to select
