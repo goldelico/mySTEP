@@ -49,9 +49,6 @@
 	_needsSizing=YES;
 }
 
-- (BOOL) _isContextMenu; { return _isContextMenu; }
-- (void) _setContextMenu:(BOOL) flag; { _isContextMenu=flag; }
-
 // standard extensions
 
 + (CGFloat) menuBarHeight;
@@ -100,7 +97,7 @@
 											  defer:YES];	// will be released on close
 	[menuWindow setWorksWhenModal:YES];
 	[menuWindow setLevel:NSSubmenuWindowLevel];
-#if 1
+#if 0
 	NSLog(@"win=%@", menuWindow);
 	NSLog(@"index=%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 	NSLog(@"converted rect=%@", NSStringFromRect([self convertRect:[self rectOfItemAtIndex:index] toView:nil]));
@@ -150,7 +147,7 @@
 			[[self attachedMenu] setSupermenu:nil];			// detach supermenu
 			[_attachedMenuView detachSubmenu];				// recursively detach
 			}
-#if 1
+#if 0
 		NSLog(@"detachSubmenu %@", _attachedMenuView);
 #endif
 		[self retain];	// we may be a child of that NSPanel
@@ -276,7 +273,7 @@
 {
 	NSRect p;
 	NSInteger idx;
-#if 1
+#if 0
 	NSLog(@"locationForSubmenu");
 	NSLog(@"should not be used!");
 #endif
@@ -361,11 +358,10 @@
 		i=[c menuItem];
 		// FIXME: always enable items having a private view
 		if([i isSeparatorItem] || ![i isEnabled])
-			{ // don't highlight separators or disabled items
+			{ // don't visually highlight separators or disabled items
 #if 0
 			NSLog(@"item is separator or not enabled");
 #endif
-			_highlightedItemIndex=-1;
 			return;
 			}
 		[c setHighlighted:YES];	// add new highlighting
@@ -395,10 +391,10 @@
 	NSInteger i, cnt;
 	if(_menumenu == m)
 		return;	// no change
-#if 1
+#if 0
 	NSLog(@"setMenu");
 #endif
-#if 0
+#if 1
 	NSLog(@"%@ setMenu: %@", self, m);
 #endif
 	if(_menumenu)
@@ -459,7 +455,7 @@
 
 - (void) setNeedsDisplayForItemAtIndex:(NSInteger) index;
 {
-#if 1
+#if 0
 	NSLog(@"setNeedsDisplayForItemAtIndex:%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 #endif
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
@@ -476,7 +472,7 @@
 	NSRect mf;  // new menu frame in content rect coordinates
 	NSRect sf=[[_window screen] visibleFrame];
 	NSRect item=NSZeroRect;
-#if 1
+#if 0
 	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%ld", NSStringFromRect(ref), (int)edge, (long)index);
 #endif
 	if(_needsSizing)
@@ -485,7 +481,7 @@
 	mf.size=_frame.size;   // copy content size
 	if(index >= 0 && index < [_cells count])
 		item=[self rectOfItemAtIndex:index];	// get rect of item to show
-#if 1
+#if 0
 	NSLog(@"screen visble frame=%@", NSStringFromRect(sf));
 	NSLog(@"item rect=%@", NSStringFromRect(item));
 #endif
@@ -529,7 +525,7 @@
 			mf.origin.y=0.0;	// still no fit - needs vertical scrolling
 			mf.size.height=sf.size.height;	// limit to screen
 		}
-#if 1
+#if 0
 	NSLog(@"set frame=%@", NSStringFromRect(mf));
 #endif
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
@@ -545,7 +541,7 @@
 				[self setFrameOrigin:f.origin];	// move content up/down as needed
 			}
 	[self setNeedsDisplay:YES];	// needs display everything
-#if 1
+#if 0
 	NSLog(@"set frame done");
 #endif
 }
@@ -598,7 +594,7 @@
 	NSInteger i, nc;
 	if(!_needsSizing)
 		return;
-#if 1
+#if 0
 	NSLog(@"sizeToFit %@", self);
 #endif
 	if(!_window)
@@ -684,7 +680,7 @@
 #endif
 	[_window setFrame:f display:NO];	// resize enclosing window (also sets our frame/bounds since we are the content view)
 	[self setNeedsDisplay:YES];			// we later on need to redraw the full menu, i.e. all items
-#if 1
+#if 0
 	NSLog(@"sizetofit: done");
 #endif
 	if(_needsSizing)	NSLog(@"NSMenuView sizeToFit: internal inconsistency - did set needsSizing");
@@ -696,13 +692,13 @@
 
 - (void) update;
 { // update autoenabling status and sizes - called once per runloop
-#if 1
+#if 0
 	NSLog(@"NSMenuView update");
 #endif
 	[_menumenu update];	// update our menu (and submenus)
 	if(_needsSizing)
 		[self sizeToFit];	// will finally set needsDisplay
-#if 1
+#if 0
 	NSLog(@"NSMenuView update done");
 #endif
 }
@@ -715,6 +711,11 @@
 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return NO; }	// no inking in menus...
 - (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent *)anEvent; { return YES; }	// don't become key or main window
 - (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
+
+- (void) viewDidMoveToWindow
+{
+	[[self window] setAcceptsMouseMovedEvents:YES];
+}
 
 - (void) dealloc;
 {
@@ -740,7 +741,7 @@
 		NSLog(@"drawing large menu with %ld entries", (long)nc);
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
-#if 1
+#if 0
 	NSLog(@"NSMenuView - %@ (nc=%ld) drawRect:%@", [[_menumenu itemAtIndex:0] title], (long)nc, NSStringFromRect(rect));
 #endif
 	//// FIXME: the following code deletes all menu items in the drawing rectangle which may be the union of 2 non-adjacent cells!
@@ -920,10 +921,13 @@
 			if(item != _highlightedItemIndex)
 				{ // has changed
 					[self setHighlightedItemIndex:item];	// highlight new item (which will initiate redisplay)
-					if(item >= 0 && [[_menumenu itemAtIndex:item] hasSubmenu])
-						[self attachSubmenuForItemAtIndex:item];	// and open submenu if available
-					else
-						[self detachSubmenu];						// detach any open submenu hierarchy
+					if(_attachedMenuView != self)
+						{ // we manage submenus
+							if(item >= 0 && [[_menumenu itemAtIndex:item] hasSubmenu])
+								[self attachSubmenuForItemAtIndex:item];	// and open submenu if available
+							else
+								[self detachSubmenu];						// detach any open submenu hierarchy
+						}
 				}
 			return YES;
 		}
@@ -935,10 +939,10 @@
 - (void) mouseDown:(NSEvent *) theEvent;
 { // is not an NSControl so we must track ourselves
 	NSTimeInterval menuOpenTimestamp=[theEvent timestamp];
-	NSMenuView *mv;
+	NSMenuView *mv=nil;
 	NSInteger idx;
-	BOOL stayOpen=NO;
-#if 1
+	BOOL shortClickMode=NO;
+#if 0
 	NSLog(@"NSMenuView mouseDown:%@", theEvent);
 #endif
 	[NSApp preventWindowOrdering];
@@ -948,18 +952,22 @@
 	while(YES)
 		{ // loop until mouse goes up
 		NSEventType type=[theEvent type];
-		// FIXME: we may not even have to check this. If we are deactivated, we should simply hide the menu windows like any other panel
+		idx=-1;
+#if 0
+		NSLog(@"NSMenuView: shortClickMode=%d %@", shortClickMode, theEvent);
+#endif
+		// FIXME: we may not even have to check this. If we become deactivated, we should simply hide the menu windows like any other panel
 		if(![NSApp isActive])	// was deactivated (FIXME: do we ever see this as an event???)
 			{ // detach all open submenu items
-#if 1
+#if 0
 			NSLog(@"NSApp is not/no longer active: %@", NSApp);
 #endif
 			[self detachSubmenu];
 			break;
 			}
 		if(type == NSLeftMouseDown)
-			{
-			if(![self trackWithEvent:theEvent] && stayOpen)
+			{ // first or second click
+			if(shortClickMode && ![self trackWithEvent:theEvent])
 				{ // user clicked outside after a mouse up in this loop
 				[NSApp postEvent:theEvent atStart:YES];	// re-queue
 				break;	// clicked outside of menu
@@ -967,31 +975,45 @@
 			}
 		else if(type == NSLeftMouseUp)
 			{
-			if([theEvent timestamp]-menuOpenTimestamp > 0.5)
-				break;	// wasn't hold down long enough
-			stayOpen=YES;
+			if(!shortClickMode && [theEvent timestamp]-menuOpenTimestamp < 0.2)
+				{ // enter short click mode but don't exit the loop
+				shortClickMode=YES;
+				}
+			else
+				{
+				mv=self;
+				if(_attachedMenuView != self)
+					{ // go down to lowest open submenu level
+						while([mv attachedMenuView])
+							mv=[mv attachedMenuView];
+					}
+				idx=[mv highlightedItemIndex];
+#if 0
+				NSLog(@"NSMenuView: selected %d in %@", idx, mv);
+				NSLog(@"NSMenuView: self = %p mv = %p", self, mv);
+#endif
+				if(!shortClickMode)
+					break;	// long click -> drag -> release sequence
+				if(idx >= 0 && ![[[mv menu] itemAtIndex:idx] hasSubmenu])
+					break;	// did release on item with no submenu in short click mode
+				if([theEvent window] == [self window])
+					break;	// main menu clicked a second time in short click mode
+				}
 			}
 		else if(type == NSMouseMoved || type == NSLeftMouseDragged || type == NSPeriodic)
 			[self trackWithEvent:theEvent];
-		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask | NSPeriodicMask
+		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									  untilDate:[NSDate distantFuture]			// get next event
 										 inMode:NSEventTrackingRunLoopMode 
 										dequeue:YES];
 		}
 	if(_needsScrolling)
 		[NSEvent stopPeriodicEvents];	// was generating scroll events
-	mv=self;
-	if(_attachedMenuView !=self)
-		{ // go down to lowest open submenu level
-		while([mv attachedMenuView])
-			mv=[mv attachedMenuView];
-		}
-	idx=[mv highlightedItemIndex];
-#if 1
+#if 0
 	NSLog(@"NSMenuView item selected %ld", (long)idx);
 #endif
-	[self setHighlightedItemIndex:-1];	// unhighligt my item
-	[mv retain];	// may be owned by the NSPanel
+	[self setHighlightedItemIndex:-1];	// unhighligt top level item
+	[mv retain];	// may be owned by the NSPanel hat is detached
 	[self detachSubmenu];	// detach all open submenu items - might also close our panel
 	if(idx >= 0)
 		[[mv menu] performActionForItemAtIndex:idx];	// finally perform action - processes responder chain
@@ -1011,7 +1033,7 @@
 	NSMenuView *menuView;
 	NSRect r;
 	NSInteger item;	// item to pop up when scrolling
-#if 1
+#if 0
 	NSLog(@"popUpContextMenu %p", menu);
 	NSLog(@"popUpContextMenu %@", [menu title]);
 	NSLog(@"popUpContextMenu event %@", event);
@@ -1033,7 +1055,6 @@
 	menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
 	[menuView setFont:font];		// set default font
 	[menuView setHorizontal:NO];	// make popup menu vertical
-	[menuView _setContextMenu:YES];	// close on mouseUp
 	[[win contentView] addSubview:menuView];	// add to view hiearachy
 	[menuView setMenu:menu];		// define to manage selected menu
 	[menuView _setAttachedMenuView:menuView];	// make us our own attachedMenuView so that the panel is closed after menu selection
@@ -1043,7 +1064,7 @@
 #endif
 	r.origin=[[view window] convertBaseToScreen:[event locationInWindow]];	// to screen coordinates
 	r.size=NSMakeSize(1.0, 1.0);
-#if 1
+#if 0
 	NSLog(@"menu to be attached to %@", NSStringFromRect(r));
 #endif
 	if([view respondsToSelector:@selector(selectedItem)])

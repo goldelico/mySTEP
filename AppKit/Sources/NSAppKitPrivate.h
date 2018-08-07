@@ -231,8 +231,7 @@ typedef enum _NSRoundedBezelSegments
 - (void) _setHorizontalResize:(BOOL) flag;			// resize - must be changed to NO before any sizeToFit is called (indirectly)
 - (BOOL) _isStatusBar;
 - (void) _setStatusBar:(BOOL) flag;					// order elements from right to left and flush right
-- (BOOL) _isContextMenu;
-- (void) _setContextMenu:(BOOL) flag;				// close window on mouseUp
+- (void) _setAttachedMenuView:(NSMenuView *) view;	// if we use setAttachedMenuView:self this menu closes after mouse-up
 @end
 
 @interface NSTabViewItem (NSPrivate)
