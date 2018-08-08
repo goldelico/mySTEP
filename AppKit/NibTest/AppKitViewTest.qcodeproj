@@ -9,9 +9,10 @@ export SOURCES+=" myTest.icns"
 export SOURCES+=" main.m"
 export SOURCES+=" English.lproj"
 export SOURCES+=" ViewTest-Info.plist"
+export SOURCES+=" AppKitViewTest.php"
 export WRAPPER_EXTENSION="app"
 
 # project settings
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
-"$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
+cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
