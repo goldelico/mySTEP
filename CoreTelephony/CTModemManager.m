@@ -79,9 +79,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (id) retain { return self; }
 
-- (unsigned) retainCount { return UINT_MAX; }
+- (NSUInteger) retainCount { return UINT_MAX; }
 
-- (void) release {}
+- (oneway void) release {}
 
 - (id) autorelease { return self; }
 
@@ -163,6 +163,27 @@ BOOL modemLog=NO;
 
 @implementation CTModemManager (ModemHardware)
 
+- (NSString *) runSystemCommand:(NSString *) cmdPath arguments:(NSArray *) args error:(NSString **) error;
+{
+	NSTask *task=[NSTask new];
+	NSPipe *pipe=[NSPipe pipe];
+	NSData *data;
+	NSString *result;
+	// FIXME: wir kommen so nicht aus dem chroot raus!
+	// => evtl Mechanismus in Foundation mit "//root/wwan-on" für echte Systembefehle?
+	[task setLaunchPath:cmdPath];
+	[task setArguments:args];
+	[task setStandardOutput:[pipe fileHandleForWriting]];
+	[task setStandardError:[pipe fileHandleForWriting]];
+	[task launch];
+	[task waitUntilExit];
+	// get status and return error
+	[task release];
+	data=[[pipe fileHandleForReading] readDataToEndOfFile];
+	result=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+	return result;
+}
+
 - (BOOL) _isPoweredOn;
 {
 	// find better/universal way - e.g. ask "rfkill wwan" if blocked?
@@ -183,6 +204,9 @@ BOOL modemLog=NO;
 	if(on)
 		{
 		// FIXME: should not block GUI while this script is running...
+		// run this in a NSTask and waitUntilTerminated
+		if(modemLog) [self log:@"run /root/wwan-on"];
+		// [self runSystemCommand:@"/root/wwan-on" arguments:[NSArray arrayWithObject:@"Application"] error:NULL];
 		FILE *p=popen("/root/wwan-on Application", "r");	// open the Application port (needs latest Letux-kernel) to receive unsolicited messages
 		NSString *device;
 		char dev[200];
@@ -221,6 +245,8 @@ BOOL modemLog=NO;
 		[self _setError:@"Can't access modem."];
 		return NO;
 		}
+	if(modemLog) [self log:@"run /root/wwan-off"];
+	// [self runSystemCommand:@"/root/wwan-off" arguments:nil error:NULL];
 	system("/root/wwan-off");
 	[self _setError:@"Modem powered off."];
 	return YES;
@@ -303,6 +329,7 @@ BOOL modemLog=NO;
 
 - (void) _setError:(NSString *) msg;
 {
+	if(modemLog) [self log:[NSString stringWithFormat:@"Error: %@", msg]];
 	[error autorelease];
 	error=[msg retain];
 	if(modemLog) [self log:@"error: %@", error];
@@ -482,6 +509,7 @@ BOOL modemLog=NO;
 
 - (int) _openModem;
 {
+	if(modemLog) [self log:@"_openModem"];
 	if(![self _openPort])
 		return NO;
 	pinStatus=CTPinStatusUnknown;	// needs to check again
@@ -502,10 +530,10 @@ BOOL modemLog=NO;
 
 - (int) _closeModem;
 {
-	if(modemLog) [self log:@"_closeHSO"];
+	if(modemLog) [self log:@"_closeModem"];
+	[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
 	if(ttyPort)
 		{
-		[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
 		[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
 		[self _closePort];
 		}
@@ -533,7 +561,7 @@ BOOL modemLog=NO;
 			*pinretries=[[a objectAtIndex:1] intValue];
 			*pukretries=[[a objectAtIndex:2] intValue];
 #if 1
-			NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
+			NSLog(@"%d pin retries; %d puk retries", *pinretries, *pukretries);
 #endif
 			return YES;
 			}
@@ -578,7 +606,7 @@ BOOL modemLog=NO;
 		else
 			return NO;
 #if 1
-		NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
+		NSLog(@"%d pin retries; %d puk retries", *pinretries, *pukretries);
 #endif
 		return YES;
 		}
@@ -813,9 +841,9 @@ BOOL modemLog=NO;
 				if(facility)
 					facility=[facility stringByAppendingString:@" "];
 				if(pukretries != 10)
-					[message setStringValue:[NSString stringWithFormat:@"%d %@PUK / %d PIN retries", facility, pukretries, pinretries]];
+					[message setStringValue:[NSString stringWithFormat:@"%d %@PUK / %d PIN retries", pukretries, facility, pinretries]];
 				else
-					[message setStringValue:[NSString stringWithFormat:@"%d %@PIN retries", facility, pinretries]];
+					[message setStringValue:[NSString stringWithFormat:@"%d %@PIN retries", pinretries, facility]];
 				[pin setEditable:YES];
 				[okButton setTitle:@"Unlock"];
 				}
@@ -876,7 +904,7 @@ BOOL modemLog=NO;
 // we should add a checkbox to reveal/hide the PIN...
 // [pin setEchosBullets:YES/NO]
 
-- (BOOL) checkPin:(NSString *) p;	// get PIN status and ask if nil and none specified yet
+- (BOOL) checkPin:(NSString *) unlockPin;	// get PIN status and ask if nil and none specified yet
 {
 	if(modemLog) [self log:@"checkpin"];
 	while(YES)
@@ -890,6 +918,7 @@ BOOL modemLog=NO;
 						}
 					if([error hasPrefix:@"+CME ERROR: Sim interface not started yet"])
 						{ // we were too fast for the modem (or the modem is shutting down through impulse???)
+						  // FIXME: do by NSRunLoop
 							sleep(2);
 							continue;	// try again
 						}
@@ -903,9 +932,10 @@ BOOL modemLog=NO;
 						 informativeTextWithFormat:@"No SIM inserted"] runModal];
 					return NO;
 				case CTPinStatusUnlocked:
+				case CTPinStatusAirplaneMode:
 					return YES;
 				case CTPinStatusPINRequired:
-					if(p && [self sendPIN:p])
+					if(unlockPin && [self sendPIN:unlockPin])
 						return YES;	// sending PIN provided by code was successful - otherwise open panel
 									// loop while panel is open (so that the user can cancel it)
 					[self orderFrontPinPanel:nil];

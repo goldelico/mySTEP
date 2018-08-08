@@ -394,6 +394,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
 			{ // disable WWAN connection
 				system("ifconfig hso0 down");	// we could make the ifconfig up/down trigger our daemon...
+				// FIXME: do by NSRunLoop
 				sleep(1);
 				[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,0,1", context]];	// stop
 			}
@@ -401,9 +402,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	else if([mm isPxS8])
 		{
 		if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
-			system("ifconfig usb0 up");
+			system("ifconfig usb1 up");
 		else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
-			system("ifconfig usb0 down");
+			system("ifconfig usb1 down");
 		}
 }
 
@@ -751,8 +752,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			NSLog(@"PA TEMP: %@", line);
 			if([a count] == 3)
 				paTemp=[[a objectAtIndex:2] intValue];
-			// check for overtemperature and pop up some alert
-			// or should it be done by delegate?
 			[delegate signalStrengthDidUpdate:currentNetwork];
 			return;
 		}
@@ -875,12 +874,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	/* PLS8 messages */
 	if([line hasPrefix:@"^SBC:"])
 		{ // under/overvoltage
+			CTModemManager *mm=[CTModemManager modemManager];
+			paTemp=99.0;	// should emit a warning!
 			[delegate signalStrengthDidUpdate:currentNetwork];
+			[mm _closePort];	// modem will close, so do before...
+			[mm _closeModem];	// try shutdown
 			return;
 		}
 	if([line hasPrefix:@"^SYSSTART"])
 		{ // normal or AIRPLANE MODE
-
+			paTemp=25.0;	// we do not know better
+			[delegate signalStrengthDidUpdate:currentNetwork];
+			return;
 		}
 }
 
