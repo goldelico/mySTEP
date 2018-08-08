@@ -370,13 +370,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) connectWWAN:(BOOL) flag;	// 0 to disconnect
 {
-	unsigned int context=1;
 	CTModemManager *mm=[CTModemManager modemManager];
 #if 1
 	NSLog(@"connectWWAN %d", flag);
 #endif
 	if([mm isGTM601])
 		{
+		unsigned int context=1;
 		if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
 			{ // set up WWAN connection
 			  // FIXME: this should be carrier specific!!!
@@ -400,7 +400,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	else if([mm isPxS8])
 		{
-
+		if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
+			system("ifconfig usb0 up");
+		else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
+			system("ifconfig usb0 down");
 		}
 }
 
