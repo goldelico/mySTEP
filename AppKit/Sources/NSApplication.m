@@ -425,6 +425,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"didFinishLaunching");
 #endif
 	// this should be posted from the runloop!!!
+	// by a zero-delayed Performer
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 	// we should also send a distributed notification
 	[arp release];
@@ -961,23 +962,35 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
 	NSAutoreleasePool *pool=[NSAutoreleasePool new];
-#if 1
+#if 0
 	NSLog(@"nextEventMatchingMask:%08lx untilDate:%@ inMode:%@", (unsigned long)mask, expiration, mode);
 #endif
 	if(!expiration)
 		expiration=[NSDate distantPast];	// fall through immediately
 	do
 		{
+#if 0
+		NSLog(@"nextEventMatchingMask check for current event (%lu)", (unsigned long)[_eventQueue count]);
+#endif
 		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
 			break;	// found one
+#if 0
+		NSLog(@"nextEventMatchingMask run the loop");
+#endif
+		// will either return on input event or reaching expiration date
+#if 0
+		// use private variant that returns also after firing timers
+		[currentLoop _runLoopForMode:mode beforeDate:expiration limitDate:NULL];
+#else
 		if(![currentLoop runMode:mode beforeDate:expiration])
-			break;	// did not run once - will either return on input event or reaching expiration date
-#if 1
-		NSLog(@"event queue length %lu", (unsigned long)[_eventQueue count]);
+			break;	// did not even run once
+#endif
+#if 0
+		NSLog(@"nextEventMatchingMask event queue length %lu", (unsigned long)[_eventQueue count]);
 #endif
 		} while([expiration timeIntervalSinceNow] > 0.0);	// still not expired
-#if 1
-	NSLog(@"ARP release with event: %@", _currentEvent);
+#if 0
+	NSLog(@"nextEventMatchingMask ARP release with event: %@", _currentEvent);
 #endif
 	[_currentEvent retain];
 	[pool release];
