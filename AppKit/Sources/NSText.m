@@ -845,11 +845,13 @@ object:self]
 		{
 		// FIXME: shouldn't this be done in NSWindow?
 		// and handle keyboard shortcuts there?
+		// and on Cocoa, [NSApp sendEvent:] is called for *every* event
 		NSMutableArray *events=[NSMutableArray arrayWithObject:event];
 #if 1
 		NSLog(@"%@ keyDown: %@", NSStringFromClass([self class]), event);
 #endif
-		while((event = [NSApp nextEventMatchingMask:NSAnyEventMask
+#if 0	// does this work?
+		while((event = [NSApp nextEventMatchingMask:NSKeyDownMask|NSKeyUpMask|NSFlagsChangedMask
 										  untilDate:nil	// don't wait
 											 inMode:NSEventTrackingRunLoopMode 
 											dequeue:YES]))
@@ -857,17 +859,18 @@ object:self]
 				switch([event type])
 				{
 					case NSKeyDown:
-					[events addObject:event];	// queue them up
-					continue;
+						[events addObject:event];	// queue them up
+						continue;
 					case NSKeyUp:
 					case NSFlagsChanged:
-					continue;
-					default:	// any other event
-					[NSApp postEvent:event atStart:YES];	// requeue
-					break;
+						continue;
+					default:	// any other event (should not happen)
+						[NSApp postEvent:event atStart:YES];	// requeue
+						break;
 				}
 				break;
 			}
+#endif
 		[self interpretKeyEvents:events];
 		}
 	else
