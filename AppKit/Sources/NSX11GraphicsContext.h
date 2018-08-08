@@ -87,6 +87,8 @@ typedef struct _NSX11GraphicsState
 
 - (id) _initWithGraphicsPort:(void *) port;
 - (id) _initWithAttributes:(NSDictionary *) attributes;
+- (void) _setScale:(CGFloat) scale;		// set scaling factor
+- (CGFloat) _scale;
 
 @end
 
