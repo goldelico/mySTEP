@@ -500,33 +500,38 @@ static NSMutableDictionary *__nameToImageDict = nil;
 { // contrary to composite: we don't ignore rotation here!
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
-	static NSBezierPath *unitSquare=nil;
 	NSCompositingOperation co;
 	if(!_img.isValid)
 		[self isValid];		// Make sure we have the image reps loaded in - if possible
-	if(src.size.width <= 0.0 || src.size.height <= 0.0)
+	[self size];	// determine size if not yet known
+	if(NSIsEmptyRect(src))
 		src.size=_size;	// use image size
-	if(dest.size.width <= 0.0 || dest.size.height <= 0.0)
-		dest.size=_size;	// use image size
+	if(NSIsEmptyRect(dest))
+		src.size=_size;	// use image size
 	[ctx saveGraphicsState];
 	co=[ctx compositingOperation];	// save
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-	if(_img.flipDraw)
-		{ // scaleXBy:1.0 yBy:-1.0
-		NSLog(@"should flip drawInRect: %@", self);
+	[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
+	if(!NSEqualSizes(dest.size, src.size))
+		{ // draw only parts of the image by reducing clipping rect and scale up/down
+		NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
+		[ctx _addClip:clip reset:NO];
+#if 0
+		NSLog(@"scale factor = %f %f", _size.width/NSWidth(src), _size.height/NSHeight(src));
+#endif
+		[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];
 		}
-	[atm translateXBy:dest.origin.x-src.origin.x yBy:dest.origin.y-src.origin.y];
-	[atm scaleXBy:dest.size.width yBy:dest.size.height];	// will draw to unit square
-	if(!NSEqualSizes(src.size, _size))
-		[atm scaleXBy:_size.width/src.size.width yBy:_size.height/src.size.height];	// additional scaling
+	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
+	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
+	if(1 && _img.flipDraw != [ctx isFlipped])
+		{
+		[atm translateXBy:0 yBy:1.0];
+		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
+		}
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	if(!unitSquare)
-		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
-	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
-//	[ctx _draw:[self bestRepresentationForDevice:nil]];
 	[ctx _draw:[self _cachedOrBestRep]];
-	[ctx setCompositingOperation:co];
+	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
 
@@ -548,25 +553,25 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) compositeToPoint:(NSPoint)pnt					// Draw the Image
 				operation:(NSCompositingOperation)op
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){{0,0},_size} operation:op fraction:1.0];
+	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:1.0];
 }
 
 - (void) compositeToPoint:(NSPoint)pnt					// Draw the Image
 				operation:(NSCompositingOperation)op
 				 fraction:(CGFloat)fraction;
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){{0,0},_size} operation:op fraction:fraction];
+	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:fraction];
 }
 
 
-- (void) compositeToPoint:(NSPoint)pnt 
+- (void) compositeToPoint:(NSPoint)pnt
 				 fromRect:(NSRect)rect
 				operation:(NSCompositingOperation)op
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){{0,0},_size} operation:op fraction:1.0];
+	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:1.0];
 }
 
-- (void) compositeToPoint:(NSPoint)pnt 
+- (void) compositeToPoint:(NSPoint)pnt
 				 fromRect:(NSRect)src
 				operation:(NSCompositingOperation)op
 				 fraction:(CGFloat)fraction
@@ -607,6 +612,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #if 0
 	NSLog(@"%@ drawRepresentation:%@ inRect:%@", self, imageRep, NSStringFromRect(rect));
 #endif
+	// fill with background color???
 	if(!_img.scalable)
 		{
 		if([imageRep drawAtPoint:rect.origin])
