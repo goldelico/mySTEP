@@ -476,12 +476,58 @@ BOOL modemLog=NO;
 	return [_ati containsObject:@"Cinterion"];
 }
 
+// das gehört eigentlich in CTModemManager!
+
+// FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
+// und letzter triggert nach Timeout den ersten
+// also eine polling-queue
+// oder einfacher: Timer alle 5 sekunden macht den jeweils nächsten...
+
+// universeller: NS(Mutable) Array mit Befehlen
+// oder einfach alle direkt hintereinander?
+
+- (void) poll
+{ // timer triggered commands (because there is no unsolicited notification)
+	static int next;
+	switch(next++ % 4) {
+		case 0:
+			[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
+			break;
+		case 1:
+			[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
+			break;
+		case 2:
+			[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
+			break;
+		case 3:
+			[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
+																					// process +CMGL: responses
+																					// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
+																					// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
+																					// same for cell broadcasts (?) AT+CPMS="BM"
+			break;
+			/* PxS8:
+			 * AT^SCTM?		poll for temperature
+			 * ATCSQ?		poll for signal quality
+			 * AT^SMONI		poll network
+			 * AT^SMONP		poll base stations
+			 */
+	}
+	[self performSelector:_cmd withObject:nil afterDelay:5.0];
+}
+
+- (void) pollATCommand:(NSString *) cmd;
+{
+	// register for polling
+}
+
 - (void) _initModem
 { // enable URCs and do some setup
-  //	[self runATCommand:@"AT+CSCS=????"];	// define character set
+  // create/clear array of polling commands
 	[self runATCommand:@"AT+COPS"];		// report RING etc.
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
 	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
+	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	if([self isGTM601])
 		{ // initialize GTM601
 			[self runATCommand:@"AT_OLCC=1"];	// report changes in call status
@@ -493,18 +539,23 @@ BOOL modemLog=NO;
 			[self runATCommand:@"AT_OUHCIP=1"];	// report HSDPA call in progress
 			[self runATCommand:@"AT_OSSYS=1"];	// report system (GSM / UTRAN)
 			[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature
-		  // do on per-call basis
-		  //	[self runATCommand:@"AT_OPCMENABLE=1"];	// renable voice PCM
+			[self pollATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
+			[self pollATCommand:@"AT_OBSI"];	// base station location
+			[self pollATCommand:@"AT_ONCI?"];	// neighbouring base stations
+			[self pollATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
 		}
 	else if([self isPxS8])
 		{ // initialize Cinterion PxS8
 		  //	[self runATCommand:@"AT^SIND=..."];	// report some URCs
 			[self runATCommand:@"AT+CREG=2"];	// report network registration
 			[self runATCommand:@"AT^SAD=10"];	// turn off RX diversity
-			// it seems as if the PxS8 can't report many URCs
-			// so we have to poll for AT+CSQ etc.
-			// i.e. use the polling loop in CTCallCenter
+			//	[self runATCommand:@"AT^SCTM=1"];	// monitor temperature - should send ^SCTM_B: URCss
+			[self pollATCommand:@"AT^SCTM?"];	// get temperature
+			[self pollATCommand:@"ATCSQ?"];		// get for signal quality
+			[self pollATCommand:@"AT^SMONI"];	// get network
+			[self pollATCommand:@"AT^SMONP"];	// get base stations
 		}
+	//	[self performSelector:@selector(poll) withObject:nil afterDelay:5.0];
 }
 
 - (int) _openModem;
@@ -531,6 +582,7 @@ BOOL modemLog=NO;
 - (int) _closeModem;
 {
 	if(modemLog) [self log:@"_closeModem"];
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(poll) object:nil];
 	[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
 	if(ttyPort)
 		{

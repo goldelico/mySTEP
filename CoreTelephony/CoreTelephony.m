@@ -140,37 +140,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) number;
 { // send a SMS
 	CTModemManager *mm=[CTModemManager modemManager];
-	NSString *cmd=[NSString stringWithFormat:@"AT+CMGS=\"%@\”\n%@\z", number, message];
+	NSString *cmd=[NSString stringWithFormat:@"AT+CMGS=\"%@\"\n%@%c", number, message, 'Z'-'@'];
 	return [mm runATCommand:cmd target:nil action:NULL timeout:5.0];
-}
-
-// FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
-// und letzter triggert nach Timeout den ersten
-// also eine polling-queue
-// oder einfacher: Timer alle 5 sekunden macht den jeweils nächsten...
-
-- (void) poll
-{ // timer triggered commands (because there is no unsolicited notification)
-	static int next;
-	switch(next++ % 4) {
-		case 0:
-			[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
-			break;
-		case 1:
-			[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
-			break;
-		case 2:
-			[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
-			break;
-		case 3:
-			[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
-																					// process +CMGL: responses
-																					// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
-																					// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
-																					// same for cell broadcasts (?) AT+CPMS="BM"
-			break;
-	}
-	[self performSelector:_cmd withObject:nil afterDelay:5.0];
 }
 
 @end
@@ -875,11 +846,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([line hasPrefix:@"^SBC:"])
 		{ // under/overvoltage
 			CTModemManager *mm=[CTModemManager modemManager];
-			paTemp=99.0;	// should emit a warning!
+			if([line hasPrefix:@"^SBC: Overvoltage"])
+				{
+				paTemp=99.0;	// this should emit a warning!
+				[mm _closePort];	// modem will close, so do before...
+				[mm _closeModem];	// try shutdown
+				}
 			[delegate signalStrengthDidUpdate:currentNetwork];
-			[mm _closePort];	// modem will close, so do before...
-			[mm _closeModem];	// try shutdown
 			return;
+		}
+	if([line hasPrefix:@"^SCTM_B:"])
+		{ // under/overtemperature
+		  // check for -1, -2 or +1, +2
 		}
 	if([line hasPrefix:@"^SYSSTART"])
 		{ // normal or AIRPLANE MODE
