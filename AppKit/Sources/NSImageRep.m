@@ -384,7 +384,7 @@ static NSCountedSet *__pb;
 												  styleMask: NSBorderlessWindowMask
 													backing: NSBackingStoreBuffered
 													  defer: YES];	// dont't draw or orderFront
-#if 0
+#if 0	// makes problem when drawing glyphs!?!
 		{ // show cache window */
 			[_window setReleasedWhenClosed:NO];	// just be sure...
 			[_window close];
@@ -396,6 +396,10 @@ static NSCountedSet *__pb;
 			[_window setTitle:@"CachedImageRep"];
 			[_window orderFront:nil];
 		}
+#endif
+#if 0	// makes problem when drawing glyphs!?!
+		[_window _allocateGraphicsContext];
+		[[_window graphicsContext] _setScale:1.0];	// don't scale
 #endif
 		}
 	return self;
