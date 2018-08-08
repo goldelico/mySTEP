@@ -100,7 +100,7 @@ typedef enum _NSEventMask
 	NSMagnifyMask				= 1<<NSMagnify,
 	NSSwipeMask					= 1<<NSSwipe,
 	
-	NSAnyEventMask 				= 0xffffffffU,
+	NSAnyEventMask				= 0xffffffffU,
 	
 	// private extensions
 	

@@ -601,9 +601,12 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		"OtherMouseUp",
 		"OtherMouseDragged",
 	};
-	if(sizeof(types)/sizeof(types[0]) != NSOtherMouseDragged) // should be optimized away by compiler as dead code if both constants are the same
+#if 0
+	// check for internal error -> use NSAssert()?
+	if(sizeof(types)/sizeof(types[0]) != NSOtherMouseDragged+1) // should be optimized away by compiler as dead code if both constants are the same
 		NSLog(@"NSOtherMouseDragged=%d sizeof(types)=%lu", NSOtherMouseDragged, sizeof(types)/sizeof(types[0]));
-	switch (event_type) 
+#endif
+	switch (event_type)
 		{
 		case NSLeftMouseDown:
 		case NSLeftMouseUp:
