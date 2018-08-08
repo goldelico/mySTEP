@@ -786,6 +786,9 @@ static Class __rulerViewClass = nil;
 //		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view
 		if([aDecoder containsValueForKey:@"NSDrawsBackground"])
 			[self setDrawsBackground:[aDecoder decodeBoolForKey:@"NSDrawsBackground"]];	// CHECKME: is this a property of the scrollview or the content view?
+		[aDecoder decodeDoubleForKey:@"NSMaxMagnification"];
+		[aDecoder decodeDoubleForKey:@"NSMinMagnification"];
+		[aDecoder decodeDoubleForKey:@"NSMagnification"];
 #if 0
 		NSLog(@"%@ initWithCoder:%@ sFlags=%08x", self, aDecoder, sFlags);
 #endif

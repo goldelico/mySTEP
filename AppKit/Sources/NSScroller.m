@@ -128,6 +128,8 @@ static NSActionCell *__knobCell = nil;
 #define CONTROLTINT ((sflags>>16)&7)
 		_controlTint=CONTROLTINT;
 		[self setFloatValue:[aDecoder decodeFloatForKey:@"NSCurValue"] knobProportion:[aDecoder decodeFloatForKey:@"NSPercent"]/100.0];
+		[aDecoder decodeObjectForKey:@"NSControlTarget"];
+		[aDecoder decodeObjectForKey:@"NSControlAction"];	// selector as string?
 		_hitPart = NSScrollerNoPart;
 		[self setEnabled:YES];
 #if 0

@@ -89,9 +89,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 @interface NSCustomView : NSView <NSCoding>
 {
-    NSString *className;
+	NSString *className;
 	id view;
-    id extension;
+	id extension;
 	id nextResponder;
 	NSView *superView;
 	NSArray *subviews;
@@ -102,20 +102,20 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 @interface NSWindowTemplate : NSObject
 {
-    NSString *windowTitle;
-    NSString *windowClass;
-    NSView *windowView;
-    NSWindow *realObject;
-		NSString *autosaveName;
-    id viewClass;
-    id extension;
-    NSRect windowRect;
-    NSRect screenRect;
-    NSSize minSize;
-    NSSize maxSize;
-    unsigned long _wtFlags;
-    int windowStyleMask;
-    int windowBacking;
+	NSString *windowTitle;
+	NSString *windowClass;
+	NSView *windowView;
+	NSWindow *realObject;
+	NSString *autosaveName;
+	id viewClass;
+	id extension;
+	NSRect windowRect;
+	NSRect screenRect;
+	NSSize minSize;
+	NSSize maxSize;
+	unsigned long _wtFlags;
+	int windowStyleMask;
+	int windowBacking;
 }
 - (id) nibInstantiate;	// instantiates if neccessary and returns a non-retained reference
 @end
@@ -249,7 +249,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (void) orderFrontVisibleWindows
 {
 	// only these should be added to the Windows menu
-	[visibleWindows makeObjectsPerformSelector:@selector(orderFront:) withObject:nil];	// make these windows visible
+	// NOTE: it is random which one is finally the key window...
+	[visibleWindows makeObjectsPerformSelector:@selector(makeKeyAndOrderFront:) withObject:nil];	// make these windows visible
 }
 
 - (id) rootObject; { return rootObject; }
@@ -280,7 +281,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	id object;
+	id customObject;
 #if 0
 	NSLog(@"NSCustomObject initWithCoder %@", coder);
 #endif
@@ -294,15 +295,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSLog(@"object=%@", object);
 	NSLog(@"extension=%@", extension);
 #endif
-	object=[[self nibInstantiate] retain];	// instantiate immediately
+	customObject=[[self nibInstantiate] retain];	// instantiate immediately
 #if 0
-	NSLog(@"custom object=%@", object);
-	NSLog(@"custom object class=%@", NSStringFromClass([object class]));
-	NSLog(@"custom object class class=%@", NSStringFromClass([[object class] class]));
-	NSLog(@"custom object superclass=%@", NSStringFromClass([object superclass]));
+	NSLog(@"custom object=%@", customObject);
+	NSLog(@"custom object class=%@", NSStringFromClass([customObject class]));
+	NSLog(@"custom object class class=%@", NSStringFromClass([[customObject class] class]));
+	NSLog(@"custom object superclass=%@", NSStringFromClass([customObject superclass]));
 #endif
 	[self release];
-	return object;
+	return customObject;
 }
 
 - (void) dealloc;
@@ -578,8 +579,13 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	windowTitle=[coder decodeObjectForKey:@"NSWindowTitle"];
 	windowView=[coder decodeObjectForKey:@"NSWindowView"];
 	autosaveName=[coder decodeObjectForKey:@"NSFrameAutosaveName"];
+	// more settings from later NIB files
 	[coder decodeObjectForKey:@"NSWindowContentMinSize"];
 	[coder decodeObjectForKey:@"NSWindowContentMaxSize"];
+	[coder decodeObjectForKey:@"NSMaxFullScreenContentSize"];
+	[coder decodeObjectForKey:@"NSUserInterfaceItemIdentifier"];
+	[coder decodeObjectForKey:@"NSMinFullScreenContentSize"];
+	[coder decodeObjectForKey:@"NSWindowIsRestorable"];
 #if 0
 	NSLog (@"  screenRect = %@", NSStringFromRect(screenRect));
 	NSLog (@"  windowRect = %@", NSStringFromRect(windowRect));
