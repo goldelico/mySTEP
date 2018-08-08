@@ -36,6 +36,7 @@
 @interface NSTextViewSharedData : NSObject <NSCoding>	// this is an internal class but we must be able to decode it from a TextView
 {
 	int flags;
+	int moreFlags;
 	NSColor *backgroundColor;
 	NSColor *insertionColor;
 	NSParagraphStyle *defaultParagraphStyle;
@@ -1270,6 +1271,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	//	if((self=[super initWithCoder:coder]))	// derived from NSObject
 	{
 	flags=[coder decodeInt32ForKey:@"NSFlags"];
+	moreFlags=[coder decodeInt32ForKey:@"NSMoreFlags"];
 	backgroundColor=[[coder decodeObjectForKey:@"NSBackgroundColor"] retain];
 	insertionColor=[[coder decodeObjectForKey:@"NSInsertionColor"] retain];
 	defaultParagraphStyle=[[coder decodeObjectForKey:@"NSDefaultParagraphStyle"] retain];
@@ -1284,6 +1286,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	selectedAttributes=[[coder decodeObjectForKey:@"NSSelectedAttributes"] retain];
 	// FIXME:
 	[coder decodeInt32ForKey:@"NSTextCheckingTypes"];
+	[coder decodeInt32ForKey:@"NSPreferredTextFinderStyle"];
+	[coder decodeObjectForKey:@"NSTextFinder"];
 	}
 	return self;
 }

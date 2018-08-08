@@ -371,6 +371,10 @@ shouldSetSpellingState:(NSInteger) val
 - (void) textViewDidChangeTypingAttributes:(NSNotification *) notification;
 - (NSUndoManager *) undoManagerForTextView:(NSTextView *) textView;
 
+// deprecated? private?
+- (BOOL) textView:(NSTextView *) view shouldHandleEvent:(NSEvent *) event;
+- (void) textView:(NSTextView *) view didHandleEvent:(NSEvent *) event;
+
 @end
 
 extern NSString *NSTextViewDidChangeSelectionNotification;
