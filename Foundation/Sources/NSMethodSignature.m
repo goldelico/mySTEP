@@ -138,8 +138,8 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 		fprintf(stderr, "mySTEP_objc_msg_forward2 called with Object receiver\n");
 		abort();
 		}
-	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
+	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 #endif
 	c=object_getClass(receiver);
 	/* may trigger a call to +resolveInstanceMethod: */
