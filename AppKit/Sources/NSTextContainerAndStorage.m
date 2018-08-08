@@ -189,6 +189,7 @@
 		size.height=[coder decodeFloatForKey:@"NSHeight"];
 	layoutManager=[coder decodeObjectForKey:@"NSLayoutManager"];
 	[self setTextView:[coder decodeObjectForKey:@"NSTextView"]];
+	[coder decodeFloatForKey:@"NSMinWidth"];
 #if 0
 	NSLog(@"%@ done", self);
 #endif
