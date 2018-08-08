@@ -93,29 +93,29 @@
 	// FIXME: if userDefaults "NSQuotedKeystrokeBinding" found (default = ctl-q) -> pass next character unbound
 	while((event=[e nextObject]))
 		{
-			NSUInteger flags=[event modifierFlags];
-			NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",	// the order of these flags appears to be required: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
-										 flags&NSControlKeyMask?@"^":@"",
-										 flags&NSShiftKeyMask?@"$":@"",
-										 flags&NSAlternateKeyMask?@"~":@"",
-										 flags&NSCommandKeyMask?@"@":@"",
-										 flags&NSNumericPadKeyMask?@"#":@"",
-										 flags&NSFunctionKeyMask?@"*":@"",	// unknown if this is compatible
+		NSUInteger flags=[event modifierFlags];
+		NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",	// the order of these flags appears to be required: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
+						 flags&NSControlKeyMask?@"^":@"",
+						 flags&NSShiftKeyMask?@"$":@"",
+						 flags&NSAlternateKeyMask?@"~":@"",
+						 flags&NSCommandKeyMask?@"@":@"",
+						 flags&NSNumericPadKeyMask?@"#":@"",
+						 flags&NSFunctionKeyMask?@"*":@"",	// unknown if this is compatible
 							[event charactersIgnoringModifiers]];
 		id sel;
 		NSEnumerator *f;
 #if 1
-			NSLog(@"keybinding for %@ -> %@", chars, [mapping objectForKey:chars]);
+		NSLog(@"keybinding for %@ -> %@", chars, [mapping objectForKey:chars]);
 #endif
 		sel=[mapping objectForKey:chars];
 		if(!sel)
 			sel=[NSArray arrayWithObjects:@"insertText:", [event characters], nil];	// default
 		else if([sel isKindOfClass:[NSDictionary class]])
 			{ // submapping
-				// FIXME: what do we do if we have not received enough events, i.e. [[e allObjects] length] == 0
+			  // FIXME: what do we do if we have not received enough events, i.e. [[e allObjects] length] == 0
 				// push back to event queue?
-			[self _interpretKeyEvents:[e allObjects] inMappingTable:sel];	// recursively try to interpret with remaining events
-			break;	// done
+				[self _interpretKeyEvents:[e allObjects] inMappingTable:sel];	// recursively try to interpret with remaining events
+				break;	// done
 			}
 		else if([sel isKindOfClass:[NSString class]])
 			sel=[NSArray arrayWithObject:sel];
@@ -123,24 +123,30 @@
 		while((sel=[f nextObject]))
 			{ // process all array components in sequence
 				if([sel hasSuffix:@":"])
-						{ // appears to be a valid entry
+					{ // appears to be a valid entry
 #if 1
-							NSLog(@"doCommand: %@", sel);
+						NSLog(@"doCommand: %@", sel);
 #endif
-							if([sel isEqualToString:@"insertText:"])
-								[self insertText:[f nextObject]]; // handle special case
-							else
-								// FIXME: what happens if the selector is not defined? Ignore or raise exception?
-								[self doCommandBySelector:NSSelectorFromString(sel)];
-						}
+						if([sel isEqualToString:@"insertText:"])
+							[self insertText:[f nextObject]]; // handle special case
+						else
+							// FIXME: what happens if the selector is not defined? Ignore or raise exception?
+							[self doCommandBySelector:NSSelectorFromString(sel)];
+					}
 			}
 		}
-	// FIXME: send key event up in responder chain
+	if(_nextResponder)
+		[_nextResponder interpretKeyEvents:events];
+	else
+		[self noResponderFor:_cmd];
 }
 
 - (void) interpretKeyEvents:(NSArray *) eventArray
 {
 	static NSDictionary *_keyMapping;
+#if 1
+	NSLog(@"interpretKeyEvents: %@", eventArray);
+#endif
 	if(!_keyMapping)
 		{ // initialize table - according to http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
 			NSDictionary *dict;
