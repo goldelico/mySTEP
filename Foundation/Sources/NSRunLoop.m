@@ -670,7 +670,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	NSResetMapTable (rfd_2_object);					// Clean up before return.
 	NSResetMapTable (wfd_2_object);
-	[NSNotificationQueue _runLoopASAP];	// run any pending notifications (similar to 'performSelector:withObject:afterDelay:0.0')
+	[NSNotificationQueue _runLoopASAP];	// run any new notifications created by handlers (similar to 'performSelector:withObject:afterDelay:0.0')
 #if 0
 	NSLog(@"acceptInput done");
 #endif
