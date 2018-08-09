@@ -647,6 +647,8 @@ NSLog (NSString *format, ...)
 	va_end (ap);
 }
 
+// CHECKME: anyone using this?
+
 id
 GSError (id errorObject, NSString *format, ...)
 {
