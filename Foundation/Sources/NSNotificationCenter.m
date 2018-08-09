@@ -357,8 +357,10 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 	// send notifications
 #if 0
 	NSLog(@"postNotification: %@", notice);
+	NSLog(@"  object %@", object);
 	NSLog(@"  name %@", name);
 	NSLog(@"  noname %@", noname);
+	NSLog(@"  reg %@", reg);
 #endif
 	NS_DURING
 	[name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
