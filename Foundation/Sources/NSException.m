@@ -159,6 +159,9 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSThread *thread;
 	NSHandler2 *handler;
 #if 1
+	fprintf(stderr, "-[NSException raise] %s %s\n", [e_name UTF8String], [e_reason UTF8String]);
+#endif
+#if 1
 	NSLog(@"-[NSException raise] %@", self);
 #endif
 	if (_NSUncaughtExceptionHandler == NULL)
