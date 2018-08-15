@@ -467,7 +467,6 @@ static Class __textFieldCellClass = Nil;
 		{
 		// delegate?
 		[aDecoder decodeObjectForKey:@"NSTextFieldAlignmentRectInsetsVersion"];
-		[aDecoder decodeObjectForKey:@"NSHuggingPriority"];
 		return self;
 		}
 	_delegate = [[aDecoder decodeObject] retain];

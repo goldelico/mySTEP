@@ -2112,6 +2112,7 @@
 		_draggingSourceOperationMaskForLocal=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForLocal"];
 		_draggingSourceOperationMaskForRemote=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForNonLocal"];
 		[aDecoder decodeIntForKey:@"NSTableViewDraggingDestinationStyle"];
+		[aDecoder decodeIntForKey:@"NSTableViewGroupRowStyle"];
 		_sortDescriptors=[[aDecoder decodeObjectForKey:@"NSSortDescriptors"] retain];
 		_indicatorImages = [NSMutableArray new];
 		i=[_tableColumns count];
