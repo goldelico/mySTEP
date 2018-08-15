@@ -1549,16 +1549,10 @@ static NSButtonCell *sharedCell;
 	return _fieldEditor;							
 }
 
-- (NSInteger) level							{ return _level; }
-- (BOOL) canHide							{ return _w.canHide; }
-- (BOOL) hidesOnDeactivate					{ return _w.hidesOnDeactivate; }
-- (BOOL) isMiniaturized						{ return _w.miniaturized; }
-- (BOOL) isVisible							{ return _w.visible; }
-
-- (void) _setIsVisible:(BOOL) flag
-{
+- (void) setIsVisible:(BOOL) flag
+{ // called by backend by Un/MapNotify
 #if 0
-	NSLog(@"_setIsVisible: %d", flag);
+	NSLog(@"setIsVisible: %d", flag);
 #endif
 	if(_w.visible != flag)
 		{
@@ -1568,6 +1562,9 @@ static NSButtonCell *sharedCell;
 			[self displayIfNeeded];	// did become visible - we must update the contents (again?)
 		}
 }
+
+- (void) setIsMiniaturized:(BOOL) flag;		{ _w.miniaturized=flag; }
+- (void) setIsZoomed:(BOOL) flag;			{ _w.isZoomed=flag; }
 
 - (BOOL) isKeyWindow						{ return [_context _windowNumber] == [_screen _keyWindowNumber]; }	// this asks the backend if we are really the key window!
 - (BOOL) isMainWindow						{ return _w.isMain; }
@@ -1724,14 +1721,23 @@ static NSButtonCell *sharedCell;
 				for(i=0; i<n; i++)
 					{ // go from front to back to find insertion position
 						NSInteger level;
+						NSWindow *win;
 						if(list[i] == thisWin)
 							continue;	// skip ourselves in calculating new position
-						level=[NSWindow _getLevelOfWindowNumber:list[i]];	// BACKEND extension
+						win=[NSApp windowWithWindowNumber:list[i]];
+						if(win)
+							{ // it is our NSWindow and not something else
+							if(![win isVisible])
+								continue;	// skip if not visible (or it becomes mapped on orderOut of some other window)
+							level=[win level];	// it is our window so we don't have to ask the windows server
+							}
+						else
+							level=[_context _getLevelOfWindowNumber:list[i]];	// ask backend
 #if 0
 						NSLog(@"win %d level %d", list[i], level);
 #endif
-						//							if(level < 0)
-						//								continue;	// we don't know - so ignore
+						if(level < 0)
+							continue;	// we don't know - so ignore
 						if(place == NSWindowBelow && level < _level)
 							break;	// window has a lower level as ours, i.e. the previous was the last of our level
 						otherWin=list[i];
@@ -2248,6 +2254,11 @@ object:self]
 - (BOOL) areCursorRectsEnabled				{ return _w.cursorRectsEnabled; }
 - (BOOL) isDocumentEdited					{ return _w.isEdited; }
 - (BOOL) isReleasedWhenClosed				{ return _w.releasedWhenClosed; }
+- (NSInteger) level							{ return _level; }
+- (BOOL) canHide							{ return _w.canHide; }
+- (BOOL) hidesOnDeactivate					{ return _w.hidesOnDeactivate; }
+- (BOOL) isMiniaturized						{ return _w.miniaturized; }
+- (BOOL) isVisible							{ return _w.visible; }
 - (BOOL) isZoomed							{ return _w.isZoomed; }
 
 - (void) miniaturize:(id)sender

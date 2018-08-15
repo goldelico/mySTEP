@@ -2638,6 +2638,42 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// XStoreName???
 }
 
+- (NSInteger) _getLevelOfWindowNumber:(NSInteger) windowNum;
+{ // even if it is not a NSWindow but comes from other toolkit
+	Atom actual_type_return;
+	int actual_format_return;
+	unsigned long nitems_return;
+	unsigned long bytes_after_return;
+	unsigned char *prop_return;
+	int level;
+#if 0
+	NSLog(@"getLevel of window %d", windowNum);
+#if 1
+	{
+	char bfr[256];
+	sprintf(bfr, "/usr/X11/bin/xprop -id %d", windowNum);
+	system(bfr);
+	}
+#endif
+#endif
+	if(XGetWindowProperty(_display, (Window) windowNum,
+						  _windowDecorAtom,
+						  0, sizeof(GSAttributes)/sizeof(CARD32),
+						  False, AnyPropertyType,
+						  &actual_type_return, &actual_format_return,
+						  &nitems_return, &bytes_after_return, &prop_return) != Success)
+		return -1;	// some error
+	if(actual_type_return == None)
+		return -1;	// no level for this window number available
+					// should check if nitems_return matches size of GSAttributes
+	level=((GSAttributes *) prop_return)->window_level;
+	XFree(prop_return);
+#if 0
+	NSLog(@"got level of window %d = %d", windowNum, level);
+#endif
+	return level;
+}
+
 - (void) _setLevel:(NSInteger) level andStyle:(NSInteger) mask;
 { // note: it is the optimization task of NSWindow to call this only if setLevel really changes the level
 	GSAttributes wmattrs;
@@ -3223,49 +3259,6 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 {
 	return [_NSX11GraphicsContext graphicsContextWithAttributes:
 			[NSDictionary dictionaryWithObject:window forKey:NSGraphicsContextDestinationAttributeName]];
-}
-
-@end
-
-@implementation NSWindow (NSBackendOverride)
-
-+ (NSInteger) _getLevelOfWindowNumber:(NSInteger) windowNum;
-{ // even if it is not a NSWindow
-	Atom actual_type_return;
-	int actual_format_return;
-	unsigned long nitems_return;
-	unsigned long bytes_after_return;
-	unsigned char *prop_return;
-	int level;
-	NSWindow *win=[NSApp windowWithWindowNumber:windowNum];
-	if(win)
-		return [win level];	// it is our window so we don't have to ask the windows server
-#if 0
-	NSLog(@"getLevel of window %d", windowNum);
-#if 1
-	{
-	char bfr[256];
-	sprintf(bfr, "/usr/X11/bin/xprop -id %d", windowNum);
-	system(bfr);
-	}
-#endif
-#endif
-	if(XGetWindowProperty(_display, (Window) windowNum,
-						  _windowDecorAtom,
-						  0, sizeof(GSAttributes)/sizeof(CARD32),
-						  False, AnyPropertyType,
-						  &actual_type_return, &actual_format_return,
-						  &nitems_return, &bytes_after_return, &prop_return) != Success)
-		return -1;	// some error
-	if(actual_type_return == None)
-		return -1;	// no level for this window number available
-					// should check if nitems_return matches size of GSAttributes
-	level=((GSAttributes *) prop_return)->window_level;
-	XFree(prop_return);
-#if 0
-	NSLog(@"got of window %d = %d", windowNum, level);
-#endif
-	return level;
 }
 
 @end
@@ -4021,14 +4014,14 @@ static NSFileHandle *fh;
 				NSLog(@"MapNotify");			// state from ummapped to mapped
 												//	fprintf(stderr, "MapNotify\n");
 #endif
-				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:YES];
+				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) setIsVisible:YES];
 				break;
 
 			case UnmapNotify:						// find the NSWindow and
 #if 1
 				NSLog(@"UnmapNotify\n");		// inform it that it is no longer visible
 #endif
-				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:NO];
+				[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) setIsVisible:NO];
 				break;
 
 			case VisibilityNotify:						// window's visibility
