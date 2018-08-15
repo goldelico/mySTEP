@@ -75,12 +75,14 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) DEBIAN_PRIORITY - optional
 #   - DEBIAN_VERSION - current date/time
 #   (*) DEBIAN_NOPACKAGE - don't build packages
-#   (*) FILES
+#   (*) FILES - more files to include (e.g. binaries)
+#   (*) FILES_PATH - install path for FILES relative to root
+#   (*) FILES_SUBDIR - path prefixed to FILES before packing
 #   (*) DATA
 #   (+) DEBDIST - where to store the binary-arch files
 #  download and test (postprocess 2)
 #   () EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
-#   * INSTALL_PATH
+#   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP
 #   - INSTALL
 #   (+) DEPLOY
 #   (+) RUN
@@ -310,9 +312,9 @@ RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
 # should try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-DEBIAN_ARCHITECTURES=mystep macos armel armhf i386 mipsel
-# mystep (use our frameworks and X11 except Foundation) and macos (link app against Macos frameworks) do not work yet
-DEBIAN_ARCHITECTURES=macos armel armhf i386 mipsel
+DEBIAN_ARCHITECTURES=mystep darwin-x86_64 armel armhf i386 mipsel
+# mystep (use our frameworks and X11 except Foundation) and darwin-x86_64 (link app against Macos frameworks) do not work yet
+DEBIAN_ARCHITECTURES=darwin-x86_64 armel armhf i386 mipsel
 # DEBIAN_ARCHITECTURES=macos
 endif
 
@@ -368,7 +370,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
 			macos ) export ARCHITECTURE=MacOS; EXIT=0;; \
-			mystep ) export ARCHITECTURE=mySTEP; EXIT=0;; \
+			mystep ) export ARCHITECTURE=darwin-x86_64; EXIT=0;; \
 			all ) export ARCHITECTURE=all;; \
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
@@ -955,8 +957,14 @@ endif
 install_local:
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
+	# FIXME: does not copy $(DATA) and $(FILES)
+	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
+ifneq ($(DATA),)
+	# additional files relative to root
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && $(TAR) xvf -)
+endif
 ifeq ($(NAME_EXT),bin)
 	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -))
 else
@@ -973,11 +981,16 @@ ifeq ($(DEPLOY),true)
 	# deploy remote
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	# FIXME: does not copy $(DATA) and $(FILES)
-	- [ -s $(DOWNLOAD) ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
+	# should we better untar the .deb?
+	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
 		&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
+ifneq ($(DATA),)
+	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
+		$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | gzip | $(DOWNLOAD) $$DEVICE "cd / && gunzip | $(TAR) xvf -"
+endif
 	#done
 else
 	# not deployed
