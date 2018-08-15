@@ -497,7 +497,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"_processUnsolicitedInfo: %@", line);
 #endif
-	if(!line) return;	// if called with result from directly running a command
+	if(!line) return;	// if called with empty/missing result from directly running a command
 	if([line hasPrefix:@"RING"] || [line hasPrefix:@"+CRING:"])
 		{
 		// incoming call
@@ -590,6 +590,39 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([line hasPrefix:@"+CREG:"])
 		{
 		NSLog(@"network registration: %@", line);
+		// FIXME
+		return;
+		}
+	// same for cell broadcasts (?) AT+CPMS="BM"
+	if([line hasPrefix:@"+CMGL:"])
+		{ // SMS received (should be in SMS text mode
+			CTModemManager *mm=[CTModemManager modemManager];
+			CTCallCenter *cc=[CTCallCenter callCenter];
+			NSString *message=nil;
+			NSString *sender=nil;
+			NSDate *date=nil;
+			NSMutableDictionary *attributes=nil;
+			NSUInteger index;
+			NSLog(@"SMS received: %@", line);
+			// NOTE: it is recommended to use PDU mode so that rogue SMS messages can't interfere with AT command decoding
+		/*
+			AT+CMGL="REC UNREAD"
+
+			+CMGL: 0,"REC UNREAD","08954290367",,"17/02/07,14:26:32+04"
+			Mailbox: Der Anrufer hat keine Nachricht hinterlassen:\0A +498954290367 \0A 07.02.2017 14:25:32 \0A 3 Versuche \0A\0A
+			... more messages
+
+			OK
+		 */
+			// index=
+			// sender=
+			// date=	Uhrzeit & Datum -> NSDate wandeln - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1
+			// message=
+			[attributes setObject:date forKey:@"date"];
+			[mm runATCommand:[NSString stringWithFormat:@"AT+CMGD=%u", index]];	// delete SMS after reception
+			// we should send this from the runloop by a delayed performer so that activities triggered by the delegate can't interfere with URC processing
+			[[cc delegate] callCenter:cc didReceiveSMS:message fromNumber:sender attributes:attributes];
+		// FIXME
 		return;
 		}
 	if([line hasPrefix:@"_OPON:"])
@@ -843,21 +876,53 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			return;
 		}
 	/* PLS8 messages */
+	if([line hasPrefix:@"+CIEV:"])
+		{ // diverse network indications enabled by AT^SIND="type"
+			NSLog(@"network indication: %@", line);
+			/*
+			 service	- Verbunden oder nicht
+			 roam	- beim roaming
+			 eons	- operator
+			 nitz	- datum/zeit/Zeitzone aus dem Netz
+			 simstatus/simlocal
+			 psinfo	- packet switched level
+			 */
+			if([line hasPrefix:@"+CIEV: eons"])
+				;	// operator
+			if([line hasPrefix:@"+CIEV: nitz"])
+				;	// network date, time and time zone
+			if([line hasPrefix:@"+CIEV: psinfo"])
+				;	// should indicate 2G..4G
+			return;
+		}
 	if([line hasPrefix:@"^SBC:"])
 		{ // under/overvoltage
 			CTModemManager *mm=[CTModemManager modemManager];
 			if([line hasPrefix:@"^SBC: Overvoltage"])
 				{
-				paTemp=99.0;	// this should emit a warning!
+				[self _processUnsolicitedInfo:[[mm runATCommandReturnResponse:@"AT^SBV"] lastObject]];	// try to read voltage
 				[mm _closePort];	// modem will close, so do before...
 				[mm _closeModem];	// try shutdown
 				}
+			return;
+		}
+	if([line hasPrefix:@"^SBV:"])
+		{ // voltage ^SBV: 4249
+			NSArray *st=[line componentsSeparatedByString:@" "];
+			paVolt=[[st lastObject] intValue];
 			[delegate signalStrengthDidUpdate:currentNetwork];
 			return;
 		}
 	if([line hasPrefix:@"^SCTM_B:"])
-		{ // under/overtemperature
-		  // check for -1, -2 or +1, +2
+		{ // under/overtemperature - AT^SCTM? -> ^SCTM: 0,0,41
+			NSArray *st=[line componentsSeparatedByString:@","];
+			// check for -1, -2 or +1, +2
+			if([st count] == 3)
+				{
+				paTemp=[[st objectAtIndex:2] intValue];	// PA temperature
+				[delegate signalStrengthDidUpdate:currentNetwork];
+				}
+			return;
 		}
 	if([line hasPrefix:@"^SYSSTART"])
 		{ // normal or AIRPLANE MODE
@@ -913,9 +978,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return nil;
 }
 
-- (float) paTemperature;
-{ // temperature of PA in centigrade
-	return paTemp;
-}
+- (float) paTemperature; { return paTemp; }
+- (float) paVoltage; { return paVolt; }
 
 @end

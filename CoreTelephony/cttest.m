@@ -46,7 +46,8 @@
 - (void) signalStrengthDidUpdate:(CTCarrier *) carrier;	// also called for network type changes
 {
 	float paTemp=[[CTTelephonyNetworkInfo telephonyNetworkInfo] paTemperature];	//may have changed
-	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"signalStrengthDidUpdate:%@ PAtemp=%.1f", carrier, paTemp] UTF8String]);
+	float paVolt=[[CTTelephonyNetworkInfo telephonyNetworkInfo] paVoltage];	//may have changed
+	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"signalStrengthDidUpdate:%@ PAtemp=%.1f PAvolt=%.1f", carrier, paTemp, paVol] UTF8String]);
 }
 
 @end

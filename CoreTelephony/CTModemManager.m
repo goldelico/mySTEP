@@ -486,6 +486,13 @@ BOOL modemLog=NO;
 // universeller: NS(Mutable) Array mit Befehlen
 // oder einfach alle direkt hintereinander?
 
+// alles gleich oft pollen? Nein! individuelle timeouts
+//
+// oder jeden Befehl einfach in einen eigenen performSelector afterDelay withObject stecken?
+// dazu String + weiteren Delay durchschleifen...
+
+// FIXME: can this block other AT commands?
+
 - (void) poll
 { // timer triggered commands (because there is no unsolicited notification)
 	static int next;
@@ -516,6 +523,11 @@ BOOL modemLog=NO;
 	[self performSelector:_cmd withObject:nil afterDelay:5.0];
 }
 
+- (void) pollATCommand:(NSString *) cmd everySeconds:(int) seconds;
+{
+
+}
+
 - (void) pollATCommand:(NSString *) cmd;
 {
 	// register for polling
@@ -527,6 +539,7 @@ BOOL modemLog=NO;
 	[self runATCommand:@"AT+COPS"];		// report RING etc.
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
 	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
+	[self runATCommand:@"AT+CMGF=1"];	// switch to SMS text mode
 	//	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	if([self isGTM601])
 		{ // initialize GTM601
@@ -539,21 +552,23 @@ BOOL modemLog=NO;
 			[self runATCommand:@"AT_OUHCIP=1"];	// report HSDPA call in progress
 			[self runATCommand:@"AT_OSSYS=1"];	// report system (GSM / UTRAN)
 			[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature
-			[self pollATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
-			[self pollATCommand:@"AT_OBSI"];	// base station location
-			[self pollATCommand:@"AT_ONCI?"];	// neighbouring base stations
-			[self pollATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
+			[self pollATCommand:@"AT_OBLS" everySeconds:10];	// get SIM status (removed etc.)
+			[self pollATCommand:@"AT_OBSI" everySeconds:20];	// base station location
+			[self pollATCommand:@"AT_ONCI?" everySeconds:10];	// neighbouring base stations
+			[self pollATCommand:@"AT+CMGL=\"REC UNREAD\"" everySeconds:5];	// received SMS - until we have 3G wakeup
 		}
 	else if([self isPxS8])
 		{ // initialize Cinterion PxS8
+		  // [self runATCommand:@"AT^SQPORT?"] to check if we are on the correct port?
 		  //	[self runATCommand:@"AT^SIND=..."];	// report some URCs
 			[self runATCommand:@"AT+CREG=2"];	// report network registration
 			[self runATCommand:@"AT^SAD=10"];	// turn off RX diversity
-			//	[self runATCommand:@"AT^SCTM=1"];	// monitor temperature - should send ^SCTM_B: URCss
-			[self pollATCommand:@"AT^SCTM?"];	// get temperature
-			[self pollATCommand:@"ATCSQ?"];		// get for signal quality
-			[self pollATCommand:@"AT^SMONI"];	// get network
-			[self pollATCommand:@"AT^SMONP"];	// get base stations
+			[self runATCommand:@"AT^SCTM=1,1"];	// monitor temperature - should send ^SCTM_B: URCs
+			[self pollATCommand:@"AT^SCTM?"everySeconds:20];	// get temperature
+			[self pollATCommand:@"AT^SBV"everySeconds:20];		// get voltage
+			[self pollATCommand:@"ATCSQ?"everySeconds:10];		// get for signal quality
+			[self pollATCommand:@"AT^SMONI"everySeconds:10];	// get network
+			[self pollATCommand:@"AT^SMONP"everySeconds:30];	// get base stations
 		}
 	//	[self performSelector:@selector(poll) withObject:nil afterDelay:5.0];
 }
