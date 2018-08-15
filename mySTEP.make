@@ -145,7 +145,7 @@ ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -240,7 +240,7 @@ endif
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/Headers/ $(STDCFLAGS)
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else ifeq ($(ARCHITECTURE),MacOS)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
@@ -256,7 +256,7 @@ else
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else ifeq ($(ARCHITECTURE),MacOS)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
@@ -369,7 +369,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			macos ) export ARCHITECTURE=MacOS; EXIT=0;; \
+			darwin-x86_64 ) export ARCHITECTURE=MacOS; EXIT=0;; \
 			mystep ) export ARCHITECTURE=darwin-x86_64; EXIT=0;; \
 			all ) export ARCHITECTURE=all;; \
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
@@ -408,7 +408,7 @@ endif
 INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(ARCHITECTURE)/Headers $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 # should be similar to MacOS but only link against MacOS CoreFoundation and Foundation
 else ifeq ($(ARCHITECTURE),MacOS)
@@ -446,7 +446,7 @@ FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
 
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 else ifeq ($(ARCHITECTURE),MacOS)
@@ -469,7 +469,7 @@ endif
 
 #		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))) \
 
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 LIBRARIES := -L/opt/local/lib \
 		/System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation \
 		/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation \
@@ -560,7 +560,7 @@ OPTIMIZE := 3
 STDCFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 STDCFLAGS += -Wno-deprecated-declarations
 else ifeq ($(ARCHITECTURE),MacOS)
 STDCFLAGS += -Wno-deprecated-declarations
@@ -1044,7 +1044,7 @@ ifneq ($(strip $(HEADERSRC)),)
 endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 # always use selected system frameworks
 else ifeq ($(ARCHITECTURE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
@@ -1096,7 +1096,7 @@ ifeq ($(WRAPPER_EXTENSION),)
 else ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
-ifeq ($(ARCHITECTURE),mySTEP)
+ifeq ($(ARCHITECTURE),darwin-x86_64)
 	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 else ifeq ($(ARCHITECTURE),MacOS)
 	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
