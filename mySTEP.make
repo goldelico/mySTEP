@@ -170,8 +170,13 @@ NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
-### FIXME: make toolchain depend on $(DEBIAN_RELEASE)
+ifeq ($(DEBIAN_RELEASE),staging)
+# use default toolchain
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
+else
+# use specific toolchain depending on DEBAIN_RELEASE (wheezy, jessie, stretch)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions-$(DEBIAN_RELEASE)/Current/gcc/$(ARCHITECTURE)
+endif
 CC := LANG=C $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
@@ -375,7 +380,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
 			* ) export ARCHITECTURE=unknown-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
+		echo "*** building for $$DEBIAN_RELEASE / $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
