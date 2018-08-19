@@ -8,11 +8,11 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2016
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2018
 # This document is licenced using LGPL
 #
 # Requires Xcode 3.2 or later
-# and Apple X11 incl. X11 SDK
+# and XQuartz incl. X11 SDK
 #
 # To use this makefile in Xcode with Xtoolchain:
 #
@@ -32,39 +32,43 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #  Entries market with + should be defined by the caller of the .qcodeproj
 #  Entries with () are optional
 #  Entries with - should not be set
+#
 #  general setup
-#   (*) QuantumSTEP - root of QuantumSTEP
+#   (*) QuantumSTEP - root of QuantumSTEP - default: /usr/local/QuantumSTEP
 #  sources (input)
 #   * SOURCES
 #   (*) INCLUDES
 #   (*) CFLAGS
-#   (+) PROFILING
+#   (+) PROFILING - default: no
 #   (*) FRAMEWORKS
 #   (*) LIBS
 #  compile control
-#   (+) NOCOMPILE
+#   (+) NOCOMPILE - default: no
 #   (+) BUILT_PRODUCTS_DIR - default: build/Deployment
 #   (+) TARGET_BUILD_DIR - default: build/Deployment
-#   (+) PHPONLY - build only PHP
-#   (+) RECURSIVE - build subprojects first
-#   (+) BUILD_FOR_DEPLOYMENT
-#   (+) OPTIMIZE - optimize level
-#   (+) INSPECT - save .i and .S intermediate steps
-#   (+) BUILD_STYLE
-#   (+) GCC_OPTIMIZATION_LEVEL
-#   (+) BUILD_DOCUMENTATION
+#   (+) PHPONLY - build only PHP - default: no
+#   (+) RECURSIVE - build subprojects first - default: no
+#   (+) BUILD_FOR_DEPLOYMENT - default: no
+#   (+) OPTIMIZE - optimize level - default: s
+#   (+) INSPECT - save .i and .S intermediate steps - default: no
+#   (+) BUILD_STYLE - default: ?
+#   (+) GCC_OPTIMIZATION_LEVEL - default: 0
+#   (+) BUILD_DOCUMENTATION - default: no
+#   (*) DEBIAN_ARCHITECTURES - default:
+#   (-) DEBIAN_ARCH - used internally
+#   (+) DEBIAN_RELEASE - the release to build for (modifies compiler, libs and staging for result)- default: staging
 #  bundle definitions (output)
 #   * PROJECT_NAME
-#   PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
+#   (*) PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
 #   * WRAPPER_EXTENSION
-#   (FRAMEWORK_VERSION)
+#   - FRAMEWORK_VERSION - default: A
 #   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
-#   - ARCHITECTURE - the architecture triple to use
-#   - DEBIAN_RELEASE - the release to build (modifies compiler, libs and staging for result)
-#   * DEBIAN_ARCHITECTURES - default
+#   - TRIPLE - the architecture triple to use
 #  Debian packaging (postprocess 1)
 #   * DEBIAN_PACKAGE_NAME - quantumstep-$PRODUCT_NAME-$WRAPPER-extension
-#   * DEBIAN_DEPENDS - quantumstep-cocoa-framework
+#   - DEBIAN_VERSION - current date/time
+#   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
+#   (*) DEBIAN_DEPENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_CONFLICTS - quantumstep-cocoa-framework
 #   (*) DEBIAN_REPLACES - quantumstep-cocoa-framework
@@ -73,26 +77,25 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) DEBIAN_MAINTAINER
 #   (*) DEBIAN_SECTION - x11
 #   (*) DEBIAN_PRIORITY - optional
-#   - DEBIAN_VERSION - current date/time
 #   (*) DEBIAN_NOPACKAGE - don't build packages
-#   (*) FILES - more files to include (e.g. binaries)
-#   (*) FILES_PATH - install path for FILES relative to root
-#   (*) FILES_SUBDIR - path prefixed to FILES before packing
-#   (*) DATA
-#   (+) DEBDIST - where to store the binary-arch files
+#   (*) FILES - more files to include (e.g. binaries) relative to INSTALL_PATH (deprecated)
+#   (*) DATA - more files to include (e.g. binaries) relative to root (deprecated)
+#   (*) DEBIAN_RAW_FILES - additional files/directories to be included in debian package
+#   (*) DEBIAN_RAW_PREFIX - path prefixed to DEBIAN_RAW_FILES before packing (may be ./) - default: .
+#   (*) DEBIAN_RAW_SUBDIR - Subdir within sources where we find the raw files - default: .
 #  download and test (postprocess 2)
-#   () EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
-#   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP
+#   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP (or absolute if it starts with //) - default empty
 #   - INSTALL
-#   (+) DEPLOY
-#   (+) RUN
+#   (+) EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
+#   (+) DEPLOY - default: no
+#   (+) RUN - default: no
 #   (+) RUN_CMD
 #
 # targets
 #   build:		build everything (outer level)
 #   build_deb:		called recursively to build for a specific debian architecture
 #   clean:		clears build directory (not for subprojects)
-#   deug:		print all variable
+#   debug:		print all variable
 
 endif
 
@@ -107,22 +110,26 @@ QuantumSTEP:=/usr/local/QuantumSTEP
 endif
 
 ifeq ($(EMBEDDED_ROOT),)
-EMBEDDED_ROOT:=/usr/local/QuantumSTEP
+EMBEDDED_ROOT:=$(QuantumSTEP)
 endif
 
+ifeq ($(INSTALL),)
 INSTALL:=true
+endif
 
 HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
-## prefix by $ROOT unless starting with //
+# prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
 ifneq ($(findstring //,$(INSTALL_PATH)),//)
 TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
+# don't install on localhost
+INSTALL=false
 endif
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean debug build build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers resources
+.PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers resources
 
 # configure Embedded System if undefined
 
@@ -145,7 +152,7 @@ ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -153,7 +160,7 @@ AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -161,7 +168,7 @@ AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
-else ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
+else ifeq ($(TRIPLE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 LD := $(CC)
@@ -172,17 +179,17 @@ SO := dylib
 else
 ifeq ($(DEBIAN_RELEASE),staging)
 # use default toolchain
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(TRIPLE)
 else
 # use specific toolchain depending on DEBAIN_RELEASE (wheezy, jessie, stretch)
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions-$(DEBIAN_RELEASE)/Current/gcc/$(ARCHITECTURE)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions-$(DEBIAN_RELEASE)/Current/gcc/$(TRIPLE)
 endif
-CC := LANG=C $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
-# CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
-LD := $(CC) -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
-AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
-NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
-STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
+CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
+# CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
+LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib
+AS := $(TOOLCHAIN)/bin/$(TRIPLE)-as
+NM := $(TOOLCHAIN)/bin/$(TRIPLE)-nm
+STRIP := $(TOOLCHAIN)/bin/$(TRIPLE)-strip
 SO := so
 endif
 
@@ -226,11 +233,11 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	NAME_EXT=bin
 	# this keeps the binaries separated for installation/packaging
 	PKG=$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).bin
-	EXEC=$(PKG)/$(NAME_EXT)/$(ARCHITECTURE)
+	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
 	# architecture specific version (only if it does not yet have the prefix)
-ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE),//$(INSTALL_PATH)))
-	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)$(INSTALL_PATH)
+ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(TRIPLE),//$(INSTALL_PATH)))
+	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(TRIPLE)$(INSTALL_PATH)
 endif
 else
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
@@ -241,13 +248,13 @@ endif
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/Headers/ $(STDCFLAGS)
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
@@ -256,14 +263,14 @@ else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
@@ -285,11 +292,11 @@ YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
 # FIXME: include LEX/YACC?
 SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
 
-OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
+OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
+OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
+OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
+OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
 
 # PHP and shell scripts
 PHPSRCS   := $(filter %.php,$(XSOURCES))
@@ -339,7 +346,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
-( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
+( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -352,7 +359,7 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 	$(warning $v = $($v)))
 
 ### check for debian meta package creation
-### copy/install $DATA and $FILES
+### copy/install $DATA and $FILES and $DEBIAN_RAW_FILES $DEBIAN_RAW_PATH $DEBIAN_RAW_SUBDIR
 ### build_deb (only)
 ### architecture all-packages are part of machine specific Packages.gz (!)
 ### there is not necessarily a special binary-all directory but we can do that
@@ -370,19 +377,20 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			case "$$DEBIAN_ARCH" in \
-			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
-			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
-			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
-			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			darwin-x86_64 ) export ARCHITECTURE=MacOS; EXIT=0;; \
-			mystep ) export ARCHITECTURE=darwin-x86_64; EXIT=0;; \
-			all ) export ARCHITECTURE=all;; \
-			*-*-* ) export ARCHITECTURE="$$DEBIAN_ARCH";; \
-			* ) export ARCHITECTURE=unknown-linux-gnu;; \
+			armel ) export TRIPLE=arm-linux-gnueabi;; \
+			armhf ) export TRIPLE=arm-linux-gnueabihf;; \
+			i386 ) export TRIPLE=i486-linux-gnu;; \
+			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
+			darwin-x86_64 ) export TRIPLE=MacOS; EXIT=0;; \
+			mystep ) export TRIPLE=darwin-x86_64; EXIT=0;; \
+			all ) export TRIPLE=all;; \
+			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
+			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBIAN_RELEASE / $$DEBIAN_ARCH using $$ARCHITECTURE ***"; \
-		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
+		echo "*** building for $$DEBIAN_RELEASE / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
+		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
+		export TRIPLE="$$TRIPLE"; \
 		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		echo "$$DEBIAN_ARCH" done; \
 		done \
@@ -410,26 +418,26 @@ FRAMEWORKS := Foundation AppKit $(FRAMEWORKS)
 endif
 
 # allow to use #import <framework/header.h> while building the framework
-INCLUDES := -I$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(ARCHITECTURE)/Headers $(INCLUDES)
+INCLUDES := -I$(TARGET_BUILD_DIR)/$(TRIPLE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/Headers $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 FMWKS := $(addprefix -framework ,$(FRAMEWORKS))
 # should be similar to MacOS but only link against MacOS CoreFoundation and Foundation
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
 INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then :; \
 	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
 	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
 	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
 	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/Headers; \
+	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
 	else echo -I$$FMWK.headers; \
 	fi; done)
 LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
@@ -437,13 +445,13 @@ LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
 	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	then echo $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
 	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	then echo $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
 	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	then echo $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
 	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(ARCHITECTURE)/lib$$FMWK.dylib; \
+	then echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
 	else echo lib$$FMWK.dylib; \
 	fi; done)
 else
@@ -451,30 +459,30 @@ FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
 
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 # no special includes and defines
 else
 DEFINES += -D__mySTEP__
 ### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
 ### But we don't know exactly where it is located
 INCLUDES += \
--I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
--I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
+-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 endif
 
 #		-L$(TOOLCHAIN)/lib \
 
-# FIXME: use $(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))
-# and $(addprefix "-Wl,-rpath-link,",$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))
+# FIXME: use $(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))
+# and $(addprefix "-Wl,-rpath-link,",$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))
 
-#		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))) \
+#		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))) \
 
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 LIBRARIES := -L/opt/local/lib \
 		/System/Library/Frameworks/Foundation.framework/Versions/Current/Foundation \
 		/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation \
@@ -482,33 +490,33 @@ LIBRARIES := -L/opt/local/lib \
 		/System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit \
 		/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa \
 		-L$(QuantumSTEP)/usr/lib \
-		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-Wl,-rpath,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
-		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
+		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
 		$(FMWKS) \
 		$(LIBS)
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 LIBRARIES := \
 		$(FMWKS) \
 		$(LIBS)
 else
 LIBRARIES := \
 		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(QuantumSTEP)/usr/lib \
-		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		$(FMWKS) \
 		$(LIBS)
 
@@ -554,20 +562,20 @@ endif
 # add architecture specific CFLAGS
 
 # workaround for bug in arm-linux-gnueabi toolchain
-ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
+ifeq ($(TRIPLE),arm-linux-gnueabi)
 OPTIMIZE := 3
 STDCFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
-ifeq ($(ARCHITECTURE),arm-linux-gnueabihf)
+ifeq ($(TRIPLE),arm-linux-gnueabihf)
 OPTIMIZE := 3
 # we could try -mfloat-abi=hardfp
 # see https://wiki.linaro.org/Linaro-arm-hardfloat
 STDCFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 STDCFLAGS += -Wno-deprecated-declarations
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 STDCFLAGS += -Wno-deprecated-declarations
 else
 STDCFLAGS += -rdynamic
@@ -575,13 +583,14 @@ endif
 
 STDCFLAGS += -fsigned-char
 
-# set up appropriate STDCFLAGS for $(ARCHITECTURE)
+# set up appropriate STDCFLAGS for $(TRIPLE)
 
 # -Wall
 WARNINGS =  -Wno-shadow -Wpointer-arith -Wno-import
 
-DEFINES += -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
--DHAVE_MMAP
+# define as Objective-C string so that NSBundle knows it for finding the correct subdirectory
+DEFINES += -DARCHITECTURE=@\"$(TRIPLE)\"
+DEFINES += -DHAVE_MMAP
 
 # add -v to debug include search path issues
 STDCFLAGS += -g -fPIC -O$(OPTIMIZE) $(WARNINGS) $(DEFINES) $(INCLUDES)
@@ -595,7 +604,7 @@ endif
 # endif
 
 # should be solved differently
-ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
+ifneq ($(TRIPLE),arm-zaurus-linux-gnu)
 OBJCFLAGS := $(STDCFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
 endif
 
@@ -605,24 +614,24 @@ endif
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
 # FIXME: please use $(subst ...)
 
-$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
+$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.m
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
 ifeq ($(INSPECT),true)
-	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.i	# store preprocessor result for debugging
-	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.S	# store assembler source for debugging
+	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.i	# store preprocessor result for debugging
+	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.S	# store assembler source for debugging
 endif
-	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
-$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
+$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.c
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
-$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.cpp
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
+$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -641,7 +650,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset ARCHITECTURE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
+		( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -792,10 +801,13 @@ build_deb: make_bundle make_exec make_binary build_debian_packages
 	echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
-build_debian_packages: \
+build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+	# debian_packages
+	# DEBIAN_ARCH=$(DEBIAN_ARCH)
+	# TRIPLE=$(TRIPLE)
 	@echo build_debian_packages done
 else
 build_debian_packages:
@@ -810,6 +822,46 @@ TMP_DATA := $(UNIQUE)/data
 TMP_CONTROL := $(UNIQUE)/control
 TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
+prepare_temp_files:
+	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using $(TRIPLE)
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
+	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+ifneq ($(FILES),)
+	# additional files relative to install location
+	echo FILES is obsolete
+	exit 1
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+endif
+ifneq ($(DATA),)
+	# additional files relative to root $(DATA)
+	echo DATA is obsolete
+	exit 1
+	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
+endif
+ifneq ($(DEBIAN_RAW_FILES),)
+	# additional raw files relative to root: $(DEBIAN_RAW_FILES) in: $(DEBIAN_RAW_SUBDIR) for: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)
+	mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)"
+ifeq ($(findstring //,/$(DEBIAN_RAW_SUBDIR)),//)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
+else
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
+endif
+endif
+	# unprotect
+	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
+ifneq ($(TRIPLE),)
+	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+endif
+ifeq ($(WRAPPER_EXTENSION),framework)
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
+
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	# DEBIAN_SECTION: $(DEBIAN_SECTION)
@@ -820,33 +872,15 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	# DEBIAN_CONFLICTS: $(DEBIAN_CONFLICTS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
-	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
-ifneq ($(FILES),)
-	# additional files relative to install location
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
-endif
-ifneq ($(DATA),)
-	# additional files relative to root
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
-endif
-	# unprotect
-	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
-	# strip all foreign architectures
-	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
-	# FIXME: prune .nib so that they still work
-ifeq ($(WRAPPER_EXTENSION),framework)
-	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
-	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
-endif
+	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	# create Receipts file
 	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
+	# write protect and pack data.tar.gz
+	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l "/tmp/$(TMP_DATA).tar.gz"
+	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
@@ -871,25 +905,27 @@ endif
 	ls -l $@
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
-	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
-	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	# don't exclude Headers
+	# copy again including Headers
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
-	# strip all executables down so that they can be linked
-	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
-	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
+	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	# create Receipts file
 	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	# write protect and pack data.tar.gz
+	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l /tmp/$(TMP_DATA).tar.gz
+	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
@@ -916,24 +952,25 @@ else
 endif
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
-	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
-	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	# don't exclude Headers
+	# copy again including Headers
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
-	# strip all executables down so that they can be linked
-	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
-	# keep symbols find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	# create Receipts file
 	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
+	# write protect and pack data.tar.gz
+	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l /tmp/$(TMP_DATA).tar.gz
+	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dbg"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
@@ -959,17 +996,20 @@ else
 	# no debug version
 endif
 
+# this runs in outer Makefile, i.e. DEBIAN_ARCH and TRIPLE are not well defined
+
+# TRIPLE is undefined!
+# strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
 install_local:
+	# install_local TRIPLE=$(TRIPLE)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
-	# FIXME: does not copy $(DATA) and $(FILES)
+	# copy again to /tmp/$(TMP_DATA)
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
-ifneq ($(DATA),)
-	# additional files relative to root
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && $(TAR) xvf -)
-endif
 ifeq ($(NAME_EXT),bin)
 	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -))
 else
@@ -980,22 +1020,21 @@ else
 	# don't install locally
 endif
 
-deploy_remote:
+# this one could strip off architectures different from the one to download
+# TRIPLE is undefined!
+deploy_remote: prepare_temp_files
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
-	# FIXME: does not copy $(DATA) and $(FILES)
-	# should we better untar the .deb?
+	# copy again to /tmp/$(TMP_DATA)
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+	# download /tmp/$(TMP_DATA) to all devices
 	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
-		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | gzip | $(DOWNLOAD) $$DEVICE "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -" \
+		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | gzip | $(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -" \
 		&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
-ifneq ($(DATA),)
-	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
-		$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | gzip | $(DOWNLOAD) $$DEVICE "cd / && gunzip | $(TAR) xvf -"
-endif
 	#done
 else
 	# not deployed
@@ -1011,14 +1050,14 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# try to launch deployed Application using our local Xquartz as a remote display
 	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
 	#
-	# FIXME: how do we know the $(ARCHITECTURE) used to specify the EXECUTABLE_PATH?
+	# FIXME: how do we know the $(TRIPLE) used to specify the EXECUTABLE_PATH?
 	#
 	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
 	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) && \
 	[ "$$RUN" ] && [ -x $(DOWNLOAD) ] && $(DOWNLOAD) "$$RUN_DEVICE" \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
 		|| echo failed to run;
 endif
 endif
@@ -1033,7 +1072,7 @@ endif
 # link headers of framework
 
 bundle:
-	# create bundle
+	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
@@ -1041,7 +1080,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 endif
 
 headers:
-	# create headers
+	# create headers $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
@@ -1049,21 +1088,21 @@ ifneq ($(strip $(HEADERSRC)),)
 endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif
-ifeq ($(ARCHITECTURE),darwin-x86_64)
+ifeq ($(TRIPLE),darwin-x86_64)
 # always use selected system frameworks
-else ifeq ($(ARCHITECTURE),MacOS)
+else ifeq ($(TRIPLE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
-	mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
+	mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)
 	- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
 	  do \
-	      rm -f $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$(basename $$fwk); \
-		  ln -sf $$fwk/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$$(basename $$fwk) \
+	      rm -f $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk); \
+		  ln -sf $$fwk/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk) \
 	  ; done
 endif
 
 resources:
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
-# copy resources
+# copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
 	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
@@ -1096,17 +1135,17 @@ endif
 	# linked.
 ifeq ($(WRAPPER_EXTENSION),)
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
-	# link is no longer needed since we assume /usr/bin/$(ARCHITECTURE) to come in the $PATH before /usr/bin
-	# - ln -sf "$(ARCHITECTURE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
+	# link is no longer needed since we assume /usr/bin/$(TRIPLE) to come in the $PATH before /usr/bin
+	# - ln -sf "$(TRIPLE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
 else ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
-	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"
-ifeq ($(ARCHITECTURE),darwin-x86_64)
-	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
-else ifeq ($(ARCHITECTURE),MacOS)
-	- ln -sf "$(ARCHITECTURE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"
+ifeq ($(TRIPLE),darwin-x86_64)
+	- ln -sf "$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+else ifeq ($(TRIPLE),MacOS)
+	- ln -sf "$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 else
-	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
 endif
 endif
 
