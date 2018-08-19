@@ -797,6 +797,7 @@ BOOL modemLog=NO;
 	if(modemLog) [self log:@"reset"];
 	if([self isGTM601])
 		{
+		[self terminatePCM];
 		[self setUnsolicitedTarget:nil action:NULL];
 		if([self runATCommand:@"AT+CHUP"] == CTModemOk &&
 		   [self runATCommand:@"AT_ORESET"] == CTModemOk)	// with default timeout to give modem a chance to respond with "OK"
@@ -827,7 +828,7 @@ BOOL modemLog=NO;
 		}
 }
 
-// can we mix this into single method? optionally with a parameter?
+// can we mix setupPCM and setupVoice into single method? optionally with a parameter?
 - (void) setupPCM;
 {
 	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
@@ -839,8 +840,9 @@ BOOL modemLog=NO;
 		[self runATCommand:@"AT+VIP=0"];
 		}
 	else if([self isPxS8])
-		{
-
+		{ // select I2S, Master Mode, Short Frame, clock only during activity,8kHz sample rate
+		  // AT^SAIC=<io>, <mic>, <ep>, <clock>, <mode>, <frame_mode>, <ext_clk_mode>[, <sample_rate>]
+		[self runATCommand:@"AT^SAIC=3,1,1,0,1,0,1,0"];
 		}
 }
 
