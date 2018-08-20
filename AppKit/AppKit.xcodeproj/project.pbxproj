@@ -432,6 +432,13 @@
 			remoteGlobalIDString = EE1399A91A14EF9B00546945;
 			remoteInfo = AppKit.framework;
 		};
+		EEA524FD212B3A34002E3B27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE1399A91A14EF9B00546945;
+			remoteInfo = AppKit.framework;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -492,7 +499,6 @@
 		EE291CD60AD7EA40004A1CA6 /* NSSpeechSynthesizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechSynthesizer.m; sourceTree = "<group>"; };
 		EE291CD70AD7EA40004A1CA6 /* NSSpeechRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechRecognizer.m; sourceTree = "<group>"; };
 		EE294BFE0E4586B100F2D481 /* Toolbar.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Toolbar.plist; path = ../../System/Tools/ZMacSync/ZMacSync/Toolbar.plist; sourceTree = SOURCE_ROOT; };
-		EE294C310E458C3700F2D481 /* Info.cocoa.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.cocoa.plist; sourceTree = "<group>"; };
 		EE29BC161A2D9DE000691179 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = /opt/local/include; sourceTree = "<absolute>"; };
 		EE29BC171A2D9DED00691179 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = /opt/local/lib; sourceTree = "<absolute>"; };
 		EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSimpleHorizontalTypesetter.h; sourceTree = "<group>"; };
@@ -581,7 +587,7 @@
 		EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowZoomButtonInactive.tiff; sourceTree = "<group>"; };
 		EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowMiniaturizeButtonInactive.tiff; sourceTree = "<group>"; };
 		EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowCloseButtonInactive.tiff; sourceTree = "<group>"; };
-		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE93C79A0B901DF500FBD885 /* AppKitViewTestX11.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitViewTestX11.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
 		EE9929C409FD233C003C308D /* NSSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSegmentedControl.m; sourceTree = "<group>"; };
 		EEA331A30953FA54001244CF /* AppKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "AppKit-Info.plist"; sourceTree = "<group>"; };
@@ -803,6 +809,8 @@
 		EEA524E5212AFD7C002E3B27 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CoreFoundation.framework; sourceTree = "<group>"; };
 		EEA524E6212AFD7C002E3B27 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Foundation.framework; sourceTree = "<group>"; };
 		EEA524F6212B00D6002E3B27 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Security.framework; sourceTree = "<group>"; };
+		EEA524F9212B3557002E3B27 /* ViewTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ViewTest-Info.plist"; sourceTree = "<group>"; };
+		EEA524FC212B366E002E3B27 /* AppKitViewTest.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = AppKitViewTest.php; sourceTree = "<group>"; };
 		EEA69FA4174BAA3300F4FBFA /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleView.h; sourceTree = "<group>"; };
 		EEA69FA5174BAA3300F4FBFA /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CircleView.m; sourceTree = "<group>"; };
 		EEA69FAA174BAA6D00F4FBFA /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
@@ -977,7 +985,7 @@
 				EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */,
 				EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */,
 				EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */,
-				EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */,
+				EE93C79A0B901DF500FBD885 /* AppKitViewTestX11.app */,
 				EE1399AA1A14EF9B00546945 /* AppKit.framework */,
 			);
 			name = Products;
@@ -986,20 +994,11 @@
 		EE3196E109AB7E8A0089A9A2 /* NibTest */ = {
 			isa = PBXGroup;
 			children = (
-				EE3C1BCC1A21D7600027A064 /* AppKitNibTest.qcodeproj */,
-				EE3C1BCD1A21D7600027A064 /* AppKitNibTestX11.qcodeproj */,
-				EE3C1BCE1A21D7600027A064 /* AppKitViewTest.qcodeproj */,
-				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
-				EE3196E309AB7E8A0089A9A2 /* AppController.m */,
-				EECD83FC0A089F8000EF3E30 /* myModel.h */,
-				EECD83FD0A089F8000EF3E30 /* myModel.m */,
-				EE31971109AB7E8B0089A9A2 /* myView.h */,
-				EE31971209AB7E8B0089A9A2 /* myView.m */,
-				EEA69FA4174BAA3300F4FBFA /* CircleView.h */,
-				EEA69FA5174BAA3300F4FBFA /* CircleView.m */,
-				EEA69FAA174BAA6D00F4FBFA /* TestView.h */,
 				EEA69FAB174BAA6D00F4FBFA /* TestView.m */,
 				EE31970C09AB7E8B0089A9A2 /* main.m */,
+				EEA69FAA174BAA6D00F4FBFA /* TestView.h */,
+				EEA524FB212B362A002E3B27 /* AppKitViewTest */,
+				EEA524FA212B360E002E3B27 /* AppKitNibTests */,
 				EECD84030A089FA300EF3E30 /* Resources */,
 			);
 			path = NibTest;
@@ -1549,6 +1548,35 @@
 			path = NibTest/MixedFrameworks;
 			sourceTree = "<group>";
 		};
+		EEA524FA212B360E002E3B27 /* AppKitNibTests */ = {
+			isa = PBXGroup;
+			children = (
+				EE3C1BCC1A21D7600027A064 /* AppKitNibTest.qcodeproj */,
+				EE3C1BCD1A21D7600027A064 /* AppKitNibTestX11.qcodeproj */,
+				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
+				EE3196E309AB7E8A0089A9A2 /* AppController.m */,
+				EEA69FA4174BAA3300F4FBFA /* CircleView.h */,
+				EEA69FA5174BAA3300F4FBFA /* CircleView.m */,
+				EECD83FC0A089F8000EF3E30 /* myModel.h */,
+				EECD83FD0A089F8000EF3E30 /* myModel.m */,
+				EE31971109AB7E8B0089A9A2 /* myView.h */,
+				EE31971209AB7E8B0089A9A2 /* myView.m */,
+				EE3C1BCF1A21D7760027A064 /* AppKitNibTest-Info.plist */,
+				EE3C1BD01A21D7760027A064 /* AppKitNibTestX11-Info.plist */,
+			);
+			name = AppKitNibTests;
+			sourceTree = "<group>";
+		};
+		EEA524FB212B362A002E3B27 /* AppKitViewTest */ = {
+			isa = PBXGroup;
+			children = (
+				EE3C1BCE1A21D7600027A064 /* AppKitViewTest.qcodeproj */,
+				EEA524F9212B3557002E3B27 /* ViewTest-Info.plist */,
+				EEA524FC212B366E002E3B27 /* AppKitViewTest.php */,
+			);
+			name = AppKitViewTest;
+			sourceTree = "<group>";
+		};
 		EECD84030A089FA300EF3E30 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1570,9 +1598,6 @@
 				EE31970409AB7E8B0089A9A2 /* InfoPlist.strings */,
 				EE31970609AB7E8B0089A9A2 /* MainMenu.nib */,
 				EE93C7A20B901E5700FBD885 /* MainMenu ViewTest.nib */,
-				EE294C310E458C3700F2D481 /* Info.cocoa.plist */,
-				EE3C1BCF1A21D7760027A064 /* AppKitNibTest-Info.plist */,
-				EE3C1BD01A21D7760027A064 /* AppKitNibTestX11-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1806,9 +1831,9 @@
 			productReference = EE1399AA1A14EF9B00546945 /* AppKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		EE31971A09AB7EC60089A9A2 /* NIB Test pure Cocoa reference */ = {
+		EE31971A09AB7EC60089A9A2 /* build NIB Test pure Cocoa */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "NIB Test pure Cocoa reference" */;
+			buildConfigurationList = EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "build NIB Test pure Cocoa" */;
 			buildPhases = (
 				EE31971709AB7EC60089A9A2 /* Resources */,
 				EE31971809AB7EC60089A9A2 /* Sources */,
@@ -1818,14 +1843,14 @@
 			);
 			dependencies = (
 			);
-			name = "NIB Test pure Cocoa reference";
+			name = "build NIB Test pure Cocoa";
 			productName = myTest;
 			productReference = EE31971B09AB7EC60089A9A2 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EE93C7830B901DF500FBD885 /* View Test for Cocoa Foundation + X11 */ = {
+		EE93C7830B901DF500FBD885 /* build View Test for Cocoa Foundation + X11 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE93C7960B901DF500FBD885 /* Build configuration list for PBXNativeTarget "View Test for Cocoa Foundation + X11" */;
+			buildConfigurationList = EE93C7960B901DF500FBD885 /* Build configuration list for PBXNativeTarget "build View Test for Cocoa Foundation + X11" */;
 			buildPhases = (
 				EE93C7860B901DF500FBD885 /* ShellScript */,
 				EE93C7870B901DF500FBD885 /* Resources */,
@@ -1835,34 +1860,35 @@
 			buildRules = (
 			);
 			dependencies = (
+				EEA524FE212B3A34002E3B27 /* PBXTargetDependency */,
 			);
-			name = "View Test for Cocoa Foundation + X11";
+			name = "build View Test for Cocoa Foundation + X11";
 			productName = myTest;
-			productReference = EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */;
+			productReference = EE93C79A0B901DF500FBD885 /* AppKitViewTestX11.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8033909AE4EB6006EEB03 /* NIB Test mySTEP for Cocoa Foundation + X11 */ = {
+		EEC8033909AE4EB6006EEB03 /* build NIB Test mySTEP for Cocoa Foundation + X11 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP for Cocoa Foundation + X11" */;
+			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "build NIB Test mySTEP for Cocoa Foundation + X11" */;
 			buildPhases = (
+				EE5EBBEC0A19138A0045B88D /* Run Script */,
 				EEC8033C09AE4EB6006EEB03 /* Resources */,
 				EEC8033E09AE4EB6006EEB03 /* Sources */,
 				EEC8034209AE4EB6006EEB03 /* Frameworks */,
-				EE5EBBEC0A19138A0045B88D /* Run Script */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				EE3C1BD21A21FED40027A064 /* PBXTargetDependency */,
 			);
-			name = "NIB Test mySTEP for Cocoa Foundation + X11";
+			name = "build NIB Test mySTEP for Cocoa Foundation + X11";
 			productName = myTest;
 			productReference = EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP for Linux */ = {
+		EEC8035209AE4EBF006EEB03 /* build NIB Test for Linux */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP for Linux" */;
+			buildConfigurationList = EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "build NIB Test for Linux" */;
 			buildPhases = (
 				EEC8035509AE4EBF006EEB03 /* Resources */,
 				EEC8035709AE4EBF006EEB03 /* Sources */,
@@ -1874,7 +1900,7 @@
 			dependencies = (
 				EE3C1BD41A21FEE10027A064 /* PBXTargetDependency */,
 			);
-			name = "NIB Test mySTEP for Linux";
+			name = "build NIB Test for Linux";
 			productName = myTest;
 			productReference = EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */;
 			productType = "com.apple.product-type.application";
@@ -1912,10 +1938,10 @@
 			targets = (
 				EEA3715E095400C3001244CF /* AppKit */,
 				EE1399A91A14EF9B00546945 /* AppKit.framework */,
-				EE31971A09AB7EC60089A9A2 /* NIB Test pure Cocoa reference */,
-				EEC8033909AE4EB6006EEB03 /* NIB Test mySTEP for Cocoa Foundation + X11 */,
-				EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP for Linux */,
-				EE93C7830B901DF500FBD885 /* View Test for Cocoa Foundation + X11 */,
+				EE31971A09AB7EC60089A9A2 /* build NIB Test pure Cocoa */,
+				EEC8033909AE4EB6006EEB03 /* build NIB Test mySTEP for Cocoa Foundation + X11 */,
+				EE93C7830B901DF500FBD885 /* build View Test for Cocoa Foundation + X11 */,
+				EEC8035209AE4EBF006EEB03 /* build NIB Test for Linux */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
 			);
 		};
@@ -2264,6 +2290,11 @@
 			isa = PBXTargetDependency;
 			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
 			targetProxy = EE3C1BD31A21FEE10027A064 /* PBXContainerItemProxy */;
+		};
+		EEA524FE212B3A34002E3B27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			targetProxy = EEA524FD212B3A34002E3B27 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2787,7 +2818,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myViewTest.mixed;
+				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
 			};
@@ -2820,7 +2851,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mixed;
+				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
 			};
@@ -2851,7 +2882,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = myTest.mixed;
+				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3075,7 +3106,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "NIB Test pure Cocoa reference" */ = {
+		EE31971E09AB7ECB0089A9A2 /* Build configuration list for PBXNativeTarget "build NIB Test pure Cocoa" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE31971F09AB7ECB0089A9A2 /* Development */,
@@ -3115,7 +3146,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE93C7960B901DF500FBD885 /* Build configuration list for PBXNativeTarget "View Test for Cocoa Foundation + X11" */ = {
+		EE93C7960B901DF500FBD885 /* Build configuration list for PBXNativeTarget "build View Test for Cocoa Foundation + X11" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE93C7970B901DF500FBD885 /* Development */,
@@ -3125,7 +3156,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP for Cocoa Foundation + X11" */ = {
+		EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "build NIB Test mySTEP for Cocoa Foundation + X11" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8034609AE4EB6006EEB03 /* Development */,
@@ -3135,7 +3166,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "NIB Test mySTEP for Linux" */ = {
+		EEC8035E09AE4EBF006EEB03 /* Build configuration list for PBXNativeTarget "build NIB Test for Linux" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEC8035F09AE4EBF006EEB03 /* Development */,
