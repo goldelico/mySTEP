@@ -13,8 +13,8 @@
 
 @interface AppController : NSObject
 {
-    IBOutlet NSTextField  *tf;
-    IBOutlet NSWindow  *win;
+	IBOutlet NSTextField  *tf;
+	IBOutlet NSWindow  *win;
 	IBOutlet NSWindow  *toolWin;
 	/* NSMenuView */ id v;
 	IBOutlet NSTextField  *cont;

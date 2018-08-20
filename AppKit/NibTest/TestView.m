@@ -12,11 +12,11 @@
 @implementation TestView
 
 - (id)initWithFrame:(NSRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code here.
-    }
-    return self;
+	self = [super initWithFrame:frame];
+	if (self) {
+		// Initialization code here.
+	}
+	return self;
 }
 
 - (BOOL) isFlipped;

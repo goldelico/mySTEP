@@ -7,6 +7,6 @@
 
 int main(int argc, const char *argv[])
 {
-    NSLog(@"started");
-    return NSApplicationMain(argc, argv);
+	NSLog(@"started");
+	return NSApplicationMain(argc, argv);
 }

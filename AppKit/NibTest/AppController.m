@@ -72,7 +72,9 @@ void printWindowList()
 #if 1
 	NSLog(@"KVOSlider %@", kvoSlider);
 	NSLog(@"  class %p %@", [kvoSlider class], [kvoSlider class]);
-	NSLog(@"  isa %p %@", object_getClass((AppController *)kvoSlider), object_getClass((AppController *)kvoSlider));
+#if 0
+	NSLog(@"  isa %p %@", object_getClass(kvoSlider), object_getClass(kvoSlider));
+#endif
 #endif
 #if 1
 	[buttonTable reloadData];
