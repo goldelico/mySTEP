@@ -72,6 +72,8 @@
 		EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE92A8BA1F49C6BA0016750B /* NSRegularExpression.h in Headers */ = {isa = PBXBuildFile; fileRef = EE92A8B81F49C6BA0016750B /* NSRegularExpression.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE92A8BB1F49C6BA0016750B /* NSRegularExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = EE92A8B91F49C6BA0016750B /* NSRegularExpression.m */; };
+		EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA524DD212AFBA0002E3B27 /* NSFileWrapper.h */; };
+		EEA524E0212AFBA0002E3B27 /* NSFileWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA524DE212AFBA0002E3B27 /* NSFileWrapper.m */; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
 		EEA925870C0B004500A846D2 /* control.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257C0C0B004500A846D2 /* control.charSet */; };
 		EEA925880C0B004500A846D2 /* decimal.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257D0C0B004500A846D2 /* decimal.charSet */; };
@@ -538,6 +540,8 @@
 		EEA32F8809537D0D001244CF /* Unicode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Unicode.m; sourceTree = "<group>"; };
 		EEA3309109537E40001244CF /* Foundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "Foundation-Info.plist"; sourceTree = "<group>"; };
 		EEA3CECF0954500F001244CF /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = /usr/include/objc; sourceTree = "<absolute>"; };
+		EEA524DD212AFBA0002E3B27 /* NSFileWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFileWrapper.h; path = Sources/NSFileWrapper.h; sourceTree = "<group>"; };
+		EEA524DE212AFBA0002E3B27 /* NSFileWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSFileWrapper.m; path = Sources/NSFileWrapper.m; sourceTree = "<group>"; };
 		EEA9257B0C0B004500A846D2 /* alphanum.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = alphanum.charSet; sourceTree = "<group>"; };
 		EEA9257C0C0B004500A846D2 /* control.charSet */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = control.charSet; sourceTree = "<group>"; };
 		EEA9257D0C0B004500A846D2 /* decimal.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = decimal.charSet; sourceTree = "<group>"; };
@@ -791,6 +795,8 @@
 				EEA32F0609537D0D001244CF /* NSFileHandle.m */,
 				EEA32F0709537D0D001244CF /* NSFileManager.h */,
 				EEA32F0809537D0D001244CF /* NSFileManager.m */,
+				EEA524DD212AFBA0002E3B27 /* NSFileWrapper.h */,
+				EEA524DE212AFBA0002E3B27 /* NSFileWrapper.m */,
 				EEA32F4809537D0D001244CF /* NSStream.h */,
 				EEA32F4909537D0D001244CF /* NSStream.m */,
 			);
@@ -1199,6 +1205,7 @@
 				EEAA867A0A148ED200F2E5B5 /* NSUtilities.h in Headers */,
 				EEAA867B0A148ED200F2E5B5 /* NSComparisonPredicate.h in Headers */,
 				EEAA867C0A148ED200F2E5B5 /* NSCompoundPredicate.h in Headers */,
+				EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */,
 				EEAA867D0A148ED200F2E5B5 /* NSCompatibility.h in Headers */,
 				EEAA867E0A148ED200F2E5B5 /* NSDebug.h in Headers */,
 				EEAA867F0A148ED200F2E5B5 /* NSURLConnection.h in Headers */,
@@ -1419,6 +1426,7 @@
 				EEAA86BE0A148ED200F2E5B5 /* NSObject.m in Sources */,
 				EEAA86BF0A148ED200F2E5B5 /* NSPort.m in Sources */,
 				EEAA86C00A148ED200F2E5B5 /* NSPortCoder.m in Sources */,
+				EEA524E0212AFBA0002E3B27 /* NSFileWrapper.m in Sources */,
 				EEAA86C10A148ED200F2E5B5 /* NSPortNameServer.m in Sources */,
 				EEAA86C20A148ED200F2E5B5 /* NSProcessInfo.m in Sources */,
 				EEAA86C30A148ED200F2E5B5 /* NSPropertyList.m in Sources */,
