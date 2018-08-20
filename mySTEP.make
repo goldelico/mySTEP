@@ -61,7 +61,8 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   * PROJECT_NAME
 #   (*) PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
 #   * WRAPPER_EXTENSION
-#   - FRAMEWORK_VERSION - default: A
+#   (*) FRAMEWORK_VERSION - default: A
+#   (*) CURRENT_PROJECT_VERSION - default: 1.0.0
 #   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
 #   - TRIPLE - the architecture triple to use
 #  Debian packaging (postprocess 1)
@@ -245,6 +246,10 @@ ifeq ($(FRAMEWORK_VERSION),)	# empty
 	# default
 	FRAMEWORK_VERSION=A
 endif
+ifeq ($(CURRENT_PROJECT_VERSION),)	# empty
+# default
+CURRENT_PROJECT_VERSION=1.0.0
+endif
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
@@ -253,7 +258,7 @@ endif
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/Headers/ $(STDCFLAGS)
 ifeq ($(TRIPLE),darwin-x86_64)
-	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
+	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS) -compatibility_version $(CURRENT_PROJECT_VERSION)
 else ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
@@ -644,6 +649,8 @@ $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
 build_subprojects:
 	# PROJECT_NAME: $(PROJECT_NAME)
 	# PRODUCT_NAME: $(PRODUCT_NAME)
+	# FRAMEWORK_VERSION: $(FRAMEWORK_VERSION)
+	# WRAPPER_EXTENSION: $(WRAPPER_EXTENSION)
 ifeq ($(RECURSIVE),true)
 	# SUBPROJECTS: $(SUBPROJECTS)
 	# RECURSIVE: $(RECURSIVE)
@@ -797,7 +804,7 @@ endif
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
 
-build_deb: make_bundle make_exec make_binary build_debian_packages
+build_deb: make_bundle bundle make_exec make_binary build_debian_packages
 	echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
@@ -824,7 +831,7 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
 prepare_temp_files:
 	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using $(TRIPLE)
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
@@ -1000,7 +1007,7 @@ endif
 
 # TRIPLE is undefined!
 # strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
-install_local:
+install_local: prepare_temp_files
 	# install_local TRIPLE=$(TRIPLE)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
@@ -1076,7 +1083,7 @@ bundle:
 ifeq ($(WRAPPER_EXTENSION),framework)
 	[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
-	(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/A" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> A
+	(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
 endif
 
 headers:
@@ -1100,7 +1107,7 @@ else ifeq ($(TRIPLE),MacOS)
 	  ; done
 endif
 
-resources:
+resources: bundle
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
