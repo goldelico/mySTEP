@@ -37,21 +37,6 @@
 #import <Foundation/NSFileWrapper.h>
 #import <Foundation/NSArchiver.h>
 
-#import <AppKit/NSFont.h>
-#import <AppKit/NSWorkspace.h>
-
-#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
-
-#import <Foundation/NSFileWrapper.h>	// has been moved to Foundation
-
-// but we have to implement it here as well - or we get linker errors
-// but then we get a double definition by runtime-linker...
-
-@implementation NSFileWrapper
-@end
-
-#else
-
 @implementation NSFileWrapper
 
 //
@@ -176,12 +161,11 @@
 	[_filename release];
 	[_preferredFilename release];
 	[_wrapperData release];
-	[_iconImage release];
 	[super dealloc];
 }
 
 //
-// General methods 
+// General methods
 //
 
 // write instance to disk at path; if directory type, this
@@ -569,7 +553,6 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 	[aCoder encodeObject: _preferredFilename];
 	[aCoder encodeObject: _fileAttributes];
 	[aCoder encodeObject: _wrapperData];
-	[aCoder encodeObject: _iconImage];
 }
 
 - (id) initWithCoder: (NSCoder*)aDecoder
@@ -578,7 +561,6 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 	NSString *preferredFilename;
 	NSDictionary *fileAttributes;
 	id wrapperData;
-	NSImage *iconImage;
 
 	if([aDecoder allowsKeyedCoding])
 		return self;
@@ -588,8 +570,7 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 	preferredFilename = [aDecoder decodeObject];
 	fileAttributes = [aDecoder decodeObject];
 	wrapperData = [aDecoder decodeObject];
-	iconImage = [aDecoder decodeObject];
-	
+
 	switch (wrapperType)
 		{
 		case GSFileWrapperRegularFileType: 
@@ -617,51 +598,7 @@ if (_wrapperType != GSFileWrapperDirectoryType) \
 		{
 		[self setFileAttributes: fileAttributes];
 		}
-	if (iconImage != nil)
-		{
-		[self setIcon: iconImage];
-		}
 	return self;
 }
-
-@end
-
-#endif
-
-@implementation NSFileWrapper (Additions)
-
-#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
-
-// we can't access the iVars of the Foundation implementation
-
-- (void) setIcon: (NSImage*)icon
-{
-}
-
-- (NSImage*) icon
-{
-	return nil;
-}
-
-#else
-
-- (void) setIcon: (NSImage*)icon
-{
-	ASSIGN(_iconImage, icon);
-}
-
-- (NSImage*) icon
-{
-	if (_iconImage == nil)
-		{
-		return [[NSWorkspace sharedWorkspace] iconForFile: [self filename]];
-		}
-	else
-		{
-		return _iconImage;
-		}
-}
-
-#endif
 
 @end

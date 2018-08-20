@@ -72,7 +72,7 @@
 		EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE92A8BA1F49C6BA0016750B /* NSRegularExpression.h in Headers */ = {isa = PBXBuildFile; fileRef = EE92A8B81F49C6BA0016750B /* NSRegularExpression.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE92A8BB1F49C6BA0016750B /* NSRegularExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = EE92A8B91F49C6BA0016750B /* NSRegularExpression.m */; };
-		EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA524DD212AFBA0002E3B27 /* NSFileWrapper.h */; };
+		EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA524DD212AFBA0002E3B27 /* NSFileWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA524E0212AFBA0002E3B27 /* NSFileWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA524DE212AFBA0002E3B27 /* NSFileWrapper.m */; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
 		EEA925870C0B004500A846D2 /* control.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257C0C0B004500A846D2 /* control.charSet */; };
@@ -1138,6 +1138,7 @@
 				EEAA86300A148ED200F2E5B5 /* NSDistantObject.h in Headers */,
 				EEAA86310A148ED200F2E5B5 /* NSDistributedLock.h in Headers */,
 				EEAA86320A148ED200F2E5B5 /* NSDistributedNotificationCenter.h in Headers */,
+				EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */,
 				EEAA86330A148ED200F2E5B5 /* NSEnumerator.h in Headers */,
 				EEAA86340A148ED200F2E5B5 /* NSError.h in Headers */,
 				EEAA86350A148ED200F2E5B5 /* NSException.h in Headers */,
@@ -1205,7 +1206,6 @@
 				EEAA867A0A148ED200F2E5B5 /* NSUtilities.h in Headers */,
 				EEAA867B0A148ED200F2E5B5 /* NSComparisonPredicate.h in Headers */,
 				EEAA867C0A148ED200F2E5B5 /* NSCompoundPredicate.h in Headers */,
-				EEA524DF212AFBA0002E3B27 /* NSFileWrapper.h in Headers */,
 				EEAA867D0A148ED200F2E5B5 /* NSCompatibility.h in Headers */,
 				EEAA867E0A148ED200F2E5B5 /* NSDebug.h in Headers */,
 				EEAA867F0A148ED200F2E5B5 /* NSURLConnection.h in Headers */,

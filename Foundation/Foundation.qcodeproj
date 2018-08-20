@@ -229,6 +229,8 @@ export SOURCES+=" Sources/Foundation.php"
 export SOURCES+=" Sources/NSXPCConnection.h"
 export SOURCES+=" Sources/NSRegularExpression.h"
 export SOURCES+=" Sources/NSRegularExpression.m"
+export SOURCES+=" Sources/NSFileWrapper.h"
+export SOURCES+=" Sources/NSFileWrapper.m"
 export WRAPPER_EXTENSION="framework"
 
 # project settings

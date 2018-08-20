@@ -49,6 +49,7 @@
 #import <Foundation/NSExpression.h>
 #import <Foundation/NSFileHandle.h>
 #import <Foundation/NSFileManager.h>
+#import <Foundation/NSFileWrapper.h>
 #import <Foundation/NSFormatter.h>
 #import <Foundation/NSGarbageCollector.h>
 #import <Foundation/NSGeometry.h>
