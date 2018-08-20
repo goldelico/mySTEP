@@ -59,6 +59,8 @@
 #import "AppKit/NSTextFieldCell.h"
 #import "AppKit/NSWindow.h"
 
+#import "NSAppKitPrivate.h"
+
 static NSNotificationCenter *nc = nil;
 static const int current_version = 1;
 

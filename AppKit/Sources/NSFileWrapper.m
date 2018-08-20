@@ -29,6 +29,7 @@
 
 #import <AppKit/NSFileWrapper.h>
 #import <AppKit/NSWorkspace.h>
+#import "NSAppKitPrivate.h"
 
 @interface _AppKitFileWrapper : NSFileWrapper
 {

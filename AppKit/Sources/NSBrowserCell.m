@@ -19,6 +19,7 @@
 #import <AppKit/NSImage.h>
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSWindow.h>
+#import "NSAppKitPrivate.h"
 
 // Class variables
 static NSImage *__branchImage;

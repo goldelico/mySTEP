@@ -7,6 +7,7 @@
 //
 
 #import "NSCollectionViewItem.h"
+#import "NSAppKitPrivate.h"
 
 
 @implementation NSCollectionViewItem

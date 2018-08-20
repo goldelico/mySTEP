@@ -33,6 +33,7 @@ libpng
 #import <Foundation/NSArray.h>
 #import <Foundation/NSByteOrder.h>
 #import <AppKit/AppKit.h>
+#import "NSAppKitPrivate.h"
 
 
 //*****************************************************************************

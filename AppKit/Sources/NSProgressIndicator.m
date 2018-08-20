@@ -31,6 +31,8 @@ If not, write to the Free Software Foundation,
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSBezierPath.h>
 
+#import "NSAppKitPrivate.h"
+
 @implementation NSProgressIndicator
 
 NSColor *fillColour = nil;

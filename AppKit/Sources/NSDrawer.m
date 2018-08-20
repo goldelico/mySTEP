@@ -11,6 +11,7 @@
 
 #import "Foundation/Foundation.h"
 #import "AppKit/NSDrawer.h"
+#import "NSAppKitPrivate.h"
 
 NSString *NSDrawerDidCloseNotification=@"NSDrawerDidCloseNotification";
 NSString *NSDrawerDidOpenNotification=@"NSDrawerDidOpenNotification";

@@ -35,6 +35,7 @@
 #import "AppKit/NSColorSpace.h"
 #import "AppKit/NSGradient.h"
 #import "AppKit/NSGraphicsContext.h"
+#import "NSAppKitPrivate.h"
 
 #include <math.h>
 

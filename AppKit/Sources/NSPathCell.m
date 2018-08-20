@@ -9,6 +9,7 @@
 //
 
 #import <AppKit/AppKit.h>
+#import "NSAppKitPrivate.h"
 
 
 @implementation NSPathCell
