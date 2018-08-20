@@ -7,6 +7,7 @@
 //
 
 #import "NSGlyphInfo.h"
+#import "NSAppKitPrivate.h"
 
 
 @implementation NSGlyphInfo

@@ -13,6 +13,7 @@
 */ 
 
 #import <AppKit/AppKit.h>
+#import "NSAppKitPrivate.h"
 
 NSString *NSCharacterShapeAttributeName=@"CharacterShape";
 NSString *NSGlyphInfoAttributeName=@"GlyphInfo";

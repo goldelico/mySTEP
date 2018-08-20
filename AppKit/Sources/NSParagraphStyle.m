@@ -15,6 +15,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AppKit/NSParagraphStyle.h>
+#import "NSAppKitPrivate.h"
 
 NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeName"; 
 

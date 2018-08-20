@@ -289,7 +289,7 @@ static BOOL __userKeyEquivalents = YES;
 
 - (void) encodeWithCoder:(NSCoder*) coder
 {
-	NIMP
+	NIMP;
 }
 
 - (id) initWithCoder:(NSCoder*) coder
@@ -641,7 +641,7 @@ static BOOL __userKeyEquivalents = YES;
 - (void) setTitle:(NSString*)aTitle; { ASSIGN(_title, aTitle); [self sizeToFit]; }
 - (NSString*) title							{ return _title; }
 
-- (void) submenuAction:(id)sender			{ NIMP }		// item's that open submenu
+- (void) submenuAction:(id)sender			{ NIMP; }		// item's that open submenu
 - (NSArray *) itemArray						{ return _menuItems; }
 - (NSInteger) numberOfItems;						{ return [[self itemArray] count]; }
 - (NSMenuItem *) itemAtIndex:(NSInteger) index;	{ return [[self itemArray] objectAtIndex:index]; }
@@ -845,11 +845,11 @@ static BOOL __userKeyEquivalents = YES;
 		[self sizeToFit];
 }
 
-- (void) helpRequested:(NSEvent *) event; { NIMP }
+- (void) helpRequested:(NSEvent *) event; { NIMP; }
 
 - (void) encodeWithCoder:(NSCoder*) coder
 {
-	NIMP
+	NIMP;
 }
 
 - (id) initWithCoder:(NSCoder*) coder

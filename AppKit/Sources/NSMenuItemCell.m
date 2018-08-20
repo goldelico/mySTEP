@@ -33,6 +33,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #import <AppKit/NSColor.h>
 #import <AppKit/NSStatusBar.h>
 #import <AppKit/NSStatusItem.h>
+#import "NSAppKitPrivate.h"
 
 #define ARROW_WIDTH		6.0
 #define ARROW_PAD		2.0		// to right border

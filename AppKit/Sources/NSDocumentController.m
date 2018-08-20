@@ -611,7 +611,7 @@ document returns YES, then it is closed.
 				  didCloseAllSelector:(SEL)didAllCloseSelector 
 						  contextInfo:(void *)contextInfo
 {
-	NIMP
+	NIMP;
 	//FIXME
 }
 

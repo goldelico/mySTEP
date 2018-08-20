@@ -22,6 +22,7 @@
 #import <AppKit/NSImage.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSBezierPath.h>
+#import "NSAppKitPrivate.h"
 
 
 // Class global variables

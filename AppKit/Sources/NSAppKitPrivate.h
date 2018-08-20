@@ -47,11 +47,34 @@
 #import <AppKit/NSWindowController.h>
 #import <AppKit/NSWorkspace.h>
 
-#define DEPRECATED	NSLog(@"%@: %@ is deprecated", NSStringFromClass([self class]), NSStringFromSelector(_cmd))	// issue a warning
+#ifndef DEPRECATED
+#define DEPRECATED NSLog(@"%@: %@ is deprecated", NSStringFromClass([self class]), NSStringFromSelector(_cmd))	// issue a warning
+#endif
+
+#ifndef NIMP
+#define NIMP ([NSException raise:NSGenericException format:@"%@ method %@ not implemented", NSStringFromClass([self class]), NSStringFromSelector(_cmd)], (id)nil)
+#endif
+
+#ifndef SUBCLASS
+#define SUBCLASS ([NSException raise:NSGenericException format:@"%@ method %@ should be subclassed", NSStringFromClass([self class]), NSStringFromSelector(_cmd)], (id)nil)
+#endif
+
+#ifndef ASSIGN
+#define ASSIGN(O,V) [(O) autorelease],O=[(V) retain]
+#endif
+
+#ifndef SEL_EQ
+#define SEL_EQ(A,B) ((A)==(B))
+#endif
 
 #ifdef __APPLE__	// Apple Foundation does not provide these macros
 #define NS_TIME_START(A)
 #define NS_TIME_END(A, ...)
+
+#define objc_malloc malloc
+#define objc_free free
+#define objc_calloc calloc
+#define objc_realloc realloc
 #endif
 
 typedef struct _NSGraphicsState

@@ -28,8 +28,6 @@
 // AppKit
 //
 
-#import <Foundation/Foundation.h>
-
 #import <AppKit/AppKitDefines.h>
 #import <AppKit/AppKitErrors.h>
 #import <AppKit/NSActionCell.h>

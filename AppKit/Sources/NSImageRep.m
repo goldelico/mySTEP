@@ -1353,7 +1353,7 @@ static NSArray *__pbBitmapImageReps;
 
 - (BOOL) canBeCompressedUsing:(NSTIFFCompression)compression
 {
-	NIMP return NO;
+	NIMP; return NO;
 }
 
 - (void) getCompression:(NSTIFFCompression *)comp factor:(float *)factor

@@ -259,7 +259,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return self;
 }
 
-- (id) initWithPasteboard:(NSPasteboard*)pasteboard		{ return NIMP }
+- (id) initWithPasteboard:(NSPasteboard*)pasteboard		{ return NIMP; }
 
 - (void) dealloc
 {

@@ -43,11 +43,11 @@
 - (BOOL) isEnabled; { return [menuItem isEnabled]; }
 - (CGFloat) length; { return length; }
 - (NSMenu *) menu; { return [menuItem submenu]; }
-- (void) sendActionOn:(NSInteger) mask; { NIMP }
+- (void) sendActionOn:(NSInteger) mask; { NIMP; }
 - (void) setAction:(SEL) action; { [menuItem setAction:action]; }
 - (void) setAttributedTitle:(NSAttributedString *) title;  { [attributedTitle autorelease]; attributedTitle=[title retain]; [menuItem setTitle:[title string]]; }
 - (void) setEnabled:(BOOL) flag;  { [menuItem setEnabled:flag]; }
-- (void) setHighlightMode:(BOOL) highlightMode; { NIMP }
+- (void) setHighlightMode:(BOOL) highlightMode; { NIMP; }
 - (void) setImage:(NSImage *) image; { [menuItem setImage:image]; }
 - (void) setLength:(CGFloat) l; { length=l; [menuItem _changed]; }
 
@@ -71,7 +71,7 @@
 	[self setAttributedTitle:s];
 }
 
-- (void) setToolTip:(NSString *) toolTip; { NIMP }
+- (void) setToolTip:(NSString *) toolTip; { NIMP; }
 - (void) setView:(NSView *) v; { [view autorelease]; view=[v retain]; /*[[super menu] itemChanged:self];*/ }
 - (NSStatusBar *) statusBar; { return statusBar; }
 - (id) target; { return [menuItem target]; }

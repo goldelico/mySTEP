@@ -11,6 +11,7 @@
 #import <AppKit/NSMovie.h>
 #import <AppKit/NSMovieView.h>
 #import <AppKit/NSColor.h>
+#import "NSAppKitPrivate.h"
 
 #ifndef __linux__
 @interface QTMovie : NSObject

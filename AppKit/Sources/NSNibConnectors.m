@@ -13,6 +13,7 @@
 #import <AppKit/NSNibOutletConnector.h>
 #import <AppKit/NSKeyValueBinding.h>
 #import <AppKit/NSCell.h>
+#import "NSAppKitPrivate.h"
 
 @implementation NSNibConnector
 

@@ -18,6 +18,7 @@
 #import <AppKit/NSTokenFieldCell.h>
 #import <AppKit/NSTokenFieldCell.h>
 #import <AppKit/NSTextAttachment.h>
+#import "NSAppKitPrivate.h"
 
 @interface NSTokenAttachment : NSTextAttachment
 

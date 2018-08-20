@@ -2413,17 +2413,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"NSDebugLog(...)=",
-					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
-					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
-					"SUBCLASS=nil;",
-					"SEL_EQ(A,B)=((A)==(B))",
-					"objc_malloc=malloc",
-					"objc_free=free",
-					"objc_calloc=calloc",
-					"objc_realloc=realloc",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "NSDebugLog(...)=";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2493,17 +2483,7 @@
 				FRAMEWORK_VERSION = C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"NSDebugLog(...)=",
-					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
-					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
-					"SUBCLASS=nil;",
-					"SEL_EQ(A,B)=((A)==(B))",
-					"objc_malloc=malloc",
-					"objc_free=free",
-					"objc_calloc=calloc",
-					"objc_realloc=realloc",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "NSDebugLog(...)=";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -2571,17 +2551,7 @@
 				FRAMEWORK_VERSION = C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"NSDebugLog(...)=",
-					"\"ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]\"",
-					"\"NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);\"",
-					"SUBCLASS=nil;",
-					"SEL_EQ(A,B)=((A)==(B))",
-					"objc_malloc=malloc",
-					"objc_free=free",
-					"objc_calloc=calloc",
-					"objc_realloc=realloc",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "NSDebugLog(...)=";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

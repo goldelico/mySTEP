@@ -10,7 +10,7 @@
 //
 
 #import "AppKit/AppKit.h"
-#import <Foundation/Foundation.h>
+#import "NSAppKitPrivate.h"
 
 @implementation NSTextList
 

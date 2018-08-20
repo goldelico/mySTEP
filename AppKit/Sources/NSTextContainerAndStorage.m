@@ -14,6 +14,7 @@
 #import <AppKit/NSLayoutManager.h>
 #import <AppKit/NSTextView.h>
 #import <AppKit/NSFileWrapper.h>
+#import "NSAppKitPrivate.h"
 
 @implementation NSTextContainer
 

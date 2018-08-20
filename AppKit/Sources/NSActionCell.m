@@ -183,7 +183,7 @@ static Class __controlClass;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
-		tag = [aDecoder decodeIntForKey:@"NSTag"];
+		tag = [aDecoder decodeInt32ForKey:@"NSTag"];
 #if 0
 		NSLog(@"NSActionCell - tag=%d", tag);
 #endif

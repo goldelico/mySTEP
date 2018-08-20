@@ -107,7 +107,7 @@ static NSActionCell *__knobCell = nil;
 - (double) doubleValue						{ return _floatValue; }
 - (NSScrollerPart) hitPart					{ return _hitPart; }
 
-- (void) encodeWithCoder:(NSCoder *) aCoder				{ NIMP }
+- (void) encodeWithCoder:(NSCoder *) aCoder				{ NIMP; }
 
 - (id) initWithCoder:(NSCoder *) aDecoder
 {

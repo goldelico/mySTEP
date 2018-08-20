@@ -10,6 +10,7 @@
 //
 
 #import "AppKit/AppKit.h"
+#import "NSAppKitPrivate.h"
 
 @implementation NSTextBlock
 
@@ -286,7 +287,7 @@ static inline CGFloat getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRect
 					  withFrame:(NSRect) frame
 						 inView:(NSView *) controlView
 				 characterRange:(NSRange) range
-				  layoutManager:(NSLayoutManager *) manager; { NIMP }
+				  layoutManager:(NSLayoutManager *) manager; { NIMP; }
 - (BOOL) hidesEmptyCells; { return _hidesEmptyCells; }
 - (NSTextTableLayoutAlgorithm) layoutAlgorithm; { return _layoutAlgorithm; }
 - (NSUInteger) numberOfColumns; { return _numberOfColumns; }

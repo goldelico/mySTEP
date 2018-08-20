@@ -1221,8 +1221,8 @@ static NSColorPanel *__colorPanel;
 	[super dealloc];
 }
 
-+ (void) setPickerMask:(/*NSColorPanelOptions*/NSUInteger)mask			{ NIMP }
-+ (void) setPickerMode:(NSColorPanelMode)mode			{ NIMP }
++ (void) setPickerMask:(/*NSColorPanelOptions*/NSUInteger)mask			{ NIMP; }
++ (void) setPickerMode:(NSColorPanelMode)mode			{ NIMP; }
 
 + (BOOL) dragColor:(NSColor *)aColor
 		 withEvent:(NSEvent *)anEvent

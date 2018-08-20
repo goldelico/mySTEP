@@ -38,6 +38,7 @@
 #include <AppKit/NSWindow.h>
 #include <AppKit/NSCell.h>
 #include <AppKit/NSWorkspace.h>
+#import "NSAppKitPrivate.h"
 
 #include "GSServices.h"
 

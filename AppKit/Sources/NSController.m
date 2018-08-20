@@ -14,6 +14,7 @@
 #import "AppKit/NSObjectController.h"
 #import "AppKit/NSTreeController.h"
 #import "AppKit/NSUserDefaultsController.h"
+#import "NSAppKitPrivate.h"
 
 @interface _NSManagedProxy : NSObject	// object loaded by NSObjectController
 @end

@@ -189,7 +189,7 @@ static NSCursor *__textCursor = nil;
 // origin to possibly move.  You usually do not need to call invalidate yourself. 
 
 - (NSPoint) textContainerOrigin					{ return textContainerOrigin; }
-- (void) invalidateTextContainerOrigin			{ NIMP }
+- (void) invalidateTextContainerOrigin			{ NIMP; }
 - (NSLayoutManager*) layoutManager				{ return layoutManager; }
 - (NSTextStorage*) textStorage					{ return textStorage; }
 
@@ -254,13 +254,13 @@ static NSCursor *__textCursor = nil;
 - (void) pasteAsPlainText:(id) sender
 {
 	// remove attributes from paste buffer
-	NIMP
+	NIMP;
 }
 
 - (void) pasteAsRichText:(id) sender
 {
 	// paste
-	NIMP
+	NIMP;
 }
 
 // New Font menu commands 
@@ -348,15 +348,15 @@ static NSCursor *__textCursor = nil;
 // Ruler support 
 
 - (void) rulerView:(NSRulerView *)ruler didMoveMarker:(NSRulerMarker *)marker
-{ NIMP
+{ NIMP;
 }
 
 - (void) rulerView:(NSRulerView *)ruler didRemoveMarker:(NSRulerMarker *)marker
-{ NIMP
+{ NIMP;
 }
 
 - (void) rulerView:(NSRulerView *)ruler didAddMarker:(NSRulerMarker *)marker
-{ NIMP
+{ NIMP;
 }
 
 - (BOOL) rulerView:(NSRulerView *)ruler 
@@ -386,7 +386,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (void) rulerView:(NSRulerView *)ruler handleMouseDown:(NSEvent *)event
-{ NIMP
+{ NIMP;
 }
 
 // Fine display control
@@ -411,12 +411,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) updateRuler
 {
-	NIMP
+	NIMP;
 }
 
 - (void) updateFontPanel
 {
-	NIMP
+	NIMP;
 }
 
 // Selected/Marked range

@@ -10,6 +10,7 @@
 //
 
 #import <AppKit/NSKeyValueBinding.h>
+#import "NSAppKitPrivate.h"
 
 @implementation NSObject (NSPlaceholder)
 

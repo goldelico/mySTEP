@@ -9,10 +9,12 @@
 //  under the terms of the GNU Library General Public License.
 //
 
+#import <AppKit/AppKitDefines.h>
 #import <AppKit/NSAnimation.h>
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSView.h>
 #import <AppKit/NSApplication.h>
+#import "NSAppKitPrivate.h"
 
 NSString *NSAnimationProgressMarkNotification=@"NSAnimationProgressMarkNotification";
 NSString *NSAnimationProgressMark=@"NSAnimationProgressMark";
