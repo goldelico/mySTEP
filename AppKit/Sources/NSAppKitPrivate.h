@@ -417,3 +417,9 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 @interface NSEvent (NSPrivate)
 - (void) _setLocation:(NSPoint) location modifierFlags:(NSUInteger) flags eventTime:(NSTimeInterval) timestamp number:(int) xnumber;
 @end
+
+// compatibility with Apple AppKit so that we can debug using Xcode
+extern NSString *const NSAccessibilityCloseButtonSubrole;
+extern NSString *const NSAccessibilityFullScreenButtonSubrole;
+extern NSString *const NSAccessibilityMinimizeButtonSubrole;
+extern NSString *const NSAccessibilityZoomButtonSubrole;
