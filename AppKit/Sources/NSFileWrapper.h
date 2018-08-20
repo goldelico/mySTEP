@@ -32,77 +32,15 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */ 
 
-#ifndef _GNUstep_H_NSFileWrapper
-#define _GNUstep_H_NSFileWrapper
+#ifndef _GNUstep_H_NSFileWrapper_Additions
+#define _GNUstep_H_NSFileWrapper_Additions
 
-#import <Foundation/NSDictionary.h>
+#import <Foundation/NSFileWrapper.h>
 #import <AppKit/NSImage.h>
 
-@class NSImage;
-@class NSString;
-
-#if defined(MAC_OS_X_VERSION_10_7) &&  MAC_OS_X_VERSION_MAX_REQUIRED < MAC_OS_X_VERSION_10_7
-
-#import <Foundation/NSFileWrapper.h>	// has been moved to Foundation
-
-#else
-
-typedef enum
-{
-	GSFileWrapperDirectoryType,
-	GSFileWrapperRegularFileType,
-	GSFileWrapperSymbolicLinkType
-} GSFileWrapperType;
-
-@interface NSFileWrapper : NSObject 
-{
-	NSString		*_filename;
-	NSString		*_preferredFilename;
-	NSMutableDictionary	*_fileAttributes;
-	GSFileWrapperType	_wrapperType;
-	id	_wrapperData;
-	id	_iconImage;
-}
-
-- (NSString *) addFileWithPath:(NSString *) path;
-- (NSString *) addFileWrapper:(NSFileWrapper *) doc;
-- (NSString *) addRegularFileWithContents:(NSData *) data 
-                        preferredFilename:(NSString *) filename;
-- (NSString *) addSymbolicLinkWithDestination:(NSString *) path 
-                            preferredFilename:(NSString *) filename;
-- (NSDictionary *) fileAttributes;
-- (NSString *) filename;
-- (NSDictionary *) fileWrappers;
-- (id) initDirectoryWithFileWrappers:(NSDictionary *) docs;
-- (id) initRegularFileWithContents:(NSData *) data;		 
-- (id) initSymbolicLinkWithDestination:(NSString *) path;
-- (id) initWithPath:(NSString *) path;	
-- (id) initWithSerializedRepresentation:(NSData *) data;
-- (BOOL) isDirectory;
-- (BOOL) isRegularFile;
-- (BOOL) isSymbolicLink;
-- (NSString *) keyForFileWrapper:(NSFileWrapper *) doc;
-- (BOOL) needsToBeUpdatedFromPath:(NSString *) path;
-- (NSString *) preferredFilename;
-- (NSData *) regularFileContents;
-- (void) removeFileWrapper:(NSFileWrapper *) doc;
-- (NSData *) serializedRepresentation;
-- (void) setFileAttributes:(NSDictionary *) attributes;
-- (void) setFilename:(NSString *) filename;
-- (void) setPreferredFilename:(NSString *) filename;
-- (NSString *) symbolicLinkDestination;
-- (BOOL) updateFromPath:(NSString *) path;
-- (BOOL) writeToFile:(NSString *) path
-          atomically:(BOOL) atomicFlag
-     updateFilenames:(BOOL) updateFilenamesFlag;
-
-@end
-
-#endif
-
-@interface NSFileWrapper (Additions)
+@interface NSFileWrapper (NSFileWrapperAdditions)
 - (NSImage *) icon;
 - (void) setIcon:(NSImage *) icon;
 @end
 
-#endif // _GNUstep_H_NSFileWrapper
+#endif // _GNUstep_H_NSFileWrapper_Additions
