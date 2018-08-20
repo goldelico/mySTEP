@@ -1,25 +1,25 @@
-/* 
-   NSCell.h
+/*
+ NSCell.h
 
-   Abstract cell class
+ Abstract cell class
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+ Copyright (C) 2000 Free Software Foundation, Inc.
 
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date:    June 2000
-   
-   Author:	H. N. Schaller <hns@computer.org>
-   Date:	Feb 2006 - aligned with 10.4
- 
-   Author:	Fabian Spillner
-   Date:	22. October 2007  
- 
-   Author:	Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	6. November 2007 - aligned with 10.5
- 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date:    June 2000
+
+ Author:	H. N. Schaller <hns@computer.org>
+ Date:	Feb 2006 - aligned with 10.4
+
+ Author:	Fabian Spillner
+ Date:	22. October 2007
+
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	6. November 2007 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSCell
 #define _mySTEP_H_NSCell
@@ -34,7 +34,7 @@
 
 @class NSString;
 @class NSFormatter;
-@class NSView;
+@class NSControlView;
 @class NSFont;
 @class NSMenu;
 
@@ -49,13 +49,13 @@ enum {
 };
 
 enum {
-    NSAnyType			 = 0,
-    NSIntType			 = 1,
-    NSPositiveIntType	 = 2,
-    NSFloatType			 = 3,
-    NSPositiveFloatType	 = 4,
-    NSDoubleType		 = 5,
-    NSPositiveDoubleType = 6,
+	NSAnyType			 = 0,
+	NSIntType			 = 1,
+	NSPositiveIntType	 = 2,
+	NSFloatType			 = 3,
+	NSPositiveFloatType	 = 4,
+	NSDoubleType		 = 5,
+	NSPositiveDoubleType = 6,
 	NSDateType			 = 7
 };
 
@@ -129,16 +129,16 @@ enum {
 	NSPushInCell,
 	NSCellEditable,
 	NSChangeGrayCell,
-	NSCellHighlighted,   
-	NSCellLightsByContents,  
-	NSCellLightsByGray,   
-	NSChangeBackgroundCell,  
-	NSCellLightsByBackground,  
-	NSCellIsBordered,  
-	NSCellHasOverlappingImage,  
-	NSCellHasImageHorizontal,  
-	NSCellHasImageOnLeftOrBottom, 
-	NSCellChangesContents,  
+	NSCellHighlighted,
+	NSCellLightsByContents,
+	NSCellLightsByGray,
+	NSChangeBackgroundCell,
+	NSCellLightsByBackground,
+	NSCellIsBordered,
+	NSCellHasOverlappingImage,
+	NSCellHasImageHorizontal,
+	NSCellHasImageOnLeftOrBottom,
+	NSCellChangesContents,
 	NSCellIsInsetButton,
 	NSCellAllowsMixedState
 };
@@ -153,15 +153,15 @@ enum {
 
 @interface NSCell : NSObject  <NSCopying, NSCoding>
 {
-	@public
+@public
 	id _contents;
-	id _controlView;
 	id _representedObject;
+	NSControlView *_controlView;
 	NSMutableDictionary *_attribs;	// attribute dict
 	// FIXME: the next 3 are stored in the attribs dict
-//	NSColor *_textColor;	// NSForegroundColorAttributeName
-//	NSFont *_font;	// NSFontAttributeName
-//	NSMutableParagraphStyle *_style;	// NSParagraphStyleAttributeName
+	//	NSColor *_textColor;	// NSForegroundColorAttributeName
+	//	NSFont *_font;	// NSFontAttributeName
+	//	NSMutableParagraphStyle *_style;	// NSParagraphStyleAttributeName
 	NSFormatter *_formatter;
 	NSMenu *_menu;
 	id _placeholderString;
@@ -180,8 +180,8 @@ enum {
 		UIBITFIELD(unsigned int, actOnMouseDragged, 1);
 		UIBITFIELD(unsigned int, actOnMouseUp, 1);
 		UIBITFIELD(unsigned int, floatAutorange, 1);
-		TYPEDBITFIELD(NSCellType, type, 2);	
-//		TYPEDBITFIELD(NSTextAlignment, alignment, 3);		// FIXME: move to _style
+		TYPEDBITFIELD(NSCellType, type, 2);
+		//		TYPEDBITFIELD(NSTextAlignment, alignment, 3);		// FIXME: move to _style
 		TYPEDBITFIELD(NSCellImagePosition, imagePosition, 3);
 		UIBITFIELD(unsigned int, editing, 1);
 		UIBITFIELD(unsigned int, secure, 1);
@@ -189,7 +189,7 @@ enum {
 		UIBITFIELD(unsigned int, entryType, 3);
 		UIBITFIELD(unsigned int, showsFirstResponder, 1);
 		UIBITFIELD(unsigned int, refusesFirstResponder, 1);
-		} _c;
+	} _c;
 	struct __CellFlags2 {
 		UIBITFIELD(unsigned int, isLoaded, 1);	// for NSBrowserCell
 		UIBITFIELD(unsigned int, isLeaf, 1);	// for NSBrowserCell
@@ -200,10 +200,10 @@ enum {
 		UIBITFIELD(unsigned int, importsGraphics, 1);
 		UIBITFIELD(unsigned int, allowsEditingTextAttributes, 1);
 		UIBITFIELD(unsigned int, allowsUndo, 1);
-//		TYPEDBITFIELD(NSLineBreakMode, lineBreakMode, 3);		// FIXME: move to _style
+		//		TYPEDBITFIELD(NSLineBreakMode, lineBreakMode, 3);		// FIXME: move to _style
 		UIBITFIELD(unsigned int, verticallyCentered, 1);
 		TYPEDBITFIELD(NSImageScaling, imageScaling, 2);
-		} _d;
+	} _d;
 }
 
 + (NSFocusRingType) defaultFocusRingType;
@@ -278,11 +278,11 @@ enum {
 - (BOOL) refusesFirstResponder;
 - (id) representedObject;								// Represent an Object
 - (void) resetCursorRect:(NSRect) cellFrame inView:(NSView *) controlView;
-- (void) selectWithFrame:(NSRect) aRect 
-				  inView:(NSView *) controlView 
-				  editor:(NSText *) textObject 
-				delegate:(id) anObject 
-				   start:(NSInteger) selStart 
+- (void) selectWithFrame:(NSRect) aRect
+				  inView:(NSView *) controlView
+				  editor:(NSText *) textObject
+				delegate:(id) anObject
+				   start:(NSInteger) selStart
 				  length:(NSInteger) selLength;
 - (NSInteger) sendActionOn:(NSInteger) mask;
 - (BOOL) sendsActionOnEndEditing;
@@ -305,7 +305,7 @@ enum {
 - (void) setEditable:(BOOL) flag;
 - (void) setEnabled:(BOOL) flag;
 - (void) setEntryType:(int) aType;	// deprecated
-- (void) setFloatingPointFormat:(BOOL) autoRange left:(NSUInteger) leftDigits right:(NSUInteger) rightDigits;			// Formatting Data 
+- (void) setFloatingPointFormat:(BOOL) autoRange left:(NSUInteger) leftDigits right:(NSUInteger) rightDigits;			// Formatting Data
 - (void) setFloatValue:(float) aFloat;
 - (void) setFocusRingType:(NSFocusRingType) type;
 - (void) setFont:(NSFont *) fontObject;
