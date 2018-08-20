@@ -59,6 +59,8 @@ static NSTextView *_textView;
 #endif
 			// FIXME: we should simply create one NSTextView or multiple cached view
 			_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
+			NSAssert(!_currentString, @"current string left over");
+			_currentString=[self retain];	// store first string
 			NSAssert(!_textContainer, @"text container left over");
 			_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
 			NSAssert(!_layoutManager, @"layout manager left over");
@@ -80,7 +82,11 @@ static NSTextView *_textView;
 		// FIXME: we can separate infinitely sized and finitely sized calls
 		[_textContainer setContainerSize:rect.size];	// resize container - should invalidate layout but keep glyphs - if it changes
 		if(![self isEqual:_currentString])
+			{ // has changed
+			[_currentString release];
 			[_textStorage setAttributedString:self];		// replace - should invalidate glyphs and layout
+			_currentString=[self retain];
+			}
 		}
 	[_layoutManager setUsesFontLeading:((_currentOptions&NSStringDrawingUsesFontLeading) != 0)];
 	[_layoutManager setUsesScreenFonts:((_currentOptions&NSStringDrawingDisableScreenFontSubstitution) == 0)];
@@ -89,8 +95,6 @@ static NSTextView *_textView;
 	NSLog(@"_textStorage = %@", _textStorage);
 	NSLog(@"_textContainer = %@", _textContainer);
 #endif
-	[_currentString release];
-	_currentString=[self retain];
 }
 
 - (void) _tearDown
@@ -99,6 +103,8 @@ static NSTextView *_textView;
 		// for a cache this could mean that we don't cache the NSTextView and (auto)release it when done
 		// then, we would not even need the _tearDown method
 		{ // remove
+			[_currentString release];
+			_currentString=nil;
 			[_textStorage release];
 			_textStorage=nil;
 			_layoutManager=nil;
@@ -196,7 +202,6 @@ static NSTextView *_textView;
 				[ctxt restoreGraphicsState];
 			}
 		[self _tearDown];
-		
 		}
 }
 
