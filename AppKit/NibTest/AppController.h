@@ -39,8 +39,8 @@
 - (IBAction) scroll:(id) sender;
 - (IBAction) singleClick:(id) sender;
 - (IBAction) rotate:(id) sender;
-- (int) alignment;
-- (int) contentToShow;
+- (NSInteger) alignment;
+- (NSInteger) contentToShow;
 - (BOOL) isFlipped;
 - (IBAction) changed:(id) sender;
 

@@ -499,7 +499,7 @@ void printWindowList()
 
 - (IBAction) rotate:(id) sender;
 {
-	int tag=[sender tag];
+	NSInteger tag=[sender tag];
 	switch(tag)
 	{
 		case -1:
@@ -515,12 +515,12 @@ void printWindowList()
 	[rotation setNeedsDisplay:YES];
 }
 
-- (int) alignment;
+- (NSInteger) alignment;
 {
 	return [[alignmentButton selectedItem] tag];
 }
 
-- (int) contentToShow;
+- (NSInteger) contentToShow;
 {
 	return [[contentToShow selectedItem] tag];
 }

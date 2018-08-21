@@ -99,6 +99,7 @@
 										   [NSFont fontWithName:@"Helvetica" size:50],
 										   NSFontAttributeName, nil]];
 #endif
+			[textView release];
 			NSLog(@"typesetter: %@", [layoutManager typesetter]);
 			NSLog(@"textContainer: %@", textContainer);
 			[layoutManager addTextContainer:textContainer];
