@@ -261,7 +261,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	// FIXME: how does this invalidate the layout for the given glyphs???
 	NSUInteger i;
-	NSTextContainer *lcontainer=nil;
+	NSTextContainer *lcontainer=nil;	// update glyphRange only once
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	if(!_glyphs || glyphRange.length == 0)
@@ -272,13 +272,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			if(_glyphs[idx].extra)
 				{
 				objc_free(_glyphs[idx].extra);
-				_glyphs[glyphRange.location+i].extra=NULL;
+				_glyphs[idx].extra=NULL;
 				}
-			if(_glyphs[idx].textContainer != lcontainer)
+			if(_glyphs[idx].textContainer && _glyphs[idx].textContainer != lcontainer)
 				{ // invalidate/reduce glyph ranges of container(s)
 					NSUInteger tcidx=[_textContainers indexOfObjectIdenticalTo:(lcontainer=_glyphs[idx].textContainer)];
 //					NSLog(@"reduce container glyph range %u", tcidx);
-					NSAssert(idx != NSNotFound, @"");
+					NSAssert(tcidx != NSNotFound, @"");
 					_textContainerInfo[tcidx].glyphRange=NSIntersectionRange(_textContainerInfo[tcidx].glyphRange, NSMakeRange(0, glyphRange.location));
 #if FIXME
 					_textContainerInfo[tcidx].usedRect=NSZeroRect;
@@ -1344,7 +1344,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[_textContainers removeObjectAtIndex:index];
 	// FIXME: invalidate layout for glyph range of the text container
 	if(cnt != index+1)
-		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(_textContainerInfo[0])*(cnt-index-1));	// make room for new slot
+		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(_textContainerInfo[0])*(cnt-index-1));	// remove room of slot
 }
 
 - (void) replaceGlyphAtIndex:(NSUInteger)glyphIndex withGlyph:(NSGlyph)newGlyph;

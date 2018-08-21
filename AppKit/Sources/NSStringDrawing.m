@@ -49,8 +49,6 @@ static NSTextView *_textView;
 	 NSStringDrawingTruncatesLastVisibleLine - 
 	 */
 	_currentOptions=options;
-	if([[self string] isEqualToString:@"Submenu"])
-		NSLog(@"here: %@", [_layoutManager textContainers]);
 	if(!_textStorage)
 		{ // first call: setup text system
 			// FIXME: should be a default and not an ENV variable
@@ -130,8 +128,6 @@ static NSTextView *_textView;
 		{
 		if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 			size.height=FLT_MAX;	// single line mode
-		if([[self string] isEqualToString:@"Submenu"])
-			NSLog(@"here: %@", [_layoutManager textContainers]);
 		[self _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
 		if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 			{
