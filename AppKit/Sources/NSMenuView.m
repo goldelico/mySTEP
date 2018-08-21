@@ -24,6 +24,31 @@
 #define HORIZONTAL_PADDING		3.0		// padding at left/right of menu items
 #define SHORT_CLICK_INTERVAL	0.4		// in seconds
 
+@implementation _NSMenuScrollView
+
++ (id) menuViewWithMenu:(NSMenu *) menu;	// create and (initially) size to fit
+{
+	_NSMenuScrollView *sv=[[[self alloc] initWithFrame:NSMakeRect(0, 0, 49, 49)] autorelease];
+	NSMenuView *menuView=[sv documentView];
+	//	[menuView setFont:font];		// set default font
+	[menuView setHorizontal:NO];	// make popup menu vertical
+	[menuView setMenu:menu];		// define to manage selected menu
+	[menuView _setAttachedMenuView:menuView];	// make us our own attachedMenuView so that the panel is closed after menu selection
+	return sv;
+}
+
+- (id) initWithFrame:(NSRect) frameRect
+{
+	if((self=[super initWithFrame:frameRect]))
+		{
+		NSMenuView *menuView=[[NSMenuView new] initWithFrame:[self documentVisibleRect]];	// make new NSMenuView
+		[self setDocumentView:menuView];	// add to view hiearachy
+		}
+	return self;
+}
+
+@end
+
 @implementation NSMenuView
 
 - (BOOL) _isResizingHorizontally; { return _isResizingHorizontally; }
@@ -1052,7 +1077,7 @@
 #if 0
 	[win setTitle:@"Context Menu"];
 #endif
-	menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
+	menuView=[[NSMenuView alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
 	[menuView setFont:font];		// set default font
 	[menuView setHorizontal:NO];	// make popup menu vertical
 	[[win contentView] addSubview:menuView];	// add to view hiearachy

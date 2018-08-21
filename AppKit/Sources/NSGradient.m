@@ -55,7 +55,7 @@
 	[[NSGraphicsContext currentContext] _drawGradient: self
 										  fromCenter: startCenter
 											  radius: startRadius
-											toCenter: endCenter 
+											toCenter: endCenter
 											  radius: endRadius
 											 options: options];
 }
@@ -126,7 +126,7 @@
 			startPoint = NSMakePoint(NSMinX(rect), NSMaxY(rect));
 		}
 	rad = M_PI * angle / 180;
-	length = abs(NSWidth(rect) * cos(rad) + NSHeight(rect) * sin(rad));
+	length = fabs(NSWidth(rect) * cos(rad) + NSHeight(rect) * sin(rad));
 	endPoint = NSMakePoint(startPoint.x + length * cos(rad), 
 						   startPoint.y + length * sin(rad));
 	

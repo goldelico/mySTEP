@@ -1,28 +1,28 @@
 /*
  NSLayoutManager.h
- 
- An NSLayoutManager stores glyphs, attributes, and layout information 
- generated from a NSTextStorage by a NSTextLayout.  It can map between 
- ranges of unichars in the NSTextStorage and ranges of glyphs within 
- itself.  It understands and keeps track of two types of range 
- invalidation.  A character range can need glyphs generated for it or 
- it can need its glyphs laid out.  
- 
- When a NSLayoutManager is asked for information which would require 
- knowledge of glyphs or layout which is not currently available, the 
+
+ An NSLayoutManager stores glyphs, attributes, and layout information
+ generated from a NSTextStorage by a NSTextLayout.  It can map between
+ ranges of unichars in the NSTextStorage and ranges of glyphs within
+ itself.  It understands and keeps track of two types of range
+ invalidation.  A character range can need glyphs generated for it or
+ it can need its glyphs laid out.
+
+ When a NSLayoutManager is asked for information which would require
+ knowledge of glyphs or layout which is not currently available, the
  NSLayoutManager must cause the appropriate recalculation to be done.
- 
+
  Copyright (C) 1996 Free Software Foundation, Inc.
- 
+
  Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
  Date: August 1998
- 
+
  Author:	H. N. Schaller <hns@computer.org>
  Date:	Jun 2006 - aligned with 10.4
- 
+
  Author:	Fabian Spillner <fabian.spillner@gmail.com>
- Date:	9. November 2007 - aligned with 10.5 
- 
+ Date:	9. November 2007 - aligned with 10.5
+
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
  */
@@ -75,19 +75,19 @@ enum {
 typedef NSInteger NSTypesetterBehavior;
 
 @interface NSLayoutManager : NSObject <NSGlyphStorage>
-{	
+{
 	NSTextStorage /*nonretained*/ *_textStorage;	// The textStorage owns its layout manager(s)
-    NSMutableArray *_textContainers;
-    NSGlyphGenerator *_glyphGenerator;	// defaults to the sharedGlyphGenerator
-    NSTypesetter *_typesetter;	// defaults to sharedSystemTypesetter
-    NSTextContainer *_extraLineFragmentContainer;
-    NSTextView *_firstTextView;		// Cache for first text view (that is text view of the first text container which has one)
-	
-    id _delegate;
+	NSMutableArray *_textContainers;
+	NSGlyphGenerator *_glyphGenerator;	// defaults to the sharedGlyphGenerator
+	NSTypesetter *_typesetter;	// defaults to sharedSystemTypesetter
+	NSTextContainer *_extraLineFragmentContainer;
+	NSTextView *_firstTextView;		// Cache for first text view (that is text view of the first text container which has one)
+
+	id _delegate;
 
 	NSRect _extraLineFragmentRect;
-    NSRect _extraLineFragmentUsedRect;
-	
+	NSRect _extraLineFragmentUsedRect;
+
 	float _hyphenationFactor;
 	NSImageScaling _defaultAttachmentScaling;
 
@@ -109,19 +109,19 @@ typedef NSInteger NSTypesetterBehavior;
 			NSInteger inscribeAttribute;
 		} *extra;	// extra data allocated on demand (NULL otherwise)
 		NSUInteger characterIndex;	// the character index
-		// define some int Attribute and bit fields
+									// define some int Attribute and bit fields
 		BOOL notShownAttribute;	// Bitflag in intAttribute?
 		BOOL drawsOutsideLineFragment;	// Bitflag im intAttribute?
 		BOOL needsDisplay;
 	} *_glyphs;		// glyph storage array - it should be possible to define a sparse array!
-	
+
 	/* this can be used to speed up e.g. glyphRangeForTextContainer */
-	
+
 	struct _NSTextContainerInfo {
 		NSRange glyphRange;
 		NSRect usedRect;
 	} *_textContainerInfo; // there is one slot for each text container
-	
+
 	NSRectArray _rectArray;	// rectangle array (malloc)
 	NSUInteger _rectArrayCapacity;
 
@@ -133,13 +133,13 @@ typedef NSInteger NSTypesetterBehavior;
 	NSUInteger _firstUnlaidCharacterIndex;
 
 	NSUInteger _layoutOptions;
-	
+
 	BOOL _backgroundLayoutEnabled;
 	BOOL _usesScreenFonts;
 	BOOL _usesFontLeading;
 	BOOL _textStorageChanged;
 	BOOL _allowsNonContiguousLayout;
-	BOOL _hasNonContiguousLayout;	
+	BOOL _hasNonContiguousLayout;
 }
 
 - (void) addTemporaryAttribute:(NSString *) attr value:(id) val forCharacterRange:(NSRange) range;
@@ -148,7 +148,7 @@ typedef NSInteger NSTypesetterBehavior;
 - (BOOL) allowsNonContiguousLayout;
 - (NSSize) attachmentSizeForGlyphAtIndex:(NSUInteger) index;
 - (BOOL) backgroundLayoutEnabled;
-- (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
+- (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange
 					 inTextContainer:(NSTextContainer *) container;
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *) block atIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range;
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *) block glyphRange:(NSRange) range;
@@ -159,9 +159,9 @@ typedef NSInteger NSTypesetterBehavior;
 - (CGFloat) defaultLineHeightForFont:(NSFont *) font;
 - (id) delegate;
 - (void) deleteGlyphsInRange:(NSRange) glyphRange;
-- (void) drawBackgroundForGlyphRange:(NSRange) glyphsToShow 
+- (void) drawBackgroundForGlyphRange:(NSRange) glyphsToShow
 							 atPoint:(NSPoint) origin;
-- (void) drawGlyphsForGlyphRange:(NSRange) glyphsToShow 
+- (void) drawGlyphsForGlyphRange:(NSRange) glyphsToShow
 						 atPoint:(NSPoint) origin;
 - (BOOL) drawsOutsideLineFragmentForGlyphAtIndex:(NSUInteger) index;
 - (void) drawStrikethroughForGlyphRange:(NSRange) glyphRange
@@ -170,18 +170,18 @@ typedef NSInteger NSTypesetterBehavior;
 					   lineFragmentRect:(NSRect) lineRect
 				 lineFragmentGlyphRange:(NSRange) lineGlyphRange
 						containerOrigin:(NSPoint) containerOrigin;
-- (void) drawUnderlineForGlyphRange:(NSRange) glyphRange 
-					  underlineType:(NSInteger) underlineVal 
-					 baselineOffset:(CGFloat) baselineOffset 
-				   lineFragmentRect:(NSRect) lineRect 
-			 lineFragmentGlyphRange:(NSRange) lineGlyphRange 
+- (void) drawUnderlineForGlyphRange:(NSRange) glyphRange
+					  underlineType:(NSInteger) underlineVal
+					 baselineOffset:(CGFloat) baselineOffset
+				   lineFragmentRect:(NSRect) lineRect
+			 lineFragmentGlyphRange:(NSRange) lineGlyphRange
 					containerOrigin:(NSPoint) containerOrigin;
 - (void) ensureGlyphsForCharacterRange:(NSRange) range;
-- (void) ensureGlyphsForGlyphRange:(NSRange) range; 
-- (void) ensureLayoutForBoundingRect:(NSRect) rect inTextContainer:(NSTextContainer *) textContainer; 
+- (void) ensureGlyphsForGlyphRange:(NSRange) range;
+- (void) ensureLayoutForBoundingRect:(NSRect) rect inTextContainer:(NSTextContainer *) textContainer;
 - (void) ensureLayoutForCharacterRange:(NSRange) range;
-- (void) ensureLayoutForGlyphRange:(NSRange) range; 
-- (void) ensureLayoutForTextContainer:(NSTextContainer *) textContainer; 
+- (void) ensureLayoutForGlyphRange:(NSRange) range;
+- (void) ensureLayoutForTextContainer:(NSTextContainer *) textContainer;
 - (NSRect) extraLineFragmentRect;
 - (NSTextContainer *) extraLineFragmentTextContainer;
 - (NSRect) extraLineFragmentUsedRect;
@@ -190,24 +190,24 @@ typedef NSInteger NSTypesetterBehavior;
 - (NSUInteger) firstUnlaidCharacterIndex;
 - (NSUInteger) firstUnlaidGlyphIndex;
 - (CGFloat) fractionOfDistanceThroughGlyphForPoint:(NSPoint) aPoint inTextContainer:(NSTextContainer *) aTextContainer;
-- (void) getFirstUnlaidCharacterIndex:(NSUInteger *) charIndex 
+- (void) getFirstUnlaidCharacterIndex:(NSUInteger *) charIndex
 						   glyphIndex:(NSUInteger *) glyphIndex;
 - (NSUInteger) getGlyphs:(NSGlyph *) glyphArray range:(NSRange) glyphRange;
 - (NSUInteger) getGlyphsInRange:(NSRange) glyphsRange
-					   glyphs:(NSGlyph *) glyphBuffer
-			 characterIndexes:(NSUInteger *) charIndexBuffer
-			glyphInscriptions:(NSGlyphInscription *) inscribeBuffer
-				  elasticBits:(BOOL *) elasticBuffer;
+						 glyphs:(NSGlyph *) glyphBuffer
+			   characterIndexes:(NSUInteger *) charIndexBuffer
+			  glyphInscriptions:(NSGlyphInscription *) inscribeBuffer
+					elasticBits:(BOOL *) elasticBuffer;
 - (NSUInteger) getGlyphsInRange:(NSRange) glyphsRange
-					   glyphs:(NSGlyph *) glyphBuffer
-			 characterIndexes:(NSUInteger *) charIndexBuffer
-			glyphInscriptions:(NSGlyphInscription *) inscribeBuffer
-				  elasticBits:(BOOL *) elasticBuffer
-				   bidiLevels:(unsigned char *) bidiLevelBuffer;
-- (NSUInteger) getLineFragmentInsertionPointsForCharacterAtIndex:(NSUInteger) index 
-											  alternatePositions:(BOOL) posFlag 
-												  inDisplayOrder:(BOOL) orderFlag 
-													   positions:(CGFloat *) positions 
+						 glyphs:(NSGlyph *) glyphBuffer
+			   characterIndexes:(NSUInteger *) charIndexBuffer
+			  glyphInscriptions:(NSGlyphInscription *) inscribeBuffer
+					elasticBits:(BOOL *) elasticBuffer
+					 bidiLevels:(unsigned char *) bidiLevelBuffer;
+- (NSUInteger) getLineFragmentInsertionPointsForCharacterAtIndex:(NSUInteger) index
+											  alternatePositions:(BOOL) posFlag
+												  inDisplayOrder:(BOOL) orderFlag
+													   positions:(CGFloat *) positions
 												characterIndexes:(NSUInteger *) charIds;
 - (NSGlyph) glyphAtIndex:(NSUInteger) glyphIndex;
 - (NSGlyph) glyphAtIndex:(NSUInteger) glyphIndex isValidIndex:(BOOL *) isValidIndex;
@@ -217,9 +217,9 @@ typedef NSInteger NSTypesetterBehavior;
 - (NSUInteger) glyphIndexForPoint:(NSPoint) aPoint
 				  inTextContainer:(NSTextContainer *) aTextContainer
    fractionOfDistanceThroughGlyph:(CGFloat *) partialFraction;
-- (NSRange) glyphRangeForBoundingRect:(NSRect) bounds 
+- (NSRange) glyphRangeForBoundingRect:(NSRect) bounds
 					  inTextContainer:(NSTextContainer *) container;
-- (NSRange) glyphRangeForBoundingRectWithoutAdditionalLayout:(NSRect) bounds 
+- (NSRange) glyphRangeForBoundingRectWithoutAdditionalLayout:(NSRect) bounds
 											 inTextContainer:(NSTextContainer *) container;
 - (NSRange) glyphRangeForCharacterRange:(NSRange) charRange actualCharacterRange:(NSRangePointer) actualCharRange;
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *) container;
@@ -250,14 +250,14 @@ typedef NSInteger NSTypesetterBehavior;
 - (BOOL) notShownAttributeForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (NSUInteger) numberOfGlyphs;
 - (NSRange) rangeOfNominallySpacedGlyphsContainingIndex:(NSUInteger) glyphIndex;
-- (NSRectArray) rectArrayForCharacterRange:(NSRange) charRange 
-		      withinSelectedCharacterRange:(NSRange) selCharRange 
-					       inTextContainer:(NSTextContainer *) container 
-							     rectCount:(NSUInteger *) rectCount;
-- (NSRectArray) rectArrayForGlyphRange:(NSRange) glyphRange 
-		      withinSelectedGlyphRange:(NSRange) selGlyphRange 
-				       inTextContainer:(NSTextContainer *) container 
-						     rectCount:(NSUInteger *) rectCount;
+- (NSRectArray) rectArrayForCharacterRange:(NSRange) charRange
+			  withinSelectedCharacterRange:(NSRange) selCharRange
+						   inTextContainer:(NSTextContainer *) container
+								 rectCount:(NSUInteger *) rectCount;
+- (NSRectArray) rectArrayForGlyphRange:(NSRange) glyphRange
+			  withinSelectedGlyphRange:(NSRange) selGlyphRange
+					   inTextContainer:(NSTextContainer *) container
+							 rectCount:(NSUInteger *) rectCount;
 - (void) removeTemporaryAttribute:(NSString *) name forCharacterRange:(NSRange) charRange;
 - (void) removeTextContainerAtIndex:(NSUInteger) index;
 - (void) replaceGlyphAtIndex:(NSUInteger) glyphIndex withGlyph:(NSGlyph) newGlyph;
@@ -266,9 +266,9 @@ typedef NSInteger NSTypesetterBehavior;
 							paragraphStyle:(NSParagraphStyle *) paraStyle
 									 ruler:(NSRulerView *) aRulerView
 								   enabled:(BOOL) flag;
-- (NSArray *) rulerMarkersForTextView:(NSTextView *) view 
-					   paragraphStyle:(NSParagraphStyle *) style 
-							    ruler:(NSRulerView *) ruler;
+- (NSArray *) rulerMarkersForTextView:(NSTextView *) view
+					   paragraphStyle:(NSParagraphStyle *) style
+								ruler:(NSRulerView *) ruler;
 - (void) setAllowsNonContiguousLayout:(BOOL) flag;
 - (void) setAttachmentSize:(NSSize) attachmentSize forGlyphRange:(NSRange) glyphRange;
 - (void) setBackgroundLayoutEnabled:(BOOL) flag;
@@ -281,13 +281,13 @@ typedef NSInteger NSTypesetterBehavior;
 - (void) setGlyphGenerator:(NSGlyphGenerator *) glyphGenerator;
 - (void) setHyphenationFactor:(float) factor;
 - (void) setIntAttribute:(NSInteger) attributeTag value:(NSInteger) val forGlyphAtIndex:(NSUInteger) glyphIndex;
-- (void) setLayoutRect:(NSRect) rect forTextBlock:(NSTextBlock *) block glyphRange:(NSRange) range; 
+- (void) setLayoutRect:(NSRect) rect forTextBlock:(NSTextBlock *) block glyphRange:(NSRange) range;
 - (void) setLineFragmentRect:(NSRect) fragmentRect forGlyphRange:(NSRange) glyphRange usedRect:(NSRect) usedRect;
 - (void) setLocation:(NSPoint) location forStartOfGlyphRange:(NSRange) glyphRange;
-- (void) setLocations:(NSPointArray) locs 
- startingGlyphIndexes:(NSUInteger *) glyphIds 
-				count:(NSUInteger) number 
-		forGlyphRange:(NSRange) range; 
+- (void) setLocations:(NSPointArray) locs
+ startingGlyphIndexes:(NSUInteger *) glyphIds
+				count:(NSUInteger) number
+		forGlyphRange:(NSRange) range;
 - (void) setNotShownAttribute:(BOOL) flag forGlyphAtIndex:(NSUInteger) glyphIndex;
 - (void) setShowsControlCharacters:(BOOL) flag;
 - (void) setShowsInvisibleCharacters:(BOOL) flag;
@@ -314,38 +314,38 @@ typedef NSInteger NSTypesetterBehavior;
 		  lineFragmentGlyphRange:(NSRange) lineGlyphRange
 				 containerOrigin:(NSPoint) containerOrigin;
 - (NSFont *) substituteFontForFont:(NSFont *) originalFont;
-- (id) temporaryAttribute:(NSString *) name 
-		 atCharacterIndex:(NSUInteger) loc 
+- (id) temporaryAttribute:(NSString *) name
+		 atCharacterIndex:(NSUInteger) loc
 		   effectiveRange:(NSRangePointer) effectiveRange;
-- (id) temporaryAttribute:(NSString *) name 
-		 atCharacterIndex:(NSUInteger) loc 
-	longestEffectiveRange:(NSRangePointer) effectiveRange 
+- (id) temporaryAttribute:(NSString *) name
+		 atCharacterIndex:(NSUInteger) loc
+	longestEffectiveRange:(NSRangePointer) effectiveRange
 				  inRange:(NSRange) limit;
 - (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange;
-- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) loc 
-								 longestEffectiveRange:(NSRangePointer) effectiveRange 
+- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) loc
+								 longestEffectiveRange:(NSRangePointer) effectiveRange
 											   inRange:(NSRange) limit;
 - (void) textContainerChangedGeometry:(NSTextContainer *) container;
 - (void) textContainerChangedTextView:(NSTextContainer *) container;
 - (NSTextContainer *) textContainerForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
-- (NSTextContainer *) textContainerForGlyphAtIndex:(NSUInteger) index 
-									effectiveRange:(NSRangePointer) effectiveGlyphRange 
-						   withoutAdditionalLayout:(BOOL) layoutFlag; 
+- (NSTextContainer *) textContainerForGlyphAtIndex:(NSUInteger) index
+									effectiveRange:(NSRangePointer) effectiveGlyphRange
+						   withoutAdditionalLayout:(BOOL) layoutFlag;
 - (NSArray *) textContainers;
 - (NSTextStorage *) textStorage;
 - (void) textStorage:(NSTextStorage *) str
 /* FIXME: should use NSTextStorageEditedOptions typedef */
-			  edited:(unsigned) editedMask 
-			   range:(NSRange) newCharRange 
-	  changeInLength:(NSInteger) delta 
+			  edited:(NSUInteger) editedMask
+			   range:(NSRange) newCharRange
+	  changeInLength:(NSInteger) delta
 	invalidatedRange:(NSRange) invalidatedCharRange;
 - (NSTextView *) textViewForBeginningOfSelection;
 - (NSTypesetter *) typesetter;
 - (NSTypesetterBehavior) typesetterBehavior;
-- (void) underlineGlyphRange:(NSRange) glyphRange 
-			   underlineType:(NSInteger) underlineVal 
-			lineFragmentRect:(NSRect) lineRect 
-	  lineFragmentGlyphRange:(NSRange) lineGlyphRange 
+- (void) underlineGlyphRange:(NSRange) glyphRange
+			   underlineType:(NSInteger) underlineVal
+			lineFragmentRect:(NSRect) lineRect
+	  lineFragmentGlyphRange:(NSRange) lineGlyphRange
 			 containerOrigin:(NSPoint) containerOrigin;
 - (NSRect) usedRectForTextContainer:(NSTextContainer *) container;
 - (BOOL) usesFontLeading;
@@ -356,13 +356,13 @@ typedef NSInteger NSTypesetterBehavior;
 @interface NSObject (NSLayoutManagerDelegate)
 
 - (void) layoutManagerDidInvalidateLayout:(NSLayoutManager *) sender;
-- (NSDictionary *) layoutManager:(NSLayoutManager *) sender 
-	shouldUseTemporaryAttributes:(NSDictionary *) tempAttrs 
-			  forDrawingToScreen:(BOOL) flag 
-				atCharacterIndex:(NSUInteger) index 
+- (NSDictionary *) layoutManager:(NSLayoutManager *) sender
+	shouldUseTemporaryAttributes:(NSDictionary *) tempAttrs
+			  forDrawingToScreen:(BOOL) flag
+				atCharacterIndex:(NSUInteger) index
 				  effectiveRange:(NSRangePointer) charRange;
-- (void) layoutManager:(NSLayoutManager *) layoutManager 
-		 didCompleteLayoutForTextContainer:(NSTextContainer *) textContainer 
+- (void) layoutManager:(NSLayoutManager *) layoutManager
+didCompleteLayoutForTextContainer:(NSTextContainer *) textContainer
 				 atEnd:(BOOL) layoutFinishedFlag;
 
 @end

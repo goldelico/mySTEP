@@ -282,7 +282,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		[super setTitle:@""];
 #endif	
 #if 1
-	NSLog(@"menuItem celltype=%d", [self type]);
+	NSLog(@"menuItem celltype=%lu", (unsigned long)[self type]);
 	NSLog(@"menuItem isSeparatorItem=%d", [menuItem isSeparatorItem]);
 #endif
 	needsSizing=NO;	// break recursion triggered by [_controlView keyEquivalentOffset] below
@@ -575,7 +575,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 }
 
 - (NSMenuItem *) menuItem;	{ return menuItem; }
-- (NSMenuView *) menuView;	{ return _controlView; }
+- (NSMenuView *) menuView;	{ return (NSMenuView *) _controlView; }
 - (BOOL) needsDisplay;		{ return needsDisplay; }
 - (BOOL) needsSizing;		{ return needsSizing; }
 

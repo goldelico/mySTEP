@@ -261,7 +261,7 @@
 
 - (void) addLayoutManager:(NSLayoutManager *)lm; { [_layoutManagers addObject:lm]; [lm setTextStorage:self]; }
 
-- (int) changeInLength;
+- (NSInteger) changeInLength;
 {
 	return _changeInLength;
 }
@@ -270,7 +270,7 @@
 
 - (void) edited:(NSUInteger)editedMask
 		  range:(NSRange)range 
- changeInLength:(int)delta;
+ changeInLength:(NSInteger)delta;
 {
 #if 0
 	NSLog(@"edited %u range=%@ delta=%d", editedMask, NSStringFromRange(range), delta);
@@ -452,8 +452,8 @@
 	NS_HANDLER
 		NSLog(@"exception %@ for %@", localException, NSStringFromClass([self class]));
 		NSLog(@"concrete string %@", [_concreteString string]);
-		NSLog(@"concrete string length %u", [_concreteString length]);
-		NSLog(@"index %d", index);
+		NSLog(@"concrete string length %lu", (unsigned long)[_concreteString length]);
+		NSLog(@"index %lu", (unsigned long)index);
 		d=nil;
 	NS_ENDHANDLER
 #else
@@ -473,8 +473,8 @@
 	NS_HANDLER
 		NSLog(@"exception %@ for %@", localException, NSStringFromClass([self class]));
 		NSLog(@"concrete string %@", [_concreteString string]);
-		NSLog(@"concrete string length %u", [_concreteString length]);
-		NSLog(@"index %d", index);
+		NSLog(@"concrete string length %lu", (unsigned long)[_concreteString length]);
+		NSLog(@"index %lu", (unsigned long)index);
 		d=nil;
 	NS_ENDHANDLER
 #else

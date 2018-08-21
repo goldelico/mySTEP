@@ -29,6 +29,7 @@
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSApplication.h>
 
+#import "NSAppKitPrivate.h"
 #import "NSBackendPrivate.h"
 
 // Class variables 

@@ -8,26 +8,27 @@
 
 #import <AppKit/NSResponder.h>
 
-@class NSBundle; 
-@class NSString; 
+@class NSBundle;
+@class NSString;
 @class NSView;
 
-@interface NSViewController : NSResponder {
+@interface NSViewController : NSResponder
+{
 
 }
 
-- (BOOL) commitEditing; 
-- (void) commitEditingWithDelegate:(id) obj didCommitSelector:(SEL) sel contextInfo:(void *) info; 
-- (void) discardEditing; 
-- (id) initWithNibName:(NSString *) name bundle:(NSBundle *) bundle; 
-- (void) loadView; 
-- (NSBundle *) nibBundle; 
-- (NSString *) nibName; 
-- (id) representedObject; 
-- (void) setRepresentedObject:(id) repObject; 
-- (void) setTitle:(NSString *) str; 
-- (void) setView:(NSView *) view; 
-- (NSString *) title; 
-- (NSView *) view; 
+- (BOOL) commitEditing;
+- (void) commitEditingWithDelegate:(id) obj didCommitSelector:(SEL) sel contextInfo:(void *) info;
+- (void) discardEditing;
+- (id) initWithNibName:(NSString *) name bundle:(NSBundle *) bundle;
+- (void) loadView;
+- (NSBundle *) nibBundle;
+- (NSString *) nibName;
+- (id) representedObject;
+- (void) setRepresentedObject:(id) repObject;
+- (void) setTitle:(NSString *) str;
+- (void) setView:(NSView *) view;
+- (NSString *) title;
+- (NSView *) view;
 
 @end

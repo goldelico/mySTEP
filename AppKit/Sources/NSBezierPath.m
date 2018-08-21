@@ -629,7 +629,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	NSBezierPath *path;
 	NSPoint pts[3];
 	NSPoint coeff[4];
-	NSPoint p, last_p;
+	NSPoint p=NSZeroPoint, last_p=NSZeroPoint;
 	NSInteger i;
 	BOOL first = YES;
 	
@@ -688,7 +688,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	NSBezierPath *path;
 	NSBezierPathElement type, last_type = NSMoveToBezierPathElement;
 	NSPoint pts[3];
-	NSPoint p, cp1, cp2;
+	NSPoint p=NSZeroPoint, cp1=NSZeroPoint, cp2=NSZeroPoint;
 	NSInteger i, j;
 	BOOL closed = NO;
 	
@@ -828,7 +828,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {
 	if (_bz.shouldRecalculateBounds)
 		{
-		NSPoint p, last_p;
+		NSPoint p, last_p=NSZeroPoint;
 		NSPoint pts[3];
 		// This will compute three intermediate points per curve
 		double x, y, t, k = 0.25;

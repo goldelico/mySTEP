@@ -118,7 +118,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) checkSpelling:(id)sender;						// Spelling
 {
-	int wordCount;
+	NSInteger wordCount;
     NSRange range=[[NSSpellChecker sharedSpellChecker]
 				   checkSpellingOfString:[textStorage string]
 				   startingAt:NSMaxRange(_selectedRange)

@@ -96,15 +96,12 @@ enum _NSCommonlyUsedUnicodeCharacters
 	NSTextStorage *textStorage;	// note: we don't provide direct accessors
 //	NSMutableArray *lineLayoutInformation;	// one record for each line
 //	NSMutableDictionary *typingAttributes; 
-	int spellCheckerDocumentTag;
+	NSInteger _spellCheckerDocumentTag;
 	NSUInteger modifySelection[2];
 	
 	NSSize _minSize;
 	NSSize _maxSize;
 	NSWritingDirection _baseWritingDirection;
-
-	// FIXME: why twice???
-	int _spellCheckerDocumentTag;
 
 	struct __TextFlags {
 		UIBITFIELD(unsigned int, isRichText, 1);

@@ -54,10 +54,9 @@ enum
 	id _delegate;
 	NSRange _editedRange;
 	NSRange _invalidatedRange;
-	int _editedMask;
-	int _changeInLength;
-	int _editedDelta;
-	int _nestingCount;
+	NSUInteger _editedMask;
+	NSUInteger _changeInLength;
+	NSUInteger _nestingCount;
 	BOOL _fixesAttributesLazily;
 }
 

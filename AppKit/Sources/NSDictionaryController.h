@@ -10,24 +10,25 @@
 #import <AppKit/NSArrayController.h>
 
 
-@interface NSDictionaryController : NSArrayController {
+@interface NSDictionaryController : NSArrayController
+{
 
 }
 
-- (id) arrangedObjects; 
-- (NSArray *) excludedKeys; 
-- (NSArray *) includedKeys; 
-- (NSString *) initialKey; 
-- (id) initialValue; 
-- (NSDictionary *) localizedKeyDictionary; 
-- (NSString *) localizedKeyTable; 
-- (id) newObject; 
-- (void) setExcludedKeys:(NSArray *) exKeys; 
-- (void) setIncludedKeys:(NSArray *) inKeys; 
-- (void) setInitialKey:(NSString *) intKey; 
-- (void) setInitialValue:(id) val; 
-- (void) setLocalizedKeyDictionary:(NSDictionary *) dict; 
-- (void) setLocalizedKeyTable:(NSString *) strs; 
+- (id) arrangedObjects;
+- (NSArray *) excludedKeys;
+- (NSArray *) includedKeys;
+- (NSString *) initialKey;
+- (id) initialValue;
+- (NSDictionary *) localizedKeyDictionary;
+- (NSString *) localizedKeyTable;
+- (id) newObject;
+- (void) setExcludedKeys:(NSArray *) exKeys;
+- (void) setIncludedKeys:(NSArray *) inKeys;
+- (void) setInitialKey:(NSString *) intKey;
+- (void) setInitialValue:(id) val;
+- (void) setLocalizedKeyDictionary:(NSDictionary *) dict;
+- (void) setLocalizedKeyTable:(NSString *) strs;
 
 
 @end

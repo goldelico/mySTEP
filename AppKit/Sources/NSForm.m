@@ -111,8 +111,8 @@ static Class __formCellClass = Nil;
 				  inView:(NSView *)controlView	 		// Frame method but can
 				  editor:(NSText *)textObject	 		// be called from more
 				  delegate:(id)anObject	 				// than just mouseDown
-				  start:(int)selStart	 
-				  length:(int)selLength
+				  start:(NSInteger)selStart
+				  length:(NSInteger)selLength
 {
 	NSRect title, text;
 
@@ -206,7 +206,7 @@ static Class __formCellClass = Nil;
 	return [self insertEntry:title atIndex:[self numberOfRows]];
 }
 
-- (NSFormCell*) insertEntry:(NSString*)title atIndex:(int)index
+- (NSFormCell*) insertEntry:(NSString*)title atIndex:(NSInteger)index
 {
 	NSFormCell *new = [[_cellPrototype copy] autorelease];
 
@@ -217,11 +217,11 @@ static Class __formCellClass = Nil;
 	return new;
 }
 
-- (void) removeEntryAtIndex:(int)index		{ [self removeRow:index]; }
+- (void) removeEntryAtIndex:(NSInteger)index		{ [self removeRow:index]; }
 
 - (void) setBezeled:(BOOL)flag
 {
-	int i, count = [self numberOfRows];
+	NSUInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setBezeled:flag];
 
@@ -231,7 +231,7 @@ static Class __formCellClass = Nil;
 
 - (void) setBordered:(BOOL)flag
 {
-int i, count = [self numberOfRows];
+	NSUInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setBordered:flag];
 
@@ -263,7 +263,7 @@ NSInteger i, count = [self numberOfRows];
 
 - (void) setTextAlignment:(NSInteger)aMode
 {
-NSInteger i, count = [self numberOfRows];
+	NSInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setAlignment:aMode];
 
@@ -273,7 +273,7 @@ NSInteger i, count = [self numberOfRows];
 
 - (void) setTitleFont:(NSFont*)fontObject
 {
-int i, count = [self numberOfRows];
+	NSInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setTitleFont:fontObject];
 
@@ -283,7 +283,7 @@ int i, count = [self numberOfRows];
 
 - (void) setTextFont:(NSFont*)fontObject
 {
-int i, count = [self numberOfRows];
+	NSInteger i, count = [self numberOfRows];
 
 	[_cellPrototype setFont:fontObject];
 
@@ -291,9 +291,9 @@ int i, count = [self numberOfRows];
 		[[self cellAtRow:i column:0] setFont:fontObject];
 }
 
-- (int) indexOfCellWithTag:(int)aTag
+- (NSInteger) indexOfCellWithTag:(NSInteger)aTag
 {
-int i, count = [self numberOfRows];
+	NSInteger i, count = [self numberOfRows];
 
 	for (i = 0; i < count; i++)
 		if ([[self cellAtRow:i column:0] tag] == aTag)
@@ -302,17 +302,17 @@ int i, count = [self numberOfRows];
 	return -1;
 }
 
-- (int) indexOfSelectedItem			{ return [self selectedRow]; }
-- (id) cellAtIndex:(int)index		{ return [self cellAtRow:index column:0]; }
-- (void) selectTextAtIndex:(int)idx	{ [self selectTextAtRow:idx column:0]; }
+- (NSInteger) indexOfSelectedItem		{ return [self selectedRow]; }
+- (id) cellAtIndex:(NSInteger)index		{ return [self cellAtRow:index column:0]; }
+- (void) selectTextAtIndex:(NSInteger)idx	{ [self selectTextAtRow:idx column:0]; }
 
-- (void) drawCellAtIndex:(int)index
+- (void) drawCellAtIndex:(NSInteger)index
 {
 	id c = [self cellAtIndex:index];
 	[c drawWithFrame:[self cellFrameAtRow:index column:0] inView:self];
 }
 
-- (void) drawCellAtRow:(int)row column:(int)column
+- (void) drawCellAtRow:(NSInteger)row column:(NSInteger)column
 {
 	[self drawCellAtIndex:row];
 }

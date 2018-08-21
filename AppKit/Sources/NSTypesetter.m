@@ -342,7 +342,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	NSString *str=[textStorage string];
 	NSUInteger startIndex=_paragraphGlyphRange.location;
 	NSRect proposedRect=(NSRect) { *lfrOrigin, [curContainer containerSize] };
-	NSPoint location;
+	NSPoint location=NSZeroPoint;
 	NSRect lfr, lfur, rr;
 	// reduce size?
 	[self beginParagraph];
@@ -372,7 +372,6 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 							;	// invisible and no movement
 						else
 							{ // normal advancement
-								
 								NSSize adv;
 								if(glyph == NSControlGlyph)
 									{
@@ -1231,7 +1230,7 @@ NSLayoutOutOfGlyphs
 		{ // try to fill the next line
 			NSRange glyphRange;
 			CGFloat baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
-			NSRect lineFragmentRect;
+			NSRect lineFragmentRect=NSZeroRect;
 			NSRect usedRect;
 			NSUInteger i;
 			// check for table layout
@@ -1260,7 +1259,7 @@ NSLayoutOutOfGlyphs
 																			  movementDirection:NSLineMovesDown
 																				  remainingRect:&remainingRect];				
 				}
-			if(containerBreakAfterCurGlyph || NSIsEmptyRect(lineFragmentRect))
+			if(NSIsEmptyRect(lineFragmentRect))
 				{ // try next container
 					NSArray *containers=[lm textContainers];
 #if 0

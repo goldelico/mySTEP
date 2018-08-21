@@ -410,8 +410,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSDictionary *attribs=nil;
 	NSDictionary *newAttribs=nil;
 	NSRange attribRange={ 0, 0 };	// range of same attributes
-	NSRect lfr;
-	NSRect newLfr;
+	NSRect lfr={ 0, 0 };
+	NSRect newLfr={ 0, 0 };
 	NSRange lfrRange={ 0, 0 };	// range of same lfr
 	NSInteger count=0;
 	[ctxt _beginText];
@@ -422,7 +422,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		 NSTextAttachment *attachment=[attribs objectForKey:NSAttachmentAttributeName];
 		 if(attachment){
 		 id <NSTextAttachmentCell> cell=[attachment attachmentCell];
-		 NSRect frame;		 
+		 NSRect frame;
 		 frame.origin=point;
 		 frame.size=[cell cellSize];
 		 [cell drawWithFrame:frame inView:textView characterIndex:characterRange.location layoutManager:self];
@@ -1242,9 +1242,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
  * or for containers with holes
  */
 
-- (NSRect *) rectArrayForGlyphRange:(NSRange) glyphRange 
+- (NSRect *) rectArrayForGlyphRange:(NSRange) glyphRange
 		   withinSelectedGlyphRange:(NSRange) selGlyphRange		// { NSNotFound, 0 } defines a different algorithm!
-					inTextContainer:(NSTextContainer *) container 
+					inTextContainer:(NSTextContainer *) container
 						  rectCount:(NSUInteger *) rectCount;
 {
 	NSUInteger glyphIndex;
@@ -1279,8 +1279,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				}
 			else
 				lfr=_extraLineFragmentUsedRect;
+			lfrRange=(NSRange) { glyphIndex, 1 };	// go 1 behind glyphRange
 			}
-#if 0
+#if 1
 		else if(*rectCount != 0 && glyphIndex == NSMaxRange(glyphRange))
 			break;	// there was no extra fragment to include
 #endif
@@ -1306,10 +1307,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		for(i=0; i<*rectCount; i++)
 			{ // check if we can merge the new lfr with the existing one
 			if(NSMinY(_rectArray[i]) == NSMinY(lfr) && NSHeight(_rectArray[i]) == NSHeight(lfr) && NSMinX(lfr) <= NSMaxX(_rectArray[i]))
-			   { // overlapping or adjacent on the same line
-				   _rectArray[i]=NSUnionRect(_rectArray[i], lfr);
-				   break;
-			   }
+				{ // overlapping or adjacent on the same line
+					_rectArray[i]=NSUnionRect(_rectArray[i], lfr);
+					break;
+				}
 			if(NSMinX(_rectArray[i]) == NSMinX(lfr) && NSWidth(_rectArray[i]) == NSWidth(lfr) && NSMinY(lfr) <= NSMaxY(_rectArray[i]))
 				{ // overlapping or adjacent in the same column
 					_rectArray[i]=NSUnionRect(_rectArray[i], lfr);
@@ -1322,8 +1323,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					_rectArray=objc_realloc(_rectArray, sizeof(_rectArray[0])*(_rectArrayCapacity=2*_rectArrayCapacity+5));	// increase with some safety margin
 				_rectArray[(*rectCount)++]=lfr;	// new rectangle
 			}
-		if(glyphIndex >= _numberOfGlyphs)
-			break;	// done with the extra fragment handling
 		glyphIndex=NSMaxRange(lfrRange);	// consult next fragment
 		}
 	if(*rectCount+5 < _rectArrayCapacity/2)	// this time much smaller
@@ -1728,7 +1727,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 /* this is called by -[NSTextStorage processEditing] if the NSTextStorage has been changed */
 
-- (void) textStorage:(NSTextStorage *) str edited:(unsigned) editedMask range:(NSRange) newCharRange changeInLength:(NSInteger) delta invalidatedRange:(NSRange) invalidatedCharRange;
+- (void) textStorage:(NSTextStorage *) str edited:(NSUInteger) editedMask range:(NSRange) newCharRange changeInLength:(NSInteger) delta invalidatedRange:(NSRange) invalidatedCharRange;
 {
 	// this may be used to move around glyphs and separate between glyph generation (i.e.
 	// translation of character codes to glyph codes through NSFont

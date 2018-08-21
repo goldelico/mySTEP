@@ -429,7 +429,7 @@ static Class __controlCellClass = Nil;
 			}
 		/*	??? =  */ [aDecoder decodeBoolForKey:@"NSAllowsLogicalLayoutDirection"];
 		[aDecoder decodeObjectForKey:@"NSHuggingPriority"];
-		[aDecoder decodeIntForKey:@"NSControlAllowsExpansionToolTips"];
+		// unknown format [aDecoder decodeIntForKey:@"NSControlAllowsExpansionToolTips"];
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_tag];

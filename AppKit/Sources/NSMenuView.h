@@ -18,8 +18,15 @@
 #import <AppKit/NSMenu.h>
 #import <AppKit/NSMenuItemCell.h>
 #import <AppKit/NSFont.h>
+#import <AppKit/NSScrollView.h>
 
 @class NSPanel;
+
+@interface _NSMenuScrollView : NSScrollView
+
++ (id) menuViewWithMenu:(NSMenu *) menu;	// create and (initially) size to fit
+
+@end
 
 @interface NSMenuView : NSView
 {
