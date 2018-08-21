@@ -60,7 +60,7 @@
 #endif
 
 #ifndef ASSIGN
-#define ASSIGN(O,V) [(O) autorelease],O=[(V) retain]
+#define ASSIGN(O,V) ([(O) autorelease],(O=[((id)V) retain]))
 #endif
 
 #ifndef SEL_EQ
