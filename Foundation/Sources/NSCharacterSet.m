@@ -392,7 +392,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (void) encodeWithCoder: (NSCoder*)aCoder
 {
-    [aCoder encodeObject: [self bitmapRepresentation]];
+	[aCoder encodeObject: [self bitmapRepresentation]];
 }
 
 - (id) initWithCoder: (NSCoder*)aCoder
