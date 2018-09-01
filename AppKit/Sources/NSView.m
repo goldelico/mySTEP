@@ -1655,44 +1655,47 @@ printing
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-	if(NSEqualSizes(oldSize, _frame.size))
-		return;	// ignore unchanged size
 #if 0
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(_frame.size), self);
 	NSLog(@"subviews=%@", sub_views);
 #endif
-	if (_v.isRotatedFromBase)					 
+	if (_v.isRotatedFromBase)
+		{ // only if we have never been rotated
+#if 1
 		NSLog(@"can't resizeSubviewsWithOldSize (rotated base): %@", self);
-	else if (_v.autoSizeSubviews)					 
-		{												// resize subviews only
-		NSInteger i, count = [_subviews count];				// if we are supposed
-														// to and we have never
-														// been rotated
-		for (i = 0; i < count; i++)						// resize the subviews
-			[[_subviews objectAtIndex:i] resizeWithOldSuperviewSize: oldSize];
+#endif
+		return;
 		}
-	else
+	if (_v.autoSizeSubviews)
+		{	// resize subviews only if we are supposed
+		NSInteger i, count = [_subviews count];
+		for (i = 0; i < count; i++)		// resize the subviews
+			[[_subviews objectAtIndex:i] resizeWithOldSuperviewSize: oldSize];
+		return;
+		}
+#if 1
 		NSLog(@"don't autoSizeSubviews: %@", self);
+#endif
 }
 
 - (void) resizeWithOldSuperviewSize:(NSSize)oldSize		
-{ // does not call setFrame: or setFrameSize:!
+{ // calls setFrame: and setFrameSize:
 	CGFloat change, changePerOption;
-	NSSize old_size = _frame.size;
+	NSRect newFrame = _frame;
 	NSSize superViewFrameSize;	// super_view should not be nil!
 	BOOL changedOrigin = NO;
 	BOOL changedSize = NO;
 	int options = 0;
 	if(!_superview)
 		return;	// how can this happen? We are called as [[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize]
-	superViewFrameSize = [_superview frame].size;	// super_view should not be nil!
+	superViewFrameSize = [_superview frame].size;
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged superview size
 #if 1
 	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
 	// do nothing if view is not resizable
-	if(_v.autoresizingMask == NSViewNotSizable) 
+	if(_v.autoresizingMask == NSViewNotSizable)
 		return;											
 														// determine if and how
 	if(_v.autoresizingMask & NSViewWidthSizable)		// the X axis can be
@@ -1711,33 +1714,31 @@ printing
 			
 			if(_v.autoresizingMask & NSViewWidthSizable)		
 				{		
-				CGFloat oldFrameWidth = _frame.size.width;
+				CGFloat oldFrameWidth = newFrame.size.width;
 				
-				_frame.size.width += changePerOption;
+				newFrame.size.width += changePerOption;
 				// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
-				if (NSWidth(_frame) < 0)
+				if (NSWidth(newFrame) < 0)
 					{
-			//		NSAssert((NSWidth(_frame) <= 0), @"View frame width <= 0!");
+			//		NSAssert((NSWidth(old_frame) <= 0), @"View frame width <= 0!");
 					NSLog(@"resizeWithOldSuperviewSize: View frame width <= 0!");
-					_frame.size.width = 0;
+					newFrame.size.width = 0;
 					}
 				if(_v.isRotatedFromBase)
 					{
-					_bounds.size.width *= _frame.size.width / oldFrameWidth;	// keep proportion
-																				//				_bounds.size.width = floorf(_bounds.size.width);
+					_bounds.size.width *= newFrame.size.width / oldFrameWidth;	// keep proportion
+																				// _bounds.size.width = floorf(_bounds.size.width);
 					}
-				else
-					_bounds.size.width += changePerOption;
 				changedSize = YES;
 				}
 			if(_v.autoresizingMask & NSViewMinXMargin)
 				{
-				_frame.origin.x += changePerOption;
+				newFrame.origin.x += changePerOption;
 				changedOrigin = YES;
 				}
 			}
 		}
-														// determine if and how 
+														// determine if and how
 	options = 0;										// the Y axis can be
 	if(_v.autoresizingMask & NSViewHeightSizable)		// resized	
 		options++;										
@@ -1746,7 +1747,7 @@ printing
 	if(_v.autoresizingMask & NSViewMaxYMargin)				
 		options++;
 														// adjust the Y axis if
-	if(options > 0)									// any Y options are  
+	if(options > 0)										// any Y options are
 		{												// set in the mask
 		change = superViewFrameSize.height - oldSize.height;
 		if(change != 0.0)
@@ -1755,25 +1756,18 @@ printing
 			
 			if(_v.autoresizingMask & NSViewHeightSizable)		
 				{											
-				CGFloat oldFrameHeight = _frame.size.height;
+				CGFloat oldFrameHeight = newFrame.size.height;
 				
-				_frame.size.height += changePerOption;
-				if(NSHeight(_frame) < 0)
+				newFrame.size.height += changePerOption;
+				if(NSHeight(newFrame) < 0)
 					{
 					NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
-					_frame.size.height = 0;
+					newFrame.size.height = 0;
 					}
 				if(_v.isRotatedFromBase)			
 					{ // rotated
-					_bounds.size.height *= _frame.size.height/oldFrameHeight;
-					//				_bounds.size.height = floorf(_bounds.size.height);
-					}
-				else
-					{ // normal
-//					if([super_view isFlipped])
-//						_bounds.size.height -= changePerOption;
-//					else
-						_bounds.size.height += changePerOption;
+					_bounds.size.height *= newFrame.size.height/oldFrameHeight;
+					// _bounds.size.height = floorf(_bounds.size.height);
 					}
 				changedSize = YES;
 				}
@@ -1781,7 +1775,7 @@ printing
 				{
 				if((_v.autoresizingMask & NSViewMaxYMargin))
 					{				
-					_frame.origin.y += changePerOption;
+					newFrame.origin.y += changePerOption;
 					changedOrigin = YES;
 					}
 				}
@@ -1789,25 +1783,18 @@ printing
 				{
 				if((_v.autoresizingMask & NSViewMinYMargin))
 					{				
-					_frame.origin.y += changePerOption;
+					newFrame.origin.y += changePerOption;
 					changedOrigin = YES;
 					}
 				}
 			}
 		}
 	if(changedSize || changedOrigin)
-		{ // we could call [self setFrameSize:] but that isn't done on AppKit
-		[self _invalidateCTM];	// update when needed
-		if(_v.isRotatedFromBase)	
-			{
-			CGFloat sx = _frame.size.width / _bounds.size.width;
-			CGFloat sy = _frame.size.height / _bounds.size.height;
-			// FIXME: should we scale old_size?
-			NSLog(@"and now? %@", self);
-			}
-		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
+		{
+		// CHECKME: does this overwrite bounds.size?
+		[self setFrame:newFrame];
 #if 1
-			NSLog(@"new frame %@", NSStringFromRect(_frame));
+		NSLog(@"new frame %@", NSStringFromRect(_frame));
 #endif
 		if(_v.postFrameChange)
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
@@ -1823,15 +1810,15 @@ printing
 
 - (BOOL) needsToDrawRect:(NSRect) rect;
 {
-    int i;    
+	int i;
 	if(!NSIntersectsRect(rect, _invalidRect))
 		return NO;	// overall invalid rect
-    for(i = 0; i < _nInvalidRects; i++)
+	for(i = 0; i < _nInvalidRects; i++)
 		{
-        if(NSIntersectsRect(rect, _invalidRects[i]))
-            return YES;
-        }
-    return NO;
+		if(NSIntersectsRect(rect, _invalidRects[i]))
+			return YES;
+		}
+	return NO;
 }
 
 - (void) getRectsBeingDrawn:(const NSRect **) rects count:(NSInteger *) count;
