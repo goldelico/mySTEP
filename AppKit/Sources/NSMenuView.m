@@ -1025,8 +1025,7 @@
 					break;	// main menu clicked a second time in short click mode
 				}
 			}
-		else if(type == NSMouseMoved || type == NSLeftMouseDragged || type == NSPeriodic)
-			[self trackWithEvent:theEvent];
+		[self trackWithEvent:theEvent];
 		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									  untilDate:[NSDate distantFuture]			// get next event
 										 inMode:NSEventTrackingRunLoopMode 
@@ -1040,6 +1039,7 @@
 	[self setHighlightedItemIndex:-1];	// unhighligt top level item
 	[mv retain];	// may be owned by the NSPanel hat is detached
 	[self detachSubmenu];	// detach all open submenu items - might also close our panel
+	// according to documentation, this should happen in trackWithEvent:
 	if(idx >= 0)
 		[[mv menu] performActionForItemAtIndex:idx];	// finally perform action - processes responder chain
 	[mv release];
