@@ -243,12 +243,21 @@ static NSCharacterSet *spaces;		// @" \t\n\r"
 static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"
 
 - (void) propertyListSkipSpace;
-{
+{ // skip whitespace and newlines
 	if(!spaces)
-		spaces=[[NSCharacterSet characterSetWithCharactersInString:@" \t\n\r"] retain];
-	[self scanCharactersFromSet:spaces intoString:NULL];
-	// could count line numbers by adding a loop, scanning not including \n - and checking explicitly
-	// if([self scanString:@"\n" intoString:nil]) { line++; continue; }
+		spaces=[[NSCharacterSet characterSetWithCharactersInString:@" \t\r"] retain];
+	while(YES)
+		{
+		//	NS_TIME_START(VAR);
+		[self scanCharactersFromSet:spaces intoString:NULL];
+		//	NS_TIME_END(VAR, "propertyListSkipSpace 1");	// ca. 1-2 µs
+		if([self scanString:@"\n" intoString:NULL])
+			{
+			// line++;	// count line numbers
+			continue;
+			}
+		return;
+		}
 }
 
 - (void) propertyListSkipSpaceAndComments;
