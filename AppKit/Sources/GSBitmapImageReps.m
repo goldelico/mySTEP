@@ -258,13 +258,22 @@ static void png_error_handler(png_structp png_ptr, png_const_charp error_message
 		{
 		if(unit == PNG_RESOLUTION_METER)
 			{ // scale by dots per meter
-			res_x = 0.0254*res_x;	// convert and round to DPI
-			res_y = 0.0254*res_y;
+#if 0
+			NSLog(@"png: width=%d height=%d", width, height);	// in pixels
+			NSLog(@"PNG png_get_pHYs: %u %u", res_x, res_y);
+#endif
+			res_x = rint(0.0254*res_x);	// convert and round to DPI
+			res_y = rint(0.0254*res_y);
+#if 0
+			NSLog(@"PNG png_get_pHYs as DPI: %u %u", res_x, res_y);
+#endif
 			if(res_x > 0 && res_y > 0)	// protect against data leading to DIV0
 				{
 				size = NSMakeSize((72*width)/res_x, (72*height)/res_y);	// convert to point
+#if 0
 				NSLog(@"PNG default size: %@", NSStringFromSize([imageRep size]));
 				NSLog(@"PNG calibrated size: %@", NSStringFromSize(size));
+#endif
 				[imageRep setSize:size];
 				}
 			}
