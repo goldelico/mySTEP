@@ -321,6 +321,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			{ // \r
 			[str appendString:@"\r"];
 			}
+		// more escape characters...
 		else if([self scanString:@"\\" intoString:NULL])
 			{ // escaped backslash
 				[str appendString:@"\\"];
@@ -591,6 +592,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 					}
 				}
 		}
+	// these keywords are case sensitive
 	else if([self scanString:@"null" intoString:NULL])
 		val=[NSNull null];
 	else if([self scanString:@"true" intoString:NULL])
