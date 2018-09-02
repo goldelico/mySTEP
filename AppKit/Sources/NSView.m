@@ -502,7 +502,7 @@ printing
 	[s appendFormat:@" frame=[%.1lf,%.1lf,%.1lf,%.1lf]", _frame.origin.x, _frame.origin.y, _frame.size.width, _frame.size.height];
 	[s appendFormat:@" bounds=[%.1lf,%.1lf,%.1lf,%.1lf]", _bounds.origin.x, _bounds.origin.y, _bounds.size.width, _bounds.size.height];
 	if(_nInvalidRects == 1)
-		[s appendFormat:@" invalid=[%.1lf,%.1lf,%.1lf,%.1lf]", _invalidRects[0].origin.x, _invalidRects[0].origin.y, _invalidRects[0].size.width, _invalidRects[0].size.height];
+		[s appendFormat:@" invalid[0]=[%.1lf,%.1lf,%.1lf,%.1lf]", _invalidRects[0].origin.x, _invalidRects[0].origin.y, _invalidRects[0].size.width, _invalidRects[0].size.height];
 	if(_nInvalidRects > 1)
 		[s appendFormat:@" %lu invalid rects", (unsigned long)_nInvalidRects];
 	if([self isHidden]) [s appendString:@" isHidden"];
@@ -871,7 +871,7 @@ printing
 #endif
 		_frame.size = newSize;
 		if(!_v.customBounds)
-			_bounds.size = newSize;	// always adjust
+			[self setBoundsSize:newSize];	// always adjust
 		[self _invalidateCTM];
 		[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
 		}
@@ -949,9 +949,11 @@ printing
 
 - (void) _invalidateCTM;
 {
+	_invalidRect=NSZeroRect;	// has become invalid as well
+	_nInvalidRects=0;			// require a setNeedsDisplay
 	[_bounds2frame release], _bounds2frame=nil;
 //	[_frame2bounds release], _frame2bounds=nil;
-	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen will change
+	[self _invalidateCTMtoBase];	// subviews can keep their individual bounds2frame mapping intact - only their mapping to the screen will change
 }
 
 - (NSAffineTransform *) _base2bounds
@@ -1244,9 +1246,11 @@ printing
 
 - (void) _invalidateCTM;
 {
+	_invalidRect=NSZeroRect;	// has become invalid as well
+	_nInvalidRects=0;			// require a setNeedsDisplay
 	[_bounds2frame release], _bounds2frame=nil;
 	[_frame2bounds release], _frame2bounds=nil;
-	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
+	[self _invalidateCTMtoBase];	// subviews can keep their individual bounds2frame mapping intact - only their mapping to the screen changes
 }
 
 - (void) scaleUnitSquareToSize:(NSSize)newSize
@@ -1886,6 +1890,9 @@ printing
 - (void) _removeRectNeedingDisplay:(NSRect) rect;
 { // FIXME: could be better optimized to shrink the invalidRect and split up intersecting parts
 	int i;
+#if 1
+	NSLog(@"_removeRectNeedingDisplay %@ for %@", NSStringFromRect(rect), self);
+#endif
 	if(NSIsEmptyRect(rect))
 		return;	// ignore
 	for(i=0; i<_nInvalidRects; i++)
@@ -1940,7 +1947,7 @@ printing
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
-#if 0
+#if 1
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
 	if(!_window)
@@ -1948,17 +1955,13 @@ printing
 	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
 	if(NSIsEmptyRect(rect))
 		return;	// ignore
-#if 0
-	if(!NSContainsRect(_bounds, rect))
-		NSLog(@"setNeedsDisplayInRect:%@ beyond bounds %@", NSStringFromRect(rect), NSStringFromRect(_bounds));
-#endif
 	// _v.needsDisplay=YES;
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
 	// FIXME - we should stop recursion upwards if a superview already covers our dirty rect
 	if([self _addRectNeedingDisplay:rect] || YES)
 		{ // we (and our superviews) didn't know this rect yet
-#if 0
-		NSLog(@"setneedsdisplay 1: %@", self);
+#if 1
+		NSLog(@"setNeedsDisplay 1: %@", self);
 #endif
 		if(_superview)
 			{ // FIXME: not rotation-safe
@@ -1974,7 +1977,7 @@ printing
 				return;
 				}
 			r=[self convertRect:rect toView:_superview];
-			[_superview setNeedsDisplayInRect:r];	// FIXME: we should simply loop instead of doing a recursion
+			[_superview setNeedsDisplayInRect:r];	// FIXME: we should better loop instead of doing a recursion
 			}
 		else
 			{
@@ -2002,6 +2005,7 @@ printing
 
 - (void) setKeyboardFocusRingNeedsDisplayInRect:(NSRect) rect;
 {
+	// FIXME: this is clipped to bounds...
 	[self setNeedsDisplayInRect:NSInsetRect(rect, -5.0, -5.0)];	// invalidate area larger than real bounds
 }
 
@@ -2069,31 +2073,20 @@ printing
 					if(_v.isRotatedFromBase)
 						{ // FIXME: must also clip to frame (which may be rotated or unrotated)
 							// do we do that in lockFocus?
-							// or here
+							// or here?
 						}
 						// FIXME: default should also clip to list of rects in invalidRects!!!
 					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
 					}
 #if 1	// detect slow drawing code
 			NS_TIME_START(drawRect);
+#endif
 			[self drawRect:rect];		// that one is overridden in subviews and really draws
-			NS_TIME_END(drawRect, "drawRect of %s", [[self description] UTF8String]);
-/*		{
- struct timeval start, end;
-				gettimeofday(&start, NULL);
-				[self drawRect:rect];		// that one is overridden in subviews and really draws
-				gettimeofday(&end, NULL);
-				end.tv_sec-=start.tv_sec;
-				end.tv_usec-=start.tv_usec;
-				if(end.tv_usec < 0)
-					end.tv_sec-=1, end.tv_usec+=1000000;
-				// FIXME: it appears that StringDrawing is quite slow (expectedly)
-				if(end.tv_sec > 0 || end.tv_usec > 20000)
-					fprintf(stderr, "slow draw %u.%06us: %s\n", end.tv_sec, end.tv_usec, [[self description] UTF8String]);
-				}
- */
-#else
-			[self drawRect:rect];		// that one is overridden in subviews and really draws
+#if 1
+			NS_TIME_END(drawRect, "drawRect [%.1f,%.1f,%.1f,%.1f] of %s",
+						rect.origin.x,rect.origin.y,
+						rect.size.width,rect.size.height,
+						[[self description] UTF8String]);
 #endif
 				if(_NSShowAllViews && [_window isVisible])
 					{ // draw box around all views
