@@ -941,7 +941,7 @@ printing
 		}
 }
 
-#define NEW 0
+#define NEW 1
 
 #if NEW
 
@@ -956,6 +956,8 @@ printing
 	[self _invalidateCTMtoBase];	// subviews can keep their individual bounds2frame mapping intact - only their mapping to the screen will change
 }
 
+// OK
+
 - (NSAffineTransform *) _base2bounds
 { // cached
 	if(!_window)
@@ -966,22 +968,22 @@ printing
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
 #endif
-		if(super_view)
-			_base2bounds=[[super_view _base2bounds] copy];
+		if(_superview)
+			_base2bounds=[[_superview _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(super_view && (_v.superFlippedCache != _v.flippedCache))
+		if(_v.superFlippedCache)
 			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
 				[_base2bounds translateXBy:0.0 yBy:NSHeight(_frame)];	// frame position is expressed in flipped super_view coordinates
 				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
 			}
-		if(frameRotation)
-			[_base2bounds rotateByDegrees:-frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
+		if(_frameRotation)
+			[_base2bounds rotateByDegrees:-_frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
 			// ist auch hier ein appendTransform:rotation etwas anderes als rotateByDegrees?
 		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
 		// if(_v.customBounds)
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
-		if(_v.superFlippedCache != _v.flippedCache)
+		if(_v.flippedCache)
 			{ // finally flip bounds
 //				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
 				static NSAffineTransform *f;
@@ -1027,7 +1029,7 @@ printing
 
 - (CGFloat) boundsRotation;
 {
-	return boundsRotation;
+	return _boundsRotation;
 }
 
 /* absolute setters */
@@ -1044,12 +1046,12 @@ printing
 	NSAffineTransformStruct t;
 	CGFloat sx=b.size.width/frame.size.width;
 	CGFloat sy=b.size.height/frame.size.height;
-	CGFloat s=sin(deg2rad(boundsRotation));
-	CGFloat c=cos(deg2rad(boundsRotation));
+	CGFloat s=sin(deg2rad(_boundsRotation));
+	CGFloat c=cos(deg2rad(_boundsRotation));
 	static CGFloat special;	// non zero value
 	//	NSLog(@"%30.30f", 2*asin(1)/180.0);
 	//	NSLog(@"%g", sinf(deg2rad(180.0)));
-	if(boundsRotation == 180.0)
+	if(_boundsRotation == 180.0)
 		NSLog(@"now 180: s=%g c=%g c+1=%g", s, c, c+1.0);
 	if(!special)
 		special=sin(M_PI);	// not 0 since sin(M_PI) = 1.22e-16
@@ -1113,7 +1115,7 @@ printing
 	// There is a "optimization" for 180 rotation that delivers very different results from 179.999 or 180.001
 	// mainly, the sign of m11,m22 is changed
 	
-	if(boundsRotation == 180.0)
+	if(_boundsRotation == 180.0)
 		{
 		NSLog(@"now 180");
 		}
@@ -1123,10 +1125,10 @@ printing
 	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale
 	CGFloat sx=newSize.width/frame.size.width;
 	CGFloat sy=newSize.height/frame.size.height;
-	if(boundsRotation == 180.0)
+	if(_boundsRotation == 180.0)
 		NSLog(@"now 180");
-	CGFloat s=sin(deg2rad(boundsRotation));
-	CGFloat c=cos(deg2rad(boundsRotation));
+	CGFloat s=sin(deg2rad(_boundsRotation));
+	CGFloat c=cos(deg2rad(_boundsRotation));
 	// t.m?? increasingly differs from Cocoa after translateOriginToPoint
 	// especially we find differences in the matrix that we reconstruct here directly from boundsRotation, newSize and frame.size
 	// the only explanation is that Cocoa dynamically calculates s/c from the old t.m?? values - i.e. ignores sin(rotation)/cos(rotation)
@@ -1169,7 +1171,7 @@ printing
 	t.tY = t.m12*o.x + t.m22*o.y;
 	[_frame2bounds setTransformStruct:t];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	boundsRotation=a;	// protect against rounding errors
+	_boundsRotation=a;	// protect against rounding errors
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
 	_v.customBounds=YES;
 	[self _invalidateCTM];
@@ -1196,7 +1198,7 @@ printing
 	n.tY=-s*t.tX+c*t.tY;
 	[_frame2bounds setTransformStruct:n];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	boundsRotation += a;
+	_boundsRotation += a;
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
 	_v.customBounds=YES;
 	[self _invalidateCTM];
@@ -1336,7 +1338,7 @@ printing
 - (NSRect) bounds					{ return _bounds; }
 - (CGFloat) boundsRotation			{ return _boundsRotation; }
 
-- (NSAffineTransform*) _bounds2frame;
+x;
 { // create transformation matrix
 	[self _updateFlipped];
 	if(_window && !_bounds2frame)
