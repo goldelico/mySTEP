@@ -1808,6 +1808,19 @@ x;
 		}
 }
 
+- (NSRect) visibleRect
+{ // return intersection between frame and superview's visible rect
+	if(_superview)
+		{
+		NSRect s;
+		s = [_superview visibleRect];
+		s = NSIntersectionRect(s, _frame);	// assume that our frame is also used for clipping
+		s = [self convertRect:s fromView:_superview];	// convert to our bounds coordinates
+		return NSIntersectionRect(s, _bounds);
+		}
+	return _bounds;	// if no super view, whole frame is visible
+}
+
 // this is the real drawing method
 
 - (void) drawRect:(NSRect)rect
@@ -1851,19 +1864,6 @@ x;
 {
 	//	NIMP;
 	*count=0;	// FIXME: not yet supported
-}
-
-- (NSRect) visibleRect
-{ // return intersection between frame and superview's visible rect
-	if(_superview)
-		{
-		NSRect s;
-		s = [_superview visibleRect];
-		s = NSIntersectionRect(s, _frame);	// assume that our frame is also used for clipping
-		s = [self convertRect:s fromView:_superview];	// convert to our bounds coordinates
-		return NSIntersectionRect(s, _bounds);
-		}
-	return _bounds;	// if no super view, whole frame is visible
 }
 
 - (BOOL) _addRectNeedingDisplay:(NSRect) rect;
