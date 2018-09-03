@@ -281,7 +281,7 @@
 		<key>windowBackgroundColor</key>
 		<string>0.95 0.95 0.95</string>
 		<key>windowFrameColor</key>
-		<string>lightGrayColor</string>
+		<string>0.8 0.8 0.8</string>
 		<key>windowFrameTextColor</key>
 		<string>blackColor</string>
 		<key>yellowColor</key>
