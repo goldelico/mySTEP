@@ -525,7 +525,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		}
 	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
 	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
-	if(1 && _img.flipDraw != [ctx isFlipped])
+	if(_img.flipDraw != [ctx isFlipped])
 		{
 		[atm translateXBy:0 yBy:1.0];
 		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
