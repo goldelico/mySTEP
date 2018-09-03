@@ -75,13 +75,13 @@ typedef NSInteger NSTrackingRectTag;
 	NSRect _invalidRect;			// union of all subrects
 	NSRect *_invalidRects;		// invalid rectangle list
 	NSView *_nextKeyView;
-    NSArray *_dragTypes;
+	NSArray *_dragTypes;
 	CGFloat _frameRotation;
 	CGFloat _boundsRotation;
 	NSUInteger _nInvalidRects;	// number of invalid rects
 	NSUInteger _cInvalidRects;	// capacity of invalidRects array
 	NSInteger _gState;
-    struct __ViewFlags {
+	struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;
 		unsigned int isRotatedOrScaledFromBase:1;
 		unsigned int postFrameChange:1;

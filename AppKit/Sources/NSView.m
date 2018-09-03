@@ -1038,6 +1038,7 @@ printing
 #define deg2rad(X)	(((double)(X))*(M_PI/180.0))
 
 // fails @ 180 deg
+// FIXME: silently ignore empty bounds
 
 - (void) setBounds:(NSRect) b
 {
@@ -1106,6 +1107,7 @@ printing
 }
 
 // OK (maybe except @ 180 degrees)
+// FIXME: silently ignore empty bounds
 
 - (void) setBoundsSize:(NSSize) newSize;
 {
@@ -1845,6 +1847,10 @@ x;
 {
 	NIMP;
 	// currently broken
+	// problem is that this method is called inside drawRect:
+	// and may be modified at the same time through setNeedsDisplayInRect:
+	// So we do not know if we should remove a rect before or after drawRect:
+	//
 	// we should save the current list at the beginning of drawRect
 	// replace the list being written to by an empty one
 	// then do drawRect
@@ -1869,6 +1875,9 @@ x;
 - (BOOL) _addRectNeedingDisplay:(NSRect) rect;
 {
 	int i;
+#if 1
+	NSLog(@"_addRectNeedingDisplay: %@", NSStringFromRect(rect));
+#endif
 	for(i=0; i<_nInvalidRects; i++)
 		{
 		// FIXME: the algorithm should create non-overlapping rects only!
@@ -1887,6 +1896,9 @@ x;
 	else
 		_invalidRect=NSUnionRect(_invalidRect, rect);	// merge
 	_invalidRects[_nInvalidRects++]=rect;	// append
+#if 1
+	NSLog(@"  => _nInvalidRects: %d invalidRect: %@", _nInvalidRects, NSStringFromRect(_invalidRect));
+#endif
 	return YES;
 }
 
@@ -1922,6 +1934,9 @@ x;
 		}
 	if(_nInvalidRects == 0)
 		_invalidRect=NSZeroRect;	// all has been drawn
+#if 1
+	NSLog(@"  => _nInvalidRects: %d invalidRect: %@", _nInvalidRects, NSStringFromRect(_invalidRect));
+#endif
 }
 
 - (BOOL) needsDisplay;
@@ -1943,7 +1958,6 @@ x;
 		{
 		_nInvalidRects=0;	// clear list
 		_invalidRect=NSZeroRect;
-		// _v.needsDisplay=NO;	// done
 		_v.needsDisplaySubviews=NO;
 		}
 }
@@ -1958,7 +1972,6 @@ x;
 	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
 	if(NSIsEmptyRect(rect))
 		return;	// ignore
-	// _v.needsDisplay=YES;
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
 	// FIXME - we should stop recursion upwards if a superview already covers our dirty rect
 	if([self _addRectNeedingDisplay:rect] || YES)
@@ -1997,11 +2010,6 @@ x;
 		NSLog(@"not increased: %@", self);
 		NSLog(@"super_view: %@", super_view);
 #endif
-		while(super_view)
-			{			
-			self=super_view;
-			// _v.needsDisplay=YES;
-			}
 		}
 #endif
 }
@@ -2034,7 +2042,6 @@ x;
 #endif
 	if(!context)
 		return;	// has no window (yet)
-	// _v.needsDisplay=NO;	// clear the needs-display flag
 	if(_v.hidden)
 		{ // don't draw me or my subviews
 		_nInvalidRects=0;	// remove all rects
