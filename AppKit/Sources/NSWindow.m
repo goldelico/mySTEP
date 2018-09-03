@@ -161,7 +161,7 @@ static BOOL __cursorHidden = NO;
 @implementation NSThemeFrame
 
 - (BOOL) isOpaque;	{ return YES; }	// only if background color has alpha==1.0
-- (BOOL) isFlipped;	{ return YES; }	// to simplify coordinate calculations: titlebar is at (0,0)
+- (BOOL) isFlipped;	{ return NO; }	// so that contentView.frame == contentView.bounds
 
 - (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle forScreen:(NSScreen *) screen;
 {
@@ -232,6 +232,7 @@ static BOOL __cursorHidden = NO;
 - (void) drawRect:(NSRect)rect
 { // draw window background
 	static NSDictionary *a;
+	CGFloat tby=NSMaxY(_bounds)-_height;	// title bar y value
 	if(!_didSetShape)
 		{
 		if((_style&NSUtilityWindowMask) == 0)
@@ -239,18 +240,18 @@ static BOOL __cursorHidden = NO;
 				NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 				CGFloat radius=9.0;
 				NSBezierPath *b=[NSBezierPath new];
-				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_bounds)+radius, NSMaxY(_bounds)-radius)
 											  radius:radius
 										  startAngle:180.0
-											endAngle:270.0
-										   clockwise:NO];	// top left corner
-				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_frame)-radius, NSMinY(_frame)+radius)
+											endAngle:90.0
+										   clockwise:YES];	// top left corner
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_bounds)-radius, NSMaxY(_bounds)-radius)
 											  radius:radius
-										  startAngle:270.0
-											endAngle:360.0
-										   clockwise:NO];	// top right corner
-				[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
-				[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
+										  startAngle:90.0
+											endAngle:0.0
+										   clockwise:YES];	// top right corner
+				[b lineToPoint:NSMakePoint(NSMaxX(_bounds), NSMinY(_bounds))];	// bottom right
+				[b lineToPoint:NSMakePoint(0.0, NSMinY(_bounds))];	// bottom left
 				[b closePath];
 #if 0
 				NSLog(@"set window shape %@", b);
@@ -262,13 +263,13 @@ static BOOL __cursorHidden = NO;
 		}
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
-	if(NSMinY(rect) < _height)
-		{ // needs to redraw the titlebar
+	if(NSMaxY(rect) > tby)
+		{ // wants to redraw the titlebar
 			NSParagraphStyle *paragraph=nil;
 			[[self titleBarBackgroundColor] set];
-			NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
+			NSRectFill(NSMakeRect(NSMinX(rect), tby, NSWidth(rect), _height ));	// fill titlebar background
 			[[NSColor windowFrameColor] set];
-			NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
+			NSFrameRect(_bounds);	// draw a frame around the window - cuts off round corners!
 			if(!_title && !_titleIcon)
 				return;
 			// draw document icon
@@ -278,7 +279,7 @@ static BOOL __cursorHidden = NO;
 			if(_titleIcon && _title)
 				{
 				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
-														 1.0+(_height-16.0)/2.0)
+														 tby+16.0/2.0-1.0)
 								   operation:NSCompositeSourceOver
 									fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
 				}
@@ -288,7 +289,7 @@ static BOOL __cursorHidden = NO;
 			   paragraph, NSParagraphStyleAttributeName,
 			   nil];
 			if(_title)
-				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, ((_style&NSUtilityWindowMask)?5.0:4.0)+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, tby+16.0/2.0-((_style&NSUtilityWindowMask)?5.0:4.0)) withAttributes:a]; // draw centered window title
 		}
 }
 
@@ -302,12 +303,12 @@ static BOOL __cursorHidden = NO;
 #if 0
 			[[NSColor redColor] set];
 #endif
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-8)
-									  toPoint:NSMakePoint(_bounds.size.width-8, _bounds.size.height-2)];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-11)
-									  toPoint:NSMakePoint(_bounds.size.width-11, _bounds.size.height-2)];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-14)
-									  toPoint:NSMakePoint(_bounds.size.width-14, _bounds.size.height-2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 8)
+									  toPoint:NSMakePoint(_bounds.size.width-8, 2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 11)
+									  toPoint:NSMakePoint(_bounds.size.width-11,2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 14)
+									  toPoint:NSMakePoint(_bounds.size.width-14, 2)];
 		}
 	[super unlockFocus];
 }
@@ -360,34 +361,33 @@ static BOOL __cursorHidden = NO;
 - (NSMenuView *) windowMenuView; { return nil; }	// if we have a horizontal menu inside the window
 - (NSToolbar *) toolbar; { return [_subviews count] > 6?[[_subviews objectAtIndex:6] toolbar]:(NSToolbar *) nil; }
 
-- (void) layout;
+- (void) layout;	// rearrange the subviews
 { // NOTE: if the window fills the screen, the content view has to be made smaller
 	NSView *cv;
-	NSRect f=[self frame];
+	NSRect f=NSMakeRect(0, 0, NSWidth(_bounds), NSHeight(_bounds));
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
-	f.origin.y+=_height;		// add room for buttons
-	f.size.height-=_height;
+	f.size.height-=_height;	// room for title bar
 	if([_window canBecomeMainWindow] && [self menu])
 		{ // has a window menu
 			NSMenuView *mv=[self windowMenuView];
 			CGFloat height=[mv frame].size.height;
 			NSRect tf=f;
-			f.origin.y+=height;
-			f.size.height-=height;	// make room for menu
 			tf.size.height=height;
-			[mv setFrame:tf];					// adjust menu view
+			tf.origin.y=NSMaxY(f)-height;
+			[mv setFrame:tf];			// adjust menu view
 			[mv setNeedsDisplay:YES];	// needs redraw
+			f.size.height-=height;
 		}
 	if([_subviews count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
 			CGFloat height=[tv height];
 			NSRect tf=f;
-			f.origin.y+=height;
-			f.size.height-=height;	// make room for toolbar
 			tf.size.height=height;
+			tf.origin.y=NSMaxY(f)-height;
 			[tv setFrame:tf];					// adjust toobar view
 			[tv setNeedsDisplay:YES];	// needs redraw
+			f.size.height-=height;
 		}
 	cv=[self contentView];
 #if 0
@@ -398,7 +398,7 @@ static BOOL __cursorHidden = NO;
 	if(!cv)
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
 	else
-		[cv setFrame:f];	// enforce size of content view to fit
+		[cv setFrame:f];		// enforce size of content view to fit
 	[cv setNeedsDisplay:YES];	// needs redraw
 	_didSetShape=NO;	// and reset shape
 }
@@ -412,7 +412,7 @@ static BOOL __cursorHidden = NO;
 - (void) setContentView:(NSView *) view;
 {
 	NSView *cv=[self contentView];	// current content view
-#if 0
+#if 1
 	NSLog(@"setContentView %@", self);
 	NSLog(@"  view=%@", view);
 	NSLog(@"  cv=%@", [self contentView]);
@@ -420,10 +420,10 @@ static BOOL __cursorHidden = NO;
 #endif
 	[self replaceSubview:cv with:view];	// this checks if a content view exists
 	[view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-	[view setAutoresizesSubviews:YES];	// enforce for content view
+	[view setAutoresizesSubviews:YES];	// enforce for a content view
 	[self layout];
 	[self setNeedsDisplay:YES];	// show everything
-#if 0
+#if 1
 	NSLog(@"self=%@", [self _subtreeDescription]);
 #endif	
 }
@@ -534,9 +534,9 @@ static BOOL __cursorHidden = NO;
 					NSPoint p=[theEvent locationInWindow];
 					initial=p;
 #endif
-					if(p.y < _frame.size.height-_height)
+					if(p.y < NSMaxY(_bounds)-_height)
 						{ // check if we a have resize enabled in _style and we clicked on lower right corner
-							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
+							if((_style & NSResizableWindowMask) == 0 || p.y > 16.0 || p.x < _frame.size.width-10.0)
 								{
 								// FIXME: we can also check if we are textured and the point we did hit is considered "background"
 #if 1
@@ -1492,7 +1492,7 @@ static NSButtonCell *sharedCell;
 
 - (void) setContentView:(NSView *)aView				
 {
-#if 0
+#if 1
 	NSLog(@"setContentView: %@", aView);
 	NSLog(@"setContentView: %@", [aView _subtreeDescription]);
 	NSLog(@"  w.autodisplay=%d", _w.autodisplay);
