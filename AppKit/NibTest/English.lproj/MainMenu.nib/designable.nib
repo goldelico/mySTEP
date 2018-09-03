@@ -2472,7 +2472,7 @@
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{49, 336}, {460, 438}}</string>
 				<int key="NSWTFlags">1886912512</int>
-				<string key="NSWindowTitle">myView</string>
+				<string key="NSWindowTitle">MyView</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<object class="NSMutableString" key="NSViewClass">
 					<characters key="NS.bytes">View</characters>
