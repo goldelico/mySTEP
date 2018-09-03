@@ -973,16 +973,17 @@ printing
 		else
 			_base2bounds=[NSAffineTransform new];
 		if(_v.superFlippedCache)
-			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
-				[_base2bounds translateXBy:0.0 yBy:NSHeight(_frame)];	// frame position is expressed in flipped super_view coordinates
+			{ // undo flipping of superview (because only our frame position is expressed in flipped coordinates but not our own coordinate system)
 				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
+				[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMaxY(_frame)];	// frame position is expressed in flipped super_view bounds coordinates
 			}
+		else
+			[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
 		if(_frameRotation)
 			[_base2bounds rotateByDegrees:-_frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
 			// ist auch hier ein appendTransform:rotation etwas anderes als rotateByDegrees?
-		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
 		// if(_v.customBounds)
-		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
+		[_base2bounds appendTransform:_frame2bounds];	// transform frame (i.e. superview bound) to our bounds
 		if(_v.flippedCache)
 			{ // finally flip bounds
 //				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
