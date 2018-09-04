@@ -259,13 +259,12 @@ static BOOL __cursorHidden = NO;
 	NSRectFill(rect);	// draw window background
 	if(NSMaxY(rect) > tby)
 		{ // wants to redraw the titlebar
-			NSParagraphStyle *paragraph=nil;
 			[[self titleBarBackgroundColor] set];
 			NSRectFill(NSMakeRect(NSMinX(rect), tby, NSWidth(rect), _height ));	// fill titlebar background
 			[[NSColor windowFrameColor] set];
 			NSFrameRect(_bounds);	// draw a frame around the window - cuts off round corners!
 		}
-	// hide/unhide buttons on demand
+	// FIXME: hide/unhide buttons on demand
 	[[self documentIcon] setEnabled:[_window isKeyWindow]];
 }
 
@@ -3010,7 +3009,7 @@ object:self]
 	static NSSize smallImage={ 15.0, 15.0 };
 	CGFloat button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
 	NSRect rect=NSMakeRect(0, 0, button, button);	// default rect
-	// set style dependent windget cell, i.e. brushed metal
+	// set style dependent widget cell, i.e. brushed metal
 	switch(type) {
 		case NSWindowCloseButton:
 			b=[[_NSThemeCloseWidget alloc] initWithFrame:rect forStyleMask:aStyle];
@@ -3018,7 +3017,7 @@ object:self]
 			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
 			[b setTitle:@""];
-#if 1
+#if 0
 			[b setTitle:@"X"];
 #endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
@@ -3029,7 +3028,7 @@ object:self]
 			[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
 			[b setTitle:@""];
-#if 1
+#if 0
 			[b setTitle:@"-"];
 #endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
@@ -3040,7 +3039,7 @@ object:self]
 			[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
 			[b setTitle:@""];
-#if 1
+#if 0
 			[b setTitle:@"+"];
 #endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
@@ -3054,7 +3053,7 @@ object:self]
 			[b setBordered:YES];	// with bezel
 			[b setBezelStyle:NSRoundedBezelStyle];
 			[b setTitle:@""];
-#if 1
+#if 0
 			[b setTitle:@"t"];
 #endif
 			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
@@ -3073,7 +3072,7 @@ object:self]
 			   nil];
 			 */
 			[b setTitle:@""];
-#if 1
+#if 0
 			// [b setTitle:@"no title"];
 #endif
 			[b setAlignment:NSCenterTextAlignment];
