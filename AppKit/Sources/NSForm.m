@@ -317,11 +317,13 @@ NSInteger i, count = [self numberOfRows];
 	[self drawCellAtIndex:row];
 }
 
+#if 0	// leads to recursion because setEntryWidth: calls setFrame:
 - (void) setFrameSize:(NSSize) size
 {
 	[self setEntryWidth:size.width];
 	[super setFrameSize:size];
 }
+#endif
 
 - (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol
 {
