@@ -66,7 +66,7 @@ typedef NSInteger NSTrackingRectTag;
 	NSView *_superview;
 	NSMutableArray *_subviews;
 	NSWindow *_window;
-	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated) - created on demand
+	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated, zero origin) - tracks settings
 	NSAffineTransform *_frame2bounds;	// inverse - created on demand
 	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
 	NSAffineTransform *_base2bounds;	// inverse - created on demand

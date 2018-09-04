@@ -822,8 +822,8 @@ printing
 		}
 	o=_frame.size;	// remember old size
 	_frame=frameRect;
-	if(!_v.customBounds)
-		_bounds.size = frameRect.size;	// always adjust
+	if(!_v.customBounds)	// otherwise, _bounds2frame should be an identity transform
+		_bounds.size = _frame.size;	// always adjust
 	[self _invalidateCTM];
 #if 0
 	NSLog(@"autosize %d %@", _v.autoSizeSubviews, self);
@@ -870,9 +870,10 @@ printing
 			NSLog(@"width == 0!");
 #endif
 		_frame.size = newSize;
-		if(!_v.customBounds)
-			[self setBoundsSize:newSize];	// always adjust
+		if(!_v.customBounds)	// otherwise, _bounds2frame should be an identity transform
+			_bounds.size = _frame.size;	// always adjust
 		[self _invalidateCTM];
+		// scale if bounds != frame size???
 		[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
 		}
 	if(_v.postFrameChange)
@@ -1010,7 +1011,7 @@ printing
 			NSLog(@"calculating _bounds2base: %@", self);
 #endif
 			_bounds2base=[[self _base2bounds] copy];	// always make a (modifiable) copy
-			[_bounds2base invert];	// go back from window to our bounds coordinates
+			[_bounds2base invert];	// goes back from window coordinates to our bounds coordinates
 			NSLog(@"base2bounds=%@", _base2bounds);
 			NSLog(@"bounds2base=%@", _bounds2base);
 		}
@@ -1037,25 +1038,45 @@ printing
 
 #define deg2rad(X)	(((double)(X))*(M_PI/180.0))
 
+- (void) _setBoundsTransform:(NSAffineTransformStruct) t;
+{ /* set _frame2bounds, invalidate and post notifications */
+#if 1
+	NSLog(@"_setBoundsTransform: m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+	NSLog(@"old bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
+#endif
+	[_frame2bounds setTransformStruct:t];
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+#if 1
+	NSLog(@"new bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
+#endif
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
 // fails @ 180 deg
 // FIXME: silently ignore empty bounds
 
 - (void) setBounds:(NSRect) b
 {
 	// FIXME: needs some work to be 100% compatible to Cocoa
+#if 1
 	NSLog(@"2 setBounds:%@", NSStringFromRect(b));
-	NSRect frame=[self frame];
+#endif
+	NSSize frameSize=_frame.size;
 	NSAffineTransformStruct t;
-	CGFloat sx=b.size.width/frame.size.width;
-	CGFloat sy=b.size.height/frame.size.height;
-	CGFloat s=sin(deg2rad(_boundsRotation));
-	CGFloat c=cos(deg2rad(_boundsRotation));
+	CGFloat sx=b.size.width/frameSize.width;
+	CGFloat sy=b.size.height/frameSize.height;
+	CGFloat rad=deg2rad(_boundsRotation);
+	CGFloat s=sin(rad);
+	CGFloat c=cos(rad);
 	static CGFloat special;	// non zero value
 	//	NSLog(@"%30.30f", 2*asin(1)/180.0);
 	//	NSLog(@"%g", sinf(deg2rad(180.0)));
 	if(_boundsRotation == 180.0)
 		NSLog(@"now 180: s=%g c=%g c+1=%g", s, c, c+1.0);
-	if(!special)
+	if(special == 0.0)
 		special=sin(M_PI);	// not 0 since sin(M_PI) = 1.22e-16
 	if(1 && (c+1.0) == 0.0)
 		{ // this appears to be a buggy optimization in Cocoa because it ignores sgn(c)
@@ -1073,37 +1094,28 @@ printing
 		}
 	t.tX=b.origin.x;
 	t.tY=b.origin.y;
-	[_frame2bounds setTransformStruct:t];
-	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 /*
  * setBoundsSize followed by setBoundsOrigin is the same as setBounds
- * setBoundsOrigin followed by setBoundsSize isn't, because setBoundsSize modifies the origin)
+ * setBoundsOrigin followed by setBoundsSize isn't, because setBoundsSize modifies the origin!
  */
 
 // ok
 
 - (void) setBoundsOrigin:(NSPoint) p;
 {
+#if 1
 	NSLog(@"2 setBoundsOrigin:%@", NSStringFromPoint(p));
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+#if 1
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+#endif
 	t.tX=p.x;
 	t.tY=p.y;
-	[_frame2bounds setTransformStruct:t];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 // OK (maybe except @ 180 degrees)
@@ -1111,10 +1123,13 @@ printing
 
 - (void) setBoundsSize:(NSSize) newSize;
 {
+#if 1
 	NSLog(@"2 setBoundsSize:%@", NSStringFromSize(newSize));
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+#if 1
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
-	
+#endif
 	// There is a "optimization" for 180 rotation that delivers very different results from 179.999 or 180.001
 	// mainly, the sign of m11,m22 is changed
 	
@@ -1122,12 +1137,11 @@ printing
 		{
 		NSLog(@"now 180");
 		}
-	NSRect frame=[self frame];
 	// can be skipped if never rotated or scaled:
 	double D=t.m11*t.m22 - t.m12*t.m21;
 	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale
-	CGFloat sx=newSize.width/frame.size.width;
-	CGFloat sy=newSize.height/frame.size.height;
+	CGFloat sx=newSize.width/_frame.size.width;
+	CGFloat sy=newSize.height/_frame.size.height;
 	if(_boundsRotation == 180.0)
 		NSLog(@"now 180");
 	CGFloat s=sin(deg2rad(_boundsRotation));
@@ -1142,24 +1156,23 @@ printing
 	t.m22 = c * sy;
 	t.tX = t.m11*o.x + t.m21*o.y;	// apply rotation and new scale
 	t.tY = t.m12*o.x + t.m22*o.y;
-	[_frame2bounds setTransformStruct:t];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 // nok
 
 - (void) setBoundsRotation:(CGFloat) a;
 {
+#if 1
 	NSLog(@"2 setBoundsRotation:%g", a);
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+#if 1
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
-	CGFloat c=cos(deg2rad(a));
-	CGFloat s=sin(deg2rad(a));
+#endif
+	CGFloat rad=deg2rad(a);
+	CGFloat c=cos(rad);
+	CGFloat s=sin(rad);
 	CGFloat Q = t.m11*t.m11+t.m12*t.m12+t.m21*t.m21+t.m22*t.m22;
 	CGFloat D = t.m11*t.m22-t.m12*t.m21;	// invariants (don't change for rotations)
 	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale from origin
@@ -1172,14 +1185,8 @@ printing
 	t.m22 = c * sy;
 	t.tX = t.m11*o.x + t.m21*o.y;	// apply rotation and new scale
 	t.tY = t.m12*o.x + t.m22*o.y;
-	[_frame2bounds setTransformStruct:t];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_boundsRotation=a;	// protect against rounding errors
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 /* relative modifiers */
@@ -1190,8 +1197,9 @@ printing
 {
 	NSLog(@"2 rotateByAngle:%g", a);
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
-	CGFloat c=cos(deg2rad(a));
-	CGFloat s=sin(deg2rad(a));
+	CGFloat rad=deg2rad(a);
+	CGFloat c=cos(rad);
+	CGFloat s=sin(rad);
 	NSAffineTransformStruct n;
 	n.m11=c*t.m11+s*t.m12;
 	n.m12=-s*t.m11+c*t.m12;
@@ -1199,14 +1207,8 @@ printing
 	n.m22=-s*t.m21+c*t.m22;
 	n.tX=c*t.tX+s*t.tY;
 	n.tY=-s*t.tX+c*t.tY;
-	[_frame2bounds setTransformStruct:n];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_boundsRotation += a;
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 // OK
@@ -1217,20 +1219,16 @@ printing
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
 	t.tX -= p.x;
 	t.tY -= p.y;
-	[_frame2bounds setTransformStruct:t];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 // OK
 
 - (void) scaleUnitSquareToSize:(NSSize) sz;
 {
+#if 1
 	NSLog(@"2 scaleUnitSquareToSize:%@", NSStringFromSize(sz));
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
 	t.m11 /= sz.width;
 	t.m12 /= sz.height;
@@ -1238,13 +1236,7 @@ printing
 	t.m22 /= sz.height;
 	t.tX /= sz.width;
 	t.tY /= sz.height;
-	[_frame2bounds setTransformStruct:t];
-//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
-	_v.customBounds=YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+	[self _setBoundsTransform:t];
 }
 
 #else // OLD
@@ -1341,7 +1333,7 @@ printing
 - (NSRect) bounds					{ return _bounds; }
 - (CGFloat) boundsRotation			{ return _boundsRotation; }
 
-x;
+- (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
 	[self _updateFlipped];
 	if(_window && !_bounds2frame)
@@ -1697,7 +1689,7 @@ x;
 	int options = 0;
 	if(!_superview)
 		return;	// how can this happen? We are called as [[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize]
-	superViewFrameSize = [_superview frame].size;
+	superViewFrameSize = [_superview bounds].size;
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged superview size
 #if 1
@@ -1801,6 +1793,7 @@ x;
 	if(changedSize || changedOrigin)
 		{
 		// CHECKME: does this overwrite bounds.size?
+		// Yes, unless we have custom bounds
 		[self setFrame:newFrame];
 #if 1
 		NSLog(@"new frame %@", NSStringFromRect(_frame));
@@ -1965,13 +1958,16 @@ x;
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
 #if 1
-	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
+	NSLog(@"-setNeedsDisplayInRect:%@ of %@ superview=%@", NSStringFromRect(rect), self, _superview);
 #endif
 	if(!_window)
 		return;	// ignore if we have no window
 	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
 	if(NSIsEmptyRect(rect))
+		{
+		NSLog(@"setNeedsDisplayInRect:%@ outside bounds=%@", NSStringFromRect(rect), NSStringFromRect(_bounds));
 		return;	// ignore
+		}
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
 	// FIXME - we should stop recursion upwards if a superview already covers our dirty rect
 	if([self _addRectNeedingDisplay:rect] || YES)
@@ -1993,11 +1989,13 @@ x;
 				return;
 				}
 			r=[self convertRect:rect toView:_superview];
+			if(NSIsEmptyRect(r))
+				NSLog(@"outside superview!");
 			[_superview setNeedsDisplayInRect:r];	// FIXME: we should better loop instead of doing a recursion
 			}
 		else
 			{
-#if 0
+#if 1
 			NSLog(@"setViewsNeedDisplay: %@", _window);
 #endif
 			[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
