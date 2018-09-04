@@ -88,9 +88,7 @@ static BOOL __cursorHidden = NO;
 
 @interface NSThemeFrame : NSView
 {
-	NSString *_title;
-	NSImage *_titleIcon;
-	NSButton *_resizeButton;	// really here?
+	// unused:	NSButton *_resizeButton;	// really here?
 	NSToolbar *_toolbar;
 	NSColor *_backgroundColor;	// window background color
 	CGFloat _height;	// title bar height (w/o ToolbarView!)
@@ -214,8 +212,6 @@ static BOOL __cursorHidden = NO;
 
 - (void) dealloc;
 {
-	[_title release];
-	[_titleIcon release];
 	[_backgroundColor release];
 	[super dealloc];
 }
@@ -230,7 +226,6 @@ static BOOL __cursorHidden = NO;
 
 - (void) drawRect:(NSRect)rect
 { // draw window background
-	static NSDictionary *a;
 	CGFloat tby=NSMaxY(_bounds)-_height;	// title bar y value
 	if(!_didSetShape)
 		{
@@ -269,27 +264,9 @@ static BOOL __cursorHidden = NO;
 			NSRectFill(NSMakeRect(NSMinX(rect), tby, NSWidth(rect), _height ));	// fill titlebar background
 			[[NSColor windowFrameColor] set];
 			NSFrameRect(_bounds);	// draw a frame around the window - cuts off round corners!
-			if(!_title && !_titleIcon)
-				return;
-			// draw document icon
-			// or shouldn't we better use a resizable NSButton with center alignment to store and draw both, the window icon and title?
-			// or at least use a centered paragraph style!
-			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-			if(_titleIcon && _title)
-				{
-				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
-														 tby+16.0/2.0-1.0)
-								   operation:NSCompositeSourceOver
-									fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
-				}
-			a=[NSDictionary dictionaryWithObjectsAndKeys:
-			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
-			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
-			   paragraph, NSParagraphStyleAttributeName,
-			   nil];
-			if(_title)
-				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, tby+16.0/2.0-((_style&NSUtilityWindowMask)?5.0:4.0)) withAttributes:a]; // draw centered window title
 		}
+	// hide/unhide buttons on demand
+	[[self documentIcon] setEnabled:[_window isKeyWindow]];
 }
 
 - (void) unlockFocus;
@@ -322,10 +299,27 @@ static BOOL __cursorHidden = NO;
 	[self setNeedsDisplay:YES];
 }
 
-- (NSString *) title; { return _title; }
-- (void) setTitle:(NSString *) title; { ASSIGN(_title, title); [self setNeedsDisplay:YES]; }
-- (NSImage *) titleIcon; { return _titleIcon; }
-- (void) setTitleIcon:(NSImage *) img; { ASSIGN(_titleIcon, img); [self setNeedsDisplay:YES]; }
+- (NSString *) title; { return [[self documentIcon] title]; }
+
+- (void) setTitle:(NSString *) title;
+{
+	NSButton *b=[self documentIcon];
+	//	ASSIGN(_title, title); [self setNeedsDisplay:YES];
+	if(!b)
+		NSLog(@"warning setTitle with nil documentIcon button");
+	[b setTitle:title];
+}
+
+- (NSImage *) titleIcon; { return [[self documentIcon] image]; }
+- (void) setTitleIcon:(NSImage *) img;
+{
+	NSButton *b=[self documentIcon];
+	//	ASSIGN(_titleIcon, img); [self setNeedsDisplay:YES];
+	if(!b)
+		NSLog(@"warning setTitle with nil documentIcon button");
+	[[self documentIcon] setImage:img];
+}
+
 - (NSColor *) backgroundColor; { return _backgroundColor; }
 - (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); [self setNeedsDisplay:YES]; }
 
@@ -405,7 +399,7 @@ static BOOL __cursorHidden = NO;
 			switch(i) {
 				case 0:
 				case 1:
-				case 2: {
+				case 2: { // close, miniaturize, zoom
 					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
 					NSRect button=[bv frame];
 					button.origin.x=4.0+(_height-1.0)*i;
@@ -413,16 +407,16 @@ static BOOL __cursorHidden = NO;
 					[bv setFrameOrigin:button.origin];
 					break;
 				}
-				case 3: {
+				case 3: { // icon & title
 					NSThemeDocumentButton *bv=[_subviews objectAtIndex:i];
 					NSRect button=[bv frame];
 					button.origin.x=4.0+(_height-1.0)*3;
-					button.origin.y=NSMaxY(f)+0.125*_height;
+					button.origin.y=NSMaxY(f);
 					button.size.width=NSMaxX(f)-4.0-(_height-1.0)-button.origin.x;
 					[bv setFrame:button];
 					break;
 				}
-				case 5: {
+				case 5: { // toolbar
 					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
 					NSRect button=[bv frame];
 					button.origin.x=NSMaxX(f)-4.0-(_height-1.0);
@@ -3023,8 +3017,10 @@ object:self]
 			[b setAction:@selector(_close:)];
 			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-			//				[b setTitle:@"x"];
 			[b setTitle:@""];
+#if 1
+			[b setTitle:@"X"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowMiniaturizeButton:
@@ -3032,8 +3028,10 @@ object:self]
 			[b setAction:@selector(miniaturize:)];
 			[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
-			//				[b setTitle:@"-"];
 			[b setTitle:@""];
+#if 1
+			[b setTitle:@"-"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowZoomButton:
@@ -3041,8 +3039,10 @@ object:self]
 			[b setAction:@selector(zoom:)];
 			[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
-			//				[b setTitle:@"+"];
 			[b setTitle:@""];
+#if 1
+			[b setTitle:@"+"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowToolbarButton:
@@ -3053,20 +3053,29 @@ object:self]
 			[b setEnabled:YES];
 			[b setBordered:YES];	// with bezel
 			[b setBezelStyle:NSRoundedBezelStyle];
-			//				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
-			//				[b setTitle:@"t"];
 			[b setTitle:@""];
+#if 1
+			[b setTitle:@"t"];
+#endif
 			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowDocumentIconButton:
 			b=[[NSThemeDocumentButton alloc] initWithFrame:rect forStyleMask:aStyle];	// we must adjust the width when using this button!
-			[b setEnabled:NO];
 			// somehow include us in handling move by clicking into the title bar except for D&D on the icon
 			[b setImagePosition:NSImageLeft];
 			[[b cell] setImageDimsWhenDisabled:NO];
-			//				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];	// FIXME: image alignment and text alignment do not work correctly for NSButtonCells
+			[b setEnabled:NO];
+			/* set font and color attributes
+			a=[NSDictionary dictionaryWithObjectsAndKeys:
+			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
+			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+			   paragraph, NSParagraphStyleAttributeName,
+			   nil];
+			 */
 			[b setTitle:@""];
-			// [b setTitle:@"notitle"];
+#if 1
+			// [b setTitle:@"no title"];
+#endif
 			[b setAlignment:NSCenterTextAlignment];
 			[[b cell] setLineBreakMode:NSLineBreakByTruncatingTail];
 			[b setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
