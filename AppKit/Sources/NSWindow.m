@@ -360,27 +360,61 @@ static BOOL __cursorHidden = NO;
 	NSInteger i;
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
 	f.size.height-=_height;	// room for title bar
+	for(i=[_subviews count]-1; i>=0; i--)
+		{ // arrange buttons in title bar
+			switch(i) {
+				case 0:
+				case 1:
+				case 2: { // close, miniaturize, zoom
+					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=4.0+(_height-1.0)*i;
+					button.origin.y=NSMaxY(f);
+					[bv setFrameOrigin:button.origin];
+					[bv setNeedsDisplay:YES];
+					break;
+				}
+				case 3: { // icon & title
+					NSThemeDocumentButton *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=4.0+(_height-1.0)*3;
+					button.origin.y=NSMaxY(f);
+					button.size.width=NSMaxX(f)-4.0-(_height-1.0)-button.origin.x;
+					[bv setFrame:button];
+					[bv setNeedsDisplay:YES];
+					break;
+				}
+				case 5: { // toolbar
+					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=NSMaxX(f)-4.0-button.size.width;
+					button.origin.y=NSMaxY(f);
+					[bv setFrameOrigin:button.origin];
+					[bv setNeedsDisplay:YES];
+				}
+			}
+		}
 	if([_window canBecomeMainWindow] && [self menu])
 		{ // has a window menu
 			NSMenuView *mv=[self windowMenuView];
 			CGFloat height=[mv frame].size.height;
 			NSRect tf=f;
+			f.size.height-=height;
 			tf.size.height=height;
-			tf.origin.y=NSMaxY(f)-height;
+			tf.origin.y=NSMaxY(f);
 			[mv setFrame:tf];			// adjust menu view
 			[mv setNeedsDisplay:YES];	// needs redraw
-			f.size.height-=height;
 		}
 	if([_subviews count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
 			CGFloat height=[tv height];
 			NSRect tf=f;
-			tf.size.height=height;
-			tf.origin.y=NSMaxY(f)-height;
-			[tv setFrame:tf];					// adjust toobar view
-			[tv setNeedsDisplay:YES];	// needs redraw
 			f.size.height-=height;
+			tf.size.height=height;
+			tf.origin.y=NSMaxY(f);
+			[tv setFrame:tf];			// adjust toobar view
+			[tv setNeedsDisplay:YES];	// needs redraw
 		}
 	cv=[self contentView];
 #if 0
@@ -391,39 +425,8 @@ static BOOL __cursorHidden = NO;
 	if(!cv)
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
 	else
-		[cv setFrame:f];		// enforce size of content view to fit
+		[cv setFrame:f];		// enforce size of content view to fit remainder
 	[cv setNeedsDisplay:YES];	// needs redraw
-	for(i=[_subviews count]-1; i>=0; i--)
-		{ // arrange buttons
-			switch(i) {
-				case 0:
-				case 1:
-				case 2: { // close, miniaturize, zoom
-					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
-					NSRect button=[bv frame];
-					button.origin.x=4.0+(_height-1.0)*i;
-					button.origin.y=NSMaxY(f);
-					[bv setFrameOrigin:button.origin];
-					break;
-				}
-				case 3: { // icon & title
-					NSThemeDocumentButton *bv=[_subviews objectAtIndex:i];
-					NSRect button=[bv frame];
-					button.origin.x=4.0+(_height-1.0)*3;
-					button.origin.y=NSMaxY(f);
-					button.size.width=NSMaxX(f)-4.0-(_height-1.0)-button.origin.x;
-					[bv setFrame:button];
-					break;
-				}
-				case 5: { // toolbar
-					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
-					NSRect button=[bv frame];
-					button.origin.x=NSMaxX(f)-4.0-(_height-1.0);
-					button.origin.y=NSMaxY(f);
-					[bv setFrameOrigin:button.origin];
-				}
-			}
-		}
 	_didSetShape=NO;	// and reset shape
 }
 
