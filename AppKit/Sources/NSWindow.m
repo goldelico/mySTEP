@@ -593,7 +593,7 @@ static BOOL __cursorHidden = NO;
 #else
 					NSPoint loc=[theEvent locationInWindow];
 #endif	// OLDMOVE
-					deltax=loc.x-initial.x;	// how much we have moved
+					deltax=loc.x-initial.x;	// how much we have moved the mouse
 					deltay=loc.y-initial.y;
 					NSLog(@"moved by (%g %g)", deltax, deltay);
 #if 0
@@ -620,9 +620,8 @@ static BOOL __cursorHidden = NO;
 							NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
 							[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-							[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event
-							// called by ConfigureNotify event
-							// [self setNeedsDisplay:YES];
+							[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event if needed
+							[[_window graphicsContext] flushGraphics];	// push to immediately user's screen
 						}
 					else
 						{ // moving
@@ -645,6 +644,7 @@ static BOOL __cursorHidden = NO;
 										wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
 								}
 							[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+							[[_window graphicsContext] flushGraphics];	// push to immediately user's screen
 							NSLog(@"move child windows %@", [_window childWindows]);
 #if OLDMOVE
 #else
