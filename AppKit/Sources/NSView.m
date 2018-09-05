@@ -567,6 +567,10 @@ printing
 {
 	if(__toolTipOwnerView == self)
 		[self mouseExited:nil];	// call before releasing anything
+	if(_savedInvalidRects)
+		objc_free(_savedInvalidRects);	// no longer needed
+	if(_invalidRects)
+		objc_free(_invalidRects);	// no longer needed
 	// FIXME: release gState if we have a private one
 	[_subviews makeObjectsPerformSelector:@selector(_setWindow:) withObject:nil];	// nullify window
 	[_subviews makeObjectsPerformSelector:@selector(_setSuperview:) withObject:nil];	// nullify superview
@@ -635,7 +639,7 @@ printing
 {
 	if (self == aView)								// Are they the same view?
 		return self;
-  
+
 	if ([self isDescendantOf: aView])				// Is self a descendant of 
 		return aView;								// view?
 
@@ -766,12 +770,12 @@ printing
 		_window=newWindow;	// set new window before processing siblings - unless we are tearing down
 	[_subviews makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	_window=newWindow;	// set new window (always)
-	_nInvalidRects=0;	// clear cache
+	_nInvalidRects=0;	// clear invalid rect list
 	if(newWindow)
-	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
-		[self _addRectNeedingDisplay:_bounds];	// set bounds as the first and only invalid rect
-//		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
-	_v.needsDisplaySubviews=YES;	// mark to redraw subviews
+		{
+		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
+		_v.needsDisplaySubviews=YES;	// mark to redraw subviews
+		}
 	[self viewDidMoveToWindow];
 }
 
@@ -951,9 +955,8 @@ printing
 - (void) _invalidateCTM;
 {
 	_invalidRect=NSZeroRect;	// has become invalid as well
-	_nInvalidRects=0;			// require a setNeedsDisplay
+	_nInvalidRects=0;			// requires a setNeedsDisplay
 	[_bounds2frame release], _bounds2frame=nil;
-//	[_frame2bounds release], _frame2bounds=nil;
 	[self _invalidateCTMtoBase];	// subviews can keep their individual bounds2frame mapping intact - only their mapping to the screen will change
 }
 
@@ -1195,7 +1198,9 @@ printing
 
 - (void) rotateByAngle:(CGFloat) a;
 {
+#if 1
 	NSLog(@"2 rotateByAngle:%g", a);
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
 	CGFloat rad=deg2rad(a);
 	CGFloat c=cos(rad);
@@ -1215,7 +1220,9 @@ printing
 
 - (void) translateOriginToPoint:(NSPoint) p;
 {
+#if 1
 	NSLog(@"2 translateOriginToPoint:%@", NSStringFromPoint(p));
+#endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
 	t.tX -= p.x;
 	t.tY -= p.y;
@@ -1805,7 +1812,7 @@ printing
 
 - (NSRect) visibleRect
 { // return intersection between frame and superview's visible rect
-	if(_superview)
+	if(_window && _superview)
 		{
 		NSRect s;
 		s = [_superview visibleRect];
@@ -1813,7 +1820,7 @@ printing
 		s = [self convertRect:s fromView:_superview];	// convert to our bounds coordinates
 		return NSIntersectionRect(s, _bounds);
 		}
-	return _bounds;	// if no super view, whole frame is visible
+	return _bounds;	// if no super view, assume that whole frame is visible
 }
 
 // this is the real drawing method
@@ -1827,9 +1834,9 @@ printing
 {
 	int i;
 	if(!NSIntersectsRect(rect, _invalidRect))
-		return NO;	// overall invalid rect
+		return NO;	// outside of overall invalid rect
 	for(i = 0; i < _nInvalidRects; i++)
-		{
+		{ // check individual rects
 		if(NSIntersectsRect(rect, _invalidRects[i]))
 			return YES;
 		}
@@ -1838,19 +1845,8 @@ printing
 
 - (void) getRectsBeingDrawn:(const NSRect **) rects count:(NSInteger *) count;
 {
-	NIMP;
-	// currently broken
-	// problem is that this method is called inside drawRect:
-	// and may be modified at the same time through setNeedsDisplayInRect:
-	// So we do not know if we should remove a rect before or after drawRect:
-	//
-	// we should save the current list at the beginning of drawRect
-	// replace the list being written to by an empty one
-	// then do drawRect
-	// so that an setNeedsDisplayInRect: during drawRect is added to the new list
-	// and delete the old one at unlockFocus
-	*rects=_invalidRects;
-	*count=_nInvalidRects;
+	*rects=_savedInvalidRects;
+	*count=_nSavedInvalidRects;
 }
 
 - (NSRect) rectPreservedDuringLiveResize;
@@ -1865,73 +1861,6 @@ printing
 	*count=0;	// FIXME: not yet supported
 }
 
-- (BOOL) _addRectNeedingDisplay:(NSRect) rect;
-{
-	int i;
-#if 1
-	NSLog(@"_addRectNeedingDisplay: %@", NSStringFromRect(rect));
-#endif
-	for(i=0; i<_nInvalidRects; i++)
-		{
-		// FIXME: the algorithm should create non-overlapping rects only!
-		if(NSContainsRect(_invalidRects[i], rect))
-			return NO;	// someone already completely covers me
-		if(NSContainsRect(rect, _invalidRects[i]))
-			{ // this one is completely covered by me - delete
-			memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
-			i--;	// keep index intact
-			}
-		}
-	if(_nInvalidRects >= _cInvalidRects)
-		_invalidRects=(NSRect *) objc_realloc(_invalidRects, sizeof(_invalidRects[0])*(_cInvalidRects=2*_cInvalidRects+3));	// make more room
-	if(_nInvalidRects == 0)
-		_invalidRect=rect;	// we are the first rect
-	else
-		_invalidRect=NSUnionRect(_invalidRect, rect);	// merge
-	_invalidRects[_nInvalidRects++]=rect;	// append
-#if 1
-	NSLog(@"  => _nInvalidRects: %d invalidRect: %@", _nInvalidRects, NSStringFromRect(_invalidRect));
-#endif
-	return YES;
-}
-
-- (void) _removeRectNeedingDisplay:(NSRect) rect;
-{ // FIXME: could be better optimized to shrink the invalidRect and split up intersecting parts
-	int i;
-#if 1
-	NSLog(@"_removeRectNeedingDisplay %@ for %@", NSStringFromRect(rect), self);
-#endif
-	if(NSIsEmptyRect(rect))
-		return;	// ignore
-	for(i=0; i<_nInvalidRects; i++)
-		{ // remove/cut down all invalidRects that intersect with aRect
-		if(NSContainsRect(rect, _invalidRects[i]))
-			{ // has been completely drawn
-			memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
-			i--;				// keep index intact
-			continue;
-			}
-		if(NSIntersectsRect(rect, _invalidRects[i]))
-			{
-#if 0
-			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect(invalidRects[i]), self);
-#endif
-			// what if it intersects???
-			// we might cut out parts
-			// but since this are only hints to optimize drawing, leave it as it is
-			}
-		}
-	if(NSContainsRect(rect, _invalidRect))
-		{ // HACK: assume this completely covers all invalid rects
-		_nInvalidRects=0;	// remove
-		}
-	if(_nInvalidRects == 0)
-		_invalidRect=NSZeroRect;	// all has been drawn
-#if 1
-	NSLog(@"  => _nInvalidRects: %d invalidRect: %@", _nInvalidRects, NSStringFromRect(_invalidRect));
-#endif
-}
-
 - (BOOL) needsDisplay;
 {
 	return !_v.hidden && (_v.needsDisplaySubviews || !NSIsEmptyRect(_invalidRect));	// needs to draw something if not empty
@@ -1942,14 +1871,11 @@ printing
 {
 	if(!_window)
 		return;	// ignore if we have no window
+	_nSavedInvalidRects=0;	// clear list first
 	if(flag)
-		{
-		_nInvalidRects=0;	// clear list first
 		[self setNeedsDisplayInRect:_bounds];
-		}
 	else
 		{
-		_nInvalidRects=0;	// clear list
 		_invalidRect=NSZeroRect;
 		_v.needsDisplaySubviews=NO;
 		}
@@ -1957,7 +1883,8 @@ printing
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
-#if 1
+	int i;
+#if 0
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@ superview=%@", NSStringFromRect(rect), self, _superview);
 #endif
 	if(!_window)
@@ -1968,48 +1895,66 @@ printing
 		NSLog(@"setNeedsDisplayInRect:%@ outside bounds=%@", NSStringFromRect(rect), NSStringFromRect(_bounds));
 		return;	// ignore
 		}
+	if(NSContainsRect(_invalidRect, rect))
+		return;	// already known to be dirty
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
-	// FIXME - we should stop recursion upwards if a superview already covers our dirty rect
-	if([self _addRectNeedingDisplay:rect] || YES)
-		{ // we (and our superviews) didn't know this rect yet
-#if 1
-		NSLog(@"setNeedsDisplay 1: %@", self);
+#if 0
+	NSLog(@"_addRectNeedingDisplay: %@", NSStringFromRect(rect));
 #endif
-		if(_superview)
-			{ // FIXME: not rotation-safe
-			NSRect r;
-			if(NO && [self isOpaque])
-				{ // just mark all the superviews to needsDisplaySubviews without updating their dirty rect
-				while(_superview)
-					{
-					self=_superview;
-					_v.needsDisplaySubviews=YES;	// mark to redraw subviews
-					}
-				[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
-				return;
-				}
-			r=[self convertRect:rect toView:_superview];
-			if(NSIsEmptyRect(r))
-				NSLog(@"outside superview!");
-			[_superview setNeedsDisplayInRect:r];	// FIXME: we should better loop instead of doing a recursion
+	for(i=0; i<_nInvalidRects; i++)
+		{ // check if we can merge/expand an existing invalid rect
+		// FIXME: the algorithm should create non-overlapping rects only!
+		if(NSContainsRect(_invalidRects[i], rect))
+			return;	// we (and our superviews) already know this rect
+		if(NSContainsRect(rect, _invalidRects[i]))
+			{ // this existing one is completely covered by me - delete
+				memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
+				i--;	// keep index intact
 			}
-		else
-			{
-#if 1
-			NSLog(@"setViewsNeedDisplay: %@", _window);
-#endif
-			[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
+		if(NSIntersectsRect(rect, _invalidRects[i]))
+			{ // overlaps with existing one, delete that one and enlarge our rect
+				rect=NSUnionRect(_invalidRects[i], rect);
+				memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
+				i--;	// keep index intact
 			}
 		}
-#if FIXME	// FIXME: this does not properly work!
+	if(_nInvalidRects == 0)
+		_invalidRect=rect;	// we are the first rect
 	else
-		{ // we already did have the rect invalidated - assume that our superviews also know that
+		_invalidRect=NSUnionRect(_invalidRect, rect);	// merge
+	if(_nInvalidRects >= _cInvalidRects)
+		_invalidRects=(NSRect *) objc_realloc(_invalidRects, sizeof(_invalidRects[0])*(_cInvalidRects=2*_cInvalidRects+1));	// make more room but at least 1
+	_invalidRects[_nInvalidRects++]=rect;	// append
+#if 0
+	NSLog(@"  => _nInvalidRects: %lu invalidRect: %@", (unsigned long)_nInvalidRects, NSStringFromRect(_invalidRect));
+#endif
+	if(_superview)
+		{ // FIXME: not rotation-safe
+		NSRect r;
+		if(NO && [self isOpaque])
+			{ // just mark all the superviews to needsDisplaySubviews without updating their dirty rect
+			while(_superview)
+				{
+				self=_superview;
+				_v.needsDisplaySubviews=YES;	// mark to redraw subviews
+				}
+			[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
+			return;
+			}
+		r=[self convertRect:rect toView:_superview];
 #if 1
-		NSLog(@"not increased: %@", self);
-		NSLog(@"super_view: %@", super_view);
+		if(NSIsEmptyRect(r))
+			NSLog(@"outside superview!");
 #endif
+		[_superview setNeedsDisplayInRect:r];	// FIXME: we should better loop instead of doing a recursion
 		}
+	else
+		{
+#if 0
+		NSLog(@"setViewsNeedDisplay: %@", _window);
 #endif
+		[_window setViewsNeedDisplay:YES];	// upwards recursion has reached the topmost view
+		}
 }
 
 - (void) setKeyboardFocusRingNeedsDisplayInRect:(NSRect) rect;
@@ -2040,12 +1985,16 @@ printing
 #endif
 	if(!context)
 		return;	// has no window (yet)
+	if(_savedInvalidRects)
+		objc_free(_savedInvalidRects);	// no longer needed
+	_savedInvalidRects=_invalidRects;	// copy to buffer
+	_nSavedInvalidRects=_nInvalidRects;
+	_nInvalidRects=0;	// remove all rects
+	_cInvalidRects=0;
+	_invalidRects=NULL;	// start with new storage
+	_invalidRect=NSZeroRect;	// start over if anyone calls setNeedsDisplayInRect inside drawing code
 	if(_v.hidden)
-		{ // don't draw me or my subviews
-		_nInvalidRects=0;	// remove all rects
-		_invalidRect=NSZeroRect;
-		return;
-		}
+		return;	// don't draw me or my subviews
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
 	displaySubviews=_v.needsDisplaySubviews || YES;	// FIXME: geht sonst nicht!
 	_v.needsDisplaySubviews=NO;	// prepare since drawing code can call setNeedsDisplay on any subview
@@ -2108,8 +2057,6 @@ printing
 		NS_HANDLER
 			NSLog(@"%@ -drawRect: NSException %@", NSStringFromClass([self class]), [localException reason]);
 		NS_ENDHANDLER
-		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
-			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 		}
 	if(displaySubviews)
 		{
