@@ -578,7 +578,7 @@ static BOOL __cursorHidden = NO;
 							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
 							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
 						}
-#if 0
+#if 1
 					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
 #endif
 					break;
@@ -2560,10 +2560,11 @@ object:self]
 				case NSApplicationDeactivatedEventType: {
 					break;
 				}
-				case NSWindowMovedEventType: {
+				case NSWindowMovedEventType: { // moved or resized
 #if 0
 					NSLog(@"Window moved to %@", NSStringFromPoint([event locationInWindow]));
 #endif
+					[self setViewsNeedDisplay:YES];	// redraw during resize
 					// update frame origin (so that location based events are synchronous)
 					break;
 				}
