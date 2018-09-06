@@ -1864,14 +1864,12 @@ printing
 - (BOOL) needsDisplay;
 {
 	return !_v.hidden && (_v.needsDisplaySubviews || !NSIsEmptyRect(_invalidRect));	// needs to draw something if not empty
-	//	return nInvalidRects != 0;
 }
 
 - (void) setNeedsDisplay:(BOOL) flag;
 {
 	if(!_window)
 		return;	// ignore if we have no window
-	_nSavedInvalidRects=0;	// clear list first
 	if(flag)
 		[self setNeedsDisplayInRect:_bounds];
 	else
@@ -1889,43 +1887,33 @@ printing
 #endif
 	if(!_window)
 		return;	// ignore if we have no window
-	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
-	if(NSIsEmptyRect(rect))
-		{
-		NSLog(@"setNeedsDisplayInRect:%@ outside bounds=%@", NSStringFromRect(rect), NSStringFromRect(_bounds));
-		return;	// ignore
-		}
 	if(NSContainsRect(_invalidRect, rect))
 		return;	// already known to be dirty
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
 #if 0
 	NSLog(@"_addRectNeedingDisplay: %@", NSStringFromRect(rect));
 #endif
+#if 1	// use invalid rects mechanism
 	for(i=0; i<_nInvalidRects; i++)
 		{ // check if we can merge/expand an existing invalid rect
-		// FIXME: the algorithm should create non-overlapping rects only!
-		if(NSContainsRect(_invalidRects[i], rect))
-			return;	// we (and our superviews) already know this rect
 		if(NSContainsRect(rect, _invalidRects[i]))
 			{ // this existing one is completely covered by me - delete
 				memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
 				i--;	// keep index intact
 			}
-		if(NSIntersectsRect(rect, _invalidRects[i]))
-			{ // overlaps with existing one, delete that one and enlarge our rect
+		else if(NSIntersectsRect(rect, _invalidRects[i]))
+			{ // overlaps with existing one, delete that one and enlarge our rect to cover both
 				rect=NSUnionRect(_invalidRects[i], rect);
 				memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
 				i--;	// keep index intact
 			}
 		}
-	if(_nInvalidRects == 0)
-		_invalidRect=rect;	// we are the first rect
-	else
-		_invalidRect=NSUnionRect(_invalidRect, rect);	// merge
 	if(_nInvalidRects >= _cInvalidRects)
 		_invalidRects=(NSRect *) objc_realloc(_invalidRects, sizeof(_invalidRects[0])*(_cInvalidRects=2*_cInvalidRects+1));	// make more room but at least 1
 	_invalidRects[_nInvalidRects++]=rect;	// append
-#if 0
+#endif
+	_invalidRect=NSUnionRect(_invalidRect, rect);	// merge for overall invalid rect
+#if 1
 	NSLog(@"  => _nInvalidRects: %lu invalidRect: %@", (unsigned long)_nInvalidRects, NSStringFromRect(_invalidRect));
 #endif
 	if(_superview)
@@ -2026,6 +2014,7 @@ printing
 					}
 				if((clip=[self wantsDefaultClipping]))
 					{ // may be switched off to speed up
+					rect=NSIntersectionRect(rect, _bounds);	// limit to bounds
 					[context saveGraphicsState];
 					if(_v.isRotatedFromBase)
 						{ // FIXME: must also clip to frame (which may be rotated or unrotated)
