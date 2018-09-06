@@ -541,7 +541,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	co=[ctx compositingOperation];	// save
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-	[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
+	if(_img.flipDraw)
+		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
+	else
+		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
 	if(!NSEqualSizes(dest.size, src.size))
 		{ // draw only parts of the image by reducing clipping rect and scale up/down
 		NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
@@ -553,11 +556,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		}
 	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
 	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
-	if(_img.flipDraw != [ctx isFlipped])
-		{
-		[atm translateXBy:0 yBy:1.0];
+	if(_img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
-		}
 	[ctx _concatCTM:atm];	// add to CTM as needed
 	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];	// restore
