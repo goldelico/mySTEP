@@ -463,6 +463,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	view=[[coder decodeObjectForKey:@"NSView"] retain];
 	subviews=[[coder decodeObjectForKey:@"NSSubviews"] retain];	// this will indirectly ask us to nibInstantiate for each superview link!
 	[coder decodeObjectForKey:@"NSWindow"];
+	[coder decodeObjectForKey:@"NSNextKeyView"];
 #if 0
 	NSLog(@"className=%@", className);
 	NSLog(@"view=%@", view);

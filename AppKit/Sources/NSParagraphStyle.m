@@ -238,6 +238,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 	alignment=[coder decodeIntForKey:@"NSAlignment"];
 	tabStops=[[coder decodeObjectForKey:@"NSTabStops"] retain];
 	paragraphSpacing=[coder decodeFloatForKey:@"NSParagraphSpacing"];
+	lineBreakMode=[coder decodeIntForKey:@"NSLineBreakMode"];
 	return self;
 }
 
