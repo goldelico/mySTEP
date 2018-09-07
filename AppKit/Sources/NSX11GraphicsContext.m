@@ -2450,6 +2450,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 		{
+		if(_compositingOperation != NSCompositeCopy && _compositingOperation != NSCompositeClear)
+			{ // check for compositing ops that do not work
+				NSLog(@"copyBits with unsupported compositing %d", _compositingOperation);
+				_compositingOperation = NSCompositeCopy;
+			}
 		[self _setCompositing];
 		srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
 		srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
