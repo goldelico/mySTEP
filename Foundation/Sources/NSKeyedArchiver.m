@@ -1000,6 +1000,7 @@ etc.
 {
 	id obj=[self decodeObjectForKey:key];
 	if(!obj) return 0.0;	// default
+	// Cocoa is more restrictive - you can't decodeFloatForKey for an encodeIntForKey
 	if(![obj isKindOfClass:[NSNumber class]])
 		[NSException raise:NSInvalidUnarchiveOperationException format:@"Can't unarchive object for key %@ as float (obj=%@)", key, obj];
 	return [obj floatValue];
@@ -1009,6 +1010,7 @@ etc.
 {
 	id obj=[self decodeObjectForKey:key];
 	if(!obj) return 0;	// default
+	// Cocoa is more restrictive - you can't decodeInt32ForKey for an encodeBoolForKey
 	if(![obj isKindOfClass:[NSNumber class]])
 		[NSException raise:NSInvalidUnarchiveOperationException format:@"Can't unarchive object for key %@ as int32 (obj=%@)", key, obj];
 	return [obj longValue];
