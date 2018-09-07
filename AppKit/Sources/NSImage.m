@@ -547,7 +547,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) dissolveToPoint:(NSPoint)p fraction:(CGFloat)f
 {
-	[self compositeToPoint:p fromRect:(NSRect){{0,0},_size} operation:NSCompositeSourceOver fraction:f];
+	[self compositeToPoint:p fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:f];
 }
 
 - (void) dissolveToPoint:(NSPoint)p fromRect:(NSRect)s fraction:(CGFloat)f
@@ -558,14 +558,14 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) compositeToPoint:(NSPoint)pnt					// Draw the Image
 				operation:(NSCompositingOperation)op
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:1.0];
+	[self compositeToPoint:pnt fromRect:NSZeroRect operation:op fraction:1.0];
 }
 
 - (void) compositeToPoint:(NSPoint)pnt					// Draw the Image
 				operation:(NSCompositingOperation)op
 				 fraction:(CGFloat)fraction;
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:fraction];
+	[self compositeToPoint:pnt fromRect:NSZeroRect operation:op fraction:fraction];
 }
 
 
@@ -573,8 +573,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 				 fromRect:(NSRect)rect
 				operation:(NSCompositingOperation)op
 {
-	[self compositeToPoint:pnt fromRect:(NSRect){NSZeroPoint,_size} operation:op fraction:1.0];
+	[self compositeToPoint:pnt fromRect:NSZeroRect operation:op fraction:1.0];
 }
+
+/* almost the same as drawAtPoint:fromRect:operation:fraction */
 
 - (void) compositeToPoint:(NSPoint)pnt
 				 fromRect:(NSRect)src
