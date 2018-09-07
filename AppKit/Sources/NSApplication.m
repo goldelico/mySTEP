@@ -1551,7 +1551,7 @@ NSWindow *w;
 		if([w isVisible])
 			{ // send to visible windows only
 			[w update];	// update this window
-				// CHECKME: do we need this or dies setViewsNeedDisplay already set the windowsNeedUpdate flag?
+				// CHECKME: do we need this or does setViewsNeedDisplay already set the windowsNeedUpdate flag?
 			_app.windowsNeedUpdate |= [w viewsNeedDisplay];	// might still or again need an update!
 			}
 		[w flushWindow];	// might have pending mapping and other events
