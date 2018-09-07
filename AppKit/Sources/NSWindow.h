@@ -1,30 +1,30 @@
-/* 
+/*
 
  NSWindow.h
- 
+
  Window class
- 
+
  Copyright (C) 1996 Free Software Foundation, Inc.
- 
+
  Author:	Scott Christley <scottc@net-community.com>
  Date:		1996
- 
+
  Modified:  Felipe A. Rodriguez <far@ix.netcom.com>
  Date:		June 1998
- 
+
  Modified:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
  Date:		1998,1999
- 
+
  Author:	H. N. Schaller <hns@computer.org>
  Date:		Feb 2006 - aligned with 10.4
- 
+
  Author:    Fabian Spillner <fabian.spillner@gmail.com>
  Date:      20. December 2007 - aligned with 10.5
 
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
 
-*/ 
+ */
 
 #ifndef _mySTEP_H_NSWindow
 #define _mySTEP_H_NSWindow
@@ -42,7 +42,7 @@
 @class NSNotification;
 @class NSDate;
 @class NSCachedImageRep;
-@class NSDockTile; 
+@class NSDockTile;
 @class NSButton;
 @class NSButtonCell;
 @class NSColor;
@@ -82,7 +82,7 @@ enum
 	NSClosableWindowMask				= 2,
 	NSMiniaturizableWindowMask			= 4,
 	NSResizableWindowMask				= 8,
-	GSAllWindowMask						= 15,						// OR'd combo of others 
+	GSAllWindowMask						= 15,						// OR'd combo of others
 	NSTexturedBackgroundWindowMask		= 256,
 	NSUnscaledWindowMask				= 2048,
 	NSUnifiedTitleAndToolbarWindowMask	= 4096
@@ -152,7 +152,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSResponder *_firstResponder;
 	NSView *_initialFirstResponder;
 	NSString *_representedFilename;
-    NSString *_frameSaveName;
+	NSString *_frameSaveName;
 	NSString *_windowTitle;
 	NSString *_miniWindowTitle;
 	NSImage *_miniWindowImage;
@@ -174,8 +174,8 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSInteger _disableFlushWindow;	// counts disable/enable
 	NSInteger _level;
 	NSInteger _gState;
-	
-    struct __WindowFlags {
+
+	struct __WindowFlags {
 		UIBITFIELD(unsigned int, isOneShot, 1);
 		UIBITFIELD(unsigned int, viewsNeedDisplay, 1);
 		UIBITFIELD(unsigned int, autodisplay, 1);
@@ -194,7 +194,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 		UIBITFIELD(unsigned int, acceptsMouseMoved, 1);
 		UIBITFIELD(unsigned int, appIcon, 1);
 		TYPEDBITFIELD(NSBackingStoreType, backingType, 2);
-		UIBITFIELD(unsigned int, depthLimit, 4);
+		UIBITFIELD(unsigned int, depthLimit, 6);	// should be an int or separate bitfield collection
 		UIBITFIELD(unsigned int, styleMask, 4);
 		UIBITFIELD(unsigned int, isZoomed, 1);
 		UIBITFIELD(unsigned int, ignoresMouseEvents, 1);
@@ -212,7 +212,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 						 styleMask:(NSUInteger) aStyle;
 + (void) menuChanged:(NSMenu *) menu;
 + (CGFloat) minFrameWidthWithTitle:(NSString *) aTitle
-						styleMask:(NSUInteger) aStyle;
+						 styleMask:(NSUInteger) aStyle;
 + (void) removeFrameUsingName:(NSString *) name;
 + (NSButton *) standardWindowButton:(NSWindowButton) button forStyleMask:(NSUInteger) mask;
 
@@ -221,20 +221,20 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (BOOL) allowsToolTipsWhenApplicationIsInactive;
 - (CGFloat) alphaValue;
 - (NSTimeInterval) animationResizeTime:(NSRect) frame;
-- (BOOL) areCursorRectsEnabled;	
+- (BOOL) areCursorRectsEnabled;
 - (NSSize) aspectRatio;
 - (NSWindow *) attachedSheet;
-- (BOOL) autorecalculatesContentBorderThicknessForEdge:(NSRectEdge) rectEdge; 
+- (BOOL) autorecalculatesContentBorderThicknessForEdge:(NSRectEdge) rectEdge;
 - (BOOL) autorecalculatesKeyViewLoop;
 - (NSColor *) backgroundColor;
-- (NSWindowBackingLocation) backingLocation; 
+- (NSWindowBackingLocation) backingLocation;
 - (NSBackingStoreType) backingType;
 - (void) becomeKeyWindow;
 - (void) becomeMainWindow;
 - (void) cacheImageInRect:(NSRect) rect;
 - (BOOL) canBecomeKeyWindow;
 - (BOOL) canBecomeMainWindow;
-- (BOOL) canBecomeVisibleWithoutLogin; 
+- (BOOL) canBecomeVisibleWithoutLogin;
 - (BOOL) canHide;
 - (BOOL) canStoreColor;
 - (NSPoint) cascadeTopLeftFromPoint:(NSPoint) topLeftPoint;
@@ -244,7 +244,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (NSWindowCollectionBehavior) collectionBehavior;
 - (NSRect) constrainFrameRect:(NSRect) frame toScreen:(NSScreen *) screen;
 - (NSSize) contentAspectRatio;
-- (CGFloat) contentBorderThicknessForEdge:(NSRectEdge) edge; 
+- (CGFloat) contentBorderThicknessForEdge:(NSRectEdge) edge;
 - (NSSize) contentMaxSize;
 - (NSSize) contentMinSize;
 - (NSRect) contentRectForFrameRect:(NSRect) frameRect;
@@ -271,9 +271,9 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (void) display;
 - (void) displayIfNeeded;
 - (BOOL) displaysWhenScreenProfileChanges;
-- (NSDockTile *) dockTile; 
+- (NSDockTile *) dockTile;
 - (void) dragImage:(NSImage *) anImage
-				at:(NSPoint) baseLocation 
+				at:(NSPoint) baseLocation
 			offset:(NSSize) initialOffset
 			 event:(NSEvent *) event
 		pasteboard:(NSPasteboard *) pboard
@@ -352,14 +352,14 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (void) performMiniaturize:(id) sender;
 - (void) performZoom:(id) sender;
 - (void) postEvent:(NSEvent *) event atStart:(BOOL) flag;
-- (NSWindowBackingLocation) preferredBackingLocation; 
+- (NSWindowBackingLocation) preferredBackingLocation;
 - (BOOL) preservesContentDuringLiveResize;
 - (void) print:(id) sender;
 - (void) recalculateKeyViewLoop;
 - (void) registerForDraggedTypes:(NSArray *) newTypes;
 - (void) removeChildWindow:(NSWindow *) child;
 - (NSString *) representedFilename;
-- (NSURL *)representedURL; 
+- (NSURL *)representedURL;
 - (void) resetCursorRects;
 - (void) resignKeyWindow;
 - (void) resignMainWindow;
@@ -379,15 +379,15 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (void) setAlphaValue:(CGFloat) alpha;
 - (void) setAspectRatio:(NSSize) ratio;
 - (void) setAutodisplay:(BOOL) flag;
-- (void) setAutorecalculatesContentBorderThickness:(BOOL) thickness forEdge:(NSRectEdge) edge; 
+- (void) setAutorecalculatesContentBorderThickness:(BOOL) thickness forEdge:(NSRectEdge) edge;
 - (void) setAutorecalculatesKeyViewLoop:(BOOL) flag;
 - (void) setBackgroundColor:(NSColor *) color;
 - (void) setBackingType:(NSBackingStoreType) type;
-- (void) setCanBecomeVisibleWithoutLogin:(BOOL) flag; 
+- (void) setCanBecomeVisibleWithoutLogin:(BOOL) flag;
 - (void) setCanHide:(BOOL) flag;
 - (void) setCollectionBehavior:(NSWindowCollectionBehavior) behavior;
 - (void) setContentAspectRatio:(NSSize) ratio;
-- (void) setContentBorderThickness:(CGFloat) thickness forEdge:(NSRectEdge) edge; 
+- (void) setContentBorderThickness:(CGFloat) thickness forEdge:(NSRectEdge) edge;
 - (void) setContentMaxSize:(NSSize) size;
 - (void) setContentMinSize:(NSSize) size;
 - (void) setContentResizeIncrements:(NSSize) increments;
@@ -424,13 +424,13 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (void) setOneShot:(BOOL) flag;
 - (void) setOpaque:(BOOL) flag;
 - (void) setParentWindow:(NSWindow *) window;
-- (void) setPreferredBackingLocation:(NSWindowBackingLocation) backLoc; 
+- (void) setPreferredBackingLocation:(NSWindowBackingLocation) backLoc;
 - (void) setPreservesContentDuringLiveResize:(BOOL) flag;
 - (void) setReleasedWhenClosed:(BOOL) flag;
 - (void) setRepresentedFilename:(NSString *) aString;
-- (void) setRepresentedURL:(NSURL *) url; 
+- (void) setRepresentedURL:(NSURL *) url;
 - (void) setResizeIncrements:(NSSize) aSize;
-- (void) setSharingType:(NSWindowSharingType) type; 
+- (void) setSharingType:(NSWindowSharingType) type;
 - (void) setShowsResizeIndicator:(BOOL) flag;
 - (void) setShowsToolbarButton:(BOOL) flag;
 - (void) setTitle:(NSString *) aString;
@@ -438,7 +438,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 - (void) setToolbar:(NSToolbar *) toolbar;
 - (void) setViewsNeedDisplay:(BOOL) flag;
 - (void) setWindowController:(NSWindowController *) windowController;
-- (NSWindowSharingType) sharingType; 
+- (NSWindowSharingType) sharingType;
 - (BOOL) showsResizeIndicator;
 - (BOOL) showsToolbarButton;
 - (NSButton *) standardWindowButton:(NSWindowButton) button;
@@ -466,8 +466,8 @@ typedef NSUInteger NSWindowCollectionBehavior;
 
 @interface NSObject (NSWindowDelegate)
 
-- (BOOL) window:(NSWindow *) sender shouldDragDocumentWithEvent:(NSEvent *) evt from:(NSPoint) pt withPasteboard:(NSPasteboard *) pboard; 
-- (BOOL) window:(NSWindow *) sender shouldPopUpDocumentPathMenu:(NSMenu *) menu; 
+- (BOOL) window:(NSWindow *) sender shouldDragDocumentWithEvent:(NSEvent *) evt from:(NSPoint) pt withPasteboard:(NSPasteboard *) pboard;
+- (BOOL) window:(NSWindow *) sender shouldPopUpDocumentPathMenu:(NSMenu *) menu;
 - (NSRect) window:(NSWindow *) sender willPositionSheet:(NSWindow *) sheet usingRect:(NSRect) rect;
 - (BOOL) windowShouldClose:(id) sender;
 - (BOOL) windowShouldZoom:(NSWindow *) sender toFrame:(NSRect) frame;

@@ -1395,10 +1395,10 @@ static NSButtonCell *sharedCell;
 				   backing:(NSBackingStoreType)bufferingType
 					 defer:(BOOL)flag
 {
-	return [self initWithContentRect:cRect 
+	return [self initWithContentRect:cRect
 						   styleMask:aStyle
-							 backing:bufferingType 
-							   defer:flag 
+							 backing:bufferingType
+							   defer:flag
 							  screen:nil];
 }
 
