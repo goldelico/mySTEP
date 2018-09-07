@@ -2043,7 +2043,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 #endif
 		if(cached)
-			{ // draw from cache (can't handle alpha in this case!)
+			{ // draw bitmap from cache (can't handle alpha in this case!)
 				NSGraphicsContext *ctxt=[[(NSCachedImageRep *) rep window] graphicsContext];
 				if(ctxt)
 					{
@@ -2127,7 +2127,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		/*
 		 * locate where to draw in X11 coordinates
 		 */
-		isFlipped=[self isFlipped];
+		isFlipped=[self isFlipped];	// usually asks the NSView which has focus (if any)
+		// FIXME: should we check _state->_ctm.m22 < 0 for flipped?
 		origin=[_state->_ctm transformPoint:unitSquare.origin];	// determine real drawing origin in X11 coordinates
 		scanRect=[_state->_ctm _transformRect:unitSquare];	// get bounding box for transformed unit square (may be bigger if rotated!)
 #if 0
@@ -2189,15 +2190,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[atm invert];				// get reverse mapping (XImage coordinates to unit square)
 		width=[rep pixelsWide];
 		height=[rep pixelsHigh];
+
+		/*
+		 * handle drawing into a flipped NSView or context (independently of a flipped image!)
+		 */
+
 		if(isFlipped)
 			[atm scaleXBy:width yBy:height];	// and directly map to pixel coordinates
 		else
 			[atm scaleXBy:width yBy:-height];	// and directly map to flipped pixel coordinates
 		atms=[atm transformStruct];	// extract raw coordinate transform
 		if(atms.m22 < 0)
-		{
-		atms.tY+=height;
-		}
+			{ // seems to be needed in some cases for flipped drawing
+			NSLog(@"flipped drawing %d", isFlipped);
+			atms.tY+=height;
+			}
+
 		/*
 		 * get current screen image for compositing
 		 */
@@ -2310,7 +2318,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 					if(_compositingOperation != NSCompositeClear)
 						{ // get smoothed RGBA from bitmap
-						  // we should pipeline this through core-image like filter modules
 							switch(_imageInterpolation) {
 								case NSImageInterpolationDefault:	// default is same as low
 								case NSImageInterpolationLow:
