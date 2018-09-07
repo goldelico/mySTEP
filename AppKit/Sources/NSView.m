@@ -1663,16 +1663,21 @@ printing
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
 	int i;
-#if 0
+#if 1
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@ superview=%@", NSStringFromRect(rect), self, _superview);
 #endif
 	if(!_window)
 		return;	// ignore if we have no window
 	if(NSContainsRect(_invalidRect, rect))
+		{
+#if 1
+		NSLog(@"already known to be invalid");
+#endif
 		return;	// already known to be dirty
+		}
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
-#if 0
-	NSLog(@"_addRectNeedingDisplay: %@", NSStringFromRect(rect));
+#if 1
+	NSLog(@"_addRectNeedingDisplay: %@ to %lu", NSStringFromRect(rect), (unsigned long)_nInvalidRects);
 #endif
 #if 1	// use invalid rects mechanism
 	for(i=0; i<_nInvalidRects; i++)
@@ -1837,7 +1842,12 @@ printing
 			if([subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
 				continue;
 			if(!NSIntersectsRect([subview frame], rect))
+				{
+#if 1
+				NSLog(@"subview %@ frame is outside rect %@", subview, NSStringFromRect(rect));
+#endif
 				continue;	// subview is not within rect - ignore transformation
+				}
 			subRect=[self convertRect:rect toView:subview];	// update subview
 			[subview displayRectIgnoringOpacity:subRect inContext:context];
 			}
