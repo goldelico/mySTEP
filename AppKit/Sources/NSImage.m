@@ -304,7 +304,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	// here we should also check the caching mode settings
 	if(!_cache)
 		{ // create cache
-			_cache=[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES];
+			_cache=[[NSCachedImageRep alloc] initWithSize:_size depth:[NSWindow defaultDepthLimit] separate:_img.cacheSeparately alpha:YES];
 			if(!_cache)
 				[NSException raise:NSImageCacheException format:@"can't create cached image representation"];
 			[[_cache window] _allocateGraphicsContext];
