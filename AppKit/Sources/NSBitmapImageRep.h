@@ -1,32 +1,32 @@
-/* 
-   NSBitmapImageRep.h
+/*
+ NSBitmapImageRep.h
 
-   Bitmap image representations
+ Bitmap image representations
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+ Copyright (C) 2000 Free Software Foundation, Inc.
 
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date:    June 2000
-   
-   Author:	H. N. Schaller <hns@computer.org>
-   Date:	Jan 2006 - aligned with 10.4
- 
-   Author:	Fabian Spillner
-   Date:	19. October 2007
- 
-   Author:  Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	6. November 2007 - aligned with 10.5
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date:    June 2000
 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Author:	H. N. Schaller <hns@computer.org>
+ Date:	Jan 2006 - aligned with 10.4
+
+ Author:	Fabian Spillner
+ Date:	19. October 2007
+
+ Author:  Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	6. November 2007 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSBitmapImageRep
 #define _mySTEP_H_NSBitmapImageRep
 
 #import <AppKit/NSImageRep.h>
 
-@class CIImage; 
+@class CIImage;
 @class NSArray;
 @class NSString;
 @class NSData;
@@ -85,7 +85,7 @@ extern NSString *NSImageCurrentFrame;
 extern NSString *NSImageCurrentFrameDuration;
 extern NSString *NSImageDitherTransparency;
 extern NSString *NSImageEXIFData;
-extern NSString *NSImageFallbackBackgroundColor; 
+extern NSString *NSImageFallbackBackgroundColor;
 extern NSString *NSImageFrameCount;
 extern NSString *NSImageGamma;
 extern NSString *NSImageInterlaced;
@@ -102,15 +102,15 @@ extern NSString *NSImageRGBColorTable;
 	NSBitmapFormat _format;
 	NSTIFFCompression _compression;
 	float _factor;
-			
-    struct __bitmapRepFlags {
-        unsigned int bitsPerPixel:8;	
+
+	struct __bitmapRepFlags {
+		unsigned int bitsPerPixel:8;
 		unsigned int isPlanar:1;
-        unsigned int numColors:4;
+		unsigned int numColors:4;
 		unsigned int cached:1;
 		unsigned int cachedPixel:1;
-        unsigned int reserved:17;
-    } _brep;
+		unsigned int reserved:17;
+	} _brep;
 }
 
 + (void) getTIFFCompressionTypes:(const NSTIFFCompression **) list count:(NSInteger *) count;
@@ -127,7 +127,7 @@ extern NSString *NSImageRGBColorTable;
 - (NSInteger) bytesPerPlane;
 - (NSInteger) bytesPerRow;
 - (BOOL) canBeCompressedUsing:(NSTIFFCompression) comp;
-- (CGImageRef) CGImage; 
+- (CGImageRef) CGImage;
 - (NSColor *) colorAtX:(NSInteger) posX y:(NSInteger) posY;
 - (void) colorizeByMappingGray:(CGFloat) midPt toColor:(NSColor *) midPtColor blackMapping:(NSColor *) blackMapping whiteMapping:(NSColor *) whiteMapping;
 - (void) getBitmapDataPlanes:(unsigned char **) dataPlanes;
@@ -144,7 +144,7 @@ extern NSString *NSImageRGBColorTable;
 					   hasAlpha:(BOOL) alpha
 					   isPlanar:(BOOL) planar
 				 colorSpaceName:(NSString *) csName
-				   bitmapFormat:(NSBitmapFormat) format 
+				   bitmapFormat:(NSBitmapFormat) format
 					bytesPerRow:(NSInteger) bpr
 				   bitsPerPixel:(NSInteger) bpp;
 
@@ -174,7 +174,7 @@ extern NSString *NSImageRGBColorTable;
 - (NSData*) TIFFRepresentation;
 - (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression) compressType factor:(float) factor;
 - (id) valueForProperty:(NSString *) prop;
-														// Compression Types 
+// Compression Types
 @end
 
 #endif /* _mySTEP_H_NSBitmapImageRep */
