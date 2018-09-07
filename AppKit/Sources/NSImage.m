@@ -508,7 +508,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSIsEmptyRect(src))
 		src.size=_size;	// use image size
 	if(NSIsEmptyRect(dest))
-		src.size=_size;	// use image size
+		dest.size=_size;	// use image size and {0,0} origin
 	[ctx saveGraphicsState];
 #if 0
 	[[NSColor yellowColor] set];
