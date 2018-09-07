@@ -585,30 +585,43 @@ static NSMutableDictionary *__nameToImageDict = nil;
 { // this is the most generic composite/dissolve method - modify CTM before calling this method to translate to point
 	// for maximum compatibility, this function has to ignore rotation and scaling of the CTM!
 	// see e.g.: http://www.stone.com/The_Cocoa_Files/Cocoamotion.html
-	static NSBezierPath *unitSquare=nil;
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	NSCompositingOperation co;
+	NSRect dest;
 	if(!_img.isValid)
-		[self isValid];		// Make sure we have the image reps loaded in - if possible
-	if(src.size.width <= 0.0 || src.size.height <= 0.0)
-		src.size=_size;	// use image size
+		[self isValid];		// make sure we have the image reps loaded in - if possible
+	dest.origin=pnt;
+	dest.size=[self size];	// determine size if not yet known
+	if(NSIsEmptyRect(src))
+		src.size=_size;	// use image size and {0,0} origin
 	[ctx saveGraphicsState];
+#if 0
+	[[NSColor yellowColor] set];
+	NSFrameRect(dest);
+#endif
 	co=[ctx compositingOperation];	// save
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
 	if(_img.flipDraw)
-		NSLog(@"should flip compositeToPoint: %@", self);
-		;	// FIXME: scaleXBy:1.0 yBy:-1.0
-	// FIXME: do we have to scale src.origin?
-	[atm translateXBy:pnt.x-src.origin.x yBy:pnt.y-src.origin.y];
-	[atm scaleXBy:src.size.width yBy:src.size.height];	// will draw the src rect to unit square
-	[ctx _concatCTM:atm];	// add to CTM as needed
+		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
+	else
+		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
+	if(!NSEqualSizes(dest.size, src.size))
+		{ // draw only parts of the image by reducing clipping rect and scale up/down
+			NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
+			[ctx _addClip:clip reset:NO];
+#if 0
+			NSLog(@"scale factor = %f %f", _size.width/NSWidth(src), _size.height/NSHeight(src));
+#endif
+			[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];
+		}
+	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
+	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
+	if(_img.flipDraw)
+		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
 	// FIXME: somehow remove any rotation
-	if(!unitSquare)
-		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
-	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
-//	[ctx _draw:[self bestRepresentationForDevice:nil]];
+	[ctx _concatCTM:atm];	// add to CTM as needed
 	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
