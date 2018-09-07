@@ -411,8 +411,12 @@ static Class __controlCellClass = Nil;
 		{
 		_cell = [[aDecoder decodeObjectForKey:@"NSCell"] retain];
 		[self setTag:[aDecoder decodeIntForKey:@"NSTag"]];	// might be different from cell's tag
+		if([aDecoder containsValueForKey:@"NSControlTarget"])	// cell might not understand!
+			[self setTarget:[aDecoder decodeObjectForKey:@"NSControlTarget"]];
 		if([aDecoder containsValueForKey:@"NSTarget"])	// cell might not understand!
 			[self setTarget:[aDecoder decodeObjectForKey:@"NSTarget"]];
+		if([aDecoder containsValueForKey:@"NSControlAction"])
+			[self setAction:NSSelectorFromString([aDecoder decodeObjectForKey:@"NSControlAction"])];
 		if([aDecoder containsValueForKey:@"NSAction"])
 			[self setAction:NSSelectorFromString([aDecoder decodeObjectForKey:@"NSAction"])];
 		if([aDecoder containsValueForKey:@"NSFont"])	// cell might not understand!
@@ -429,7 +433,7 @@ static Class __controlCellClass = Nil;
 			}
 		/*	??? =  */ [aDecoder decodeBoolForKey:@"NSAllowsLogicalLayoutDirection"];
 		[aDecoder decodeObjectForKey:@"NSHuggingPriority"];
-		// unknown format [aDecoder decodeIntForKey:@"NSControlAllowsExpansionToolTips"];
+		[aDecoder decodeBoolForKey:@"NSControlAllowsExpansionToolTips"];
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_tag];
