@@ -503,10 +503,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	NSCompositingOperation co;
 	if(!_img.isValid)
-		[self isValid];		// Make sure we have the image reps loaded in - if possible
+		[self isValid];		// make sure we have the image reps loaded in - if possible
 	[self size];	// determine size if not yet known
 	if(NSIsEmptyRect(src))
-		src.size=_size;	// use image size
+		src.size=_size;		// use image size and {0,0} origin
 	if(NSIsEmptyRect(dest))
 		dest.size=_size;	// use image size and {0,0} origin
 	[ctx saveGraphicsState];
