@@ -329,6 +329,83 @@
 		EE31972509AB7F2D0089A9A2 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EE3197C209AB7FC00089A9A2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE3C1BCB1A21D4E40027A064 /* NSBitmapImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA371F509540272001244CF /* NSBitmapImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE4D5F2B213F0676005299D3 /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966430F864C23002E4AD5 /* GSArrowCursor.tiff */; };
+		EE4D5F2C213F0676005299D3 /* GSClosedHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966440F864C23002E4AD5 /* GSClosedHandCursor.tiff */; };
+		EE4D5F2D213F0676005299D3 /* GSCopyCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966450F864C23002E4AD5 /* GSCopyCursor.tiff */; };
+		EE4D5F2E213F0676005299D3 /* GSCrosshairCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966460F864C23002E4AD5 /* GSCrosshairCursor.tiff */; };
+		EE4D5F2F213F0676005299D3 /* GSDisappearingItemCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966470F864C23002E4AD5 /* GSDisappearingItemCursor.tiff */; };
+		EE4D5F30213F0676005299D3 /* GSHiddenCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966480F864C23002E4AD5 /* GSHiddenCursor.tiff */; };
+		EE4D5F31213F0676005299D3 /* GSIBeamCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9683A0F866217002E4AD5 /* GSIBeamCursor.tiff */; };
+		EE4D5F32213F0676005299D3 /* GSLinkCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966490F864C23002E4AD5 /* GSLinkCursor.tiff */; };
+		EE4D5F33213F0676005299D3 /* GSOpenHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664A0F864C23002E4AD5 /* GSOpenHandCursor.tiff */; };
+		EE4D5F34213F0676005299D3 /* GSPointingHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664B0F864C23002E4AD5 /* GSPointingHandCursor.tiff */; };
+		EE4D5F35213F0676005299D3 /* GSResizeCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664C0F864C23002E4AD5 /* GSResizeCursor.tiff */; };
+		EE4D5F36213F0676005299D3 /* GSResizeDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664D0F864C23002E4AD5 /* GSResizeDownCursor.tiff */; };
+		EE4D5F37213F0676005299D3 /* GSResizeRightCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664E0F864C23002E4AD5 /* GSResizeRightCursor.tiff */; };
+		EE4D5F38213F0676005299D3 /* GSResizeUpCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED9664F0F864C23002E4AD5 /* GSResizeUpCursor.tiff */; };
+		EE4D5F39213F0676005299D3 /* GSResizeUpDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EED966500F864C23002E4AD5 /* GSResizeUpDownCursor.tiff */; };
+		EE4D5F3A213F068A005299D3 /* GSArrowDown.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E41031DEF800195E25 /* GSArrowDown.png */; };
+		EE4D5F3B213F068A005299D3 /* GSArrowDownH.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E51031DEF800195E25 /* GSArrowDownH.png */; };
+		EE4D5F3C213F068A005299D3 /* GSArrowLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E61031DEF800195E25 /* GSArrowLeft.png */; };
+		EE4D5F3D213F068A005299D3 /* GSArrowLeftH.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E71031DEF800195E25 /* GSArrowLeftH.png */; };
+		EE4D5F3E213F068A005299D3 /* GSArrowRight.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E81031DEF800195E25 /* GSArrowRight.png */; };
+		EE4D5F3F213F068A005299D3 /* GSArrowRightH.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21E91031DEF800195E25 /* GSArrowRightH.png */; };
+		EE4D5F40213F068A005299D3 /* GSArrowUp.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21EA1031DEF800195E25 /* GSArrowUp.png */; };
+		EE4D5F41213F068A005299D3 /* GSArrowUpH.png in Resources */ = {isa = PBXBuildFile; fileRef = EE8D21EB1031DEF800195E25 /* GSArrowUpH.png */; };
+		EE4D5F42213F068A005299D3 /* GSColorWheel.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */; };
+		EE4D5F43213F068A005299D3 /* GSColorWheel.icns in Resources */ = {isa = PBXBuildFile; fileRef = EECFCA870D472B2D00CF498C /* GSColorWheel.icns */; };
+		EE4D5F44213F068A005299D3 /* GSComboBox.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371AE09540272001244CF /* GSComboBox.tiff */; };
+		EE4D5F45213F068A005299D3 /* GSComboBoxH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */; };
+		EE4D5F46213F068A005299D3 /* GSDimple.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B009540272001244CF /* GSDimple.tiff */; };
+		EE4D5F47213F068A005299D3 /* GSDiscloseH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */; };
+		EE4D5F48213F068A005299D3 /* GSDiscloseHalf.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B109540272001244CF /* GSDiscloseHalf.tiff */; };
+		EE4D5F49213F068A005299D3 /* GSDiscloseOff.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B209540272001244CF /* GSDiscloseOff.tiff */; };
+		EE4D5F4A213F068A005299D3 /* GSDiscloseOn.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B309540272001244CF /* GSDiscloseOn.tiff */; };
+		EE4D5F4B213F068A005299D3 /* GSDocument.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B409540272001244CF /* GSDocument.tiff */; };
+		EE4D5F4C213F068A005299D3 /* GSFolder.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B509540272001244CF /* GSFolder.tiff */; };
+		EE4D5F4D213F068A005299D3 /* GSHome.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B609540272001244CF /* GSHome.tiff */; };
+		EE4D5F4E213F068A005299D3 /* GSMount.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B909540272001244CF /* GSMount.tiff */; };
+		EE4D5F4F213F068A005299D3 /* GSMultiple.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371BA09540272001244CF /* GSMultiple.tiff */; };
+		EE4D5F50213F068A005299D3 /* GSPopup.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371BB09540272001244CF /* GSPopup.tiff */; };
+		EE4D5F51213F068A005299D3 /* GSPullDown.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371BC09540272001244CF /* GSPullDown.tiff */; };
+		EE4D5F52213F068A005299D3 /* GSPullDownH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371BD09540272001244CF /* GSPullDownH.tiff */; };
+		EE4D5F53213F068A005299D3 /* GSRight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C009540272001244CF /* GSRight.tiff */; };
+		EE4D5F54213F068A005299D3 /* GSRightH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C109540272001244CF /* GSRightH.tiff */; };
+		EE4D5F55213F068A005299D3 /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
+		EE4D5F56213F068A005299D3 /* GSSliderHoriz.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C209540272001244CF /* GSSliderHoriz.tiff */; };
+		EE4D5F57213F068A005299D3 /* GSSliderVert.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C309540272001244CF /* GSSliderVert.tiff */; };
+		EE4D5F58213F068A005299D3 /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
+		EE4D5F59213F068A005299D3 /* GSSubmenuArrow.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C409540272001244CF /* GSSubmenuArrow.tiff */; };
+		EE4D5F5A213F068A005299D3 /* GSUnix.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C609540272001244CF /* GSUnix.tiff */; };
+		EE4D5F5B213F068A005299D3 /* GSUnknown.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C709540272001244CF /* GSUnknown.tiff */; };
+		EE4D5F5C213F068A005299D3 /* GSUnmount.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371C809540272001244CF /* GSUnmount.tiff */; };
+		EE4D5F5D213F068A005299D3 /* NSHighlightedRadioButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371CA09540272001244CF /* NSHighlightedRadioButton.tiff */; };
+		EE4D5F5E213F068A005299D3 /* NSHighlightedSwitch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371CB09540272001244CF /* NSHighlightedSwitch.tiff */; };
+		EE4D5F5F213F068A005299D3 /* NSMenuCheckmark.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA08A609E012C0005AA012 /* NSMenuCheckmark.tiff */; };
+		EE4D5F60213F068A005299D3 /* NSMenuMixedState.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA08A709E012C0005AA012 /* NSMenuMixedState.tiff */; };
+		EE4D5F61213F068A005299D3 /* NSMultiStateSwitch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371CC09540272001244CF /* NSMultiStateSwitch.tiff */; };
+		EE4D5F62213F068A005299D3 /* NSRadioButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371CD09540272001244CF /* NSRadioButton.tiff */; };
+		EE4D5F63213F068A005299D3 /* NSSwitch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371CE09540272001244CF /* NSSwitch.tiff */; };
+		EE4D5F64213F068A005299D3 /* NSWindowChangedButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089709E012AD005AA012 /* NSWindowChangedButton.tiff */; };
+		EE4D5F65213F068A005299D3 /* NSWindowZoomButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */; };
+		EE4D5F66213F068A005299D3 /* NSWindowMiniaturizeButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */; };
+		EE4D5F67213F068A005299D3 /* NSWindowCloseButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */; };
+		EE4D5F68213F068A005299D3 /* NSWindowCloseButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089809E012AD005AA012 /* NSWindowCloseButton.tiff */; };
+		EE4D5F69213F068A005299D3 /* NSWindowMiniaturizeButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089909E012AD005AA012 /* NSWindowMiniaturizeButton.tiff */; };
+		EE4D5F6A213F068A005299D3 /* NSWindowZoomButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089B09E012AD005AA012 /* NSWindowZoomButton.tiff */; };
+		EE4D5F6B213F068A005299D3 /* NSToolbarCustomize.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D720E463B02005B7EF0 /* NSToolbarCustomize.icns */; };
+		EE4D5F6C213F068A005299D3 /* NSToolbarPrint.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D730E463B02005B7EF0 /* NSToolbarPrint.icns */; };
+		EE4D5F6D213F068A005299D3 /* NSToolbarShowColors.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D740E463B02005B7EF0 /* NSToolbarShowColors.icns */; };
+		EE4D5F6E213F068A005299D3 /* NSToolbarShowFonts.icns in Resources */ = {isa = PBXBuildFile; fileRef = EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.icns */; };
+		EE4D5F6F213F068A005299D3 /* URL.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371DD09540272001244CF /* URL.tiff */; };
+		EE4D5F70213F0697005299D3 /* AboutPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3729509540274001244CF /* AboutPanel.nib */; };
+		EE4D5F71213F0697005299D3 /* AlertPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE59A46F158F513300ADD1C9 /* AlertPanel.nib */; };
+		EE4D5F72213F0697005299D3 /* ColorPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F88C0BEDD65400E39682 /* ColorPanel.nib */; };
+		EE4D5F73213F0697005299D3 /* FindPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8900BEDD66A00E39682 /* FindPanel.nib */; };
+		EE4D5F74213F0697005299D3 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
+		EE4D5F75213F0697005299D3 /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
+		EE4D5F76213F0697005299D3 /* SavePanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3729D09540274001244CF /* SavePanel.nib */; };
+		EE4D5F77213F06A4005299D3 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
@@ -1952,6 +2029,83 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE4D5F77213F06A4005299D3 /* StandardKeyBinding.dict in Resources */,
+				EE4D5F70213F0697005299D3 /* AboutPanel.nib in Resources */,
+				EE4D5F71213F0697005299D3 /* AlertPanel.nib in Resources */,
+				EE4D5F72213F0697005299D3 /* ColorPanel.nib in Resources */,
+				EE4D5F73213F0697005299D3 /* FindPanel.nib in Resources */,
+				EE4D5F74213F0697005299D3 /* FontPanel.nib in Resources */,
+				EE4D5F75213F0697005299D3 /* PrintProgressPanel.nib in Resources */,
+				EE4D5F76213F0697005299D3 /* SavePanel.nib in Resources */,
+				EE4D5F3A213F068A005299D3 /* GSArrowDown.png in Resources */,
+				EE4D5F3B213F068A005299D3 /* GSArrowDownH.png in Resources */,
+				EE4D5F3C213F068A005299D3 /* GSArrowLeft.png in Resources */,
+				EE4D5F3D213F068A005299D3 /* GSArrowLeftH.png in Resources */,
+				EE4D5F3E213F068A005299D3 /* GSArrowRight.png in Resources */,
+				EE4D5F3F213F068A005299D3 /* GSArrowRightH.png in Resources */,
+				EE4D5F40213F068A005299D3 /* GSArrowUp.png in Resources */,
+				EE4D5F41213F068A005299D3 /* GSArrowUpH.png in Resources */,
+				EE4D5F42213F068A005299D3 /* GSColorWheel.jpg in Resources */,
+				EE4D5F43213F068A005299D3 /* GSColorWheel.icns in Resources */,
+				EE4D5F44213F068A005299D3 /* GSComboBox.tiff in Resources */,
+				EE4D5F45213F068A005299D3 /* GSComboBoxH.tiff in Resources */,
+				EE4D5F46213F068A005299D3 /* GSDimple.tiff in Resources */,
+				EE4D5F47213F068A005299D3 /* GSDiscloseH.tiff in Resources */,
+				EE4D5F48213F068A005299D3 /* GSDiscloseHalf.tiff in Resources */,
+				EE4D5F49213F068A005299D3 /* GSDiscloseOff.tiff in Resources */,
+				EE4D5F4A213F068A005299D3 /* GSDiscloseOn.tiff in Resources */,
+				EE4D5F4B213F068A005299D3 /* GSDocument.tiff in Resources */,
+				EE4D5F4C213F068A005299D3 /* GSFolder.tiff in Resources */,
+				EE4D5F4D213F068A005299D3 /* GSHome.tiff in Resources */,
+				EE4D5F4E213F068A005299D3 /* GSMount.tiff in Resources */,
+				EE4D5F4F213F068A005299D3 /* GSMultiple.tiff in Resources */,
+				EE4D5F50213F068A005299D3 /* GSPopup.tiff in Resources */,
+				EE4D5F51213F068A005299D3 /* GSPullDown.tiff in Resources */,
+				EE4D5F52213F068A005299D3 /* GSPullDownH.tiff in Resources */,
+				EE4D5F53213F068A005299D3 /* GSRight.tiff in Resources */,
+				EE4D5F54213F068A005299D3 /* GSRightH.tiff in Resources */,
+				EE4D5F55213F068A005299D3 /* GSSearch.tiff in Resources */,
+				EE4D5F56213F068A005299D3 /* GSSliderHoriz.tiff in Resources */,
+				EE4D5F57213F068A005299D3 /* GSSliderVert.tiff in Resources */,
+				EE4D5F58213F068A005299D3 /* GSStop.tiff in Resources */,
+				EE4D5F59213F068A005299D3 /* GSSubmenuArrow.tiff in Resources */,
+				EE4D5F5A213F068A005299D3 /* GSUnix.tiff in Resources */,
+				EE4D5F5B213F068A005299D3 /* GSUnknown.tiff in Resources */,
+				EE4D5F5C213F068A005299D3 /* GSUnmount.tiff in Resources */,
+				EE4D5F5D213F068A005299D3 /* NSHighlightedRadioButton.tiff in Resources */,
+				EE4D5F5E213F068A005299D3 /* NSHighlightedSwitch.tiff in Resources */,
+				EE4D5F5F213F068A005299D3 /* NSMenuCheckmark.tiff in Resources */,
+				EE4D5F60213F068A005299D3 /* NSMenuMixedState.tiff in Resources */,
+				EE4D5F61213F068A005299D3 /* NSMultiStateSwitch.tiff in Resources */,
+				EE4D5F62213F068A005299D3 /* NSRadioButton.tiff in Resources */,
+				EE4D5F63213F068A005299D3 /* NSSwitch.tiff in Resources */,
+				EE4D5F64213F068A005299D3 /* NSWindowChangedButton.tiff in Resources */,
+				EE4D5F65213F068A005299D3 /* NSWindowZoomButtonInactive.tiff in Resources */,
+				EE4D5F66213F068A005299D3 /* NSWindowMiniaturizeButtonInactive.tiff in Resources */,
+				EE4D5F67213F068A005299D3 /* NSWindowCloseButtonInactive.tiff in Resources */,
+				EE4D5F68213F068A005299D3 /* NSWindowCloseButton.tiff in Resources */,
+				EE4D5F69213F068A005299D3 /* NSWindowMiniaturizeButton.tiff in Resources */,
+				EE4D5F6A213F068A005299D3 /* NSWindowZoomButton.tiff in Resources */,
+				EE4D5F6B213F068A005299D3 /* NSToolbarCustomize.icns in Resources */,
+				EE4D5F6C213F068A005299D3 /* NSToolbarPrint.icns in Resources */,
+				EE4D5F6D213F068A005299D3 /* NSToolbarShowColors.icns in Resources */,
+				EE4D5F6E213F068A005299D3 /* NSToolbarShowFonts.icns in Resources */,
+				EE4D5F6F213F068A005299D3 /* URL.tiff in Resources */,
+				EE4D5F2B213F0676005299D3 /* GSArrowCursor.tiff in Resources */,
+				EE4D5F2C213F0676005299D3 /* GSClosedHandCursor.tiff in Resources */,
+				EE4D5F2D213F0676005299D3 /* GSCopyCursor.tiff in Resources */,
+				EE4D5F2E213F0676005299D3 /* GSCrosshairCursor.tiff in Resources */,
+				EE4D5F2F213F0676005299D3 /* GSDisappearingItemCursor.tiff in Resources */,
+				EE4D5F30213F0676005299D3 /* GSHiddenCursor.tiff in Resources */,
+				EE4D5F31213F0676005299D3 /* GSIBeamCursor.tiff in Resources */,
+				EE4D5F32213F0676005299D3 /* GSLinkCursor.tiff in Resources */,
+				EE4D5F33213F0676005299D3 /* GSOpenHandCursor.tiff in Resources */,
+				EE4D5F34213F0676005299D3 /* GSPointingHandCursor.tiff in Resources */,
+				EE4D5F35213F0676005299D3 /* GSResizeCursor.tiff in Resources */,
+				EE4D5F36213F0676005299D3 /* GSResizeDownCursor.tiff in Resources */,
+				EE4D5F37213F0676005299D3 /* GSResizeRightCursor.tiff in Resources */,
+				EE4D5F38213F0676005299D3 /* GSResizeUpCursor.tiff in Resources */,
+				EE4D5F39213F0676005299D3 /* GSResizeUpDownCursor.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

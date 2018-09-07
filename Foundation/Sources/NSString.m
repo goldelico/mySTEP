@@ -1262,6 +1262,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 // this method my allocate large amounts of memory!!! => allocates many autoreleased GSSequence objects
+// speed is crucial for scanString:intoString: mainly if it does NOT match
 
 - (NSRange) rangeOfString:(NSString *) aString
 				  options:(unsigned int) mask

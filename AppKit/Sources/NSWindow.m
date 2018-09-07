@@ -88,9 +88,7 @@ static BOOL __cursorHidden = NO;
 
 @interface NSThemeFrame : NSView
 {
-	NSString *_title;
-	NSImage *_titleIcon;
-	NSButton *_resizeButton;	// really here?
+	// unused:	NSButton *_resizeButton;	// really here?
 	NSToolbar *_toolbar;
 	NSColor *_backgroundColor;	// window background color
 	CGFloat _height;	// title bar height (w/o ToolbarView!)
@@ -161,7 +159,7 @@ static BOOL __cursorHidden = NO;
 @implementation NSThemeFrame
 
 - (BOOL) isOpaque;	{ return YES; }	// only if background color has alpha==1.0
-- (BOOL) isFlipped;	{ return YES; }	// to simplify coordinate calculations: titlebar is at (0,0)
+- (BOOL) isFlipped;	{ return NO; }	// so that contentView.frame == contentView.bounds
 
 - (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle forScreen:(NSScreen *) screen;
 {
@@ -197,15 +195,14 @@ static BOOL __cursorHidden = NO;
 				[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
 				[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
 				[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
+				[self addSubview:b3=[NSWindow standardWindowButton:NSWindowDocumentIconButton forStyleMask:aStyle]];
+				// FIXME: could be done in -layout
 				if([self interfaceStyle] >= NSPDAInterfaceStyle)
 					[b1 setHidden:YES], [b2 setHidden:YES];	// standard PDA screen is not large enough for multiple resizable windows
-				else
-					if((aStyle & (NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask)) == 0)
-						{ // no visible buttons!
-							[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
-						}
-				[self addSubview:b3=[NSWindow standardWindowButton:NSWindowDocumentIconButton forStyleMask:aStyle]];
-				[b3 setFrameSize:NSMakeSize(f.size.width - 50.0, 15.0)]; // resize to fit between buttons and toolbar button
+				else if((aStyle & (NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask)) == 0)
+					{ // has no visible buttons!
+						[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
+					}
 			}
 		[self layout];
 		ASSIGN(_backgroundColor, [NSColor windowBackgroundColor]);	// default background
@@ -215,8 +212,6 @@ static BOOL __cursorHidden = NO;
 
 - (void) dealloc;
 {
-	[_title release];
-	[_titleIcon release];
 	[_backgroundColor release];
 	[super dealloc];
 }
@@ -231,7 +226,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) drawRect:(NSRect)rect
 { // draw window background
-	static NSDictionary *a;
+	CGFloat tby=NSMaxY(_bounds)-_height;	// title bar y value
 	if(!_didSetShape)
 		{
 		if((_style&NSUtilityWindowMask) == 0)
@@ -239,18 +234,18 @@ static BOOL __cursorHidden = NO;
 				NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 				CGFloat radius=9.0;
 				NSBezierPath *b=[NSBezierPath new];
-				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_bounds)+radius, NSMaxY(_bounds)-radius)
 											  radius:radius
 										  startAngle:180.0
-											endAngle:270.0
-										   clockwise:NO];	// top left corner
-				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_frame)-radius, NSMinY(_frame)+radius)
+											endAngle:90.0
+										   clockwise:YES];	// top left corner
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_bounds)-radius, NSMaxY(_bounds)-radius)
 											  radius:radius
-										  startAngle:270.0
-											endAngle:360.0
-										   clockwise:NO];	// top right corner
-				[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
-				[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
+										  startAngle:90.0
+											endAngle:0.0
+										   clockwise:YES];	// top right corner
+				[b lineToPoint:NSMakePoint(NSMaxX(_bounds), NSMinY(_bounds))];	// bottom right
+				[b lineToPoint:NSMakePoint(0.0, NSMinY(_bounds))];	// bottom left
 				[b closePath];
 #if 0
 				NSLog(@"set window shape %@", b);
@@ -262,34 +257,15 @@ static BOOL __cursorHidden = NO;
 		}
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
-	if(NSMinY(rect) < _height)
-		{ // needs to redraw the titlebar
-			NSParagraphStyle *paragraph=nil;
+	if(NSMaxY(rect) > tby)
+		{ // wants to redraw the titlebar
 			[[self titleBarBackgroundColor] set];
-			NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
+			NSRectFill(NSMakeRect(NSMinX(rect), tby, NSWidth(rect), _height ));	// fill titlebar background
 			[[NSColor windowFrameColor] set];
-			NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
-			if(!_title && !_titleIcon)
-				return;
-			// draw document icon
-			// or shouldn't we better use a resizable NSButton with center alignment to store and draw both, the window icon and title?
-			// or at least use a centered paragraph style!
-			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-			if(_titleIcon && _title)
-				{
-				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
-														 1.0+(_height-16.0)/2.0)
-								   operation:NSCompositeSourceOver
-									fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
-				}
-			a=[NSDictionary dictionaryWithObjectsAndKeys:
-			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
-			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
-			   paragraph, NSParagraphStyleAttributeName,
-			   nil];
-			if(_title)
-				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, ((_style&NSUtilityWindowMask)?5.0:4.0)+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+			NSFrameRect(_bounds);	// draw a frame around the window - cuts off round corners!
 		}
+	// FIXME: hide/unhide buttons on demand
+	[[self documentIcon] setEnabled:[_window isKeyWindow]];
 }
 
 - (void) unlockFocus;
@@ -302,12 +278,12 @@ static BOOL __cursorHidden = NO;
 #if 0
 			[[NSColor redColor] set];
 #endif
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-8)
-									  toPoint:NSMakePoint(_bounds.size.width-8, _bounds.size.height-2)];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-11)
-									  toPoint:NSMakePoint(_bounds.size.width-11, _bounds.size.height-2)];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-14)
-									  toPoint:NSMakePoint(_bounds.size.width-14, _bounds.size.height-2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 8)
+									  toPoint:NSMakePoint(_bounds.size.width-8, 2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 11)
+									  toPoint:NSMakePoint(_bounds.size.width-11,2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, 14)
+									  toPoint:NSMakePoint(_bounds.size.width-14, 2)];
 		}
 	[super unlockFocus];
 }
@@ -322,10 +298,27 @@ static BOOL __cursorHidden = NO;
 	[self setNeedsDisplay:YES];
 }
 
-- (NSString *) title; { return _title; }
-- (void) setTitle:(NSString *) title; { ASSIGN(_title, title); [self setNeedsDisplay:YES]; }
-- (NSImage *) titleIcon; { return _titleIcon; }
-- (void) setTitleIcon:(NSImage *) img; { ASSIGN(_titleIcon, img); [self setNeedsDisplay:YES]; }
+- (NSString *) title; { return [[self documentIcon] title]; }
+
+- (void) setTitle:(NSString *) title;
+{
+	NSButton *b=[self documentIcon];
+	//	ASSIGN(_title, title); [self setNeedsDisplay:YES];
+	if(!b)
+		NSLog(@"warning setTitle with nil documentIcon button");
+	[b setTitle:title];
+}
+
+- (NSImage *) titleIcon; { return [[self documentIcon] image]; }
+- (void) setTitleIcon:(NSImage *) img;
+{
+	NSButton *b=[self documentIcon];
+	//	ASSIGN(_titleIcon, img); [self setNeedsDisplay:YES];
+	if(!b)
+		NSLog(@"warning setTitle with nil documentIcon button");
+	[[self documentIcon] setImage:img];
+}
+
 - (NSColor *) backgroundColor; { return _backgroundColor; }
 - (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); [self setNeedsDisplay:YES]; }
 
@@ -337,8 +330,8 @@ static BOOL __cursorHidden = NO;
 	 2: zoom button
 	 3: title/document icon button
 	 4: content view (0 if borderless)
-	 5: toolbar button
-	 6: toolbar view
+	 5: toolbar button (may be missing)
+	 6: toolbar view (may be missing)
 	 */
 #if 0
 	NSLog(@"standardWindowButton %d", button);
@@ -360,22 +353,56 @@ static BOOL __cursorHidden = NO;
 - (NSMenuView *) windowMenuView; { return nil; }	// if we have a horizontal menu inside the window
 - (NSToolbar *) toolbar; { return [_subviews count] > 6?[[_subviews objectAtIndex:6] toolbar]:(NSToolbar *) nil; }
 
-- (void) layout;
+- (void) layout;	// rearrange the subviews
 { // NOTE: if the window fills the screen, the content view has to be made smaller
 	NSView *cv;
-	NSRect f=[self frame];
+	NSRect f=_bounds;
+	NSInteger i;
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
-	f.origin.y+=_height;		// add room for buttons
-	f.size.height-=_height;
+	f.size.height-=_height;	// room for title bar
+	for(i=[_subviews count]-1; i>=0; i--)
+		{ // arrange buttons in title bar
+			switch(i) {
+				case 0:
+				case 1:
+				case 2: { // close, miniaturize, zoom
+					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=4.0+(_height-1.0)*i;
+					button.origin.y=NSMaxY(f);
+					[bv setFrameOrigin:button.origin];
+					[bv setNeedsDisplay:YES];
+					break;
+				}
+				case 3: { // icon & title
+					NSThemeDocumentButton *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=4.0+(_height-1.0)*3;
+					button.origin.y=NSMaxY(f);
+					button.size.width=NSMaxX(f)-4.0-(_height-1.0)-button.origin.x;
+					[bv setFrame:button];
+					[bv setNeedsDisplay:YES];
+					break;
+				}
+				case 5: { // toolbar
+					_NSThemeWidget *bv=[_subviews objectAtIndex:i];
+					NSRect button=[bv frame];
+					button.origin.x=NSMaxX(f)-4.0-button.size.width;
+					button.origin.y=NSMaxY(f);
+					[bv setFrameOrigin:button.origin];
+					[bv setNeedsDisplay:YES];
+				}
+			}
+		}
 	if([_window canBecomeMainWindow] && [self menu])
 		{ // has a window menu
 			NSMenuView *mv=[self windowMenuView];
 			CGFloat height=[mv frame].size.height;
 			NSRect tf=f;
-			f.origin.y+=height;
-			f.size.height-=height;	// make room for menu
+			f.size.height-=height;
 			tf.size.height=height;
-			[mv setFrame:tf];					// adjust menu view
+			tf.origin.y=NSMaxY(f);
+			[mv setFrame:tf];			// adjust menu view
 			[mv setNeedsDisplay:YES];	// needs redraw
 		}
 	if([_subviews count] >= 7)
@@ -383,10 +410,10 @@ static BOOL __cursorHidden = NO;
 			NSToolbarView *tv=[self toolbarView];
 			CGFloat height=[tv height];
 			NSRect tf=f;
-			f.origin.y+=height;
-			f.size.height-=height;	// make room for toolbar
+			f.size.height-=height;
 			tf.size.height=height;
-			[tv setFrame:tf];					// adjust toobar view
+			tf.origin.y=NSMaxY(f);
+			[tv setFrame:tf];			// adjust toobar view
 			[tv setNeedsDisplay:YES];	// needs redraw
 		}
 	cv=[self contentView];
@@ -398,7 +425,7 @@ static BOOL __cursorHidden = NO;
 	if(!cv)
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
 	else
-		[cv setFrame:f];	// enforce size of content view to fit
+		[cv setFrame:f];		// enforce size of content view to fit remainder
 	[cv setNeedsDisplay:YES];	// needs redraw
 	_didSetShape=NO;	// and reset shape
 }
@@ -412,7 +439,7 @@ static BOOL __cursorHidden = NO;
 - (void) setContentView:(NSView *) view;
 {
 	NSView *cv=[self contentView];	// current content view
-#if 0
+#if 1
 	NSLog(@"setContentView %@", self);
 	NSLog(@"  view=%@", view);
 	NSLog(@"  cv=%@", [self contentView]);
@@ -420,10 +447,10 @@ static BOOL __cursorHidden = NO;
 #endif
 	[self replaceSubview:cv with:view];	// this checks if a content view exists
 	[view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-	[view setAutoresizesSubviews:YES];	// enforce for content view
+	[view setAutoresizesSubviews:YES];	// enforce for a content view
 	[self layout];
 	[self setNeedsDisplay:YES];	// show everything
-#if 0
+#if 1
 	NSLog(@"self=%@", [self _subtreeDescription]);
 #endif	
 }
@@ -533,10 +560,10 @@ static BOOL __cursorHidden = NO;
 #else
 					NSPoint p=[theEvent locationInWindow];
 					initial=p;
-#endif
-					if(p.y < _frame.size.height-_height)
+#endif	// OLDMOVE
+					if(p.y < NSMaxY(_bounds)-_height)
 						{ // check if we a have resize enabled in _style and we clicked on lower right corner
-							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
+							if((_style & NSResizableWindowMask) == 0 || p.y > 16.0 || p.x < _frame.size.width-10.0)
 								{
 								// FIXME: we can also check if we are textured and the point we did hit is considered "background"
 #if 1
@@ -551,7 +578,7 @@ static BOOL __cursorHidden = NO;
 							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
 							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
 						}
-#if 0
+#if 1
 					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
 #endif
 					break;
@@ -565,8 +592,8 @@ static BOOL __cursorHidden = NO;
 					NSPoint loc=[NSEvent mouseLocation];
 #else
 					NSPoint loc=[theEvent locationInWindow];
-#endif
-					deltax=loc.x-initial.x;	// how much we have moved
+#endif	// OLDMOVE
+					deltax=loc.x-initial.x;	// how much we have moved the mouse
 					deltay=loc.y-initial.y;
 					NSLog(@"moved by (%g %g)", deltax, deltay);
 #if 0
@@ -593,9 +620,8 @@ static BOOL __cursorHidden = NO;
 							NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
 							[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-							[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event
-							// called by ConfigureNotify event
-							// [self setNeedsDisplay:YES];
+							[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event if needed
+							[[_window graphicsContext] flushGraphics];	// push to immediately user's screen
 						}
 					else
 						{ // moving
@@ -618,6 +644,7 @@ static BOOL __cursorHidden = NO;
 										wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
 								}
 							[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+							[[_window graphicsContext] flushGraphics];	// push to immediately user's screen
 							NSLog(@"move child windows %@", [_window childWindows]);
 #if OLDMOVE
 #else
@@ -1492,7 +1519,7 @@ static NSButtonCell *sharedCell;
 
 - (void) setContentView:(NSView *)aView				
 {
-#if 0
+#if 1
 	NSLog(@"setContentView: %@", aView);
 	NSLog(@"setContentView: %@", [aView _subtreeDescription]);
 	NSLog(@"  w.autodisplay=%d", _w.autodisplay);
@@ -2533,10 +2560,11 @@ object:self]
 				case NSApplicationDeactivatedEventType: {
 					break;
 				}
-				case NSWindowMovedEventType: {
+				case NSWindowMovedEventType: { // moved or resized
 #if 0
 					NSLog(@"Window moved to %@", NSStringFromPoint([event locationInWindow]));
 #endif
+					[self setViewsNeedDisplay:YES];	// redraw during resize
 					// update frame origin (so that location based events are synchronous)
 					break;
 				}
@@ -2979,64 +3007,78 @@ object:self]
 - (void) setWindowController:(NSWindowController *)windowController; { ASSIGN(_windowController, windowController); }
 - (id) windowController; { return _windowController; }
 
-// FIXME: buttons should be returned with (0,0) origin!
-// must call [button setFrameOrigin] to place it in its superview
-
 + (NSButton *) standardWindowButton:(NSWindowButton) type forStyleMask:(NSUInteger) aStyle;
-{ // caller is responsible for setting the target
+{ // caller is responsible for setting the target and the frame origin
 	NSButton *b=nil;
 	static NSSize smallImage={ 15.0, 15.0 };
 	CGFloat button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
-	// set style dependent windget cell, i.e. brushed metal
+	NSRect rect=NSMakeRect(0, 0, button, button);	// default rect
+	// set style dependent widget cell, i.e. brushed metal
 	switch(type) {
 		case NSWindowCloseButton:
-			// CHECKME: do we already position the buttons here or have they all an NSZeroPoint origin?
-			b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
+			b=[[_NSThemeCloseWidget alloc] initWithFrame:rect forStyleMask:aStyle];
 			[b setAction:@selector(_close:)];
 			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-			//				[b setTitle:@"x"];
 			[b setTitle:@""];
+#if 0
+			[b setTitle:@"X"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowMiniaturizeButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(3.0+button, 0.0, button, button) forStyleMask:aStyle];
+			b=[[_NSThemeWidget alloc] initWithFrame:rect forStyleMask:aStyle];
 			[b setAction:@selector(miniaturize:)];
 			[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
-			//				[b setTitle:@"-"];
 			[b setTitle:@""];
+#if 0
+			[b setTitle:@"-"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowZoomButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+2.0*button, 0.0, button, button) forStyleMask:aStyle];
+			b=[[_NSThemeWidget alloc] initWithFrame:rect forStyleMask:aStyle];
 			[b setAction:@selector(zoom:)];
 			[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
-			//				[b setTitle:@"+"];
 			[b setTitle:@""];
+#if 0
+			[b setTitle:@"+"];
+#endif
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowToolbarButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(0.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
+			rect.size.width*=1.25;
+			rect.size.height*=0.75;
+			b=[[_NSThemeWidget alloc] initWithFrame:rect forStyleMask:aStyle];	// we must adjust the origin when using this button!
 			[b setAction:@selector(toggleToolbarShown:)];
 			[b setEnabled:YES];
 			[b setBordered:YES];	// with bezel
 			[b setBezelStyle:NSRoundedBezelStyle];
-			//				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
-			//				[b setTitle:@"t"];
 			[b setTitle:@""];
+#if 0
+			[b setTitle:@"t"];
+#endif
 			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowDocumentIconButton:
-			b=[[NSThemeDocumentButton alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
-			[b setEnabled:NO];
+			b=[[NSThemeDocumentButton alloc] initWithFrame:rect forStyleMask:aStyle];	// we must adjust the width when using this button!
 			// somehow include us in handling move by clicking into the title bar except for D&D on the icon
 			[b setImagePosition:NSImageLeft];
 			[[b cell] setImageDimsWhenDisabled:NO];
-			//				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];	// FIXME: image alignment and text alignment do not work correctly for NSButtonCells
+			[b setEnabled:NO];
+			/* set font and color attributes
+			a=[NSDictionary dictionaryWithObjectsAndKeys:
+			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
+			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+			   paragraph, NSParagraphStyleAttributeName,
+			   nil];
+			 */
 			[b setTitle:@""];
-			// [b setTitle:@"notitle"];
+#if 0
+			// [b setTitle:@"no title"];
+#endif
 			[b setAlignment:NSCenterTextAlignment];
 			[[b cell] setLineBreakMode:NSLineBreakByTruncatingTail];
 			[b setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];

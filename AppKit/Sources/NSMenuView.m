@@ -3,7 +3,7 @@
 //  mySTEP
 //
 //  Created by Dr. H. Nikolaus Schaller on Thu Mar 27 2003.
-//  Copyright (c) 2003 DSITRI. All rights reserved.
+//  Copyright (c) 2003-2018 DSITRI. All rights reserved.
 //
 
 ///// selecting a menu item should set setDefaultButtonCell: so that 'return' selects
@@ -43,9 +43,13 @@
 		{
 		NSMenuView *menuView=[[NSMenuView new] initWithFrame:[self documentVisibleRect]];	// make new NSMenuView
 		[self setDocumentView:menuView];	// add to view hiearachy
+		[self setAutohidesScrollers:YES];
+		// setup special scrollers
 		}
 	return self;
 }
+
+// handle resizing to content vs. resizing to screen
 
 @end
 
@@ -127,9 +131,6 @@
 	NSLog(@"index=%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 	NSLog(@"converted rect=%@", NSStringFromRect([self convertRect:[self rectOfItemAtIndex:index] toView:nil]));
 	NSLog(@"autodisplay=%d", [menuWindow isAutodisplay]);
-#endif
-#if 1
-	[menuWindow setTitle:[submenu title]];
 #endif
 	_attachedMenuView=[[[self class] alloc] initWithFrame:[[menuWindow contentView] frame]];	// make new NSMenuView of matching size
 	[menuWindow setContentView:_attachedMenuView];	// make content view
@@ -1025,8 +1026,7 @@
 					break;	// main menu clicked a second time in short click mode
 				}
 			}
-		else if(type == NSMouseMoved || type == NSLeftMouseDragged || type == NSPeriodic)
-			[self trackWithEvent:theEvent];
+		[self trackWithEvent:theEvent];
 		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									  untilDate:[NSDate distantFuture]			// get next event
 										 inMode:NSEventTrackingRunLoopMode 
@@ -1040,6 +1040,7 @@
 	[self setHighlightedItemIndex:-1];	// unhighligt top level item
 	[mv retain];	// may be owned by the NSPanel hat is detached
 	[self detachSubmenu];	// detach all open submenu items - might also close our panel
+	// according to documentation, this should happen in trackWithEvent:
 	if(idx >= 0)
 		[[mv menu] performActionForItemAtIndex:idx];	// finally perform action - processes responder chain
 	[mv release];

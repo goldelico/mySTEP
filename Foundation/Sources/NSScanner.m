@@ -34,10 +34,10 @@
 	if((self=[super init]))
 		{
 		string = [aString copy];
-		len = [string length];
-		// scanRange=null range
-		charactersToBeSkipped = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-		[charactersToBeSkipped retain];
+		// FIXME: get rid of separate iVar 'len'
+		scanRange = NSMakeRange(0, [string length]);
+		charactersToBeSkipped = [[NSCharacterSet whitespaceAndNewlineCharacterSet] retain];
+		caseSensitive = NO;
 		}
 	return self;
 }
@@ -53,14 +53,14 @@
 - (BOOL) _scanCharactersFromSet:(NSCharacterSet *)set
 					 intoString:(NSString **)value;
 {
-	unsigned int start;					// Like scanCharactersFromSet:intoString: 
+	NSUInteger start;					// Like scanCharactersFromSet:intoString:
 	// but no initial skip
 	//    NSLog(@"a11. NSRealMemoryAvailable=%u", NSRealMemoryAvailable());
-	if (scanRange.location >= len)
+	if (scanRange.location >= scanRange.length)
 		return NO;
 	start = scanRange.location;
 	//    NSLog(@"a12. NSRealMemoryAvailable=%u", NSRealMemoryAvailable());
-	while (scanRange.location < len)
+	while (scanRange.location < scanRange.length)
 		{
 		if(![set characterIsMember: [string characterAtIndex:scanRange.location]])
 			break;
@@ -88,7 +88,7 @@
 	if(charactersToBeSkipped)
 		[self _scanCharactersFromSet: charactersToBeSkipped intoString: NULL];
 	//    NSLog(@"a2. NSRealMemoryAvailable=%u", NSRealMemoryAvailable());
-	if (scanRange.location >= len)
+	if (scanRange.location >= scanRange.length)
 		return NO;
 	
 	return YES;
@@ -102,8 +102,8 @@
 - (BOOL) isAtEnd
 {
 	BOOL ret;
-	unsigned int save_scanLocation = scanRange.location;
-	if (scanRange.location >= len)
+	NSUInteger save_scanLocation = scanRange.location;
+	if (scanRange.location >= scanRange.length)
 		return YES;
 	ret = ![self _skipToNextField];
 	if(!ret)
@@ -127,13 +127,13 @@
 // FIXME: sizeof(NSInteger) may be > sizeof(int)!
 // therefore, _scanInt: should go to NSInteger and scanInt: should truncate
 
-- (BOOL) _scanInt: (int*)value
+- (BOOL) _scanInt: (NSInteger *)value
 {
-	unsigned int num = 0;
+	NSUInteger num = 0;
 	BOOL negative = NO;
 	BOOL overflow = NO;
 	BOOL got_digits = NO;
-	const unsigned int limit = UINT_MAX / 10;
+	const NSUInteger limit = UINT_MAX / 10;
 	
 	switch ([string characterAtIndex:scanRange.location])	// Check for sign
 	{
@@ -146,7 +146,7 @@
 		break;
 	}
 	
-	while (scanRange.location < len)						// Process digits
+	while (scanRange.location < scanRange.length)						// Process digits
 		{
 		unichar digit = [string characterAtIndex: scanRange.location];
 		if ((digit < '0') || (digit > '9'))
@@ -166,8 +166,8 @@
 		return NO;
 	if (value)												// Save the result
 		{
-		if (overflow || (num > (negative ? (unsigned int)INT_MIN : 
-								(unsigned int)INT_MAX)))
+		if (overflow || (num > (negative ? (NSUInteger)INT_MIN :
+								(NSUInteger)INT_MAX)))
 			*value = negative ? INT_MIN: INT_MAX;
 		else 
 			if (negative)
@@ -181,21 +181,11 @@
 
 - (BOOL) scanInt: (int*)value						// Scan an int into value.
 {
-	unsigned int saveScanLocation = scanRange.location;
-	
-	if ([self _skipToNextField] && [self _scanInt: value])
-		return YES;
-	scanRange.location = saveScanLocation;
-	
-	return NO;
-}
-
-- (BOOL) scanInteger: (NSInteger *)value						// Scan an int into value.
-{
-	unsigned int saveScanLocation = scanRange.location;
-	int val;
+	NSUInteger saveScanLocation = scanRange.location;
+	NSInteger val;
 	if ([self _skipToNextField] && [self _scanInt: &val])
 		{
+		// check range for int
 		*value=val;
 		return YES;
 		}
@@ -204,13 +194,23 @@
 	return NO;
 }
 
+- (BOOL) scanInteger: (NSInteger *)value						// Scan an int into value.
+{
+	NSUInteger saveScanLocation = scanRange.location;
+	if ([self _skipToNextField] && [self _scanInt: value])
+		return YES;
+	scanRange.location = saveScanLocation;
+	
+	return NO;
+}
+
 - (BOOL) scanHexInt:(unsigned int *) value;
 {												// Scan an unsigned int of the 
-	unsigned int num = 0;							// given radix into value.
+	NSUInteger num = 0;							// given radix into value.
 	unsigned int numLimit, digitLimit, digitValue, radix;
 	BOOL overflow = NO;
 	BOOL got_digits = NO;
-	unsigned int saveScanLocation = scanRange.location;
+	NSUInteger saveScanLocation = scanRange.location;
 	
 	if (![self _skipToNextField])							// Skip whitespace
 		{	
@@ -219,13 +219,13 @@
 		}
 	
 	radix = 16;												// Default radix is Hex
-	if((scanRange.location < len) 
+	if((scanRange.location < scanRange.length)
 	   && ([string characterAtIndex:scanRange.location] == '0'))
 		{
 		radix = 8;
 		scanRange.location++;
 		got_digits = YES;
-		if (scanRange.location < len)
+		if (scanRange.location < scanRange.length)
 			{
 			switch ([string characterAtIndex:scanRange.location])
 				{
@@ -240,7 +240,7 @@
 	numLimit = UINT_MAX / radix;
 	digitLimit = UINT_MAX % radix;
 	
-	while (scanRange.location < len)						// Process digits
+	while (scanRange.location < scanRange.length)						// Process digits
 		{
 		unichar digit = [string characterAtIndex:scanRange.location];
 		switch (digit)
@@ -329,7 +329,7 @@
 	BOOL negative = NO;
 	BOOL overflow = NO;
 	BOOL got_digits = NO;
-	unsigned int saveScanLocation = scanRange.location;
+	NSUInteger saveScanLocation = scanRange.location;
 	
 	if (![self _skipToNextField])							// Skip whitespace
 		{
@@ -348,7 +348,7 @@
 		break;
 	}
 	
-	while (scanRange.location < len)						// Process digits
+	while (scanRange.location < scanRange.length)						// Process digits
 		{
 		unichar digit = [string characterAtIndex:scanRange.location];
 		
@@ -403,7 +403,7 @@
 	BOOL negative = NO;						// strtod code from the GNU C library.
 	BOOL got_dot = NO;
 	BOOL got_digit = NO;
-	unsigned int saveScanLocation = scanRange.location;
+	NSUInteger saveScanLocation = scanRange.location;
 	
 	if (![self _skipToNextField])							// Skip whitespace
 		{
@@ -425,7 +425,7 @@
 		break;
 	}
 	
-	while (scanRange.location < len)						// Process number
+	while (scanRange.location < scanRange.length)						// Process number
 		{
 		c = [string characterAtIndex: scanRange.location];
 		if ((c >= '0') && (c <= '9'))
@@ -452,11 +452,11 @@
 	if (!got_digit)
 		{
 		scanRange.location = saveScanLocation;
-        return NO;
-      	}
+		return NO;
+		}
 	
 	saveScanLocation = scanRange.location;	// save exponent location
-	if ((scanRange.location < len) && ((c == 'e') || (c == 'E')))
+	if ((scanRange.location < scanRange.length) && ((c == 'e') || (c == 'E')))
 		{									// Check for trailing exponent
 			int exp;							// Numbers like 1.23eFOO ignore the e character 
 			scanRange.location++;
@@ -509,7 +509,7 @@
 - (BOOL) scanCharactersFromSet:(NSCharacterSet *)aSet 
 					intoString:(NSString **)value;
 {
-	unsigned int saveScanLocation = scanRange.location;
+	NSUInteger saveScanLocation = scanRange.location;
 	
 	if ([self _skipToNextField] 
 		&& [self _scanCharactersFromSet: aSet intoString: value])
@@ -525,13 +525,13 @@
 - (BOOL) scanUpToCharactersFromSet:(NSCharacterSet *)set 
 						intoString:(NSString **)value;
 {
-	unsigned int saveScanLocation = scanRange.location;
-	unsigned int start;
+	NSUInteger saveScanLocation = scanRange.location;
+	NSUInteger start;
 	
 	if (![self _skipToNextField])
 		return NO;
 	start = scanRange.location;
-	while (scanRange.location < len)
+	while (scanRange.location < scanRange.length)
 		{
 		if([set characterIsMember:[string characterAtIndex:scanRange.location]])
 			break;
@@ -557,11 +557,11 @@
 // If value is non-NULL, and the characters at the scan location match 
 // aString, a string containing the matching string is returned by 
 // reference in value.
+
 - (BOOL) scanString:(NSString *)aString intoString:(NSString **)value;
 {
 	NSRange range;
-	unsigned int i;
-	unsigned int saveScanLocation = scanRange.location;
+	NSUInteger saveScanLocation = scanRange.location;
 	//	unsigned int m;
 	//    NSLog(@"a. NSRealMemoryAvailable=%u", NSRealMemoryAvailable ());
 	//	m=NSRealMemoryAvailable ();
@@ -570,26 +570,18 @@
 	//		NSLog(@"b. NSRealMemoryAvailable: %u -> %u", m, NSRealMemoryAvailable ());
 	range.location = scanRange.location;
 	range.length = [aString length];
-	if (range.location + range.length > len)
+	if (NSMaxRange(range) > scanRange.length)
 		return NO;
-	for(i=0; i<range.length; i++)
-		{ // fast pre-check for literal match
-			if([aString characterAtIndex:i] != [string characterAtIndex:scanRange.location+i])
-				break;
-		}
-	if(i != range.length)
-		{ // not a literal match: try again - may match in case insensitive mode or by composed characters
-			//	m=NSRealMemoryAvailable ();
-			range = [string rangeOfString:aString
-								  options:caseSensitive ? NSAnchoredSearch : (NSAnchoredSearch+NSCaseInsensitiveSearch)
-									range:range];
-			//	if(m != NSRealMemoryAvailable())
-			//		NSLog(@"c. NSRealMemoryAvailable: %u -> %u", m, NSRealMemoryAvailable ());
-			if (range.length == 0)
-				{ // no match - go back
-					scanRange.location = saveScanLocation;
-					return NO;
-				}
+	//	m=NSRealMemoryAvailable ();
+	range = [string rangeOfString:aString
+						  options:(NSAnchoredSearch+NSLiteralSearch)+(caseSensitive ? 0 : NSCaseInsensitiveSearch)
+							range:range];
+	//	if(m != NSRealMemoryAvailable())
+	//		NSLog(@"c. NSRealMemoryAvailable: %u -> %u", m, NSRealMemoryAvailable ());
+	if (range.location == NSNotFound)
+		{ // no match - go back
+			scanRange.location = saveScanLocation;
+			return NO;
 		}
 	if (value)
 		*value = [string substringWithRange:range];
@@ -598,21 +590,22 @@
 	
 	return YES;
 }
+
 // Scans string until aString
-- (BOOL) scanUpToString:(NSString *)aString 	// is encountered.  Return YES
+- (BOOL) scanUpToString:(NSString *)aString	// is encountered.  Return YES
 			 intoString:(NSString **)value		// if chars were scanned, NO 
 {												// otherwise.  If value is not  
 	NSRange range;									// NULL, and any chars were  
 	NSRange found;									// scanned, return by reference
-	unsigned int saveScanLocation = scanRange.location;	// in value a string containing
+	NSUInteger saveScanLocation = scanRange.location;	// in value a string containing
 	// the scanned characters
 	[self _skipToNextField];
 	range.location = scanRange.location;
-	range.length = len - scanRange.location;
-	if([aString length] == 1)
+	range.length = scanRange.length - scanRange.location;
+	if(!caseSensitive && [aString length] == 1)
 		{ // speed search for single character (can not be a composed sequence)
 			unichar c=[aString characterAtIndex:0]; // first character
-			unsigned int i;
+			NSUInteger i;
 			found=NSMakeRange(NSNotFound, 0);
 			for(i=0; i<range.length; i++)
 				{
@@ -629,7 +622,7 @@
 	else
 		{ // try full scan
 			found = [string rangeOfString:aString
-								  options:caseSensitive ? 0 : NSCaseInsensitiveSearch
+								  options:(NSLiteralSearch)+(caseSensitive ? 0 : NSCaseInsensitiveSearch)
 									range:range];
 		}
 	if (found.length)
@@ -646,6 +639,7 @@
 	
 	return YES;
 }
+
 // Returns the string being scanned
 - (NSString *) string			{ return string; }
 - (NSUInteger) scanLocation		{ return scanRange.location; }

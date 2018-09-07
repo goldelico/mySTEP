@@ -2043,7 +2043,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 #endif
 		if(cached)
-			{ // draw from cache (can't handle alpha in this case!)
+			{ // draw bitmap from cache (can't handle alpha in this case!)
 				NSGraphicsContext *ctxt=[[(NSCachedImageRep *) rep window] graphicsContext];
 				if(ctxt)
 					{
@@ -2127,7 +2127,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		/*
 		 * locate where to draw in X11 coordinates
 		 */
-		isFlipped=[self isFlipped];
+		isFlipped=[self isFlipped];	// usually asks the NSView which has focus (if any)
+		// FIXME: should we check _state->_ctm.m22 < 0 for flipped?
 		origin=[_state->_ctm transformPoint:unitSquare.origin];	// determine real drawing origin in X11 coordinates
 		scanRect=[_state->_ctm _transformRect:unitSquare];	// get bounding box for transformed unit square (may be bigger if rotated!)
 #if 0
@@ -2189,15 +2190,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[atm invert];				// get reverse mapping (XImage coordinates to unit square)
 		width=[rep pixelsWide];
 		height=[rep pixelsHigh];
+
+		/*
+		 * handle drawing into a flipped NSView or context (independently of a flipped image!)
+		 */
+
 		if(isFlipped)
 			[atm scaleXBy:width yBy:height];	// and directly map to pixel coordinates
 		else
 			[atm scaleXBy:width yBy:-height];	// and directly map to flipped pixel coordinates
 		atms=[atm transformStruct];	// extract raw coordinate transform
 		if(atms.m22 < 0)
-		{
-		atms.tY+=height;
-		}
+			{ // seems to be needed in some cases for flipped drawing
+			NSLog(@"flipped drawing %d", isFlipped);
+			atms.tY+=height;
+			}
+
 		/*
 		 * get current screen image for compositing
 		 */
@@ -2310,7 +2318,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 					if(_compositingOperation != NSCompositeClear)
 						{ // get smoothed RGBA from bitmap
-						  // we should pipeline this through core-image like filter modules
 							switch(_imageInterpolation) {
 								case NSImageInterpolationDefault:	// default is same as low
 								case NSImageInterpolationLow:
@@ -2443,6 +2450,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 		{
+		if(_compositingOperation != NSCompositeCopy && _compositingOperation != NSCompositeClear)
+			{ // check for compositing ops that do not work
+				NSLog(@"copyBits with unsupported compositing %d", _compositingOperation);
+				_compositingOperation = NSCompositeCopy;
+			}
 		[self _setCompositing];
 		srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
 		srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
@@ -3801,7 +3813,6 @@ static NSFileHandle *fh;
 			case ConfigureNotify:					// window has been moved or resized by window manager
 				NSLog(@"ConfigureNotify\n");
 				[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
-#if 1
 				e = [NSEvent otherEventWithType:NSAppKitDefined
 									   location:X11toScreen(xe.xconfigure)	// or do we notify relative movement?
 								  modifierFlags:__modFlags
@@ -3813,37 +3824,6 @@ static NSFileHandle *fh;
 										  data2:xe.xconfigure.height];	// new position and dimensions
 																		// this should allow to precisely track mouse position if the window is moved
 																		// for that it could be sufficient to track window movements and report top-left corner only
-#endif
-#if FIXME
-				// we should at least redisplay the window
-				if(!xe.xconfigure.override_redirect ||
-				   xe.xconfigure.window == _wAppTileWindow)
-					{
-					NSRect f = (NSRect){{(float)xe.xconfigure.x,
-						(float)xe.xconfigure.y},
-						{(float)xe.xconfigure.width,
-							(float)xe.xconfigure.height}};	// get frame rect
-					if(!(w = XRWindowWithXWindow(xe.xconfigure.window)) && xe.xconfigure.window == _wAppTileWindow)
-						w = XRWindowWithXWindow(__xAppTileWindow);
-					if(xe.xconfigure.above == 0)
-						f.origin = [w xFrame].origin;
-					//					if(!xe.xconfigure.override_redirect && xe.xconfigure.send_event == 0)
-					f.origin.y += WINDOW_MANAGER_TITLE_HEIGHT;		// adjust for title bar offset
-					NSDebugLog(@"New frame %f %f %f %f\n",
-							   f.origin.x, f.origin.y,
-							   f.size.width, f.size.height);
-					// FIXME: shouldn't this be an NSNotification that a window can catch?
-					[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setFrame:f];
-					}
-				if(xe.xconfigure.window == lastXWin)
-					{
-					// xFrame = [w xFrame];
-					xFrame = (NSRect){{(float)xe.xconfigure.x,
-						(float)xe.xconfigure.y},
-						{(float)xe.xconfigure.width,
-							(float)xe.xconfigure.height}};
-					}
-#endif
 				break;
 			case ConfigureRequest:					// same as ConfigureNotify but we get this event
 				NSDebugLog(@"ConfigureRequest\n");	// before the change has

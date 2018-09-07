@@ -1456,7 +1456,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSEnumerator *e = [[_windowsMenu itemArray] objectEnumerator];
 		NSPoint topLeft={ 0.0, 512.0 };
 		NSMenuItem *item;
-
+		// FIXME: collection was mutated during enumeration
 		while((item = [e nextObject]))
 			{ // bring to front all windows in the menu
 			NSWindow *w = [item target];
@@ -1685,7 +1685,9 @@ NSWindow *w;
 													   defer:YES];	// will be released on close
 		[_mainMenuWindow setWorksWhenModal:YES];
 		[_mainMenuWindow setLevel:NSMainMenuWindowLevel];
+#if 0	// no effect for NSBorderlessWindowMask
 		[_mainMenuWindow setTitle:@"Main Menu Window"];
+#endif
 		_mainMenuView=[[NSMenuView alloc] initWithFrame:[[_mainMenuWindow contentView] bounds]];	// make new NSMenuView
 		[_mainMenuWindow setContentView:_mainMenuView];		// make content view
 		if([menuScreen _menuBarFrame].origin.y == 0.0 && [menuScreen _menuBarFrame].origin.x != 0.0)

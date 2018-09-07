@@ -549,7 +549,7 @@ because this reverses the writing direction within the text container
 		if([aDecoder containsValueForKey:@"NSBounds"])
 			[self setBounds:[aDecoder decodeRectForKey:@"NSBounds"]];
 		_documentView=[[aDecoder decodeObjectForKey:@"NSDocView"] retain];
-		[aDecoder decodeInt32ForKey:@"NSAutomaticallyAdjustsContentInsets"];
+		[aDecoder decodeBoolForKey:@"NSAutomaticallyAdjustsContentInsets"];
 		if([_documentView window] != [self window])
 			NSLog(@"has different Window");
 		// Register for notifications sent by the document view 

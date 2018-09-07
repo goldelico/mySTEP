@@ -66,22 +66,24 @@ typedef NSInteger NSTrackingRectTag;
 	NSView *_superview;
 	NSMutableArray *_subviews;
 	NSWindow *_window;
-	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated) - created on demand
+	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated, zero origin) - tracks settings
 	NSAffineTransform *_frame2bounds;	// inverse - created on demand
 	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
 	NSAffineTransform *_base2bounds;	// inverse - created on demand
-	NSRect _frame;				// as defined by setFrame
-	NSRect _bounds;				// calculated from frame and _frame2bounds
+	NSRect _frame;					// as defined by setFrame
+	NSRect _bounds;					// calculated from frame and _frame2bounds
 	NSRect _invalidRect;			// union of all subrects
-	NSRect *_invalidRects;		// invalid rectangle list
+	NSRect *_invalidRects;			// invalid rectangle list while being built up
+	NSRect *_savedInvalidRects;		// invalid rectangle list available through getRectsBeingDrawn
 	NSView *_nextKeyView;
-    NSArray *_dragTypes;
+	NSArray *_dragTypes;
 	CGFloat _frameRotation;
 	CGFloat _boundsRotation;
-	NSUInteger _nInvalidRects;	// number of invalid rects
-	NSUInteger _cInvalidRects;	// capacity of invalidRects array
+	NSUInteger _nInvalidRects;		// number of invalid rects while being built up
+	NSUInteger _cInvalidRects;		// capacity of invalidRects array
+	NSUInteger _nSavedInvalidRects;	// number of invalid rects available through getRectsBeingDrawn
 	NSInteger _gState;
-    struct __ViewFlags {
+	struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;
 		unsigned int isRotatedOrScaledFromBase:1;
 		unsigned int postFrameChange:1;

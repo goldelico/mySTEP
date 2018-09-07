@@ -7,6 +7,7 @@
 //
 
 #import "NSCollectionViewItem.h"
+#import "NSCollectionView.h"
 #import "NSAppKitPrivate.h"
 
 
@@ -20,7 +21,7 @@
 		_collectionView = nil;
 		_representedObject = nil;
 		_view = [[NSView alloc] init];
-		
+
 	}
 	return self;
 }
@@ -65,11 +66,11 @@
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	if ((self=[super initWithCoder:coder]))
-	{
+		{
 		[self setView:[coder decodeObjectForKey:@"view"]];
 		[self setRepresentedObject:[coder decodeObjectForKey:@"representedObject"]];
 		[self setSelected:[coder decodeBoolForKey:@"selected"]];
-	}
+		}
 	return self;
 }
 
@@ -80,16 +81,16 @@
 	[coder encodeObject:_view forKey:@"view"];
 	[coder encodeObject:_representedObject forKey:@"representedObject"];
 	[coder encodeBool:_isSelected forKey:@"selected"];
-	
+
 }
 - (id) copyWithZone:(NSZone *) zone
 {
 	NSCollectionViewItem *c = [[self class] allocWithZone:zone];	// makes a real copy
-	
+
 	c->_view = _view;
 	c->_representedObject = [_representedObject retain];
 	c->_collectionView = _collectionView;
-	
+
 	return c;
 }
 @end

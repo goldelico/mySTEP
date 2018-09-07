@@ -35,6 +35,30 @@
 // Class variables 
 static NSMutableDictionary *__nameToImageDict = nil;
 
+#if 0	// debugging
+
+@implementation NSApplication (NSImage)
+
+- (void) finishLaunching
+{ // override NIB loading
+	NSImage *img=[NSImage imageNamed:@"NSToolbarShowFonts"];
+	NSWindow *w=[[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 400, 200) styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
+	NSImageView *iv=[[NSImageView alloc] initWithFrame:NSMakeRect(50, 50, 100, 100)];
+#if 0	// currently, unflipped drawing works, flipped fails
+	[img setFlipped:YES];
+#endif
+	// set other image attributes
+	[iv setImage:img];
+	[iv setImageScaling:NSImageScaleNone];
+	// set other image view attributes, e.g.  resizing, frame, bounds, rotation
+	[w setContentView:iv];
+	[w makeKeyAndOrderFront:nil];
+}
+
+@end
+
+#endif
+
 @implementation NSImage
 
 + (void) initialize
@@ -510,10 +534,17 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSIsEmptyRect(dest))
 		src.size=_size;	// use image size
 	[ctx saveGraphicsState];
+#if 0
+	[[NSColor yellowColor] set];
+	NSFrameRect(dest);
+#endif
 	co=[ctx compositingOperation];	// save
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-	[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
+	if(_img.flipDraw)
+		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
+	else
+		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
 	if(!NSEqualSizes(dest.size, src.size))
 		{ // draw only parts of the image by reducing clipping rect and scale up/down
 		NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
@@ -525,11 +556,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		}
 	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
 	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
-	if(1 && _img.flipDraw != [ctx isFlipped])
-		{
-		[atm translateXBy:0 yBy:1.0];
+	if(_img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
-		}
 	[ctx _concatCTM:atm];	// add to CTM as needed
 	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];	// restore

@@ -214,8 +214,6 @@ typedef enum _NSRoundedBezelSegments
 - (NSAffineTransform *) _bounds2frame;
 - (NSAffineTransform *) _bounds2base;
 - (void) _invalidateCTM;
-- (BOOL) _addRectNeedingDisplay:(NSRect) rect;
-- (void) _removeRectNeedingDisplay:(NSRect) rect;
 - (void) _setSuperview:(NSView *)superview;	
 - (void) _drawRect:(NSRect) rect;
 - (void) _setWindow:(NSWindow *) window;

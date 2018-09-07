@@ -32,8 +32,7 @@
 	NSString *string;
 	NSCharacterSet *charactersToBeSkipped;
 	NSDictionary *locale;
-	NSRange scanRange;
-	unsigned int len;
+	NSRange scanRange;	// NOTE: length is not decreased while scanning!
 	BOOL caseSensitive;
 }
 

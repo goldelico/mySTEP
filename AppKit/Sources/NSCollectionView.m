@@ -14,16 +14,16 @@
 @implementation NSCollectionView
 
 - (id)initWithFrame:(NSRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code here.
+	self = [super initWithFrame:frame];
+	if (self) {
+		// Initialization code here.
 		if(!_itemPrototype) { //makeup one itemPrototype
 			NSCollectionViewItem *item = [[NSCollectionViewItem alloc] init];
 			[item setView:[[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)] autorelease]];
 			[self setItemPrototype:item];
 		}
-    }
-    return self;
+	}
+	return self;
 }
 
 - (void) drawRect:(NSRect) rect {
@@ -31,10 +31,10 @@
 	[self _computeGridGeometry];
 }
 
-- (BOOL) allowsMultipleSelection {return _allowsMultipleSelection;} 
-- (NSArray *) backgroundColors {return _backgroundColors;} 
-- (NSArray *) content {return _content;} 
-- (BOOL) isFirstResponder {return _firstResponder;} 
+- (BOOL) allowsMultipleSelection {return _allowsMultipleSelection;}
+- (NSArray *) backgroundColors {return _backgroundColors;}
+- (NSArray *) content {return _content;}
+- (BOOL) isFirstResponder {return _firstResponder;}
 - (BOOL) isSelectable {
 	return _selectable;
 }
@@ -107,15 +107,15 @@
 	if(_maxNumberOfColumns==0) { //das gleiche mit den Spalten...
 		int numberofColums =  cvSize.width / protoSize.width;
 		NSLog(@"Number of Columns: %d", numberofColums);
-		
+
 	} else {
-		
+
 	}
 }
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	if ((self=[super initWithCoder:coder]))
-	{
+		{
 		[self setBackgroundColors:[coder decodeObjectForKey:@"backgroundColors"]];
 		[self setItemPrototype:[coder decodeObjectForKey:@"itemPrototype"]];
 		[self setSelectionIndexes:[coder decodeObjectForKey:@"selectionIndexes"]];
@@ -126,7 +126,7 @@
 		[self setMaxNumberOfRows:[coder decodeIntForKey:@"maxNumberOfRows"]];
 		[self setMinItemSize:[coder decodeSizeForKey:@"minItemSize"]];
 		[self setSelectable:[coder decodeBoolForKey:@"selectable"]];
-	}
+		}
 	return self;
 }
 

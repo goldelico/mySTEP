@@ -243,12 +243,21 @@ static NSCharacterSet *spaces;		// @" \t\n\r"
 static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"
 
 - (void) propertyListSkipSpace;
-{
+{ // skip whitespace and newlines
 	if(!spaces)
-		spaces=[[NSCharacterSet characterSetWithCharactersInString:@" \t\n\r"] retain];
-	[self scanCharactersFromSet:spaces intoString:NULL];
-	// could count line numbers by adding a loop, scanning not including \n - and checking explicitly
-	// if([self scanString:@"\n" intoString:nil]) { line++; continue; }
+		spaces=[[NSCharacterSet characterSetWithCharactersInString:@" \t\r"] retain];
+	while(YES)
+		{
+		//	NS_TIME_START(VAR);
+		[self scanCharactersFromSet:spaces intoString:NULL];
+		//	NS_TIME_END(VAR, "propertyListSkipSpace 1");	// ca. 1-2 µs
+		if([self scanString:@"\n" intoString:NULL])
+			{
+			// line++;	// count line numbers
+			continue;
+			}
+		return;
+		}
 }
 
 - (void) propertyListSkipSpaceAndComments;
@@ -262,11 +271,11 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 				continue;
 			}
 		if([self scanString:@"/*" intoString:NULL])
-		    { // C style comment
-			    [self scanUpToString:@"*/" intoString:NULL];	// ignore until closing */
-	            [self scanString:@"*/" intoString:NULL];	// eat */
-			    continue;
-		    }
+			{ // C style comment
+				[self scanUpToString:@"*/" intoString:NULL];	// ignore until closing */
+				[self scanString:@"*/" intoString:NULL];	// eat */
+				continue;
+			}
 		return;
 		}
 }
@@ -312,6 +321,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			{ // \r
 			[str appendString:@"\r"];
 			}
+		// more escape characters...
 		else if([self scanString:@"\\" intoString:NULL])
 			{ // escaped backslash
 				[str appendString:@"\\"];
@@ -484,9 +494,13 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 { // parse JSON elements
 	id val=nil;
 	double dval;
+	//NS_TIME_START(VAR);
 	[self propertyListSkipSpaceAndComments];
+	//NS_TIME_END(VAR, "propertyListSkipSpaceAndComments");
+	//NS_TIME_START(VAR);
 	while([self scanString:@";" intoString:NULL])
 		[self propertyListSkipSpaceAndComments];	// skip ignorable ;
+	//NS_TIME_END(VAR, "skip ;");
 	if([self isAtEnd])
 		{
 		*err=@"unexpected EOF";
@@ -499,7 +513,18 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 	NSString *next=[[self string] substringWithRange:range];
 	NSLog(@"propertyListScanJSONElement %@", next);
 #endif
-	if([self scanString:@"{" intoString:NULL])
+	if([self scanString:@"\"" intoString:NULL])
+		{ // string
+		  //NS_TIME_START(VAR);
+			val=[self propertyListScanQuotedString];
+			//NS_TIME_END(VAR, "propertyListScanQuotedString");
+			if(!val)
+				{
+				*err=@"invalid string";
+				return nil;
+				}
+		}
+	else if([self scanString:@"{" intoString:NULL])
 		{ // { key:value, key:value } - NSDictionary
 			val=[NSMutableDictionary dictionaryWithCapacity:10];
 			[self propertyListSkipSpaceAndComments];
@@ -509,16 +534,26 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 					{ // parse elements until }
 						id key;
 						id value;
+						//NS_TIME_START(VAR);
 						key=[self propertyListScanJSONElement:opt errorDescription:err];
+						//NS_TIME_END(VAR, "key");
+#if 0
+						NSLog(@"key = %@", key);
+#endif
 						if(!key)
 							return nil;
 						[self propertyListSkipSpaceAndComments];
 						if(![self scanString:@":" intoString:NULL])
 							{
-							*err=@"missing : to separate key and value";
+							*err=[NSString stringWithFormat:@"missing : after key %@", val];
 							return nil;
 							}
+						//NS_TIME_START(VAR);
 						value=[self propertyListScanJSONElement:opt errorDescription:err];
+						//NS_TIME_END(VAR, "value");
+#if 0
+						NSLog(@"value = %@", value);
+#endif
 						if(!value)
 							return nil;
 						[val setObject:value forKey:key];
@@ -526,7 +561,10 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 						if([self scanString:@"}" intoString:NULL])
 							break;
 						if(![self scanString:@"," intoString:NULL])
-							;	// ignore missing , or not?
+							{
+							*err=[NSString stringWithFormat:@"missing } or , after object %@", val];
+							return nil;
+							}
 					}
 				}
 		}
@@ -547,19 +585,20 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 						if([self scanString:@"]" intoString:NULL])
 							break;
 						if(![self scanString:@"," intoString:NULL])
-							;	// ignore missing , or not?
+							{
+							*err=[NSString stringWithFormat:@"missing ] or , after object %@", val];
+							return nil;
+							}
 					}
 				}
 		}
-	else if([self scanString:@"\"" intoString:NULL])
-		{ // string
-			val=[self propertyListScanQuotedString];
-			if(!val)
-				{
-				*err=@"invalid string";
-				return nil;
-				}
-		}
+	// these keywords are case sensitive
+	else if([self scanString:@"null" intoString:NULL])
+		val=[NSNull null];
+	else if([self scanString:@"true" intoString:NULL])
+		val=[NSNumber numberWithBool:YES];
+	else if([self scanString:@"false" intoString:NULL])
+		val=[NSNumber numberWithBool:NO];
 	else if([self scanDouble:&dval])
 		{
 		if(dval <= INT_MAX && dval >= INT_MIN && dval == (double)(int) dval)	// seems to have precise int representation
@@ -567,12 +606,6 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		else
 			val=[NSNumber numberWithDouble:dval];
 		}
-	else if([self scanString:@"null" intoString:NULL])
-		val=[NSNull null];
-	else if([self scanString:@"true" intoString:NULL])
-		val=[NSNumber numberWithBool:YES];
-	else if([self scanString:@"false" intoString:NULL])
-		val=[NSNumber numberWithBool:NO];
 	else
 		{
 		NSString *next=[[self string] substringFromIndex:[self scanLocation]];
@@ -1713,17 +1746,18 @@ next:
 #endif
 	sc=[NSScanner scannerWithString:str];
 	[sc setCharactersToBeSkipped:nil];	// skip nothing
+	[sc setCaseSensitive:YES];	// makes string compares a little faster
 	[sc propertyListSkipSpaceAndComments];
 	loc=[sc scanLocation];
 	if([sc scanString:@"[" intoString:NULL] || [sc scanString:@"{" intoString:NULL])
 		{ // try JSON array or object on top level
 		[sc setScanLocation:loc];
 		plist=[sc propertyListScanJSONElement:opt errorDescription:errorString];
-#if 0
+#if 1
 		if(!plist)
-			NSLog(@"JSON error: %@", [[sc string] substringFromIndex:[sc scanLocation]]);
+			NSLog(@"JSON error: %@ %@", *errorString, [[sc string] substringFromIndex:[sc scanLocation]]);
 #endif
-			// FIXME: should we accept trailing ";" ?
+		// FIXME: should we accept a trailing ";" ?
 		fmt=NSPropertyListJSONFormat;
 		}
 	if(!plist && [sc scanString:@"(" intoString:NULL])

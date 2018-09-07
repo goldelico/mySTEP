@@ -8,23 +8,23 @@
 
 #import <AppKit/NSView.h>
 
-@class NSCollectionView; 
+@class NSCollectionView;
 
-@interface NSCollectionViewItem : NSObject <NSCoding, NSCopying> 
+@interface NSCollectionViewItem : NSObject <NSCoding, NSCopying>
 {
-	NSCollectionView *_collectionView; 
-	id _representedObject; 
-	NSView *_view; 	
-	BOOL _isSelected; 
+	NSCollectionView *_collectionView;
+	id _representedObject;
+	NSView *_view;
+	BOOL _isSelected;
 }
 
-- (NSCollectionView *) collectionView; 
-- (BOOL) isSelected; 
-- (id) representedObject; 
-- (void) setRepresentedObject:(id) obj; 
-- (void) setSelected:(BOOL) flag; 
+- (NSCollectionView *) collectionView;
+- (BOOL) isSelected;
+- (id) representedObject;
+- (void) setRepresentedObject:(id) obj;
+- (void) setSelected:(BOOL) flag;
 - (void) toggleSelected:(BOOL) flag;
-- (void) setView:(NSView *) view; 
-- (NSView *) view; 
+- (void) setView:(NSView *) view;
+- (NSView *) view;
 
 @end

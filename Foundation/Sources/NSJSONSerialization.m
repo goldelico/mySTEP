@@ -7,9 +7,35 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NSPrivate.h"
 
 
 @implementation NSJSONSerialization
+
+#if 0	// debugging
++ (void) initialize
+{
+	NSError *error;
+	NSData *data;
+	NSDictionary *root;
+	NSString *json=@"{\n"
+	@"\"name\":   \"Extended 45\",\n"
+	@"\"eman\":   true,\n"
+	@"\"enum\":   45,\n"
+	@"\"requirements\": {\n"
+	@"\"window\": {\n"
+	@"\"width\":  480\n"
+	@"}\n"
+	@"}\n"
+	@"}\n";
+	NSLog(@"JSON1: %@", json);
+	data=[json dataUsingEncoding:NSUTF8StringEncoding];
+	NSLog(@"JSON2: %@", data);
+	root=[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+	NSLog(@"JSON3: %@ - %@", root, error);
+	abort();
+}
+#endif
 
 + (NSData *) dataWithJSONObject:(id) obj options:(NSJSONWritingOptions) opt error:(NSError **) error;
 {
@@ -31,11 +57,14 @@
 	NSPropertyListFormat fmt;	// make dependent on writing options
 	NSPropertyListMutabilityOptions opts=0;	// most likely we also have to specify that we want to see JSON and not old ASCII style PList
 	NSString *err=nil;
-	id plist=[NSPropertyListSerialization propertyListFromData:data mutabilityOption:opts format:&fmt errorDescription:&err];
-	if(!plist && error)
-		*error=[NSError errorWithDomain:err code:0 userInfo:nil];	// wasn't able to read
+	id plist;
+	NS_TIME_START(VAR);
+	plist=[NSPropertyListSerialization propertyListFromData:data mutabilityOption:opts format:&fmt errorDescription:&err];
+	if(error)
+		*error=err?[NSError errorWithDomain:err code:0 userInfo:nil]:nil;	// wasn't able to read
 	// silently ignore if not JSONFormat but detectable, e.g. XML or binary PList
-	return plist;	
+	NS_TIME_END(VAR, "JSONObjectWithData");
+	return plist;
 }
 
 + (id) JSONObjectWithStream:(NSInputStream *) stream options:(NSJSONReadingOptions) opt error:(NSError **) error;
