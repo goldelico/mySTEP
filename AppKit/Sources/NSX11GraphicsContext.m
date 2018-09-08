@@ -2203,7 +2203,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		if(atms.m22 < 0)
 			{ // seems to be needed in some cases for flipped drawing
 			NSLog(@"flipped drawing %d", isFlipped);
-			atms.tY+=height;
+			atms.tY+=height-1;
 			}
 
 		/*
