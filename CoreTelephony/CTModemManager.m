@@ -476,66 +476,30 @@ BOOL modemLog=NO;
 	return [_ati containsObject:@"Cinterion"];
 }
 
-// das gehört eigentlich in CTModemManager!
-
-// FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
-// und letzter triggert nach Timeout den ersten
-// also eine polling-queue
-// oder einfacher: Timer alle 5 sekunden macht den jeweils nächsten...
-
-// universeller: NS(Mutable) Array mit Befehlen
-// oder einfach alle direkt hintereinander?
-
-// alles gleich oft pollen? Nein! individuelle timeouts
-//
-// oder jeden Befehl einfach in einen eigenen performSelector afterDelay withObject stecken?
-// dazu String + weiteren Delay durchschleifen...
-
 // FIXME: can this block other AT commands?
 
-- (void) poll
+- (void) poll:(NSDictionary *) info
 { // timer triggered commands (because there is no unsolicited notification)
-	static int next;
-	switch(next++ % 4) {
-		case 0:
-			[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
-			break;
-		case 1:
-			[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
-			break;
-		case 2:
-			[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
-			break;
-		case 3:
-			[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
-																					// process +CMGL: responses
-																					// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
-																					// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
-																					// same for cell broadcasts (?) AT+CPMS="BM"
-			break;
-			/* PxS8:
-			 * AT^SCTM?		poll for temperature
-			 * ATCSQ?		poll for signal quality
-			 * AT^SMONI		poll network
-			 * AT^SMONP		poll base stations
-			 */
-	}
-	[self performSelector:_cmd withObject:nil afterDelay:5.0];
+	NSString *cmd=[info objectForKey:@"cmd"];
+	NSNumber *repeat=[info objectForKey:@"repeat"];
+	[[CTModemManager modemManager] runATCommand:cmd];
+	if(repeat)
+		[self performSelector:_cmd withObject:info afterDelay:[repeat doubleValue]];	// repeat
 }
 
 - (void) pollATCommand:(NSString *) cmd everySeconds:(int) seconds;
-{
-
-}
-
-- (void) pollATCommand:(NSString *) cmd;
-{
-	// register for polling
+{ // run after seconds and repeat if seconds > 0
+	NSNumber *repeat=seconds > 0 ? [NSNumber numberWithInt:seconds]:nil;
+	NSDictionary *info=[NSDictionary dictionaryWithObjectsAndKeys:
+						cmd, @"cmd",
+						repeat, @"repeat",	// will not be stored if seconds <= 0
+						nil
+						];
+	[self performSelector:@selector(poll:) withObject:info afterDelay:seconds];	// trigger first run
 }
 
 - (void) _initModem
 { // enable URCs and do some setup
-  // create/clear array of polling commands
 	[self runATCommand:@"AT+COPS"];		// report RING etc.
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING
 	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
@@ -554,7 +518,7 @@ BOOL modemLog=NO;
 			[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature
 			[self pollATCommand:@"AT_OBLS" everySeconds:10];	// get SIM status (removed etc.)
 			[self pollATCommand:@"AT_OBSI" everySeconds:20];	// base station location
-			[self pollATCommand:@"AT_ONCI?" everySeconds:10];	// neighbouring base stations
+			[self pollATCommand:@"AT_ONCI?" everySeconds:20];	// neighbouring base stations
 			[self pollATCommand:@"AT+CMGL=\"REC UNREAD\"" everySeconds:5];	// received SMS - until we have 3G wakeup
 		}
 	else if([self isPxS8])
@@ -564,11 +528,12 @@ BOOL modemLog=NO;
 			[self runATCommand:@"AT+CREG=2"];	// report network registration
 			[self runATCommand:@"AT^SAD=10"];	// turn off RX diversity
 			[self runATCommand:@"AT^SCTM=1,1"];	// monitor temperature - should send ^SCTM_B: URCs
-			[self pollATCommand:@"AT^SCTM?"everySeconds:20];	// get temperature
-			[self pollATCommand:@"AT^SBV"everySeconds:20];		// get voltage
-			[self pollATCommand:@"ATCSQ?"everySeconds:10];		// get for signal quality
-			[self pollATCommand:@"AT^SMONI"everySeconds:10];	// get network
-			[self pollATCommand:@"AT^SMONP"everySeconds:30];	// get base stations
+			[self pollATCommand:@"AT^SCTM?" everySeconds:20];	// get temperature
+			[self pollATCommand:@"AT^SBV" everySeconds:20];		// get voltage
+			[self pollATCommand:@"ATCSQ?" everySeconds:10];		// get for signal quality
+			[self pollATCommand:@"AT^SMONI" everySeconds:10];	// get network
+			[self pollATCommand:@"AT^SMONP" everySeconds:30];	// get base stations
+			[self pollATCommand:@"AT+CMGL=\"REC UNREAD\"" everySeconds:5];	// received SMS - until we have 3G wakeup
 		}
 	//	[self performSelector:@selector(poll) withObject:nil afterDelay:5.0];
 }
@@ -597,7 +562,7 @@ BOOL modemLog=NO;
 - (int) _closeModem;
 {
 	if(modemLog) [self log:@"_closeModem"];
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(poll) object:nil];
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(poll:) object:nil];
 	[self setUnsolicitedTarget:nil action:NULL];	// there may be some more incoming messages
 	if(ttyPort)
 		{

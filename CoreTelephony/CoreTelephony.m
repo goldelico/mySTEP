@@ -290,7 +290,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				// check if this is a valid digit
 	NSLog(@"send DTMF: %@", digit);
 	// if this already blocks until the tone has been sent, we can simply loop over all characters
-	if(![[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+VTS=%@", digit]] != CTModemOk)
+	if([[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+VTS=%@", digit]] != CTModemOk)
 		;
 }
 
@@ -383,6 +383,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 { // ask the modem
   // FIXME: this may be a little slow if we call it too often
 	// so we should cache the state and update only if last value is older than e.g. 1 second
+	// FIXME: make dependent on model
+	// or should we ask rfkill status???
 #if 1
 	char bfr[512];
 	FILE *f=popen("ifconfig -s | fgrep hso0", "r");
@@ -391,7 +393,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		return CTCarrierWWANStateUnknown;
 	fgets(bfr, sizeof(bfr)-1, f);
 	pclose(f);
-	NSLog(@"WWANstate strlen=%d", strlen(bfr));
+	NSLog(@"WWANstate strlen=%lu", strlen(bfr));
 	return strlen(bfr) > 10?CTCarrierWWANStateConnected:CTCarrierWWANStateDisconnected;
 
 
@@ -442,9 +444,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (id) retain { return self; }
 
-- (unsigned) retainCount { return UINT_MAX; }
+- (NSUInteger) retainCount { return UINT_MAX; }
 
-- (void) release {}
+- (oneway void) release {}
 
 - (id) autorelease { return self; }
 
@@ -619,7 +621,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			// date=	Uhrzeit & Datum -> NSDate wandeln - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1
 			// message=
 			[attributes setObject:date forKey:@"date"];
-			[mm runATCommand:[NSString stringWithFormat:@"AT+CMGD=%u", index]];	// delete SMS after reception
+			[mm runATCommand:[NSString stringWithFormat:@"AT+CMGD=%lu", (unsigned long)index]];	// delete SMS after reception
 			// we should send this from the runloop by a delayed performer so that activities triggered by the delegate can't interfere with URC processing
 			[[cc delegate] callCenter:cc didReceiveSMS:message fromNumber:sender attributes:attributes];
 		// FIXME
@@ -766,7 +768,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			if(state == 0)
 				{ // became disconnected
 					NSMutableArray *resolv=[[[NSString stringWithContentsOfFile:@"/etc/resolv.conf"] componentsSeparatedByString:@"\n"] mutableCopy];
-					unsigned int i=[resolv count];
+					NSUInteger i=[resolv count];
 					while(i-- > 0)
 						{
 						if([[resolv objectAtIndex:i] hasSuffix:@" # wwan"])
