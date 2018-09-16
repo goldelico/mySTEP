@@ -363,7 +363,7 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 	$(for v,$(V), \
 	$(warning $v = $($v)))
 
-### check for debian meta package creation
+###
 ### copy/install $DATA and $FILES and $DEBIAN_RAW_FILES $DEBIAN_RAW_PATH $DEBIAN_RAW_SUBDIR
 ### build_deb (only)
 ### architecture all-packages are part of machine specific Packages.gz (!)
@@ -389,6 +389,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			darwin-x86_64 ) export TRIPLE=MacOS; EXIT=0;; \
 			mystep ) export TRIPLE=darwin-x86_64; EXIT=0;; \
 			all ) export TRIPLE=all;; \
+			php ) export TRIPLE=php;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
@@ -670,14 +671,14 @@ make_exec: "$(EXEC)"
 
 ifneq ($(PHPONLY),true)
 ifneq ($(strip $(SRCOBJECTS)),)
-make_binary: "$(BINARY)"
+make_binary: make_exec "$(BINARY)"
 	ls -l "$(BINARY)"
 else
 make_binary:
 	# no sources - no binary
 endif
 else
-make_binary:
+make_binary: make_exec
 	# make PHP only
 endif
 
@@ -697,8 +698,8 @@ make_php: bundle
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
-	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"
 	for SH in $(SHSRCS); do \
+		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
@@ -804,7 +805,7 @@ endif
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
 
-build_deb: make_bundle bundle make_exec make_binary build_debian_packages
+build_deb: make_bundle bundle make_binary build_debian_packages
 	echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
@@ -818,7 +819,7 @@ build_debian_packages: prepare_temp_files \
 	@echo build_debian_packages done
 else
 build_debian_packages:
-	@echo building_debian_packages skipped
+	@echo packing_debian_packages skipped
 endif
 
 # FIXME: use different /tmp/data subdirectories for each running make
@@ -830,11 +831,11 @@ TMP_CONTROL := $(UNIQUE)/control
 TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
 prepare_temp_files:
-	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using $(TRIPLE)
+	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using $(TRIPLE) and $(DEBIAN_ARCH)
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -) ; fi
 ifneq ($(FILES),)
 	# additional files relative to install location
 	echo FILES is obsolete
@@ -1005,22 +1006,25 @@ endif
 
 # this runs in outer Makefile, i.e. DEBIAN_ARCH and TRIPLE are not well defined
 
-# TRIPLE is undefined!
+# NOTE: TRIPLE and DEBIAN_ARCH are undefined here!!!
+# NOTE: /tmp_CONTROL etc. is a different $$ than when building debian packages!
+# this means we must also install from the submakefile
+
 # strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
 install_local: prepare_temp_files
-	# install_local TRIPLE=$(TRIPLE)
+	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
 	# copy again to /tmp/$(TMP_DATA)
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# should we better untar the .deb?
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCHITECTURE in $(BINARY) and $(PKG)
+	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 ifeq ($(NAME_EXT),bin)
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -))
+	- if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -)); fi
 else
-	- $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink))
+	- if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink)); fi
 endif
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
@@ -1035,7 +1039,7 @@ ifeq ($(DEPLOY),true)
 	# deploy remote
 	# copy again to /tmp/$(TMP_DATA)
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# download /tmp/$(TMP_DATA) to all devices
 	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
