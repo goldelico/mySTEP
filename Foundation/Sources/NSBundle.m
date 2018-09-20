@@ -247,6 +247,13 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	return [[[self alloc] initWithPath: path] autorelease];
 }
 
++ (NSBundle *) bundleWithURL:(NSURL *) path;
+{
+	if(![path isFileURL])
+		return nil;
+	return [[[self alloc] initWithPath:[path path]] autorelease];
+}
+
 - (id) initWithPath:(NSString *)path;
 {
 	NSBundle *bundle;
@@ -573,9 +580,9 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 }
 
 - (NSString *) pathForResource:(NSString *)name ofType:(NSString *)ext;
-{
+	{
 	return [self pathForResource:name ofType:ext inDirectory:nil forLocalization:nil];
-}
+	}
 
 - (NSString *) pathForResource:(NSString *)name
 						ofType:(NSString *)ext

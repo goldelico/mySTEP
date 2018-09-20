@@ -1,23 +1,23 @@
-/* 
-   NSBundle.h
+/*
+ NSBundle.h
 
-   Interface to NSBundle class
+ Interface to NSBundle class
 
-   Copyright (C) 1995, 1997 Free Software Foundation, Inc.
+ Copyright (C) 1995, 1997 Free Software Foundation, Inc.
 
-   Author:	Adam Fedor <fedor@boulder.colorado.edu>
-   Date:	1995
-   Author:	H. Nikolaus Schaller <hns@computer.org>
-   Date:	2003
+ Author:	Adam Fedor <fedor@boulder.colorado.edu>
+ Date:	1995
+ Author:	H. Nikolaus Schaller <hns@computer.org>
+ Date:	2003
 
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
- 
-   Author:	Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	07. April 2008 - aligned with 10.5 
+ H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	07. April 2008 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSBundle
 #define _mySTEP_H_NSBundle
@@ -40,27 +40,28 @@
 @class NSMutableArray;
 @class NSMutableDictionary;
 @class NSMutableSet;
+@class NSURL;
 
 extern NSString *NSBundleDidLoadNotification;
 extern NSString *NSLoadedClasses;
 
 enum {
-	NSBundleExecutableArchitectureI386      = 0x00000007,
-	NSBundleExecutableArchitecturePPC       = 0x00000012,
-	NSBundleExecutableArchitectureX86_64    = 0x01000007,
-	NSBundleExecutableArchitecturePPC64     = 0x01000012
+	NSBundleExecutableArchitectureI386		= 0x00000007,
+	NSBundleExecutableArchitecturePPC		= 0x00000012,
+	NSBundleExecutableArchitectureX86_64	= 0x01000007,
+	NSBundleExecutableArchitecturePPC64		= 0x01000012
 };
 
 @interface NSBundle : NSObject
 {
-    NSString *_path;
-    NSString *_bundleContentPath;
-    NSMutableSet *_bundleClasses;				// list of class names (if known)
-    NSMutableDictionary *_searchPaths;			// cache
+	NSString *_path;
+	NSString *_bundleContentPath;
+	NSMutableSet *_bundleClasses;				// list of class names (if known)
+	NSMutableDictionary *_searchPaths;			// cache
 	NSMutableArray *_localizations;				// cache
 	NSArray *_preferredLocalizations;	// cache
 	Class _principalClass;
-    NSDictionary *_infoDict;
+	NSDictionary *_infoDict;
 	unsigned int _bundleType;
 	BOOL _codeLoaded;
 }
@@ -70,6 +71,7 @@ enum {
 + (NSBundle *) bundleForClass:(Class) aClass;
 + (NSBundle *) bundleWithIdentifier:(NSString *) ident;
 + (NSBundle *) bundleWithPath:(NSString *) path;
++ (NSBundle *) bundleWithURL:(NSURL *) path;
 + (NSBundle *) mainBundle;
 + (NSString *) pathForResource:(NSString *) name
 						ofType:(NSString *) ext
@@ -94,7 +96,7 @@ enum {
 - (BOOL) loadAndReturnError:(NSError **) error;
 - (NSArray *) localizations;
 - (NSDictionary *) localizedInfoDictionary;
-- (NSString *) localizedStringForKey:(NSString *) key	
+- (NSString *) localizedStringForKey:(NSString *) key
 							   value:(NSString *) value
 							   table:(NSString *) tableName;
 - (id) objectForInfoDictionaryKey:(NSString *) key;
@@ -102,10 +104,10 @@ enum {
 - (NSString *) pathForResource:(NSString *) name
 						ofType:(NSString *) ext;
 - (NSString *) pathForResource:(NSString *) name
-						ofType:(NSString *) ext	
+						ofType:(NSString *) ext
 				   inDirectory:(NSString *) subpath;
 - (NSString *) pathForResource:(NSString *) name
-						ofType:(NSString *) ext	
+						ofType:(NSString *) ext
 				   inDirectory:(NSString *) subpath
 			   forLocalization:(NSString *) locale;
 - (NSArray *) pathsForResourcesOfType:(NSString *) extension
