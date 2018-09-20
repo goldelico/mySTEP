@@ -16,7 +16,7 @@
 @end
 
 @interface NSStatusItem(NSAppKitPrivate)
-- (NSMenuItem *) _menuItem;
+// - (NSMenuItem *) _menuItem;
 - (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
 // - (id) _initInStatusBar:(NSStatusBar *) bar withLength:(float) len withPriority:(int) prio;
 @end
@@ -46,11 +46,11 @@
 		if(nib)
 			{ // load
 #if 1
-			NSLog(@"loading NSMenuExtra nib file %@", nib);
+				NSLog(@"loading NSMenuExtra nib file %@", nib);
 #endif
-			[bundle loadNibFile:nib externalNameTable:[NSDictionary dictionaryWithObject:self forKey:NSNibOwner] withZone:NSDefaultMallocZone()];
+				[bundle loadNibFile:nib externalNameTable:[NSDictionary dictionaryWithObject:self forKey:NSNibOwner] withZone:NSDefaultMallocZone()];
 #if 1
-			NSLog(@"loaded NSMenuExtra nib file %@", nib);
+				NSLog(@"loaded NSMenuExtra nib file %@", nib);
 #endif
 				[super setMenu:_menu];	// set the menu connected to the _menu outlet
 			}

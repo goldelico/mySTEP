@@ -48,7 +48,6 @@
 				EEF73E9216E867E500CD94B5 /* SystemUIPlugin.qcodeproj */,
 				EE0EFFB009546C9D00CCA75A /* doc */,
 				EEA3309A09537E58001244CF /* Classes */,
-				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,
 				EEA370EA0953FFFB001244CF /* Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -62,13 +61,6 @@
 				EE6FE352076F05AF009CC969 /* SystemUIPlugin.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		EEA3306C09537DB5001244CF /* Private */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Private;
 			sourceTree = "<group>";
 		};
 		EEA3309609537E48001244CF /* Resources */ = {
@@ -137,6 +129,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = EEEB9D2009A754EA00626AB7 /* Build configuration list for PBXProject "SystemUIPlugin" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
@@ -199,6 +193,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -211,7 +206,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -236,6 +231,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -245,7 +241,7 @@
 				GCC_FAST_OBJC_DISPATCH = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -270,6 +266,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -277,7 +274,7 @@
 				GCC_FAST_OBJC_DISPATCH = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
