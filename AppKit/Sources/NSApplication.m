@@ -347,6 +347,58 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) finishLaunching
 {
+#if 1
+	NSLog(@"willFinishLaunching");
+#endif
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
+	[self activateIgnoringOtherApps:NO];
+	if(![self mainMenu])
+		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+	else
+		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
+	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
+	// FIXME: open any files specified by the NSOpen user default (!)
+	// FIXME - how does that interwork with cursor-rects?
+#if 1
+	NSLog(@"didFinishLaunching");
+#endif
+	// this should be posted from the runloop!!!
+	// by a zero-delayed Performer
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
+	// we should also send a distributed notification
+}
+
+- (void) dealloc
+{
+	NSDebugLog(@"dealloc NSApplication\n");
+
+	_app.isDeallocating = YES;						// Let ourselves know we  are within dealloc
+
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowWillCloseNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeMainNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignMainNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:nil];
+
+	[_listener release];
+	[_eventQueue release];
+	[_currentEvent release];
+
+	while (_session != 0)							// We may need to tidy up
+		{											// nested modal session
+		NSModalSession tmp = _session;				// structures.
+		_session = tmp->previous;
+		objc_free(tmp);
+		}
+	[super dealloc];
+}
+
+- (void) run
+{ // Run the main event loop
+#if 1
+	NSLog(@"NSApplication -run\n");
+#endif
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
@@ -386,83 +438,30 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 																						  errorDescription:&error]
 											  attributes:nil])	// let the world know that I am launching
 		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
-#if 1
-	NSLog(@"willFinishLaunching");
-#endif
-	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
 	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
 		[_listener registerAsServiceProvider];
-	
+
 	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
-	
+
 	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
 		{ // convert SIGCHLD
-		// find a mechanism to handle kAEApplicationDied
+		  // find a mechanism to handle kAEApplicationDied
 		}
 	else
 		signal(SIGCHLD, SIG_IGN);	// ignore
 #if 1
 	NSLog(@"NSMainNibFile = %@", mainModelFile);
 #endif
-	if([mainModelFile length] > 0)
-		{ // is defined
-		NSNib *nib=[[[NSNib alloc] initWithNibNamed:mainModelFile bundle:[NSBundle mainBundle]] autorelease];	// search in mainBundle
-		if(![nib instantiateNibWithOwner:NSApp topLevelObjects:NULL])
-			NSLog(@"Cannot load the main model file '%@'", mainModelFile);
-		}
+	if(![NSBundle loadNibNamed:mainModelFile owner:NSApp])
+		NSLog(@"Cannot load the main model file '%@'", mainModelFile);
 #if 1
 	NSLog(@"did load nib");
 #endif
-	if(![self mainMenu])
-		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
-	else
-		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
-	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
-	// FIXME - how does that interwork with cursor-rects?
+	// FIXME: why is this done here and not in [NSCursor initialize]?
 	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
-	[self activateIgnoringOtherApps:NO];
-#if 1
-	NSLog(@"didFinishLaunching");
-#endif
-	// this should be posted from the runloop!!!
-	// by a zero-delayed Performer
-	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
-	// we should also send a distributed notification
-	[arp release];
-}
 
-- (void) dealloc
-{
-	NSDebugLog(@"dealloc NSApplication\n");
-													// Let ourselves know we 
-	_app.isDeallocating = YES;						// are within dealloc
-	
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowWillCloseNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeMainNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignMainNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:nil];
-	
-	[_listener release];
-	[_eventQueue release];
-	[_currentEvent release];
-
-	while (_session != 0)							// We may need to tidy up 
-		{											// nested modal session 
-		NSModalSession tmp = _session;				// structures.
-		_session = tmp->previous;
-		objc_free(tmp);
-		}
-	[super dealloc];
-}
-
-- (void) run
-{ // Run the main event loop
-#if 1
-	NSLog(@"NSApplication -run\n");
-#endif
 	[self finishLaunching];
+	[arp release];
 	_app.isRunning = YES;
 	do {
 		NSAutoreleasePool *arp=[NSAutoreleasePool new]; // embrace with private autorelease pool
