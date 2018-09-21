@@ -1100,7 +1100,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (BOOL) loadNibFile:(NSString *) name externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
 { // look up (relative) name in specified bundle
-	return [[[[NSNib allocWithZone:zone] initWithNibNamed:name bundle:self] autorelease] instantiateNibWithExternalNameTable:context];
+	NSNib *nib=[[[NSNib allocWithZone:zone] initWithNibNamed:name bundle:self] autorelease];
+	return [nib  instantiateNibWithExternalNameTable:context];
 }
 
 + (BOOL) loadNibFile:(NSString *) path externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
