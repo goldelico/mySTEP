@@ -11,7 +11,7 @@
 #import <IOBluetooth/objc/IOBluetoothUserNotification.h>
 #import <IOBluetooth/objc/IOBluetoothSDPServiceRecord.h>
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
-#import "BluetoothPrivate.h"
+#import "../BluetoothPrivate.h"
 
 static NSMutableArray *_paired;
 

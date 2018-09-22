@@ -22,6 +22,9 @@
 
 #else
 
+#import <Cocoa/Cocoa.h>
+#import "IOBluetoothDeviceInquiry.h"
+
 @interface NSSystemStatus : NSObject
 + (NSDictionary *) sysInfo;
 + (id) sysInfoForKey:(NSString *) key;
