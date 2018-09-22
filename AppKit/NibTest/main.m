@@ -11,23 +11,28 @@ int main(int argc, const char *argv[])
 	return NSApplicationMain(argc, argv);
 }
 
-#if 1	// debugging
+#if 0	// debugging
 
-@implementation NSApplication (NSImage)
+@implementation NSBundle (NSNibLoading)
 
-- (NSImage *) img
++ (NSImage *) img
 {
 #if 0
 	NSImage *img=[NSImage imageNamed:@"NSToolbarShowColors"];
 #else
 	NSImage *img=[NSImage imageNamed:@"NSToolbarShowFonts"];
 #endif
-#if 1 // currently, unflipped drawing works, flipped fails
+#if 0 // currently, flipped drawing is reversed
 	[img setFlipped:YES];
 #endif
 #if 1	// test drawing/copying into other pixmap and not to screen
 	NSImage *copy=[[NSImage alloc] initWithSize:[img size]];
 	[copy lockFocus];
+#if 1
+	NSAffineTransform *atm=[NSAffineTransform transform];
+	[atm rotateByDegrees:-10.0];
+	[atm concat];	// apply rotation
+#endif
 	[img drawInRect:NSZeroRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
 	[copy unlockFocus];
 #if 0
@@ -42,16 +47,20 @@ int main(int argc, const char *argv[])
 	return img;
 }
 
-- (void) finishLaunching
-{ // override NIB loading
+// substitute nib loading
+
++ (BOOL) loadNibNamed:(NSString *) name owner:(id) owner
+{
 	NSWindow *w=[[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 400, 200) styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
 	NSImageView *iv=[[NSImageView alloc] initWithFrame:NSMakeRect(50, 50, 100, 100)];
+	[w setTitle:@"NSImage Drawing Test"];
 	// set other image attributes
 	[iv setImage:[self img]];
 	[iv setImageScaling:NSImageScaleNone];
 	// set other image view attributes, e.g.  resizing, frame, bounds, rotation
 	[w setContentView:iv];
 	[w makeKeyAndOrderFront:nil];
+	return YES;
 }
 
 @end
