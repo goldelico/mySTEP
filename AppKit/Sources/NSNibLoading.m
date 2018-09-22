@@ -877,6 +877,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (id) initWithNibNamed:(NSString *) name bundle:(NSBundle *) referencingBundle;
 {
 	NSString *path;
+	// if nil, should first look in the file owner's bundl (but how do we know it here?)
 	if(!referencingBundle) referencingBundle=[NSBundle mainBundle];
 #if 0
 	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [referencingBundle bundlePath]);
@@ -914,7 +915,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSString *path=[url path];
 	NSString *nib;
-		BOOL isDir;
+	BOOL isDir;
 #if 0
 	NSLog(@"NSNib initWithContentsOfURL:%@", url);
 #endif
@@ -1101,7 +1102,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (BOOL) loadNibFile:(NSString *) name externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
 { // look up (relative) name in specified bundle
 	NSNib *nib=[[[NSNib allocWithZone:zone] initWithNibNamed:name bundle:self] autorelease];
-	return [nib  instantiateNibWithExternalNameTable:context];
+	return [nib instantiateNibWithExternalNameTable:context];
 }
 
 + (BOOL) loadNibFile:(NSString *) path externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
@@ -1112,8 +1113,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 + (BOOL) loadNibNamed:(NSString*) name owner:(id) owner
 {
-	NSBundle *b=[NSBundle bundleForClass:[owner class]];
-	if(!b) b=[NSBundle mainBundle];
+	NSBundle *b;
+	if(owner == NSApp)
+		b=[NSBundle mainBundle];	// search NIB in application and not in AppKit
+	else
+		b=[NSBundle bundleForClass:[owner class]];	// returns mainBundle for nil owner
 	return [b loadNibFile:name externalNameTable:[NSDictionary dictionaryWithObjectsAndKeys:owner, NSNibOwner, nil] withZone:[owner zone]];
 }
 
