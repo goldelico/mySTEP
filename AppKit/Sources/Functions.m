@@ -19,13 +19,50 @@
 
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSGraphics.h>
+#import <AppKit/NSMenu.h>
 #import <AppKit/NSColor.h>
+#import <AppKit/NSNibLoading.h>
 
+#import "NSAppKitPrivate.h"
 
 int NSApplicationMain(int argc, const char **argv)
 {
-	id pool = [NSAutoreleasePool new];	// root ARP
-	[[NSApplication sharedApplication] run];	
-	[pool release];
+	id pool=[NSAutoreleasePool new];	// initial ARP
+	NSDictionary *infoDict;
+	NSString *mainModelFile;
+	NSApplication *app=[NSApplication sharedApplication];	// initialize application
+#if 1
+	NSLog(@"NSApplicationMain\n");
+#endif
+	infoDict = [[NSBundle mainBundle] infoDictionary];
+	mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
+#if 1
+	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [infoDict objectForKey:@"CFBundleName"], mainModelFile, [infoDict objectForKey:@"CFBundleIdentifier"]);
+#endif
+
+	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
+		{ // convert SIGCHLD
+		  // find a mechanism to handle kAEApplicationDied
+		}
+	else
+		signal(SIGCHLD, SIG_IGN);	// ignore
+#if 1
+	NSLog(@"NSMainNibFile = %@", mainModelFile);
+#endif
+	if(![NSBundle loadNibNamed:mainModelFile owner:app])
+		NSLog(@"Cannot load the main model file '%@'", mainModelFile);
+#if 1
+	NSLog(@"did load %@", mainModelFile);
+#endif
+	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
+	if(![app mainMenu])
+		[app setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+	else
+		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
+	// FIXME: why is this done here and not in [NSCursor initialize]?
+	// FIXME - how does that interwork with cursor-rects?
+	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
+	[pool release];	// empty this pool
+	[app run];
 	return 0;
 }
