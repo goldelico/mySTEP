@@ -284,7 +284,7 @@ endif
 endif
 endif
 
-# expand patterns in SOURCES
+# expand patterns in SOURCES (feature is not used by QuantumCode)
 XSOURCES := $(wildcard $(SOURCES))
 
 # get the objects from all sources we need to compile and link
@@ -1095,7 +1095,7 @@ headers:
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && tar -cf - $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && tar xf -) )	# copy headers keeping subdirectory structure
 endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif

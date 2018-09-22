@@ -7,10 +7,10 @@
 //
 
 #import "IOBluetoothDeviceInquiry.h"
-#import <IOBluetooth/BluetoothAssignedNumbers.h>
-#import <IOBluetooth/objc/IOBluetoothDevice.h>
+#import "IOBluetoothDevice.h"
+#import "../BluetoothAssignedNumbers.h"
+#import "../BluetoothPrivate.h"
 
-#import "BluetoothPrivate.h"
 
 #if 0	// debugging
 #define system(CMD) (printf("system: %s\n", (CMD)), 0)
@@ -134,7 +134,7 @@
 #endif
 	[task launch];
 #if 1
-	NSLog(@"launched task %@ %p %u", task, task, [task retainCount]);
+	NSLog(@"launched task %@ %p %lu", task, task, (unsigned long)[task retainCount]);
 #endif
 	return task;
 }
