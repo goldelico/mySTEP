@@ -347,25 +347,56 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) finishLaunching
 {
+	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+	NSString *name=[infoDict objectForKey:@"CFBundleName"];
+	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
+	NSString *error;
+	NSDictionary *plist;
 #if 1
 	NSLog(@"willFinishLaunching");
 #endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
+	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
+		[_listener registerAsServiceProvider];
+	ASSIGN(_appIcon, [NSImage imageNamed:NSApplicationIcon]);	// try to load
+#if 0
+	NSLog(@"App Icon = %@", _appIcon);
+#endif
+#if 1
+	NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
+#endif
+	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
+#if 1
+	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
+#endif
+	if(!ident)
+		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
+	if(!ident)
+		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
+	plist=[NSDictionary dictionaryWithObjectsAndKeys:
+				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
+				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
+				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
+				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
+				 ident, @"NSApplicationBundleIdentifier",
+				 name, @"NSApplicationName",
+				 nil];
+	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
+												contents:[NSPropertyListSerialization dataFromPropertyList:plist
+																									format:NSPropertyListXMLFormat_v1_0
+																						  errorDescription:&error]
+											  attributes:nil])	// let the world know that I am launching
+		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
+
 	[self activateIgnoringOtherApps:NO];
-	if(![self mainMenu])
-		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
-	else
-		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
-	// FIXME: open any files specified by the NSOpen user default (!)
-	// FIXME - how does that interwork with cursor-rects?
+	// FIXME: open any files specified by the NSOpen user default (!) according to description
 #if 1
 	NSLog(@"didFinishLaunching");
 #endif
-	// this should be posted from the runloop!!!
-	// by a zero-delayed Performer
+	// FIXME: this should be posted from the runloop!!!
+	// FIXME: we should also send a distributed notification
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
-	// we should also send a distributed notification
 }
 
 - (void) dealloc
@@ -396,72 +427,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) run
 { // Run the main event loop
-#if 1
-	NSLog(@"NSApplication -run\n");
-#endif
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
-	NSString *name=[infoDict objectForKey:@"CFBundleName"];
-	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
-	NSString *error;
-	NSDictionary *plist;
-#if 1
-	NSLog(@"finishLaunching - mainmodel=%@ ident=%@", mainModelFile, ident);
-#endif
-	ASSIGN(_appIcon, [NSImage imageNamed:NSApplicationIcon]);	// try to load
-#if 0
-	NSLog(@"App Icon = %@", _appIcon);
-#endif
-#if 1
-	NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
-#endif
-	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
-#if 1
-	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
-#endif
-	if(!ident)
-		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
-	if(!ident)
-		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
-	plist=[NSDictionary dictionaryWithObjectsAndKeys:
-				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
-				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
-				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
-				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
-				 ident, @"NSApplicationBundleIdentifier",
-				 name, @"NSApplicationName",
-				 nil];
-	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
-												contents:[NSPropertyListSerialization dataFromPropertyList:plist
-																									format:NSPropertyListXMLFormat_v1_0
-																						  errorDescription:&error]
-											  attributes:nil])	// let the world know that I am launching
-		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
-	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
-		[_listener registerAsServiceProvider];
-
-	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
-
-	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
-		{ // convert SIGCHLD
-		  // find a mechanism to handle kAEApplicationDied
-		}
-	else
-		signal(SIGCHLD, SIG_IGN);	// ignore
-#if 1
-	NSLog(@"NSMainNibFile = %@", mainModelFile);
-#endif
-	if(![NSBundle loadNibNamed:mainModelFile owner:NSApp])
-		NSLog(@"Cannot load the main model file '%@'", mainModelFile);
-#if 1
-	NSLog(@"did load nib");
-#endif
-	// FIXME: why is this done here and not in [NSCursor initialize]?
-	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
-
 	[self finishLaunching];
-	[arp release];
 	_app.isRunning = YES;
 	do {
 		NSAutoreleasePool *arp=[NSAutoreleasePool new]; // embrace with private autorelease pool
