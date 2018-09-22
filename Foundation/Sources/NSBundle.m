@@ -194,7 +194,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	NSString *bpath;	// used to search the bundle
 	NSBundle *bundle;
 	if(!aClass)
-		return nil;
+		return __mainBundle;
 #if 0
 	NSLog(@"bundleForClass %@", NSStringFromClass(aClass));
 #endif
