@@ -448,8 +448,7 @@ static BOOL __cursorHidden = NO;
 	[self replaceSubview:cv with:view];	// this checks if a content view exists
 	[view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 	[view setAutoresizesSubviews:YES];	// enforce for a content view
-	[self layout];
-	[self setNeedsDisplay:YES];	// show everything
+	[self layout];	// resize content view
 #if 1
 	NSLog(@"self=%@", [self _subtreeDescription]);
 #endif	
