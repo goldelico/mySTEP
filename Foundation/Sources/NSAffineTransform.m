@@ -52,7 +52,7 @@ static const float pi = 3.1415926535897932384626433;
 		m->A = m->D = 1.0;
 		m->_isIdentity=YES;
 		}
-	return [m autorelease]; 
+	return [m autorelease];
 }
 
 + (NSAffineTransform *) new
