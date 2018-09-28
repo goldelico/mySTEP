@@ -433,6 +433,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		_cache=(NSCachedImageRep *) [bestRep retain];	// just save the reference
 	else
 		{ // draw into new cache
+		  // CHECKME: is this ok?
 		[self lockFocusOnRepresentation:bestRep];	// render into cache window
 		[self unlockFocus];
 		}
@@ -488,6 +489,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		   operation:(NSCompositingOperation)op
 		    fraction:(CGFloat)fraction;
 {
+	if(NSIsEmptyRect(src))
+		src.size=[self size];		// use image size
 	[self drawInRect:(NSRect){point, src.size}	// not scaled
 			fromRect:src
 		   operation:op
@@ -508,7 +511,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSIsEmptyRect(src))
 		src.size=_size;		// use image size and {0,0} origin
 	if(NSIsEmptyRect(dest))
+		{
+		return;	// nothing to draw
 		dest.size=_size;	// use image size and {0,0} origin
+		}
 	[ctx saveGraphicsState];
 #if 0
 	[[NSColor yellowColor] set];
@@ -526,14 +532,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
 		[ctx _addClip:clip reset:NO];
 #if 0
-		NSLog(@"scale factor = %f %f", _size.width/NSWidth(src), _size.height/NSHeight(src));
+		NSLog(@"scale factor = %f %f", NSWidth(dest)/NSWidth(src), NSHeight(dest)/NSHeight(src));
 #endif
-		[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];
+		[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
 		}
-	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
-	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
+	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
 	if(_img.flipDraw)
-		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
+		[atm scaleXBy:1.0 yBy:-1.0];
 	[ctx _concatCTM:atm];	// add to CTM as needed
 	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];	// restore
@@ -612,14 +617,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
 			[ctx _addClip:clip reset:NO];
 #if 0
-			NSLog(@"scale factor = %f %f", _size.width/NSWidth(src), _size.height/NSHeight(src));
+			NSLog(@"scale factor = %f %f", NSWidth(dest)/NSWidth(src), NSHeight(dest)/NSHeight(src));
 #endif
-			[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];
+			[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
 		}
-	[atm scaleXBy:NSWidth(dest) yBy:NSHeight(dest)];	// scale to unit square
-	[atm translateXBy:-NSMinX(src)/_size.width yBy:-NSMinY(src)/_size.height];	// shift origin in image coordinates
+	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
 	if(_img.flipDraw)
-		[atm scaleXBy:1.0 yBy:-1.0];	// will draw to unit square
+		[atm scaleXBy:1.0 yBy:-1.0];	// flip
 	// FIXME: somehow remove any rotation
 	[ctx _concatCTM:atm];	// add to CTM as needed
 	[ctx _draw:[self _cachedOrBestRep]];
