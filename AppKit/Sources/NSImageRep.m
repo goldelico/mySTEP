@@ -381,7 +381,7 @@ static NSCountedSet *__pb;
 			_window = [win retain];	// use given window
 		else
 			_window = [[NSWindow alloc] initWithContentRect: rect
-												  styleMask: NSBorderlessWindowMask
+												  styleMask: NSBorderlessWindowMask | NSUnscaledWindowMask
 													backing: NSBackingStoreBuffered
 													  defer: YES];	// dont't draw or orderFront
 #if 0	// makes problem when drawing glyphs!?!
