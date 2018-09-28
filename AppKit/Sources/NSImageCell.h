@@ -23,10 +23,10 @@
 
 #import <AppKit/NSCell.h>
 
-enum {
-	NSScaleProportionally = 0,
-	NSScaleToFit,
-	NSScaleNone
+enum { /* old */
+	NSScaleProportionally = NSImageScaleProportionallyDown,
+	NSScaleToFit = NSImageScaleAxesIndependently,
+	NSScaleNone = NSImageScaleNone
 };
 
 typedef enum {

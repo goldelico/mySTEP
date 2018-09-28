@@ -142,7 +142,10 @@ id __imageCellClass = nil;
 	NSRect rect;
 	if (!_contents)
 		return;
-	
+#if 0
+	[[NSColor yellowColor] set];
+	NSRectFill(cFrame);
+#endif
 	if(![_contents isKindOfClass:[NSImage class]])
 		{
 		NSLog(@"ImageCell trying to draw: %@", _contents);
@@ -165,27 +168,30 @@ id __imageCellClass = nil;
 #endif
 	
 	switch (_d.imageScaling) {
-		case NSScaleProportionally:
+		case NSImageScaleProportionallyUpOrDown:
+		case NSImageScaleProportionallyDown:
 			{
-				CGFloat d;
-				is = [_contents size];
-				d = MIN(NSWidth(rect) / is.width, NSHeight(rect) / is.height);
-				is.width *= d;
-				is.height *= d;
-				break;
+			CGFloat d;
+			is = [_contents size];
+			d = MIN(NSWidth(rect) / is.width, NSHeight(rect) / is.height);
+			if(_d.imageScaling == NSImageScaleProportionallyDown && d > 1.0)
+				break;	/* don't scale up */
+			is.width *= d;
+			is.height *= d;
+			break;
 			}
-			
-		case NSScaleToFit:
+
+		case NSImageScaleAxesIndependently:
 			is = rect.size;
 			break;
 
 			default:
-		case NSScaleNone:
+		case NSImageScaleNone:
 			is = [_contents size];
 			break;
 		}
 
-	switch (_ic.imageAlignment) 
+	switch (_ic.imageAlignment)
 		{												
 		case NSImageAlignCenter:
 			rect.origin.x += (NSWidth(rect) - is.width) / 2;
@@ -221,10 +227,14 @@ id __imageCellClass = nil;
 			rect.origin.y += (NSHeight(rect) - is.height) / 2;
 			break;
 		}
+
+	rect.size = is;
+	[NSBezierPath clipRect:cFrame];	// clip image to interior of cell
 #if 0
-	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect((NSRect){rect.origin,is}));
+	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect(rect));
 #endif
-	[_contents drawInRect:(NSRect){rect.origin,is} fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[_contents drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	// if animates and contents can be animated, setup performer for automatic redraw
 }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder
