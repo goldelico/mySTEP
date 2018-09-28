@@ -1044,7 +1044,7 @@ printing
 	NSLog(@"old bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
 #endif
 	[_frame2bounds setTransformStruct:t];
-	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation! and may remove flipping!
 #if 1
 	NSLog(@"new bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
 #endif
@@ -1290,6 +1290,8 @@ printing
 	return [[self _bounds2base] transformSize:sz];	
 }
 
+// FIXME: check this with a unit test for flipping glitches and rotated bounds
+
 - (NSRect) convertRectFromBase:(NSRect) r
 {
 	return [[self _base2bounds] _transformRect:r];
@@ -1318,6 +1320,7 @@ printing
 #if 0
 	NSLog(@"convert rect atm: %@", atm);
 #endif
+	// FIXME: check this with a unit test for flipping glitches and rotated bounds
 	if(_v.isRotatedFromBase)
 		r=[atm _transformRect:aRect];
 	else
@@ -1371,6 +1374,7 @@ printing
 		NSLog(@"slow"),
 #endif
 		atm=[[self class] _matrixFromView:self toView:aView];
+		// FIXME: check this with a unit test for flipping glitches and rotated bounds
 		r=[atm _transformRect:aRect];
 		}
 	else
