@@ -962,7 +962,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 }
 
 - (BOOL) _draw:(NSImageRep *) rep;
-{ // draw into unit square using current CTM, current compositingOp & fraction etc.
+{ // draw using current CTM, current compositingOp & fraction etc.
 	NSUInteger idx=[_xobjects indexOfObject:rep];
 	if(idx == NSNotFound)
 		{
