@@ -85,7 +85,7 @@
 
 - (void) _setFraction:(CGFloat) fraction;		// compositing fraction
 
-- (BOOL) _draw:(NSImageRep *) rep;	// composite into unit square using current CTM, current compositingOp & fraction etc.
+- (BOOL) _draw:(NSImageRep *) rep;	// composite using current CTM, current compositingOp & fraction etc.
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 

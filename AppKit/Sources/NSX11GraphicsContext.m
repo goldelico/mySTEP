@@ -1848,7 +1848,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
  */
 
 - (BOOL) _draw:(NSImageRep *) rep;
-{ // composite into unit square using current CTM, current compositingOp & fraction etc.
+{ // composite using current CTM, current compositingOp & fraction etc.
 	BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 #if 1
 	NSLog(@"_draw %@", rep);
@@ -2043,7 +2043,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 #endif
 		if(cached)
-			{ // draw bitmap from cache (can't handle alpha in this case!)
+			{ // draw bitmap from cache (can't handle alpha or rotation in this case!)
+			  // check that there is no alpha
+			  // check that there is no rotation
+			  // to make this possible we would have to grab an XImage into pixels
+			  // and do the standard rendering
 				NSGraphicsContext *ctxt=[[(NSCachedImageRep *) rep window] graphicsContext];
 				if(ctxt)
 					{
@@ -2056,7 +2060,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 
 
-	{ // composite into unit square using current CTM, current compositingOp & fraction etc.
+	{ // composite using current CTM, current compositingOp & fraction etc.
 		/* here we know:
 		 - source bitmap: rep
 		 - source rect: defined indirectly by clipping path
@@ -2065,21 +2069,18 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 - compositing fraction: _fraction
 		 - interpolation algorithm: _imageInterpolation
 		 - CTM (scales, rotates and translates): _state->_ctm
-		 -- how do we know if we should really rotate or not? we don't need to know.
+		 - Q: how do we know if we should really rotate or not? A: we don't need to know.
 		 */
-		static NSRect unitSquare={{ 0.0, 0.0 }, { 1.0, 1.0 }};
+		CGFloat width=[rep pixelsWide], height=[rep pixelsHigh];	// source image width&height
 		NSString *csp;		// color space name
 		int bytesPerRow;
-		CGFloat width, height;	// source image width&height
 		unsigned char *imagePlanes[5];
-		NSPoint origin;			// drawing origin in X11 coords
 		NSRect scanRect;		// dest on screen in X11 coords
 		NSBitmapFormat bitmapFormat;
 		BOOL hasAlpha;
 		BOOL isPlanar;
 		BOOL isPremultiplied;
 		BOOL isAlphaFirst;
-		BOOL isFlipped;
 		BOOL calibrated;
 		NSAffineTransform *atm;	// projection from X11 window-relative to bitmap coordinates
 		NSAffineTransformStruct atms;
@@ -2124,13 +2125,23 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			// raise exception?
 			return NO;
 			}
+
 		/*
 		 * locate where to draw in X11 coordinates
+		 *
+		 * Coordinate Geometry:
+		 *
+		 * CTM has been set up by caller so that the NSImageRep is
+		 * mapped to the drawing area in X11 coordinates. This already
+		 * includes all flipping and mapping of NSView or NSImage.
+		 *
+		 * [] denotes a matrix/affine transform, <> denotes vector
+		 *
+		 * <x11> = [CTM] * <rep>
 		 */
-		isFlipped=[self isFlipped];	// usually asks the NSView which has focus (if any)
-		// FIXME: should we check _state->_ctm.m22 < 0 for flipped?
-		origin=[_state->_ctm transformPoint:unitSquare.origin];	// determine real drawing origin in X11 coordinates
-		scanRect=[_state->_ctm _transformRect:unitSquare];	// get bounding box for transformed unit square (may be bigger if rotated!)
+
+		scanRect=[_state->_ctm _transformRect:(NSRect){ NSZeroPoint, { width, height }}];	// get bounding box for imagerep in x11 coordinates (may be bigger if rotated!)
+
 #if 0
 		NSLog(@"_draw: %@", rep);
 		NSLog(@"context %@", self);
@@ -2139,10 +2150,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		NSLog(@"focusview %@", [NSView focusView]);
 		NSLog(@"scan rect=%@", NSStringFromRect(scanRect));
 #endif
-		xScanRect.width=scanRect.size.width;
-		xScanRect.height=scanRect.size.height;
-		xScanRect.x=scanRect.origin.x;
-		xScanRect.y=scanRect.origin.y;	// X11 specifies upper left corner
+
+		xScanRect.width=rint(scanRect.size.width);
+		xScanRect.height=rint(scanRect.size.height);
+		xScanRect.x=rint(scanRect.origin.x);
+		xScanRect.y=rint(scanRect.origin.y);	// note: X11 specifies upper left corner
 #if 1
 		NSLog(@"  scan box=%@", NSStringFromXRect(xScanRect));
 #endif
@@ -2154,6 +2166,15 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 		xClipRect=xScanRect;
 		XIntersectRect(&xClipRect, &_state->_clipBox);
+
+#if 0
+		[[NSColor redColor] set];	// will set _gc
+		XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, xClipRect.x, xClipRect.y, xClipRect.width, xClipRect.height);
+#endif
+#if 0
+		[[NSColor blueColor] set];	// will set _gc
+		XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
+#endif
 
 		/*
 		 FIXME: clip by Screen rect (if window is partially offscreen)
@@ -2168,7 +2189,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 onscreen.x=MIN(0, -_windowRect.x)
 		 onscreen.width=MAX(widthofscreen, windowRect.x+windowRect.width)
 		 if(windowRect.x < 0)
-		 box.x-=windowRect.x, box.width+=windowRect.x;
+		   box.x-=windowRect.x, box.width+=windowRect.x;
 
 		 */
 
@@ -2177,40 +2198,47 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 		if(xClipRect.width == 0 || xClipRect.height == 0)
 			return YES;	// empty
+
 		/*
 		 * calculate reverse projection from XImage pixel coordinate to bitmap coordinates
+		 * XImage pixels have origin (0, 0) which corresponds to clipRect.x/y
+		 *
+		 * X11 (window) coordinates:
+		 * <x11> = [CTM] * <rep>
+		 *
+		 * XImage coordinates are relative to xClipRect and not xScanRect:
+		 * <ximage> = <x11> - <xClipRect.x-xScanRect.x,xClipRect.y-xScanRect.y>
+		 * NOTE: xRect.y corresponds to [rep height]
+		 *
+		 * thus
+		 *
+		 * <rep> = (1/CTM) * (<ximage> + <xClipRect.x,xClipRect.y>) + <0, height>
+		 *
+		 * now we need to stuff this into a single transform matrix:
+		 *
+		 * <rep> = [atm.m]*<ximage> + <atm.t>
+		 *
 		 */
-		atm=[NSAffineTransform transform];
-		[atm translateXBy:-origin.x yBy:-origin.y];		// we will scan through XImage which is thought to be relative to the drawing origin
+
+		atm=[_state->_ctm copy];
+		[atm translateXBy:0.0 yBy:height];	// flip NSImage because X11 is flipped
+		[atm scaleXBy:1.0 yBy:-1.0];
+		[atm invert];	// get reverse mapping (X11 coordinates to bitmap coordinates)
+
 #if 1
 		NSLog(@"state %p", _state);
 		NSLog(@"ctm %@", _state->_ctm);
+		NSLog(@"ctm^-1 %@", atm);
+		NSLog(@"scanRect %@", NSStringFromRect([atm _transformRect:scanRect]));
 #endif
-		[atm prependTransform:_state->_ctm];
-		[atm invert];				// get reverse mapping (XImage coordinates to unit square)
-		width=[rep pixelsWide];
-		height=[rep pixelsHigh];
 
-		/*
-		 * handle drawing into a flipped NSView or context (independently of a flipped image!)
-		 */
-
-		if(isFlipped)
-			[atm scaleXBy:width yBy:height];	// and directly map to pixel coordinates
-		else
-			[atm scaleXBy:width yBy:-height];	// and directly map to flipped pixel coordinates
 		atms=[atm transformStruct];	// extract raw coordinate transform
-		if(atms.m22 < 0)
-			{ // seems to be needed in some cases for flipped drawing
-			NSLog(@"flipped drawing %d", isFlipped);
-			atms.tY+=height-1;
-			}
 
 		/*
 		 * get current screen image for compositing
 		 */
 
-		// struct context { atm, NSPoint currentPoint, int lastx, int lasty, rep, fract } - so that sampler can optimize advancements by float coordinates
+		// IDEA: use a struct context { atm, NSPoint currentPoint, int lastx, int lasty, rep, fract } - so that sampler can optimize advancements by float coordinates
 
 		mustFetch=(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
 				   (hasAlpha && _compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
@@ -2246,7 +2274,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 				NSLog(@"XCreateImage(%u, %u)", xClipRect.width, xClipRect.height);
 #endif
-				// FIXME: can we reuse this?
+				// FIXME: can we reuse this on next call?
 				img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
 								 ZPixmap, 0, NULL,
 								 xClipRect.width, xClipRect.height,
@@ -2297,20 +2325,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[[NSColor redColor] set];	// will set _gc
 		XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, xClipRect.x, xClipRect.y, xClipRect.width, xClipRect.height);
 #endif
+
 		/*
 		 * draw by scanning lines
 		 */
+
 		for(y=0; y<img->height; y++)
 			{ // scan through the xClipRect
 				struct RGBA8 src={0,0,0,255}, dest={0,0,0,255};	// initialize with clear color
 				x=0;
-				pnt.x=atms.m11*(x+xClipRect.x-xScanRect.x) + atms.m12*(y+xClipRect.y-xScanRect.y)+atms.tX;	// first bitmap point of this scan line
-				pnt.y=atms.m21*(x+xClipRect.x-xScanRect.x) + atms.m22*(y+xClipRect.y-xScanRect.y)+atms.tY;
+				pnt=[atm transformPoint:NSMakePoint(x+xClipRect.x, y+xClipRect.y)];
+				// pnt.x+=0.5, pnt.y+=0.5 ?
 #if 0
 				NSLog(@"draw pixel(%f, %f) at (%d, %d)", pnt.x, pnt.y, x, y);
 #endif
-				for(; x<img->width; x++, pnt.x+=atms.m11, pnt.y+=atms.m21)	// track sampling point avoiding new calculations
-					{
+				for(; x<img->width; x++, pnt.x+=atms.m11, pnt.y+=atms.m12)
+					{ // track sampling point avoiding pernament new calculations through transformPoint
 					if(mustFetch)
 						dest=XGetRGBA8(img, x, y);	// get current image value
 #if 0
@@ -2323,9 +2353,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 								case NSImageInterpolationLow:
 								case NSImageInterpolationHigh: { // here we interpolate adjacent source points
 									struct RGBA8 src00, src01, src10, src11;	// 4 sample points
-									int xx=pnt.x;	// get integer part
-									int yy=pnt.y;
-									int wx=256*(pnt.x-xx);	// weight based on fractional part
+									int xx=floor(pnt.x);	// get integer part
+									int yy=floor(pnt.y);
+									int wx=256*(pnt.x-xx);	// define interpolation weight based on fractional part
 									int wy=256*(pnt.y-yy);
 									int w00=(256-wx)*(256-wy);
 									int w01=(256-wx)*wy;
@@ -2413,6 +2443,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					XSetRGBA8(img, x, y, &dest);
 					}
 			}
+		[atm release];
+
 		/*
 		 * draw to screen
 		 * FIXME: this is quite slow if we don't have double buffering
