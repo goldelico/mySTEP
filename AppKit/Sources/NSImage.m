@@ -505,6 +505,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	NSCompositingOperation co;
+	NSImageRep *rep;
 	if(!_img.isValid)
 		[self isValid];		// make sure we have the image reps loaded in - if possible
 	[self size];	// determine size if not yet known
@@ -536,11 +537,14 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #endif
 		[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
 		}
+	rep=[self _cachedOrBestRep];
+	// scale to rep
 	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
 	if(_img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	[ctx _draw:[self _cachedOrBestRep]];
+	[rep drawAtPoint:NSZeroPoint];
+	//	[ctx _draw:rep];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
@@ -593,13 +597,14 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	NSCompositingOperation co;
+	NSImageRep *rep;
 	NSRect dest;
 	if(!_img.isValid)
 		[self isValid];		// make sure we have the image reps loaded in - if possible
 	dest.origin=pnt;
-	dest.size=[self size];	// determine size if not yet known
 	if(NSIsEmptyRect(src))
 		src.size=_size;	// use image size and {0,0} origin
+	dest.size=src.size;	// we do not know better
 	[ctx saveGraphicsState];
 #if 0
 	[[NSColor yellowColor] set];
@@ -612,21 +617,16 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
 	else
 		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
-	if(!NSEqualSizes(dest.size, src.size))
-		{ // draw only parts of the image by reducing clipping rect and scale up/down
-			NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
-			[ctx _addClip:clip reset:NO];
-#if 0
-			NSLog(@"scale factor = %f %f", NSWidth(dest)/NSWidth(src), NSHeight(dest)/NSHeight(src));
-#endif
-			[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
-		}
+	rep=[self _cachedOrBestRep];
+	// FIXME: scale representation to [self size]!
+	//	[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
 	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
 	if(_img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];	// flip
 	// FIXME: somehow remove any rotation
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	[ctx _draw:[self _cachedOrBestRep]];
+	[rep drawAtPoint:NSZeroPoint];
+	//	[ctx _draw:rep];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
