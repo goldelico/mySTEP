@@ -264,7 +264,7 @@ static NSCountedSet *__pb;
 	if(aPoint.x == 0.0 && aPoint.y == 0.0)
 		return [self draw];
 	else
-		{
+		{ // translate
 		BOOL r;
 		NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 		NSAffineTransform *atm=[NSAffineTransform transform];
@@ -1130,17 +1130,8 @@ static NSArray *__pbBitmapImageReps;
 - (BOOL) isPlanar					{ return _brep.isPlanar; }
 
 - (BOOL) draw
-{ // draw scaled by size
-	BOOL r;
-	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
-	NSAffineTransform *atm=[NSAffineTransform transform];
-	[ctx saveGraphicsState];
-	[atm scaleXBy:_size.width yBy:_size.height];
-	[atm concat];
-	[ctx _setFraction:1.0];	// we ignore fraction anyway
-	r=[ctx _draw:self];
-	[ctx restoreGraphicsState];
-	return r;
+{ // draw using current CTM and operation
+	return [[NSGraphicsContext currentContext] _draw:self];
 }
 
 - (unsigned char *) bitmapData
