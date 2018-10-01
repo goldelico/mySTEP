@@ -355,7 +355,7 @@ ifneq "$(strip $(SUBPROJECTS))" ""
 	done
 endif
 endif
-	@- chmod -Rf u+w build	# rm -rf refuses to delete files without write mode
+	@[ -d build ] && chmod -Rf u+w build || true	# rm -rf refuses to delete files without write mode
 	@rm -rf build
 	@echo CLEAN
 
