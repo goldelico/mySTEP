@@ -1095,7 +1095,8 @@ headers:
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && tar -cf - $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && tar xf -) )	# copy headers keeping subdirectory structure
+#	$(TAR) -cf /dev/null --transform='s|Source/||;s|Sources/||;s|src/||' --verbose --show-transformed-names $(HEADERSRC)
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) -cf - --transform='s|Source/||;s|Sources/||;s|src/||' $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) xf -) )	# copy headers keeping subdirectory structure
 endif
 	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif
