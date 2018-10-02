@@ -148,6 +148,7 @@ extern NSString *NSShellCommandFileType;
 extern NSString *NSApplicationIcon;
 extern NSString *NSApplicationPath;
 extern NSString *NSApplicationName;
+extern NSString *NSApplicationBundleIdentifier;
 extern NSString *NSApplicationProcessIdentifier;
 
 extern NSString *NSWorkspaceCompressOperation;
