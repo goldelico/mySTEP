@@ -18,6 +18,7 @@ NSString *NSEventTrackingRunLoopMode= @"EventTrackingMode";
 NSString *NSApplicationIcon= @"NSApplicationIcon";
 NSString *NSApplicationPath= @"NSApplicationPath";
 NSString *NSApplicationName= @"NSApplicationName";
+NSString *NSApplicationBundleIdentifier= @"NSApplicationBundleIdentifier";
 NSString *NSApplicationProcessIdentifier= @"NSApplicationProcessIdentifier";
 
 //
