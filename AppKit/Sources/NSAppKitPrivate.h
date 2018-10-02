@@ -140,6 +140,10 @@ typedef enum _NSRoundedBezelSegments
 - (void) _setPendingWindow:(NSWindow *) win;
 @end
 
+@interface NSBundle (NSPrivate)
+- (NSString *) _bundleIdentifier;	// one that always exists...
+@end
+
 @interface NSDocument (NSPrivate)
 - (NSWindow *) _window;
 - (void) _removeWindowController:(NSWindowController *)windowController;
