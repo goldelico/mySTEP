@@ -348,8 +348,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (void) finishLaunching
 {
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-	NSString *name=[infoDict objectForKey:@"CFBundleName"];
-	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
+	// FIXME: or do we use [[[bundle path] lastPathComponent] stringByDeletingPythExtension] ?
+	NSString *name=[infoDict objectForKey:@"CFBundleName"];	// may be missing!
+	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];	// may be missing!
 	NSString *error;
 	NSDictionary *plist;
 #if 1
@@ -374,12 +375,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if(!ident)
 		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
 	plist=[NSDictionary dictionaryWithObjectsAndKeys:
-				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
+				 [NSNumber numberWithInt:getpid()], NSApplicationProcessIdentifier,
 				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
-				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
-				 ident, @"NSApplicationBundleIdentifier",
-				 name, @"NSApplicationName",
+				 [[NSBundle mainBundle] bundlePath], NSApplicationPath,
+				 ident, NSApplicationBundleIdentifier,
+				 name, NSApplicationName,
 				 nil];
 	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
 												contents:[NSPropertyListSerialization dataFromPropertyList:plist
@@ -1299,7 +1300,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"active app=%@", app);
 #endif
-	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();
+	return [[app objectForKey:NSApplicationProcessIdentifier] intValue] == getpid();
 }
 
 - (void) activateIgnoringOtherApps:(BOOL)flag
@@ -1628,9 +1629,14 @@ NSWindow *w;
 	// and should we setAttributedTitle?
 	if([[[aMenu itemAtIndex:0] title] length] == 0)
 		{ // application menu title is empty - substitute from bundle
-		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		NSString *applicationName;
+			// FIXME: localized version!!!
+		applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 		if(!applicationName)
-			applicationName=[[NSProcessInfo processInfo] processName];	// replacement
+			applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		if(!applicationName)
+			applicationName=[[NSProcessInfo processInfo] processName];	// replacement (is the name of the executable...)
+		applicationName=NSLocalizedString(applicationName, @"Application Name");	// try to translate
 		if(applicationName)
 			[[aMenu itemAtIndex:0] setTitle:applicationName];	// insert application name
 		}
