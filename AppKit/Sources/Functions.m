@@ -44,19 +44,19 @@
 int NSApplicationMain(int argc, const char **argv)
 {
 	id pool=[NSAutoreleasePool new];	// initial ARP
-	NSDictionary *infoDict;
+	NSBundle *b;
 	NSString *mainModelFile;
 	NSApplication *app=[NSApplication sharedApplication];	// initialize application
 #if 1
 	NSLog(@"NSApplicationMain\n");
 #endif
-	infoDict = [[NSBundle mainBundle] infoDictionary];
-	mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
+	b = [NSBundle mainBundle];
+	mainModelFile = [b objectForInfoDictionaryKey:@"NSMainNibFile"];
 #if 1
-	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [infoDict objectForKey:@"CFBundleName"], mainModelFile, [infoDict objectForKey:@"CFBundleIdentifier"]);
+	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b objectForInfoDictionaryKey:@"CFBundleName"], mainModelFile, [b _bundleIdentifier]);
 #endif
 
-	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
+	if([[b objectForInfoDictionaryKey:@"LSGetAppDiedEvents"] boolValue])
 		{ // convert SIGCHLD
 		  // find a mechanism to handle kAEApplicationDied
 		}
