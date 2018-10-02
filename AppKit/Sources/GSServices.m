@@ -75,7 +75,7 @@ NSString *p;						// services requests for this application.
 
 - (void) dealloc
 {
-	NSUnregisterServicesProvider([[NSBundle mainBundle] bundleIdentifier]);
+	NSUnregisterServicesProvider([[NSBundle mainBundle] _bundleIdentifier]);
 	[languages release];
 	[returnInfo release];
 	[combinations release];
@@ -365,7 +365,7 @@ unsigned pos;
 											// Set up connection to listen for 
 - (void) registerAsServiceProvider			// incoming service requests.
 {
-	NSString *name = [[NSBundle mainBundle] bundleIdentifier];
+	NSString *name = [[NSBundle mainBundle] _bundleIdentifier];
 
 	NS_DURING
 		NSRegisterServicesProvider(self, name);
