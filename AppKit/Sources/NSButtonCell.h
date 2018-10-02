@@ -34,13 +34,17 @@ typedef NSUInteger NSButtonType;
 
 enum {	// plese don't change order! setButtonType: isn't compatible otherwise
 	NSMomentaryLightButton=0,
-	NSPushOnPushOffButton,
-	NSToggleButton,
-	NSSwitchButton,
-	NSRadioButton,
-	NSMomentaryChangeButton,
-	NSOnOffButton,
-	NSMomentaryPushInButton
+	NSPushOnPushOffButton=1,
+	NSToggleButton=2,
+	NSSwitchButton=3,
+	NSRadioButton=4,
+	NSMomentaryChangeButton=5,
+	NSOnOffButton=6,
+	NSMomentaryPushInButton=7,
+	NSAcceleratorButton=8,	// since 10.10.3
+	NSMultiLevelAcceleratorButton=9,	// since 10.10.3
+	NSMomentaryPushButton=NSMomentaryLightButton,
+	NSMomentaryLight=NSMomentaryPushInButton
 };
 
 typedef NSUInteger NSBezelStyle;
@@ -51,16 +55,17 @@ enum {		// Name in IB
 	NSRegularSquareBezelStyle,		// Rounded Bevel Button
 	NSThickSquareBezelStyle,		// -
 	NSThickerSquareBezelStyle,		// -
-	NSDisclosureBezelStyle,			// Disclosure Button
-	NSShadowlessSquareBezelStyle,	// Square Button
-	NSCircularBezelStyle,			// Round Button
-	NSTexturedSquareBezelStyle,		// Square Textured Button
-	NSHelpButtonBezelStyle,			// Help Button
-	NSSmallSquareBezelStyle,		// Small Square Button
-	NSTexturedRoundBezelStyle,		// Round Textured Button
-	NSRoundRectBezelStyle,			// -
-	NSRecessedBezelStyle,			// -
-	NSRoundedDisclosureBezelStyle	// -
+	NSDisclosureBezelStyle=5,		// Disclosure Button
+	NSShadowlessSquareBezelStyle=6,	// Square Button
+	NSCircularBezelStyle=7,			// Round Button
+	NSTexturedSquareBezelStyle=8,	// Square Textured Button
+	NSHelpButtonBezelStyle=9,		// Help Button
+	NSSmallSquareBezelStyle=10,		// Small Square Button
+	NSTexturedRoundBezelStyle=11,	// Round Textured Button
+	NSRoundRectBezelStyle=12,		// -
+	NSRecessedBezelStyle=13,		// -
+	NSRoundedDisclosureBezelStyle=14,	// -
+	NSBezelStyleInline=15				// since 10.7
 };
 
 typedef NSUInteger NSGradientType;
