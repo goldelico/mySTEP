@@ -25,6 +25,22 @@
 
 #import "NSAppKitPrivate.h"
 
+@implementation NSBundle (NSPrivate)
+
+- (NSString *) _bundleIdentifier;
+{ // one that always exists...
+	NSString *ident=[self bundleIdentifier];
+	if(!ident)
+		{
+		ident=[[self path] stringByReplacingOccurrencesOfString:@"/" withString:@"."];	// will start with a .
+		NSLog(@"bundle %@ has no CFBundleIdentifier - using %@", [self path], ident);
+		}
+	return ident;
+}
+
+@end
+
+
 int NSApplicationMain(int argc, const char **argv)
 {
 	id pool=[NSAutoreleasePool new];	// initial ARP
