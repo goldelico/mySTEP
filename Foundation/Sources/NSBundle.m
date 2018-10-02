@@ -702,6 +702,21 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	return _infoDict;
 }
 
+- (NSDictionary *) localizedInfoDictionary;
+{
+	NSEnumerator *e=[[self infoDictionary] keyEnumerator];
+	NSMutableArray *a=[NSMutableArray arrayWithCapacity:[_infoDict count]];
+	NSString *key;
+	while((key=[e nextObject]))
+		{
+		id o=[_infoDict objectForKey:key];
+		if([o isKindOfClass:[NSString class]])
+			o=[self localizedStringForKey:o value:o table:nil];	// localize
+		[a setObject:o forKey:key];
+		}
+	return a;
+}
+
 // added by HNS
 
 + (NSBundle *) bundleWithIdentifier:(NSString *) ident;
@@ -747,8 +762,6 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 }
 
 - (id) objectForInfoDictionaryKey:(NSString *) key; { return [[self infoDictionary] objectForKey:key]; }
-
-- (NSDictionary *) localizedInfoDictionary;	{ return NIMP; }
 
 - (NSString *) bundleIdentifier;
 {
