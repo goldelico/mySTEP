@@ -1750,10 +1750,10 @@ next:
 	[sc propertyListSkipSpaceAndComments];
 	loc=[sc scanLocation];
 	if([sc scanString:@"[" intoString:NULL] || [sc scanString:@"{" intoString:NULL])
-		{ // try JSON array or object on top level
+		{ // try JSON array / object on top level
 		[sc setScanLocation:loc];
 		plist=[sc propertyListScanJSONElement:opt errorDescription:errorString];
-#if 1
+#if 0
 		if(!plist)
 			NSLog(@"JSON error: %@ %@", *errorString, [[sc string] substringFromIndex:[sc scanLocation]]);
 #endif
@@ -1766,8 +1766,9 @@ next:
 			[sc setScanLocation:loc];
 			plist=[sc propertyListScanPropertyListElement:opt errorDescription:errorString];
 		}
+	// can/should we allow <data> on top level?
 	if(!plist)
-		{ // try top level dictionary (w/o { })
+		{ // try top level dictionary with or without braces
 			fmt=NSPropertyListOpenStepFormat;
 			plist=[sc propertyListScanPropertyListDictionary:opt errorDescription:errorString withBrace:[sc scanString:@"{" intoString:NULL]];
 		}
