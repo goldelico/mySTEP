@@ -367,7 +367,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 #endif
 	if(!_principalClass)
 		{
-		NSString *n = [[self infoDictionary] objectForKey:@"NSPrincipalClass"];
+		NSString *n = [self objectForInfoDictionaryKey:@"NSPrincipalClass"];
 #if 0
 		NSLog(@"infoDictionary - principalClass: %@", n);
 #endif
@@ -661,7 +661,8 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: tableName];
 		ls = [dict objectForKey: key];
 		}
-	if(ls == nil)			// OS spec calls for [key uppercaseString] not key
+	if(!ls)			// OS spec calls for [key uppercaseString] not key
+		// check for NSShowNonLocalizedStrings
 		ls = (!value || ([value length] == 0)) ? key : value;
 	return ls;
 }
@@ -677,6 +678,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NS_DURING
 			{
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			// FIXME: does this recursively try to read infoDictionary?
 			path=[self pathForResource:@"Info" ofType:@"plist"];
 #if 0
 			NSLog(@"infoDictionary path=%@", path);
