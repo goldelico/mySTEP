@@ -80,7 +80,7 @@
 - (void) setPreferredIdent:(NSString *) ident forExtension:(NSString *) ext;	// change preferred entry (Editor record first)
 - (NSString *) absolutePathForAppBundleWithIdentifier:(NSString *) ident;	// map ident -> path (most recent)
 - (NSString *) fullPathForApplication:(NSString *)appName;	// look up by name (most recent)
-- (NSString *) applicationNameForIdent:(NSString *) ident;
+- (NSString *) applicationNameForIdentifier:(NSString *) ident;
 - (void) treatExtensionAsFilePackage:(NSString *) ext;
 - (BOOL) isFilePackageAtPath:(NSString *) path;
 - (void) findApplicationsInDirectory:(NSString *) path;
@@ -277,9 +277,7 @@ static BOOL __fileSystemChanged = NO;
 	return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try again - returns nil if still unknown
 }
 
-// FIXME: private Method!!!
-
-- (NSString *) applicationNameForIdent:(NSString *) ident;
+- (NSString *) applicationNameForIdentifier:(NSString *) ident;
 { // look up application name for bundle identifier (randomly choosen if different bundles have same ident)
 	NSArray *a;
 	if(!QSApplicationIdentsByName)
@@ -1192,7 +1190,7 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 			NSLog(@"app for extension %@ = %@", [fullPath pathExtension], app);
 #endif
 			*type=[app objectForKey:@"CFBundleTypeName"];
-			*appName=[__launchServices applicationNameForIdent:[app objectForKey:@"CFBundleIdentifier"]];	// application name
+			*appName=[__launchServices applicationNameForIdentifier:[app objectForKey:@"CFBundleIdentifier"]];	// application name
 #if 0
 			NSLog(@"ext=%@", [fullPath pathExtension]);
 			NSLog(@"preferred app=%@", app);
