@@ -1770,6 +1770,10 @@ next:
 	if(!plist)
 		{ // try top level dictionary with or without braces
 			fmt=NSPropertyListOpenStepFormat;
+			[sc setScanLocation:loc];
+#if 0
+			NSLog(@"next chars: %@", [[sc string] substringFromIndex:[sc scanLocation]]);
+#endif
 			plist=[sc propertyListScanPropertyListDictionary:opt errorDescription:errorString withBrace:[sc scanString:@"{" intoString:NULL]];
 		}
 	if(plist)
