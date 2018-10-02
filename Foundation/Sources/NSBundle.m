@@ -645,7 +645,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 							   value:(NSString *)value
 							   table:(NSString *)tableName
 {
+	// FIXME: tables should be cached!
 	NSString *ls = nil;
+	if (!key)
+		return value?value:@"";	// substitute
 	if (!tableName)
 		tableName = [self pathForResource:@"Localizable" ofType:@"strings"];
 	if (!tableName)
