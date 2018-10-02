@@ -56,13 +56,14 @@ int NSApplicationMain(int argc, const char **argv)
 #endif
 	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
 	if(![app mainMenu])
-		[app setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+		// should take application name...
+		[app setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, provide a default menu
 	else
 		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
 	// FIXME: why is this done here and not in [NSCursor initialize]?
 	// FIXME - how does that interwork with cursor-rects?
 	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
-	[pool release];	// empty this pool
 	[app run];
+	[pool release];	// empty this pool
 	return 0;
 }
