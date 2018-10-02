@@ -145,7 +145,7 @@ void NSUnregisterServicesProvider(NSString *name)
 void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	if(!name)
-		name = [[NSBundle mainBundle] bundleIdentifier];
+		name = [[NSBundle mainBundle] _bundleIdentifier];
 	
 	if (name && provider)
 		{
@@ -232,7 +232,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	NSMessagePort *port = [[[NSMessagePort alloc] init] autorelease];	// create new message port
 	NSConnection *connection = [NSConnection connectionWithReceivePort:port sendPort:nil];	// uses same port to send and receive
-	NSString *name=[[NSBundle mainBundle] bundleIdentifier];
+	NSString *name=[[NSBundle mainBundle] _bundleIdentifier];
 	
 	if(![[NSMessagePortNameServer sharedInstance] registerPort:port name:name])	// register as named message port
 		NSLog(@"Could not publish message port %@ as %@", port, name);
@@ -347,9 +347,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) finishLaunching
 {
-	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-	NSString *name=[infoDict objectForKey:@"CFBundleName"];
-	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
+	NSBundle *b=[NSBundle mainBundle];
+	NSDictionary *infoDict = [b infoDictionary];
+	// FIXME: or do we use [[[bundle path] lastPathComponent] stringByDeletingPythExtension] ?
+	NSString *name=[b objectForInfoDictionaryKey:@"CFBundleName"];	// may be missing!
+	NSString *ident=[b _bundleIdentifier];
 	NSString *error;
 	NSDictionary *plist;
 #if 1
@@ -369,17 +371,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
 #endif
-	if(!ident)
-		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
-	if(!ident)
-		NSLog(@"!!! Info.plist has no CFBundleIdentifier");
 	plist=[NSDictionary dictionaryWithObjectsAndKeys:
-				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
+				 [NSNumber numberWithInt:getpid()], NSApplicationProcessIdentifier,
 				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
 				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
-				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
-				 ident, @"NSApplicationBundleIdentifier",
-				 name, @"NSApplicationName",
+				 [[NSBundle mainBundle] bundlePath], NSApplicationPath,
+				 ident, NSApplicationBundleIdentifier,
+				 name, NSApplicationName,
 				 nil];
 	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
 												contents:[NSPropertyListSerialization dataFromPropertyList:plist
@@ -1299,7 +1297,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"active app=%@", app);
 #endif
-	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();
+	return [[app objectForKey:NSApplicationProcessIdentifier] intValue] == getpid();
 }
 
 - (void) activateIgnoringOtherApps:(BOOL)flag
@@ -1314,7 +1312,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
 			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// remove other active application
 				NSLog(@"remove error for activate");
-			[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
+			[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] _bundleIdentifier]];	// link to identifier
 			[self _setWindowsHidden:NO];		// unhide our windows
 			if(flag)
 				{
@@ -1628,9 +1626,14 @@ NSWindow *w;
 	// and should we setAttributedTitle?
 	if([[[aMenu itemAtIndex:0] title] length] == 0)
 		{ // application menu title is empty - substitute from bundle
-		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		NSString *applicationName;
+			// FIXME: localized version!!!
+		applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 		if(!applicationName)
-			applicationName=[[NSProcessInfo processInfo] processName];	// replacement
+			applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		if(!applicationName)
+			applicationName=[[NSProcessInfo processInfo] processName];	// replacement (is the name of the executable...)
+		applicationName=NSLocalizedString(applicationName, @"Application Name");	// try to translate
 		if(applicationName)
 			[[aMenu itemAtIndex:0] setTitle:applicationName];	// insert application name
 		}
@@ -1946,7 +1949,7 @@ NSWindow *w;
 		NSLog(@"replyToApplicationShouldTerminate:YES");
 #endif
 			[self deactivate];	// if we are active, remove as active application
-			[[NSFileManager defaultManager] removeFileAtPath:[NSWorkspace _activeApplicationPath:[[NSBundle mainBundle] bundleIdentifier]] handler:nil];	// remove from launched applications list
+			[[NSFileManager defaultManager] removeFileAtPath:[NSWorkspace _activeApplicationPath:[[NSBundle mainBundle] _bundleIdentifier]] handler:nil];	// remove from launched applications list
 			[[NSUserDefaults standardUserDefaults] synchronize]; // write all unwritten changes
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillTerminate) object: self];	// last chance to clean-up
 		[[NSGraphicsContext currentContext] release];			// clean up connection to X server

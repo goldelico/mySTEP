@@ -25,22 +25,38 @@
 
 #import "NSAppKitPrivate.h"
 
+@implementation NSBundle (NSPrivate)
+
+- (NSString *) _bundleIdentifier;
+{ // one that always exists...
+	NSString *ident=[self bundleIdentifier];
+	if(!ident)
+		{
+		ident=[[self path] stringByReplacingOccurrencesOfString:@"/" withString:@"."];	// will start with a .
+		NSLog(@"bundle %@ has no CFBundleIdentifier - using %@", [self path], ident);
+		}
+	return ident;
+}
+
+@end
+
+
 int NSApplicationMain(int argc, const char **argv)
 {
 	id pool=[NSAutoreleasePool new];	// initial ARP
-	NSDictionary *infoDict;
+	NSBundle *b;
 	NSString *mainModelFile;
 	NSApplication *app=[NSApplication sharedApplication];	// initialize application
 #if 1
 	NSLog(@"NSApplicationMain\n");
 #endif
-	infoDict = [[NSBundle mainBundle] infoDictionary];
-	mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
+	b = [NSBundle mainBundle];
+	mainModelFile = [b objectForInfoDictionaryKey:@"NSMainNibFile"];
 #if 1
-	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [infoDict objectForKey:@"CFBundleName"], mainModelFile, [infoDict objectForKey:@"CFBundleIdentifier"]);
+	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b objectForInfoDictionaryKey:@"CFBundleName"], mainModelFile, [b _bundleIdentifier]);
 #endif
 
-	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
+	if([[b objectForInfoDictionaryKey:@"LSGetAppDiedEvents"] boolValue])
 		{ // convert SIGCHLD
 		  // find a mechanism to handle kAEApplicationDied
 		}
@@ -56,13 +72,14 @@ int NSApplicationMain(int argc, const char **argv)
 #endif
 	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
 	if(![app mainMenu])
-		[app setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+		// should take application name...
+		[app setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, provide a default menu
 	else
 		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
 	// FIXME: why is this done here and not in [NSCursor initialize]?
 	// FIXME - how does that interwork with cursor-rects?
 	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
-	[pool release];	// empty this pool
 	[app run];
+	[pool release];	// empty this pool
 	return 0;
 }

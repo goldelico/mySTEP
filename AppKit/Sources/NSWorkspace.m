@@ -60,7 +60,7 @@
 
 @interface QSLaunchServices : NSObject
 {
-	NSMutableDictionary *QSApplicationIdentsByName;		// single ident for application name
+	NSMutableDictionary *QSApplicationIdentsByName;		// single ident for application name (just the bundle file name without extension)
 	NSMutableDictionary *QSApplicationPathsByIdent;		// array of bundle paths for application identifier
 	NSMutableDictionary *QSApplicationsByExtension;		// record list by extension
 	NSMutableDictionary *QSFilePackageExtensions;		// extensions for file bundles
@@ -80,7 +80,7 @@
 - (void) setPreferredIdent:(NSString *) ident forExtension:(NSString *) ext;	// change preferred entry (Editor record first)
 - (NSString *) absolutePathForAppBundleWithIdentifier:(NSString *) ident;	// map ident -> path (most recent)
 - (NSString *) fullPathForApplication:(NSString *)appName;	// look up by name (most recent)
-- (NSString *) applicationNameForIdent:(NSString *) ident;
+- (NSString *) applicationNameForIdentifier:(NSString *) ident;
 - (void) treatExtensionAsFilePackage:(NSString *) ext;
 - (BOOL) isFilePackageAtPath:(NSString *) path;
 - (void) findApplicationsInDirectory:(NSString *) path;
@@ -131,7 +131,7 @@ static BOOL __fileSystemChanged = NO;
 #if 0
 			NSLog(@"LS database=%@", defaults);
 #endif
-			if(data && ![defaults isKindOfClass:[NSDictionary class]])
+			if(data && ![defaults isKindOfClass:[NSMutableDictionary class]])
 				NSLog(@"QSLaunchServices did not load %@ due to: %@", APPDATABASE, error);
 			else
 				{
@@ -245,14 +245,15 @@ static BOOL __fileSystemChanged = NO;
 }
 
 - (NSString *) fullPathForApplication:(NSString *)appName
-{
-	NSString *last=[appName lastPathComponent];
+{ // appName is the bundle name
+	NSString *last;
 	//	NSString *ext=[appName pathExtension];
 	NSString *path;
 	if(!appName)
 		return nil;		// unspecified
 	if([appName isAbsolutePath])
 		return appName; // is already a full path
+	last=[appName lastPathComponent];
 	if(![appName isEqual:last])
 		return nil;		// has path components, i.e. not a plain app name - don't treat as relative name
 	appName=[appName stringByDeletingPathExtension]; // remove extension (if present)
@@ -276,7 +277,7 @@ static BOOL __fileSystemChanged = NO;
 	return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try again - returns nil if still unknown
 }
 
-- (NSString *) applicationNameForIdent:(NSString *) ident;
+- (NSString *) applicationNameForIdentifier:(NSString *) ident;
 { // look up application name for bundle identifier (randomly choosen if different bundles have same ident)
 	NSArray *a;
 	if(!QSApplicationIdentsByName)
@@ -296,20 +297,20 @@ static BOOL __fileSystemChanged = NO;
 - (BOOL) isFilePackageAtPath:(NSString *) path
 { // check if it is a file package
 	NSFileManager *fm=[NSFileManager defaultManager];
-    BOOL isDir = NO;
-    BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
-    if(!(exists && isDir))
+	BOOL isDir = NO;
+	BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
+	if(!(exists && isDir))
 		return NO;	// must be a directory to be a package
 	if([QSFilePackageExtensions objectForKey:[path pathExtension]])
 		return YES;	// file extension is in list of Document bundles
 	// otherwise we must have a subdirectory named "Contents"
 	path=[path stringByAppendingPathComponent:@"Contents"];
 	exists = [fm fileExistsAtPath:path isDirectory:&isDir];
-    if(!(exists && isDir))
+	if(!(exists && isDir))
 		return NO;
 	// and we must have an Info.plist file
 	exists = [fm fileExistsAtPath:[path stringByAppendingPathComponent:@"Info.plist"] isDirectory:&isDir];
-    return ((exists && !isDir));
+	return ((exists && !isDir));
 }
 
 - (void) addApplicationAtPath:(NSString *) path;
@@ -327,24 +328,22 @@ static BOOL __fileSystemChanged = NO;
 	info=[b infoDictionary];
 	if(!info)
 		{
-#if 0
+#if 1
 		NSLog(@"can't load Info.plist for %@", path);
 #endif
 		return;
 		}
-	appname=[info objectForKey:@"CFBundleName"];
-	if(!appname)
-		appname=[[path lastPathComponent] stringByDeletingPathExtension];	// if no display name is defined
-	// should check if already defined - keep/sort newer one
-	ident=[b bundleIdentifier];
 	if(![[NSFileManager defaultManager] isExecutableFileAtPath:[b executablePath]])
 		{
-		// FIXME: Here, we could call something like '/usr/bin/softpear $BUNDLE/Contents/MacOS/$EXECUTABLE $*' 
+		// FIXME: Here, we could call something like '/usr/bin/softpear $BUNDLE/Contents/MacOS/$EXECUTABLE $*'
 #if 0
 		NSLog(@"No executable at %@", [b executablePath]);
 #endif
 		return;	// not an executable at path
 		}
+	appname=[[path lastPathComponent] stringByDeletingPathExtension];	// the bundle name
+	// should check if already defined - keep/sort newer one
+	ident=[b _bundleIdentifier];
 	[self mapApplicationName:appname toIdent:ident];	// map name to identifier
 	[self mapApplicationIdent:ident toPath:path];		// map identifier to path
 	filetypes=[info objectForKey:@"CFBundleDocumentTypes"];
@@ -521,14 +520,14 @@ additionalEventParamDescriptor:(id) params
 			if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
 				return NO;	// is background only
 		}
-	appFile=[NSWorkspace _activeApplicationPath:[b bundleIdentifier]];
+	appFile=[NSWorkspace _activeApplicationPath:[b _bundleIdentifier]];
 	while((options&NSWorkspaceLaunchNewInstance) == 0)
 		{ // try to contact existing application - and launch exactly once
 			int fd;
 			if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
 				{ // We are not the first to write the file. This means someone else is launching or has launched the same application
 					NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
-					pid_t pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+					pid_t pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
 					if(pid)
 						{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
 #if 1
@@ -544,11 +543,11 @@ additionalEventParamDescriptor:(id) params
 									NSLog(@"contact by DO");
 #endif
 									NS_DURING
-									if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
+									if([[b _bundleIdentifier] isEqual:[[NSBundle mainBundle] _bundleIdentifier]])
 										a=[NSApp delegate];			// that is myself - avoid loop through DO
 									else
 										{
-										a = [NSConnection connectionWithRegisteredName:[b bundleIdentifier] host:@""];	// Try to contact the existing instance
+										a = [NSConnection connectionWithRegisteredName:[b _bundleIdentifier] host:@""];	// Try to contact the existing instance
 										if(a)
 											{ // ports exists (but might not respond)
 												[a setRequestTimeout:1.0];	// should answer nearly immediately
@@ -614,17 +613,14 @@ additionalEventParamDescriptor:(id) params
 	executable=[b executablePath];	// get executable within bundle
 	if(!executable)
 		return NO;	// we have no executable to launch
-	appname=[b objectForInfoDictionaryKey:@"CFBundleName"];
-	if(!appname)
-		appname=[[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
 	gettimeofday(&tp, NULL);	// the unique PSNs are assigned here and passed to the app by -psn_%lu_%lu
 	psn_high=tp.tv_sec;
 	psn_low=tp.tv_usec;
 	dict=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-		  [b bundlePath], @"NSApplicationPath",
-		  appname, @"NSApplicationName",
-		  [b bundleIdentifier], @"NSApplicationBundleIdentifier",
-		  [NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",	// we don't know yet
+		  [b bundlePath], NSApplicationPath,
+		  [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension], NSApplicationName,
+		  [b _bundleIdentifier], NSApplicationBundleIdentifier,
+		  [NSNumber numberWithInt:0], NSApplicationProcessIdentifier,	// we don't know yet
 		  [NSNumber numberWithUnsignedLong:psn_high], @"NSApplicationProcessSerialNumberHigh",
 		  [NSNumber numberWithUnsignedLong:psn_low], @"NSApplicationProcessSerialNumberLow",
 		  nil];
@@ -675,7 +671,7 @@ additionalEventParamDescriptor:(id) params
 				{
 				// FIXME: timeout? i.e. if App never launches
 				NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
-				pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+				pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
 				if(pid > 0)
 					break;	// wait until app appears to have launched
 #if 1
@@ -685,7 +681,7 @@ additionalEventParamDescriptor:(id) params
 				[[NSRunLoop currentRunLoop] runUntilDate:date];
 				}
 			// should be a distributed notification sent by launched application!
-			[dict setObject:[NSNumber numberWithInt:pid] forKey:@"NSApplicationProcessIdentifier"];
+			[dict setObject:[NSNumber numberWithInt:pid] forKey:NSApplicationProcessIdentifier];
 			[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
 																			  object:self
 																			userInfo:dict];
@@ -1147,7 +1143,7 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 }
 
 - (NSString *) fullPathForApplication:(NSString *)appName
-{
+{ // bundle name or full path
 	if (!__launchServices)
 		[QSLaunchServices sharedLaunchServices];
 	return [__launchServices fullPathForApplication:appName];
@@ -1194,7 +1190,7 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 			NSLog(@"app for extension %@ = %@", [fullPath pathExtension], app);
 #endif
 			*type=[app objectForKey:@"CFBundleTypeName"];
-			*appName=[__launchServices applicationNameForIdent:[app objectForKey:@"CFBundleIdentifier"]];	// application name
+			*appName=[__launchServices applicationNameForIdentifier:[app objectForKey:@"CFBundleIdentifier"]];	// application name
 #if 0
 			NSLog(@"ext=%@", [fullPath pathExtension]);
 			NSLog(@"preferred app=%@", app);
@@ -1525,12 +1521,16 @@ static NSArray *prevList;
 {
 	NSMutableDictionary *d=[NSMutableDictionary dictionaryWithCapacity:6];
 	id o;
-	[d setObject:[[[NSAttributedString alloc] initWithString:@""] autorelease] forKey:@"Credits"];	// should look for ressource file Credits.rtf and load as NSAttributedString
-	if((o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"]))
-		[d setObject:o forKey:@"ApplicationName"];
-	else
-		[d setObject:[[[[NSBundle mainBundle] bundlePath] lastPathComponent] stringByDeletingPathExtension] forKey:@"ApplicationName"];
-	if((o=[NSImage imageNamed:@"NSApplicationIcon"]))
+	// FIXME: localization!
+	[d setObject:[[[NSAttributedString alloc] initWithString:@""] autorelease] forKey:@"Credits"];	// should look for localized (!) ressource file Credits.rtf and load as NSAttributedString
+	o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+	if(!o)
+		o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+	if(!o)
+		o=[[[[NSBundle mainBundle] bundlePath] lastPathComponent] stringByDeletingPathExtension];
+	o=NSLocalizedString(o, @"Application Name");	// try to translate
+	[d setObject:o forKey:@"ApplicationName"];
+	if((o=[NSImage imageNamed:NSApplicationIcon]))
 		[d setObject:o forKey:@"ApplicationIcon"];
 	else if((o=[NSImage imageNamed:@"generic Application Icon in AppKit.framework"]))
 		[d setObject:o forKey:@"ApplicationIcon"];

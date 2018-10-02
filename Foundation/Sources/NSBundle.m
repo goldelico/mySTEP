@@ -367,7 +367,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 #endif
 	if(!_principalClass)
 		{
-		NSString *n = [[self infoDictionary] objectForKey:@"NSPrincipalClass"];
+		NSString *n = [self objectForInfoDictionaryKey:@"NSPrincipalClass"];
 #if 0
 		NSLog(@"infoDictionary - principalClass: %@", n);
 #endif
@@ -645,7 +645,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 							   value:(NSString *)value
 							   table:(NSString *)tableName
 {
+	// FIXME: tables should be cached!
 	NSString *ls = nil;
+	if (!key)
+		return value?value:@"";	// substitute
 	if (!tableName)
 		tableName = [self pathForResource:@"Localizable" ofType:@"strings"];
 	if (!tableName)
@@ -661,7 +664,8 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: tableName];
 		ls = [dict objectForKey: key];
 		}
-	if(ls == nil)			// OS spec calls for [key uppercaseString] not key
+	if(!ls)			// OS spec calls for [key uppercaseString] not key
+		// check for NSShowNonLocalizedStrings
 		ls = (!value || ([value length] == 0)) ? key : value;
 	return ls;
 }
@@ -677,6 +681,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NS_DURING
 			{
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			// FIXME: does this recursively try to read infoDictionary?
 			path=[self pathForResource:@"Info" ofType:@"plist"];
 #if 0
 			NSLog(@"infoDictionary path=%@", path);
@@ -695,6 +700,21 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NS_ENDHANDLER
 		}
 	return _infoDict;
+}
+
+- (NSDictionary *) localizedInfoDictionary;
+{
+	NSEnumerator *e=[[self infoDictionary] keyEnumerator];
+	NSMutableArray *a=[NSMutableArray arrayWithCapacity:[_infoDict count]];
+	NSString *key;
+	while((key=[e nextObject]))
+		{
+		id o=[_infoDict objectForKey:key];
+		if([o isKindOfClass:[NSString class]])
+			o=[self localizedStringForKey:o value:o table:nil];	// localize
+		[a setObject:o forKey:key];
+		}
+	return a;
 }
 
 // added by HNS
@@ -742,8 +762,6 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 }
 
 - (id) objectForInfoDictionaryKey:(NSString *) key; { return [[self infoDictionary] objectForKey:key]; }
-
-- (NSDictionary *) localizedInfoDictionary;	{ return NIMP; }
 
 - (NSString *) bundleIdentifier;
 {

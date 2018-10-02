@@ -122,7 +122,7 @@ extern id NSApp;					// NSApp global var
 		unsigned int disableServices:1;
 		unsigned int isDeallocating:1;
 		unsigned int reserved:3;
-    } _app;
+	} _app;
 }
 
 + (void) detachDrawingThread:(SEL) sel toTarget:(id) target withObject:(id) arg;

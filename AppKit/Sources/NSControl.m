@@ -50,8 +50,8 @@ static Class __controlCellClass = Nil;
 
 - (void) dealloc
 {
-    [self setCell:nil];										// release our cell
- 	[self setDelegate:nil];	
+	[self setCell:nil];										// release our cell
+	[self setDelegate:nil];
 	[super dealloc];
 }
 
@@ -269,13 +269,13 @@ static Class __controlCellClass = Nil;
 }
 
 - (void) selectCell:(NSCell*)aCell			
-{ 
+{
 	if (_cell == aCell) 
 		[_cell setState:NSOnState];
 }
 
 - (void) selectCellWithTag:(int) tag			
-{ 
+{
 	NIMP;
 }
 
@@ -387,7 +387,7 @@ static Class __controlCellClass = Nil;
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
 
-  		}
+		}
 #if 0
 	NSLog(@"NSControl mouseDown up");
 #endif

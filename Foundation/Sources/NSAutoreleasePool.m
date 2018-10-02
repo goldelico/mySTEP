@@ -183,7 +183,7 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 		[pool addObject: anObj];
 	else
 		{
-		NSAutoreleasePool *arp = [NSAutoreleasePool new];
+		NSAutoreleasePool *arp = [NSAutoreleasePool new];	// we need one for NSString and NSLog...
 
 		if (anObj)
 			NSLog(@"autorelease called without pool for object (%@) \
@@ -191,6 +191,9 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 					[NSStringFromClass([anObj class]) cString]);
 		else
 			NSLog(@"autorelease called without pool for nil object.\n");
+#if 1
+		abort();
+#endif
 		[arp release];
 		}
 }
