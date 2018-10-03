@@ -248,12 +248,12 @@ static NSCountedSet *__pb;
 - (BOOL) hasAlpha								{ return _irep.hasAlpha; }
 - (BOOL) isOpaque								{ return _irep.isOpaque; }
 - (void) setOpaque:(BOOL)flag					{ _irep.isOpaque = flag; }
-- (void) setPixelsWide:(NSInteger)anInt				{ _pixelsWide = anInt; }
-- (void) setPixelsHigh:(NSInteger)anInt				{ _pixelsHigh = anInt; }
-- (void) setBitsPerSample:(NSInteger)anInt			{ _irep.bitsPerSample = (unsigned int) anInt;}
-- (NSInteger) pixelsWide								{ return _pixelsWide; }
-- (NSInteger) pixelsHigh								{ return _pixelsHigh; }
-- (NSInteger) bitsPerSample							{ return _irep.bitsPerSample; }
+- (void) setPixelsWide:(NSInteger)anInt			{ _pixelsWide = anInt; }
+- (void) setPixelsHigh:(NSInteger)anInt			{ _pixelsHigh = anInt; }
+- (void) setBitsPerSample:(NSInteger)anInt		{ _irep.bitsPerSample = (unsigned int) anInt;}
+- (NSInteger) pixelsWide						{ return _pixelsWide; }
+- (NSInteger) pixelsHigh						{ return _pixelsHigh; }
+- (NSInteger) bitsPerSample						{ return _irep.bitsPerSample; }
 - (NSString *) colorSpaceName					{ return _colorSpace; }
 - (void) setColorSpaceName:(NSString *)aString	{ ASSIGN(_colorSpace,aString);}
 
