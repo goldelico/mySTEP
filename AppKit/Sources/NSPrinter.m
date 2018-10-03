@@ -290,7 +290,14 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 {
 	if((self=[super init]))
 		{
-			info=[aDict mutableCopy];
+		id val;
+		info=[aDict mutableCopy];
+		val=[info objectForKey:NSPrintPaperSize];
+		if([val isKindOfClass:[NSString class]])
+			{
+			val=[NSValue valueWithSize:NSSizeFromString(val)];	// translate to NSValue
+			[info setObject:val forKey:NSPrintPaperSize];
+			}
 		}
 	return self;
 }
@@ -333,7 +340,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (NSSize) paperSize
 {
- 	NSNumber *val=[info objectForKey:NSPrintPaperSize];
+	NSNumber *val=[info objectForKey:NSPrintPaperSize];
 	return val?[val sizeValue]:NSZeroSize;
 }
 
