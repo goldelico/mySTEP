@@ -30,7 +30,7 @@
 - (NSString *) _bundleIdentifier;
 { // one that always exists...
 	NSString *ident=[self bundleIdentifier];
-	if(!ident)
+	if(![ident length])
 		{
 		ident=[[self path] stringByReplacingOccurrencesOfString:@"/" withString:@"."];	// will start with a .
 		NSLog(@"bundle %@ has no CFBundleIdentifier - using %@", [self path], ident);
