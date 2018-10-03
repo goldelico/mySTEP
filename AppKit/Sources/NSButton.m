@@ -845,7 +845,6 @@ id __buttonCellClass = nil;
 	NSLog(@"drawImage: %@ at %@", img, NSStringFromPoint(cellFrame.origin));
 #endif
 	[img drawInRect:(NSRect){ cellFrame.origin, imageSize } fromRect:NSZeroRect operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];
-//	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];	
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
