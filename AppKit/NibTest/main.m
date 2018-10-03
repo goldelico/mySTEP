@@ -11,18 +11,21 @@ int main(int argc, const char *argv[])
 	return NSApplicationMain(argc, argv);
 }
 
-#if 0	// for debugging of image drawing
+#if 1	// for debugging of image drawing
 
 @implementation NSBundle (NSNibLoading)
 
 + (NSImage *) img
 {
 	NSString *path;
-#if 0
-	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowColors.icns";
-#else
+	path=@"";
+	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/Lion.jpg";
+	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/MenuExtras/Icons/display.png";
+//	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/1bK.png";
+//	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/rss.gif";
+//	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/OpenSource/GPL/MokoMaze/src/pics/qtmaze/ball.png";	/* different DPI */
+//	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowColors.icns";
 	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowFonts.icns";
-#endif
 	NSImage *img=[[[NSImage alloc] initWithContentsOfFile:path] autorelease];
 	if(!img)
 		{
@@ -34,12 +37,12 @@ int main(int argc, const char *argv[])
 	[img setFlipped:YES];
 #endif
 
-#if 1	// test drawing/copying into other pixmap and not to screen
+#if 0	// test drawing/copying into other pixmap and not to screen
 	{
 	NSImage *copy=[[NSImage alloc] initWithSize:[img size]];
 	NSRect rect=(NSRect) { NSZeroPoint, [copy size] };
 	[copy lockFocus];
-#if 1	// image rotation
+#if 0	// image rotation
 	{
 		NSAffineTransform *atm=[NSAffineTransform transform];
 		[atm rotateByDegrees:-15.0];
@@ -79,6 +82,7 @@ int main(int argc, const char *argv[])
 	[w setTitle:@"NSImage Drawing Test"];
 	[iv setImage:[self img]];
 	[iv setImageScaling:NSImageScaleNone];
+	[iv setImageFrameStyle:NSImageFrameGrayBezel];
 #if 1
 	[iv setImageScaling:NSImageScaleProportionallyUpOrDown];
 #endif

@@ -73,6 +73,14 @@ static NSImage *image;
 	NSLog(@" flipped=%d", [self isFlipped]);
 	NSLog(@" graphicscontext=%@", [NSGraphicsContext currentContext]);
 	NSLog(@" attribs=%@", [[NSGraphicsContext currentContext] attributes]);
+	{
+	NSView *v=[[boundsChangeView subviews] objectAtIndex:0];
+	while(v)
+		{
+		NSLog(@"f=%d: %@", [v isFlipped], NSStringFromClass([v class]));
+		v=[v superview];
+		}
+	}
 	r=NSMakeRect(0.0, 0.0, 10.0, 10.0);	// a small rect
 	NSRectFill(r); // draw specified rect in default color
 	[[NSColor greenColor] set];

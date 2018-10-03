@@ -511,6 +511,13 @@ void printWindowList()
 		case 1:
 			[rotation setBoundsRotation:[sender floatValue]];
 			break;
+		case 2: {
+			NSRect r=[rotation frame];
+			r.size.width *= ([sender floatValue]-90);
+			r.size.height *= ([sender floatValue]-90);
+			[rotation setBoundsSize:r.size];
+			break;
+		}
 	}
 	[rotation setNeedsDisplay:YES];
 }
