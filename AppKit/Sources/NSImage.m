@@ -198,6 +198,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 				_alignmentRect = (NSRect) { NSZeroPoint, _size };
 				_img.sizeWasExplicitlySet = YES;
 			}
+#if 1
+		_img.scalable = YES;
+#endif
 		_img.prefersColorMatch = YES;
 		_img.multipleResolutionMatching = YES;
 #if 0
@@ -502,8 +505,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		  operation:(NSCompositingOperation)op
 		   fraction:(CGFloat)fraction;
 { // contrary to composite: we don't ignore rotation here!
-	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
-	NSAffineTransform *atm=[NSAffineTransform transform];
+	NSGraphicsContext *ctx;
+	NSAffineTransform *atm;
 	NSCompositingOperation co;
 	NSImageRep *rep;
 	if(!_img.isValid)
@@ -512,40 +515,40 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSIsEmptyRect(src))
 		src.size=_size;		// use image size and {0,0} origin
 	if(NSIsEmptyRect(dest))
-		{
 		return;	// nothing to draw
-		dest.size=_size;	// use image size and {0,0} origin
-		}
+	rep=[self _cachedOrBestRep];
+	ctx=[NSGraphicsContext currentContext];
 	[ctx saveGraphicsState];
+	co=[ctx compositingOperation];	// save
+	[[NSBezierPath bezierPathWithRect:dest] addClip];	// never draw outside during scaling
 #if 0
 	[[NSColor yellowColor] set];
 	NSFrameRect(dest);
 #endif
-	co=[ctx compositingOperation];	// save
+	// FIXME: why do we save the compositing operation and not the fraction?
+	// should both become part of saveGraphicsState?
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
+
+	atm=[NSAffineTransform transform];
+#if 0
 	if(_img.flipDraw)
 		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
 	else
 		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
-	if(!NSEqualSizes(dest.size, src.size))
-		{ // draw only parts of the image by reducing clipping rect and scale up/down
-		NSBezierPath *clip=[NSBezierPath bezierPathWithRect:dest];
-		[ctx _addClip:clip reset:NO];
-#if 0
-		NSLog(@"scale factor = %f %f", NSWidth(dest)/NSWidth(src), NSHeight(dest)/NSHeight(src));
 #endif
-		[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
-		}
-	rep=[self _cachedOrBestRep];
-	// scale to rep
-	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
+	[atm translateXBy:-NSMinX(src)/_size.width*NSWidth(dest) yBy:-NSMinY(src)/_size.height*NSHeight(dest)];	// shift origin
+	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
+	// FIXME: better shift origin so that dest.origin remains stable
+	//	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin
+#if 0
 	if(_img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];
+#endif
+
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	[rep drawAtPoint:NSZeroPoint];
-	//	[ctx _draw:rep];
-	[ctx setCompositingOperation:co];	// restore
+	[self drawRepresentation:rep inRect:dest];	// draw in rect
+	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
 }
 
@@ -591,11 +594,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 				 fromRect:(NSRect)src
 				operation:(NSCompositingOperation)op
 				 fraction:(CGFloat)fraction
-{ // this is the most generic composite/dissolve method - modify CTM before calling this method to translate to point
-	// for maximum compatibility, this function has to ignore rotation and scaling of the CTM!
+{ // this is the most generic composite/dissolve method
+	// for maximum compatibility, this function should ignore rotation and scaling of the CTM!?
 	// see e.g.: http://www.stone.com/The_Cocoa_Files/Cocoamotion.html
-	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
-	NSAffineTransform *atm=[NSAffineTransform transform];
+	NSGraphicsContext *ctx;
+	NSAffineTransform *atm;
 	NSCompositingOperation co;
 	NSImageRep *rep;
 	NSRect dest;
@@ -605,15 +608,21 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSIsEmptyRect(src))
 		src.size=_size;	// use image size and {0,0} origin
 	dest.size=src.size;	// we do not know better
+	rep=[self _cachedOrBestRep];
+	ctx=[NSGraphicsContext currentContext];
 	[ctx saveGraphicsState];
+	co=[ctx compositingOperation];	// save
+	[[NSBezierPath bezierPathWithRect:dest] addClip];	// never draw outside during scaling
 #if 0
 	[[NSColor yellowColor] set];
 	NSFrameRect(dest);
 #endif
-	co=[ctx compositingOperation];	// save
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-	if(_img.flipDraw)
+
+#if OLD
+	atm=[NSAffineTransform transform];
+	if(NO && _img.flipDraw)
 		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
 	else
 		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
@@ -621,12 +630,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	// FIXME: scale representation to [self size]!
 	//	[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
 	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
-	if(_img.flipDraw)
+	if(NO && _img.flipDraw)
 		[atm scaleXBy:1.0 yBy:-1.0];	// flip
 	// FIXME: somehow remove any rotation
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	[rep drawAtPoint:NSZeroPoint];
-	//	[ctx _draw:rep];
+#endif
+
+	[self drawRepresentation:rep inRect:dest];	// draw in rect
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
@@ -636,7 +646,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #if 0
 	NSLog(@"%@ drawRepresentation:%@ inRect:%@", self, imageRep, NSStringFromRect(rect));
 #endif
-	// fill with background color???
+
+#if 0
+	// set current background color unless not set of fully transparent
+	NSRectFill(rect);
+#endif
 	if(!_img.scalable)
 		{
 		if([imageRep drawAtPoint:rect.origin])
@@ -646,7 +660,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	else if([imageRep drawInRect:rect])
 		return YES;
 	if(_delegate && [_delegate respondsToSelector:@selector(imageDidNotDraw:inRect:)])
-		{
+		{ // substitute image provided by delegate
 		NSImage *a;		
 		if ((a = [_delegate imageDidNotDraw:self inRect:rect]))
 			{
