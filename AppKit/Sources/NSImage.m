@@ -531,24 +531,15 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	// should both become part of saveGraphicsState?
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-
 	atm=[NSAffineTransform transform];
-#if 0
-	if(_img.flipDraw)
-		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
-	else
-		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
-#endif
-	[atm translateXBy:-NSMinX(src)/_size.width*NSWidth(dest) yBy:-NSMinY(src)/_size.height*NSHeight(dest)];	// shift origin
 	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
-	// FIXME: better shift origin so that dest.origin remains stable
-	//	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin
-#if 0
+	[atm translateXBy:-NSMinX(src)/_size.width*NSWidth(dest) yBy:-NSMinY(src)/_size.height*NSHeight(dest)];	// shift origin
 	if(_img.flipDraw)
+		{ // draw flipped
 		[atm scaleXBy:1.0 yBy:-1.0];
-#endif
-
-	[ctx _concatCTM:atm];	// add to CTM as needed
+		[atm translateXBy:0.0 yBy:-NSHeight(dest)];
+		}
+	[ctx _concatCTM:atm];	// add to CTM
 	[self drawRepresentation:rep inRect:dest];	// draw in rect
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
