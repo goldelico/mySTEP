@@ -1,19 +1,19 @@
-/* 
-   NSImageRep.h
+/*
+ NSImageRep.h
 
-   Abstract representation of an image.
+ Abstract representation of an image.
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+ Copyright (C) 1996 Free Software Foundation, Inc.
 
-   Author:	Adam Fedor <fedor@colorado.edu>
-   Date:	Feb 1996
- 
-   Author:	Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	8. November 2007 - aligned with 10.5
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Author:	Adam Fedor <fedor@colorado.edu>
+ Date:	Feb 1996
+
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	8. November 2007 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSImageRep
 #define _mySTEP_H_NSImageRep
@@ -32,12 +32,12 @@ enum {
 	NSSize _size;
 	NSInteger _pixelsWide;
 	NSInteger _pixelsHigh;
-    struct __repFlags {
+	struct __repFlags {
 		unsigned int hasAlpha:1;
 		unsigned int isOpaque:1;
-        unsigned int bitsPerSample:8;
-        unsigned int reserved:6;
-    } _irep;
+		unsigned int bitsPerSample:8;
+		unsigned int reserved:6;
+	} _irep;
 }
 
 + (Class) imageRepClassForData:(NSData *) data;				// Manage subclass
@@ -59,11 +59,11 @@ enum {
 + (NSArray *) imageUnfilteredTypes;
 
 + (NSArray *) imageRepsWithContentsOfFile:(NSString *) filename;
-+ (NSArray *) imageRepsWithContentsOfURL:(NSURL *) url; 
++ (NSArray *) imageRepsWithContentsOfURL:(NSURL *) url;
 + (NSArray *) imageRepsWithPasteboard:(NSPasteboard *) pasteboard;
 + (id) imageRepWithPasteboard:(NSPasteboard *) pasteboard;
 + (id) imageRepWithContentsOfFile:(NSString *) filename;
-+ (id) imageRepWithContentsOfURL:(NSURL *) url; 
++ (id) imageRepWithContentsOfURL:(NSURL *) url;
 
 - (NSInteger) bitsPerSample;										// Image info
 - (NSString *) colorSpaceName;
@@ -80,7 +80,7 @@ enum {
 - (void) setOpaque:(BOOL) flag;
 - (void) setPixelsHigh:(NSInteger) anInt;
 - (void) setPixelsWide:(NSInteger) anInt;
-- (void) setSize:(NSSize) aSize;								// Size of Image 
+- (void) setSize:(NSSize) aSize;								// Size of Image
 - (NSSize) size;
 
 @end
