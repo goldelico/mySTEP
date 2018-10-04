@@ -597,49 +597,25 @@ static NSMutableDictionary *__nameToImageDict = nil;
 				operation:(NSCompositingOperation)op
 				 fraction:(CGFloat)fraction
 { // this is the most generic composite/dissolve method
-	// for maximum compatibility, this function should ignore rotation and scaling of the CTM!?
+	// this function should ignore rotation and scaling of the CTM!
+	// but not translation and [img isFlipped]
 	// see e.g.: http://www.stone.com/The_Cocoa_Files/Cocoamotion.html
 	NSGraphicsContext *ctx;
-	NSAffineTransform *atm;
-	NSCompositingOperation co;
-	NSImageRep *rep;
 	NSRect dest;
 	if(!_img.isValid)
 		[self isValid];		// make sure we have the image reps loaded in - if possible
-	dest.origin=pnt;
 	if(NSIsEmptyRect(src))
 		src.size=_size;	// use image size and {0,0} origin
-	dest.size=src.size;	// we do not know better
-	rep=[self _cachedOrBestRep];
 	ctx=[NSGraphicsContext currentContext];
+	dest.origin=[[ctx _getCTM] transformPoint:pnt];	// transform drawing origin through currently active CTM
+	dest.size=src.size;	// draw in original size
 	[ctx saveGraphicsState];
-	co=[ctx compositingOperation];	// save
-	[[NSBezierPath bezierPathWithRect:dest] addClip];	// never draw outside during scaling
+	[ctx _setCTM:[NSAffineTransform transform]];	// wipe out rotation and scaling by making 1:1 transform
+	[self drawInRect:dest fromRect:src operation:op fraction:fraction];	// takes care of [img isFlipped] and scales to [img size]
 #if 0
-	[[NSColor yellowColor] set];
-	NSFrameRect(dest);
+	[[NSColor orangeColor] set];
+	NSRectFill(NSMakeRect(50, 50, 5, 5));	// marker for debugging
 #endif
-	[ctx setCompositingOperation:op];
-	[ctx _setFraction:fraction];
-
-#if OLD
-	atm=[NSAffineTransform transform];
-	if(NO && _img.flipDraw)
-		[atm translateXBy:NSMinX(dest) yBy:NSMaxY(dest)];	// shift origin in display coordinates
-	else
-		[atm translateXBy:NSMinX(dest) yBy:NSMinY(dest)];	// shift origin in display coordinates
-	rep=[self _cachedOrBestRep];
-	// FIXME: scale representation to [self size]!
-	//	[atm scaleXBy:NSWidth(dest)/NSWidth(src) yBy:NSHeight(dest)/NSHeight(src)];
-	[atm translateXBy:-NSMinX(src) yBy:-NSMinY(src)];	// shift origin in image coordinates
-	if(NO && _img.flipDraw)
-		[atm scaleXBy:1.0 yBy:-1.0];	// flip
-	// FIXME: somehow remove any rotation
-	[ctx _concatCTM:atm];	// add to CTM as needed
-#endif
-
-	[self drawRepresentation:rep inRect:dest];	// draw in rect
-	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
 
