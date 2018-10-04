@@ -28,7 +28,7 @@
 	return [(AppController *) [NSApp delegate] isFlipped];
 }
 
-- (int) contentToShow
+- (NSInteger) contentToShow
 {
 	return [(AppController *) [NSApp delegate] contentToShow];
 }
