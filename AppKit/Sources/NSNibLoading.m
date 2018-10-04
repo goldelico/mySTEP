@@ -1114,10 +1114,10 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 + (BOOL) loadNibNamed:(NSString*) name owner:(id) owner
 {
 	NSBundle *b;
-	if(owner == NSApp)
-		b=[NSBundle mainBundle];	// search NIB in application and not in AppKit
-	else
-		b=[NSBundle bundleForClass:[owner class]];	// returns mainBundle for nil owner
+	b=[NSBundle bundleForClass:[owner class]];
+	if(b && [b loadNibFile:name externalNameTable:[NSDictionary dictionaryWithObjectsAndKeys:owner, NSNibOwner, nil] withZone:[owner zone]])
+		return YES;
+	b=[NSBundle mainBundle];	// search in application bundle
 	return [b loadNibFile:name externalNameTable:[NSDictionary dictionaryWithObjectsAndKeys:owner, NSNibOwner, nil] withZone:[owner zone]];
 }
 
