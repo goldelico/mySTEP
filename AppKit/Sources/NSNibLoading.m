@@ -81,7 +81,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 @interface NSClassSwapper : NSObject <NSCoding>
 { // based on this description http://www.wodeveloper.com/omniLists/macosx-dev/2001/March/msg00690.html
 	NSString *originalClassName;
-    NSString *className;
+	NSString *className;
 	id realObject;
 }
 - (id) nibInstantiate;	// instantiates if neccessary and returns a non-retained reference
@@ -317,20 +317,33 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	[super dealloc];
 }
 
+static id _nibOwner;
+
++ (void) _setNibOwner:(id) nibOwner;
+{
+	[_nibOwner release];
+	_nibOwner=[nibOwner retain];
+}
+
 - (id) nibInstantiate;
 { // return real object or instantiate fresh one
 	Class class;
-#if 0
+#if 1
 	NSLog(@"custom object nibInstantiate (class=%@)", className);
 #endif
-	// FIXME: how can we easily/correctly decode/load singletons???
-	// maybe only if their -init method also returns the singleton
-	if([className isEqualToString:@"NSApplication"])
-		return [NSApplication sharedApplication];
 	if(object)
 		return object;	// already instantiated
+	if(_nibOwner)
+		{ //assume the first custom object that is decoded is the FileOwner
+			object=_nibOwner;
+#if 1
+			NSLog(@"substituting NSNibOwner %@", _nibOwner);
+#endif
+			_nibOwner=nil;
+			return object;
+		}
 	class=NSClassFromString(className);
-#if 0
+#if 1
 	NSLog(@"nibInstantiate %@", NSStringFromClass(class));
 #endif
 	if(!class)
@@ -1012,7 +1025,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	id o;
 	id owner;
 	id rootObject;
-#if 0
+#if 1
 	NSLog(@"instantiateNibWithExternalNameTable=%@", table);
 #endif
 	if(![decoded isKindOfClass:[NSIBObjectData class]])
@@ -1029,6 +1042,16 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"objects 2=%@", decodedObjects);
 #endif
+	/*
+	 * Here, we should run a first loop and call nibInstantiate for all custom objects
+	 * We could then easily detect the rootObject and substitute the owner instead of instantiating a new copy
+	 * The problem is what happens if some other objects decodes a reference to a custom object?
+	 * It can not link to the real object unless we already return it by initWithCoder:
+	 * Or we need a mechanism that pointers to decoded custom objects are collected...
+	 * and updated as well
+	 * But that is almost impossible, e.g. if the NSArray of the subviews is decodedit would embed
+	 * the CustomViews and replacing them is a complex operation...
+	 */
 	e=[decodedObjects objectEnumerator];	// make objects awake from nib (in no specific order)
 	t=[table objectForKey:NSNibTopLevelObjects];
 #if 0
@@ -1101,12 +1124,14 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (BOOL) loadNibFile:(NSString *) name externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
 { // look up (relative) name in specified bundle
+	[NSCustomObject _setNibOwner:[context objectForKey:NSNibOwner]];
 	NSNib *nib=[[[NSNib allocWithZone:zone] initWithNibNamed:name bundle:self] autorelease];
 	return [nib instantiateNibWithExternalNameTable:context];
 }
 
 + (BOOL) loadNibFile:(NSString *) path externalNameTable:(NSDictionary *) context withZone:(NSZone *) zone
 { // requires absolute name!
+	[NSCustomObject _setNibOwner:[context objectForKey:NSNibOwner]];
 	NSNib *nib=[[[NSNib allocWithZone:zone] initWithContentsOfURL:[NSURL fileURLWithPath:path]] autorelease];
 	return [nib instantiateNibWithExternalNameTable:context];
 }
