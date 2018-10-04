@@ -1739,6 +1739,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			int width;
 			NSAffineTransformStruct atms=[_textMatrix transformStruct];
 			NSPoint cursor=[_state->_ctm transformPoint:NSMakePoint(atms.tX, atms.tY)];
+			cursor.x=rint(cursor.x);
+			cursor.y=rint(cursor.y);
 			[_state->_font _setScale:_scale];
 			font=[_state->_font _font];
 			XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
