@@ -947,6 +947,8 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 // NSAffineTransform
 
+- (NSAffineTransform *) _getCTM; { return _ctm; }
+
 - (void) _setCTM:(NSAffineTransform *) at;
 {
 	NSAffineTransformStruct ts;

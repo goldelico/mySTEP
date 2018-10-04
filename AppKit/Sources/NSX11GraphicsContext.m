@@ -873,6 +873,18 @@ typedef struct
 		}
 }
 
+- (NSAffineTransform *) _getCTM;
+{ // return effective CTM without X11 transform
+	NSAffineTransform *atm=[(NSAffineTransform *) (_nsscreen->_screen2X11) copy];									// this translates to screen coordinates
+	if(_scale == 1.0)
+		[atm translateXBy:0.0 yBy:(HeightOfScreen(_nsscreen->_screen)-_xRect.height)];		// X11 uses window relative coordinates for all drawing
+	else
+		[atm translateXBy:0.0 yBy:(HeightOfScreen(_nsscreen->_screen)-_xRect.height)/_scale];		// X11 uses window relative coordinates for all drawing
+	[atm invert];	// to remove X11 mapping
+	[atm prependTransform:_state->_ctm];
+	return atm;
+}
+
 - (void) _setCTM:(NSAffineTransform *) atm;
 { // we must also translate window base coordinates to window-relative X11 coordinates
   // NOTE: we could also cache this window relative transformation!

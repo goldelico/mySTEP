@@ -50,8 +50,9 @@
 - (void) _setShadow:(NSShadow *) shadow;
 - (void) _setShape:(NSBezierPath *) path;
 
-// managing coordinate trransformation matrix
+// managing coordinate transformation matrix
 
+- (NSAffineTransform *) _getCTM;
 - (void) _setCTM:(NSAffineTransform *) atm;
 - (void) _concatCTM:(NSAffineTransform *) atm;
 
