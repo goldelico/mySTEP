@@ -456,6 +456,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #endif
 	if(NSEqualSizes(_size, aSize))
 		return;	// effectively unchanged
+	if(aSize.width <= 0 || aSize.height <= 0)
+		return;	// ignore
 	_size = aSize;
 	_alignmentRect = (NSRect) { NSZeroPoint, _size };
 	_img.sizeWasExplicitlySet = YES;
