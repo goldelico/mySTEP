@@ -674,7 +674,7 @@ ifneq ($(strip $(SRCOBJECTS)),)
 make_binary: make_exec "$(BINARY)"
 	ls -l "$(BINARY)"
 else
-make_binary:
+make_binary: make_exec
 	# no sources - no binary
 endif
 else
