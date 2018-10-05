@@ -161,8 +161,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		key=@"NSVisibleWindows", NSLog(@"%@=%@", key, [coder decodeObjectForKey:key]);
 		}
 #endif
+	rootObject=[[coder decodeObjectForKey:@"NSRoot"] retain];	/* decode first for the FileOwner magic */
 	targetFramework=[[coder decodeObjectForKey:@"NSFramework"] retain];
-	rootObject=[[coder decodeObjectForKey:@"NSRoot"] retain];
 	// FIXME: there is also an objects table in NIB
 	objects=[[coder decodeObjectForKey:@"NSObjectsValues"] retain];	// all objects from NIB that need to receive awakeFromNib
 #if 0
@@ -241,6 +241,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 	while((c=[e nextObject]))
 		{
+		// CHECKME: do we really need this?
 		[c replaceObject:rootObject withObject:owner];	// don't connect to the instantiated root object but to the owner
 		[c establishConnection];
 		}
@@ -328,7 +329,7 @@ static id _nibOwner;
 - (id) nibInstantiate;
 { // return real object or instantiate fresh one
 	Class class;
-#if 1
+#if 0
 	NSLog(@"custom object nibInstantiate (class=%@)", className);
 #endif
 	if(object)
@@ -336,14 +337,14 @@ static id _nibOwner;
 	if(_nibOwner)
 		{ //assume the first custom object that is decoded is the FileOwner
 			object=_nibOwner;
-#if 1
+#if 0
 			NSLog(@"substituting NSNibOwner %@", _nibOwner);
 #endif
 			_nibOwner=nil;
 			return object;
 		}
 	class=NSClassFromString(className);
-#if 1
+#if 0
 	NSLog(@"nibInstantiate %@", NSStringFromClass(class));
 #endif
 	if(!class)
@@ -1025,7 +1026,7 @@ static id _nibOwner;
 	id o;
 	id owner;
 	id rootObject;
-#if 1
+#if 0
 	NSLog(@"instantiateNibWithExternalNameTable=%@", table);
 #endif
 	if(![decoded isKindOfClass:[NSIBObjectData class]])

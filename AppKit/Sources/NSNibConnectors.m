@@ -43,7 +43,7 @@
 - (NSString *) description;
 {
 	if(!_destination)
-		return [NSString stringWithFormat:@"%@: label=%@ source=%@ firstResponder", NSStringFromClass([self class]), _label, _source];
+		return [NSString stringWithFormat:@"%@: label=%@ source=%@ First Responder/File Owner", NSStringFromClass([self class]), _label, _source];
 	return [NSString stringWithFormat:@"%@: label=%@ source=%@ destination=%@", NSStringFromClass([self class]), _label, _source, _destination];
 }
 
@@ -260,7 +260,7 @@
 
 - (void) establishConnection;
 {
-#if 1
+#if 0
 	NSLog(@"establishConnection %@", self);
 #endif
 //	[_destination setValuesForKeysWithDictionary:_pairs];
