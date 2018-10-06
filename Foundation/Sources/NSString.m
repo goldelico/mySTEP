@@ -1149,11 +1149,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSArray*) componentsSeparatedByCharactersInSet:(NSCharacterSet*)separator
 {														// Dividing a String
 	NSRange search = {0, _count};							// into Substrings
-	NSMutableArray *array = [NSMutableArray array];
-	NSRange found = [self rangeOfCharacterFromSet:separator options:NSLiteralSearch range:search];
+	NSMutableArray *array;
+	NSRange found ;
 	if (!separator)
 		[NSException raise: NSInvalidArgumentException format: @"separator is nil"];
 
+	array = [NSMutableArray array];
+	found = [self rangeOfCharacterFromSet:separator options:NSLiteralSearch range:search];
 	while (found.length)
 		{
 		search.length = found.location - search.location;
@@ -1220,6 +1222,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	unichar (*cImp)(id, SEL, unsigned);
 	BOOL (*mImp)(id, SEL, unichar);
 
+	mImp = (BOOL(*)(id,SEL,unichar)) [aSet methodForSelector: __charIsMem];
+	if (!mImp)
+		[NSException raise: NSInvalidArgumentException format:@"set must not be nil."];
 	if (aRange.location > i)
 		[NSException raise: NSRangeException format:@"Invalid location."];
 	if (aRange.length > (i - aRange.location))
@@ -1239,9 +1244,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 
 	range = (NSRange){NSNotFound, 0};
-	cImp = (unichar(*)(id,SEL,unsigned))
-	[self methodForSelector: @selector(characterAtIndex:)];
-	mImp = (BOOL(*)(id,SEL,unichar)) [aSet methodForSelector: __charIsMem];
+	cImp = (unichar(*)(id,SEL,unsigned)) [self methodForSelector: @selector(characterAtIndex:)];
 
 	for (i = start; i != stop; i += step)
 		{
@@ -1251,7 +1254,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			{
 			range = (NSRange){i, 1};
 			break;
-			}	}
+			}
+		}
 
 	return range;
 }
