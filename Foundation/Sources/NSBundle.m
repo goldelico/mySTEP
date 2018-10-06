@@ -705,7 +705,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 - (NSDictionary *) localizedInfoDictionary;
 {
 	NSEnumerator *e=[[self infoDictionary] keyEnumerator];
-	NSMutableArray *a=[NSMutableArray arrayWithCapacity:[_infoDict count]];
+	NSMutableDictionary *a=[NSMutableDictionary arrayWithCapacity:[_infoDict count]];
 	NSString *key;
 	while((key=[e nextObject]))
 		{
