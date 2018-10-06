@@ -458,7 +458,7 @@
 	saveScanLocation = scanRange.location;	// save exponent location
 	if ((scanRange.location < scanRange.length) && ((c == 'e') || (c == 'E')))
 		{									// Check for trailing exponent
-			int exp;							// Numbers like 1.23eFOO ignore the e character 
+			NSInteger exp;							// Numbers like 1.23eFOO ignore the e character
 			scanRange.location++;
 			if (![self _scanInt: &exp])
 				scanRange.location = saveScanLocation;
