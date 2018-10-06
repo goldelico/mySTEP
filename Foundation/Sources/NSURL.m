@@ -1515,6 +1515,21 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	return unescape(myData->user, NO);
 }
 
+- (const char *) fileSystemRepresentation;
+{ // since 10.9
+	NIMP; return NULL;
+}
+
+// these do % unescaping for components!
+
+- (NSString *) lastPathComponent; { return [[self pathComponents] lastObject]; }	// since 10.6
+- (NSArray *) pathComponents; { return NIMP; }	// since 10.6
+- (NSString *) pathExtension; { return NIMP; }	// since 10.6
+- (NSURL *) URLByDeletingLastPathComponent; { return NIMP; }	// since 10.6
+- (NSURL *) URLByDeletingPathExtension; { return NIMP; }	// since 10.6
+- (NSURL *) URLByResolvingSymlinksInPath; { return NIMP; }	// since 10.6
+- (NSURL *) URLByStandardizingPath; { return NIMP; }	// since 10.6
+
 - (void) URLHandle: (NSURLHandle*)sender
 resourceDataDidBecomeAvailable: (NSData*)newData
 {

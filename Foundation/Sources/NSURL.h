@@ -57,6 +57,7 @@ extern NSString *NSURLFileScheme;	// @"file"
 - (NSString *) absoluteString;
 - (NSURL *) absoluteURL;
 - (NSURL *) baseURL;
+- (const char *) fileSystemRepresentation;	// since 10.9
 - (NSString *) fragment;
 - (NSString *) host;
 - (id) initFileURLWithPath:(NSString *) aPath;
@@ -68,11 +69,14 @@ extern NSString *NSURLFileScheme;	// @"file"
 - (id) initWithString:(NSString *) aUrlString
 		relativeToURL:(NSURL *) aBaseUrl;
 - (BOOL) isFileURL;
+- (NSString *) lastPathComponent;	// since 10.6
 - (void) loadResourceDataNotifyingClient:(id) client
 							  usingCache:(BOOL) shouldUseCache;
 - (NSString *) parameterString;
 - (NSString *) password;
 - (NSString *) path;
+- (NSArray *) pathComponents;	// since 10.6
+- (NSString *) pathExtension;	// since 10.6
 - (NSNumber *) port;
 - (id) propertyForKey:(NSString *) propertyKey;
 - (NSString *) query;
@@ -85,7 +89,11 @@ extern NSString *NSURLFileScheme;	// @"file"
 			  forKey:(NSString *) propertyKey;
 - (BOOL) setResourceData:(NSData *) data;
 - (NSURL *) standardizedURL;
+- (NSURL *) URLByDeletingLastPathComponent;	// since 10.6
+- (NSURL *) URLByDeletingPathExtension;	// since 10.6
 - (NSURLHandle *) URLHandleUsingCache:(BOOL) shouldUseCache;
+- (NSURL *) URLByResolvingSymlinksInPath;	// since 10.6
+- (NSURL *) URLByStandardizingPath;	// since 10.6
 - (NSString *) user;
 
 @end
