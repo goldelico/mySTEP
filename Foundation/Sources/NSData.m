@@ -234,13 +234,6 @@ static IMP appendImp;
 - (id) initWithContentsOfFile:(NSString *)path			{ return SUBCLASS }
 - (id) initWithContentsOfMappedFile:(NSString *)path	{ return SUBCLASS }
 
-- (id) initWithContentsOfURL:(NSURL *)url
-{
-	if(![url isFileURL])
-		return [self initWithContentsOfURL:url options:0 error:NULL];
-	return [self initWithContentsOfMappedFile:[url path]];	// default to a mapped file
-}
-
 - (id) initWithData:(NSData*)data
 {
 	return [self initWithBytes:[data bytes] length:[data length]];
@@ -876,6 +869,11 @@ static IMP appendImp;
 	return [[NSDataStatic alloc] initWithBytesNoCopy:bytes length:length]; // static data
 }
 
+- (id) initWithContentsOfURL:(NSURL *)url
+{
+	return [self initWithContentsOfURL:url options:0 error:NULL];
+}
+
 - (id) initWithContentsOfFile:(NSString *)path options:(NSUInteger)mask error:(NSError **)errorPtr;
 {
 	return [self initWithContentsOfURL:[NSURL fileURLWithPath:path] options:mask error:errorPtr];
@@ -883,14 +881,16 @@ static IMP appendImp;
 
 - (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errorPtr;
 {
-	NSURLRequest *request=[NSURLRequest requestWithURL:url];
+	NSURLRequest *request;
 	NSURLResponse *response;
 	NSData *data;
 	NSError *localError;
+	if([url isFileURL])
+		// FIXME: handle error
+		return [self initWithContentsOfMappedFile:[url path]];	// default to a mapped file
 	if(!errorPtr)
 		errorPtr=&localError;
-	if([url isFileURL])
-		;; // special handling (faster)
+	request=[NSURLRequest requestWithURL:url];
 	data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
 #if 1
 	NSLog(@"initWithContentsOfURL: %@ done data=%p error=%@", url, data, *errorPtr);
