@@ -345,7 +345,9 @@ NSCharacterSet *__whitespce = nil;
 
 BOOL (*__hexDgtsIMP)(id, SEL, unichar) = 0;
 BOOL (*__whitespceIMP)(id, SEL, unichar) = 0;
+#if 0
 BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
+#endif
 
 + (void) initialize
 {
@@ -381,14 +383,16 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		if(!__hexDgtsIMP)
 			NSLog(@"__hexDgtsIMP not defined");
 
+#if 0
 		s = [NSMutableCharacterSet characterSetWithCharactersInString:
 			 @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"];
 		[(NSMutableCharacterSet *)s invert];
 		__quotes = [s copy];
-		__quotesIMP = (BOOL(*)(id,SEL,unichar))
-		[__quotes methodForSelector: __charIsMem];
+		__quotesIMP = (BOOL(*)(id,SEL,unichar)) [__quotes methodForSelector: __charIsMem];
 		if(!__quotesIMP)
 			NSLog(@"__quotesIMP not defined");
+#endif
+
 #if 0
 		__whitespce = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 #else
