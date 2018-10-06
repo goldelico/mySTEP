@@ -355,6 +355,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if (self == [NSString class])
 		{
 		NSCharacterSet *s;
+		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 
 		__cStringEncoding = GSDefaultCStringEncoding();
 		__charIsMem = @selector(characterIsMember:);
@@ -365,8 +366,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		_mutableStringClass = [GSMutableString class];
 
 		// Cache some method implementations for quick access later.
-		_strHashImp = (unsigned (*)())
-		[_nsStringClass instanceMethodForSelector: @selector(hash)];
+		_strHashImp = (unsigned (*)()) [_nsStringClass instanceMethodForSelector: @selector(hash)];
 		if(!_strHashImp)
 			NSLog(@"_strHashImp not defined");
 		csInitSel = @selector(initWithCStringNoCopy:length:freeWhenDone:);
@@ -396,8 +396,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 					  @" \t\r\n\f\b"];
 #endif
 		[__whitespce retain];
-		__whitespceIMP = (BOOL(*)(id,SEL,unichar))
-		[__whitespce methodForSelector: __charIsMem];
+		__whitespceIMP = (BOOL(*)(id,SEL,unichar)) [__whitespce methodForSelector: __charIsMem];
 		if(!__whitespceIMP)
 			NSLog(@"__whitespceIMP not defined");
 #if defined(__WIN32__) || defined(_WIN32)
@@ -406,6 +405,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		pathSeps = [NSCharacterSet characterSetWithCharactersInString: @"/"];
 #endif
 		[pathSeps retain];
+
+		[arp release];
 		}
 }
 
