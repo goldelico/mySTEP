@@ -48,7 +48,17 @@ typedef enum _NSTextAlignment
 	NSRightTextAlignment		= 1,
 	NSCenterTextAlignment		= 2,
 	NSJustifiedTextAlignment	= 3,
-	NSNaturalTextAlignment		= 4
+	NSNaturalTextAlignment		= 4,
+	NSTextAlignmentLeft			= NSLeftTextAlignment,
+#ifdef TARGET_OS_IPHONE
+	NSTextAlignmentCenter		= 1,
+	NSTextAlignmentRight		= 2,
+#else
+	NSTextAlignmentRight		= NSRightTextAlignment,
+	NSTextAlignmentCenter		= NSCenterTextAlignment,
+#endif
+	NSTextAlignmentJustified	= NSJustifiedTextAlignment,
+	NSTextAlignmentNatural		= NSNaturalTextAlignment
 } NSTextAlignment;
 
 enum _NSTextMovement
