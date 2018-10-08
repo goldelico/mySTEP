@@ -544,15 +544,16 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	* does it come from high scaling or src.origin != 0? Or another dest.origin correction?
 	*/
 
-	tx-=2;		// 25 * dest.size.width/_size.width
-	ty+=1.5;	// 13 * dest.size.height/_size.height	// scaling applied by drawRepresentation
+	// these factors are empirically determined for the Lion.jpg example...
+
+	tx -= 28.5 * dest.size.width/_size.width;	// scaling applied by drawRepresentation
+	ty += 13.0 * dest.size.height/_size.height;	// scaling applied by drawRepresentation
 
 	if(_img.flipDraw)
 		{ // draw flipped
 		[atm scaleXBy:1.0 yBy:-1.0];
 		CGFloat correction=0.4;
 		correction=2*NSMinY(dest)/NSHeight(dest);
-			// FIXME: ach hier den factorx und factory berücksichtigen wenn NSWidth(src) != size.width
 		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest)-tx yBy:(NSMinY(src)/_size.height-1-correction)*NSHeight(dest)+ty];	// shift origin
 			NSLog(@"dest=%@", NSStringFromRect(dest));
 			NSLog(@"src=%@", NSStringFromRect(src));
