@@ -17,6 +17,22 @@ int main(int argc, const char *argv[])
 
 + (NSImage *) img
 {
+#if 1
+#define ISFLIPPED(C) NSLog(@"%@: isFlipped=%d", @ #C , [[[C alloc] initWithFrame:NSMakeRect(0,0,100,100)] isFlipped])
+	ISFLIPPED(NSImageView);
+	ISFLIPPED(NSButton);
+	ISFLIPPED(NSControl);
+	ISFLIPPED(NSMatrix);
+	ISFLIPPED(NSScrollView);
+	ISFLIPPED(NSClipView);
+	ISFLIPPED(NSView);
+	ISFLIPPED(NSScroller);
+	ISFLIPPED(NSSplitView);
+	ISFLIPPED(NSText);
+	ISFLIPPED(NSTextView);
+	ISFLIPPED(NSForm);
+#endif
+
 	NSString *path;
 	path=@"";
 	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/Lion.jpg";
