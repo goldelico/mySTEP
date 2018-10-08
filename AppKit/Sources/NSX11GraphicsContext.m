@@ -2197,7 +2197,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		 for this calculation use:
 		 WidthOfScreen(_screen);			// screen width in pixels
 		 HeightOfScreen(_screen);			// screen height in pixels
-		 _windowRect
+		 or _windowRect
 
 		 onscreenbox in window Koordinaten:
 		 onscreen.x=MIN(0, -_windowRect.x)
