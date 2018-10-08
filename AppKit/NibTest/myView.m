@@ -124,6 +124,15 @@ static NSImage *image;
 	NSLog(@"atm for translate&rotate = %@", atm);
 	[[NSColor yellowColor] set];
 	[NSBezierPath fillRect:NSMakeRect(150.0, 100.0, 30.0, 30.0)];	// draw rotated rectangle
+	[[NSColor blueColor] set];
+	NSBezierPath *b=[NSBezierPath bezierPath];
+	[b moveToPoint:NSMakePoint(150.0, 150.0)];
+	[b lineToPoint:NSMakePoint(180.0, 150.0)];
+	[b lineToPoint:NSMakePoint(165.0, 180.0)];
+	[b closePath];
+	NSLog(@"%@", NSStringFromRect([b bounds]));
+	//	[NSBezierPath fillRect:[b bounds]];	// draw rotated rectangle
+	[b fill];	// draw rotated triangle
 	[image compositeToPoint:pnt=NSMakePoint(100.0, 230.0) operation:NSCompositeCopy];		// 6 note: this operation does not rotate or scale the image but only the origin
 	[NSBezierPath fillRect:NSMakeRect(pnt.x-2.0, pnt.y-2.0, 4.0, 4.0)];	// draw a marker
 	[image drawAtPoint:pnt=NSMakePoint(150.0, 230.0) fromRect:NSZeroRect operation:NSCompositeCopy fraction:0.5];	// 7 this one rotates by 5 degrees

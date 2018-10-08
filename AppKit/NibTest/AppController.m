@@ -14,6 +14,10 @@
 {
 	flipped=flag;
 }
+- (void) drawRect:(NSRect) rect
+{
+	[super drawRect:rect];
+}
 @end
 
 @implementation NSAffineTransform (Description)
