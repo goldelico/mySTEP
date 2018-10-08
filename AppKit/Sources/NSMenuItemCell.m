@@ -445,7 +445,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSLog(@"drawImageWithFrame:%@->%@ - img=%@", NSStringFromRect(frame), NSStringFromRect(r), i);
 #endif
 	sz=[i size];
-	r.origin.y += (r.size.height-sz.height)/2.0;	// center vertically
+	r.origin.y += 0.5*(r.size.height+sz.height);	// center vertically
 #if 0
 	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(r), i);
 #endif
