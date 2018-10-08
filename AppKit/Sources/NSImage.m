@@ -533,12 +533,20 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx _setFraction:fraction];
 	atm=[NSAffineTransform transform];
 	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
-	[atm translateXBy:-NSMinX(src)/_size.width*NSWidth(dest) yBy:-NSMinY(src)/_size.height*NSHeight(dest)];	// shift origin
 	if(_img.flipDraw)
 		{ // draw flipped
 		[atm scaleXBy:1.0 yBy:-1.0];
-		[atm translateXBy:0.0 yBy:-NSHeight(dest)];
+		CGFloat correction=0.4;
+		correction=2*NSMinY(dest)/NSHeight(dest);
+		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest) yBy:(NSMinY(src)/_size.height-1-correction)*NSHeight(dest)];	// shift origin
+			NSLog(@"dest=%@", NSStringFromRect(dest));
+			NSLog(@"src=%@", NSStringFromRect(src));
+			NSLog(@"size=%@", NSStringFromSize(_size));
+			NSLog(@"correction=%g", correction);
+			NSLog(@"atm=%@", atm);
 		}
+	else
+		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest) yBy:(-NSMinY(src)/_size.height)*NSHeight(dest)];	// shift origin
 	[ctx _concatCTM:atm];	// add to CTM
 	[self drawRepresentation:rep inRect:dest];	// draw in rect
 	[ctx setCompositingOperation:co];
