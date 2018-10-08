@@ -110,7 +110,7 @@ id __imageCellClass = nil;
 - (void) drawWithFrame:(NSRect)cellFrame
 				inView:(NSView*)controlView
 {
-	switch (_ic.imageFrameStyle) 
+	switch (_ic.imageFrameStyle)
 		{												
 		case NSImageFrameNone:
 			break;
@@ -234,7 +234,14 @@ id __imageCellClass = nil;
 	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect(rect));
 #endif
 	[_contents drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-	// if animates and contents can be animated, setup performer for automatic redraw
+	if(_ic.imageAnimates)
+		{ // if animates and contents can really be animated, setup performer for automatic redraw
+		  // check for bestRep of _contents
+		  // check for properties: NSImageFrameCount, NSImageCurrentFrame, NSImageCurrentFrameDuration
+		  // remove previous performer
+		  // [self performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:NSImageCurrentFrameDuration]
+		  // NOTE: this does not result in smooth and equidistant frames...
+		}
 }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder
