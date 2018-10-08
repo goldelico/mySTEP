@@ -533,12 +533,27 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx _setFraction:fraction];
 	atm=[NSAffineTransform transform];
 	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
+	CGFloat tx=10.0, ty=5.0;	// relevant wenn_size.height/NSHeight(src) != 1.0
+	tx=(_size.width/NSWidth(src)-1)*(NSWidth(src)/NSWidth(dest));	// relativ gut, aber nicht ganz exakt!
+	ty=(_size.height/NSHeight(src)-1)*(NSHeight(src)/NSHeight(dest));
+
+	/* additional correction for
+	2018-10-08 16:49:49.488 AppKitNibTestX11[92222:2287942] dest={{10, 10}, {70, 70}}
+	2018-10-08 16:49:49.489 AppKitNibTestX11[92222:2287942] src={{180, 240}, {100, 100}}
+	2018-10-08 16:49:49.490 AppKitNibTestX11[92222:2287942] size={866, 582}
+	* does it come from high scaling or src.origin != 0? Or another dest.origin correction?
+	*/
+
+	tx-=2;		// 25 * dest.size.width/_size.width
+	ty+=1.5;	// 13 * dest.size.height/_size.height	// scaling applied by drawRepresentation
+
 	if(_img.flipDraw)
 		{ // draw flipped
 		[atm scaleXBy:1.0 yBy:-1.0];
 		CGFloat correction=0.4;
 		correction=2*NSMinY(dest)/NSHeight(dest);
-		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest) yBy:(NSMinY(src)/_size.height-1-correction)*NSHeight(dest)];	// shift origin
+			// FIXME: ach hier den factorx und factory berücksichtigen wenn NSWidth(src) != size.width
+		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest)-tx yBy:(NSMinY(src)/_size.height-1-correction)*NSHeight(dest)+ty];	// shift origin
 			NSLog(@"dest=%@", NSStringFromRect(dest));
 			NSLog(@"src=%@", NSStringFromRect(src));
 			NSLog(@"size=%@", NSStringFromSize(_size));
@@ -546,7 +561,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			NSLog(@"atm=%@", atm);
 		}
 	else
-		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest) yBy:(-NSMinY(src)/_size.height)*NSHeight(dest)];	// shift origin
+		[atm translateXBy:(-NSMinX(src)/_size.width)*NSWidth(dest)-tx yBy:(-NSMinY(src)/_size.height)*NSHeight(dest)-ty];	// shift origin
 	[ctx _concatCTM:atm];	// add to CTM
 	[self drawRepresentation:rep inRect:dest];	// draw in rect
 	[ctx setCompositingOperation:co];
