@@ -66,7 +66,7 @@ int main(int argc, const char *argv[])
 	/* flipping */
 	[img setFlipped:NO];
 
-	[img setFlipped:YES];
+	// [img setFlipped:YES];
 
 	/* setSize wird auch bei composite berücksichtigt! */
 	//	[img setSize:NSMakeSize(50, 50)];
@@ -87,9 +87,10 @@ int main(int argc, const char *argv[])
 
 #if 1
 	inRect=NSMakeRect(10, 10, 70, 70);
-	fromRect=NSMakeRect(0, 0, 300, 300);
+	CGFloat scale=3;
+	fromRect=NSMakeRect(0, 0, scale*[img size].width, scale*[img size].height);
 
-#if 1
+#if 0
 	inRect=NSMakeRect(10, 10, 70, 70);
 	fromRect=NSMakeRect(40, 70, 300, 300);
 
