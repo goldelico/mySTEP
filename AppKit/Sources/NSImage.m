@@ -538,27 +538,33 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 	atm=[NSAffineTransform transform];
 
-	// is correct for NSWidth(src)/_size.width == 1.0 or 0.5
 	CGFloat fx=NSWidth(src)/_size.width;
 	CGFloat fy=NSHeight(src)/_size.height;
-	// experimental formula: 2*(1-fx)
-	// fx=1		=> 2*0			=> 0.0
-	// fx=0.5	=> 2*(1-0.5)	=> 1.0
-	// 2*(1-fx)
-	// 1-4*fx*fx
-	// fx=2		=> 2*(-1)		=> -2
-	//		Korektur + 1.5 notwendig also => -0.5
-	// fx=0.25	=> (2*.75)		=> 1.5
-	//		Korrektur + 1.5 notwendig also => 3.0
-	// fx=0.1 => 2*0.9			=> 1.8
-	//		Korektur + 7.2		=> 9.0
-	//
-	// ==> (1-fx)/fx
-	CGFloat tx=-(1-fx)/fx*NSMinX(dest);
-	CGFloat ty=-(1-fy)/fy*NSMinY(dest);
-	[atm translateXBy:tx yBy:ty];
+	[atm scaleXBy:1.0/fx yBy:1.0/fy];	// scale by src
 
-	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
+	CGFloat tx=(fx-1)*NSMinX(dest);
+	CGFloat ty=(fy-1)*NSMinY(dest);
+
+#if 0
+	// src.origin={0,0}
+	tx-=0;
+	ty-=0;
+#endif
+#if 0
+	// src.origin={40,70}
+	tx-=3;
+	ty-=8;
+#endif
+#if 0
+	// src.origin={80,140}
+	tx-=6;
+	ty-=16;
+#endif
+
+	tx-=src.origin.x/(_size.width/dest.size.width);
+	ty-=src.origin.y/(_size.height/dest.size.height);
+
+	[atm translateXBy:tx yBy:ty];
 
 #if 0
 	CGFloat tx=10.0, ty=5.0;	// relevant wenn_size.height/NSHeight(src) != 1.0
