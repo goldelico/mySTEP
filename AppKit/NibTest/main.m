@@ -52,11 +52,11 @@ int main(int argc, const char *argv[])
 	[[NSColor redColor] set];
 	NSRectFill([self bounds]);	// prefill background
 
-#if 0	// image rotation
+#if 1	// image rotation
 	{
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	/* translation is NOT ignored by compositeToPoint! */
-	[atm translateXBy:30 yBy:30];
+	[atm translateXBy:10 yBy:-30];
 	[atm rotateByDegrees:15.0];
 	[atm scaleBy:1.5];
 	[atm concat];	// apply rotation before drawing
@@ -66,7 +66,7 @@ int main(int argc, const char *argv[])
 	/* flipping */
 	[img setFlipped:NO];
 
-	// [img setFlipped:YES];
+	[img setFlipped:YES];
 
 	/* setSize wird auch bei composite berücksichtigt! */
 	//	[img setSize:NSMakeSize(50, 50)];
@@ -87,12 +87,12 @@ int main(int argc, const char *argv[])
 
 #if 1
 	inRect=NSMakeRect(10, 10, 70, 70);
-	CGFloat scale=3;
+	CGFloat scale=0.3;
 	fromRect=NSMakeRect(0, 0, scale*[img size].width, scale*[img size].height);
 
-#if 0
+#if 1
 	inRect=NSMakeRect(10, 10, 70, 70);
-	fromRect=NSMakeRect(40, 70, 300, 300);
+	fromRect=NSMakeRect(80, 140, 300, 300);
 
 #if 1
 	inRect=NSMakeRect(10, 10, 70, 70);
