@@ -69,18 +69,60 @@ static unsigned maxLineLength=80;
 	return s;
 }
 
+// am besten über Tabelle steuern die type über NSDictionary in NSDict übersetzt
+// wo alles drinsteht!
+// Prefix, Infix, Postfix-Zeichen für Children
+// Level
+
 - (NSString *) prettyObjC;
 {
 	NSString *t=[self type];
 	NSString *s=@"";
+	NSEnumerator *e;
+	Node *n;
+	BOOL first;
+	static NSDictionary *table=nil;
+	NSDictionary *ctrl;
 	if([t isEqualToString:@"identifier"])
 		return [self value];
 	else if([t isEqualToString:@"constant"])
 		return [self value];
+	e=[self childrenEnumerator];
+	if(!table)
+		table=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"pretty"] retain];
+	ctrl=[table objectForKey:t];
+	if(ctrl)
+		{ // table driven
+			NSString *c;
+			c=[[ctrl objectForKey:@"prefix"] stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
+			if(c)
+				s=c;
+			n=[e nextObject];
+			s=[s stringByAppendingFormat:@"%@", [n prettyObjC]];
+			c=[[ctrl objectForKey:@"infix-first"] stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
+			if(c)
+				s=[s stringByAppendingString:c];
+			while(n=[e nextObject])
+				{
+				c=[[ctrl objectForKey:@"infix"] stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
+				if(c)
+					s=[s stringByAppendingFormat:@"%@%@", c, [n prettyObjC]];
+				else
+					s=[s stringByAppendingString:[n prettyObjC]];
+				}
+			c=[[ctrl objectForKey:@"suffix"] stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
+			if(c)
+				s=[s stringByAppendingString:c];
+			return s;
+		}
+	if([t isEqualToString:@"symtab"])
+		{ // all elements
+		while((n=[e nextObject]))
+			s=[s stringByAppendingString:[n indentedPrettyObjC]];
+		return s;
+		}
 	if([t isEqualToString:@"block"])
 		{
-		NSEnumerator *e=[self childrenEnumerator];
-		Node *n;
 		// we can have different variants, i.e. if { itself is indented or not
 		s=@"{\n";
 		while((n=[e nextObject]))
@@ -90,16 +132,65 @@ static unsigned maxLineLength=80;
 		}
 //	if([t isEqualToString:@"forwardclass"])
 //	if([t isEqualToString:@"@interface"])
-	if([t isEqualToString:@"unit"])
+	if([t isEqualToString:@"functioncall"])
 		{
-		NSEnumerator *e=[self childrenEnumerator];
-		Node *n;
-		s=@"";
+		s=[s stringByAppendingFormat:@"%@(%@)", [[e nextObject] prettyObjC], [[e nextObject] prettyObjC]];
+		return s;
+		}
+	if([t isEqualToString:@"parexpr"])
+		{
+		s=[s stringByAppendingFormat:@"(%@)", [[e nextObject] prettyObjC]];
+		return s;
+		}
+	if([t isEqualToString:@"statementlist"])
+		{
+		while((n=[e nextObject]))
+			s=[s stringByAppendingFormat:@"%@;\n", [n prettyObjC]];
+		return s;
+		}
+	if([t isEqualToString:@"exprlist"])
+		{
+		while((n=[e nextObject]))
+			{
+			if([s length])
+				s=[s stringByAppendingFormat:@", %@", [n prettyObjC]];
+			else
+				s=[n prettyObjC];
+			}
+		return s;
+		}
+	if([t isEqualToString:@"unit"] ||
+	   [t isEqualToString:@"exprlist"])
+		{
 		while((n=[e nextObject]))
 			s=[s stringByAppendingString:[n prettyObjC]];
 		return s;
 		}
-	return t;
+	first=YES;
+	while((n=[e nextObject]))
+		{
+		BOOL paren=[n level] > [self level];
+		if(paren)
+			s=@"(";
+		// should know another property if we are prefix infix or postfix
+		// and yet another property should know the C operator
+		// get from lookup table (NSDict[type])
+		if([self childrenCount] < 2)
+			s=[s stringByAppendingFormat:@"%@ ", t];	// prefix
+		else if(!first)
+			// add spaciness here
+			s=[s stringByAppendingString:t];	// infix
+		first=NO;
+		s=[s stringByAppendingString:[n prettyObjC]];
+		if(paren)
+			s=[s stringByAppendingString:@")"];
+		}
+	return s;
+}
+
+- (void) compile_pretty_default;
+{ // no processing of tree nodes
+	return;
 }
 
 @end

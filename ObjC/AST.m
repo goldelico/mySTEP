@@ -9,6 +9,8 @@ BOOL _debug;
 
 @implementation Node
 
+static id <Notification> globalDelegate;
+
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
 {
 	extern int yyparse();
@@ -17,7 +19,8 @@ BOOL _debug;
 	static BOOL busy=NO;
 	NSAssert(!busy, @"parser is busy");
 	busy=YES;
-	// setup stream and delegate
+	globalDelegate=delegate;
+	// setup stream
 	scaninit();
 	yyparse();
 	busy=NO;
@@ -25,13 +28,18 @@ BOOL _debug;
 	return globals();
 }
 
++ (id <Notification>) delegate;
+{
+	return globalDelegate;
+}
+
 + (Node *) node:(NSString *) type, ...;
 {
 	Node *node=[[[self alloc] initWithType:type] autorelease];
 	va_list va;
 	Node *cn;
-    va_start(va, type);
-    while ((cn = va_arg(va, Node *)))
+	va_start(va, type);
+	while ((cn = va_arg(va, Node *)))
 		[node addChild:cn];	// add children
 	va_end(va);
 	return node;
@@ -131,7 +139,11 @@ BOOL _debug;
 	e=[attributes keyEnumerator];
 	while((key=[e nextObject]))
 		{
-		if(![key isEqualToString:@"value"])
+		if([key isEqualToString:@"value"])
+			continue;
+		if([attributes objectForKey:key] == self)
+			[attribs appendFormat:@" \"%@\"=self", key];
+		else
 			[attribs appendFormat:@" \"%@\"=\"%@\"", key, [[[attributes objectForKey:key] description] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
 		}
 	if([self childrenCount] == 0)
@@ -304,7 +316,7 @@ BOOL _debug;
 - (void) treeWalk:(NSString *) prefix;
 {
 	NSEnumerator *e=[children objectEnumerator];
-	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_default"]);	// default
+	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"default"]);	// default
 	Node *c;
 	while((c=[e nextObject]))
 		{

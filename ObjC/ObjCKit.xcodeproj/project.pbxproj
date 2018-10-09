@@ -215,7 +215,7 @@
 			name = Input;
 			sourceTree = "<group>";
 		};
-		EE8E488B16F21D7D00DF50B4 /* Compiler Actions */ = {
+		EE8E488B16F21D7D00DF50B4 /* Compiler Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				EE8E48C216F22BD500DF50B4 /* compile.h */,
@@ -224,12 +224,6 @@
 				EE5539D51913C78900C22634 /* Evaluate.m */,
 				EEEB70FD150DD753000EE2E5 /* Expression.h */,
 				EEEB70FE150DD753000EE2E5 /* Expression.m */,
-				EE8E48BE16F22B1200DF50B4 /* objc10.h */,
-				EE8E48BF16F22B1200DF50B4 /* objc10.m */,
-				EE5583AB191F6DBA00C22634 /* objc20.h */,
-				EE5583AC191F6DBA00C22634 /* objc20.m */,
-				EEC876BD1716E49C0093590B /* objc2c.h */,
-				EEC876BE1716E49C0093590B /* objc2c.m */,
 				EE22088714EDB47600E78349 /* Print.h */,
 				EE22088814EDB47600E78349 /* Print.m */,
 				EE8E488716F21D6400DF50B4 /* Refactor.h */,
@@ -237,7 +231,20 @@
 				EE22088914EDB51200E78349 /* Simplify.h */,
 				EE22088A14EDB51200E78349 /* Simplify.m */,
 			);
-			name = "Compiler Actions";
+			name = "Compiler Helpers";
+			sourceTree = "<group>";
+		};
+		EE9A4E562160AF8400665348 /* Compiler Output */ = {
+			isa = PBXGroup;
+			children = (
+				EE8E48BE16F22B1200DF50B4 /* objc10.h */,
+				EE8E48BF16F22B1200DF50B4 /* objc10.m */,
+				EE5583AB191F6DBA00C22634 /* objc20.h */,
+				EE5583AC191F6DBA00C22634 /* objc20.m */,
+				EEC876BD1716E49C0093590B /* objc2c.h */,
+				EEC876BE1716E49C0093590B /* objc2c.m */,
+			);
+			name = "Compiler Output";
 			sourceTree = "<group>";
 		};
 		EED3C1200488F87500000103 = {
@@ -249,7 +256,8 @@
 				EE8E487C16F21C0900DF50B4 /* ObjC.qcodeproj */,
 				EE4108530B956BA30065DD36 /* Makefile */,
 				EE6D3DE3137553ED003D5863 /* Parser Source */,
-				EE8E488B16F21D7D00DF50B4 /* Compiler Actions */,
+				EE8E488B16F21D7D00DF50B4 /* Compiler Helpers */,
+				EE9A4E562160AF8400665348 /* Compiler Output */,
 				EE088098171C1A7700CD24AD /* DerivedSources */,
 				EE553A0E1913D42200C22634 /* objc */,
 				EE6D3DE0137553DE003D5863 /* Tests */,
@@ -345,7 +353,7 @@
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0820;
 			};
 			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjCKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -494,6 +502,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -502,7 +511,9 @@
 					AppKit,
 				);
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = ObjCKit;
+				SDKROOT = macosx;
 				YACCFLAGS = "--debug --verbose";
 			};
 			name = Development;
@@ -523,6 +534,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -531,7 +543,9 @@
 					AppKit,
 				);
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = ObjCKit;
+				SDKROOT = macosx;
 				YACCFLAGS = "--debug --verbose";
 				ZERO_LINK = NO;
 			};
@@ -551,6 +565,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ObjC-Info.plist";
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DYYDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -559,7 +574,9 @@
 					AppKit,
 				);
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = ObjCKit;
+				SDKROOT = macosx;
 				YACCFLAGS = "--debug --verbose";
 			};
 			name = Default;
@@ -576,6 +593,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -584,6 +602,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = objc;
+				SDKROOT = macosx;
 			};
 			name = Development;
 		};
@@ -598,6 +617,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -606,6 +626,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = objc;
+				SDKROOT = macosx;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -619,6 +640,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Developer/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -627,6 +649,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = objc;
+				SDKROOT = macosx;
 			};
 			name = Default;
 		};
@@ -670,6 +693,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -678,6 +702,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = test;
+				SDKROOT = macosx;
 			};
 			name = Development;
 		};
@@ -692,6 +717,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -700,6 +726,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = test;
+				SDKROOT = macosx;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -713,6 +740,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -721,24 +749,81 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = test;
+				SDKROOT = macosx;
 			};
 			name = Default;
 		};
 		EE772D2F0A10C27000F73E78 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Development;
 		};
 		EE772D300A10C27000F73E78 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 			};
 			name = Deployment;
 		};
 		EE772D310A10C27000F73E78 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 			};
 			name = Default;
 		};

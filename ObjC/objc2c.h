@@ -10,4 +10,9 @@
 
 @interface Node (ObjC2C)
 
+- (void) compile_C_interface;
+- (void) compile_C_classimp;
+- (void) compile_C_methodimp;
+- (void) compile_C_methodcall;
+
 @end

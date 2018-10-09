@@ -38,10 +38,17 @@
 
 static void usage(void)
 {
-    // FIXME: use more "standard" options like -Dmacro=value -Ipath -Lpath -llib
-    // so that they can be passed within a #! invocation
+	// FIXME: use more "standard" options like -Dmacro=value -Ipath -Lpath -llib
+	// so that they can be passed within a #! invocation
 	fprintf(stderr, "usage: objc -c|-l|-p [ -d ] [ -m machine ] { -r old=new } [ file... ]\n");
 	fprintf(stderr, "       objc [ -d ] [ file | -f script ] [ args... ]\n");
+	fprintf(stderr, "       -c   compile\n");
+	fprintf(stderr, "       -l   lint\n");
+	fprintf(stderr, "       -p   print\n");
+	fprintf(stderr, "       -d   debug\n");
+	fprintf(stderr, "       -m   set machine (C, objc1, objc2, pretty)\n");
+	fprintf(stderr, "       -r   refactor\n");
+	fprintf(stderr, "       -f   script\n");
 	exit(1);
 }
 
@@ -56,9 +63,9 @@ int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	BOOL lint=NO;		// -l
-	BOOL pretty=NO;		// -p
+	BOOL print=NO;		// -p
 	BOOL compile=NO;	// -c
-	NSString *machine;	// -m
+	NSString *machine=@"pretty";	// -m
 	BOOL interpret=NO;
 	Node *result=nil;
 	Node *main;
@@ -72,13 +79,14 @@ int main(int argc, char *argv[])
 			{
 			switch(*c++) {
 				case 'l': lint=YES; break;
-				case 'p': pretty=YES; break;
+					// FIXME: set machine=@"pretty";
+				case 'p': print=YES; break;
 					// FIXME: allow setting --pretty-spaciness --max-line-length etc.
 				case 'c': compile=YES; break;
 				case 'd': {
 					extern int yydebug;
 					if(_debug) yydebug=1;	// -dd
-					_debug=YES;
+						_debug=YES;
 					break;
 				}
 				case 'm':
@@ -127,14 +135,14 @@ int main(int argc, char *argv[])
 				}
 				case 'b':	// install pipeline bundle
 				case 'I':	// set include search path(s)
-                    break;
+					break;
 				default:
 					usage();
 			}
 			}
 		argv++;
 		}
-	interpret=!lint && !pretty && !compile;	// we run in script mode and should store a binary AST for faster execution
+	interpret=!lint && !print && !compile;	// we run in script interpretation mode and should store the binary AST for faster execution
 	while(argv[1] && (!interpret || !result))
 		{ // get file arguments to process
 		char first[512];
@@ -255,8 +263,8 @@ int main(int argc, char *argv[])
 		NSLog(@"translated:\n%@", result);
 #endif
 		}
-	if(pretty)
-		{ // pretty print
+	if(print)
+		{ // pretty print result
 			printf("%s", [[result prettyObjC] UTF8String]);	// pretty print
 			return 0;
 		}
@@ -267,7 +275,7 @@ int main(int argc, char *argv[])
 		return 1;
 		}
 	// manipulate NSProcessInfo so that $0 = script name (arg0), $1... are the additional parameters
-    // as defined by the current argv pointer
+	// as defined by the current argv pointer
 	// and make us call the main(argc, argv, envp) function
 	// maybe we should create a "functioncall" node with the main-function, argc and argv as children
 	// but we can't call evaluate directly, since tree-walk calls the children only

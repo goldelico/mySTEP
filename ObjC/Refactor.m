@@ -13,7 +13,7 @@
 - (void) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
 {
 	if([substitutions count] > 0)
-		[self treeWalk:@"refactor" withObject:substitutions];
+		[self treeWalk:@"refactor_" withObject:substitutions];
 }
 
 - (void) refactoridentifier:(NSDictionary *) substitutions;

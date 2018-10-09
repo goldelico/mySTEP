@@ -10,4 +10,16 @@
 
 @interface Node (Objc10)
 
+- (void) compile_objc1_default;
+- (void) compile_objc1_synchronized;
+- (void) compile_objc1_synthesize;
+- (void) compile_objc1_autorelease;
+- (void) compile_objc1_try;
+- (void) compile_objc1_catch;
+- (void) compile_objc1_finaly;
+- (void) compile_objc1_box;
+- (void) compile_objc1_arrayliteral;
+- (void) compile_objc1_dictliteral;
+- (void) compile_objc1_index;
+
 @end

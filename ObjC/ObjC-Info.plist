@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -16,6 +16,93 @@
 	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>pretty</key>
+	<dict>
+		<key>while</key>
+		<dict>
+			<key>prefix</key>
+			<string>while(</string>
+			<key>infix</key>
+			<string>)\n</string>
+		</dict>
+		<key>exprlist</key>
+		<dict>
+			<key>infix</key>
+			<string>, </string>
+		</dict>
+		<key>statementlist</key>
+		<dict>
+			<key>infix</key>
+			<string>;\n</string>
+			<key>postfix</key>
+			<string>;\n</string>
+		</dict>
+		<key>functioncall</key>
+		<dict>
+			<key>infix-first</key>
+			<string>(</string>
+			<key>suffix</key>
+			<string>)</string>
+		</dict>
+		<key>block</key>
+		<dict>
+			<key>prefix</key>
+			<string>{\n</string>
+			<key>infix</key>
+			<string>\n</string>
+			<key>suffix</key>
+			<string>}\n</string>
+		</dict>
+		<key>not</key>
+		<dict>
+			<key>prefix</key>
+			<string>!</string>
+		</dict>
+		<key>functiondef</key>
+		<dict>
+			<key>prefix</key>
+			<string>\n</string>
+			<key>suffix</key>
+			<string>\n</string>
+		</dict>
+		<key>return</key>
+		<dict>
+			<key>prefix</key>
+			<string>return </string>
+		</dict>
+		<key>predec</key>
+		<dict>
+			<key>prefix</key>
+			<string>--</string>
+		</dict>
+		<key>multassign</key>
+		<dict>
+			<key>infix</key>
+			<string>*=</string>
+		</dict>
+		<key>mult</key>
+		<dict>
+			<key>infix</key>
+			<string>*</string>
+		</dict>
+		<key>add</key>
+		<dict>
+			<key>infix</key>
+			<string>+</string>
+		</dict>
+		<key>list</key>
+		<dict>
+			<key>infix</key>
+			<string>, </string>
+		</dict>
+		<key>expr</key>
+		<dict/>
+		<key>symtab</key>
+		<dict>
+			<key>infix</key>
+			<string>\n</string>
+		</dict>
+	</dict>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 </dict>

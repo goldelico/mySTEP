@@ -26,7 +26,7 @@
 #if 1
 	NSLog(@"evaluate %@", self);
 #endif
-	[self treeWalk:@"evaluate" withObject:machine];	// recursive
+	[self treeWalk:@"evaluate_" withObject:machine];	// recursive
 }
 
 - (id) evaluate_default:(id) machine

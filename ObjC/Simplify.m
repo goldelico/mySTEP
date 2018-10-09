@@ -32,7 +32,7 @@
 { // main function
 	// FIXME: should loop on each level individually!
 	// should loop while something has been modified or a redo-indicator/attribute has been set
-	[self treeWalk:@"simplify"];	// recursive
+	[self treeWalk:@"simplify_"];	// recursive
 }
 
 - (void) simplify_default

@@ -26,9 +26,9 @@
 
 	extern Node *scopestack;	// scope stack
 	extern Node *globals(void);	// returns the globals level
-    
-    extern void pushscope();
-    extern void popscope();
+
+	extern void pushscope();
+	extern void popscope();
 	
 	Node *declaredName;	// current declarator IDENTIFIER object
 	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
@@ -326,7 +326,7 @@ selector_with_argument_declaration
 	;
 
 method_declaration
-	: class_or_instance_method_specifier '(' objc_declaration_specifiers ')' selector_with_argument_declaration { $$=[Node node:@"methoddeclaration", $1, $3, $5, nil]; }
+	: class_or_instance_method_specifier '(' objc_declaration_specifiers ')' selector_with_argument_declaration { $$=[Node node:@"methoddecl", $1, $3, $5, nil]; }
 	| var_declaration
 	| function_definition
 	;
@@ -345,8 +345,8 @@ class_implementation
 	;
 
 method_implementation
-	: method_declaration compound_statement  { $$=[Node node:@"method", $1, $2, nil]; }
-	| method_declaration ';' compound_statement  { $$=[Node node:@"method", $1, $3, nil]; }	/* ignore extra ; */
+	: method_declaration compound_statement  { $$=[Node node:@"methodimp", $1, $2, nil]; }
+	| method_declaration ';' compound_statement  { $$=[Node node:@"methodimp", $1, $3, nil]; }	/* ignore extra ; */
 	;
 
 method_implementation_list
@@ -773,10 +773,11 @@ void checkTypedef(void)
 void yyerror(char *s)
 {
 	// forward to AST delegate (if it exists)
+	// [[Node delegate] parseError:[NSString stringWithUTF8String:s] line:line column:column, token:[NSString stringWithUTF8String:yytext]];
 	fflush(stdout);
 	printf("#error line %d column %d\n", line, column);
 	// FIXME: print full line and not only yytext or the column does not match
-	printf("/* %s\n * %*s\n * %*s\n*/\n", yytext, column, "^", column, s);
+	printf("/* %s\n * %*s\n * %*s\n */\n", yytext, column, "^", column, s);
 	fflush(stdout);
 }
 

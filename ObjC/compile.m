@@ -19,9 +19,10 @@
 	static NSArray *targets=nil;
 	if(!targets)
 		targets=[[NSArray alloc] initWithObjects:
-				 @"C",	// translate (expand) to C code
+				 @"C",		// translate (expand) to standard C code
 				 @"objc1",	// translate (expand) to ObjC-1.0
 				 @"objc2",	// translate (simplify) to ObjC-2.0
+				 @"pretty",	// no translation, just pretty print
 				 @"arm",	// translate to ARM asm statements
 				 nil];
 	return targets;
@@ -34,7 +35,7 @@
 
 - (void) compile:(NSString *) target;
 {
-	[self treeWalk:[@"compile_" stringByAppendingString:target]];
+	[self treeWalk:[NSString stringWithFormat:@"compile_%@_", target]];
 }
 
 - (void) compile_arm_default;

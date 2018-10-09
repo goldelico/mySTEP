@@ -24,7 +24,7 @@
 // @autorelease
 // ARC
 
-- (void) compile_objc2try
+- (void) compile_objc2_try
 {
 	
 }

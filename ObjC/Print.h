@@ -18,4 +18,6 @@
 
 - (NSString *) prettyObjC;	// tree node(s) as (Obj-)C NSString
 
+- (void) compile_pretty_default;
+
 @end
