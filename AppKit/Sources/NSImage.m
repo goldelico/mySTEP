@@ -523,136 +523,20 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx saveGraphicsState];
 	co=[ctx compositingOperation];	// save
 	[[NSBezierPath bezierPathWithRect:dest] addClip];	// never draw outside during scaling
-#if 1
-	[[NSColor yellowColor] set];
-	NSFrameRect(dest);
-#endif
 	// FIXME: why do we save the compositing operation and not the fraction?
-	// should both become part of saveGraphicsState?
+	// should either or both become part of saveGraphicsState?
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
-
-	NSLog(@"dest=%@", NSStringFromRect(dest));
-	NSLog(@"src=%@", NSStringFromRect(src));
-	NSLog(@"_size=%@", NSStringFromSize(_size));
-
 	atm=[NSAffineTransform transform];
-
-	CGFloat fx=NSWidth(src)/_size.width;
-	CGFloat fy=NSHeight(src)/_size.height;
-	[atm scaleXBy:1.0/fx yBy:1.0/fy];	// scale by src
-
-	CGFloat tx=(fx-1)*NSMinX(dest);
-	CGFloat ty=(fy-1)*NSMinY(dest);
-
-#if 0
-	// src.origin={0,0}
-	tx-=0;
-	ty-=0;
-#endif
-#if 0
-	// src.origin={40,70}
-	tx-=3;
-	ty-=8;
-#endif
-#if 0
-	// src.origin={80,140}
-	tx-=6;
-	ty-=16;
-#endif
-
-	tx-=src.origin.x/(_size.width/dest.size.width);
-	ty-=src.origin.y/(_size.height/dest.size.height);
-
-	[atm translateXBy:tx yBy:ty];
-
-#if 0
-	CGFloat tx=10.0, ty=5.0;	// relevant wenn_size.height/NSHeight(src) != 1.0
-
-	tx=_size.width/NSWidth(dest) - (NSWidth(src)/NSWidth(dest));	// relativ gut, aber nicht ganz exakt!
-	ty=_size.height/NSHeight(dest)- (NSHeight(src)/NSHeight(dest));
-
-	/* additional correction for
-	2018-10-08 16:49:49.488 AppKitNibTestX11[92222:2287942] dest={{10, 10}, {70, 70}}
-	2018-10-08 16:49:49.489 AppKitNibTestX11[92222:2287942] src={{180, 240}, {100, 100}}
-	2018-10-08 16:49:49.490 AppKitNibTestX11[92222:2287942] size={866, 582}
-	* does it come from high scaling or src.origin != 0? Or another dest.origin correction?
-	*/
-
-	// these factors are empirically determined for the Lion.jpg example...
-	// and dest={{10, 10}, {70, 70}}
-
-	//	tx += ((-28.5 / 180.0) * NSMinX(src)) /_size.width * NSWidth(dest);	// scaling applied by drawRepresentation
-	//	ty += ((13.0 / 240.0) * NSMinY(src)) /_size.height * NSHeight(dest);	// scaling applied by drawRepresentation
-
-	// for dest={{11, 10}, {70, 70}}
-
-	// tx += ((-16.5 / 180.0) * NSMinX(src)) /_size.width * NSWidth(dest);	// scaling applied by drawRepresentation
-	// ty += ((13.0 / 240.0) * NSMinY(src)) /_size.height * NSHeight(dest);	// scaling applied by drawRepresentation
-
-	// for dest={{12, 10}, {70, 70}}
-
-	// tx += ((-4.5 / 180.0) * NSMinX(src)) /_size.width * NSWidth(dest);	// scaling applied by drawRepresentation
-	// ty += ((13.0 / 240.0) * NSMinY(src)) /_size.height * NSHeight(dest);	// scaling applied by drawRepresentation
-
-	// for dest={{12, 11}, {70, 70}}
-
-	tx += ((-4.5 / 180.0) * NSMinX(src)) /_size.width * NSWidth(dest);	// scaling applied by drawRepresentation
-	ty += ((21.0 / 240.0) * NSMinY(src)) /_size.height * NSHeight(dest);	// scaling applied by drawRepresentation
-
-	// the translation somehow depends on dest.origin!
-
-	// appears to be 8*(dest.origin.x-12.5)
-	// and 7*(dest.origin.y-8)
-
-	// tx = 11.579115803365227
-	// ty = 10.411487481590575
-
-#if 1
-	// and the result for Lion.jpg looks like
-	tx = -(dest.origin.x - 0.5 - 0.2*(dest.origin.x/20));
-	ty = -(dest.origin.y - 0.5 - 0.5*(dest.origin.y/20));
-	tx = -(dest.origin.x + src.origin.x/_size.width - 1.1);	// dest=20,20
-	ty = -(dest.origin.y + src.origin.y/_size.height - 1.6);
-	tx = -(dest.origin.x + src.origin.x/_size.width - 0.5);	// dest=10,10
-	ty = -(dest.origin.y + src.origin.y/_size.height - 0.8);
-	tx = -(src.origin.x/_size.width +  (1-_size.width/12000)*dest.origin.x);	// dest=any
-	tx = -(src.origin.y/_size.height +  (1-_size.height/12000)*dest.origin.y);	// dest=any
-
-	tx = src.origin.x*(1/_size.width - 1.0/(src.origin.x+5)*dest.origin.x);	// dest=any
-	ty = src.origin.y*(1/_size.height - 1.0/(src.origin.y+10)*dest.origin.y);
-
-	tx = src.origin.x/_size.width - 1.0/(1.0+5.0/src.origin.x)*dest.origin.x;	// dest=any
-	ty = src.origin.y/_size.height - 1.0/(1.0+10.0/src.origin.y)*dest.origin.y;	// not 100% exact for src.origin=0 :(
-#endif
-
-#if 0
-	// or it looks like
-	tx = 1.9 * src.origin.x/src.size.width;
-	ty = 1.3 * src.origin.y/src.size.height;
-	// that is not precise for high scale factor but right for src.origin==NSZeroRect
-	// and it is wrong for different dest.origin!
-#endif
-
-	tx=ty=0;
-	tx=-NSMinX(src)/_size.width*(NSWidth(dest)-0);
-	ty=-NSMinY(src)/_size.height*(NSHeight(dest)-0);
-	tx=ty=0;
-#endif
-
+	[atm scaleXBy:_size.width/NSWidth(src) yBy:_size.height/NSHeight(src)];	// scale by src
+	[atm translateXBy:NSMinX(dest)*(NSWidth(src)/_size.width-1) - NSMinX(src)*NSWidth(dest)/_size.width
+				  yBy:NSMinY(dest)*(NSHeight(src)/_size.height-1) - NSMinY(src)*NSWidth(dest)/_size.height];	// shift origin
 	if(_img.flipDraw)
 		{ // draw flipped
 		[atm translateXBy:0.0 yBy:NSMinY(dest)+NSMaxY(dest)];	// shift origin
 		[atm scaleXBy:1.0 yBy:-1.0];
 		}
-
-	NSLog(@"atm=%@", atm);
-
 	[ctx _concatCTM:atm];	// add to CTM
-#if 1
-	[[NSColor blueColor] set];
-	NSFrameRect(dest);
-#endif
 	[self drawRepresentation:rep inRect:dest];	// draw in rect
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
