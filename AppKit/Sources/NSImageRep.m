@@ -257,8 +257,6 @@ static NSCountedSet *__pb;
 - (NSString *) colorSpaceName					{ return _colorSpace; }
 - (void) setColorSpaceName:(NSString *)aString	{ ASSIGN(_colorSpace,aString);}
 
-// FIXME: is scaling to pixelsWide/High done here?
-
 - (BOOL) draw { return NO; } // default
 
 - (BOOL) drawAtPoint:(NSPoint)aPoint
@@ -281,19 +279,11 @@ static NSCountedSet *__pb;
 
 - (BOOL) drawInRect:(NSRect)aRect
 { // draw translated and scaled to rect
-#if 0	// hm... could we use this? Where is scaling to pixelsWide/High done?
-	[self setSize:aRect.size];
-	return [self ]drawAtPoint:aRect.origin];
-#endif
+	NSSize sz=[self size];	// save
 	BOOL r;
-	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
-	NSAffineTransform *atm=[NSAffineTransform transform];
-	[ctx saveGraphicsState];
-	[atm translateXBy:aRect.origin.x yBy:aRect.origin.y];
-	[atm scaleXBy:aRect.size.width/_pixelsWide yBy:aRect.size.height/_pixelsHigh];	// scale to rect
-	[atm concat];	// modify CTM as needed
-	r=[self draw];
-	[ctx restoreGraphicsState];
+	[self setSize:aRect.size];
+	r=[self drawAtPoint:aRect.origin];
+	[self setSize:sz];	// restore
 	return r;
 }
 
@@ -452,9 +442,8 @@ static NSCountedSet *__pb;
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	[ctx saveGraphicsState];
-	[atm scaleXBy:_size.width yBy:_size.height];
+	[atm scaleXBy:_size.width/_pixelsWide yBy:_size.height/_pixelsHigh];	// scale to given size
 	[atm concat];
-	// [ctx _setFraction:1.0];
 	r=[ctx _draw:self];
 	[ctx restoreGraphicsState];
 	return r;
@@ -502,8 +491,10 @@ static NSCountedSet *__pb;
 
 - (BOOL) draw
 {
-	// FIXME: we should use the IMP mechanism to properly get the BOOL return value!!!
-	return ([_delegate performSelector: _selector]) ? YES : NO;
+	BOOL (*method)(id object, SEL _cmd)=[_delegate methodForSelector:_selector];
+	if(method)
+		return (*method)(_delegate, _selector);
+	return NO;
 }
 
 @end /* NSCustomImageRep */
@@ -1136,7 +1127,20 @@ static NSArray *__pbBitmapImageReps;
 
 - (BOOL) draw
 { // draw using current CTM and operation
-	return [[NSGraphicsContext currentContext] _draw:self];
+	BOOL r;
+	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
+	if(_size.width == _pixelsWide && _size.height == _pixelsHigh)
+		r=[ctx _draw:self];
+	else
+		{ // scale
+			NSAffineTransform *atm=[NSAffineTransform transform];
+			[ctx saveGraphicsState];
+			[atm scaleXBy:_size.width/_pixelsWide yBy:_size.height/_pixelsHigh];	// scale to given size
+			[atm concat];
+			r=[ctx _draw:self];
+			[ctx restoreGraphicsState];
+		}
+	return r;
 }
 
 - (unsigned char *) bitmapData
