@@ -537,7 +537,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		[atm scaleXBy:1.0 yBy:-1.0];
 		}
 	[ctx _concatCTM:atm];	// add to CTM
+#if 0
 	[self drawRepresentation:rep inRect:dest];	// draw in rect
+#else
+	[rep drawInRect:dest];
+#endif
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
 }
