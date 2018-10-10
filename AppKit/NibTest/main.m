@@ -11,7 +11,7 @@ int main(int argc, const char *argv[])
 	return NSApplicationMain(argc, argv);
 }
 
-#if 0	// for debugging of image drawing
+#if 1	// for debugging of image drawing
 
 #if 0
 @implementation NSImage (override)
@@ -85,12 +85,12 @@ int main(int argc, const char *argv[])
 	inRect=NSMakeRect(10, 10, 70, 70);
 	fromRect=NSZeroRect;
 
-#if 1
+#if 0
 	inRect=NSMakeRect(10, 10, 70, 70);
 	CGFloat scale=0.3;
 	fromRect=NSMakeRect(0, 0, scale*[img size].width, scale*[img size].height);
 
-#if 1
+#if 0
 	inRect=NSMakeRect(10, 10, 70, 70);
 	fromRect=NSMakeRect(80, 140, 300, 300);
 
@@ -103,14 +103,26 @@ int main(int argc, const char *argv[])
 #endif
 #endif
 
+#if 0
+	/* image rep drawing takes care of CTM scale and rotation and pixel size, but does not change size of rep! */
+	// it takes the current compositing operation
+	// note: Cocoa uses a rotated scan/clip rect differently from what mySTEP backend does!
+	// so the result for transparent parts is different
+	NSImageRep *rep=[[img representations] objectAtIndex:0];
+	//	[rep drawAtPoint:inRect.origin];
+	[rep drawInRect:inRect];
+	return;
+#endif
+
 	/* drawInRect takes care of CTM scale and rotation */
-	// [img drawInRect:inRect];
-	[img drawInRect:inRect fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0];
+	// [img drawInRect:inRect]; return;
+	[img drawInRect:inRect fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0]; return;
 	/* drawAtPoint takes care of CTM scale and rotation */
-	// [img drawAtPoint:inRect.origin fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0];
+	// [img drawAtPoint:inRect.origin fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0]; return;
 	/* composite ignores any scale and rotation, takes img isFlipped */
-	// [img compositeToPoint:inRect.origin fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0];
+	// [img compositeToPoint:inRect.origin fromRect:fromRect operation:NSCompositeSourceOver fraction:1.0]; return;
 }
+
 @end
 
 @implementation NSBundle (NSNibLoading)
@@ -139,7 +151,7 @@ int main(int argc, const char *argv[])
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/MenuExtras/Icons/display.png";
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/1bK.png";
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/rss.gif";
-//	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/OpenSource/GPL/MokoMaze/src/pics/qtmaze/ball.png";	/* different DPI */
+	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/OpenSource/GPL/MokoMaze/src/pics/qtmaze/ball.png";	/* different DPI */
 //	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowColors.icns";
 //	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowFonts.icns";
 	NSImage *img=[[[NSImage alloc] initWithContentsOfFile:path] autorelease];
