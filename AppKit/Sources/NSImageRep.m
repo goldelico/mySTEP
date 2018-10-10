@@ -257,6 +257,8 @@ static NSCountedSet *__pb;
 - (NSString *) colorSpaceName					{ return _colorSpace; }
 - (void) setColorSpaceName:(NSString *)aString	{ ASSIGN(_colorSpace,aString);}
 
+// FIXME: is scaling to pixelsWide/High done here?
+
 - (BOOL) draw { return NO; } // default
 
 - (BOOL) drawAtPoint:(NSPoint)aPoint
@@ -279,13 +281,16 @@ static NSCountedSet *__pb;
 
 - (BOOL) drawInRect:(NSRect)aRect
 { // draw translated and scaled to rect
+#if 0	// hm... could we use this? Where is scaling to pixelsWide/High done?
+	[self setSize:aRect.size];
+	return [self ]drawAtPoint:aRect.origin];
+#endif
 	BOOL r;
 	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	[ctx saveGraphicsState];
 	[atm translateXBy:aRect.origin.x yBy:aRect.origin.y];
-	if(!NSEqualSizes(aRect.size, _size))
-		[atm scaleXBy:aRect.size.width/_size.width yBy:aRect.size.height/_size.height];	// scale to rect
+	[atm scaleXBy:aRect.size.width/_pixelsWide yBy:aRect.size.height/_pixelsHigh];	// scale to rect
 	[atm concat];	// modify CTM as needed
 	r=[self draw];
 	[ctx restoreGraphicsState];
