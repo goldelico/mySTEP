@@ -1167,7 +1167,7 @@ static NSArray *__pbBitmapImageReps;
 - (void) getBitmapDataPlanes:(unsigned char **)data
 {
 	int i;
-	
+	// may clear caches in window server
 	if (!_imagePlanes || !_imagePlanes[0])
 		[self bitmapData];
 	
@@ -1177,38 +1177,38 @@ static NSArray *__pbBitmapImageReps;
 }
 
 - (void) getPixel:(NSUInteger[]) pixelData atX:(NSInteger) x y:(NSInteger) y;
-{
+{ // (0, 0) is top left corner
 	NSUInteger i;
 	NSInteger offset;
 	if(_brep.isPlanar)
 		{ // planar
-		offset=x + bytesPerRow*(_pixelsHigh-1-y);
+		offset=x + bytesPerRow*y;
 		for(i=0; i<_brep.numColors; i++)
 			pixelData[i]=_imagePlanes[i][offset];
 		}
 	else
 		{ // meshed
-		offset=_brep.numColors*x + bytesPerRow*(_pixelsHigh-1-y);
+		offset=_brep.numColors*x + bytesPerRow*y;
 		for(i=0; i<_brep.numColors; i++)
 			pixelData[i]=_imagePlanes[0][offset+i];
 		}
 }
 
 - (void) setPixel:(NSUInteger[]) pixelData atX:(NSInteger) x y:(NSInteger) y;
-{
+{ // (0, 0) is top left corner
 	NSUInteger i;
 	NSInteger offset;
 	if (!_imagePlanes || !_imagePlanes[0])
 		[self bitmapData];	// allocate plane memory
 	if(_brep.isPlanar)
 		{ // planar
-		offset=x + bytesPerRow*(_pixelsHigh-1-y);
+		offset=x + bytesPerRow*y;
 		for(i=0; i<_brep.numColors; i++)
 			_imagePlanes[i][offset]=pixelData[i];
 		}
 	else
 		{ // meshed
-		offset=_brep.numColors*x + bytesPerRow*(_pixelsHigh-1-y);
+		offset=_brep.numColors*x + bytesPerRow*y;
 		for(i=0; i<_brep.numColors; i++)
 			_imagePlanes[0][offset+i]=pixelData[i];
 		}
