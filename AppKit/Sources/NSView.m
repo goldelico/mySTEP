@@ -1011,8 +1011,10 @@ printing
 #endif
 			_bounds2base=[[self _base2bounds] copy];	// always make a (modifiable) copy
 			[_bounds2base invert];	// goes back from window coordinates to our bounds coordinates
+#if 0
 			NSLog(@"base2bounds=%@", _base2bounds);
 			NSLog(@"bounds2base=%@", _bounds2base);
+#endif
 		}
 	return _bounds2base;
 }
@@ -1667,20 +1669,20 @@ printing
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
 	int i;
-#if 1
+#if 0
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@ superview=%@", NSStringFromRect(rect), self, _superview);
 #endif
 	if(!_window)
 		return;	// ignore if we have no window
 	if(NSContainsRect(_invalidRect, rect))
 		{
-#if 1
+#if 0
 		NSLog(@"already known to be invalid");
 #endif
 		return;	// already known to be dirty
 		}
 //	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
-#if 1
+#if 0
 	NSLog(@"_addRectNeedingDisplay: %@ to %lu", NSStringFromRect(rect), (unsigned long)_nInvalidRects);
 #endif
 #if 1	// use invalid rects mechanism
@@ -1703,7 +1705,7 @@ printing
 	_invalidRects[_nInvalidRects++]=rect;	// append
 #endif
 	_invalidRect=NSUnionRect(_invalidRect, rect);	// merge for overall invalid rect
-#if 1
+#if 0
 	NSLog(@"  => _nInvalidRects: %lu invalidRect: %@", (unsigned long)_nInvalidRects, NSStringFromRect(_invalidRect));
 #endif
 	if(_superview)
