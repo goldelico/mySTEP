@@ -1394,7 +1394,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				}
 			else
 				{ // intersect with existing region
-#if 1
+#if 0
 					{
 					XRectangle box;
 					XClipBox(r, &box);
@@ -1864,7 +1864,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite using current CTM, current compositingOp & fraction etc.
 	BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
-#if 1
+#if 0
 	NSLog(@"_draw %@", rep);
 #endif
 #if USE_XRENDER
@@ -2169,13 +2169,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		xScanRect.height=rint(scanRect.size.height);
 		xScanRect.x=rint(scanRect.origin.x);
 		xScanRect.y=rint(scanRect.origin.y);	// note: X11 specifies upper left corner
-#if 1
+#if 0
 		NSLog(@"  scan box=%@", NSStringFromXRect(xScanRect));
 #endif
 		/*
 		 * clip to visible area (by clipping box, window and screen - note: window may be partially outside of screen)
 		 */
-#if 1
+#if 0
 		NSLog(@"  clip box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
 		xClipRect=xScanRect;
@@ -2207,7 +2207,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 		 */
 
-#if 1
+#if 0
 		NSLog(@"  final clipped scan box=%@", NSStringFromXRect(xClipRect));
 #endif
 		if(xClipRect.width == 0 || xClipRect.height == 0)
@@ -2239,7 +2239,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[atm scaleXBy:1.0 yBy:-1.0];
 		[atm invert];	// get reverse mapping (X11 coordinates to bitmap coordinates)
 
-#if 1
+#if 0
 		NSLog(@"state %p", _state);
 		NSLog(@"ctm %@", _state->_ctm);
 		NSLog(@"ctm^-1 %@", atm);
