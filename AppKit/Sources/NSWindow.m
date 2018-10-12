@@ -723,13 +723,6 @@ static BOOL __cursorHidden = NO;
 
 @implementation _NSThemeWidget
 
-// handle graying out of buttons if our window is not main window or App is not active
-
-- (void) drawRect:(NSRect)rect
-{
-	[super drawRect:rect];
-}
-
 - (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle;
 {
 	if((self=[super initWithFrame:f]))
@@ -738,12 +731,21 @@ static BOOL __cursorHidden = NO;
 			[self setAutoresizesSubviews:YES];
 			[self setAutoresizingMask:(NSViewMaxXMargin|NSViewMinYMargin)];	// don't resize with window
 			[_cell setAlignment:NSCenterTextAlignment];
+			// FIXME: there should be a frame around the icon
+			//			[_cell setImageScaling:NSImageScaleProportionallyUpOrDown];	// adjust
 			[_cell setImagePosition:NSImageOverlaps];
 			[_cell setBordered:NO];	// no bezel
 			[_cell setFont:[NSFont titleBarFontOfSize:0]];
 			[_cell setShowsFirstResponder:NO];	// don't show
 		}
 	return self;
+}
+
+// handle graying out of buttons if our window is not main window or App is not active
+
+- (void) drawRect:(NSRect)rect
+{
+	[super drawRect:rect];
 }
 
 - (void) viewDidMoveToWindow
@@ -777,6 +779,16 @@ static BOOL __cursorHidden = NO;
 @end
 
 @implementation NSThemeDocumentButton
+
+- (id) initWithFrame:(NSRect) f forStyleMask:(NSUInteger) aStyle;
+{
+	if((self=[super initWithFrame:f forStyleMask:(NSUInteger) aStyle]))
+		{ // change defaults
+			[_cell setAlignment:NSLeftTextAlignment];
+			[_cell setImagePosition:NSImageLeft];
+		}
+	return self;
+}
 
 - (NSView *) hitTest:(NSPoint) aPoint
 {
@@ -3011,7 +3023,7 @@ object:self]
 	NSButton *b=nil;
 	static NSSize smallImage={ 15.0, 15.0 };
 	CGFloat button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
-	NSRect rect=NSMakeRect(0, 0, button, button);	// default rect
+	NSRect rect=NSMakeRect(1, 1, button-2, button-2);	// default rect
 	// set style dependent widget cell, i.e. brushed metal
 	switch(type) {
 		case NSWindowCloseButton:
