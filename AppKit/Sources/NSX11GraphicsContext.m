@@ -4842,7 +4842,7 @@ static NSFileHandle *fh;
 								{ // fill pixmaps with cursor image
 									NSUInteger planes[5]; // we assume RGBA
 									BOOL alpha, white;
-									[bestRep getPixel:planes atX:x y:(height-1)-y];
+									[bestRep getPixel:planes atX:x y:y];
 									white=299*planes[0]+587*planes[1]+114*planes[2] > 500*255;		// based on weighted intensity
 									alpha=planes[3] > 128;
 									XSetForeground(_display, gc, alpha?1:0);
