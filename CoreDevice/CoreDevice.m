@@ -313,6 +313,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return val?[val floatValue] * 1e-6:-1.0;
 }
 
+- (float) batteryTemperature;	// in degrees C
+{
+	// FIXME: on Pyra [self batteryValue] reads the bq27421 chip temperature while USB reports the battery NTC
+	NSString *val=[self batteryValue:@"temp"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"temp" forType:@"USB"];	// on some devices only the charger reports the temperature
+	return val?[val floatValue] * 0.1:-1000.0;	// sysfs reports temperature in 0.1°C steps
+}
+
 - (float) batteryDischargingCurrent;
 {
 	NSString *val=[self batteryValue:@"current_now"];
