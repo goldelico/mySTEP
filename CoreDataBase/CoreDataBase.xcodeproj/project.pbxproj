@@ -38,6 +38,7 @@
 		EEBBBA3417341F67009A2072 /* ManagedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManagedObject.h; sourceTree = "<group>"; };
 		EEBBBA3517341F67009A2072 /* ManagedObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ManagedObject.m; sourceTree = "<group>"; };
 		EEBC0BBC1471A65700D4842E /* CoreDataBase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreDataBase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEF8499721732319006DE290 /* CoreDataBaseGUI.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = CoreDataBaseGUI.php; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +67,7 @@
 				EEBBBA0217341EF5009A2072 /* CoreDataBase.qcodeproj */,
 				EE69CFD9108DD5A100486DB1 /* mySTEP.make */,
 				EEBBBA2A17341F16009A2072 /* CoreDataBase.php */,
+				EEF8499721732319006DE290 /* CoreDataBaseGUI.php */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
