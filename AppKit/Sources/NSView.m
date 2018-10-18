@@ -946,8 +946,6 @@ printing
 		}
 }
 
-// FIXME: do we really need _frame2bounds as a separate matrix?
-
 - (void) _invalidateCTM;
 {
 	_invalidRect=NSZeroRect;	// has become invalid as well
@@ -960,11 +958,22 @@ printing
 
 - (NSAffineTransform *) _base2bounds
 { // cached
+	static NSAffineTransform *f;
+	if(!f)
+		{ // appending f is not the same as scaleXBy:1.0 yBy:-1.0 (which gets the .tY wrong)
+		f=[NSAffineTransform transform];
+		[f scaleXBy:1.0 yBy:-1.0];
+		[f retain];
+		}
 	if(!_window)
 		return nil;
 	[self _updateFlipped];
 	if(!_base2bounds)
 		{
+#if 0
+		if([self  isKindOfClass:NSClassFromString(@"FlippableView")])
+			NSLog(@"flippable");
+#endif
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
 #endif
@@ -974,8 +983,9 @@ printing
 			_base2bounds=[NSAffineTransform new];
 		if(_v.superFlippedCache)
 			{ // undo flipping of superview (because only our frame position is expressed in flipped coordinates but not our own coordinate system)
-				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
-				[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMaxY(_frame)];	// frame position is expressed in flipped super_view bounds coordinates
+				[_base2bounds translateXBy:0.0 yBy:NSMaxY([_superview bounds])];
+				[_base2bounds appendTransform:f];
+				[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in flipped super_view bounds coordinates
 			}
 		else
 			[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
@@ -986,16 +996,8 @@ printing
 		[_base2bounds appendTransform:_frame2bounds];	// transform frame (i.e. superview bound) to our bounds
 		if(_v.flippedCache)
 			{ // finally flip bounds
-//				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
-				static NSAffineTransform *f;
-				if(!f)
-					{
-					f=[NSAffineTransform transform];
-					[f scaleXBy:1.0 yBy:-1.0];
-					[f retain];
-					}
 				[_base2bounds appendTransform:f];	// flip
-				[_base2bounds translateXBy:0.0 yBy:-NSHeight(_bounds)];
+				[_base2bounds translateXBy:0.0 yBy:-NSMaxY(_bounds)];
 			}
 		}
 	return _base2bounds;
@@ -1003,7 +1005,6 @@ printing
 
 - (NSAffineTransform *) _bounds2base;
 {
-	[self _updateFlipped];
 	if(!_bounds2base && _window)
 		{ // not yet cached
 #if 0
@@ -1763,6 +1764,7 @@ printing
 #if 0
 	NSLog(@"displayRectIgnoringOpacity:%@ inContext:%@ for %@", NSStringFromRect(rect), context, self);
 #endif
+	[self viewWillDraw];	// give views a chance to update, e.g. change layout
 	if(!context)
 		return;	// has no window (yet)
 	if(_savedInvalidRects)
@@ -2516,5 +2518,10 @@ GSTrackingRect *o;
 - (void) viewWillStartLiveResize; { return; }
 
 - (void) viewDidEndLiveResize; { return; }
+
+- (void) viewWillDraw;
+{
+	[_subviews makeObjectsPerformSelector:_cmd];	// send down the hierarchy
+}
 
 @end /* NSView */
