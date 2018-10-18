@@ -11,7 +11,7 @@ int main(int argc, const char *argv[])
 	return NSApplicationMain(argc, argv);
 }
 
-#if 1	// for debugging of image drawing
+#if 0	// for debugging of image drawing
 
 #if 0
 @implementation NSImage (override)
@@ -30,18 +30,33 @@ int main(int argc, const char *argv[])
 @end
 #endif
 
-@interface ImageView : NSView
+#if 0
+@implementation NSImageView (override)
+- (BOOL) isFlipped { return YES; }
+@end
+#endif
+
+@interface FlippableView : NSView
+{
+	BOOL _isFlipped;
+}
+- (void) setFlipped:(BOOL) flag;
+@end
+
+@interface ImageView : FlippableView
 {
 	NSImage *img;
 }
 @end
 
-@implementation ImageView
+@implementation FlippableView
 
-#if 0
-/* if set, [self bounds].origin is at the top of the view and the image is drawn above - unless we translate */
-- (BOOL) isFlipped; { return YES; }
-#endif
+- (BOOL) isFlipped; { return _isFlipped; }
+- (void) setFlipped:(BOOL) flag; { _isFlipped=flag; }
+
+@end
+
+@implementation ImageView
 
 - (void) setImage:(NSImage *) i { [img autorelease]; img=[i retain]; }
 
@@ -66,7 +81,7 @@ int main(int argc, const char *argv[])
 	/* flipping */
 	[img setFlipped:NO];
 
-	[img setFlipped:YES];
+	//	[img setFlipped:YES];
 
 	/* setSize wird auch bei composite berücksichtigt! */
 	//	[img setSize:NSMakeSize(50, 50)];
@@ -151,7 +166,7 @@ int main(int argc, const char *argv[])
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/MenuExtras/Icons/display.png";
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/1bK.png";
 //	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/rss.gif";
-	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/OpenSource/GPL/MokoMaze/src/pics/qtmaze/ball.png";	/* different DPI */
+//	path=@"/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/OpenSource/GPL/MokoMaze/src/pics/qtmaze/ball.png";	/* different DPI */
 //	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowColors.icns";
 //	path=@"/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/Images/NSToolbarShowFonts.icns";
 	NSImage *img=[[[NSImage alloc] initWithContentsOfFile:path] autorelease];
@@ -161,8 +176,8 @@ int main(int argc, const char *argv[])
 		return nil;
 		}
 
-#if 0 // flipped drawing
-	[img setFlipped:YES];
+#if 1 // flipped drawing
+	[img setFlipped:NO];
 #endif
 
 #if 0	// test drawing/copying into other pixmap and not to screen
@@ -205,20 +220,34 @@ int main(int argc, const char *argv[])
 	NSWindow *w=[[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 250, 200) styleMask:(NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask) backing:NSBackingStoreBuffered defer:NO];
 	NSView *iv;
 #if 1
-	iv=[[ImageView alloc] initWithFrame:NSMakeRect(50, 50, 100, 100)];
+	iv=[[ImageView alloc] initWithFrame:NSMakeRect(50, 10, 100, 100)];
+
+#if 1
+	[(ImageView *) iv setFlipped:NO];	// flips the image! but does not move it
+#endif
+
 #else
 	iv=[[NSImageView alloc] initWithFrame:NSMakeRect(50, 50, 100, 100)];
-	[iv setImageScaling:NSImageScaleNone];
-	[iv setImageFrameStyle:NSImageFrameGrayBezel];
+	[(NSImageView *) iv setImageScaling:NSImageScaleNone];
+	[(NSImageView *) iv setImageFrameStyle:NSImageFrameGrayBezel];
 #if 1
-	[iv setImageScaling:NSImageScaleProportionallyUpOrDown];
+	[(NSImageView *) iv setImageScaling:NSImageScaleProportionallyUpOrDown];
 #endif
 #endif
-	BOOL fl=[iv isFlipped];
-	NSLog(@"fl=%d", fl);
 
 	[w setTitle:@"NSImage Drawing Test"];
-	[iv setImage:[self img]];
+	[(NSImageView *) iv setImage:[self img]];
+
+#if 1
+	FlippableView *fv=[[FlippableView alloc] initWithFrame:[iv frame]];
+	[iv setFrameOrigin:NSZeroPoint];
+	[fv addSubview:iv];	// embed in another flipped view
+	[fv setFlipped:YES];	// has no effect on Cocoa!
+							// [fv autorelease];	// don't autorelease or we will end in some SEGFAULT on Cocoa ([NSView viewWillDraw])
+	iv=fv;
+#endif
+
+
 #if 0
 	[iv setFrameRotation:10.0];
 #endif
@@ -226,6 +255,7 @@ int main(int argc, const char *argv[])
 	[iv setBoundsRotation:10.0];
 	NSLog(@"%@", NSStringFromRect([iv frame]));
 #endif
+
 #if 1	// keep frame size
 	[[w contentView] addSubview:iv];
 #else	// adjust to window frame
