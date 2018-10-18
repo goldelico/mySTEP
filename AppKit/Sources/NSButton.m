@@ -794,22 +794,22 @@ id __buttonCellClass = nil;
 //				[img setScalesWhenResized:YES];
 //				[img setSize:imageSize];	// rescale
 			}
-	switch(_c.imagePosition) 
+	switch(_c.imagePosition)
 		{
 		case NSImageOnly:			// draw image only - centered
 		case NSImageOverlaps: 		// draw title over the centered image
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
-		case NSImageLeft:					 			// draw image to the left of title
+		case NSImageLeft:								// draw image to the left of title
 			cellFrame.origin.x += 4;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
-		case NSImageRight:					 			// draw image to the right of the title
+		case NSImageRight:								// draw image to the right of the title
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width) - 4;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
-			case NSImageAbove:						 		// draw image above the title
+			case NSImageAbove:								// draw image above the title
 				if(![controlView isFlipped])
 						{
 							cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
@@ -839,12 +839,11 @@ id __buttonCellClass = nil;
 		cellFrame.origin.x += 1;
 		cellFrame.origin.y += 1;
 		}
-//	if([controlView isFlipped])
-//		cellFrame.origin.y += imageSize.height;
+	cellFrame.size=imageSize;
 #if 0
-	NSLog(@"drawImage: %@ at %@", img, NSStringFromPoint(cellFrame.origin));
+	NSLog(@"drawImage: %@ at %@", img, NSStringFromRect(cellFrame));
 #endif
-	[img drawInRect:(NSRect){ cellFrame.origin, imageSize } fromRect:NSZeroRect operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];
+	[self _drawImage:img withFrame:cellFrame inView:controlView];
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;

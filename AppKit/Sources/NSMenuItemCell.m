@@ -433,7 +433,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	// ??? or do we use the NSButtonCell implementation for drawing the state image?
 	// must implement/override imageRectForBounds in NSButtonCell
-	[self drawImage:[menuItem image] withFrame:frame inView:view];
+	[self _drawImage:[menuItem image] withFrame:frame inView:view];
 #else
 	NSImage *i=[menuItem image];
 	NSRect r;
@@ -449,7 +449,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(r), i);
 #endif
-	[i compositeToPoint:r.origin operation:NSCompositeHighlight];
+	[self _drawImage:i withFrame:frame inView:view];
+	//	[i compositeToPoint:r.origin operation:NSCompositeHighlight];
 #endif
 }
 
@@ -478,8 +479,9 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 		if(!__branchImage)
 			__branchImage = [[NSImage imageNamed: @"GSSubmenuArrow"] retain];
-		[__branchImage compositeToPoint:NSMakePoint(frame.origin.x+frame.size.width-[__branchImage size].width, frame.origin.y+6.0)
-							  operation:NSCompositeHighlight];
+			[self _drawImage:__branchImage withFrame:frame inView:view];
+			//		[__branchImage compositeToPoint:NSMakePoint(frame.origin.x+frame.size.width-[__branchImage size].width, frame.origin.y+6.0)
+			//				  operation:NSCompositeHighlight];
 		return;		// suppress key equivalent (even if present!)
 		}
 	as=[self _keyEquivalentAttributedString];
@@ -523,7 +525,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 	sz=[i size];
 	frame.origin.y += (frame.size.height-sz.height)/2.0;	// center vertically
-	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
+	[self _drawImage:i withFrame:frame inView:view];
+	//	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
 }
 
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;

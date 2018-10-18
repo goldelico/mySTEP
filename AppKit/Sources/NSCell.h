@@ -156,7 +156,7 @@ enum {
 @public
 	id _contents;
 	id _representedObject;
-	NSControlView *_controlView;
+	NSView *_controlView;
 	NSMutableDictionary *_attribs;	// attribute dict
 	// FIXME: the next 3 are stored in the attribs dict
 	//	NSColor *_textColor;	// NSForegroundColorAttributeName

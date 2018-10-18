@@ -233,7 +233,7 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect(rect));
 #endif
-	[_contents drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[self _drawImage:_contents withFrame:rect inView:controlView];
 	if(_ic.imageAnimates)
 		{ // if animates and contents can really be animated, setup performer for automatic redraw
 		  // check for bestRep of _contents

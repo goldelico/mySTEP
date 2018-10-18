@@ -139,7 +139,8 @@ static NSImage *__highlightBranchImage;
 #if 0
 			NSLog(@"NSBrowserCell draw image %@", image);
 #endif
-			[image compositeToPoint:imageRect.origin operation:op];
+				[self _drawImage:image withFrame:imageRect inView:controlView];
+				//			[image compositeToPoint:imageRect.origin operation:op];
 			}
 		}
 	[super drawInteriorWithFrame:cellFrame inView:controlView];		// standard drawing

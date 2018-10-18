@@ -165,7 +165,7 @@ static Class _sliderCellClass;
 - (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
 	NSRect kr;
-	_controlView=controlView;	// remember
+	_controlView=(NSControlView *) controlView;	// remember
 	if(_sliderType == NSCircularSlider)
 		;
 	if(_initializedVertical != _isVertical)

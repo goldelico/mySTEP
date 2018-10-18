@@ -73,7 +73,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 		[super drawBezelWithFrame:cellFrame inView:controlView];
 }
 
-- (void) drawWithFrame:(NSRect)cellFrame inView:(NSView*)controlView  
+- (void) drawWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
 	static void (*supersuper)(id, SEL, NSRect, NSView *);
 	if(!supersuper) supersuper = (void (*)(id, SEL, NSRect, NSView *))[NSButtonCell instanceMethodForSelector:_cmd];	// get NSButtonCell's implementation
@@ -84,7 +84,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	supersuper(self, _cmd, cellFrame, controlView);		// call NSButtonCell's implementation and not the one of NSMenuItem!
 }
 
-- (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView  
+- (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 { // overlay the popup/pulldown icon
 	NSImage *image;
 	NSSize sz;
@@ -149,7 +149,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 		NSLog(@"NSPopUpButton image=%@ rect=%@", image, NSStringFromRect(rect));
 #endif
-	[image compositeToPoint:cellFrame.origin operation:NSCompositeSourceOver];
+	[image drawInRect:cellFrame];
+	//	[image compositeToPoint:cellFrame.origin operation:NSCompositeSourceOver];
 }
 
 - (id) init	{ return [self initTextCell:@"PopUpButton" pullsDown:NO]; }
@@ -341,6 +342,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) setObjectValue:(id) obj;
 {
+	if([obj isKindOfClass:[NSAttributedString class]])
+		obj=[(NSAttributedString *) obj string];
 	[self selectItemAtIndex:[(id) obj intValue]];
 }
 

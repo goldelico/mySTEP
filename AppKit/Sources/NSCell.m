@@ -743,6 +743,23 @@ static NSColor *__borderedBackgroundColor = nil;
 	return string;
 }
 
+- (void) _drawImage:(NSImage *) image withFrame:(NSRect) rect inView:(NSView *) controlView;
+{
+	NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight : NSCompositeSourceOver;
+	float fraction=(_c.highlighted?0.8:1.0);
+	if([controlView isFlipped])
+		{
+		// FIXME: it appears as if we have to update the CTM here to revert flipping...
+		// alternatively we can temporarily toggle the isFlipped state of the image
+		BOOL flipped=[image isFlipped];
+		[image setFlipped:!flipped];
+		[image drawInRect:rect fromRect:NSZeroRect operation:op fraction:fraction];
+		[image setFlipped:flipped];
+		}
+	else
+		[image drawInRect:rect fromRect:NSZeroRect operation:op fraction:fraction];
+}
+
 - (void) drawInteriorWithFrame:(NSRect)frame inView:(NSView*)controlView
 {
 #if 0
@@ -776,14 +793,8 @@ static NSColor *__borderedBackgroundColor = nil;
 		}
 	
 	if(_c.type == NSImageCellType)
-		{ // render image cell
-			NSSize size = [(NSImage *)_contents size];
-			NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight 
-			: NSCompositeSourceOver;
-			// always center
-			frame.origin.x += (NSWidth(frame) - size.width) / 2;
-			frame.origin.y += (NSHeight(frame) - size.height) / 2;
-			[_contents compositeToPoint:frame.origin operation:op fraction:(_c.highlighted?0.8:1.0)];	  
+		{ // render image cell into the given frame
+			[self _drawImage:_contents withFrame:frame inView:controlView];
 		}
 }
 

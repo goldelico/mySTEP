@@ -312,7 +312,7 @@ typedef NSInteger NSTrackingRectTag;
 - (void) viewDidMoveToSuperview;
 - (void) viewDidMoveToWindow;
 - (void) viewDidUnhide;
-- (void) viewWillDraw; 
+- (void) viewWillDraw;
 - (void) viewWillMoveToSuperview:(NSView *) view;
 - (void) viewWillMoveToWindow:(NSWindow *) newWindow;
 - (void) viewWillStartLiveResize;
