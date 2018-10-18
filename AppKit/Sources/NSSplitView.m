@@ -326,16 +326,14 @@ NSSplitView.h
 {
 	NSPoint dimpleOrg;
 	NSSize dimpleSize;
+	CGFloat dimple=MIN(aRect.size.width, aRect.size.height);
 	
-	if(!dimpleImage) 								// focus is already on self
+	if(!dimpleImage)
 		return;
-	dimpleSize = [dimpleImage size];
-	// composite into the center of the given rect. Since 
-	// NSImages are always flipped, we adjust for it here
+	dimpleSize = NSMakeSize(dimple, dimple);
+	[dimpleImage setSize:dimpleSize];
 	dimpleOrg.x = MAX(NSMidX(aRect) - (dimpleSize.width / 2.0), 0.0);
 	dimpleOrg.y = MAX(NSMidY(aRect) - (dimpleSize.height / 2.0), 0.0);
-//	if([self isFlipped]) 
-//		dimpleOrg.y += dimpleSize.height;
 	[dimpleImage compositeToPoint:dimpleOrg operation:NSCompositeSourceOver];
 }
 
