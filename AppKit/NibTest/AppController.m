@@ -40,7 +40,7 @@
 
 - (IBAction) printBezelStyle:(id) Sender;
 {
-	NSLog(@"Bezel Style = %lu", [Sender bezelStyle]);
+	NSLog(@"Bezel Style = %lu", [(NSButton *) Sender bezelStyle]);
 }
 
 - (IBAction) periodic:(id) Sender;
@@ -373,8 +373,8 @@ void printWindowList()
 							// FIXME: should load from NIB file as well
 							NSMenu *submenu = [[[NSMenu alloc] init] autorelease];
 							NSMenuItem *submenuItem = [[[NSMenuItem alloc] initWithTitle: @"Search Panel"
-																																		action: @selector(searchUsingSearchPanel:)
-																														 keyEquivalent: @""] autorelease];
+																				  action: @selector(searchUsingSearchPanel:)
+																		   keyEquivalent: @""] autorelease];
 							NSMenuItem *menuFormRep = [[[NSMenuItem alloc] init] autorelease];
 							[submenu addItem:submenuItem];
 							[submenuItem setTarget:self];
