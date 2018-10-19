@@ -491,7 +491,7 @@ static NSCountedSet *__pb;
 
 - (BOOL) draw
 {
-	BOOL (*method)(id object, SEL _cmd)=[_delegate methodForSelector:_selector];
+	BOOL (*method)(id object, SEL _cmd)=(BOOL (*)(id, SEL))[_delegate methodForSelector:_selector];
 	if(method)
 		return (*method)(_delegate, _selector);
 	return NO;

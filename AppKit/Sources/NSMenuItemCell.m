@@ -172,7 +172,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 		if(r.length)
 			{ // apply menu font and color
-			NSFont *f=[_controlView font];
+			NSFont *f=[(NSControl *) _controlView font];
 			[(NSMutableAttributedString *) s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
 			if(f)
 				[(NSMutableAttributedString *) s addAttribute:NSFontAttributeName value:f range:r];
@@ -195,7 +195,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSString *ucKey=[key uppercaseString];
 	NSRange r;
 	BOOL shift;
-	if([key length] == 0 || [_controlView isHorizontal])
+	if([key length] == 0 || [(NSMenuView *) _controlView isHorizontal])
 		return [[[NSMutableAttributedString alloc] initWithString:@""] autorelease]; // no shortcut defined and never display on horizontal menus
 	m=[menuItem keyEquivalentModifierMask]; // get mask
 	shift=(m&NSShiftKeyMask);	// mask is set (Function keys only)
@@ -244,7 +244,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 	[s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
 	if(_controlView)
-		[s addAttribute:NSFontAttributeName value:[_controlView font] range:r];
+		[s addAttribute:NSFontAttributeName value:[(NSControl *) _controlView font] range:r];
 #if 0
 	NSLog(@"keyEquivalentAttributedString=%@", [s string]);
 #endif
@@ -286,8 +286,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSLog(@"menuItem isSeparatorItem=%d", [menuItem isSeparatorItem]);
 #endif
 	needsSizing=NO;	// break recursion triggered by [_controlView keyEquivalentOffset] below
-	isHorizontal=[_controlView isHorizontal];
-	horizontalEdgePadding=[_controlView horizontalEdgePadding];
+	isHorizontal=[(NSMenuView *) _controlView isHorizontal];
+	horizontalEdgePadding=[(NSMenuView *) _controlView horizontalEdgePadding];
 	as=[self _titleAttributedString];
 	if(as)
 		{
@@ -430,28 +430,14 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawImageWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-#if 0
-	// ??? or do we use the NSButtonCell implementation for drawing the state image?
-	// must implement/override imageRectForBounds in NSButtonCell
-	[self _drawImage:[menuItem image] withFrame:frame inView:view];
-#else
 	NSImage *i=[menuItem image];
-	NSRect r;
-	NSSize sz;
 	if(!i)
 		return;	// no image
-	r=[self imageRectForBounds:frame];	// translate
+	frame=[self imageRectForBounds:frame];	// translate
 #if 0
-	NSLog(@"drawImageWithFrame:%@->%@ - img=%@", NSStringFromRect(frame), NSStringFromRect(r), i);
-#endif
-	sz=[i size];
-	r.origin.y += 0.5*(r.size.height+sz.height);	// center vertically
-#if 0
-	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(r), i);
+	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(frame), i);
 #endif
 	[self _drawImage:i withFrame:frame inView:view];
-	//	[i compositeToPoint:r.origin operation:NSCompositeHighlight];
-#endif
 }
 
 - (void) drawKeyEquivalentWithFrame:(NSRect) frame inView:(NSView *) view;
@@ -496,7 +482,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 {
 #if 0	// could use some style setting
 	[[self _textColor] set];
-	if([_controlView isHorizontal])
+	if([(NSMenuView *) _controlView isHorizontal])
 		{ // draw vertical line centered in frame
 		NSDrawRect(NSMakeRect(frame.origin.x+frame.size.width/2.0, frame.origin.y, 1.0, frame.size.height));
 		}
@@ -509,22 +495,13 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawStateImageWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-#if NEW
-	// ??? or do we use the NSButtonCell implementation for drawing the state image?
-	// must implement/override imageRectForBounds in NSButtonCell
-	[self drawImage:[self _stateImage] withFrame:frame inView:view];
-#endif
 	NSImage *i=[self _stateImage];  // current state image
-	NSSize sz;
 	if(!i || stateImageWidth == 0.0)
 		return;	// empty or don't draw or use default?
-//	[i compositeToPoint:NSMakePoint(0.0, 0.0) operation:NSCompositeHighlight];
 	frame=[self stateImageRectForBounds:frame];	// translate
 #if 0
 	NSLog(@"frame:%@\nstateImage=%@", NSStringFromRect(frame), i);
 #endif
-	sz=[i size];
-	frame.origin.y += (frame.size.height-sz.height)/2.0;	// center vertically
 	[self _drawImage:i withFrame:frame inView:view];
 	//	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
 }
@@ -547,9 +524,10 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 {
 	if(needsSizing)
 		[self calcSize];
-	frame.origin.x+=[_controlView imageAndTitleOffset];		// starts right of state image
+	frame.origin.x+=[(NSMenuView *) _controlView imageAndTitleOffset];		// starts right of state image
+	// FIXME: should keep aspect ratio!!!
 	frame.size.width=imageWidth;						// use this size
-	return frame;
+	return NSInsetRect(frame, 0, 2);
 }
 
 - (CGFloat) imageWidth;
@@ -565,8 +543,8 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 {
 	if(needsSizing)
 		[self calcSize];
-	frame.origin.x+=[_controlView keyEquivalentOffset];	// starts right of text
-	frame.size.width=[_controlView keyEquivalentWidth];	// use this size
+	frame.origin.x+=[(NSMenuView *) _controlView keyEquivalentOffset];	// starts right of text
+	frame.size.width=[(NSMenuView *) _controlView keyEquivalentWidth];	// use this size
 	return frame;
 }
 
@@ -633,9 +611,9 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 {
 	if(needsSizing)
 		[self calcSize];
-	frame.origin.x+=[_controlView stateImageOffset];	// starts right of state image
-	frame.size.width=[_controlView stateImageWidth];	// use this size
-	return frame;
+	frame.origin.x+=[(NSMenuView *) _controlView stateImageOffset];	// starts right of state image
+	frame.size.width=MIN(frame.size.width, [(NSMenuView *) _controlView stateImageWidth]);	// use this size
+	return NSInsetRect(frame, 2, 2);
 }
 
 - (CGFloat) stateImageWidth;
@@ -652,11 +630,11 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 {
 	if(needsSizing)
 		[self calcSize];
-	frame.origin.x+=[_controlView imageAndTitleOffset]+(imageWidth > 0.0?[_controlView horizontalEdgePadding]+imageWidth:0.0);	// starts right of image
+	frame.origin.x+=[(NSMenuView *) _controlView imageAndTitleOffset]+(imageWidth > 0.0?[(NSMenuView *) _controlView horizontalEdgePadding]+imageWidth:0.0);	// starts right of image
 	frame.size.width=titleWidth;	// use titleWidth
-	frame.origin.y += [_controlView isHorizontal]?8.0:4.0;	// margin from top
+	frame.origin.y += [(NSMenuView *) _controlView isHorizontal]?8.0:4.0;	// margin from top
 #if 0
-	NSLog(@"view i&t.w=%lf, iw=%f", [_controlView imageAndTitleWidth], imageWidth);
+	NSLog(@"view i&t.w=%lf, iw=%f", [(NSMenuView *) _controlView imageAndTitleWidth], imageWidth);
 #endif
 	return frame;
 }

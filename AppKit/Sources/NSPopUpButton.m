@@ -64,8 +64,9 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 		{ // draw default bezel - right shaped
 		cellFrame=[self drawingRectForBounds:cellFrame];
 		cellFrame.size.width-=cellFrame.size.height;
+			cellFrame.size.height+=1.0;
 		[NSBezierPath _drawRoundedBezel:1 inFrame:cellFrame enabled:YES selected:NO highlighted:NO radius:5.0];	// draw left end segment
-		cellFrame.origin.x+=cellFrame.size.width;
+		cellFrame.origin.x+=cellFrame.size.width-1.0;
 		cellFrame.size.width=cellFrame.size.height-1.0;
 		[NSBezierPath _drawRoundedBezel:2 inFrame:cellFrame enabled:YES selected:YES highlighted:NO radius:5.0];	// draw right end segment
 		}
@@ -104,13 +105,14 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 	if(!_pullsDown)
 		{
+		sz.width=sz.height=0.8*cellFrame.size.height;
 		image=[NSImage imageNamed:@"GSPopup"];
-		sz=[image size];
 		cellFrame.origin.x += (cellFrame.size.width - sz.width) / 2;	// center
 		cellFrame.origin.y += (cellFrame.size.height - sz.height) / 2;
 		}
 	else
 		{
+		sz.width=sz.height=0.6*cellFrame.size.height;
 		switch(_arrowPosition)
 			{
 			default:
@@ -125,7 +127,6 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 					case NSMinYEdge: image=[NSImage imageNamed:@"GSArrowUp"]; break;
 					default: return;
 					}
-				sz=[image size];
 				cellFrame.origin.x += (cellFrame.size.width - sz.width) / 2;	// center
 				cellFrame.origin.y += (cellFrame.size.height - sz.height) / 2;
 				break;
@@ -139,8 +140,6 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 					case NSMinYEdge: image=[NSImage imageNamed:@"GSArrowDown"]; break;
 					default: return;
 					}
-				sz=[image size];
-				// FIXME: this should be part of the positioning algorithm
 				cellFrame.origin.x += (cellFrame.size.width - sz.width) / 2;	// center
 				cellFrame.origin.y = 0.0;	// at bottom
 				break;
@@ -149,8 +148,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 		NSLog(@"NSPopUpButton image=%@ rect=%@", image, NSStringFromRect(rect));
 #endif
-	[image drawInRect:cellFrame];
-	//	[image compositeToPoint:cellFrame.origin operation:NSCompositeSourceOver];
+	cellFrame.size=sz;
+	[self _drawImage:image withFrame:cellFrame inView:controlView];
 }
 
 - (id) init	{ return [self initTextCell:@"PopUpButton" pullsDown:NO]; }

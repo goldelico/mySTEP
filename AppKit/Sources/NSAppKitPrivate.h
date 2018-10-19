@@ -127,7 +127,7 @@ typedef enum _NSRoundedBezelSegments
 - (NSAttributedString *) _getFormattedStringIgnorePlaceholder:(BOOL) flag;
 - (void) _setTextColor:(NSColor *) textColor;
 - (NSColor *) _textColor;
-- (void) _drawImage:(NSImage *) withFrame:(NSRect) rect inView:(NSView *) controlView;
+- (void) _drawImage:(NSImage *) image withFrame:(NSRect) rect inView:(NSView *) controlView;
 @end
 
 @interface NSApplication (NSPrivate)
