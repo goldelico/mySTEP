@@ -411,7 +411,7 @@ static NSString *__fontCollections = nil;
 				}
 			}
 		}
-	NSLog(@"Invalid font request: fontWithFamily:%@ traits:%08x weight:%d size:%f", family, traits, (long) weight, size);
+	NSLog(@"Invalid font request: fontWithFamily:%@ traits:%08x weight:%ld size:%f", family, traits, (long) weight, size);
 	return nil;
 }
 
