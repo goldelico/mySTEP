@@ -34,6 +34,7 @@ export SOURCES+=" objc/IOBluetoothSDPServiceRecord.m"
 export SOURCES+=" objc/IOBluetoothUserNotification.m"
 export SOURCES+=" objc/OBEXFileTransferServices.m"
 export SOURCES+=" objc/OBEXSession.m"
+export SOURCES+=" objc/IOBluetoothObject.m"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
