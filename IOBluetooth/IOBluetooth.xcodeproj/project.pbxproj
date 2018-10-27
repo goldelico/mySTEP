@@ -15,6 +15,7 @@
 			dependencies = (
 				EEE177230CDB214900A85BD3 /* PBXTargetDependency */,
 				EEE177250CDB214C00A85BD3 /* PBXTargetDependency */,
+				EE82D3C32183AE5F005229C2 /* PBXTargetDependency */,
 			);
 			name = IOBluetooth;
 			productName = IOBluetooth;
@@ -27,21 +28,25 @@
 		EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE82D3BE218384E5005229C2 /* iobttest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE82D3AB21832EC3005229C2 /* iobttest.m */; };
 		EE82D3BF218384F1005229C2 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3AF21838423005229C2 /* IOBluetooth.framework */; };
-		EE82D3C0218384F7005229C2 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE1772F0CDB792500A85BD3 /* Cocoa.framework */; };
-		EE82D3C1218384FA005229C2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3B021838440005229C2 /* Foundation.framework */; };
-		EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEBABAE521558A60005D4653 /* IOBluetoothDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAE621558A60005D4653 /* IOBluetoothDeviceInquiry.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAE721558A60005D4653 /* IOBluetoothL2CAPChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAE821558A60005D4653 /* IOBluetoothOBEXSession.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADC21558A60005D4653 /* IOBluetoothOBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAE921558A60005D4653 /* IOBluetoothObject.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADD21558A60005D4653 /* IOBluetoothObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAEA21558A60005D4653 /* IOBluetoothRFCOMMChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADE21558A60005D4653 /* IOBluetoothRFCOMMChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAEB21558A60005D4653 /* IOBluetoothSDPDataElement.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABADF21558A60005D4653 /* IOBluetoothSDPDataElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAEC21558A60005D4653 /* IOBluetoothSDPServiceAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE021558A60005D4653 /* IOBluetoothSDPServiceAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAED21558A60005D4653 /* IOBluetoothSDPServiceRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE121558A60005D4653 /* IOBluetoothSDPServiceRecord.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAEE21558A60005D4653 /* IOBluetoothSDPUUID.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE221558A60005D4653 /* IOBluetoothSDPUUID.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAEF21558A60005D4653 /* IOBluetoothUserNotification.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABAF021558A60005D4653 /* OBEXFileTransferServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE82D3C42183AF43005229C2 /* IOBluetoothDevice.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */; };
+		EE82D3C52183AF4E005229C2 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */; };
+		EE82D3C62183AF70005229C2 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */; };
+		EE82D3C82183AF77005229C2 /* IOBluetoothObject.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADD21558A60005D4653 /* IOBluetoothObject.h */; };
+		EE82D3C92183AF7A005229C2 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADE21558A60005D4653 /* IOBluetoothRFCOMMChannel.h */; };
+		EE82D3CB2183AFAB005229C2 /* IOBluetoothOBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADC21558A60005D4653 /* IOBluetoothOBEXSession.h */; };
+		EE82D3CC2183AFAF005229C2 /* IOBluetoothSDPDataElement.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADF21558A60005D4653 /* IOBluetoothSDPDataElement.h */; };
+		EE82D3CD2183AFB1005229C2 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE021558A60005D4653 /* IOBluetoothSDPServiceAttribute.h */; };
+		EE82D3CE2183AFB7005229C2 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE121558A60005D4653 /* IOBluetoothSDPServiceRecord.h */; };
+		EE82D3CF2183AFBA005229C2 /* IOBluetoothSDPUUID.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE221558A60005D4653 /* IOBluetoothSDPUUID.h */; };
+		EE82D3D02183AFBC005229C2 /* IOBluetoothUserNotification.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */; };
+		EE82D3D12183AFBF005229C2 /* OBEXFileTransferServices.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */; };
+		EE82D3D22183AFCA005229C2 /* OBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1521560E2E005D4653 /* OBEXSession.h */; };
+		EE82D3D32183B04F005229C2 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1921560E9B005D4653 /* IOBluetoothDeviceSelectorController.h */; };
+		EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */; };
+		EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */; };
+		EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */; };
+		EE82D3D72183B05B005229C2 /* IOBluetoothUIUserLib.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1D21560E9B005D4653 /* IOBluetoothUIUserLib.h */; };
+		EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3B021838440005229C2 /* Foundation.framework */; };
 		EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */; };
 		EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */; };
 		EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF521560E03005D4653 /* IOBluetoothOBEXSession.m */; };
@@ -54,17 +59,18 @@
 		EEBABB1221560E03005D4653 /* IOBluetoothUserNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0021560E03005D4653 /* IOBluetoothUserNotification.m */; };
 		EEBABB1321560E03005D4653 /* OBEXFileTransferServices.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0121560E03005D4653 /* OBEXFileTransferServices.m */; };
 		EEBABB1421560E03005D4653 /* OBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0221560E03005D4653 /* OBEXSession.m */; };
-		EEBABB1621560E2E005D4653 /* OBEXSession.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1521560E2E005D4653 /* OBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */; };
-		EEBABB1E21560E9B005D4653 /* IOBluetoothDeviceSelectorController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1921560E9B005D4653 /* IOBluetoothDeviceSelectorController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABB1F21560E9B005D4653 /* IOBluetoothObjectPushUIController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABB2021560E9B005D4653 /* IOBluetoothPairingController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABB2121560E9B005D4653 /* IOBluetoothServiceBrowserController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEBABB2221560E9B005D4653 /* IOBluetoothUIUserLib.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1D21560E9B005D4653 /* IOBluetoothUIUserLib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		EE82D3C22183AE5F005229C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE82D3B5218384D4005229C2;
+			remoteInfo = iobttest;
+		};
 		EEE177220CDB214900A85BD3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -97,6 +103,19 @@
 			dstPath = Headers/objc;
 			dstSubfolderSpec = 1;
 			files = (
+				EE82D3C82183AF77005229C2 /* IOBluetoothObject.h in Copy objc Headers */,
+				EE82D3C42183AF43005229C2 /* IOBluetoothDevice.h in Copy objc Headers */,
+				EE82D3C52183AF4E005229C2 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */,
+				EE82D3C62183AF70005229C2 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */,
+				EE82D3C92183AF7A005229C2 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */,
+				EE82D3CB2183AFAB005229C2 /* IOBluetoothOBEXSession.h in Copy objc Headers */,
+				EE82D3CC2183AFAF005229C2 /* IOBluetoothSDPDataElement.h in Copy objc Headers */,
+				EE82D3CD2183AFB1005229C2 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */,
+				EE82D3CE2183AFB7005229C2 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */,
+				EE82D3CF2183AFBA005229C2 /* IOBluetoothSDPUUID.h in Copy objc Headers */,
+				EE82D3D02183AFBC005229C2 /* IOBluetoothUserNotification.h in Copy objc Headers */,
+				EE82D3D12183AFBF005229C2 /* OBEXFileTransferServices.h in Copy objc Headers */,
+				EE82D3D22183AFCA005229C2 /* OBEXSession.h in Copy objc Headers */,
 			);
 			name = "Copy objc Headers";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -107,6 +126,11 @@
 			dstPath = Headers/objc;
 			dstSubfolderSpec = 1;
 			files = (
+				EE82D3D32183B04F005229C2 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */,
+				EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */,
+				EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */,
+				EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */,
+				EE82D3D72183B05B005229C2 /* IOBluetoothUIUserLib.h in Copy objc Headers */,
 			);
 			name = "Copy objc Headers";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,7 +180,6 @@
 		EEBABAFC21560E03005D4653 /* IOBluetoothSDPServiceRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPServiceRecord.m; path = objc/IOBluetoothSDPServiceRecord.m; sourceTree = "<group>"; };
 		EEBABAFD21560E03005D4653 /* IOBluetoothSDPUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPUUID.m; path = objc/IOBluetoothSDPUUID.m; sourceTree = "<group>"; };
 		EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothServiceBrowserController.m; path = objc/IOBluetoothServiceBrowserController.m; sourceTree = "<group>"; };
-		EEBABAFF21560E03005D4653 /* IOBluetoothUIUserLib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothUIUserLib.m; path = objc/IOBluetoothUIUserLib.m; sourceTree = "<group>"; };
 		EEBABB0021560E03005D4653 /* IOBluetoothUserNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothUserNotification.m; path = objc/IOBluetoothUserNotification.m; sourceTree = "<group>"; };
 		EEBABB0121560E03005D4653 /* OBEXFileTransferServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OBEXFileTransferServices.m; path = objc/OBEXFileTransferServices.m; sourceTree = "<group>"; };
 		EEBABB0221560E03005D4653 /* OBEXSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OBEXSession.m; path = objc/OBEXSession.m; sourceTree = "<group>"; };
@@ -178,7 +201,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */,
+				EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,8 +210,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE82D3BF218384F1005229C2 /* IOBluetooth.framework in Frameworks */,
-				EE82D3C0218384F7005229C2 /* Cocoa.framework in Frameworks */,
-				EE82D3C1218384FA005229C2 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,7 +348,6 @@
 				EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */,
 				EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */,
 				EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */,
-				EEBABAFF21560E03005D4653 /* IOBluetoothUIUserLib.m */,
 			);
 			name = IOBluetoothUI;
 			path = ..;
@@ -342,19 +362,6 @@
 			files = (
 				EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
-				EEBABAEA21558A60005D4653 /* IOBluetoothRFCOMMChannel.h in Headers */,
-				EEBABAED21558A60005D4653 /* IOBluetoothSDPServiceRecord.h in Headers */,
-				EEBABB1621560E2E005D4653 /* OBEXSession.h in Headers */,
-				EEBABAE521558A60005D4653 /* IOBluetoothDevice.h in Headers */,
-				EEBABAE821558A60005D4653 /* IOBluetoothOBEXSession.h in Headers */,
-				EEBABAE721558A60005D4653 /* IOBluetoothL2CAPChannel.h in Headers */,
-				EEBABAEC21558A60005D4653 /* IOBluetoothSDPServiceAttribute.h in Headers */,
-				EEBABAEF21558A60005D4653 /* IOBluetoothUserNotification.h in Headers */,
-				EEBABAEE21558A60005D4653 /* IOBluetoothSDPUUID.h in Headers */,
-				EEBABAF021558A60005D4653 /* OBEXFileTransferServices.h in Headers */,
-				EEBABAE921558A60005D4653 /* IOBluetoothObject.h in Headers */,
-				EEBABAEB21558A60005D4653 /* IOBluetoothSDPDataElement.h in Headers */,
-				EEBABAE621558A60005D4653 /* IOBluetoothDeviceInquiry.h in Headers */,
 				EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -363,11 +370,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEBABB2021560E9B005D4653 /* IOBluetoothPairingController.h in Headers */,
-				EEBABB1F21560E9B005D4653 /* IOBluetoothObjectPushUIController.h in Headers */,
-				EEBABB2221560E9B005D4653 /* IOBluetoothUIUserLib.h in Headers */,
-				EEBABB1E21560E9B005D4653 /* IOBluetoothDeviceSelectorController.h in Headers */,
-				EEBABB2121560E9B005D4653 /* IOBluetoothServiceBrowserController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,19 +554,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */,
-				EEBABB0D21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m in Sources */,
-				EEBABB0C21560E03005D4653 /* IOBluetoothSDPDataElement.m in Sources */,
 				EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */,
-				EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */,
+				EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */,
 				EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */,
-				EEBABB0E21560E03005D4653 /* IOBluetoothSDPServiceRecord.m in Sources */,
+				EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */,
 				EEBABB0821560E03005D4653 /* IOBluetoothObject.m in Sources */,
-				EEBABB0F21560E03005D4653 /* IOBluetoothSDPUUID.m in Sources */,
-				EEBABB1321560E03005D4653 /* OBEXFileTransferServices.m in Sources */,
-				EEBABB1221560E03005D4653 /* IOBluetoothUserNotification.m in Sources */,
-				EEBABB1421560E03005D4653 /* OBEXSession.m in Sources */,
 				EEBABB0B21560E03005D4653 /* IOBluetoothRFCOMMChannel.m in Sources */,
+				EEBABB0C21560E03005D4653 /* IOBluetoothSDPDataElement.m in Sources */,
+				EEBABB0D21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m in Sources */,
+				EEBABB0E21560E03005D4653 /* IOBluetoothSDPServiceRecord.m in Sources */,
+				EEBABB0F21560E03005D4653 /* IOBluetoothSDPUUID.m in Sources */,
+				EEBABB1221560E03005D4653 /* IOBluetoothUserNotification.m in Sources */,
+				EEBABB1321560E03005D4653 /* OBEXFileTransferServices.m in Sources */,
+				EEBABB1421560E03005D4653 /* OBEXSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -586,6 +588,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		EE82D3C32183AE5F005229C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE82D3B5218384D4005229C2 /* iobttest */;
+			targetProxy = EE82D3C22183AE5F005229C2 /* PBXContainerItemProxy */;
+		};
 		EEE177230CDB214900A85BD3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EE6FE351076F05AF009CC969 /* IOBluetoothCore */;
@@ -607,7 +614,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -655,7 +662,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -696,7 +703,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
