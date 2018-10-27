@@ -194,7 +194,7 @@ static NSMutableArray *_paired;
 	h = 11*h + _addr.addr[5];
 	return h;
 }
-   
+
 - (BOOL) isEqual:(id) other;
 { // same address?
 	const BluetoothDeviceAddress *addr;
@@ -266,19 +266,6 @@ static NSMutableArray *_paired;
 - (IOReturn) remoteNameRequest:(id) target withPageTimeout:(BluetoothHCIPageTimeout) timeout;
 {
 	_IOBluetoothDeviceNameRequestHandler *handler=[[_IOBluetoothDeviceNameRequestHandler alloc] initWithDevice:self andTarget:target];
-/*
- dd = hci_open_dev(dev_id);
- if (dd < 0) {
- perror("HCI device open failed");
- exit(1);
- }
- 
- if (hci_read_remote_name(dd, &bdaddr, sizeof(name), name, 25000) == 0)
- printf("%s\n", name);
- 
- hci_close_dev(dd);
-
- */
 	NSTask *task=[IOBluetoothDeviceInquiry _hcitool:[NSArray arrayWithObjects:@"name", [self getAddressString], nil] handler:handler done:@selector(remoteNameRequestDone:)];
 	if(!task)
 		{

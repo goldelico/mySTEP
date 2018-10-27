@@ -6,7 +6,7 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "IOBluetoothPairingController.h"
+#import <IOBluetoothUI/objc/IOBluetoothPairingController.h>
 
 
 @implementation IOBluetoothPairingController

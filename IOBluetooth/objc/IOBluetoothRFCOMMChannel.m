@@ -6,7 +6,7 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "IOBluetoothRFCOMMChannel.h"
+#import <IOBluetooth/objc/IOBluetoothRFCOMMChannel.h>
 
 
 @implementation IOBluetoothRFCOMMChannel

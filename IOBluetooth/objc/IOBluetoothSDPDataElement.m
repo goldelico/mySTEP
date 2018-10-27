@@ -6,7 +6,7 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "IOBluetoothSDPDataElement.h"
+#import <IOBluetooth/objc/IOBluetoothSDPDataElement.h>
 
 
 @implementation IOBluetoothSDPDataElement

@@ -6,9 +6,9 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "IOBluetoothDeviceInquiry.h"
-#import "IOBluetoothDevice.h"
-#import "../BluetoothAssignedNumbers.h"
+#import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
+#import <IOBluetooth/objc/IOBluetoothDevice.h>
+#import <IOBluetooth/BluetoothAssignedNumbers.h>
 #import "../BluetoothPrivate.h"
 
 
@@ -33,7 +33,7 @@
 	return _delegate;
 }
 
-- (NSArray*) foundDevices; 
+- (NSArray*) foundDevices;
 {
 	return _devices;
 }
@@ -45,19 +45,10 @@
 	return nil;
 }
 
-- (id) initWithDelegate:(id) delegate; 
+- (id) initWithDelegate:(id) delegate;
 {
 	if((self=[super init]))
 		{
-#ifdef BLUEZ
-			_socket = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI));
-			if(_socket < 0)
-					{
-						perror("Can't open HCI socket.");
-						[self release];
-						return nil;
-					}
-#endif
 			_timeout=10;
 			_delegate=delegate;
 			_devices=[[NSMutableArray alloc] initWithCapacity:5];
@@ -68,18 +59,13 @@
 
 - (void) dealloc;
 {
-#ifdef BLUEZ
-	if(_socket >= 0)
-		[self stop];
-#else
 	if(_task)
 		[self stop];
-#endif
 	[_devices release];
 	[super dealloc];
 }
 
-- (uint8_t) inquiryLength; 
+- (uint8_t) inquiryLength;
 {
 	return _timeout;
 }
@@ -103,26 +89,22 @@
 	NIMP;
 }
 
-- (void) setUpdateNewDeviceNames:(BOOL) flag; 
+- (void) setUpdateNewDeviceNames:(BOOL) flag;
 { // NOTE: this makes it much slower because we isssue a separate hcitool name command for each device
 	_updateNewDeviceNames=flag;
 }
 
-#ifndef BLUEZ
-
-+ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
++ (NSTask *) _tool:(NSString *) tool withArgs:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
 {
-#if OLD
-	NSString *tool=[NSSystemStatus sysInfoForKey:@"Bluetooth Tool"];
-#else
-	NSString *tool=@"/usr/bin/hcitool";
-#endif
 	NSTask *task;
 #if 1
 	NSLog(@"tool=%@", tool);
 #endif
 	if(!tool)
 		return nil;	// bluetooth is not supported
+#ifndef __mySTEP
+	tool=@"/bin/echo";	// Mac has no hcitools
+#endif
 	task=[[NSTask new] autorelease];
 	[[NSNotificationCenter defaultCenter] addObserver:handler selector:sel name:NSTaskDidTerminateNotification object:task];
 	[task setLaunchPath:tool];
@@ -139,99 +121,22 @@
 	return task;
 }
 
-#endif
++ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
+{
+	return [self _tool:@"/bin/hcitool" withArgs:cmds handler:handler done:sel];
+}
 
-- (IOReturn) start; 
++ (NSTask *) _hciconfig:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
+{
+	return [self _tool:@"/bin/hciconfig" withArgs:cmds handler:handler done:sel];
+}
+
+
+- (IOReturn) start;
 { // start background polling
 #if 1
 	NSLog(@"start %@", self);
 #endif
-#ifdef BLUEZ
-	_aborted=NO;
-	// see hcitool.c
-	/* --- make this non-blocking!
-	 num_rsp = hci_inquiry(dev_id, length, num_rsp, lap, &info, flags);
-	 if (num_rsp < 0) {
-		perror("Inquiry failed.");
-		exit(1);
-	 }
-
-	 int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t *lap, inquiry_info **ii, long flags)
-	 {
-	 struct hci_inquiry_req *ir;
-	 uint8_t num_rsp = nrsp;
-	 void *buf;
-	 int dd, size, err, ret = -1;
-	 
-	 if (nrsp <= 0) {
-	 num_rsp = 0;
-	 nrsp = 255;
-	 }
-	 
-	 if (dev_id < 0) {
-	 dev_id = hci_get_route(NULL);
-	 if (dev_id < 0) {
-	 errno = ENODEV;
-	 return -1;
-	 }
-	 }	
-	 
-	 dd = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
-	 if (dd < 0)
-	 return dd;
-	 
-	 buf = malloc(sizeof(*ir) + (sizeof(inquiry_info) * (nrsp)));
-	 if (!buf)
-	 goto done;
-	 
-	 ir = buf;
-	 ir->dev_id  = dev_id;
-	 ir->num_rsp = num_rsp;
-	 ir->length  = len;
-	 ir->flags   = flags;
-	 
-	 if (lap) {
-	 memcpy(ir->lap, lap, 3);
-	 } else {
-	 ir->lap[0] = 0x33;
-	 ir->lap[1] = 0x8b;
-	 ir->lap[2] = 0x9e;
-	 }
-
-	 // is this one blocking the process?
-	 
-	 ret = ioctl(dd, HCIINQUIRY, (unsigned long) buf);
-	 if (ret < 0)
-	 goto free;
-	 
-	 size = sizeof(inquiry_info) * ir->num_rsp;
-	 
-	 if (!*ii)
-	 *ii = malloc(size);
-	 
-	 if (*ii) {
-	 memcpy((void *) *ii, buf + sizeof(*ir), size);
-	 ret = ir->num_rsp;
-	 } else
-	 ret = -1;
-	 
-	 free:
-	 free(buf);
-	 
-	 done:
-	 err = errno;
-	 close(dd);
-	 errno = err;
-	 
-	 return ret;
-	 }
-	 
-	 */
-	
-//		return 42;	// could not launch
-	[_delegate deviceInquiryStarted:self];
-	return kIOReturnSuccess;
-#else
 	if(_task)
 		return kIOReturnError;	// task is already running
 	_aborted=NO;
@@ -240,7 +145,6 @@
 		return 42;	// could not launch
 	[_delegate deviceInquiryStarted:self];
 	return kIOReturnSuccess;
-#endif	
 }
 
 // NOTE: this assumes that the full output of the subtask can be buffered and the pipe does never stall
@@ -248,7 +152,7 @@
 
 /* output looks like
 
-$ hcitool inq 
+$ hcitool inq
 Inquiring ...
 	01:90:71:10:02:AA       clock offset: 0x4402    class: 0x720204
 	00:11:24:AF:2E:E3       clock offset: 0x0704    class: 0x102104
@@ -258,7 +162,6 @@ Inquiring ...
 
 - (void) _done:(NSNotification *) notif;
 {
-#ifndef BLUEZ
 	int status=[_task terminationStatus];
 	NSFileHandle *rfh=[[_task standardOutput] fileHandleForReading];
 	NSMutableArray *recentDevices=(NSMutableArray *) [IOBluetoothDevice recentDevices:0];
@@ -361,67 +264,6 @@ Inquiring ...
 		status=31;	// not available
 	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];	// nothing remaining
 	[rfh release];
-#else
-	{ // no data - i.e. we don't currently support bluetooth (e.g. hcitool installed, but no device)
-			status=31;
-			}
-					BluetoothDeviceAddress addr;
-					dev=[IOBluetoothDevice withAddress:&addr];
-					idx=[recentDevices indexOfObject:dev];
-					if(idx == NSNotFound)
-						{ // this is really a new device
-						[recentDevices insertObject:dev atIndex:0];	// most recent
-						if([recentDevices count] > 100)
-							{
-							// truncate list...
-							}
-#if 0
-						NSLog(@"device added to recent devices: %@", dev);
-#endif
-						}
-					else
-						{
-						dev=[recentDevices objectAtIndex:idx];	// use existing record and not the new one
-						[dev retain];
-						[recentDevices removeObjectAtIndex:idx];
-						[recentDevices insertObject:dev atIndex:0];	// move to front (LRU queue)
-						[dev release];
-						}
-					
-					// recentDevices should be written to a persistent storage so that processes can share...
-					
-					[dev _setClassOfDevice:class];			// this updates the last Inquiry update timestamp
-					[dev _setClockOffset:offset];
-					if(![_devices containsObject:dev])
-						{
-						[_devices addObject:dev];			// device found
-						[_delegate deviceInquiryDeviceFound:self device:dev];
-						}
-					}
-				}
-			}
-		if(_updateNewDeviceNames)
-			{ // find devices still without a name
-			int i, cnt=[_devices count];
-			int remaining=0;
-			for(i=0; i<cnt; i++)
-				{
-				dev=[_devices objectAtIndex:i];
-				if([dev getName] == nil)
-					remaining++;
-				}
-			if(remaining)
-				{ // now fetch device names
-				[_delegate deviceInquiryUpdatingDeviceNamesStarted:self devicesRemaining:remaining];
-				[self remoteNameRequestComplete:nil status:status name:nil];	// trigger first one
-				return;
-				}
-			}
-		}
-	else
-		status=31;	// not available
-	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];	// nothing remaining
-#endif
 }
 
 - (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
@@ -462,7 +304,7 @@ Inquiring ...
 		}
 }
 
-- (IOReturn) stop; 
+- (IOReturn) stop;
 {
 	_aborted=YES;
 #ifndef BLUEZ
@@ -472,7 +314,7 @@ Inquiring ...
 	return kIOReturnSuccess;
 }
 
-- (BOOL) updateNewDeviceNames; 
+- (BOOL) updateNewDeviceNames;
 {
 	return _updateNewDeviceNames;
 }
@@ -481,87 +323,43 @@ Inquiring ...
 {
 	if([self _bluetoothHardwareIsActive] != flag)
 		{
-#if OLD
-		NSString *cmd=[NSSystemStatus sysInfoForKey:(flag?@"Bluetooth On":@"Bluetooth Off")];
-#if 1
-		NSLog(@"command=%@", cmd);
-#endif
-		return system([cmd UTF8String]) == 0;
-#else
-		if(flag)
-			{
-			if([[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] == 0)
-				{ // not yet powered on - will also power on WLAN!
-#if 1
-					NSLog(@"BT power on");
-#endif
-					if(system("VDD=3150000;"
-							  "echo \"255\" >/sys/class/leds/tca6507:6/brightness &&"
-							  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/max_microvolts &&"
-							  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/min_microvolts &&"
-							  "echo \"normal\" >/sys/devices/platform/reg-virt-consumer.4/mode &&"
-							  "echo \"0\" >/sys/class/leds/tca6507:6/brightness &&"
-							  "sleep 1") != 0)
-						{
-						NSLog(@"VAUX4 power on failed");
-						return NO;	// something failed
-						}
-				}
-#if 1
-			NSLog(@"BT hciattach");
-#endif
-			return system("hciattach -s 115200 /dev/ttyS0 any 115200 flow && sleep 2 &&"
-						  "hciconfig hci0 up && sleep 2 &&"
-						  "hciconfig hci0 name GTA04") == 0;
-			}
-		else
-			{
-#if 1
-			NSLog(@"BT killall hciattach");
-#endif
-			system("killall hciattach");
-			/* only if WLAN is inactive (iwconfig | fgrep wlan*) */
-			/* WLAN manager will check if bluetooth is active */
-#if 1
-			NSLog(@"BT power off");
-#endif
-			system("echo \"255\" >/sys/class/leds/tca6507:6/brightness;"
-				   "echo 0 >/sys/devices/platform/reg-virt-consumer.4/max_microvolts");
-			return YES;
-			}
-#endif		
+		NSTask *task;
+		task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", flag?@"up":@"down", nil] handler:nil done:NULL];
+		[task launch];
 		}
 	return YES;	// unchaged
 }
 
 + (BOOL) _bluetoothHardwareIsActive;
 {
-	FILE *file;
-	char line[256];
-#if OLD
-	NSString *cmd=[NSSystemStatus sysInfoForKey:@"Bluetooth Status"];
-#else
-	NSString *cmd=@"hciconfig -a";
-#endif
-	if(!cmd)
-		return NO;
-	file=popen([cmd UTF8String], "r");	// check status
-	if(!file)
-		return NO;
-	/* result looks like
-		hci0:   Type: USB				<- we may have more than one Bluetooth interface!
-        BD Address: 00:06:6E:14:4B:5A ACL MTU: 384:8 SCO MTU: 64:8    <- this is our own address (if we need it)
-        UP RUNNING PSCAN ISCAN
-        RX bytes:154 acl:0 sco:0 events:17 errors:0
-        TX bytes:314 acl:0 sco:0 commands:16 errors:0
-		*/
-	memset(line, sizeof(line), 0);
-	line[fread(line, sizeof(line[0]), sizeof(line)-1, file)]=0; // read as much as we get but not more than buffer holds
-	pclose(file);
+	NSTask *task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", nil] handler:nil done:NULL];
+	[task launch];
+	[task waitUntilExit];
+	int status=[task terminationStatus];
+	NSFileHandle *rfh=[[task standardOutput] fileHandleForReading];
+	NSString *result=[[[NSString alloc] initWithData:[rfh readDataToEndOfFile] encoding:NSUTF8StringEncoding] autorelease];
+	NSRange rng=[result rangeOfString:@"UP\n"];
 #if 1
-	NSLog(@"_bluetoothHardwareIsActive -> %d", strlen(line) > 0);
+	NSLog(@"_bluetoothHardwareIsActive -> %@", result);
 #endif
-	return strlen(line) > 0;
+	return rng.location != NSNotFound;
+}
+
++ (BOOL) _setDiscoverable:(BOOL) flag;
+{
+	if([self _isDiscoverable] != flag)
+		{
+		NSTask *task;
+		task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", flag?@"piscan":@"noscan", nil] handler:nil done:NULL];
+		[task launch];
+		}
+	return YES;	// unchaged
+}
+
++ (BOOL) _isDiscoverable;
+{
+	// watch for PSCAN ISCAN
+	return -1;	// unknown
 }
 
 @end
@@ -576,14 +374,14 @@ Inquiring ...
 }
 
 - (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) sender 
-						   device:(IOBluetoothDevice *) device; 
+						   device:(IOBluetoothDevice *) device;
 { // default;
 	return;
 }
 
 - (void) deviceInquiryDeviceNameUpdated:(IOBluetoothDeviceInquiry *) sender 
 								 device:(IOBluetoothDevice *) device
-					   devicesRemaining:(int) remaining; 
+					   devicesRemaining:(int) remaining;
 { // default;
 	return;
 }
@@ -594,7 +392,7 @@ Inquiring ...
 }
 
 - (void) deviceInquiryUpdatingDeviceNamesStarted:(IOBluetoothDeviceInquiry *) sender 
-								devicesRemaining:(int) remaining; 
+								devicesRemaining:(int) remaining;
 { // default;
 	return;
 }

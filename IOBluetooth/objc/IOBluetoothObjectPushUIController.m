@@ -6,7 +6,7 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "IOBluetoothObjectPushUIController.h"
+#import <IOBluetoothUI/objc/IOBluetoothObjectPushUIController.h>
 
 
 @implementation IOBluetoothObjectPushUIController
