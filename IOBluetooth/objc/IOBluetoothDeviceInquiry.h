@@ -26,22 +26,22 @@
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 + (BOOL) _bluetoothHardwareIsActive;
 
-+ (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate; 
++ (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate;
 
-- (void) clearFoundDevices; 
-- (id) delegate; 
-- (NSArray*) foundDevices; 
-- (id) initWithDelegate:(id) delegate; 
-- (uint8_t) inquiryLength; 
-- (void) setDelegate:(id) delegate; 
-- (uint8_t) setInquiryLength:(uint8_t) seconds; 
+- (void) clearFoundDevices;
+- (id) delegate;
+- (NSArray*) foundDevices;
+- (id) initWithDelegate:(id) delegate;
+- (uint8_t) inquiryLength;
+- (void) setDelegate:(id) delegate;
+- (uint8_t) setInquiryLength:(uint8_t) seconds;
 - (void) setSearchCriteria:(BluetoothServiceClassMajor) scmaj
 		  majorDeviceClass:(BluetoothDeviceClassMajor) dcmaj
-		  minorDeviceClass:(BluetoothDeviceClassMinor) dcmin; 
-- (void) setUpdateNewDeviceNames:(BOOL) flag; 
-- (IOReturn) start; 
-- (IOReturn) stop; 
-- (BOOL) updateNewDeviceNames; 
+		  minorDeviceClass:(BluetoothDeviceClassMinor) dcmin;
+- (void) setUpdateNewDeviceNames:(BOOL) flag;
+- (IOReturn) start;
+- (IOReturn) stop;
+- (BOOL) updateNewDeviceNames;
 
 @end
 
@@ -49,15 +49,15 @@
 
 - (void) deviceInquiryComplete:(IOBluetoothDeviceInquiry *) sender 
 						 error:(IOReturn) error
-					   aborted:(BOOL) aborted; 
+					   aborted:(BOOL) aborted;
 - (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) sender 
-						   device:(IOBluetoothDevice *) device; 
+						   device:(IOBluetoothDevice *) device;
 - (void) deviceInquiryDeviceNameUpdated:(IOBluetoothDeviceInquiry *) sender 
 								 device:(IOBluetoothDevice *) device
-					   devicesRemaining:(int) remaining; 
+					   devicesRemaining:(int) remaining;
 - (void) deviceInquiryStarted:(IOBluetoothDeviceInquiry *) sender;
 - (void) deviceInquiryUpdatingDeviceNamesStarted:(IOBluetoothDeviceInquiry *) sender 
-								devicesRemaining:(int) remaining; 
+								devicesRemaining:(int) remaining;
 
 @end
 
