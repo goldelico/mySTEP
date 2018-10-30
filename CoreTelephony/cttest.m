@@ -47,7 +47,7 @@
 {
 	float paTemp=[[CTTelephonyNetworkInfo telephonyNetworkInfo] paTemperature];	//may have changed
 	float paVolt=[[CTTelephonyNetworkInfo telephonyNetworkInfo] paVoltage];	//may have changed
-	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"signalStrengthDidUpdate:%@ PAtemp=%.1f PAvolt=%.1f", carrier, paTemp, paVol] UTF8String]);
+	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"signalStrengthDidUpdate:%@ PAtemp=%.1f PAvolt=%.1f", carrier, paTemp, paVolt] UTF8String]);
 }
 
 @end
