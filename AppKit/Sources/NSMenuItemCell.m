@@ -128,7 +128,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 { // return size
 	if(needsSizing)
 		[self calcSize];
-#if 1
+#if 0
 	NSLog(@"cellSize=%@", NSStringFromSize(size));
 #endif
 	return size;
@@ -263,7 +263,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSAttributedString *as;
 	BOOL isHorizontal;
 	CGFloat horizontalEdgePadding;
-#if 1
+#if 0
 	NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 #endif
 	if(!needsSizing)
@@ -281,7 +281,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	else
 		[super setTitle:@""];
 #endif	
-#if 1
+#if 0
 	NSLog(@"menuItem celltype=%lu", (unsigned long)[self type]);
 	NSLog(@"menuItem isSeparatorItem=%d", [menuItem isSeparatorItem]);
 #endif
@@ -292,7 +292,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	if(as)
 		{
 		size=[as size];	// title size/height determines everything
-#if 1
+#if 0
 		NSLog(@"menuItem %@ size=%@", [as string], NSStringFromSize(size));
 #endif
 		}
@@ -301,7 +301,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	if([menuItem isSeparatorItem])
 		size.height*=0.8;		// reduce size of separator items to 80% - title should be an empty string and size being determined by font
 	titleWidth=size.width;		// determine by text length
-#if 1
+#if 0
 	NSLog(@"%@.cellSize=%@", [menuItem title], NSStringFromSize(size));
 #endif
 	stateImageWidth=0.0;
@@ -335,14 +335,14 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 			if(img)
 				{ // image exists - enlarge
 				NSSize s=[img size];
-#if 1
+#if 0
 				NSLog(@"%d s=%@ img=%@", i, NSStringFromSize(s), img);
 #endif
 				stateImageWidth=MAX(stateImageWidth, s.width);
 				size.height=MAX(size.height, s.height);	// enlarge cell to maximum height
 				}
 			}
-#if 1
+#if 0
 			NSLog(@"%@.cellSize=%@", [menuItem title], NSStringFromSize(size));
 #endif
 		}
