@@ -1,5 +1,5 @@
 //
-//  NSViewBoundsTest.m
+//  NSViewTest.m
 //  UnitTests
 //
 //  Created by H. Nikolaus Schaller on 27.12.12.

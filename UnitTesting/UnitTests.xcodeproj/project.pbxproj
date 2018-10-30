@@ -47,6 +47,7 @@
 		EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE235B731F29D0EA00F026E0 /* NSValueTest.m */; };
 		EE65D7351F4A0F8A00B72355 /* NSKVCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */; };
 		EE65D7371F4B1F4600B72355 /* NSRegularExpressionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */; };
+		EE82D3DA21860141005229C2 /* NSWorkspaceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE82D3D921860141005229C2 /* NSWorkspaceTest.m */; };
 		EE85EFF720B47512000C1D34 /* NSPropertyListSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = EE85EFF620B47512000C1D34 /* NSPropertyListSerialization.m */; };
 		EEEEFB7D1F29F91E00211520 /* NSMutableArrayTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */; };
 		EEEEFBA01F2A5A5400211520 /* AppKitTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEEEFB941F2A5A5400211520 /* AppKitTests.qcodeproj */; };
@@ -152,6 +153,7 @@
 		EE235B731F29D0EA00F026E0 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSKVCTest.m; sourceTree = "<group>"; };
 		EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSRegularExpressionTest.m; sourceTree = "<group>"; };
+		EE82D3D921860141005229C2 /* NSWorkspaceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSWorkspaceTest.m; sourceTree = "<group>"; };
 		EE85EFF620B47512000C1D34 /* NSPropertyListSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPropertyListSerialization.m; sourceTree = "<group>"; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEEFB7C1F29F91E00211520 /* NSMutableArrayTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSMutableArrayTest.m; sourceTree = "<group>"; };
@@ -323,6 +325,7 @@
 				EEEEFB9D1F2A5A5400211520 /* NSTextViewTest.m */,
 				EEEEFB9E1F2A5A5400211520 /* NSViewBoundsTest.m */,
 				EEEEFB9F1F2A5A5400211520 /* NSViewTest.m */,
+				EE82D3D921860141005229C2 /* NSWorkspaceTest.m */,
 				EEEEFB861F2A1E1B00211520 /* Info.plist */,
 			);
 			path = AppKitTests;
@@ -670,6 +673,7 @@
 				EEEEFBA11F2A5A5400211520 /* floatspeed.m in Sources */,
 				EEEEFBA41F2A5A5400211520 /* NSLayoutManagerTest.m in Sources */,
 				EEEEFBAB1F2A5A5400211520 /* NSViewTest.m in Sources */,
+				EE82D3DA21860141005229C2 /* NSWorkspaceTest.m in Sources */,
 				EEEEFBA91F2A5A5400211520 /* NSTextViewTest.m in Sources */,
 				EEEEFBA71F2A5A5400211520 /* NSTextFieldCellTest.m in Sources */,
 				EEEEFBA51F2A5A5400211520 /* NSStringDrawingTest.m in Sources */,

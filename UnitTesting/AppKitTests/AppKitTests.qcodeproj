@@ -17,6 +17,7 @@ export SOURCES+=" NSViewBoundsTest.m"
 export SOURCES+=" floatspeed.m"
 export SOURCES+=" Info.plist"
 export SOURCES+=" NSViewTest.m"
+export SOURCES+=" NSWorkspaceTest.m"
 export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
