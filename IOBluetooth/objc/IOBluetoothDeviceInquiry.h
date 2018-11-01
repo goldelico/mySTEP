@@ -25,6 +25,8 @@
 
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 + (BOOL) _bluetoothHardwareIsActive;
++ (BOOL) _setDiscoverable:(BOOL) flag;
++ (BOOL) _isDiscoverable;
 
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate;
 
