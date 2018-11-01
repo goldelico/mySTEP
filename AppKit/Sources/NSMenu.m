@@ -431,7 +431,7 @@ static BOOL __userKeyEquivalents = YES;
 	return copy;
 }
 
-- (CGFloat) menuBarHeight; 
+- (CGFloat) menuBarHeight;
 {
 	if(self == [NSApp mainMenu])
 		return [[self class] menuBarHeight];
@@ -443,8 +443,8 @@ static BOOL __userKeyEquivalents = YES;
 #if 0
 	NSLog(@"a addItem %@ - count %d", item, [item retainCount]);
 #endif
-	_mn.menuHasChanged = YES;
 	[_menuItems addObject:item];	// append
+	_mn.menuHasChanged = YES;
 	[(NSMenuItem *) item setMenu:self];
 	[[item submenu] setSupermenu:self]; // attach (submenu may be nil)
 	if(_mn.menuChangedMessagesEnabled)

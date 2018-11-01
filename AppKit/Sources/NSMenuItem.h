@@ -26,7 +26,7 @@
 	// officially no instance variables
 }
 
-+ (NSMenuItem *) separatorItem; 
++ (NSMenuItem *) separatorItem;
 + (void) setUsesUserKeyEquivalents:(BOOL) flag;
 + (BOOL) usesUserKeyEquivalents;
 

@@ -40,9 +40,9 @@
 - (void) drawSeparatorItemWithFrame:(NSRect) frame inView:(NSView *) view;
 - (void) drawStateImageWithFrame:(NSRect) frame inView:(NSView *) view;
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;
-- (NSRect) imageRectForBounds:(NSRect) frame; 
+- (NSRect) imageRectForBounds:(NSRect) frame;
 - (CGFloat) imageWidth;	// image width
-- (BOOL) isHighlighted; 
+- (BOOL) isHighlighted;
 - (NSRect) keyEquivalentRectForBounds:(NSRect) frame;
 - (CGFloat) keyEquivalentWidth;	// key equivalent width
 - (NSMenuItem *) menuItem;

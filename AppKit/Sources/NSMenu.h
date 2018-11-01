@@ -25,7 +25,7 @@
 @class NSString;
 @class NSEvent;
 @class NSMenu;		// forward declaration for NSMenuItem protocol
-@class NSMenuItem; 
+@class NSMenuItem;
 
 #if 1	// DEPRECATED but we still need to keep it to remain compatible to older source codes
 
@@ -44,7 +44,7 @@
 - (BOOL) hasSubmenu;
 - (NSImage *) image;
 - (id) initWithTitle:(NSString *) title action:(SEL) action keyEquivalent:(NSString *) key;
-- (BOOL) isAlternate;   // alternate to previous item
+- (BOOL) isAlternate;	// alternate to previous item
 - (BOOL) isEnabled;
 - (BOOL) isSeparatorItem;
 - (NSString *) keyEquivalent;
@@ -124,11 +124,11 @@
 				    keyEquivalent:(NSString *) charCode;
 - (NSMenu *) attachedMenu;
 - (BOOL) autoenablesItems;
-- (void) cancelTracking; 
+- (void) cancelTracking;
 - (id) contextMenuRepresentation;		// deprecated but implemented
 - (id) delegate;
 - (void) helpRequested:(NSEvent *) event;
-- (NSMenuItem *) highlightedItem; 
+- (NSMenuItem *) highlightedItem;
 - (NSInteger) indexOfItem:(NSMenuItem *) item;
 - (NSInteger) indexOfItemWithRepresentedObject:(id) object;
 - (NSInteger) indexOfItemWithSubmenu:(NSMenu *) submenu;
@@ -149,7 +149,7 @@
 - (NSMenuItem *) itemWithTag:(NSInteger) aTag;				// Find menu items
 - (NSMenuItem *) itemWithTitle:(NSString *) aString;
 - (NSPoint) locationForSubmenu:(NSMenu *) aSubmenu;
-- (CGFloat) menuBarHeight; 
+- (CGFloat) menuBarHeight;
 - (BOOL) menuChangedMessagesEnabled;
 - (id) menuRepresentation;		// deprecated - used for connecting to NSMenuView
 - (NSInteger) numberOfItems;
@@ -162,7 +162,7 @@
 - (void) setDelegate:(id) delegate;
 - (void) setMenuChangedMessagesEnabled:(BOOL) flag;		// Menu layout
 - (void) setMenuRepresentation:(id) representation;		// deprecated - used for connecting to NSMenuView
-- (void) setShowsStateColumn:(BOOL) flag; 
+- (void) setShowsStateColumn:(BOOL) flag;
 - (void) setSubmenu:(NSMenu *) aMenu forItem:(NSMenuItem *) anItem;
 - (void) setSupermenu:(NSMenu *) menu;
 - (void) setTearOffMenuRepresentation:(id) representation;  // deprecated
@@ -187,11 +187,11 @@
 
 - (BOOL) menu:(NSMenu *) menu updateItem:(NSMenuItem *) updateItem atIndex:(NSInteger) idx shouldCancel:(BOOL) flag;
 - (void) menu:(NSMenu *) menu willHighlightItem:(NSMenuItem *) highlightItem;
-- (void) menuDidClose:(NSMenu *) menu; 
-- (BOOL) menuHasKeyEquivalent:(NSMenu *) menu forEvent:(NSEvent *) evt target:(id *) target action:(SEL *) actionSelector; 
+- (void) menuDidClose:(NSMenu *) menu;
+- (BOOL) menuHasKeyEquivalent:(NSMenu *) menu forEvent:(NSEvent *) evt target:(id *) target action:(SEL *) actionSelector;
 - (void) menuNeedsUpdate:(NSMenu *) menu;	// give delegate a chance to update the menu just before it is popped up
-- (void) menuWillOpen:(NSMenu *) menu; 
-- (NSInteger) numberOfItemsInMenu:(NSMenu *) menu; 
+- (void) menuWillOpen:(NSMenu *) menu;
+- (NSInteger) numberOfItemsInMenu:(NSMenu *) menu;
 
 @end
 
@@ -199,8 +199,8 @@ extern NSString *NSMenuLocationsKey;	// what is this ????
 
 extern NSString *NSMenuDidAddItemNotification;
 extern NSString *NSMenuDidChangeItemNotification;
-extern NSString *NSMenuDidBeginTrackingNotification; 
-extern NSString *NSMenuDidEndTrackingNotification; 
+extern NSString *NSMenuDidBeginTrackingNotification;
+extern NSString *NSMenuDidEndTrackingNotification;
 extern NSString *NSMenuDidRemoveItemNotification;
 extern NSString *NSMenuDidSendActionNotification;
 extern NSString *NSMenuWillSendActionNotification;
