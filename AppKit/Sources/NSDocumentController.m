@@ -170,8 +170,9 @@ should always use this method to get the NSDocumentController. */
 	if([urls count] == 0)
 		{ // if we have no objects but at least one type for editing, open an untitled document
 		NSString *type=[self defaultType];
-		if(type)
+		if(type && [[NSApp delegate] applicationShouldOpenUntitledFile:NSApp])
 			return [self openUntitledDocumentOfType:type display:YES] != nil;
+		return YES;
 		}
 	while((url=[e nextObject]))
 		{
@@ -230,7 +231,20 @@ should always use this method to get the NSDocumentController. */
 #endif
 		return;	// there is no Open... menu item
 		}
-	recentMenu=[[fileMenu itemAtIndex:openMenu+1] submenu];	// get next item behind Open
+	i=openMenu+1;
+	recentMenu=nil;
+	while(i < [fileMenu numberOfItems])
+		{
+		recentMenu=[[fileMenu itemAtIndex:i++] submenu];	// get next submenus behind Open
+		if(recentMenu && [recentMenu indexOfItemWithTarget:nil andAction:@selector(clearRecentDocuments:)] >= 0)
+			break;	// found if loaded from Nib
+		if(recentMenu && [recentMenu indexOfItemWithTarget:self andAction:@selector(clearRecentDocuments:)] >= 0)
+			break;	// found if created here
+		}
+#if 1
+	NSLog(@"Open Recents menu item found in %@", recentMenu);
+#endif
+
 	if(!recentMenu)
 		{ // create a fresh Open Recent submenu
 		NSMenuItem *newItem=[[[NSMenuItem alloc] initWithTitle:@"Open Recent" action:NULL keyEquivalent:nil] autorelease];	// might copy keyword "Open" from openMenu item
@@ -271,6 +285,7 @@ should always use this method to get the NSDocumentController. */
 		[item release];
 		}
 	[recentMenu setMenuChangedMessagesEnabled:YES];
+	//	[recentMenu setAutoenablesItems:YES];
 }
 
 - (IBAction) _openRecentDocument:(id) Sender;
@@ -412,7 +427,7 @@ becomes the shared instance.
 	NSDocument *document = [self makeUntitledDocumentOfType: type];
 	DEPRECATED;
 	
-	if (document == nil) 
+	if (document == nil)
 		return nil;
 	
 	[self addDocument:document];
@@ -426,7 +441,12 @@ becomes the shared instance.
 	return document;
 }
 
-- (id) openDocumentWithContentsOfFile: (NSString *)fileName 
+- (id) openUntitledDocumentAndDisplay:(BOOL) flag error:(NSError **) err;
+{
+	return [self openUntitledDocumentOfType:[self defaultType] display:flag];
+}
+
+- (id) openDocumentWithContentsOfFile: (NSString *)fileName
 							  display: (BOOL)display
 {
 	NSDocument *document = [self documentForFileName: fileName];
@@ -453,18 +473,17 @@ becomes the shared instance.
 	return document;
 }
 
-- (id) openDocumentWithContentsOfURL: (NSURL *)url  display: (BOOL)display
+- (id) openDocumentWithContentsOfURL:(NSURL *) url display:(BOOL) display error:(NSError *) err;
 {
 	NSDocument *document = [self documentForURL:url];
 	DEPRECATED;
 	
 	if (document == nil)
 		{
-		NSError *err;
 		NSString *type = [self typeForContentsOfURL:url error:&err];
 		
 		document = [self makeDocumentWithContentsOfURL: url ofType: type];
-		
+
 		if (document == nil)
 			return nil;
 		
@@ -480,6 +499,11 @@ becomes the shared instance.
 		[document showWindows];
 	
 	return document;
+}
+
+- (id) openDocumentWithContentsOfURL:(NSURL *) url display:(BOOL) display;
+{
+	return [self openDocumentWithContentsOfURL:url display:display error:NULL];
 }
 
 - (NSOpenPanel *) _setupOpenPanel
@@ -578,7 +602,6 @@ list of files as URLs that the user has selected.
 {
 	[self openUntitledDocumentOfType: [self defaultType]  display: YES];
 }
-
 
 /** Iterates through all the open documents and asks each one in turn
 if it can close using [NSDocument -canCloseDocument]. If the
@@ -926,22 +949,21 @@ the user's home directory if no document has been opened before.
 - (BOOL) reopenDocumentForURL:(NSURL *) url
 			withContentsOfURL:(NSURL *) contents
 						error:(NSError **) err;
+ - (id) openDocumentWithContentsOfURL:(NSURL *) url
+							display:(BOOL) flag
+							error:(NSError **) err;
+ - (id) makeUntitledDocumentOfType:(NSString *) type error:(NSError **) err;
+ - (id) makeDocumentWithContentsOfURL:(NSURL *) url ofType:(NSString *) type error:(NSError **) err;
+ - (id) makeDocumentForURL:(NSURL *) url
+							withContentsOfURL:(NSURL *) contents
+							ofType:(NSString *) type
+							error:(NSError **) err;	// most generic call
 - (void) presentError:(NSError *) err
 	   modalForWindow:(NSWindow *) win
 			 delegate:(id) delegate 
    didPresentSelector:(SEL) sel
 		  contextInfo:(void *) context;
 - (BOOL) presentError:(NSError *) err;
-- (id) openUntitledDocumentAndDisplay:(BOOL) flag error:(NSError **) err;
-- (id) openDocumentWithContentsOfURL:(NSURL *) url
-							 display:(BOOL) flag
-							   error:(NSError **) err;
-- (id) makeUntitledDocumentOfType:(NSString *) type error:(NSError **) err;
-- (id) makeDocumentWithContentsOfURL:(NSURL *) url ofType:(NSString *) type error:(NSError **) err;
-- (id) makeDocumentForURL:(NSURL *) url
-		withContentsOfURL:(NSURL *) contents
-				   ofType:(NSString *) type
-					error:(NSError **) err;	// most generic call
 - (NSArray *) documentClassNames;
 
 */
