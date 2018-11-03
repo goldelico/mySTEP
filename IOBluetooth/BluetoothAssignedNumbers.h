@@ -31,6 +31,7 @@ typedef unsigned char Boolean;
 // declares from IOKit/IOReturn.h
 
 typedef int IOReturn;
+typedef UInt32 IOItemCount;
 
 #define kIOReturnSuccess 0
 #define kIOReturnError 1

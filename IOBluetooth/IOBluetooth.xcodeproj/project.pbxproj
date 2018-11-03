@@ -24,7 +24,6 @@
 
 /* Begin PBXBuildFile section */
 		EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */; };
-		EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CBC0A556B47000AE53D /* Bluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE82D3BE218384E5005229C2 /* iobttest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE82D3AB21832EC3005229C2 /* iobttest.m */; };
 		EE82D3BF218384F1005229C2 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3AF21838423005229C2 /* IOBluetooth.framework */; };
@@ -45,8 +44,19 @@
 		EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */; };
 		EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */; };
 		EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */; };
-		EE82D3D72183B05B005229C2 /* IOBluetoothUIUserLib.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1D21560E9B005D4653 /* IOBluetoothUIUserLib.h */; };
 		EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3B021838440005229C2 /* Foundation.framework */; };
+		EE9EF397218C397D00618E25 /* DeviceSelector.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF38F218C397D00618E25 /* DeviceSelector.nib */; };
+		EE9EF398218C397D00618E25 /* ObjectPushUI.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF391218C397D00618E25 /* ObjectPushUI.nib */; };
+		EE9EF399218C397D00618E25 /* Pairing.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF393218C397D00618E25 /* Pairing.nib */; };
+		EE9EF39A218C397D00618E25 /* ServiceBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF395218C397D00618E25 /* ServiceBrowser.nib */; };
+		EE9EF3A5218C4D7700618E25 /* IOBluetoothUI.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9EF3A6218C4D7700618E25 /* IOBluetoothUIUserLib.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9EF3A8218C4D8300618E25 /* IOBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9EF3A9218CF8E100618E25 /* IOBluetoothDeviceSelectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF321560E03005D4653 /* IOBluetoothDeviceSelectorController.m */; };
+		EE9EF3AA218CF8E300618E25 /* IOBluetoothObjectPushUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */; };
+		EE9EF3AB218CF8E500618E25 /* IOBluetoothPairingController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */; };
+		EE9EF3AC218CF8E800618E25 /* IOBluetoothServiceBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */; };
+		EE9EF3AD218CF9E700618E25 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3AF21838423005229C2 /* IOBluetooth.framework */; };
 		EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */; };
 		EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */; };
 		EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF521560E03005D4653 /* IOBluetoothOBEXSession.m */; };
@@ -130,7 +140,6 @@
 				EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */,
 				EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */,
 				EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */,
-				EE82D3D72183B05B005229C2 /* IOBluetoothUIUserLib.h in Copy objc Headers */,
 			);
 			name = "Copy objc Headers";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -154,6 +163,21 @@
 		EE82D3B021838440005229C2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		EE82D3B121838458005229C2 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetoothUI.framework; path = ../../../../../../../../../System/Library/Frameworks/IOBluetoothUI.framework; sourceTree = "<group>"; };
 		EE82D3B6218384D4005229C2 /* iobttest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = iobttest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE9EF390218C397D00618E25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = Panels/English.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
+		EE9EF392218C397D00618E25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = Panels/English.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
+		EE9EF394218C397D00618E25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = Panels/English.lproj/Pairing.nib; sourceTree = "<group>"; };
+		EE9EF396218C397D00618E25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = Panels/English.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
+		EE9EF39B218C399F00618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
+		EE9EF39C218C39A400618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
+		EE9EF39D218C39A800618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
+		EE9EF39E218C39AB00618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
+		EE9EF39F218C39B000618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/Pairing.nib; sourceTree = "<group>"; };
+		EE9EF3A0218C39B200618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/Pairing.nib; sourceTree = "<group>"; };
+		EE9EF3A1218C39B600618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
+		EE9EF3A2218C39B700618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
+		EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUI.h; sourceTree = "<group>"; };
+		EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUIUserLib.h; sourceTree = "<group>"; };
+		EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetooth.h; sourceTree = "<group>"; };
 		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
 		EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothDevice.h; path = objc/IOBluetoothDevice.h; sourceTree = "<group>"; };
 		EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothDeviceInquiry.h; path = objc/IOBluetoothDeviceInquiry.h; sourceTree = "<group>"; };
@@ -189,7 +213,6 @@
 		EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothObjectPushUIController.h; path = objc/IOBluetoothObjectPushUIController.h; sourceTree = "<group>"; };
 		EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothPairingController.h; path = objc/IOBluetoothPairingController.h; sourceTree = "<group>"; };
 		EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothServiceBrowserController.h; path = objc/IOBluetoothServiceBrowserController.h; sourceTree = "<group>"; };
-		EEBABB1D21560E9B005D4653 /* IOBluetoothUIUserLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothUIUserLib.h; path = objc/IOBluetoothUIUserLib.h; sourceTree = "<group>"; };
 		EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetoothUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "IOBluetoothUI-Info.plist"; sourceTree = "<group>"; };
 		EEE1772F0CDB792500A85BD3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -217,6 +240,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9EF3AD218CF9E700618E25 /* IOBluetooth.framework in Frameworks */,
 				EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,6 +258,9 @@
 				EE5D9CBC0A556B47000AE53D /* Bluetooth.h */,
 				EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */,
 				EE82D3AE21833B42005229C2 /* BluetoothPrivate.h */,
+				EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */,
+				EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */,
+				EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */,
 				EEBABAD821558A60005D4653 /* objc */,
 				EE82D3B7218384D4005229C2 /* iobttest */,
 				EEA3306C09537DB5001244CF /* Private */,
@@ -277,6 +304,10 @@
 			children = (
 				EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */,
 				EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */,
+				EE9EF38F218C397D00618E25 /* DeviceSelector.nib */,
+				EE9EF391218C397D00618E25 /* ObjectPushUI.nib */,
+				EE9EF393218C397D00618E25 /* Pairing.nib */,
+				EE9EF395218C397D00618E25 /* ServiceBrowser.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -343,7 +374,6 @@
 				EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */,
 				EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */,
 				EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */,
-				EEBABB1D21560E9B005D4653 /* IOBluetoothUIUserLib.h */,
 				EEBABAF321560E03005D4653 /* IOBluetoothDeviceSelectorController.m */,
 				EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */,
 				EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */,
@@ -360,7 +390,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */,
+				EE9EF3A8218C4D8300618E25 /* IOBluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
 				EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */,
 			);
@@ -370,6 +400,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9EF3A6218C4D7700618E25 /* IOBluetoothUIUserLib.h in Headers */,
+				EE9EF3A5218C4D7700618E25 /* IOBluetoothUI.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,8 +454,8 @@
 			buildPhases = (
 				EEE16DE70CDA36E100A85BD3 /* Create Headers-objc */,
 				EEE16DE80CDA36E100A85BD3 /* Copy objc Headers */,
-				EEE16DF80CDA36E100A85BD3 /* Headers */,
 				EEE16DFE0CDA36E100A85BD3 /* Resources */,
+				EEE16DF80CDA36E100A85BD3 /* Headers */,
 				EEE16DFF0CDA36E100A85BD3 /* Sources */,
 				EEE16E120CDA36E100A85BD3 /* Frameworks */,
 				EEE16E150CDA36E100A85BD3 /* ShellScript */,
@@ -445,6 +477,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0820;
 				TargetAttributes = {
 					EE82D3B5218384D4005229C2 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -461,6 +494,8 @@
 				Japanese,
 				French,
 				German,
+				de,
+				fr,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
@@ -487,6 +522,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9EF398218C397D00618E25 /* ObjectPushUI.nib in Resources */,
+				EE9EF397218C397D00618E25 /* DeviceSelector.nib in Resources */,
+				EE9EF39A218C397D00618E25 /* ServiceBrowser.nib in Resources */,
+				EE9EF399218C397D00618E25 /* Pairing.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,6 +621,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9EF3A9218CF8E100618E25 /* IOBluetoothDeviceSelectorController.m in Sources */,
+				EE9EF3AA218CF8E300618E25 /* IOBluetoothObjectPushUIController.m in Sources */,
+				EE9EF3AB218CF8E500618E25 /* IOBluetoothPairingController.m in Sources */,
+				EE9EF3AC218CF8E800618E25 /* IOBluetoothServiceBrowserController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,6 +647,49 @@
 			targetProxy = EEE177240CDB214C00A85BD3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EE9EF38F218C397D00618E25 /* DeviceSelector.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE9EF390218C397D00618E25 /* English */,
+				EE9EF39B218C399F00618E25 /* de */,
+				EE9EF39C218C39A400618E25 /* fr */,
+			);
+			name = DeviceSelector.nib;
+			sourceTree = "<group>";
+		};
+		EE9EF391218C397D00618E25 /* ObjectPushUI.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE9EF392218C397D00618E25 /* English */,
+				EE9EF39D218C39A800618E25 /* fr */,
+				EE9EF39E218C39AB00618E25 /* de */,
+			);
+			name = ObjectPushUI.nib;
+			sourceTree = "<group>";
+		};
+		EE9EF393218C397D00618E25 /* Pairing.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE9EF394218C397D00618E25 /* English */,
+				EE9EF39F218C39B000618E25 /* fr */,
+				EE9EF3A0218C39B200618E25 /* de */,
+			);
+			name = Pairing.nib;
+			sourceTree = "<group>";
+		};
+		EE9EF395218C397D00618E25 /* ServiceBrowser.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE9EF396218C397D00618E25 /* English */,
+				EE9EF3A1218C39B600618E25 /* fr */,
+				EE9EF3A2218C39B700618E25 /* de */,
+			);
+			name = ServiceBrowser.nib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		EE82D3BB218384D4005229C2 /* Development */ = {
@@ -740,7 +826,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -763,6 +848,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
 				PRODUCT_NAME = IOBluetoothUI;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -778,7 +864,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -798,6 +883,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
 				PRODUCT_NAME = IOBluetoothUI;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -813,7 +899,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -831,6 +916,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
 				PRODUCT_NAME = IOBluetoothUI;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -874,7 +960,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -897,6 +982,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
 				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -912,7 +998,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -932,6 +1017,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
 				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -947,7 +1033,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -965,6 +1050,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
 				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -978,18 +1064,74 @@
 		EEEB9CF809A7542900626AB7 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Development;
 		};
 		EEEB9CF909A7542900626AB7 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 			};
 			name = Deployment;
 		};
 		EEEB9CFA09A7542900626AB7 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 			};
 			name = Default;
 		};
@@ -1004,6 +1146,7 @@
 				EE82D3BD218384D4005229C2 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
 		};
 		EEE16E160CDA36E100A85BD3 /* Build configuration list for PBXNativeTarget "IOBluetoothUI" */ = {
 			isa = XCConfigurationList;

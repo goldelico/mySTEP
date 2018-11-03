@@ -6,9 +6,64 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <IOBluetoothUI/objc/IOBluetoothObjectPushUIController.h>
+#import <IOBluetoothUI/IOBluetoothUI.h>
 
 
 @implementation IOBluetoothObjectPushUIController
+
+- (IOReturn) beginSheetModalForWindow:(NSWindow *) sheet
+						modalDelegate:(id) delegate
+					   didEndSelector:(SEL) selector
+						  contextInfo:(void *) context;
+{
+
+}
+
+- (IOBluetoothDevice *) getDevice;
+{
+
+}
+
+- (NSString *) getTitle;
+{
+
+}
+
+- (IOBluetoothObjectPushUIController *) initObjectPushWithBluetoothDevice:(IOBluetoothDevice *) device
+																withFiles:(NSArray *) files
+																 delegate:(id) delegate;
+{
+
+}
+
+- (BOOL) isTransferInProgress;
+{
+
+}
+
+- (void) runModal;
+{
+
+}
+
+- (void) runPanel;
+{
+
+}
+
+- (void) setIconImage:(NSImage *) iconImage;
+{
+
+}
+
+- (void) setTitle:(NSString *) windowTitle;
+{
+
+}
+
+- (void) stop;
+{
+
+}
 
 @end

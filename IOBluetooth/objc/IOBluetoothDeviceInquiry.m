@@ -131,6 +131,14 @@
 	return [self _tool:@"/bin/hciconfig" withArgs:cmds handler:handler done:sel];
 }
 
+- (NSString *) _hciResultFromTask:(NSTask *) task;
+{
+	[task waitUntilExit];
+	int status=[task terminationStatus];
+	NSFileHandle *rfh=[[task standardOutput] fileHandleForReading];
+	NSString *result=[[[NSString alloc] initWithData:[rfh readDataToEndOfFile] encoding:NSUTF8StringEncoding] autorelease];
+	return result;
+}
 
 - (IOReturn) start;
 { // start background polling
@@ -333,12 +341,8 @@ Inquiring ...
 + (BOOL) _bluetoothHardwareIsActive;
 {
 	NSTask *task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", nil] handler:nil done:NULL];
-	[task launch];
-	[task waitUntilExit];
-	int status=[task terminationStatus];
-	NSFileHandle *rfh=[[task standardOutput] fileHandleForReading];
-	NSString *result=[[[NSString alloc] initWithData:[rfh readDataToEndOfFile] encoding:NSUTF8StringEncoding] autorelease];
-	NSRange rng=[result rangeOfString:@"UP\n"];
+	NSString *result=[self _hciResultFromTask:task];
+	NSRange rng=[result rangeOfString:@" UP"];
 #if 1
 	NSLog(@"_bluetoothHardwareIsActive -> %@", result);
 #endif
@@ -358,8 +362,13 @@ Inquiring ...
 
 + (BOOL) _isDiscoverable;
 {
-	// watch for PSCAN ISCAN
-	return -1;	// unknown
+	NSTask *task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", nil] handler:nil done:NULL];
+	NSString *result=[self _hciResultFromTask:task];
+	NSRange rng=[result rangeOfString:@" PISCAN"];
+#if 1
+	NSLog(@"_isDiscoverable -> %@", result);
+#endif
+	return rng.location != NSNotFound;
 }
 
 @end
