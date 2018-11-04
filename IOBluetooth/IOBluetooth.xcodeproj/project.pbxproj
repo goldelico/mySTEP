@@ -155,7 +155,7 @@
 		EE6FE352076F05AF009CC969 /* IOBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7AAFEA17476133003133D9 /* IOBluetoothCore.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = IOBluetoothCore.qcodeproj; sourceTree = "<group>"; };
 		EE7AAFEE1747613E003133D9 /* IOBluetoothUI.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = IOBluetoothUI.qcodeproj; sourceTree = "<group>"; };
-		EE82D3AA21832EC3005229C2 /* Info-test.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-test.plist"; path = "../Info-test.plist"; sourceTree = "<group>"; };
+		EE82D3AA21832EC3005229C2 /* Info-test.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-test.plist"; sourceTree = "<group>"; };
 		EE82D3AB21832EC3005229C2 /* iobttest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = iobttest.m; sourceTree = SOURCE_ROOT; };
 		EE82D3AC21832EC3005229C2 /* iobttest.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = iobttest.qcodeproj; sourceTree = "<group>"; };
 		EE82D3AE21833B42005229C2 /* BluetoothPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothPrivate.h; sourceTree = "<group>"; };

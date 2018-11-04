@@ -49,16 +49,16 @@
 
 @interface NSObject (IOBluetoothDeviceInquiryDelegate)
 
-- (void) deviceInquiryComplete:(IOBluetoothDeviceInquiry *) sender 
+- (void) deviceInquiryComplete:(IOBluetoothDeviceInquiry *) sender
 						 error:(IOReturn) error
 					   aborted:(BOOL) aborted;
-- (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) sender 
+- (void) deviceInquiryDeviceFound:(IOBluetoothDeviceInquiry *) sender
 						   device:(IOBluetoothDevice *) device;
-- (void) deviceInquiryDeviceNameUpdated:(IOBluetoothDeviceInquiry *) sender 
+- (void) deviceInquiryDeviceNameUpdated:(IOBluetoothDeviceInquiry *) sender
 								 device:(IOBluetoothDevice *) device
 					   devicesRemaining:(int) remaining;
 - (void) deviceInquiryStarted:(IOBluetoothDeviceInquiry *) sender;
-- (void) deviceInquiryUpdatingDeviceNamesStarted:(IOBluetoothDeviceInquiry *) sender 
+- (void) deviceInquiryUpdatingDeviceNamesStarted:(IOBluetoothDeviceInquiry *) sender
 								devicesRemaining:(int) remaining;
 
 @end
