@@ -1,5 +1,12 @@
 #import <Foundation/Foundation.h>
-#import <IOBluetooth/Bluetooth.h>
+#import <IOBluetooth/IOBluetooth.h>
+#import <IOBluetooth/objc/IOBluetoothController.h>
+
+#ifndef __mySTEP__
+
+@implementation IOBLuetoothController (Override)
++ (IOBluetoothController *) sharedController; { return nil; }
+@end
 
 @interface Delegate : NSObject
 {
@@ -25,15 +32,13 @@
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
-	//	NSError *err;
-#ifdef __mySTEP__
-	BOOL poweron=[IOBluetoothDeviceInquiry _bluetoothHardwareIsActive];
-	if(![IOBluetoothDeviceInquiry _activateBluetoothHardware:YES])
+	NSError *err=nil;
+	BOOL poweron=[[IOBluetoothController sharedController] bluetoothHardwareIsActive];
+	if(![[IOBluetoothController sharedController] activateBluetoothHardware:YES])
 		{
 		NSLog(@"Bluetooth power on error: %@", err);
 		exit(1);
 		}
-#endif
 	NSLog(@"iobttest: started");
 	Delegate *d=[[Delegate new] autorelease];
 	IOBluetoothDeviceInquiry *inq=[IOBluetoothDeviceInquiry inquiryWithDelegate:d];
@@ -50,12 +55,10 @@ int main(int argc, char *argv[])
 	IOBluetoothDevice *dev;
 	while((dev=[e nextObject]))
 		printf("%s", [[dev description] UTF8String]);
-#ifdef __mySTEP__
-	if(![IOBluetoothDeviceInquiry _activateBluetoothHardware:poweron])
+	if(![[IOBluetoothController sharedController] activateBluetoothHardware:poweron])
 		{ // turn off only if it was off before
 		NSLog(@"WLAN power off error: %@", err);
 		}
-#endif
 	[arp release];
 	return 0;
 }
