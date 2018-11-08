@@ -23,16 +23,11 @@
 	BOOL _aborted;
 }
 
-+ (BOOL) _activateBluetoothHardware:(BOOL) flag;
-+ (BOOL) _bluetoothHardwareIsActive;
-+ (BOOL) _setDiscoverable:(BOOL) flag;
-+ (BOOL) _isDiscoverable;
-
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate;
 
 - (void) clearFoundDevices;
 - (id) delegate;
-- (NSArray*) foundDevices;
+- (NSArray *) foundDevices;
 - (id) initWithDelegate:(id) delegate;
 - (uint8_t) inquiryLength;
 - (void) setDelegate:(id) delegate;

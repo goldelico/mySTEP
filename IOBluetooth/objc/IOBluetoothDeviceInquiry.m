@@ -11,6 +11,7 @@
 #import <IOBluetooth/BluetoothAssignedNumbers.h>
 #import "../BluetoothPrivate.h"
 
+#import <IOBluetooth/objc/IOBluetoothController.h>
 
 #if 0	// debugging
 #define system(CMD) (printf("system: %s\n", (CMD)), 0)
@@ -33,7 +34,7 @@
 	return _delegate;
 }
 
-- (NSArray*) foundDevices;
+- (NSArray *) foundDevices;
 {
 	return _devices;
 }
@@ -93,80 +94,6 @@
 { // NOTE: this makes it much slower because we isssue a separate hcitool name command for each device
 	_updateNewDeviceNames=flag;
 }
-
-+ (NSTask *) _tool:(NSString *) tool withArgs:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
-{
-	NSTask *task;
-#if 1
-	NSLog(@"tool=%@", tool);
-#endif
-	if(!tool)
-		return nil;	// bluetooth is not supported
-#ifndef __mySTEP
-	tool=@"/bin/echo";	// Mac has no hcitools
-#endif
-	task=[[NSTask new] autorelease];
-	[[NSNotificationCenter defaultCenter] addObserver:handler selector:sel name:NSTaskDidTerminateNotification object:task];
-	[task setLaunchPath:tool];
-	[task setArguments:cmds];
-	[task setStandardOutput:[NSPipe pipe]];
-	[task setStandardError:nil];	// hide error messages
-#if 0
-	NSLog(@"launching task %@ %p %u", task, task, [task retainCount]);
-#endif
-	[task launch];
-#if 1
-	NSLog(@"launched task %@ %p %lu", task, task, (unsigned long)[task retainCount]);
-#endif
-	return task;
-}
-
-+ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
-{
-	return [self _tool:@"/bin/hcitool" withArgs:cmds handler:handler done:sel];
-}
-
-+ (NSTask *) _hciconfig:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
-{
-	return [self _tool:@"/bin/hciconfig" withArgs:cmds handler:handler done:sel];
-}
-
-- (NSString *) _hciResultFromTask:(NSTask *) task;
-{
-	[task waitUntilExit];
-	int status=[task terminationStatus];
-	NSFileHandle *rfh=[[task standardOutput] fileHandleForReading];
-	NSString *result=[[[NSString alloc] initWithData:[rfh readDataToEndOfFile] encoding:NSUTF8StringEncoding] autorelease];
-	return result;
-}
-
-- (IOReturn) start;
-{ // start background polling
-#if 1
-	NSLog(@"start %@", self);
-#endif
-	if(_task)
-		return kIOReturnError;	// task is already running
-	_aborted=NO;
-	_task=[[[self class] _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"inq", @"--flush", nil] handler:self done:@selector(_done:)] retain];
-	if(!_task)
-		return 42;	// could not launch
-	[_delegate deviceInquiryStarted:self];
-	return kIOReturnSuccess;
-}
-
-// NOTE: this assumes that the full output of the subtask can be buffered and the pipe does never stall
-// and we process the result of a "hcitool inq" command
-
-/* output looks like
-
-$ hcitool inq
-Inquiring ...
-	01:90:71:10:02:AA       clock offset: 0x4402    class: 0x720204
-	00:11:24:AF:2E:E3       clock offset: 0x0704    class: 0x102104
-	00:16:CB:2F:A0:46       clock offset: 0x30d2    class: 0x10210c
-
-*/
 
 - (void) _done:(NSNotification *) notif;
 {
@@ -312,63 +239,21 @@ Inquiring ...
 		}
 }
 
+- (IOReturn) start;
+{
+	[[IOBluetoothController sharedController] runCommand:@"scan on"];
+	return kIOReturnSuccess;
+}
+
 - (IOReturn) stop;
 {
-	_aborted=YES;
-#ifndef BLUEZ
-	[_task interrupt];
-	[_task waitUntilExit];
-#endif
+	[[IOBluetoothController sharedController] runCommand:@"scan off"];
 	return kIOReturnSuccess;
 }
 
 - (BOOL) updateNewDeviceNames;
 {
 	return _updateNewDeviceNames;
-}
-
-+ (BOOL) _activateBluetoothHardware:(BOOL) flag;
-{
-	if([self _bluetoothHardwareIsActive] != flag)
-		{
-		NSTask *task;
-		task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", flag?@"up":@"down", nil] handler:nil done:NULL];
-		[task launch];
-		}
-	return YES;	// unchaged
-}
-
-+ (BOOL) _bluetoothHardwareIsActive;
-{
-	NSTask *task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", nil] handler:nil done:NULL];
-	NSString *result=[self _hciResultFromTask:task];
-	NSRange rng=[result rangeOfString:@" UP"];
-#if 1
-	NSLog(@"_bluetoothHardwareIsActive -> %@", result);
-#endif
-	return rng.location != NSNotFound;
-}
-
-+ (BOOL) _setDiscoverable:(BOOL) flag;
-{
-	if([self _isDiscoverable] != flag)
-		{
-		NSTask *task;
-		task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", flag?@"piscan":@"noscan", nil] handler:nil done:NULL];
-		[task launch];
-		}
-	return YES;	// unchaged
-}
-
-+ (BOOL) _isDiscoverable;
-{
-	NSTask *task=[[self class] _hciconfig:[NSArray arrayWithObjects:@"hci0", nil] handler:nil done:NULL];
-	NSString *result=[self _hciResultFromTask:task];
-	NSRange rng=[result rangeOfString:@" PISCAN"];
-#if 1
-	NSLog(@"_isDiscoverable -> %@", result);
-#endif
-	return rng.location != NSNotFound;
 }
 
 @end

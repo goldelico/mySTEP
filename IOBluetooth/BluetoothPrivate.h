@@ -19,11 +19,3 @@
 @end
 
 #endif
-
-#import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
-
-@interface IOBluetoothDeviceInquiry (Private)
-+ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
-+ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
-@end
-
