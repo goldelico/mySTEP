@@ -112,11 +112,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	if(modemLog) [self log:@"r (done=%d): %@", _done, line];
 	// separate requested responses from unsolicited
-	if([line hasPrefix:@"[bluetooth]#"])
-		{ // (next) command prompt
-		_done=YES;
-		return;
-		}
 	if(_done || [line hasPrefix:@"["])
 		[_unsolicitedTarget performSelector:_unsolicitedAction withObject:line];
 	else
@@ -125,20 +120,43 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _processData:(NSData *) line;
 { // we have received a new data block from the serial line
+  // FIXME: if we want to process UTF8 we have to split the NSData into chunks and then convert to NSString
 	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
 	NSArray *lines;
-	int l;
+	NSInteger l;
+	NSInteger i;
+	NSUInteger cnt;
 #if 0
 	NSLog(@"data=%@", line);
 	NSLog(@"string=%@", s);
 #endif
 	if(_lastChunk)
 		s=[_lastChunk stringByAppendingString:s];	// append to last chunk
+	cnt=[s length];
+	for(i=0; i<cnt; i++)
+		{ // fixup simple terminal control characters sent by bluetoothctl
+		unichar c=[s characterAtIndex:i];
+		if(c == 0x1b)
+			{ // strip off escape sequence
+				NSInteger j=i;
+				while(j < cnt && !isalpha([s characterAtIndex:j]))	// correct rule may be to skip [ ; digits until first letter
+					j++;	// find end position of ESC [ m or ESC [ K
+				s=[s stringByReplacingCharactersInRange:(NSRange) { i, j-i+1 } withString:@""];	// remove escape sequence
+				cnt=[s length];	// now shorter
+				i--;
+			}
+		else if(c == '\r')
+			{ // also used for "nice" cursor positioning
+			s=[s stringByReplacingCharactersInRange:(NSRange) { i, 1 } withString:@""];
+			cnt=[s length];	// now shorter
+			i--;
+			}
+		}
 	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
 	for(l=0; l<[lines count]-1; l++)
 		{ // process lines except last chunk
-		  // brauchen wir das bei bluetoothctl?
-			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
+			if([s hasPrefix:@"[bluetooth]# "])
+				s=[s substringFromIndex:13];	// strip off command prompt
 			[self _processLine:s];
 		}
 #if 0
@@ -146,12 +164,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 	[_lastChunk release];
 	_lastChunk=[[lines lastObject] retain];
+	if([_lastChunk hasSuffix:@"[bluetooth]# "])
+		{ // (next) command prompt
+			if(modemLog) [self log:@"r: done!", _lastChunk];
+			_done=YES;
+		}
 }
 
 - (void) _dataReceived:(NSNotification *) n;
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-#if 1
+#if 0
 	if(modemLog) [self log:@"r: %@", n];
 #endif
 	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
@@ -189,7 +212,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 0
 		[_task setLaunchPath:@"/bin/cat"];
 #endif
-		[_task setArguments:nil];
+		[_task setArguments:nil];	// could register -a agent-handler for providing a pairing PIN
 		p=[NSPipe pipe];
 		_stdinput=[[p fileHandleForWriting] retain];
 		[_task setStandardInput:p];
@@ -206,7 +229,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 												 selector:@selector(_dataReceived:)
 													 name:NSFileHandleReadCompletionNotification
 												   object:_stdoutput];	// make us see notifications
-		[_stdinput readInBackgroundAndNotifyForModes:_modes];	// and trigger notifications
+		[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// and trigger notifications
 		[_task launch];
 		}
 	_done=NO;
@@ -237,10 +260,29 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [self runCommand:cmd target:nil action:NULL];
 }
 
-- (NSArray *) runCommandReturnResponse:(NSString *) cmd;
+- (void) _collectResponse:(NSString *) line
 {
-	[self runCommand:cmd target:self action:NULL];
-	return [NSArray array];
+	[_response addObject:line];
+}
+
+- (NSArray *) runCommandReturnResponse:(NSString *) cmd
+{ // collect response in string
+	NSMutableArray *sr=_response;	// save response (if we are a nested call)
+	NSMutableArray *r=[NSMutableArray arrayWithCapacity:3];
+	_response=r;
+	//	[self _setError:nil];
+	if([self runCommand:cmd target:self action:@selector(_collectResponse:)]
+	   /*!= CTModemOk)
+		{
+		if(status == CTModemTimeout)
+			[self _setError:@"timeout"];
+		r=nil;	// wasn't able to get response
+		}*/
+	   )
+	_response=sr;	// restore
+	while([r count] && [[r lastObject] length] == 0)
+		[r removeLastObject];	// remove trailing empty lines, e.g. before OK
+	return r;
 }
 
 - (BOOL) activateBluetoothHardware:(BOOL) flag;

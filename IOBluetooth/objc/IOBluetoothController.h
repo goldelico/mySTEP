@@ -16,6 +16,7 @@
 	NSFileHandle *_stdoutput;
 	SEL _action;
 	id _target;
+	NSMutableArray *_response;
 	SEL _unsolicitedAction;
 	id _unsolicitedTarget;
 	NSString *_lastChunk;
