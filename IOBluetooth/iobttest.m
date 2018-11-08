@@ -4,9 +4,11 @@
 
 #ifndef __mySTEP__
 
-@implementation IOBLuetoothController (Override)
+@implementation IOBluetoothController (Override)
 + (IOBluetoothController *) sharedController; { return nil; }
 @end
+
+#endif
 
 @interface Delegate : NSObject
 {
