@@ -108,14 +108,25 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 }
 
+- (void) setUnsolicitedTarget:(id) t action:(SEL) a;
+{
+#if 1
+	NSLog(@"setUnsolicitedTarget:");
+#endif
+	_unsolicitedTarget=t;
+	_unsolicitedAction=a;
+}
+
 - (void) _processLine:(NSString *) line;
 {
 	if(modemLog) [self log:@"r (done=%d): %@", _done, line];
 	// separate requested responses from unsolicited
 	if(_done || [line hasPrefix:@"["])
 		[_unsolicitedTarget performSelector:_unsolicitedAction withObject:line];
-	else
+	else if(_target && _action)
 		[_target performSelector:_action withObject:line];
+	else
+		NSLog(@"line ignored: %@", line);
 }
 
 - (void) _processData:(NSData *) line;
@@ -153,10 +164,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 		}
 	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
-	for(l=0; l<[lines count]-1; l++)
+	cnt=[lines count];
+	for(l=0; l<cnt-1; l++)
 		{ // process lines except last chunk
-			if([s hasPrefix:@"[bluetooth]# "])
-				s=[s substringFromIndex:13];	// strip off command prompt
+			s=[lines objectAtIndex:l];
+			while([s hasPrefix:@"[bluetooth]# "])
+				s=[s substringFromIndex:13];	// strip off command prompt (which may be multiple times)
+			// there should be a mechanism to skip the echoed command! Without, we will see it as unsolicited message!
 			[self _processLine:s];
 		}
 #if 0
@@ -271,23 +285,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSMutableArray *r=[NSMutableArray arrayWithCapacity:3];
 	_response=r;
 	//	[self _setError:nil];
-	if([self runCommand:cmd target:self action:@selector(_collectResponse:)]
-	   /*!= CTModemOk)
+	if([self runCommand:cmd target:self action:@selector(_collectResponse:)] /* != CTModemOk */)
 		{
+		/*
 		if(status == CTModemTimeout)
 			[self _setError:@"timeout"];
 		r=nil;	// wasn't able to get response
-		}*/
-	   )
+		 */
+		}
 	_response=sr;	// restore
 	while([r count] && [[r lastObject] length] == 0)
 		[r removeLastObject];	// remove trailing empty lines, e.g. before OK
+	if([r count] && [[r objectAtIndex:0] isEqualToString:cmd])
+		[r removeObjectAtIndex:0];	// strip off echo of command
+	if(modemLog) [self log:@"cmd: %@ response: %@", cmd, r];
 	return r;
 }
 
 - (BOOL) activateBluetoothHardware:(BOOL) flag;
 {
-	[self runCommand:flag?@"power on":@"power off"];
+	[self runCommandReturnResponse:flag?@"power on":@"power off"];
 	return YES;	// ok
 }
 
@@ -298,7 +315,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) setDiscoverable:(BOOL) flag;
 {
-	[self runCommand:flag?@"pairable on":@"pairable off"];
+	[self runCommandReturnResponse:flag?@"pairable on":@"pairable off"];
 	return YES;	// unchaged
 }
 
