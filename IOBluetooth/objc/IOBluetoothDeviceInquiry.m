@@ -54,14 +54,15 @@
 			_delegate=delegate;
 			_devices=[[NSMutableArray alloc] initWithCapacity:5];
 			_updateNewDeviceNames=YES;
+			[[IOBluetoothController sharedController] setUnsolicitedTarget:self action:@selector(_unsolicited:)];
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
-	if(_task)
-		[self stop];
+	[self stop];
+	[[IOBluetoothController sharedController] setUnsolicitedTarget:nil action:NULL];
 	[_devices release];
 	[super dealloc];
 }
@@ -95,55 +96,47 @@
 	_updateNewDeviceNames=flag;
 }
 
-- (void) _done:(NSNotification *) notif;
+- (void) _unsolicited:(NSString *) line;
 {
-	int status=[_task terminationStatus];
-	NSFileHandle *rfh=[[_task standardOutput] fileHandleForReading];
-	NSMutableArray *recentDevices=(NSMutableArray *) [IOBluetoothDevice recentDevices:0];
-	IOBluetoothDevice *dev;
-#if 0
-	NSLog(@"task is done status=%d %@", status, _task);
-	NSLog(@"rfh=%@", rfh);
-#endif
-	[rfh retain];	// keep even if we release the task and observer
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSTaskDidTerminateNotification object:_task];
-	[_task autorelease];
-	_task=nil;
-	if(status == 0)
-		{ // build new list of devices
-			NSData *result=[rfh readDataToEndOfFile];
-			unsigned rlength;
-#if 0
-			NSLog(@"result=%@", result);
-#endif
-			if((rlength=[result length]) == 0)
-				{ // no data - i.e. we don't currently support bluetooth (e.g. hcitool installed, but no device)
-					status=31;
-				}
-			else
-				{
-				const char *cp=[result bytes];
-				const char *cend=cp+rlength;
-				if(cend > cp+8 && strncmp(cp, "Inquiring", 8) == 0)
-					{ // ok
-						while(cp < cend)
-							{ // get next line
-								BluetoothDeviceAddress addr;
-								long offset;
-								long class;
-								int idx;
-								while(cp < cend && *cp != '\n')
-									cp++;	// skip previous line and/or "Scanning..."
-								cp++;
-								if(cp >= cend)
-									break;
-								sscanf(cp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx clock offset: %lx class: %lx", 
-									   &addr.addr[0], &addr.addr[1], &addr.addr[2], &addr.addr[3], &addr.addr[4], &addr.addr[5],
-									   &offset, &class);
-								dev=[IOBluetoothDevice withAddress:&addr];
 #if 1
-								NSLog(@"new bluetooth device: %@", dev);
+	NSLog(@"unsolicited=%@", line);
 #endif
+	NSArray *parts=[line componentsSeparatedByString:@" "];
+	NSString *first;
+	if([parts count] == 0)
+		return;
+	first=[parts objectAtIndex:0];
+	if([first isEqualToString:@"[NEW]"])
+		{
+		if([parts count] < 4)
+			return;
+		if(![[parts objectAtIndex:1] isEqualToString:@"Device"])
+			return;
+		// add to devices list - take [parts objectAtIndex:2] as address, [parts objectAtIndex:3] as name
+		return;
+		}
+	if([first isEqualToString:@"[CHG]"])
+		{
+		if([parts count] < 4)
+			return;
+		if(![[parts objectAtIndex:1] isEqualToString:@"Device"])
+			return;
+		// look up by address [parts objectAtIndex:2] in devices list
+		if([[parts objectAtIndex:3] isEqualToString:@"Connected:"])
+			{
+			// check [parts objectAtIndex:4] for yes no
+			}
+		if([[parts objectAtIndex:3] isEqualToString:@"RSSI:"])
+			{
+			}
+		return;
+		}
+	if([first isEqualToString:@"[DEL]"])
+		{
+		return;
+		}
+#if 0
+	dev=[IOBluetoothDevice withAddress:&addr];
 								idx=[recentDevices indexOfObject:dev];	// requires -hash and -isEqual
 								if(idx == NSNotFound)
 									{ // this is really a new device
@@ -164,9 +157,6 @@
 									[recentDevices insertObject:dev atIndex:0];	// move to front (LRU queue)
 									[dev release];
 									}
-								
-								// recentDevices should be written to a persistent storage so that processes can share...
-								
 								[dev _setClassOfDevice:class];			// this updates the last Inquiry update timestamp
 								[dev _setClockOffset:offset];
 								if(![_devices containsObject:dev])
@@ -174,9 +164,6 @@
 									[_devices addObject:dev];
 									[_delegate deviceInquiryDeviceFound:self device:dev];
 									}
-							}
-					}
-				}
 			if(_updateNewDeviceNames)
 				{ // find devices still without a name
 					int i, cnt=[_devices count];
@@ -198,7 +185,7 @@
 	else
 		status=31;	// not available
 	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];	// nothing remaining
-	[rfh release];
+#endif
 }
 
 - (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
@@ -241,13 +228,13 @@
 
 - (IOReturn) start;
 {
-	[[IOBluetoothController sharedController] runCommand:@"scan on"];
+	[[IOBluetoothController sharedController] runCommandReturnResponse:@"scan on"];
 	return kIOReturnSuccess;
 }
 
 - (IOReturn) stop;
 {
-	[[IOBluetoothController sharedController] runCommand:@"scan off"];
+	[[IOBluetoothController sharedController] runCommandReturnResponse:@"scan off"];
 	return kIOReturnSuccess;
 }
 

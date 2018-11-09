@@ -15,9 +15,7 @@
 {
 	NSMutableArray *_devices;
 	id _delegate;
-	NSTask *_task;		// scanning task
 	uint8_t _timeout;	// in seconds up to 255
-	int _socket;
 	BOOL _bluetoothAvailable;
 	BOOL _updateNewDeviceNames;
 	BOOL _aborted;
