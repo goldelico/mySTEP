@@ -71,6 +71,10 @@
 		EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */; };
 		EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
 		EEFF2EBE218F119A0099BF3C /* iobttest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFF2EBD218F119A0099BF3C /* iobttest.m */; };
+		EEFF2EC021943F7A0099BF3C /* IOBluetoothController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */; };
+		EEFF2EC2219456770099BF3C /* IOBluetoothController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFF2EC1219456770099BF3C /* IOBluetoothController.h */; };
+		EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
+		EEFF2EC4219459060099BF3C /* IOBluetoothController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEFF2EC1219456770099BF3C /* IOBluetoothController.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +130,7 @@
 				EE82D3D02183AFBC005229C2 /* IOBluetoothUserNotification.h in Copy objc Headers */,
 				EE82D3D12183AFBF005229C2 /* OBEXFileTransferServices.h in Copy objc Headers */,
 				EE82D3D22183AFCA005229C2 /* OBEXSession.h in Copy objc Headers */,
+				EEFF2EC4219459060099BF3C /* IOBluetoothController.h in Copy objc Headers */,
 			);
 			name = "Copy objc Headers";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -217,6 +222,8 @@
 		EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "IOBluetooth-Info.plist"; sourceTree = "<group>"; };
 		EEFF2EBC218F119A0099BF3C /* Info-test.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = SOURCE_ROOT; };
 		EEFF2EBD218F119A0099BF3C /* iobttest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iobttest.m; sourceTree = SOURCE_ROOT; };
+		EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothController.m; path = objc/IOBluetoothController.m; sourceTree = "<group>"; };
+		EEFF2EC1219456770099BF3C /* IOBluetoothController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothController.h; path = objc/IOBluetoothController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +232,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */,
+				EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,6 +344,7 @@
 		EEE16B6E0CD7B19400A85BD3 /* IOBluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				EEFF2EC1219456770099BF3C /* IOBluetoothController.h */,
 				EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */,
 				EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */,
 				EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */,
@@ -349,6 +358,7 @@
 				EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */,
 				EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */,
 				EEBABB1521560E2E005D4653 /* OBEXSession.h */,
+				EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */,
 				EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */,
 				EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */,
 				EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */,
@@ -393,6 +403,7 @@
 				EE9EF3A8218C4D8300618E25 /* IOBluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
 				EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */,
+				EEFF2EC2219456770099BF3C /* IOBluetoothController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,6 +604,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEFF2EC021943F7A0099BF3C /* IOBluetoothController.m in Sources */,
 				EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */,
 				EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */,
 				EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */,

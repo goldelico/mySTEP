@@ -15,24 +15,17 @@
 {
 	NSMutableArray *_devices;
 	id _delegate;
-	NSTask *_task;		// scanning task
 	uint8_t _timeout;	// in seconds up to 255
-	int _socket;
 	BOOL _bluetoothAvailable;
 	BOOL _updateNewDeviceNames;
 	BOOL _aborted;
 }
 
-+ (BOOL) _activateBluetoothHardware:(BOOL) flag;
-+ (BOOL) _bluetoothHardwareIsActive;
-+ (BOOL) _setDiscoverable:(BOOL) flag;
-+ (BOOL) _isDiscoverable;
-
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate;
 
 - (void) clearFoundDevices;
 - (id) delegate;
-- (NSArray*) foundDevices;
+- (NSArray *) foundDevices;
 - (id) initWithDelegate:(id) delegate;
 - (uint8_t) inquiryLength;
 - (void) setDelegate:(id) delegate;
