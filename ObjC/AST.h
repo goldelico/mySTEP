@@ -48,15 +48,15 @@ extern BOOL _debug;
 - (id) value;	// direct access to the @"value" attribute
 - (void) setValue:(id) val;
 - (NSArray *) children;
-- (unsigned) childrenCount;
+- (NSUInteger) childrenCount;
 - (void) addChild:(Node *) n;
-- (void) insertChild:(Node *) n atIndex:(unsigned) idx;
+- (void) insertChild:(Node *) n atIndex:(NSUInteger) idx;
 - (void) removeChild:(Node *) n;
-- (void) removeChildAtIndex:(unsigned) idx;
+- (void) removeChildAtIndex:(NSUInteger) idx;
 - (Node *) firstChild;
 - (Node *) lastChild;
 - (void) removeLastChild;
-- (Node *) childAtIndex:(unsigned) idx;
+- (Node *) childAtIndex:(NSUInteger) idx;
 - (NSEnumerator *) childrenEnumerator;
 - (void) replaceBy:(Node *) other;	// replace in parent's children list (if other = nil, we are removed from our parent)
 - (void) treeWalk:(NSString *) prefix;

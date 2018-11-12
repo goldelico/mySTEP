@@ -186,7 +186,7 @@ Node *local(void)
 	return [scopestack lastChild];
 }
 	
-int makeglobal(Node *identifier)
+void makeglobal(Node *identifier)
 { // make this a global entry, i.e. copy to global dictionary
 	// check if already global...
 	[globals() setAttribute:identifier forKey:[identifier value]];	// copy by name

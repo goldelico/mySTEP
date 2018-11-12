@@ -232,7 +232,7 @@ static id <Notification> globalDelegate;
 	return children;
 }
 
-- (void) insertChild:(Node *)n atIndex:(unsigned)idx
+- (void) insertChild:(Node *)n atIndex:(NSUInteger)idx
 {
 	if(!children)
 		children=[[NSMutableArray alloc] initWithCapacity:10];
@@ -252,7 +252,7 @@ static id <Notification> globalDelegate;
 	[children removeObject:n];
 }
 
-- (void) removeChildAtIndex:(unsigned)idx
+- (void) removeChildAtIndex:(NSUInteger)idx
 {
 	[children removeObjectAtIndex:idx];
 }
@@ -274,12 +274,12 @@ static id <Notification> globalDelegate;
 	[children removeLastObject];
 }
 
-- (unsigned) childrenCount;
+- (NSUInteger) childrenCount;
 {
 	return [children count];
 }
 
-- (Node *) childAtIndex:(unsigned) idx;
+- (Node *) childAtIndex:(NSUInteger) idx;
 {
 	return [children objectAtIndex:idx];
 }
@@ -295,7 +295,7 @@ static id <Notification> globalDelegate;
 {
 	// FIXME: we should not try to replace the root node...
 	// another problem might arise if we optimize some object that is also stored in the attributes list of the root node
-	unsigned idx=[(NSMutableArray *) [parent children] indexOfObject:self];
+	NSUInteger idx=[(NSMutableArray *) [parent children] indexOfObject:self];
 	if(idx == NSNotFound)
 		return;
 	[self retain];

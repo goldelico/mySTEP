@@ -35,7 +35,7 @@
 
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
 {
-	int row=[outlineView selectedRow];
+	NSInteger row=[outlineView selectedRow];
 	if(row < 0)
 		return;
 	[selectedNode autorelease];
@@ -45,7 +45,7 @@
 
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
-	[[selectedNode attributes] count];
+	return [[selectedNode attributes] count];
 }
 
 - (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex

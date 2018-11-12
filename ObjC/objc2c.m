@@ -16,6 +16,25 @@
 	return;	// leave untouched
 }
 
+- (void) compile_C_stringliteral;
+{
+	// string value are children of type "string"
+	// maybe multiple, unless simplify merges them
+
+	// transform into NSConstantString predefined object
+	/*
+	 global:
+
+	 struct NSConstantString L$$ = {
+		.isa = NSConstantString;
+		.data = "string....";
+		.length = strlen(string);
+	 }
+
+	 und Verwenden als L$$
+	 */
+}
+
 - (void) compile_C_interface;
 {
 	// transform into struct def

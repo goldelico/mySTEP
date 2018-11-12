@@ -15,12 +15,14 @@
 	// identifier -> right
 	// constant -> string, int, unsigned, float etc.
 	// operators -> apply rules
+	return nil;
 }
 
 - (Node *) constantValue;	// evaluate constant value
 {
 	// operators -> calculate
 	// others -> unchanged
+	return nil;
 }
 
 @end

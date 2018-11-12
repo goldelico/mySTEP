@@ -68,7 +68,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EE088098171C1A7700CD24AD /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = build/ObjCKit.build/Development/ObjCKit.build/DerivedSources; sourceTree = "<group>"; };
 		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
 		EE22088714EDB47600E78349 /* Print.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
 		EE22088814EDB47600E78349 /* Print.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Print.m; sourceTree = "<group>"; };
@@ -258,7 +257,6 @@
 				EE6D3DE3137553ED003D5863 /* Parser Source */,
 				EE8E488B16F21D7D00DF50B4 /* Compiler Helpers */,
 				EE9A4E562160AF8400665348 /* Compiler Output */,
-				EE088098171C1A7700CD24AD /* DerivedSources */,
 				EE553A0E1913D42200C22634 /* objc */,
 				EE6D3DE0137553DE003D5863 /* Tests */,
 				EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */,

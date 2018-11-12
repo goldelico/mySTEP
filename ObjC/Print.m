@@ -87,6 +87,13 @@ static unsigned maxLineLength=80;
 		return [self value];
 	else if([t isEqualToString:@"constant"])
 		return [self value];
+	else if([t isEqualToString:@"string"])
+		// FIXME: alreydy contains the ""
+		// multiple strings are children - should be handled by simplify!
+		return [NSString stringWithFormat:@"\"%@\"", [self value]];	// correctly quote
+	else if([t isEqualToString:@"stringliteral"])
+		// string value are children of type "string"
+		return [self value];
 	e=[self childrenEnumerator];
 	if(!table)
 		table=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"pretty"] retain];

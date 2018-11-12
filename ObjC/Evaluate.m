@@ -27,6 +27,7 @@
 	NSLog(@"evaluate %@", self);
 #endif
 	[self treeWalk:@"evaluate_" withObject:machine];	// recursive
+	return self;
 }
 
 - (id) evaluate_default:(id) machine
@@ -66,6 +67,7 @@
 	// dereference children
 	// add [child intValue]
 	// return [NSNumber numberWithInt:sum];
+	return self;
 }
 
 - (id) evaluate_functioncall:(id) machine
@@ -75,6 +77,7 @@
 	// check for built-in (NSLog)
 	// call function
 	// return result
+	return self;
 }
 
 - (id) evaluate_methodcall:(id) machine

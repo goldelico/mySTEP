@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 					c+=strlen(c);
 					break;	
 				case 'r': {
-					NSString *rule;
+					NSString *rule=nil;
 					NSRange r;
 					NSString *old, *new;
 					if(*c)
@@ -280,5 +280,6 @@ int main(int argc, char *argv[])
 	// maybe we should create a "functioncall" node with the main-function, argc and argv as children
 	// but we can't call evaluate directly, since tree-walk calls the children only
 	[main evaluate];	// run in interpreter
+	[arp release];
 	return 0;
 }
