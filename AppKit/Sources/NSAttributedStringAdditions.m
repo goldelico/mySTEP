@@ -1,16 +1,16 @@
-/* 
-   NSAttributedStringAdditions.m
+/*
+ NSAttributedStringAdditions.m
 
-   Extentions to NSAttributedString 
+ Extentions to NSAttributedString
 
-   Copyright (C) 2001 Free Software Foundation, Inc.
+ Copyright (C) 2001 Free Software Foundation, Inc.
 
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date:    Oct 2001
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date:    Oct 2001
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #import <AppKit/AppKit.h>
 #import "NSAppKitPrivate.h"
@@ -112,19 +112,19 @@ static int __rtf_stack_depth = 0;
 
 typedef struct char_prop
 {
-    char fBold;
-    char fUnderline;
-    char fItalic;
+	char fBold;
+	char fUnderline;
+	char fItalic;
 } CHP;                  // CHaracter Properties
 
 typedef enum {justL, justR, justC, justF } JUST;
 
 typedef struct para_prop
 {
-    int xaLeft;                 // left indent in twips
-    int xaRight;                // right indent in twips
-    int xaFirst;                // first line indent in twips
-    JUST just;                  // justification
+	int xaLeft;                 // left indent in twips
+	int xaRight;                // right indent in twips
+	int xaFirst;                // first line indent in twips
+	JUST just;                  // justification
 } PAP;                  // PAragraph Properties
 
 typedef enum {sbkNon, sbkCol, sbkEvn, sbkOdd, sbkPg} SBK;
@@ -132,24 +132,24 @@ typedef enum {pgDec, pgURom, pgLRom, pgULtr, pgLLtr} PGN;
 
 typedef struct sect_prop
 {
-    int cCols;                  // number of columns
-    SBK sbk;                    // section break type
-    int xaPgn;                  // x position of page number in twips
-    int yaPgn;                  // y position of page number in twips
-    PGN pgnFormat;              // how the page number is formatted
+	int cCols;                  // number of columns
+	SBK sbk;                    // section break type
+	int xaPgn;                  // x position of page number in twips
+	int yaPgn;                  // y position of page number in twips
+	PGN pgnFormat;              // how the page number is formatted
 } SEP;                  // SEction Properties
 
 typedef struct doc_prop
 {
-    int xaPage;                 // page width in twips
-    int yaPage;                 // page height in twips
-    int xaLeft;                 // left margin in twips
-    int yaTop;                  // top margin in twips
-    int xaRight;                // right margin in twips
-    int yaBottom;               // bottom margin in twips
-    int pgnStart;               // starting page number in twips
-    char fFacingp;              // facing pages enabled?
-    char fLandscape;            // landscape or portrait??
+	int xaPage;                 // page width in twips
+	int yaPage;                 // page height in twips
+	int xaLeft;                 // left margin in twips
+	int yaTop;                  // top margin in twips
+	int xaRight;                // right margin in twips
+	int yaBottom;               // bottom margin in twips
+	int pgnStart;               // starting page number in twips
+	char fFacingp;              // facing pages enabled?
+	char fLandscape;            // landscape or portrait??
 } DOP;                  // DOcument Properties
 
 typedef enum { rdsNorm, rdsSkip } RDS;              // Rtf Destination State
@@ -157,32 +157,32 @@ typedef enum { risNorm, risBin, risHex } RIS;       // Rtf Internal State
 
 typedef struct save             // property save structure
 {
-    struct save *pNext;         // next save
-    CHP chp;
-    PAP pap;
-    SEP sep;
-    DOP dop;
-    RDS rds;
-    RIS ris;
+	struct save *pNext;         // next save
+	CHP chp;
+	PAP pap;
+	SEP sep;
+	DOP dop;
+	RDS rds;
+	RIS ris;
 } SAVE;
 
 // What types of properties are there?
 typedef enum {ipropBold,	ipropItalic,	ipropUnderline,	ipropLeftInd,
-              ipropRightInd,ipropFirstInd,	ipropCols,		ipropPgnX,
-              ipropPgnY,	ipropXaPage,	ipropYaPage,	ipropXaLeft,
-              ipropXaRight,	ipropYaTop,		ipropYaBottom,	ipropPgnStart,
-              ipropSbk,		ipropPgnFormat, ipropFacingp,	ipropLandscape,
-              ipropJust,	ipropPard,		ipropPlain,		ipropSectd,
-              ipropMax } IPROP;
+	ipropRightInd,ipropFirstInd,	ipropCols,		ipropPgnX,
+	ipropPgnY,	ipropXaPage,	ipropYaPage,	ipropXaLeft,
+	ipropXaRight,	ipropYaTop,		ipropYaBottom,	ipropPgnStart,
+	ipropSbk,		ipropPgnFormat, ipropFacingp,	ipropLandscape,
+	ipropJust,	ipropPard,		ipropPlain,		ipropSectd,
+	ipropMax } IPROP;
 
 typedef enum {actnSpec, actnByte, actnWord} ACTN;
 typedef enum {propChp, propPap, propSep, propDop} PROPTYPE;
 
 typedef struct propmod
 {
-    ACTN actn;              // size of value
-    PROPTYPE prop;          // structure containing value
-    int offset;				// offset of value from base of structure
+	ACTN actn;              // size of value
+	PROPTYPE prop;          // structure containing value
+	int offset;				// offset of value from base of structure
 } PROP;
 
 typedef enum {ipfnBin, ipfnHex, ipfnSkipDest } IPFN;
@@ -191,12 +191,12 @@ typedef enum {kwdChar, kwdDest, kwdProp, kwdSpec} KWD;
 
 typedef struct symbol
 {
-    char *szKeyword;        // RTF keyword
-    int dflt;				// default value to use
-    BOOL fPassDflt;         // true to use default value from this table
-    KWD kwd;				// base action to take
-    int idx;				// index into property table if kwd == kwdProp
-                            // index into destination table if kwd == kwdDest
+	char *szKeyword;        // RTF keyword
+	int dflt;				// default value to use
+	BOOL fPassDflt;         // true to use default value from this table
+	KWD kwd;				// base action to take
+	int idx;				// index into property table if kwd == kwdProp
+	// index into destination table if kwd == kwdDest
 } SYM;						// character to print if kwd == kwdChar
 
 static BOOL fSkipDestIfUnk;
@@ -221,27 +221,27 @@ static SAVE *__rtf_state;
 
 // Property descriptions
 static PROP rgprop [ipropMax] = {
-    { actnByte,   propChp,    offsetof(CHP, fBold) },       // ipropBold
-    { actnByte,   propChp,    offsetof(CHP, fItalic) },     // ipropItalic
-    { actnByte,   propChp,    offsetof(CHP, fUnderline) },  // ipropUnderline
-    { actnWord,   propPap,    offsetof(PAP, xaLeft) },      // ipropLeftInd
-    { actnWord,   propPap,    offsetof(PAP, xaRight) },     // ipropRightInd
-    { actnWord,   propPap,    offsetof(PAP, xaFirst) },     // ipropFirstInd
-    { actnWord,   propSep,    offsetof(SEP, cCols) },       // ipropCols
-    { actnWord,   propSep,    offsetof(SEP, xaPgn) },       // ipropPgnX
-    { actnWord,   propSep,    offsetof(SEP, yaPgn) },       // ipropPgnY
-    { actnWord,   propDop,    offsetof(DOP, xaPage) },      // ipropXaPage
-    { actnWord,   propDop,    offsetof(DOP, yaPage) },      // ipropYaPage
-    { actnWord,   propDop,    offsetof(DOP, xaLeft) },      // ipropXaLeft
-    { actnWord,   propDop,    offsetof(DOP, xaRight) },     // ipropXaRight
-    { actnWord,   propDop,    offsetof(DOP, yaTop) },       // ipropYaTop
-    { actnWord,   propDop,    offsetof(DOP, yaBottom) },    // ipropYaBottom
-    { actnWord,   propDop,    offsetof(DOP, pgnStart) },    // ipropPgnStart
-    { actnByte,   propSep,    offsetof(SEP, sbk) },         // ipropSbk
-    { actnByte,   propSep,    offsetof(SEP, pgnFormat) },   // ipropPgnFormat
-    { actnByte,   propDop,    offsetof(DOP, fFacingp) },    // ipropFacingp
-    { actnByte,   propDop,    offsetof(DOP, fLandscape) },  // ipropLandscape
-    { actnByte,   propPap,    offsetof(PAP, just) },        // ipropJust
+	{ actnByte,   propChp,    offsetof(CHP, fBold) },       // ipropBold
+	{ actnByte,   propChp,    offsetof(CHP, fItalic) },     // ipropItalic
+	{ actnByte,   propChp,    offsetof(CHP, fUnderline) },  // ipropUnderline
+	{ actnWord,   propPap,    offsetof(PAP, xaLeft) },      // ipropLeftInd
+	{ actnWord,   propPap,    offsetof(PAP, xaRight) },     // ipropRightInd
+	{ actnWord,   propPap,    offsetof(PAP, xaFirst) },     // ipropFirstInd
+	{ actnWord,   propSep,    offsetof(SEP, cCols) },       // ipropCols
+	{ actnWord,   propSep,    offsetof(SEP, xaPgn) },       // ipropPgnX
+	{ actnWord,   propSep,    offsetof(SEP, yaPgn) },       // ipropPgnY
+	{ actnWord,   propDop,    offsetof(DOP, xaPage) },      // ipropXaPage
+	{ actnWord,   propDop,    offsetof(DOP, yaPage) },      // ipropYaPage
+	{ actnWord,   propDop,    offsetof(DOP, xaLeft) },      // ipropXaLeft
+	{ actnWord,   propDop,    offsetof(DOP, xaRight) },     // ipropXaRight
+	{ actnWord,   propDop,    offsetof(DOP, yaTop) },       // ipropYaTop
+	{ actnWord,   propDop,    offsetof(DOP, yaBottom) },    // ipropYaBottom
+	{ actnWord,   propDop,    offsetof(DOP, pgnStart) },    // ipropPgnStart
+	{ actnByte,   propSep,    offsetof(SEP, sbk) },         // ipropSbk
+	{ actnByte,   propSep,    offsetof(SEP, pgnFormat) },   // ipropPgnFormat
+	{ actnByte,   propDop,    offsetof(DOP, fFacingp) },    // ipropFacingp
+	{ actnByte,   propDop,    offsetof(DOP, fLandscape) },  // ipropLandscape
+	{ actnByte,   propPap,    offsetof(PAP, just) },        // ipropJust
 	{ actnSpec,   propPap,    0 },                          // ipropPard
 	{ actnSpec,   propChp,    0 },                          // ipropPlain
 	{ actnSpec,   propSep,    0 },                          // ipropSectd
@@ -249,86 +249,86 @@ static PROP rgprop [ipropMax] = {
 
 // Keyword descriptions
 static SYM rgsymRtf[] = {
-//  keyword     dflt    fPassDflt   kwd         idx
+	//  keyword     dflt    fPassDflt   kwd         idx
 	{ "b",        1,      NO,			kwdProp,    ipropBold },
-    { "u",        1,      NO,			kwdProp,    ipropUnderline },
-    { "i",        1,      NO,			kwdProp,    ipropItalic },
-    { "li",       0,      NO,			kwdProp,    ipropLeftInd },
-    { "ri",       0,      NO,			kwdProp,    ipropRightInd },
-    { "fi",       0,      NO,			kwdProp,    ipropFirstInd },
-    { "cols",     1,      NO,			kwdProp,    ipropCols },
-    { "sbknone",  sbkNon, YES,		kwdProp,    ipropSbk },
-    { "sbkcol",   sbkCol, YES,		kwdProp,    ipropSbk },
-    { "sbkeven",  sbkEvn, YES,		kwdProp,    ipropSbk },
-    { "sbkodd",   sbkOdd, YES,		kwdProp,    ipropSbk },
-    { "sbkpage",  sbkPg,  YES,		kwdProp,    ipropSbk },
-    { "pgnx",     0,      NO,			kwdProp,    ipropPgnX },
-    { "pgny",     0,      NO,			kwdProp,    ipropPgnY },
-    { "pgndec",   pgDec,  YES,		kwdProp,    ipropPgnFormat },
-    { "pgnucrm",  pgURom, YES,		kwdProp,    ipropPgnFormat },
-    { "pgnlcrm",  pgLRom, YES,		kwdProp,    ipropPgnFormat },
-    { "pgnucltr", pgULtr, YES,		kwdProp,    ipropPgnFormat },
-    { "pgnlcltr", pgLLtr, YES,		kwdProp,    ipropPgnFormat },
-    { "qc",       justC,  YES,		kwdProp,    ipropJust },
-    { "ql",       justL,  YES,		kwdProp,    ipropJust },
-    { "qr",       justR,  YES,		kwdProp,    ipropJust },
-    { "qj",       justF,  YES,		kwdProp,    ipropJust },
-    { "paperw",   12240,  NO,			kwdProp,    ipropXaPage },
-    { "paperh",   15480,  NO,			kwdProp,    ipropYaPage },
-    { "margl",    1800,   NO,			kwdProp,    ipropXaLeft },
-    { "margr",    1800,   NO,			kwdProp,    ipropXaRight },
-    { "margt",    1440,   NO,			kwdProp,    ipropYaTop },
-    { "margb",    1440,   NO,			kwdProp,    ipropYaBottom },
-    { "pgnstart", 1,      YES,		kwdProp,    ipropPgnStart },
-    { "facingp",  1,      YES,		kwdProp,    ipropFacingp },
-    { "landscape",1,      YES,		kwdProp,    ipropLandscape },
-    { "par",      0,      NO,			kwdChar,    0x0a },	// use NSParagraphSeparatorCharacter 0x2029?
-    { "\0x0a",    0,      NO,			kwdChar,    '\n' },
-    { "\n",    	0,      NO,			kwdChar,    '\n' },
-    { "\0x0d",    0,      NO,			kwdChar,    '\r' },
-    { "tab",      0,      NO,			kwdChar,    '\t' },
-    { "ldblquote",0,      NO,			kwdChar,    '"' },	// use unicode quotes??
-    { "rdblquote",0,      NO,			kwdChar,    '"' },
-    { "bin",      0,      NO,			kwdSpec,    ipfnBin },
-    { "*",        0,      NO,			kwdSpec,    ipfnSkipDest },
-    { "'",        0,      NO,			kwdSpec,    ipfnHex },
-    { "author",   0,      NO,			kwdDest,    idestSkip },
-    { "buptim",   0,      NO,			kwdDest,    idestSkip },
-    { "colortbl", 0,      NO,			kwdDest,    idestSkip },
-    { "comment",  0,      NO,			kwdDest,    idestSkip },
-    { "creatim",  0,      NO,			kwdDest,    idestSkip },
-    { "doccomm",  0,      NO,			kwdDest,    idestSkip },
-    { "fonttbl",  0,      NO,			kwdDest,    idestSkip },
-    { "footer",   0,      NO,			kwdDest,    idestSkip },
-    { "footerf",  0,      NO,			kwdDest,    idestSkip },
-    { "footerl",  0,      NO,			kwdDest,    idestSkip },
-    { "footerr",  0,      NO,			kwdDest,    idestSkip },
-    { "footnote", 0,      NO,			kwdDest,    idestSkip },
-    { "ftncn",    0,      NO,			kwdDest,    idestSkip },
-    { "ftnsep",   0,      NO,			kwdDest,    idestSkip },
-    { "ftnsepc",  0,      NO,			kwdDest,    idestSkip },
-    { "header",   0,      NO,			kwdDest,    idestSkip },
-    { "headerf",  0,      NO,			kwdDest,    idestSkip },
-    { "headerl",  0,      NO,			kwdDest,    idestSkip },
-    { "headerr",  0,      NO,			kwdDest,    idestSkip },
-    { "info",     0,      NO,			kwdDest,    idestSkip },
-    { "keywords", 0,      NO,			kwdDest,    idestSkip },
-    { "operator", 0,      NO,			kwdDest,    idestSkip },
-    { "pict",     0,      NO,			kwdDest,    idestSkip },
-    { "printim",  0,      NO,			kwdDest,    idestSkip },
-    { "private1", 0,      NO,			kwdDest,    idestSkip },
-    { "revtim",   0,      NO,			kwdDest,    idestSkip },
-    { "rxe",      0,      NO,			kwdDest,    idestSkip },
-    { "stylesheet",0,     NO,			kwdDest,    idestSkip },
-    { "subject",  0,      NO,			kwdDest,    idestSkip },
-    { "tc",       0,      NO,			kwdDest,    idestSkip },
-    { "title",    0,      NO,			kwdDest,    idestSkip },
-    { "txe",      0,      NO,			kwdDest,    idestSkip },
-    { "xe",       0,      NO,			kwdDest,    idestSkip },
-    { "{ ",        0,      NO,			kwdChar,    '{' },
-    { "}",        0,      NO,			kwdChar,    '}' },
-    { "\\",       0,      NO,			kwdChar,    '\\' }
-    };
+	{ "u",        1,      NO,			kwdProp,    ipropUnderline },
+	{ "i",        1,      NO,			kwdProp,    ipropItalic },
+	{ "li",       0,      NO,			kwdProp,    ipropLeftInd },
+	{ "ri",       0,      NO,			kwdProp,    ipropRightInd },
+	{ "fi",       0,      NO,			kwdProp,    ipropFirstInd },
+	{ "cols",     1,      NO,			kwdProp,    ipropCols },
+	{ "sbknone",  sbkNon, YES,		kwdProp,    ipropSbk },
+	{ "sbkcol",   sbkCol, YES,		kwdProp,    ipropSbk },
+	{ "sbkeven",  sbkEvn, YES,		kwdProp,    ipropSbk },
+	{ "sbkodd",   sbkOdd, YES,		kwdProp,    ipropSbk },
+	{ "sbkpage",  sbkPg,  YES,		kwdProp,    ipropSbk },
+	{ "pgnx",     0,      NO,			kwdProp,    ipropPgnX },
+	{ "pgny",     0,      NO,			kwdProp,    ipropPgnY },
+	{ "pgndec",   pgDec,  YES,		kwdProp,    ipropPgnFormat },
+	{ "pgnucrm",  pgURom, YES,		kwdProp,    ipropPgnFormat },
+	{ "pgnlcrm",  pgLRom, YES,		kwdProp,    ipropPgnFormat },
+	{ "pgnucltr", pgULtr, YES,		kwdProp,    ipropPgnFormat },
+	{ "pgnlcltr", pgLLtr, YES,		kwdProp,    ipropPgnFormat },
+	{ "qc",       justC,  YES,		kwdProp,    ipropJust },
+	{ "ql",       justL,  YES,		kwdProp,    ipropJust },
+	{ "qr",       justR,  YES,		kwdProp,    ipropJust },
+	{ "qj",       justF,  YES,		kwdProp,    ipropJust },
+	{ "paperw",   12240,  NO,			kwdProp,    ipropXaPage },
+	{ "paperh",   15480,  NO,			kwdProp,    ipropYaPage },
+	{ "margl",    1800,   NO,			kwdProp,    ipropXaLeft },
+	{ "margr",    1800,   NO,			kwdProp,    ipropXaRight },
+	{ "margt",    1440,   NO,			kwdProp,    ipropYaTop },
+	{ "margb",    1440,   NO,			kwdProp,    ipropYaBottom },
+	{ "pgnstart", 1,      YES,		kwdProp,    ipropPgnStart },
+	{ "facingp",  1,      YES,		kwdProp,    ipropFacingp },
+	{ "landscape",1,      YES,		kwdProp,    ipropLandscape },
+	{ "par",      0,      NO,			kwdChar,    0x0a },	// use NSParagraphSeparatorCharacter 0x2029?
+	{ "\0x0a",    0,      NO,			kwdChar,    '\n' },
+	{ "\n",    	0,      NO,			kwdChar,    '\n' },
+	{ "\0x0d",    0,      NO,			kwdChar,    '\r' },
+	{ "tab",      0,      NO,			kwdChar,    '\t' },
+	{ "ldblquote",0,      NO,			kwdChar,    '"' },	// use unicode quotes??
+	{ "rdblquote",0,      NO,			kwdChar,    '"' },
+	{ "bin",      0,      NO,			kwdSpec,    ipfnBin },
+	{ "*",        0,      NO,			kwdSpec,    ipfnSkipDest },
+	{ "'",        0,      NO,			kwdSpec,    ipfnHex },
+	{ "author",   0,      NO,			kwdDest,    idestSkip },
+	{ "buptim",   0,      NO,			kwdDest,    idestSkip },
+	{ "colortbl", 0,      NO,			kwdDest,    idestSkip },
+	{ "comment",  0,      NO,			kwdDest,    idestSkip },
+	{ "creatim",  0,      NO,			kwdDest,    idestSkip },
+	{ "doccomm",  0,      NO,			kwdDest,    idestSkip },
+	{ "fonttbl",  0,      NO,			kwdDest,    idestSkip },
+	{ "footer",   0,      NO,			kwdDest,    idestSkip },
+	{ "footerf",  0,      NO,			kwdDest,    idestSkip },
+	{ "footerl",  0,      NO,			kwdDest,    idestSkip },
+	{ "footerr",  0,      NO,			kwdDest,    idestSkip },
+	{ "footnote", 0,      NO,			kwdDest,    idestSkip },
+	{ "ftncn",    0,      NO,			kwdDest,    idestSkip },
+	{ "ftnsep",   0,      NO,			kwdDest,    idestSkip },
+	{ "ftnsepc",  0,      NO,			kwdDest,    idestSkip },
+	{ "header",   0,      NO,			kwdDest,    idestSkip },
+	{ "headerf",  0,      NO,			kwdDest,    idestSkip },
+	{ "headerl",  0,      NO,			kwdDest,    idestSkip },
+	{ "headerr",  0,      NO,			kwdDest,    idestSkip },
+	{ "info",     0,      NO,			kwdDest,    idestSkip },
+	{ "keywords", 0,      NO,			kwdDest,    idestSkip },
+	{ "operator", 0,      NO,			kwdDest,    idestSkip },
+	{ "pict",     0,      NO,			kwdDest,    idestSkip },
+	{ "printim",  0,      NO,			kwdDest,    idestSkip },
+	{ "private1", 0,      NO,			kwdDest,    idestSkip },
+	{ "revtim",   0,      NO,			kwdDest,    idestSkip },
+	{ "rxe",      0,      NO,			kwdDest,    idestSkip },
+	{ "stylesheet",0,     NO,			kwdDest,    idestSkip },
+	{ "subject",  0,      NO,			kwdDest,    idestSkip },
+	{ "tc",       0,      NO,			kwdDest,    idestSkip },
+	{ "title",    0,      NO,			kwdDest,    idestSkip },
+	{ "txe",      0,      NO,			kwdDest,    idestSkip },
+	{ "xe",       0,      NO,			kwdDest,    idestSkip },
+	{ "{ ",        0,      NO,			kwdChar,    '{' },
+	{ "}",        0,      NO,			kwdChar,    '}' },
+	{ "\\",       0,      NO,			kwdChar,    '\\' }
+};
 static int isymMax = sizeof(rgsymRtf) / sizeof(SYM);
 
 // declare function headers
@@ -337,25 +337,25 @@ static int GSParseSpecialRTFKeyword(IPFN ipfn);
 
 // define functions
 
-static void GSRouteParsedRTFChar(int ch)			// Route the character to the 
+static void GSRouteParsedRTFChar(int ch)			// Route the character to the
 {										// appropriate destination stream
-    if (ris == risBin && --cbBin <= 0)
-        ris = risNorm;
+	if (ris == risBin && --cbBin <= 0)
+		ris = risNorm;
 
-    switch (rds)
-		{
+	switch (rds)
+	{
 		case rdsNorm:	// Output char. Properties are valid at this point.
-			{
-			NSUInteger len = strlen(__buf);
-			__buf[len++] = ch;
-			__buf[len] = '\0';
-			}
-//    		putchar(ch);
+		{
+		NSUInteger len = strlen(__buf);
+		__buf[len++] = ch;
+		__buf[len] = '\0';
+		}
+		//    		putchar(ch);
 
 		case rdsSkip:					// Toss this character.
 		default:						// handle other destinations
-			break;
-		}
+		break;
+	}
 }
 
 //
@@ -368,46 +368,46 @@ static int GSSetRTFProperty(IPROP iprop, int val)
 {
 	char *pb;
 
-    if (rds == rdsSkip)                 // If we're skipping text,
-        return ecOK;                    // don't do anything.
+	if (rds == rdsSkip)                 // If we're skipping text,
+		return ecOK;                    // don't do anything.
 
-    switch (rgprop[iprop].prop)
-		{
+	switch (rgprop[iprop].prop)
+	{
 		case propDop:	pb = (char *)&dop;	break;
 		case propSep:	pb = (char *)&sep;	break;
 		case propPap:	pb = (char *)&pap;	break;
 		case propChp:	pb = (char *)&chp;	break;
 		default:
-			if (rgprop[iprop].actn != actnSpec)
-				return ecBadTable;
+		if (rgprop[iprop].actn != actnSpec)
 			return ecBadTable;
-			// FIXME: pb may be used uninitialized below!!!
-			break;
-		}
+		return ecBadTable;
+		// FIXME: pb may be used uninitialized below!!!
+		break;
+	}
 
-    switch (rgprop[iprop].actn)
-		{
+	switch (rgprop[iprop].actn)
+	{
 		case actnByte:
-			pb[rgprop[iprop].offset] = (unsigned char) val;
-			break;
+		pb[rgprop[iprop].offset] = (unsigned char) val;
+		break;
 		case actnWord:
-			(*(int *) (pb+rgprop[iprop].offset)) = val;
-			break;
+		(*(int *) (pb+rgprop[iprop].offset)) = val;
+		break;
 		case actnSpec:					// Set a property that requires
-			switch (iprop)				// code to evaluate
-				{
-				case ipropPard:		memset(&pap, 0, sizeof(pap));	break;
-				case ipropPlain:	memset(&chp, 0, sizeof(chp));	break;
-				case ipropSectd:	memset(&sep, 0, sizeof(sep));	break;
-				default:			
-					return ecBadTable;
-				}
-			break;
-		default:
+		switch (iprop)				// code to evaluate
+		{
+			case ipropPard:		memset(&pap, 0, sizeof(pap));	break;
+			case ipropPlain:	memset(&chp, 0, sizeof(chp));	break;
+			case ipropSectd:	memset(&sep, 0, sizeof(sep));	break;
+			default:
 			return ecBadTable;
 		}
+		break;
+		default:
+		return ecBadTable;
+	}
 
-    return ecOK;
+	return ecOK;
 }
 
 //
@@ -425,49 +425,49 @@ static int GSSetRTFProperty(IPROP iprop, int val)
 
 static int GSTranslateRTFKeyword(char *szKeyword, int param, BOOL fParam)
 {
-int isym;							// search for szKeyword in rgsymRtf
+	int isym;							// search for szKeyword in rgsymRtf
 
-    for (isym = 0; isym < isymMax; isym++)
-        if (strcmp(szKeyword, rgsymRtf[isym].szKeyword) == 0)
-            break;
+	for (isym = 0; isym < isymMax; isym++)
+		if (strcmp(szKeyword, rgsymRtf[isym].szKeyword) == 0)
+			break;
 
-    if (isym == isymMax)            // control word not found
-    	{
-        if (fSkipDestIfUnk)         // if this is a new destination
-            rds = rdsSkip;          // skip the destination
-                                    // else just discard it
-        fSkipDestIfUnk = NO;
-        return ecOK;
-    	}
-									// found it!  use kwd and idx to determine 
-    fSkipDestIfUnk = NO;			// what to do with it.
-    switch (rgsymRtf[isym].kwd)
+	if (isym == isymMax)            // control word not found
 		{
+		if (fSkipDestIfUnk)         // if this is a new destination
+			rds = rdsSkip;          // skip the destination
+		// else just discard it
+		fSkipDestIfUnk = NO;
+		return ecOK;
+		}
+	// found it!  use kwd and idx to determine
+	fSkipDestIfUnk = NO;			// what to do with it.
+	switch (rgsymRtf[isym].kwd)
+	{
 		case kwdProp:
-			if (rgsymRtf[isym].fPassDflt || !fParam)
-				param = rgsymRtf[isym].dflt;
-			return GSSetRTFProperty(rgsymRtf[isym].idx, param);
+		if (rgsymRtf[isym].fPassDflt || !fParam)
+			param = rgsymRtf[isym].dflt;
+		return GSSetRTFProperty(rgsymRtf[isym].idx, param);
 		case kwdChar:
-			GSRouteParsedRTFChar(rgsymRtf[isym].idx);
-			return ecOK;
+		GSRouteParsedRTFChar(rgsymRtf[isym].idx);
+		return ecOK;
 		case kwdDest:
-			if (rds != rdsSkip)					// if not skipping text
-				switch (rgsymRtf[isym].idx)		// Switch output destination
-					{
-					default:
-						rds = rdsSkip;			// when in doubt, skip it...
-						break;
-					}
-			
-			return ecOK;
+		if (rds != rdsSkip)					// if not skipping text
+			switch (rgsymRtf[isym].idx)		// Switch output destination
+			{
+				default:
+				rds = rdsSkip;			// when in doubt, skip it...
+				break;
+			}
+
+		return ecOK;
 
 		case kwdSpec:
-			return GSParseSpecialRTFKeyword(rgsymRtf[isym].idx);
+		return GSParseSpecialRTFKeyword(rgsymRtf[isym].idx);
 		default:
-			return ecBadTable;
-		}
+		return ecBadTable;
+	}
 
-    return ecBadTable;
+	return ecBadTable;
 }
 
 //
@@ -478,67 +478,67 @@ int isym;							// search for szKeyword in rgsymRtf
 
 static int GSParseSpecialRTFKeyword(IPFN ipfn)
 {
-    if (rds == rdsSkip && ipfn != ipfnBin)  // if we're skipping, and it's not
-        return ecOK;                        // the \bin keyword, ignore it.
+	if (rds == rdsSkip && ipfn != ipfnBin)  // if we're skipping, and it's not
+		return ecOK;                        // the \bin keyword, ignore it.
 
-    switch (ipfn)
-		{
+	switch (ipfn)
+	{
 		case ipfnBin:
-			ris = risBin;
-			cbBin = lParam;
-			break;
+		ris = risBin;
+		cbBin = lParam;
+		break;
 		case ipfnSkipDest:
-			fSkipDestIfUnk = YES;
-			break;
+		fSkipDestIfUnk = YES;
+		break;
 		case ipfnHex:
-			ris = risHex;
-			break;
+		ris = risHex;
+		break;
 		default:
-			return ecBadTable;
-		}
+		return ecBadTable;
+	}
 
-    return ecOK;
+	return ecOK;
 }
 
 static void	GSPushRTFState(void)	// Save RTF info into a linked list stack of SAVE structures
 {
-SAVE *psaveNew = malloc(sizeof(*psaveNew));
+	SAVE *psaveNew = malloc(sizeof(*psaveNew));
 
-    if (!psaveNew)
+	if (!psaveNew)
 		[NSException raise: NSMallocException format:@"malloc failed"];
 
-    psaveNew->pNext = __rtf_state;
-    psaveNew->chp = chp;
-    psaveNew->pap = pap;
-    psaveNew->sep = sep;
-    psaveNew->dop = dop;
-    psaveNew->rds = rds;
-    psaveNew->ris = ris;
-    ris = risNorm;
-    __rtf_state = psaveNew;
-    __rtf_stack_depth++;
+	psaveNew->pNext = __rtf_state;
+	psaveNew->chp = chp;
+	psaveNew->pap = pap;
+	psaveNew->sep = sep;
+	psaveNew->dop = dop;
+	psaveNew->rds = rds;
+	psaveNew->ris = ris;
+	ris = risNorm;
+	__rtf_state = psaveNew;
+	__rtf_stack_depth++;
 }
 
 static void GSPopRTFState(void)		// Pop RTF doc info from top of SAVE list stack if ending a destination
 {
-SAVE *psaveOld;
+	SAVE *psaveOld;
 
-    if (!__rtf_state)
+	if (!__rtf_state)
 		[NSException raise: NSGenericException format:@"RTF stack underflow"];
 
-//  if (rds != __rtf_state->rds)		// destination specified by rds is
-										// about to close. cleanup if needed
-    chp = __rtf_state->chp;
-    pap = __rtf_state->pap;
-    sep = __rtf_state->sep;
-    dop = __rtf_state->dop;
-    rds = __rtf_state->rds;
-    ris = __rtf_state->ris;
+	//  if (rds != __rtf_state->rds)		// destination specified by rds is
+	// about to close. cleanup if needed
+	chp = __rtf_state->chp;
+	pap = __rtf_state->pap;
+	sep = __rtf_state->sep;
+	dop = __rtf_state->dop;
+	rds = __rtf_state->rds;
+	ris = __rtf_state->ris;
 
-    psaveOld = __rtf_state;
-    __rtf_state = __rtf_state->pNext;
-    __rtf_stack_depth--;
-    free(psaveOld);
+	psaveOld = __rtf_state;
+	__rtf_state = __rtf_state->pNext;
+	__rtf_stack_depth--;
+	free(psaveOld);
 }
 
 //
@@ -551,21 +551,21 @@ SAVE *psaveOld;
 
 static const char *GSParseRTFKeyword (const char *f)
 {
-int ch, ec, param = 0;
-char fParam = NO, fNeg = NO;
-char *pch;
-char szKeyword[30] = "";
-char szParameter[20] = "";
+	int ch, ec, param = 0;
+	char fParam = NO, fNeg = NO;
+	char *pch;
+	char szKeyword[30] = "";
+	char szParameter[20] = "";
 
-    if (!*f || (ch = *f++) == '\0')
+	if (!*f || (ch = *f++) == '\0')
 		{
 		[NSException raise: NSGenericException format:@"RTF unexpected EOF"];
 		return NULL;
 		}
-    if (!isalpha(ch))           				// control symbol; no delimiter
+	if (!isalpha(ch))           				// control symbol; no delimiter
 		{
-        szKeyword[0] = (char) ch;
-        szKeyword[1] = '\0';
+		szKeyword[0] = (char) ch;
+		szKeyword[1] = '\0';
 		}
 	else
 		{
@@ -577,29 +577,29 @@ char szParameter[20] = "";
 			fNeg  = YES;
 			if (!*f || (ch = *f++) == '\0')
 				[NSException raise: NSGenericException
-							 format:@"RTF unexpected EOF"];
+							format:@"RTF unexpected EOF"];
 			}
 		if (isdigit(ch))
-			{								// a digit after the control means 
-			fParam = YES;					// we have a parameter
-			for (pch = szParameter; *f && isdigit(ch); (ch = *f++))
-				*pch++ = (char) ch;
-			*pch = '\0';
-			param = atoi(szParameter);
-			if (fNeg)
-				param = -param;
-			lParam = atol(szParameter);
-			if (fNeg)
-				param = -param;
+			{								// a digit after the control means
+				fParam = YES;					// we have a parameter
+				for (pch = szParameter; *f && isdigit(ch); (ch = *f++))
+					*pch++ = (char) ch;
+				*pch = '\0';
+				param = atoi(szParameter);
+				if (fNeg)
+					param = -param;
+				lParam = atol(szParameter);
+				if (fNeg)
+					param = -param;
 			}
 		if (ch != ' ')
 			f--;
 		}
 
 	if ((ec = GSTranslateRTFKeyword(szKeyword, param, fParam)) != ecOK)
-		[NSException raise: NSGenericException 
-					 format: @"GSParseRTFKeyword() failed: %d\n", ec];
-    return f;
+		[NSException raise: NSGenericException
+					format: @"GSParseRTFKeyword() failed: %d\n", ec];
+	return f;
 }
 
 //
@@ -613,69 +613,69 @@ char szParameter[20] = "";
 
 static int GSParseRTF (const char *f)
 {
-int ch, cNibble = 2, b = 0;
+	int ch, cNibble = 2, b = 0;
 
 	while(*f)
-    	{
+		{
 		ch = *f++;
-        if (__rtf_stack_depth < 0)
-            return ecStackUnderflow;
+		if (__rtf_stack_depth < 0)
+			return ecStackUnderflow;
 
-        if (ris == risBin)						// if we're parsing binary 
+		if (ris == risBin)						// if we're parsing binary
 			GSRouteParsedRTFChar(ch);			// data, handle it directly
-        else
+		else
 			{
-            switch (ch)
+			switch (ch)
 				{
-				case '{':	GSPushRTFState();			break;
-				case '}':	GSPopRTFState();			break;
-				case '\\':	f = GSParseRTFKeyword(f);	break;
+					case '{':	GSPushRTFState();			break;
+					case '}':	GSPopRTFState();			break;
+					case '\\':	f = GSParseRTFKeyword(f);	break;
 
-				default:
+					default:
 					if (ris == risNorm)
 						GSRouteParsedRTFChar(ch);
 					else
 						{               		// parsing hex data
-						if (ris != risHex)
-							return ecAssertion;
-						b = b << 4;
-						if (isdigit(ch))
-							b += (char) ch - '0';
-						else
-							{
-							if (islower(ch))
-								{
-								if (ch < 'a' || ch > 'f')
-									return ecInvalidHex;
-								b += (char) ch - 'a';
-								}
+							if (ris != risHex)
+								return ecAssertion;
+							b = b << 4;
+							if (isdigit(ch))
+								b += (char) ch - '0';
 							else
 								{
-								if (ch < 'A' || ch > 'F')
-									return ecInvalidHex;
-								b += (char) ch - 'A';
-							}	}
+								if (islower(ch))
+									{
+									if (ch < 'a' || ch > 'f')
+										return ecInvalidHex;
+									b += (char) ch - 'a';
+									}
+								else
+									{
+									if (ch < 'A' || ch > 'F')
+										return ecInvalidHex;
+									b += (char) ch - 'A';
+									}	}
 
-						cNibble--;
-						if (!cNibble)
-							{
-							GSRouteParsedRTFChar(ch);
-							cNibble = 2;
-							b = 0;
-							ris = risNorm;
-						}	}
+							cNibble--;
+							if (!cNibble)
+								{
+								GSRouteParsedRTFChar(ch);
+								cNibble = 2;
+								b = 0;
+								ris = risNorm;
+								}	}
 
-				case '\n':
-				case '\r':          			// cr and lf are noise chars
+					case '\n':
+					case '\r':          			// cr and lf are noise chars
 					break;
-    	}	}	}
+				}	}	}
 
-    if (__rtf_stack_depth < 0)
-        return ecStackUnderflow;
-    if (__rtf_stack_depth > 0)
-        return ecUnmatchedBrace;
+	if (__rtf_stack_depth < 0)
+		return ecStackUnderflow;
+	if (__rtf_stack_depth > 0)
+		return ecUnmatchedBrace;
 
-    return ecOK;
+	return ecOK;
 }
 
 @implementation NSAttributedString (NSAttributedStringAdditions)
@@ -710,8 +710,8 @@ int ch, cNibble = 2, b = 0;
 	id o;
 	if(!d)
 		{ // no data
-		[self release];
-		return nil;
+			[self release];
+			return nil;
 		}
 	// what to do with options?
 	// we should also be more intelligent to decide about document format since simply trying to load as HTML and failing is really heavy
@@ -734,10 +734,10 @@ int ch, cNibble = 2, b = 0;
 {
 	NSData *data=[NSData dataWithContentsOfURL:url options:0 error:error];
 	if(!data)
-			{
-				[self release];
-				return nil;	// can't read
-			}
+		{
+		[self release];
+		return nil;	// can't read
+		}
 	return [self initWithData:data options:options documentAttributes:dict error:error];
 }
 
@@ -763,8 +763,8 @@ int ch, cNibble = 2, b = 0;
 		// FIXME: should do more specific error handling
 		NSLog(@"error parsing RTF");
 	str=[[[NSString alloc] initWithCStringNoCopy:__buf
-											length:strlen(__buf)
-									  freeWhenDone:YES] autorelease];
+										  length:strlen(__buf)
+									freeWhenDone:YES] autorelease];
 	return [[[NSAttributedString alloc] initWithString:str attributes:nil] autorelease];
 }
 
@@ -772,14 +772,14 @@ int ch, cNibble = 2, b = 0;
 {
 	NSFileWrapper *w = [[[NSFileWrapper alloc] initWithSerializedRepresentation:data] autorelease];
 	if(!w)
-			{
-				[self release];
-				return nil;
-			}
+		{
+		[self release];
+		return nil;
+		}
 	return [self initWithRTFDFileWrapper:w documentAttributes:dict];
 }
 
-- (id) initWithRTFDFileWrapper:(NSFileWrapper *)wrapper 
+- (id) initWithRTFDFileWrapper:(NSFileWrapper *)wrapper
 			documentAttributes:(NSDictionary **)dict
 {
 	id o;
@@ -825,24 +825,24 @@ static BOOL done;
 		{
 		webView=[[NSClassFromString(@"WebView") alloc] initWithFrame:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
 		if(!webView)
-				{
+			{
 			[self release];
 			return nil;	// can't initialize
-				}
+			}
 		}
 	[[webView mainFrame] loadData:data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:[options objectForKey:NSBaseURLDocumentOption]];
 	[webView setFrameLoadDelegate:self];
 	done=NO;
 	while(!done)
 		{ // loading is not yet done
-		[NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate dateWithTimeIntervalSinceNow:0.05] inMode:NSDefaultRunLoopMode dequeue:NO];	// process events
+			[NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate dateWithTimeIntervalSinceNow:0.05] inMode:NSDefaultRunLoopMode dequeue:NO];	// process events
 		}
 	if(dict)
 		*dict=[NSDictionary dictionaryWithObjectsAndKeys:
-			NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
-			[[[webView mainFrame] dataSource] textEncodingName], NSCharacterEncodingDocumentAttribute,	// may be nil?
-			[[[webView mainFrame] dataSource] pageTitle], NSTitleDocumentAttribute,	// title may be nil!!!
-			nil];
+			   NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
+			   [[[webView mainFrame] dataSource] textEncodingName], NSCharacterEncodingDocumentAttribute,	// may be nil?
+			   [[[webView mainFrame] dataSource] pageTitle], NSTitleDocumentAttribute,	// title may be nil!!!
+			   nil];
 	return [self initWithAttributedString:[[[[webView mainFrame] frameView] documentView] attributedString]];
 }
 
@@ -865,12 +865,12 @@ static BOOL done;
 	NSMutableArray *fonts=[NSMutableArray array];	// font table
 	NSMutableArray *colors=[NSMutableArray array];	// color table
 	NSArray *colorAttributes=[NSArray arrayWithObjects:
-		NSBackgroundColorAttributeName,
-		NSForegroundColorAttributeName,
-		NSStrokeColorAttributeName,
-		NSUnderlineColorAttributeName,
-		NSStrikethroughColorAttributeName,
-		nil];
+							  NSBackgroundColorAttributeName,
+							  NSForegroundColorAttributeName,
+							  NSStrokeColorAttributeName,
+							  NSUnderlineColorAttributeName,
+							  NSStrikethroughColorAttributeName,
+							  nil];
 	[rtf appendString:@"{\\rtf1\\mac\\ansi\\ansicpg10000\\cocoartf102\\deff0"];
 	if((o=[d objectForKey:@"CocoaRTFVersion"]))
 		[rtf appendFormat:@"\\cocoartf%d", [o intValue]];	// convert NS size values to RTF units
@@ -890,45 +890,45 @@ static BOOL done;
 	[rtf appendString:@"\n"];
 	for(i=0; i<cnt; )
 		{ // first pass: collect and write fonts and collect colors
-		NSRange rng;
-		NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
-		NSFont *font=[attr objectForKey:NSFontAttributeName];
-		NSEnumerator *e=[colorAttributes objectEnumerator];
-		NSString *attrib;
-		if(![fonts containsObject:[font fontName]])
-			{ // fonttbl example: {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;}
-			if([fonts count] == 0)
-				[rtf appendString:@"{\fonttbl"];	// first font
-			[rtf appendFormat:@"\f%lu", (unsigned long)[fonts count]];	// unique number
-														//// what does \fswiss resp. \fnil mean?
-														// write \fcharset
-			[rtf appendFormat:@" %@;", [font fontName]];	// e.g. Helvetica-Bold
-			[fonts addObject:[font fontName]];	// register font name and encode
-			}
-		while((attrib=[e nextObject]))
-			{
-			NSColor *color=[attr objectForKey:attrib];
-			if(color && ![colors containsObject:color])
-				[colors addObject:color];	// new color found
-			}
-		i+=rng.length;
+			NSRange rng;
+			NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
+			NSFont *font=[attr objectForKey:NSFontAttributeName];
+			NSEnumerator *e=[colorAttributes objectEnumerator];
+			NSString *attrib;
+			if(![fonts containsObject:[font fontName]])
+				{ // fonttbl example: {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;}
+					if([fonts count] == 0)
+						[rtf appendString:@"{\fonttbl"];	// first font
+					[rtf appendFormat:@"\f%lu", (unsigned long)[fonts count]];	// unique number
+					//// what does \fswiss resp. \fnil mean?
+					// write \fcharset
+					[rtf appendFormat:@" %@;", [font fontName]];	// e.g. Helvetica-Bold
+					[fonts addObject:[font fontName]];	// register font name and encode
+				}
+			while((attrib=[e nextObject]))
+				{
+				NSColor *color=[attr objectForKey:attrib];
+				if(color && ![colors containsObject:color])
+					[colors addObject:color];	// new color found
+				}
+			i+=rng.length;
 		}
 	if([fonts count])
 		[rtf appendString:@"}\n"];	// close font table
 	// filetbl - optional
 	if([colors count])
 		{ // colortbl example: {\colortbl;\red255\green255\blue255;\red118\green15\blue80;}
-		NSInteger c, ccnt=[colors count];
-		[rtf appendString:@"{\\colortbl;\n"];	// open color table
-		for(c=0; c<ccnt; i++)
-			{
-			NSColor *co=[colors objectAtIndex:i];
-			[rtf appendFormat:@"\\red%u\\green%u\\blue%u;\n",
-				(unsigned)(255*[co redComponent]+0.5),
-				(unsigned)(255*[co greenComponent]+0.5),
-				(unsigned)(255*[co blueComponent]+0.5)];	// color table entry
-			}
-		[rtf appendString:@"};\n"];	// close color table
+			NSInteger c, ccnt=[colors count];
+			[rtf appendString:@"{\\colortbl;\n"];	// open color table
+			for(c=0; c<ccnt; i++)
+				{
+				NSColor *co=[colors objectAtIndex:i];
+				[rtf appendFormat:@"\\red%u\\green%u\\blue%u;\n",
+				 (unsigned)(255*[co redComponent]+0.5),
+				 (unsigned)(255*[co greenComponent]+0.5),
+				 (unsigned)(255*[co blueComponent]+0.5)];	// color table entry
+				}
+			[rtf appendString:@"};\n"];	// close color table
 		}
 	// stylesheet (paragraph formats) - optional
 	// ...
@@ -938,34 +938,34 @@ static BOOL done;
 	// ...
 	for(i=0; i<cnt; )
 		{ // second pass: write contents
-		NSRange rng;
-		NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
-		NSFont *font=[attr objectForKey:NSFontAttributeName];
-		unichar c;
+			NSRange rng;
+			NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
+			NSFont *font=[attr objectForKey:NSFontAttributeName];
+			unichar c;
 			// CHECKME: is %d really an integer or is a float permitted?
-		[rtf appendFormat:@"\f%lu\fs%d", (unsigned long)[fonts indexOfObject:[font fontName]], (int)([font pointSize]*TWIPSperPOINT)];	// select font
-		// FIXME: encode other attributes like colors
-		while(rng.length-- > 0)
-			{
-			c=[[self string] characterAtIndex:i++];	// get character
-			switch(c)
+			[rtf appendFormat:@"\f%lu\fs%d", (unsigned long)[fonts indexOfObject:[font fontName]], (int)([font pointSize]*TWIPSperPOINT)];	// select font
+			// FIXME: encode other attributes like colors
+			while(rng.length-- > 0)
 				{
-				case '\n':
-					[rtf appendString:@"\\\n"];	// write backslash and newline
-					break;
-				case '\\':
-					[rtf appendString:@"\\\\"];	// write double backslash
-					break;
-				default:
-					if(c >= 0x7f || c < ' ')
-						{
-						// FIXME: handle code page switches/hex escapes etc.
-						[rtf appendFormat:@"\\'%02x", c];
-						}
-					else
-						[rtf appendFormat:@"%C", c];	// copy character which should be plain 7 bit ASCII now
+				c=[[self string] characterAtIndex:i++];	// get character
+				switch(c)
+					{
+						case '\n':
+						[rtf appendString:@"\\\n"];	// write backslash and newline
+						break;
+						case '\\':
+						[rtf appendString:@"\\\\"];	// write double backslash
+						break;
+						default:
+						if(c >= 0x7f || c < ' ')
+							{
+							// FIXME: handle code page switches/hex escapes etc.
+							[rtf appendFormat:@"\\'%02x", c];
+							}
+						else
+							[rtf appendFormat:@"%C", c];	// copy character which should be plain 7 bit ASCII now
+					}
 				}
-			}
 		}
 	[rtf appendString:@"}\n"];
 	return [rtf dataUsingEncoding:NSASCIIStringEncoding];	// encode
@@ -976,7 +976,7 @@ static BOOL done;
 	return [[self RTFDFileWrapperFromRange:range documentAttributes:d] serializedRepresentation];
 }
 
-- (NSFileWrapper *) RTFDFileWrapperFromRange:(NSRange)range 
+- (NSFileWrapper *) RTFDFileWrapperFromRange:(NSRange)range
 						  documentAttributes:(NSDictionary *)dict
 {
 	return NIMP;
@@ -998,31 +998,31 @@ static BOOL done;
 		// encode as HTML by using and filtering with attributes
 		return NIMP;
 		}
-/*
+	/*
 		NSMacSimpleTextDocumentType
 		NSDocFormatTextDocumentType
 		NSWordMLTextDocumentType
 		NSWebArchiveTextDocumentType
 		*/
-		return NIMP;
+	return NIMP;
 }
 
 #if example_how_to_use_this_class_for_great_things
 
 - (NSString *) attributedStringToHTML:(NSAttributedString*)aString
 {
-	NSArray *excluded = [NSArray arrayWithObjects: @"doctype", @"html",  
-		@"head", @"body", @"xml", @"p", nil];
+	NSArray *excluded = [NSArray arrayWithObjects: @"doctype", @"html",
+						 @"head", @"body", @"xml", @"p", nil];
 	NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
-		NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
-		//aTitle, NSTitleDocumentAttribute,
-		excluded, NSExcludedElementsDocumentAttribute,
-		[NSNumber numberWithInt: NSASCIIStringEncoding], NSCharacterEncodingDocumentAttribute,
-		nil];
-	NSData * tdata = [aString dataFromRange: NSMakeRange(0, [aString length])  
+						  NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
+						  //aTitle, NSTitleDocumentAttribute,
+						  excluded, NSExcludedElementsDocumentAttribute,
+						  [NSNumber numberWithInt: NSASCIIStringEncoding], NSCharacterEncodingDocumentAttribute,
+						  nil];
+	NSData * tdata = [aString dataFromRange: NSMakeRange(0, [aString length])
 						 documentAttributes: attr error: nil];
-	
-	NSString * tString = [[NSString alloc] initWithData:tdata encoding:NSASCIIStringEncoding];	
+
+	NSString * tString = [[NSString alloc] initWithData:tdata encoding:NSASCIIStringEncoding];
 	return tString;
 }
 
@@ -1060,10 +1060,10 @@ static BOOL done;
 // FIXME: this and e.g. nextWordFromIndex: should be used in the string drawing algorithm to determine line breaks and wrapping!
 
 - (NSUInteger) lineBreakBeforeIndex:(NSUInteger)location
-					  withinRange:(NSRange)aRange
+						withinRange:(NSRange)aRange
 {
 	// return first char to go on the next line or NSNotFound
-	// if the speciefied range does not contain a line break	
+	// if the speciefied range does not contain a line break
 	NSUInteger len=[self length];
 	NSString *s=[self string];
 	static NSCharacterSet *c;
@@ -1081,7 +1081,7 @@ static BOOL done;
 }
 
 - (NSUInteger) lineBreakByHyphenatingBeforeIndex:(NSUInteger)location
-											withinRange:(NSRange)aRange
+									 withinRange:(NSRange)aRange
 {
 	// we should know about hyphenation rules and a language attribute
 	return [self lineBreakBeforeIndex:location withinRange:aRange];
@@ -1162,7 +1162,7 @@ static BOOL done;
 	return rng;
 }
 
-- (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range; 
+- (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range;
 {
 	// check for URL Link attribute
 	// or if not found, check for string that looks like an URL (scheme:something)
@@ -1172,45 +1172,45 @@ static BOOL done;
 + (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
 {
 	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%C", (unichar)NSAttachmentCharacter]
-										   attributes:[NSDictionary dictionaryWithObject:attach forKey:NSAttachmentAttributeName]] autorelease]; }
+											attributes:[NSDictionary dictionaryWithObject:attach forKey:NSAttachmentAttributeName]] autorelease]; }
 
 /*
-+textFileTypes;
-{
+ +textFileTypes;
+ {
 	return [NSArray arrayWithObjects:@"txt", @"rtf", @"rtfd", @"html", nil];
-}
+ }
 
-+textUnfilteredFileTypes;
-{
+ +textUnfilteredFileTypes;
+ {
 	return [NSArray arrayWithObjects:@"txt", @"rtf", @"rtfd", @"html", nil];
-}
+ }
 
-+textPasteboardTypes' not found
-{
+ +textPasteboardTypes' not found
+ {
 	return [NSArray arrayWithObjects:NSHTMLPboardType, NSRTFPboardType, NSRTFDPboardType, NSStringPboardType, nil];
-}
+ }
 
-+textUnfilteredPasteboardTypes' not found
-{
+ +textUnfilteredPasteboardTypes' not found
+ {
 	return [NSArray arrayWithObjects:NSHTMLPboardType, NSRTFPboardType, NSRTFDPboardType, NSStringPboardType, nil];
-}
+ }
 
--docFormatFromRange:documentAttributes:' not found
-{
+ -docFormatFromRange:documentAttributes:' not found
+ {
 	// format as .doc
-}
+ }
 
-	 -fileWrapperFromRange:documentAttributes:error:' not found
-{
+ -fileWrapperFromRange:documentAttributes:error:' not found
+ {
 	// format as specified by NSDocumentTypeDocumentAttribute and encapsulate in a fileWrapper
-}
+ }
 
-	 -itemNumberInTextList:atIndex:' not found
-	 -lineBreakByHyphenatingBeforeIndex:withinRange:' not found
-	 -rangeOfTextBlock:atIndex:' not found
-	 -rangeOfTextList:atIndex:' not found
-	 -rangeOfTextTable:atIndex:' not found
-	 */ 
+ -itemNumberInTextList:atIndex:' not found
+ -lineBreakByHyphenatingBeforeIndex:withinRange:' not found
+ -rangeOfTextBlock:atIndex:' not found
+ -rangeOfTextList:atIndex:' not found
+ -rangeOfTextTable:atIndex:' not found
+ */
 @end
 
 
@@ -1250,7 +1250,7 @@ static BOOL done;
 }
 
 // Methods (NOT automagically called) to "fix" attributes
-// after changes are made.  Range is specified in terms of 
+// after changes are made.  Range is specified in terms of
 // the final string.
 
 - (void) fixAttributesInRange:(NSRange)range
@@ -1275,31 +1275,31 @@ static BOOL done;
 	NSRange lineRange=range;
 	NSUInteger end=NSMaxRange(range);
 	NSString *str=[self string];
-//	NSLog(@"0 %@", NSStringFromRange(range));
+	//	NSLog(@"0 %@", NSStringFromRange(range));
 	if(end > [self length])
 		[NSException raise:NSRangeException format:@"range too long"];
 	while(lineRange.location < end)
 		{
 		NSParagraphStyle *attrib;
 		NSRange attribRange;
-//		NSLog(@"a %@", NSStringFromRange(lineRange));
+		//		NSLog(@"a %@", NSStringFromRange(lineRange));
 		lineRange=[str lineRangeForRange:lineRange];
-//		NSLog(@"b %@", NSStringFromRange(lineRange));
+		//		NSLog(@"b %@", NSStringFromRange(lineRange));
 		attrib=[self attribute:NSParagraphStyleAttributeName atIndex:lineRange.location longestEffectiveRange:&attribRange inRange:range];
-//		NSLog(@"c %@ %@", NSStringFromRange(attribRange), attrib);
+		//		NSLog(@"c %@ %@", NSStringFromRange(attribRange), attrib);
 		attribRange.location=NSMaxRange(attribRange);	// start to update where attribRange ends
 		attribRange=NSIntersectionRange(attribRange, lineRange);	// but not beyond line end
 		attribRange=NSIntersectionRange(attribRange, range);	// but not beyond given range
-//		NSLog(@"d %@", NSStringFromRange(attribRange));
+		//		NSLog(@"d %@", NSStringFromRange(attribRange));
 		if(attribRange.length > 0)
 			{ // only if there is something to fix
-			NSLog(@"d %@", NSStringFromRange(attribRange));
-			if(attrib)
-				[self addAttribute:NSParagraphStyleAttributeName value:attrib range:attribRange];
-			else
-				[self removeAttribute:NSParagraphStyleAttributeName range:attribRange];
+				NSLog(@"d %@", NSStringFromRange(attribRange));
+				if(attrib)
+					[self addAttribute:NSParagraphStyleAttributeName value:attrib range:attribRange];
+				else
+					[self removeAttribute:NSParagraphStyleAttributeName range:attribRange];
 			}
-//		NSLog(@"e %@", NSStringFromRange(lineRange)),
+		//		NSLog(@"e %@", NSStringFromRange(lineRange)),
 		lineRange.location=NSMaxRange(lineRange);	// go to next line
 		}
 }
@@ -1314,7 +1314,7 @@ static BOOL done;
 		{
 		NSRange aRange;
 		NSTextAttachment *a=[self attribute:NSAttachmentAttributeName atIndex:range.location effectiveRange:&aRange];
-//		NSLog(@"a %@", NSStringFromRange(aRange));
+		//		NSLog(@"a %@", NSStringFromRange(aRange));
 		if(a)
 			{ // this range has an attachment attribute - remove at locations without attachment Character
 				NSUInteger e=NSMaxRange(aRange);
@@ -1328,7 +1328,7 @@ static BOOL done;
 							if([str characterAtIndex:range.location] != NSAttachmentCharacter)
 								range.location++;	// collect sequences of non-attachment characters
 						rng.length=range.location-rng.location;
-//						NSLog(@"b %@", NSStringFromRange(rng));
+						//						NSLog(@"b %@", NSStringFromRange(rng));
 						if(rng.length > 0)
 							[self removeAttribute:NSAttachmentAttributeName range:rng];	// remove attachments for non-attachment characters
 						}
@@ -1358,7 +1358,7 @@ static BOOL done;
 	[a release];
 	return YES;
 }
-						   
+
 - (BOOL) readFromURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
 {
 	return [self readFromURL:url options:opts documentAttributes:attrs error:NULL];
