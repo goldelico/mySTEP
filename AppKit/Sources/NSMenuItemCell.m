@@ -310,7 +310,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		int i;
 #if 0
 		NSLog(@"calcSize vertical");
-		NSLog(@"key equiv=%@", [self _keyEquivalentString]);
+		NSLog(@"_keyEquivalentAttributedString=%@", [self _keyEquivalentAttributedString]);
 #endif
 		if([menuItem hasSubmenu])
 			keyEquivalentWidth=ARROW_WIDTH+ARROW_PAD; 	// room for submenu arrow
@@ -321,6 +321,9 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 				keyEquivalentWidth=[as size].width;
 			else
 				keyEquivalentWidth=0.0;	// no key equivalent
+#if 0
+			NSLog(@"as=%@ size=%@ keyEquivalentWidth=%lf", as, NSStringFromSize([as size]), keyEquivalentWidth);
+#endif
 			}
 		for(i=0; i<3; i++)
 			{ // get maximum size of all three state images
@@ -406,7 +409,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		}
 	size.height+=4.0;		// leave some vertical spacing
 #if 0
-	NSLog(@"calcSize done");
+	NSLog(@"calcSize done: %@", self);
 #endif
 }
 
