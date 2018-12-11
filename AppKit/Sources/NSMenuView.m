@@ -261,7 +261,7 @@
 {
 	int pos=[[[notification userInfo] objectForKey:@"NSMenuItemIndex"] intValue];	// position
 	id cell=[self menuItemCellForItemAtIndex:pos];					// get cell
-#if 1
+#if 0
 	NSMenuItem *item=[[_menumenu itemArray] objectAtIndex:pos];							// changed item
 	NSLog(@"itemChanged - pos=%d, item=%@", pos, item);
 #endif
@@ -348,9 +348,15 @@
 
 - (NSRect) rectOfItemAtIndex:(NSInteger) index;
 {
+#if 0
+	NSLog(@"NSMenuView: before rectOfItemAtIndex %d = %@", index, NSStringFromRect(_rectOfCells[index]));
+#endif
 	if(_needsSizing)
 		[self sizeToFit];
-	NSCParameterAssert(index >= 0 && index < [_cells count]);		
+	NSCParameterAssert(index >= 0 && index < [_cells count]);
+#if 0
+	NSLog(@"NSMenuView: after rectOfItemAtIndex %d = %@", index, NSStringFromRect(_rectOfCells[index]));
+#endif
 	return _rectOfCells[index];
 }
 
@@ -420,7 +426,7 @@
 #if 0
 	NSLog(@"setMenu");
 #endif
-#if 1
+#if 0
 	NSLog(@"%@ setMenu: %@", self, m);
 #endif
 	if(_menumenu)
@@ -482,7 +488,7 @@
 - (void) setNeedsDisplayForItemAtIndex:(NSInteger) index;
 {
 #if 0
-	NSLog(@"setNeedsDisplayForItemAtIndex:%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
+	NSLog(@"NSMenuView: setNeedsDisplayForItemAtIndex:%ld rect=%@", (long)index, NSStringFromRect([self rectOfItemAtIndex:index]));
 #endif
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
 	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing for this cell
@@ -499,17 +505,17 @@
 	NSRect sf=[[_window screen] visibleFrame];
 	NSRect item=NSZeroRect;
 #if 0
-	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%ld", NSStringFromRect(ref), (int)edge, (long)index);
+	NSLog(@"NSMenuView: setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%ld", NSStringFromRect(ref), (int)edge, (long)index);
 #endif
 	if(_needsSizing)
 		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
 	edge &= 3;
-	mf.size=_frame.size;   // copy content size
+	mf.size=_frame.size;	// copy content size
 	if(index >= 0 && index < [_cells count])
 		item=[self rectOfItemAtIndex:index];	// get rect of item to show
 #if 0
-	NSLog(@"screen visble frame=%@", NSStringFromRect(sf));
-	NSLog(@"item rect=%@", NSStringFromRect(item));
+	NSLog(@"NSMenuView: screen visble frame=%@", NSStringFromRect(sf));
+	NSLog(@"NSMenuView: item rect=%@", NSStringFromRect(item));
 #endif
 	switch(edge)
 		{ // calculate preferred location
@@ -552,7 +558,7 @@
 			mf.size.height=sf.size.height;	// limit to screen
 		}
 #if 0
-	NSLog(@"set frame=%@", NSStringFromRect(mf));
+	NSLog(@"NSMenuView: set frame=%@", NSStringFromRect(mf));
 #endif
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
 	if(_needsScrolling && index >= 0)
@@ -568,7 +574,7 @@
 			}
 	[self setNeedsDisplay:YES];	// needs display everything
 #if 0
-	NSLog(@"set frame done");
+	NSLog(@"NSMenuView: setWindowFrameForAttachingToRect frame done");
 #endif
 }
 
@@ -595,6 +601,9 @@
 			_imageAndTitleWidth=iatw;					// new maximum
 		if((iw=[c keyEquivalentWidth]) > _keyEquivalentWidth)
 			_keyEquivalentWidth=iw;	// new maximum
+#if 0
+		NSAssert(_keyEquivalentWidth < 1e9, @"unreasonable width");
+#endif
 		}
 }
 
@@ -621,11 +630,11 @@
 	if(!_needsSizing)
 		return;
 #if 0
-	NSLog(@"sizeToFit %@", self);
+	NSLog(@"NSMenuView sizeToFit %@", self);
 #endif
 	if(!_window)
 		{
-#if 1
+#if 0
 		NSLog(@"  menu %@ sizeToFit has no window", [_menumenu title]);
 #endif
 		return;	// no reference frame (yet)
@@ -633,7 +642,7 @@
 	_needsSizing=NO;	// will have been done when calling other methods (avoid endless recursion)
 	f=[_window frame];	// get enclosing window frame
 #if 0
-	NSLog(@"window: %@", window);
+	NSLog(@"window: %@", _window);
 	NSLog(@"frame before: %@", NSStringFromRect(f));
 #endif
 	nc=[_cells count];
@@ -682,7 +691,7 @@
 		else
 			[self _calcHorizontalPositionOfCellComponents];	// calculate only
 #if 0
-		NSLog(@"si:%lf-%lf i&t:%lf-%lf ke:%lf-%lf width:%lf", stateImageOffset, stateImageWidth, imageAndTitleOffset, imageAndTitleWidth, keyEquivalentOffset, keyEquivalentWidth, f.size.width);
+		NSLog(@"si:%lf-%lf i&t:%lf-%lf ke:%lf-%lf width:%lf", _stateImageOffset, _stateImageWidth, _imageAndTitleOffset, _imageAndTitleWidth, _keyEquivalentOffset, _keyEquivalentWidth, f.size.width);
 #endif		
 		for(i=0; i<nc; i++)
 			{ // determine element positions
@@ -707,9 +716,10 @@
 	[_window setFrame:f display:NO];	// resize enclosing window (also sets our frame/bounds since we are the content view)
 	[self setNeedsDisplay:YES];			// we later on need to redraw the full menu, i.e. all items
 #if 0
-	NSLog(@"sizetofit: done");
+	NSLog(@"NSMenuView: sizetofit: done");
 #endif
-	if(_needsSizing)	NSLog(@"NSMenuView sizeToFit: internal inconsistency - did set needsSizing");
+	if(_needsSizing)
+		NSLog(@"NSMenuView sizeToFit: internal inconsistency - did set needsSizing");
 }
 
 - (CGFloat) stateImageOffset; { if(_needsSizing) [self sizeToFit]; return _stateImageOffset; }
