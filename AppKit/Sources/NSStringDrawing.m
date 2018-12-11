@@ -122,7 +122,7 @@ static NSTextView *_textView;
 - (NSRect) boundingRectWithSize:(NSSize) size
 						options:(NSStringDrawingOptions) options;
 {
-	NSRect rect;
+	NSRect rect=NSZeroRect;	// or should we return the default font height?
 	NSRange rng;
 	if([self length] > 0)
 		{
