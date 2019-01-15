@@ -37,7 +37,7 @@
 
 #import <Foundation/NSURLHandle.h>
 
-@class NSNumber;
+@class NSNumber, NSString, NSArray, NSData;
 
 extern NSString *NSURLFileScheme;	// @"file"
 

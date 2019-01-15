@@ -14,7 +14,7 @@
 
 #import <Foundation/NSObject.h>
 
-@class NSDate;
+@class NSDate, NSString;
 
 @interface NSCondition : NSObject
 {

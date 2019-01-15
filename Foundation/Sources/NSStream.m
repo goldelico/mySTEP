@@ -735,7 +735,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	// we should set up a timeout here (? or should that be done by the delegate?)
 	if(_securityLevel && ![_securityLevel isEqualToString:NSStreamSocketSecurityLevelNone])
 		{
-		SSL_METHOD *method;
+		const SSL_METHOD *method;
 		// lock
 		if(!sslInitialized)
 			{ // initialize ssl library
