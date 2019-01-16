@@ -29,7 +29,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # environment Variable dependencies
 #  Entries marked with * should be defined in the .qcodeproj
-#  Entries market with + should be defined by the caller of the .qcodeproj
+#  Entries marked with + should be defined by the caller of the .qcodeproj
 #  Entries with () are optional
 #  Entries with - should not be set
 #
@@ -82,8 +82,9 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (*) FILES - more files to include (e.g. binaries) relative to INSTALL_PATH (deprecated)
 #   (*) DATA - more files to include (e.g. binaries) relative to root (deprecated)
 #   (*) DEBIAN_RAW_FILES - additional files/directories to be included in debian package
-#   (*) DEBIAN_RAW_PREFIX - path prefixed to DEBIAN_RAW_FILES before packing (may be ./) - default: .
-#   (*) DEBIAN_RAW_SUBDIR - Subdir within sources where we find the raw files - default: .
+#   (*) DEBIAN_RAW_PREFIX - path prefixed to DEBIAN_RAW_FILES before packing (may be ./) - default:
+#   (*) DEBIAN_RAW_SUBDIR - Subdir within sources where we find the raw files - default:
+#   (+) OPEN_DEBIAN - if true, open .deb through DebianViewer
 #  download and test (postprocess 2)
 #   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP (or absolute if it starts with //) - default empty
 #   - INSTALL
@@ -911,6 +912,9 @@ endif
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
+ifeq ($(OPEN_DEBIAN),true)
+	open $@
+endif
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
@@ -955,6 +959,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
+ifeq ($(OPEN_DEBIAN),true)
+	open $@
+endif
 else
 	# no development version
 endif
@@ -1000,6 +1007,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
+ifeq ($(OPEN_DEBIAN),true)
+	open $@
+endif
 else
 	# no debug version
 endif
