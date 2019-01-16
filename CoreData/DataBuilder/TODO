@@ -1,0 +1,20 @@
+
+* Implement fetch request editing.
+* Implement predicate editing.
+
+* Complete implementation of fetched property editor.
+
+* make data model compatible to Xcode .xcdatamodel so that one can exchange or write universal projects
+  - .xcdatamodel it is a file bundle (simple directory)
+  - has two files
+    - elements
+    - layout
+  - both are keyed archives
+  - Xcode translates the .xcdatamodel into a .mom (a third keyed archive format)
+    which becomes part of the bundle resources
+  - so our GSCoreData should be capable of reading .mom
+  - and DataBuilder should be able to write/generate .mom
+
+* fix GUI glitches
+
+

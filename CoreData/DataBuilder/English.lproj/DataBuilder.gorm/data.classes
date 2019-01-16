@@ -1,0 +1,31 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    Controller = {
+	Actions = (
+	);
+	Outlets = (
+	);
+	Super = NSObject;
+    };
+    Document = {
+	Actions = (
+	    "addConfiguration:",
+	    "addEntity:",
+	    "addRelationship:",
+	    "addAttribute:"
+	);
+	Outlets = (
+	);
+	Super = NSDocument;
+    };
+    FirstResponder = {
+	Actions = (
+	    "addAttribute:",
+	    "addConfiguration:",
+	    "addEntity:",
+	    "addRelationship:",
+	    "addFetchedProperty:"
+	);
+	Super = NSObject;
+    };
+}

@@ -1,0 +1,43 @@
+2013-05-09      Nikolaus Schaller <hns@computer.org>
+
+        * fixed compilation on mySTEP
+
+2007-12-29      Nikolaus Schaller <hns@computer.org>
+
+        * added missing .nib files for Editors
+
+2007-12-18      Nikolaus Schaller <hns@computer.org>
+
+        * use NSBezierPath instead of PSOperators
+        * made compile on MacOS X and mySTEP
+		* use NSFontManager to get italic system font
+
+2005-10-01      Saso Kiselkov <diablos@manga.sk>
+
+        * Implemented "Revert To Saved".
+        * Connection.m: Fixed curve drawing.
+
+2005-09-30      Saso Kiselkov <diablos@manga.sk>
+
+        * DocumentWindowController.m: Made browser show the kind of data
+          contained in a column in it's title, instead of the title of
+          the selected cell from the previous column.
+        * Changed editor behavior to not allow zero-length names for
+          configurations, entities, and properties.
+        * Fixed numerous bugs in relationship editing which should now
+          be quite stable.
+
+2005-09-25      Saso Kiselkov <diablos@manga.sk>
+
+        * DocumentWindowController.m: Removed FindItalicFont and
+          moved the code into -[NSFont italicSystemFontOfSize:] in
+          newly created NSFontAdditions.[hm].
+        * RelationshipEditor.m: Relationship editing fully implemented.
+
+2005-09-24      Saso Kiselkov <diablos@manga.sk>
+
+        * Partially implemented fetched property handling and
+          added FetchedPropertyEditor class.
+        * README.rtf: Modified README to contain the same title
+          as README.rtf.
+        * ChangeLog: We have a ChangeLog!

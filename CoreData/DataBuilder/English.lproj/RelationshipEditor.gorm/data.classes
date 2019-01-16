@@ -1,0 +1,44 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    FirstResponder = {
+	Actions = (
+	    "updateInverseRelationship:",
+	    "updateDeleteRule:",
+	    "updateDestinationEntity:",
+	    "updateMaxCount:",
+	    "updateMinCount:",
+	    "updateName:",
+	    "updateOptional:",
+	    "updateToMany:",
+	    "updateTransient:"
+	);
+	Super = NSObject;
+    };
+    RelationshipEditor = {
+	Actions = (
+	    "updateTransient:",
+	    "updateName:",
+	    "updateOptional:",
+	    "updateToMany:",
+	    "updateDeleteRule:",
+	    "updateDestinationEntity:",
+	    "updateMaxCount:",
+	    "updateMinCount:",
+	    "updateInverseRelationship:"
+	);
+	Outlets = (
+	    view,
+	    bogusWindow,
+	    name,
+	    transient,
+	    optional,
+	    deleteRule,
+	    destinationEntity,
+	    maxCount,
+	    minCount,
+	    toMany,
+	    inverseRelationship
+	);
+	Super = NSObject;
+    };
+}

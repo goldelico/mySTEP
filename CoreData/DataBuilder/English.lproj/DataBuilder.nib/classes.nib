@@ -1,0 +1,17 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                addAttribute = id; 
+                addConfiguration = id; 
+                addEntity = id; 
+                addFetchedProperty = id; 
+                addRelationship = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

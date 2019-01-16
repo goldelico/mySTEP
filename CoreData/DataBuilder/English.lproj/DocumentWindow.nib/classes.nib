@@ -1,0 +1,34 @@
+{
+    IBClasses = (
+        {CLASS = Document; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {
+            ACTIONS = {
+                addAttribute = id; 
+                addConfiguration = id; 
+                addEntity = id; 
+                addFetchedProperty = id; 
+                addRelationship = id; 
+                delete = id; 
+                updateSelectionDisplay = id; 
+            }; 
+            CLASS = DocumentWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                box = NSBox; 
+                browser = NSBrowser; 
+                modelView = ModelView; 
+                scrollView = NSScrollView; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {entityViewSelected = id; refreshDisplay = id; updateDisplayMode = id; }; 
+            CLASS = ModelView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {target = id; }; 
+            SUPERCLASS = NSView; 
+        }
+    ); 
+    IBVersion = 1; 
+}

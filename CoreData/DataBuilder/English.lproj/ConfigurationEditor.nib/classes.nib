@@ -1,0 +1,33 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                refresh = id; 
+                updateName = id; 
+                updateOptional = id; 
+                updateTransient = id; 
+                updateType = id; 
+                updateValueClassName = id; 
+            }; 
+            CLASS = AttributeEditor; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {name = id; optional = id; transient = id; type = id; valueClassName = id; }; 
+            SUPERCLASS = ModelEditor; 
+        }, 
+        {
+            ACTIONS = {updateConfigurationName = id; }; 
+            CLASS = ConfigurationEditor; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {name = NSTextField; }; 
+            SUPERCLASS = ModelEditor; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = ModelEditor; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {bogusWindow = NSWindow; view = NSView; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
