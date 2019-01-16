@@ -182,13 +182,6 @@ STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
 DEFINES += -D__mySTEP__
-### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
-### But we don't know exactly where it is located
-INCLUDES += \
--I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
--I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 ifeq ($(DEBIAN_RELEASE),staging)
 # use default toolchain
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(TRIPLE)
@@ -434,6 +427,14 @@ else
 # always add Foundation.framework and AppKit.framework
 FRAMEWORKS := Foundation AppKit $(FRAMEWORKS)
 endif
+
+### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
+### But we don't know exactly where it is located
+INCLUDES += \
+-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
+-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 
 # allow to use #import <framework/header.h> while building the framework
 INCLUDES := -I$(TARGET_BUILD_DIR)/$(TRIPLE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/Headers $(INCLUDES)
