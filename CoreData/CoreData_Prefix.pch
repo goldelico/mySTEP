@@ -1,0 +1,12 @@
+//
+// Prefix header for all source files of the 'CoreData' target in the 'CoreData' project.
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+typedef struct drand48_data { unsigned short xseed[3]; } drand48_data;
+
+#define lrand48_r(BUFFER, RESULT) (*(RESULT)=lrand48())
+#define srand48_r(SEED , BUFFER) (BUFFER), srand48(SEED)

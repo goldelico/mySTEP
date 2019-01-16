@@ -1,0 +1,69 @@
+2013-02-16	Nikolaus Schaller <hns@computer.org>
+
+        * added .qcodeproj for compilation on mySTEP
+	* NIB files of DataBuilder updated
+
+2011-06-12 09:42-EDT Gregory John Casamento <greg.casamento@gmail.com>
+
+	* CoreDataHeaders.h: Conditionally use the defines for _, ASSIGN, and
+	RETAIN when the framework is not being compiled using GNUstep and
+	GNUSTEP is not defined.
+
+2010-12-27  Nicola Pero <nicola.pero@meta-innovation.com>
+
+	* NSAttributeDescription.m ([-initWithCoder:],
+	[-encodeWithCoder:]): Explicitly encode and decode NSAttributeType
+	as 'int' to work across compiler versions.
+
+2007-12-13	Nikolaus Schaller <hns@computer.org>
+
+        * made compile on MacOS X and mySTEP
+		* renamed all private methods to begin with underscore
+
+2005-02-02  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObjectContext.m: refined exception reasons to include
+          the class name and method name where the exception occured.
+
+2005-01-10  Saso Kiselkov <diablos@manga.sk>
+
+        * Doxyfile: Turned off annoying warnings about undocumented stuff.
+        * NSEntityDescription.h, NSEntityDescription.m: Prefixed private
+          and internal method categories with GSCoreData instead of just GS.
+        * NSManagedObject.h, NSManagedObject.m, NSManagedObjectContext.h,
+          NSManagedObjectContext.m: implemented the key-value observing
+          machinery and main parts of the undo system.
+
+2006-01-09  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObjectContext.m, NSManagedObjectContext.h: Numerous
+          fixes and many parts implemented or fine-tuned.
+        * CoreDataUtilities.h: Added fetch request match function.
+        * GNUmakefile: Added test cases declaration.
+        * NSManagedObjectID.m, NSManagedObjectID.h: Added methods for
+          comparing two managed object IDs.
+
+2006-01-01  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObjectID.m: Fixed potentional race conditions in
+          unique ID generation in multi-threaded apps.
+
+2005-10-04  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObjectContext.m: fixed assignObject:toPersistentStore:
+          to correctly assign object ID values.
+
+2005-09-30  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObject.m: Fixed [will|did]AccessValueForKey: to
+          do nothing, as non-Core Data KVO doesn't declare these methods.
+        * NSRelationshipDescription.m: Fixed inverse relationship bug.
+          Setting the destination entity now resets the inverse
+          relationship and when an inverse relationship is set up
+          it must be contained in the destination entity, otherwise
+          an NSInvalidArgumentException is thrown.
+
+2005-09-29  Saso Kiselkov <diablos@manga.sk>
+
+        * NSManagedObject.m: Some docs on NSManagedObject written.
+        * ChangeLog: We have a ChangeLog!

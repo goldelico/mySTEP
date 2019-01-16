@@ -1,0 +1,6 @@
+
+ NOTES ON THE GSPersistentStore CLASS
+
+ Gscoredata supports multiple storage types (and exports this capability
+ to user-space programs) by subclassing the abstract GSPersistentStore
+ class.

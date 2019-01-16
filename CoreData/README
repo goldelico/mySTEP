@@ -1,0 +1,37 @@
+
+ README
+ ******
+
+ This is the source distribution of the GNUstep Core Data framework, a
+ free implementation of the Apple Core Data framework as available in
+ the Mac OS X, release 10.4 (Tiger) operating system.
+
+
+ INSTALLATION
+ ------------
+
+ You must install the GNUstep make and base packages
+ (http://www.gnustep.org) first in order to compile and use the GNUstep
+ Core Data framework. After that it should be as simple as:
+
+ $ make
+ $ make install      <- may require superuser priviledges
+
+
+ AUTHORS
+ -------
+
+ Sašo Kiselkov <diablos@manga.sk>
+
+
+ LICENSE
+ -------
+
+ This framework is released under the terms of the GNU Lesser General
+ Public License (LGPL) v2.1 or any later. For the text of the license,
+ see the file COPYING included in this distribution package.
+
+ The accompanying documentation is licensed under the GNU Free
+ Documentation License (FDL) v1.2 or any later. For the text of the
+ license, see the file COPYING.fdl in the Documentation subdirectory of
+ this distribution package.

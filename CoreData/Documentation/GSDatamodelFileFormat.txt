@@ -1,0 +1,12 @@
+
+ GNUstep CoreData Model File Format
+
+ The default extension to use for archived contents of
+ NSManagedObjectModel in the GNUstep Core Data framework should be
+ "gsdatamodel". The format can be found in NSManagedObjectModel.m,
+ namely in the implementation of the methods
+ [NSManagedObjectModel-encodeWithCoder:] and
+ [NSManagedObjectModel-initWithCoder:].
+
+ By default, you should use keyed archives (as that is what the methods
+ for explicit loading of data models from files expect).

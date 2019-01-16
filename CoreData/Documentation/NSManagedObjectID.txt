@@ -1,0 +1,77 @@
+
+ IMPLEMENTATION NOTES FOR THE NSManagedObjectID CLASS
+ ----------------------------------------------------
+
+There are two principal kinds of managed object IDs:
+
+ - Temporary IDs. An NSManagedObject is assigned a temporary ID when
+   it is created.
+
+ - Permanent IDs. Managed objects with temporary IDs are re-assigned
+   a permanent ID when they are saved to a persistent store.
+
+Both IDs are composed of two pieces of information:
+
+- a large (64-bit) unsigned integer, called the value of the ID.
+
+- a store URL to which (from which) the object the ID describes is
+  stored (fetched).
+
+Temporary IDs don't contain the latter value.
+
+
+TEMPORARY ID GENERATION
+-----------------------
+
+When a new temporary object ID is generated, Core Data uses an internal
+counter to always assign the ID a new unique value - the counter is
+afterwards incremented, so that when a new ID is created it is assigned,
+again, a unique value.
+
+
+PERMANENT ID GENERATION
+-----------------------
+
+The same approach as with temporary IDs may not, however, be used when
+creating permanent IDs, since there may already be IDs with certain
+values in the store. Instead, each store stores a special `highest ID
+value' which denotes the highest ID value of any ID in the store. So
+when a permanent ID is created for a given persistent store, the ID is
+assigned the `highest ID value + 1' and the highest ID value is
+incremented.
+
+Additionally to this, permanent object IDs have the store URL assigned
+to which they belong. And thus permanent object ID value uniqueness is
+scope to the single store to which they belong.
+
+
+HOW DO WE ENSURE WE WON'T RUN OUT OF ID VALUES?
+-----------------------------------------------
+
+By terms of simple maths: imagine 10000 computers were generating 10000
+object IDs every second. It would take them almost 6000 years to exhaust
+the interval of the 64-bit integer used for permanent object IDs.
+Temporary IDs also have an unsigned 64-bit value, but they live in a
+different number space and don't clash with permanent IDs - each
+permanent ID value is scoped only to the persistent store where it comes
+from. This kind of heavy usage simply isn't realistic.
+
+
+MANAGED OBJECT URI-REPRESENTATION STRUCTURE
+-------------------------------------------
+
+A managed object ID can be transformed into an archivable URI
+representation so that programs can later refer to a certain object.
+Only permanent managed object IDs can be represented as a URI, temporary
+ones simply return `nil'. The URI looks like this:
+
+"<StoreUUID>/<EntityName>/<IDValue>"
+
+Where:
+ StoreUUID - is the UUID of the persistent store where the ID belongs.
+ EntityName - the name of the entity of the object the ID identifies.
+ IDValue - the value of the ID in hexa.
+
+Example:
+
+"EE4F9FA7DC9D8322A0255FED602EA7FC60B84CBE6475F5B1F22E7D0B48C38BE1/Department/B955DB7"
