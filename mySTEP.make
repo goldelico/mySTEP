@@ -155,6 +155,8 @@ PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
 ifeq ($(TRIPLE),darwin-x86_64)
+DEFINES += -D__mySTEP__
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -179,6 +181,14 @@ NM := $(TOOLCHAIN)/nm
 STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
+DEFINES += -D__mySTEP__
+### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
+### But we don't know exactly where it is located
+INCLUDES += \
+-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
+-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
+-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 ifeq ($(DEBIAN_RELEASE),staging)
 # use default toolchain
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(TRIPLE)
@@ -202,6 +212,7 @@ DOXYGEN := doxygen
 TAR := tar
 ## FIXME: allow to cross-compile
 TOOLCHAIN := native
+INCLUDES += -I/usr/include/freetype2
 CC := $(TRIPLE)-gcc
 LD := $(CC) -v
 AS := $(TRIPLE)-as
@@ -464,22 +475,6 @@ LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 else
 FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
-endif
-
-ifeq ($(TRIPLE),darwin-x86_64)
-DEFINES += -D__mySTEP__
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
-else ifeq ($(TRIPLE),MacOS)
-# no special includes and defines
-else
-DEFINES += -D__mySTEP__
-### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
-### But we don't know exactly where it is located
-INCLUDES += \
--I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
--I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 endif
 
 #		-L$(TOOLCHAIN)/lib \
