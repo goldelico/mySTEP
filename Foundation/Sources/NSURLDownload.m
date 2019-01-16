@@ -9,6 +9,7 @@
 #import <Foundation/NSURLDownload.h>
 #import <Foundation/NSURLProtocol.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSData.h>
 
 @implementation NSURLDownload
 

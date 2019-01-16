@@ -202,11 +202,11 @@ DOXYGEN := doxygen
 TAR := tar
 ## FIXME: allow to cross-compile
 TOOLCHAIN := native
-CC := gcc
-LD := ld
-AS := as
-NM := nm
-STRIP := strip
+CC := $(TRIPLE)-gcc
+LD := $(CC) -v
+AS := $(TRIPLE)-as
+NM := $(TRIPLE)-nm
+STRIP := $(TRIPLE)-strip
 SO := so
 endif
 

@@ -7,7 +7,7 @@
 //
 
 #import "NSCondition.h"
-
+#import <Foundation/NSString.h>
 
 @implementation NSCondition
 

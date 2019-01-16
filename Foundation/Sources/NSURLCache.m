@@ -8,6 +8,7 @@
 
 #import <Foundation/NSURLCache.h>
 #import <Foundation/NSURLProtocol.h>
+#import <Foundation/NSURLRequest.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSFileManager.h>
