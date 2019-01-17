@@ -770,6 +770,7 @@ static NSFileManager *__fm = nil;
 	if([path hasPrefix:@"/"])
 		{ // adapt absolute paths
 			static NSString *virtualRoot;
+#if 0	// really deprecated...
 			BOOL uflag;
 			if((uflag=[path hasPrefix:@"/Users/"]) || [path isEqualToString:@"/Users"])
 				{ // do search on /mnt/card for virtual home!
@@ -785,6 +786,7 @@ static NSFileManager *__fm = nil;
 								return cpath; // directory exists and is user-writeable: still use file name in case we want to create that file
 						}
 				}
+#endif
 			if(!virtualRoot)
 				{
 				NSProcessInfo *pi = [NSProcessInfo processInfo];
@@ -835,6 +837,7 @@ static NSFileManager *__fm = nil;
 				return [NSString stringWithCString:string+clen-1 length:len-clen+1];	// is relative to root
 			if(len == clen-1 && strncmp(string, virtualCRoot, len) == 0)
 				return @"/";	// this is virtual root /
+#if 0
 			if(len >= 15 && strncmp(string, "/mnt/card/Users/", 15) == 0)
 				return [NSString stringWithFormat:@"/Users/%.*s", len-15, string+15];	// translate virtual home
 			if(strcmp(string, "/mnt/card/Users") == 0)
@@ -849,6 +852,7 @@ static NSFileManager *__fm = nil;
 				return [NSString stringWithFormat:@"/Network/%.*s", len-8, string+8];	// translate
 			if(len >= 5 && strncmp(string, "/mnt/", 5) == 0)
 				return [NSString stringWithFormat:@"/Volumes/%.*s", len-4, string+4];	// translate
+#endif
 		}
 	return [NSString _stringWithUTF8String:string length:len];  // all others unchanged
 #else
