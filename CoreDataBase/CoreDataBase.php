@@ -843,6 +843,23 @@ NSLog("can't process for CSV file: $sql");
 		return $this->query($query, $error)->allObjectsForKey("name");
 	}
 
+	public function createTable(&$error, $name, $columns)
+	{
+		$cmd="CREATE TABLE ".$this->quote(name);
+		$cmd.=" (";
+		$first=true;
+		foreach($columns as $col => $properties)
+			{
+			if(!$first)
+				$cmd.=",";
+			$cmd.=$this->quote($col)." $properties";
+			$first=false;
+			}
+		$cmd.=" )";
+		$cmd.=" CHARACTER SET utf8 COLLATE utf8_general_ci";
+		return null;
+	}
+
 	public function databases(&$error)
 	{ // ask for list of known databases
 		if($this->type == "mysql")
