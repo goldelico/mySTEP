@@ -18,7 +18,6 @@ DerivedData
 *.xcuserstate
 *.xcworkspace
 # hide other subprojects
-CoreData/
 GNUstep/
 SimpleWebKit/
 qemu-wheezy-vexpress/
