@@ -565,11 +565,21 @@
 
 - (CLLocationSource) source;
 {
-	// FIXME: should search for/sys/class/extcon/*/name == "antenna-detect"
-	NSString *state=[NSString stringWithContentsOfFile:@"/sys/class/extcon/extcon0/state"];
-	if(!state)
-		return CLLocationSourceGPS;	// unknown
-	if([state boolValue])
+	// should open (permanently) /dev/input/antenna-detect
+	// and issue the ioctl() to read switch state
+	NSString *eventFile=@"/dev/input/antenna-detect";	// read from device config database
+	// check if eventFile exists - if not, there is no external GPS antenna socket
+	NSArray *argv=[NSArray arrayWithObjects:@"--query", eventFile, @"EV_SW", @"13", nil];
+	NSTask *task=[NSTask launchedTaskWithLaunchPath:@"/usr/bin/evtest" arguments:argv];
+	int state;
+	return CLLocationSourceGPS;
+	// FIXME: this stalls processing - bug in NSTask
+	[task waitUntilExit];
+	state=[task terminationStatus];
+	NSLog(@"status = %d", state);
+	if(!task || state == -1 || state == 127)
+		return CLLocationSourceGPS;	// unknown/error
+	if(state == 0)
 		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
 	return CLLocationSourceGPS;
 }
