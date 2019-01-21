@@ -388,10 +388,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"NSImage: name=%@ size=%@ %@%@%@%@%@%@", 
-		_name, 
+	return [NSString stringWithFormat:@"NSImage: name=%@ size=%@ %@%@%@%@%@",
+		_name,
 		NSStringFromSize(_size),
-		_img.scalable?@" scalable":@"",
 		_img.isValid?@" valid":@"",
 		_img.flipDraw?@" flipped":@"",
 		_img.scalable?@" scalesWhenResized":@"",
@@ -621,13 +620,15 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	// set current background color unless not set of fully transparent
 	NSRectFill(rect);
 #endif
+	// FIXME: this is not exactly what is in the description
+	// description says something about resizing while drawing vs. explicit setSize
 	if(!_img.scalable)
 		{
 		if([imageRep drawAtPoint:rect.origin])
 			return YES;		
 		rect.size = _size;
 		}
-	else if([imageRep drawInRect:rect])
+	if([imageRep drawInRect:rect])
 		return YES;
 	if(_delegate && [_delegate respondsToSelector:@selector(imageDidNotDraw:inRect:)])
 		{ // substitute image provided by delegate
