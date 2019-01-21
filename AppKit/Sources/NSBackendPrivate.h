@@ -134,7 +134,8 @@
 - (BOOL) _hasWindowManager;	// there is a window manager...
 - (int) _windowTitleHeight;
 - (void) _sendEvent:(NSEvent *) event;
-- (void) _grabKey:(NSInteger) keycode;
+- (BOOL) _grabKey:(NSEvent *) keyEvent;
+- (BOOL) _ungrabKey:(NSEvent *) keyEvent;
 - (NSInteger) _keyWindowNumber;
 - (NSPoint) _mouseLocation;
 @end

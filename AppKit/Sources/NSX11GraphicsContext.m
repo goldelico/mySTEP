@@ -2942,16 +2942,32 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 #endif
 
-- (void) _grabKey:(int) keycode;
+- (BOOL) _grabKey:(NSEvent *) keyEvent;
 {
-	int r=XGrabKey(_display, keycode, AnyModifier, _realWindow, True, GrabModeAsync, GrabModeAsync);
+	NSAssert([keyEvent type] == NSKeyDown, @"can grab only key events");
+	// translate keycode and modifier from Mac to X11 - take 0 as AnyModifier or AnyKey
+	// example should respond to ctrl-shift-K
+	int keyCode=XKeysymToKeycode(_display, XK_K);
+	int modifier=ControlMask | ShiftMask;
+	int r=XGrabKey(_display, keycode, modifier, _realWindow, True, GrabModeAsync, GrabModeAsync);
 	if(r)
+		{
+		// some error - most likely a BadAccess which means someone else has grabbed the same key and modifier combination
 		NSLog(@"XGrabKey returns %d", r);
-	/* XUngrabKey(display, keycode, modifiers, grab_window)
-	 Display *display;
-	 int keycode;
-	 unsigned int modifiers;
-	 Window grab_window; */
+		return nil;
+		}
+	// wrap into _X11GrabbedKey object so that we can easily call -ungrab
+	/* XUngrabKey(_display, keycode, modifiers, _realWindow) */
+}
+
+- (BOOL) _ungrabKey:(NSEvent *) keyEvent;
+{
+	NSAssert([keyEvent type] == NSKeyDown, @"can grab only key events");
+	// translate keycode and modifier from Mac to X11 - take 0 as AnyModifier or AnyKey
+	// example should respond to ctrl-shift-K
+	int keyCode=XKeysymToKeycode(_display, XK_K);
+	int modifier=ControlMask | ShiftMask;
+	XUngrabKey(_display, keycode, modifiers, _realWindow);
 }
 
 @end /* _NSX11GraphicsContext */
