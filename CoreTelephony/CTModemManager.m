@@ -276,6 +276,7 @@ BOOL modemLog=NO;
 
 - (void) _processData:(NSData *) line;
 { // we have received a new data block from the serial line
+  // FIXME: if we want to process UTF8 we have to split the NSData into chunks and then convert to NSString
 	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
 	NSArray *lines;
 	int l;
@@ -288,7 +289,8 @@ BOOL modemLog=NO;
 	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
 	for(l=0; l<[lines count]-1; l++)
 		{ // process lines except last chunk
-			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
+			s=[lines objectAtIndex:l];
+			s=[s stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
 			[self _processLine:s];
 		}
 #if 0
