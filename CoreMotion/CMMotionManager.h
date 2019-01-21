@@ -12,9 +12,10 @@
 
 @interface CMMotionManager : NSObject
 {
-
+	BOOL _hasAccel;
 }
 
+- (BOOL) hasAccelerometer;
 - (void) startDeviceMotionUpdates;
 - (void) stopDeviceMotionUpdates;
 - (CMDeviceMotion *) deviceMotion;

@@ -64,8 +64,10 @@
 	// power down sensors
 }
 
+static NSString *accel=nil;
+
 - (CMDeviceMotion *) deviceMotion;
-{
+{ // poll device
 	static CMDeviceMotion *_deviceMotion;
 	if(!_deviceMotion)
 		_deviceMotion=[CMDeviceMotion new];
@@ -73,7 +75,6 @@
 #if 0
 	NSLog(@"read iio accelerometers");
 #endif
-	static NSString *accel;
 	static double scaleX;
 	static double scaleY;
 	static double scaleZ;
@@ -169,6 +170,12 @@
 	NSLog(@"accel x: %g y:%g z:%g", _deviceMotion->_gravity.x, _deviceMotion->_gravity.y, _deviceMotion->_gravity.z);
 #endif
 	return _deviceMotion;
+}
+
+- (BOOL) hasAccelerometer;
+{
+	[self deviceMotion];	// poll for chip
+	return accel != nil;
 }
 
 @end
