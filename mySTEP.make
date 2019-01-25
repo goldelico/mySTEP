@@ -620,6 +620,7 @@ endif
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.m
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
+	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
 	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.i	# store preprocessor result for debugging
 	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.S	# store assembler source for debugging
@@ -629,11 +630,13 @@ endif
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.c
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
+	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
+	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 # FIXME: handle .lm .ym
