@@ -122,7 +122,7 @@ static BOOL __fileSystemChanged = NO;
 	if(self)
 		{ // load database (if possible)
 			NSData *data=[NSData dataWithContentsOfFile:APPDATABASE];
-			NSString *error;
+			NSString *error=@"file not found";
 			NSPropertyListFormat format;
 			NSDictionary *defaults=[NSPropertyListSerialization propertyListFromData:data
 																	mutabilityOption:NSPropertyListMutableContainers 
@@ -541,8 +541,11 @@ additionalEventParamDescriptor:(id) params
 #if 1
 									NSLog(@"process exists");
 									NSLog(@"contact by DO");
+									NSLog(@"bundle identifier %@", [b _bundleIdentifier]);
+									NSLog(@"my bundle identifier %@", [[NSBundle mainBundle] _bundleIdentifier]);
 #endif
 									NS_DURING
+									// anders unterscheiden! Der Bundle-Identifier ist optional!
 									if([[b _bundleIdentifier] isEqual:[[NSBundle mainBundle] _bundleIdentifier]])
 										a=[NSApp delegate];			// that is myself - avoid loop through DO
 									else
