@@ -52,6 +52,10 @@
 #include <sys/time.h>	// gettimeofday()
 #include <unistd.h>		// getpid()
 
+@interface NSTask (NSPrivate)
+- (void) _setUserName:(NSString *) user;	// launch process with different user name
+@end
+
 #define WORKSPACE(notif_name)	NSWorkspace##notif_name##Notification
 
 @interface GSListener : NSObject
@@ -661,11 +665,13 @@ additionalEventParamDescriptor:(id) params
 	task=[[[NSTask alloc] init] autorelease];
 	[task setLaunchPath:executable];
 	[task setArguments:args];
-	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil?
+	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil
+	// FIXME: b is not the correct dictionary...
+	[task _setUserName:[b objectForInfoDictionaryKey:@"LSUserName"]];	// may be nil
 	[task launch];
 	NS_HANDLER
-	NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
-	return NO;  // did not launch - e.g. bad executable
+		NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
+		return NO;  // did not launch - e.g. bad executable
 	NS_ENDHANDLER
 	if(!(options&NSWorkspaceLaunchAsync))
 		{ // synchronously, i.e. wait until launched
