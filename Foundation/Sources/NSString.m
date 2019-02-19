@@ -3099,6 +3099,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #if 0
 	NSLog(@"++ %@ isEqual %@", self, obj);
 #endif
+	if(!obj)
+		return NO;	// or raise exception?
 	if (obj == self)
 		return YES;
 	c = object_getClass(obj);	// peer class
@@ -3816,6 +3818,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (BOOL) isEqual:(id)obj
 { // self is a C string (other side must be convertible)
 	Class c;
+	if(!obj)
+		return NO;	// or raise exception?
 	if (obj == self)
 		return YES;
 	c = object_getClass(obj);	// peer class
@@ -3955,6 +3959,8 @@ int __CFConstantStringClassReference [];
 { // self is a constant C string
 	Class c;
 
+	if(!obj)
+		return NO;	// or raise exception?
 	if (obj == self)
 		return YES;
 	c = object_getClass(obj);	// peer class
