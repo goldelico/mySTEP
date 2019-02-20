@@ -101,10 +101,23 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (CTCall *) dial:(NSString *) number;
 {
 	CTModemManager *mm=[CTModemManager modemManager];
-	// check if we are already connected
-	// check string for legal characters (0-9, +, #, *, G/g, I/i, space or someone could inject arbitraty AT commands...)
 	NSString *err;
-	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
+	NSString *cmd;
+	static *invalidChars=nil;
+	if(!invalidChars)
+		{
+		invalidChars=[[NSCharacterSet characterSetWithCharactersInString:@"0123456789+*GgIi "] retain];
+		[invalidChars invert];
+		}
+	if([number rangeOfCharacterFromSet:invalidChars].location != NSNotFound)
+		return nil;	// contains invalid characher
+	if([number isEqualToString:@"*3001#12345#*"])
+		{ // field test "phone" number like iPhone
+		  // open Field-Test panel
+		  // report neighbouring cells and signal strengths
+		}
+	// check if we are already connected - may be second connection for conference call...
+	cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
 	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
 	[mm setupPCM];
 	if([mm runATCommand:cmd target:nil action:NULL timeout:120.0])	// ATD blocks only until connection is setup and remote ringing starts; so don't timeout too early!
