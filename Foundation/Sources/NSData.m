@@ -892,12 +892,12 @@ static IMP appendImp;
 		errorPtr=&localError;
 	request=[NSURLRequest requestWithURL:url];
 	data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
-#if 1
+#if 0
 	NSLog(@"initWithContentsOfURL: %@ done data=%p error=%@", url, data, *errorPtr);
 #endif
 	// could analyse response for content-type, content-encoding...
 	[self release];
-#if 1
+#if 0
 	NSLog(@"received data length=%lu", (unsigned long)[data length]);
 #endif
 	return [data retain];
@@ -1397,6 +1397,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 			memcpy(((char *) bytes) + length, buf, l);	// append new block
 			length += l;	// advance append pointer
 			}
+#if 0
+		NSLog(@"data from /proc or /sys %@", self);
+#endif
 		}
 	else if ((fread(bytes, 1, length, f)) != length)  // we know the length; read in one full chunk
 		{ // did not read the full file
