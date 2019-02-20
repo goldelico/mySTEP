@@ -40,10 +40,6 @@
 - (oneway void) chooseUser;				// allow to choose a different user
 - (oneway void) logout;					// request logout with GUI interaction (may timeout)
 
-- (oneway void) showAboutPanel;			// show About panel
-- (oneway void) showSoftwareUpdater;
-- (oneway void) showKillApplications;	// show Applications list panel
-
 // basic functions (without UI)
 - (oneway void) terminateProcesses;		// terminate processes and immediately log out
 - (oneway void) shutdown;				// request a shutdown

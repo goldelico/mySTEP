@@ -2525,8 +2525,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		dest.x=destPoint.x;
 #if 1
 		NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
-		NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
-		NSLog(@"  dest-win=%d", _graphicsPort);
+		NSLog(@"  src-win=%p", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
+		NSLog(@"  dest-win=%p", _graphicsPort);
 #endif
 #if 0
 		XSetForeground(_display, _state->_gc, 0x555555);
@@ -2949,15 +2949,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// example should respond to ctrl-shift-K
 	int keyCode=XKeysymToKeycode(_display, XK_K);
 	int modifier=ControlMask | ShiftMask;
-	int r=XGrabKey(_display, keycode, modifier, _realWindow, True, GrabModeAsync, GrabModeAsync);
+	int r=XGrabKey(_display, keyCode, modifier, _realWindow, True, GrabModeAsync, GrabModeAsync);
 	if(r)
 		{
 		// some error - most likely a BadAccess which means someone else has grabbed the same key and modifier combination
 		NSLog(@"XGrabKey returns %d", r);
-		return nil;
+		return NO;
 		}
 	// wrap into _X11GrabbedKey object so that we can easily call -ungrab
 	/* XUngrabKey(_display, keycode, modifiers, _realWindow) */
+	return YES;
 }
 
 - (BOOL) _ungrabKey:(NSEvent *) keyEvent;
@@ -2967,7 +2968,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// example should respond to ctrl-shift-K
 	int keyCode=XKeysymToKeycode(_display, XK_K);
 	int modifier=ControlMask | ShiftMask;
-	XUngrabKey(_display, keycode, modifiers, _realWindow);
+	XUngrabKey(_display, keyCode, modifier, _realWindow);
+	return YES;
 }
 
 @end /* _NSX11GraphicsContext */
@@ -5173,7 +5175,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 
 		NSPoint pts[3];
 		NSPoint coeff[4];
-		NSPoint first_p, last_p=NSZeroPoint;
+		NSPoint first_p=NSZeroPoint, last_p=NSZeroPoint;
 		int i;
 		BOOL first = NO;
 		NSLog(@"create stroke path");

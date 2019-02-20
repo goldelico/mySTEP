@@ -60,6 +60,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #  bundle definitions (output)
 #   * PROJECT_NAME
 #   (*) PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
+#   (*) PRODUCT_BUNDLE_IDENTIFIER
 #   * WRAPPER_EXTENSION
 #   (*) FRAMEWORK_VERSION - default: A
 #   (*) CURRENT_PROJECT_VERSION - default: 1.0.0
@@ -152,6 +153,10 @@ TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/b
 ifeq ($(PRODUCT_NAME),All)
 # Xcode aggregate target
 PRODUCT_NAME=$(PROJECT_NAME)
+endif
+
+ifeq ($(PRODUCT_BUNDLE_IDENTIFIER),)
+PRODUCT_BUNDLE_IDENTIFIER=org.quantumstep.$(PRODUCT_NAME)
 endif
 
 ifeq ($(TRIPLE),darwin-x86_64)
@@ -1130,7 +1135,7 @@ ifneq ($(WRAPPER_EXTENSION),)
 ifneq ($(strip $(INFOPLISTS)),)
 # should reject multiple Info.plists
 # should expand ${EXECUTABLE_NAME} and other macros!
-	- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+	- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 else
 # create a default Info.plist
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"

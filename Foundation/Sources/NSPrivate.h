@@ -78,6 +78,11 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 - (NSEnumerator *) _resourcePathEnumeratorFor:(NSString*) path subPath:(NSString *) subpath localization:(NSString *)locale;
 @end
 
+@interface NSTask (NSPrivate)
+- (NSString *) _userName;
+- (void) _setUserName:(NSString *) user;
+@end
+
 @interface NSXMLParser (NSPrivate)
 
 - (void) _parseData:(NSData *) data;	// parse next chunk for incremental parsing (use nil to denote EOF)

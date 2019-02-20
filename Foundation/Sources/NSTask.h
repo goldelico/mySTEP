@@ -1,18 +1,18 @@
-/* 
-   NSTask.h
+/*
+ NSTask.h
 
-   Interface to NSTask
+ Interface to NSTask
 
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date: 	September 2000
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date: 	September 2000
 
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
- 
-   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
- 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+ Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSTask
 #define _mySTEP_H_NSTask
@@ -33,27 +33,28 @@ typedef enum NSTaskTerminationReason
 
 @interface NSTask : NSObject
 {
-    NSString *_currentDirectoryPath;
-    NSString *_launchPath;
-    NSArray *_arguments;
-    NSDictionary *_environment;
-    id _standardError;  // NSPipe or NSFileHandle or NSNumber
-    id _standardInput;
-    id _standardOutput;
-    int _taskPID;
-    int _terminationStatus;
+	NSString *_currentDirectoryPath;
+	NSString *_user;
+	NSString *_launchPath;
+	NSArray *_arguments;
+	NSDictionary *_environment;
+	id _standardError;  // NSPipe or NSFileHandle or NSNumber
+	id _standardInput;
+	id _standardOutput;
+	int _taskPID;
+	int _terminationStatus;
 	int _suspendCount;
-    struct __taskFlags {
+	struct __taskFlags {
 		unsigned int hasLaunched:1;
 		unsigned int hasTerminated:1;
-        unsigned int hasCollected:1;
-        unsigned int hasNotified:1;
-        unsigned int hasTerminatedBySignal:1;
-        unsigned int reserved:3;
-    } _task;
+		unsigned int hasCollected:1;
+		unsigned int hasNotified:1;
+		unsigned int hasTerminatedBySignal:1;
+		unsigned int reserved:3;
+	} _task;
 }
 
-+ (NSTask *) launchedTaskWithLaunchPath:(NSString *) path 
++ (NSTask *) launchedTaskWithLaunchPath:(NSString *) path
 							  arguments:(NSArray*)args;
 
 - (NSArray *) arguments;

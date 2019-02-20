@@ -52,6 +52,10 @@
 #include <sys/time.h>	// gettimeofday()
 #include <unistd.h>		// getpid()
 
+@interface NSTask (NSPrivate)
+- (void) _setUserName:(NSString *) user;	// launch process with different user name
+@end
+
 #define WORKSPACE(notif_name)	NSWorkspace##notif_name##Notification
 
 @interface GSListener : NSObject
@@ -122,7 +126,7 @@ static BOOL __fileSystemChanged = NO;
 	if(self)
 		{ // load database (if possible)
 			NSData *data=[NSData dataWithContentsOfFile:APPDATABASE];
-			NSString *error;
+			NSString *error=@"file not found";
 			NSPropertyListFormat format;
 			NSDictionary *defaults=[NSPropertyListSerialization propertyListFromData:data
 																	mutabilityOption:NSPropertyListMutableContainers 
@@ -541,8 +545,11 @@ additionalEventParamDescriptor:(id) params
 #if 1
 									NSLog(@"process exists");
 									NSLog(@"contact by DO");
+									NSLog(@"bundle identifier %@", [b _bundleIdentifier]);
+									NSLog(@"my bundle identifier %@", [[NSBundle mainBundle] _bundleIdentifier]);
 #endif
 									NS_DURING
+									// anders unterscheiden! Der Bundle-Identifier ist optional!
 									if([[b _bundleIdentifier] isEqual:[[NSBundle mainBundle] _bundleIdentifier]])
 										a=[NSApp delegate];			// that is myself - avoid loop through DO
 									else
@@ -658,11 +665,13 @@ additionalEventParamDescriptor:(id) params
 	task=[[[NSTask alloc] init] autorelease];
 	[task setLaunchPath:executable];
 	[task setArguments:args];
-	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil?
+	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil
+	// FIXME: b is not the correct dictionary...
+	[task _setUserName:[b objectForInfoDictionaryKey:@"LSUserName"]];	// may be nil
 	[task launch];
 	NS_HANDLER
-	NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
-	return NO;  // did not launch - e.g. bad executable
+		NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
+		return NO;  // did not launch - e.g. bad executable
 	NS_ENDHANDLER
 	if(!(options&NSWorkspaceLaunchAsync))
 		{ // synchronously, i.e. wait until launched

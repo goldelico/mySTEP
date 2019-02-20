@@ -153,6 +153,7 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 	[_environment release];
 	[_launchPath release];
 	[_currentDirectoryPath release];
+	[_user release];
 	[super dealloc];
 }
 
@@ -211,6 +212,15 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 - (NSString*) currentDirectoryPath			{ return _currentDirectoryPath; }
 - (NSArray*) arguments						{ return _arguments; }
 - (int) processIdentifier;					{ return _taskPID; }
+
+- (NSString *) _userName; { return _user; }
+
+- (void) _setUserName:(NSString *) user;
+{
+	[self _checkIfNotLaunched:_cmd];
+	[_user autorelease];
+	_user=[user retain];
+}
 
 - (void) setStandardInput:(id)fd
 {
@@ -294,6 +304,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	int envCount = [e count];
 	const char *envl[envCount+1];
 	NSArray *k = [e allKeys];
+	uid_t user=0;
 
 	if (_task.hasLaunched)
 		return; // already launched
@@ -340,6 +351,9 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		envl[i] = [s UTF8String];
 		}
 	envl[envCount] = 0;
+
+	// lookup _user and set user
+
 #if 0
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
@@ -353,6 +367,8 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #if 0
 			NSLog(@"child process");
 #endif
+			if(user)
+				setuid(user);	// works only if parent has proper rights (e.g. running as root)
 			// WARNING: don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
 			if(idesc != 0) dup2(idesc, 0);	// redirect
 			if(odesc != 1) dup2(odesc, 1);	// redirect
