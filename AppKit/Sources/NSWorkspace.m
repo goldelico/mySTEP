@@ -98,7 +98,8 @@
 - (BOOL) launchAppWithBundle:(NSBundle *) b
 					 options:(NSWorkspaceLaunchOptions) options
 additionalEventParamDescriptor:(id) urls
-			launchIdentifier:(NSNumber **) identifiers;
+			launchIdentifier:(NSNumber **) identifiers
+					  asUser:(NSString *) userName;
 @end
 
 // Class variables
@@ -496,7 +497,8 @@ static BOOL __fileSystemChanged = NO;
 - (BOOL) launchAppWithBundle:(NSBundle *) b
 					 options:(NSWorkspaceLaunchOptions) options
 additionalEventParamDescriptor:(id) params
-			launchIdentifier:(NSNumber **) identifiers;
+			launchIdentifier:(NSNumber **) identifiers
+					  asUser:(NSString *) userName;
 {
 	NSTask *task;
 	NSDate *date;
@@ -666,8 +668,20 @@ additionalEventParamDescriptor:(id) params
 	[task setLaunchPath:executable];
 	[task setArguments:args];
 	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil
-	// FIXME: b is not the correct dictionary...
-	[task _setUserName:[b objectForInfoDictionaryKey:@"LSUserName"]];	// may be nil
+	if(userName)
+		{
+		NSString *homeDir=NSHomeDirectoryForUser(userName);
+		if(!homeDir)
+			{
+			NSLog(@"can't find home directory for user %@", userName);
+			return NO;
+			}
+		[task setCurrentDirectoryPath:homeDir];
+		[task _setUserName:userName];	// may be nil
+#if 1
+		NSLog(@"launch as user %@ with home directory %@: %@", userName, homeDir, b);
+#endif
+		}
 	[task launch];
 	NS_HANDLER
 		NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
@@ -915,6 +929,19 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 		additionalEventParamDescriptor:(id) params
 					  launchIdentifier:(NSNumber **) identifiers;
 { // launch application (without files)
+	return [self launchAppWithBundleIdentifier:identOrApp
+									   options:options
+				additionalEventParamDescriptor:params
+							  launchIdentifier:identifiers
+										asUser:nil];
+}
+
+- (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
+							   options:(NSWorkspaceLaunchOptions) options
+		additionalEventParamDescriptor:(id) params
+					  launchIdentifier:(NSNumber **) identifiers
+								asUser:(NSString *) userName;
+{ // launch application (without files)
 	NSString *path;
 	NSBundle *b;
 #if 1
@@ -936,7 +963,8 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 	if([[QSLaunchServices sharedLaunchServices] launchAppWithBundle:b
 															options:options
 									 additionalEventParamDescriptor:params
-												   launchIdentifier:identifiers])
+												   launchIdentifier:identifiers
+															 asUser:userName])
 		{ // did launch as expected
 			if(options&NSWorkspaceLaunchAndHideOthers)
 				[NSApp hideOtherApplications:self];
