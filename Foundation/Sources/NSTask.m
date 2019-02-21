@@ -32,6 +32,9 @@
 #import <Foundation/NSValue.h>
 #import "NSPrivate.h"
 
+#include <sys/types.h>
+#include <pwd.h>
+
 #define NOTE(note_name) \
 [NSNotification notificationWithName: NSTask##note_name##Notification \
 object: self \
@@ -304,7 +307,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	int envCount = [e count];
 	const char *envl[envCount+1];
 	NSArray *k = [e allKeys];
-	uid_t user=0;
+	struct passwd *p=NULL;
 
 	if (_task.hasLaunched)
 		return; // already launched
@@ -352,7 +355,12 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		}
 	envl[envCount] = 0;
 
-	// lookup _user and set user
+	if(_user)
+		{ // lookup _user and change user id
+			p=getpwnam([_user UTF8String]);
+			if(!p)
+				[NSException raise: NSInvalidArgumentException format: @"NSTask - invalid user name %@", _user];
+		}
 
 #if 0
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
@@ -367,8 +375,15 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #if 0
 			NSLog(@"child process");
 #endif
-			if(user)
-				setuid(user);	// works only if parent has proper rights (e.g. running as root)
+			if(_user)
+				{ // works only if parent has proper rights (e.g. running as root)
+				if(setuid(p->pw_uid) < 0)
+					{
+					NSLog(@"NSTask: unable to change user to %@ - exiting", _user);
+					_task.hasTerminated=YES;	// since we did not execve, we still share the address space with our parent
+					exit(127);
+					}
+				}
 			// WARNING: don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
 			if(idesc != 0) dup2(idesc, 0);	// redirect
 			if(odesc != 1) dup2(odesc, 1);	// redirect
