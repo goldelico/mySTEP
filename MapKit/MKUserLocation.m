@@ -52,6 +52,8 @@
 {
 	NSString *str;
 	// fprintf(stderr, "MKUserLocation description: location =%p\n", location);
+	if(!location)
+		return @"MKUserLocation (unknown)";
 	CLLocationCoordinate2D l=[location coordinate];
 	// fprintf(stderr, "MKUserLocation coordinate %lg %lg\n", l.latitude, l.longitude);
 	str= [NSString stringWithFormat:@"MKUserLocation (%lg %lg)", l.latitude, l.longitude];
