@@ -661,7 +661,7 @@ additionalEventParamDescriptor:(id) params
 		[args addObject:@"-NSNoUI"];
 	else if(options&NSWorkspaceLaunchNewInstance)
 		[args addObject:@"-NSNew"];
-#if 0
+#if 1
 	NSLog(@"NSWorkspace launchApplication: '%@' $*=%@", executable, args);
 #endif
 	task=[[[NSTask alloc] init] autorelease];
@@ -945,7 +945,7 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 	NSString *path;
 	NSBundle *b;
 #if 1
-	NSLog(@"launchAppWithBundleIdentifier: %@ options: %lu eventparam: %@", identOrApp, (unsigned long)options, params);
+	NSLog(@"launchAppWithBundleIdentifier: %@ options: %lu eventparam: %@ asUser:%@", identOrApp, (unsigned long)options, params, userName);
 #endif
 	if(!__launchServices)
 		[QSLaunchServices sharedLaunchServices];
