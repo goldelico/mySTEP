@@ -269,10 +269,17 @@ const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
 #endif
 			NS_ENDHANDLER
 			if(!_server)
-				{ // not available - launch server process
+				{ // not available although we tried to launch server process
 					NSLog(@"no response from %@", SERVER_ID);
-					[self release];
-					return nil;
+#if 1
+					// Hack until we have the daemon running...
+					static CoreLocationDaemon *_sharedDaemon;
+					if(!_sharedDaemon)
+						_sharedDaemon=[[CoreLocationDaemon alloc] init];	// add a local daemon object but share for all CLLocation instances
+					_server=_sharedDaemon;
+					NSLog(@"server = %@", _server);
+					return self;
+#endif
 				}
 			[_server setProtocolForProxy:@protocol(CoreLocationDaemonProtocol)];
 #if 1

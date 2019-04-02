@@ -75,12 +75,12 @@
 			NSString *dev=[self _device];
 			// handle errors
 #if 1
-			NSLog(@"Start reading NMEA on device file %@", dev);
+			NSLog(@"Daemon: Start reading NMEA on device file %@", dev);
 #endif
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
 			if(!file)
 				{
-				NSLog(@"was not able to open device file %@", dev);
+				NSLog(@"Daemon: was not able to open device file %@", dev);
 				// create an error object!
 				[[(CLLocationManager <CoreLocationClientProtocol> *) m delegate] locationManager:m didFailWithError:nil];
 				return;
@@ -91,7 +91,7 @@
 														 name:NSFileHandleReadCompletionNotification
 													   object:file];	// make us see notifications
 #if 1
-			NSLog(@"waiting for data on %@", dev);
+			NSLog(@"Daemon: waiting for data on %@", dev);
 #endif
 			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
@@ -99,7 +99,7 @@
 		}
 #if 1
 	else
-		NSLog(@"already running");
+		NSLog(@"Daemon: already running");
 #endif
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
 		return;	// already started
@@ -140,7 +140,9 @@
 			// send a power down impulse
 			// FIXME: must make sure that we really have started
 			// power off antenna
-			NSLog(@"power off GPS");
+#if 1
+			NSLog(@"Daemon: power off GPS");
+#endif
 			system("rfkill block gps");
 			exit(0);	// last client has unregistered
 		}
@@ -565,6 +567,9 @@
 
 - (CLLocationSource) source;
 {
+#if 1
+	NSLog(@"query for external antenna");
+#endif
 	// should open (permanently) /dev/input/antenna-detect
 	// and issue the ioctl() to read switch state
 	NSString *eventFile=@"/dev/input/antenna-detect";	// read from device config database
@@ -572,11 +577,14 @@
 	NSArray *argv=[NSArray arrayWithObjects:@"--query", eventFile, @"EV_SW", @"13", nil];
 	NSTask *task=[NSTask launchedTaskWithLaunchPath:@"/usr/bin/evtest" arguments:argv];
 	int state;
+
+	// FIXME: running the NSTask stalls processing - bug in NSTask/NSRunLoop
+
 	return CLLocationSourceGPS;
-	// FIXME: this stalls processing - bug in NSTask
+
 	[task waitUntilExit];
 	state=[task terminationStatus];
-	NSLog(@"status = %d", state);
+	NSLog(@"external antenna status = %d", state);
 	if(!task || state == -1 || state == 127)
 		return CLLocationSourceGPS;	// unknown/error
 	if(state == 0)
