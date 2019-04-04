@@ -465,7 +465,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	 nil];
 	NSMutableDictionary *dict=
 	[NSMutableDictionary dictionaryWithObjectsAndKeys:pattern, @"VibePattern",
-	 [NSNumber numberWithDouble:1.0],
+	 [NSNumber numberWithDouble:1.0], @"Intensity",
 	 nil];
 	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, dict);
 }
@@ -512,7 +512,7 @@ void AudioServicesPlaySystemSound(SystemSoundID sound)
 
 void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDictionary *pattern)
 {
-#if 1
+#if 0
 	NSLog(@"AudioServicesPlaySystemSoundWithVibration: %08x %@ %@", sound, arg, pattern);
 #endif
 	if(sound == kSystemSoundID_Vibrate)
@@ -587,6 +587,7 @@ void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDi
 		if (write(rumbleFd, (const void *)&event, sizeof(event)) < 0)
 			perror("rumble write");
 		}
+	// fixme: play other system sounds like RingRing, Keyboard Click, Battery emptying etc.
 }
 
 #endif
