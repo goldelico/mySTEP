@@ -35,7 +35,16 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 { // ask server (once)
 	static NSArray *_soundFileTypes;
 	if(!_soundFileTypes)
+#if 0
 		_soundFileTypes=[[[NSWorkspace _loginWindowServer] soundFileTypes] retain];
+#else
+		_soundFileTypes=[[NSArray alloc] initWithObjects:
+						 @"aiff",
+						 @"wav",
+						 @"mp3",
+						 nil];
+
+#endif
 	return _soundFileTypes;
 }
 
@@ -91,6 +100,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		else 
 			{ // try all extensions we know
 			id o;
+			fileTypes = [self _soundFileTypes];
 			e = [fileTypes objectEnumerator];
 			while((o = [e nextObject]))
 				{
@@ -109,9 +119,6 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 	if(path && (sound = [[NSSound alloc] initWithContentsOfFile:path]))
 		{ // file really exists
 		[sound setName:aName];	// will save in __nameToSoundDict - and increment retain count
-#if 0
-		NSLog(@"NSsound: -soundNamed:%@ -> %@", aName, sound);
-#endif
 		[sound autorelease];	// don't leak if everything is released - unfortunately we are never deleted from the sound cache
 		}
 	if(!sound)
@@ -121,6 +128,9 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 #endif
 		[__nameToSoundDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the sound
 		}
+#if 0
+	NSLog(@"NSSound: -soundNamed:%@ -> %@", aName, sound);
+#endif
 	return sound;
 }
 
@@ -180,30 +190,44 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (BOOL) play;
 {
+	NSString *cmd=[NSString stringWithFormat:@"/root/twl -m %s", [[NSFileManager defaultManager] fileSystemRepresentationWithPath:[_url path]]];
+	NSLog(@"play sound: %@", cmd);
+	system([cmd UTF8String]);	// block
+#if 0
 	[[NSWorkspace _loginWindowServer] playSound:self withURL:_url];
+#endif
 	return YES;
 }
 
 - (BOOL) isPlaying;
 {
+	return YES;
+#if 0
 	return [[NSWorkspace _loginWindowServer] isPlayingSound:self];
+#endif
 }
 
 - (BOOL) pause;
 {
+#if 0
 	[[NSWorkspace _loginWindowServer] pauseSound:self];
+#endif
 	return YES;
 }
 
 - (BOOL) resume;
 {
+#if 0
 	/* return? */ [[NSWorkspace _loginWindowServer] resumeSound:self];
+#endif
 	return YES;
 }
 
 - (BOOL) stop;
 {
+#if 0
 	[[NSWorkspace _loginWindowServer] stopSound:self];
+#endif
 	return YES;
 }
 
