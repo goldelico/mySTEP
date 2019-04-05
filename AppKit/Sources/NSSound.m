@@ -22,6 +22,23 @@
 
 NSString *NSSoundPboardType=@"NSSound";
 
+// maybe we should contact the Speaker.menuExtra for this service
+
+@interface NSSoundServer : NSObject
+{
+	NSTask *_task;	// current task
+	NSSound *_sound;	// current sound
+}
+
++ (id) defaultServer;
+- (BOOL) playSound:(NSSound *) sound;
+- (BOOL) isPlaying;
+- (BOOL) pauseSound;
+- (BOOL) resumeSound;
+- (BOOL) stopSound;
+
+@end
+
 static NSMutableDictionary *__nameToSoundDict = nil;
 
 @implementation NSSound
@@ -36,7 +53,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 	static NSArray *_soundFileTypes;
 	if(!_soundFileTypes)
 #if 0
-		_soundFileTypes=[[[NSWorkspace _loginWindowServer] soundFileTypes] retain];
+		_soundFileTypes=[[[self _soundServer] soundFileTypes] retain];
 #else
 		_soundFileTypes=[[NSArray alloc] initWithObjects:
 						 @"aiff",
@@ -188,47 +205,51 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 	[super dealloc];
 }
 
+- (NSSoundServer *) _soundServer
+{ // allows to inject a private sound server
+	return [NSSoundServer defaultServer];
+}
+
+- (NSURL *) _url
+{
+	return _url;
+}
+
+- (BOOL) loops;
+{
+	return _snd.loops;
+}
+
+- (void) setLoops:(BOOL) flag;
+{
+	_snd.loops=flag;
+}
+
 - (BOOL) play;
 {
-	NSString *cmd=[NSString stringWithFormat:@"/root/twl -m %s", [[NSFileManager defaultManager] fileSystemRepresentationWithPath:[_url path]]];
-	NSLog(@"play sound: %@", cmd);
-	system([cmd UTF8String]);	// block
-#if 0
-	[[NSWorkspace _loginWindowServer] playSound:self withURL:_url];
-#endif
-	return YES;
+	return [[self _soundServer] playSound:self];
 }
 
 - (BOOL) isPlaying;
 {
-	return YES;
-#if 0
-	return [[NSWorkspace _loginWindowServer] isPlayingSound:self];
-#endif
+	return [[self _soundServer] isPlaying];
 }
 
 - (BOOL) pause;
 {
-#if 0
-	[[NSWorkspace _loginWindowServer] pauseSound:self];
-#endif
-	return YES;
+	_snd.isPaused=YES;
+	return [[self _soundServer] pauseSound];
 }
 
 - (BOOL) resume;
 {
-#if 0
-	/* return? */ [[NSWorkspace _loginWindowServer] resumeSound:self];
-#endif
-	return YES;
+	_snd.isPaused=NO;
+	return [[self _soundServer] resumeSound];
 }
 
 - (BOOL) stop;
 {
-#if 0
-	[[NSWorkspace _loginWindowServer] stopSound:self];
-#endif
-	return YES;
+	return [[self _soundServer] stopSound];
 }
 
 - (void) writeToPasteboard:(NSPasteboard *) pasteboard;
@@ -271,3 +292,86 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 }
 
 @end /* NSSound */
+
+@implementation NSSoundServer
+
++ (id) defaultServer
+{
+	// check if we can contact system sound server
+	static NSSoundServer *defaultServer;
+	if(!defaultServer)
+		{
+		defaultServer=[self new];
+		[[NSNotificationCenter defaultCenter] addObserver:defaultServer selector:@selector(soundDidEnd:) name:NSTaskDidTerminateNotification object:nil];
+		}
+	return defaultServer;
+	}
+
+- (void) soundDidEnd:(NSNotification *) n
+{ // flag = YES on normal end
+	BOOL normalExit=[_task terminationReason] == NSTaskTerminationReasonExit;
+#if 1
+	NSLog(@"soundDidEnd %@", n);
+#endif
+	if(normalExit && [_sound loops])
+		{ // restart loop - until it is explicitly stopped
+		[self playSound:_sound];
+		return;
+		}
+	[[_sound delegate] sound:_sound didFinishPlaying:normalExit];
+}
+
+- (BOOL) playSound:(NSSound *) sound;
+{
+#if 1
+	NSLog(@"playSound %@", sound);
+#endif
+	[self stopSound];	// stop any other sound
+	_sound=[sound retain];
+	_task=[NSTask new];
+	[_task setLaunchPath:@"/root/twl"];
+	[_task setArguments:[NSArray arrayWithObjects:@"-m", [[sound _url] path], nil]];
+	NS_DURING
+		[_task launch];
+	NS_HANDLER
+		NSLog(@"NSSoundServer: %@", localException);
+		return NO;
+	NS_ENDHANDLER
+	return YES;
+}
+
+- (BOOL) isPlaying;
+{
+	return [_task isRunning];	// returns NO if _task == nil
+}
+
+- (BOOL) pauseSound;
+{
+	return NO;
+}
+
+- (BOOL) resumeSound;
+{
+	return NO;
+}
+
+- (BOOL) stopSound;
+{
+#if 1
+	NSLog(@"stopSound %@ %@", _sound, _task);
+#endif
+	if(![self isPlaying])
+		return NO;
+	[_task terminate];
+	[_task waitUntilExit];
+	[_task release];
+	_task=nil;
+	[_sound release];
+	_sound=nil;
+#if 1
+	NSLog(@"stopped");
+#endif
+	return YES;
+}
+
+@end

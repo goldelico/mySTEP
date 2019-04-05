@@ -1,14 +1,14 @@
-/* 
-   NSSound.h
+/*
+ NSSound.h
 
-   Sound container class
- 
-   Author:	Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	05. December 2007 - aligned with 10.5   
- 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ Sound container class
+
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	05. December 2007 - aligned with 10.5
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #ifndef _mySTEP_H_NSSound
 #define _mySTEP_H_NSSound
@@ -34,14 +34,17 @@ extern NSString *NSSoundPboardType;
 	id _delegate;
 
 	struct __soundFlags {
+		/* unused
 		UIBITFIELD(unsigned int, dataRetained, 1);
 		UIBITFIELD(unsigned int, builtIn, 1);
 		UIBITFIELD(unsigned int, archiveByName, 1);
 		UIBITFIELD(unsigned int, cacheSeparately, 1);
 		UIBITFIELD(unsigned int, isValid, 1);
-		UIBITFIELD(unsigned int, isPaused, 1);
 		UIBITFIELD(unsigned int, isStopped, 1);
-		} _snd;
+		 */
+		UIBITFIELD(unsigned int, isPaused, 1);
+		UIBITFIELD(unsigned int, loops, 1);
+	} _snd;
 }
 
 + (BOOL) canInitWithPasteboard:(NSPasteboard *) pasteboard;
@@ -51,31 +54,31 @@ extern NSString *NSSoundPboardType;
 + (NSArray *)soundUnfilteredTypes;
 
 - (NSArray *) channelMapping;
-- (NSTimeInterval) currentTime; 
+- (NSTimeInterval) currentTime;
 - (id) delegate;
 - (NSTimeInterval) duration;
-- (id) initWithContentsOfFile:(NSString *) filename byReference:(BOOL) flag; 
+- (id) initWithContentsOfFile:(NSString *) filename byReference:(BOOL) flag;
 - (id) initWithContentsOfFile:(NSString *) filename; // NOT IN API
 - (id) initWithContentsOfURL:(NSURL *) url byReference:(BOOL) flag;
 - (id) initWithContentsOfURL:(NSURL *) url; // NOT IN API
 - (id) initWithData:(NSData *) data;
 - (id) initWithPasteboard:(NSPasteboard *) pasteboard;
 - (BOOL) isPlaying;
-- (BOOL) loops; 
-- (NSString *) name; 
+- (BOOL) loops;
+- (NSString *) name;
 - (BOOL) pause;
 - (BOOL) play;
 - (NSString *) playbackDeviceIdentifier;
 - (BOOL) resume;
-- (void) setChannelMapping:(NSArray *) mappings; 
+- (void) setChannelMapping:(NSArray *) mappings;
 - (void) setCurrentTime:(NSTimeInterval) time;
 - (void) setDelegate:(id) anObject;
 - (void) setLoops:(BOOL) flag;
 - (BOOL) setName:(NSString *) name;
 - (void) setPlaybackDeviceIdentifier:(NSString *) name;
-- (void) setVolume:(float)vol; 
+- (void) setVolume:(float)vol;
 - (BOOL) stop;
-- (float) volume; 
+- (float) volume;
 - (void) writeToPasteboard:(NSPasteboard *) pasteboard;
 
 @end
@@ -88,7 +91,7 @@ extern NSString *NSSoundPboardType;
 @end
 
 
-@interface NSBundle (NSSoundAdditions) 
+@interface NSBundle (NSSoundAdditions)
 
 - (NSString *) pathForSoundResource:(NSString *) name;
 
