@@ -192,6 +192,9 @@ BOOL modemLog=NO;
 
 - (int) _power:(BOOL) on
 {
+#if 1
+	NSLog(@"CTModemManager _power:%d", on);
+#endif
 	if(modemLog) [self log:@"_power:%d", on];
 	if(ttyPort)
 		{
@@ -346,7 +349,7 @@ BOOL modemLog=NO;
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	if(modemLog) [self log:@"run %@", cmd];
 	status=CTModemTimeout;	// default status
-	if(ttyPort || [self _openModem])	// _openHSO may run recursively to initialize the modem
+	if(ttyPort || [self _openModem])	// _openModemO may run recursively to initialize the modem
 		{
 		NSDate *timeout=[NSDate dateWithTimeIntervalSinceNow:seconds];
 		done=NO;
@@ -543,8 +546,12 @@ BOOL modemLog=NO;
 - (int) _openModem;
 {
 	if(modemLog) [self log:@"_openModem"];
+	[_ati release];
 	if(![self _openPort])
+		{
+		_ati=[[NSArray array] retain];	// has been tried...
 		return NO;
+		}
 	pinStatus=CTPinStatusUnknown;	// needs to check again
 	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
@@ -685,6 +692,8 @@ BOOL modemLog=NO;
 				if(![[self runATCommandReturnResponse:@"AT+CFUN?"] containsObject:@"+CFUN: 1"])
 					return CTPinStatusAirplaneMode;
 				}
+			else
+				return CTPinStatusUnknown;	// can't determine modem model
 			result=[self runATCommandReturnResponse:@"AT+CPIN?"];
 			pinstatus=[result lastObject];
 			if(!pinstatus)
