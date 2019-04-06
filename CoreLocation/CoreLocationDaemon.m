@@ -203,9 +203,6 @@
 				{ // update data
 					float pos;
 					int deg;
-					// if enabled we could sync the clock...
-					//   sudo(@"date -u '%@'", [time description]);
-					//   /sbin/hwclock --systohc
 					pos=[[a objectAtIndex:3] floatValue];		// ddmm.mmmmm (degrees + minutes)
 					deg=((int) pos)/100;
 					newLocation->coordinate.latitude=deg+(pos-100.0*deg)/60.0;
@@ -245,7 +242,7 @@
 				}
 		}
 	else if([cmd isEqualToString:@"$GPGSA"] || [cmd isEqualToString:@"$GNGSA"])
-		{ // satellite info
+		{ // satellite info (seem to be the same so we can ignore one of both)
 			NSMutableDictionary *d;
 			int i;
 			e=[satelliteInfo objectEnumerator];
@@ -256,13 +253,12 @@
 				newLocation->verticalAccuracy=[[a objectAtIndex:17] floatValue];		// VDOP vertical precision
 				didUpdateLocation=YES;
 				}
-			// FIXME: separate between GPS and GNSS and delete only one type per record
 			while((d=[e nextObject]))
 				[d setObject:[NSNumber numberWithBool:NO] forKey:@"used"];	// clear
 			for(i=0; i<12; i++)
 				{ // check which satellites are used for a position fix
 					int sat=[[a objectAtIndex:3+i] intValue];
-					if(sat == 0) continue;
+					if(sat == 0) continue;	// unused field
 					e=[satelliteInfo objectEnumerator];
 					while((d=[e nextObject]))
 						{
@@ -283,6 +279,18 @@
 			numVisibleSatellites=[[a objectAtIndex:3] intValue];
 			if(sat >= 0 && sat < numVisibleSatellites)
 				{ // record is ok
+					if([cmd isEqualToString:@"$GLGSV"])
+						{
+						NSMutableDictionary *d;
+						e=[satelliteInfo objectEnumerator];
+						while((d=[e nextObject]))
+							{
+							if([[d objectForKey:@"PRN"] intValue] >= 60)
+								break;	// first $GLGSV satellites index
+							numVisibleSatellites++;	// keep $GPGSV records
+							sat++;
+							}
+						}
 					if(!satelliteInfo)
 						satelliteInfo=[[NSMutableArray alloc] initWithCapacity:satPerRecord*numVisibleSatellites];
 					else
@@ -342,25 +350,11 @@
 		}
 	else if([cmd isEqualToString:@"$GNGNS"])
 		{ // PLS8 - navigation info
-#if 0
 		  // http://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_GNS.html
-			/* seems to have HMS only
-			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
-			[satelliteTime release];
-			satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
-#if 0
-			NSLog(@"ts=%@ -> time=%@", ts, satelliteTime);
-#endif
-			satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
-			[satelliteTime retain];				// keep alive
-			 */
 			if(![[a objectAtIndex:6] isEqualToString:@"N"])	// N = No Fix
 				{ // update data
 					float pos;
 					int deg;
-					// if enabled we could sync the clock...
-					//   sudo(@"date -u '%@'", [time description]);
-					//   /sbin/hwclock --systohc
 					pos=[[a objectAtIndex:2] floatValue];		// ddmm.mmmmm (degrees + minutes)
 					deg=((int) pos)/100;
 					newLocation->coordinate.latitude=deg+(pos-100.0*deg)/60.0;
@@ -371,26 +365,6 @@
 					newLocation->coordinate.longitude=deg+(pos-100.0*deg)/60.0;
 					if([[a objectAtIndex:5] isEqualToString:@"W"])
 						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
-					/*				newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
-					newLocation->course=[[a objectAtIndex:8] floatValue];
-					didUpdateLocation=YES;
-					if(!newHeading)
-						newHeading=[CLHeading new];
-					newHeading->trueHeading=newLocation->course;
-					// and read the compass (if available)
-					didUpdateHeading=YES;
-					 */
-#if 0
-					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
-					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
-																	//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
-					NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], [newLocation coordinate].latitude);	// llmm.ssssN
-					NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], [newLocation coordinate].longitude);	// lllmm.ssssE
-					NSLog(@"knots=%@", [a objectAtIndex:7]);
-					NSLog(@"deg=%@", [a objectAtIndex:8]);
-					// we should smooth velocity with a time constant > 10 seconds
-					// we can also reduce the time constant for higher speed
-#endif
 					numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
 					newLocation->altitude=[[a objectAtIndex:10] floatValue];
 				}
@@ -401,11 +375,19 @@
 				newLocation->verticalAccuracy=-1.0;
 				didUpdateLocation=YES;
 				}
-#endif
 		}
 	else if([cmd isEqualToString:@"$GPVTG"])
 		{ // PLS8 - vector track and speed relative to the ground.
-		  // ignore
+			/* $GPVTG,147.8,T,147.8,M,0.0,N,0.0,K,A */
+			/* http://aprs.gids.nl/nmea/#vtg */
+			newLocation->course=[[a objectAtIndex:1] floatValue];
+			newLocation->speed=[[a objectAtIndex:7] floatValue]*(3600.0/1000.0);	// convert km/h to m/s
+			didUpdateLocation=YES;
+			if(!newHeading)
+				newHeading=[CLHeading new];
+			newHeading->trueHeading=newLocation->course;
+			newHeading->magneticHeading=[[a objectAtIndex:3] floatValue];
+			didUpdateHeading=YES;
 		}
 	else
 		{
@@ -567,6 +549,11 @@
 
 - (CLLocationSource) source;
 {
+
+	// FIXME: running the NSTask stalls processing - bug in NSTask/NSRunLoop
+
+	return CLLocationSourceGPS;
+
 #if 1
 	NSLog(@"query for external antenna");
 #endif
@@ -577,10 +564,6 @@
 	NSArray *argv=[NSArray arrayWithObjects:@"--query", eventFile, @"EV_SW", @"13", nil];
 	NSTask *task=[NSTask launchedTaskWithLaunchPath:@"/usr/bin/evtest" arguments:argv];
 	int state;
-
-	// FIXME: running the NSTask stalls processing - bug in NSTask/NSRunLoop
-
-	return CLLocationSourceGPS;
 
 	[task waitUntilExit];
 	state=[task terminationStatus];
