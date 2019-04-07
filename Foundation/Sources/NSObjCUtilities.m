@@ -430,7 +430,7 @@ NSUserName (void)							// Return user's login name as an
 	// get effective user id
 	if ((pw = getpwuid(geteuid())) && pw->pw_name && *pw->pw_name != '\0')
 		return [NSString stringWithCString: pw->pw_name];
-	return [NSString stringWithFormat:@"%d", geteuid()];
+	return [NSString stringWithFormat:@"u%d", geteuid()];
 }
 
 NSString *NSFullUserName(void)
@@ -471,10 +471,13 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 #else
 		h=[NSString stringWithUTF8String:pwd->pw_dir];
 #endif
+#if 1
+		NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
+#endif
 		if(![[NSFileManager defaultManager] fileExistsAtPath:h isDirectory:&isDir] || !isDir)
 			return nil;
 		}
-#if 0
+#if 1
 	NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
 #endif
 	return h;

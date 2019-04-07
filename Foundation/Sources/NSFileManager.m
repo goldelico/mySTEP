@@ -454,6 +454,7 @@ static NSFileManager *__fm = nil;
 {
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
 	struct stat statbuf;
+	cpath=[self _traverseLink:cpath];
 	if(!cpath)
 		return NO;
 #if 0
@@ -474,6 +475,7 @@ static NSFileManager *__fm = nil;
 - (BOOL) isReadableFileAtPath:(NSString*)path
 {
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
+	cpath=[self _traverseLink:cpath];
 	if(!cpath)
 		return NO;
 	return (access(cpath, R_OK) == 0);
@@ -481,7 +483,8 @@ static NSFileManager *__fm = nil;
 
 - (BOOL) isWritableFileAtPath:(NSString*)path
 {
-	const char *cpath = [self fileSystemRepresentationWithPath: path];
+	const char *cpath = [self fileSystemRepresentationWithPath:path];
+	cpath=[self _traverseLink:cpath];
 	if(!cpath)
 		return NO;
 	return (access(cpath, W_OK) == 0);
@@ -491,6 +494,7 @@ static NSFileManager *__fm = nil;
 {
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
 	struct stat s;
+	cpath=[self _traverseLink:cpath];
 	if(!cpath)
 		return NO;
 	// test the exec permission bits
@@ -510,10 +514,10 @@ static NSFileManager *__fm = nil;
 }
 
 - (NSDictionary*) fileAttributesAtPath:(NSString*)path
-						  traverseLink:(BOOL)flag   // FIXME: this is ignored!?!
+						  traverseLink:(BOOL)flag
 {
 	struct stat statbuf;
-	const char *cpath = [self fileSystemRepresentationWithPath: path];
+	const char *cpath = [self fileSystemRepresentationWithPath:path];
 #if HAVE_PWD_H
 	struct passwd *pw;
 #endif
@@ -536,6 +540,8 @@ static NSFileManager *__fm = nil;
 #if 0
 	NSLog(@"fileAttributesAtPath:%s", cpath);
 #endif
+	if(flag)
+		cpath=[self _traverseLink:cpath];
 
 	if (!cpath || stat(cpath, &statbuf) != 0)
 		{
@@ -759,6 +765,38 @@ static NSFileManager *__fm = nil;
 		objc_free(lpath);
 		}
 	return str;
+}
+
+- (const char *) _traverseLink:(const char *) cpath;
+{ // if cpath is a symlink, find real file
+#if 0
+	NSLog(@"_traverseLink %s", cpath);
+#endif
+	while(YES)
+		{ // try to expand symlink
+			char *buffer=_autoFreedBufferWithLength(PATH_MAX+1);
+			int llen = readlink(cpath, buffer, PATH_MAX);
+#if 0
+			NSLog(@"_traverseLink readlink %s -> %d", cpath, llen);
+#endif
+			if(llen < 0)
+				{
+#if 0
+				NSLog(@"_traverseLink -> %s", cpath);
+#endif
+				return cpath;	// no symlink or symlink pointing to nowhere
+				}
+			buffer[llen]=0;	// 0-terminate
+#if 1
+			NSLog(@"_traverseLink: %s -> %s", cpath, buffer);
+#endif
+			if(buffer[0] != '/')
+				{
+				NSLog(@"_traverseLink handle relative link");
+				// FIXME: handle relative links
+				}
+			cpath=buffer;
+		}
 }
 
 - (const char *) fileSystemRepresentationWithPath:(NSString*)path

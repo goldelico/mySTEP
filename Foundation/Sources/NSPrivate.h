@@ -20,6 +20,7 @@
 #import <Foundation/NSDecimal.h>
 #import <Foundation/NSExpression.h>
 #import <Foundation/NSFileHandle.h>
+#import <Foundation/NSFileManager.h>
 #import <Foundation/NSHashTable.h>
 #import <Foundation/NSIndexSet.h>
 #import <Foundation/NSMapTable.h>
@@ -651,6 +652,10 @@ enum _INVOCATION_MODE {
 
 @interface NSHTTPURLResponse (NSPrivate)
 - (id) _initWithURL:(NSURL *) url headerFields:(NSDictionary *) headers andStatusCode:(int) code;
+@end
+
+@interface NSFileManager (NSPrivate)
+- (const char *) _traverseLink:(const char *) cpath;
 @end
 
 #endif /* _mySTEP_H_NSPrivate */

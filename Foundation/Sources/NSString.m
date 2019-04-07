@@ -2599,6 +2599,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	int syscall_result;
 	struct stat tmp_stat;
 
+	// Alternative:
+	// cpath=[NSFileManager sharedManager] _fileSystemRepresentationWithPath:self traverseLink:YES]
+	// return [[NSFileManager sharedManager| stringWithFileSystemRepresentation:cpath length:strlen(cpath)]
+
 	// FIXME: should properly process result of readlink() into string representation
 	// and handle virtual chroot() cases
 	// by using NSFileManager's pathContentOfSymbolicLinkAtPath
@@ -2620,7 +2624,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				first_half = [first_half stringByDeletingLastPathComponent];
 			}
 		else
-			{						// second_half is an absolute path
+			{ // second_half is an absolute path
 				if ([second_half hasPrefix: @"/"])
 					return [second_half stringByResolvingSymlinksInPath];
 
@@ -2630,7 +2634,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				first_half = [first_half stringByDeletingLastPathComponent];
 			}
 
-		if ([first_half length] == 0) 						// BREAK CONDITION
+		if ([first_half length] == 0)						// BREAK CONDITION
 			break;
 
 		if ([first_half length] == 1
@@ -2638,7 +2642,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			{
 			second_half = [pathSepString stringByAppendingPathComponent:second_half];
 			break;
-			}	}
+			}
+		}
 
 	objc_free(tmp_buf);
 	return second_half;
