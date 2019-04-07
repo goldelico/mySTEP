@@ -466,18 +466,18 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 	else
 		{
 		BOOL isDir;
-#if 1
+#if 0
 		h=[NSString stringWithFormat:@"/Users/%@", login_name];
 #else
 		h=[NSString stringWithUTF8String:pwd->pw_dir];
 #endif
-#if 1
+#if 0
 		NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
 #endif
 		if(![[NSFileManager defaultManager] fileExistsAtPath:h isDirectory:&isDir] || !isDir)
 			return nil;
 		}
-#if 1
+#if 0
 	NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
 #endif
 	return h;

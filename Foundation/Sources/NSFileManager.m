@@ -787,13 +787,21 @@ static NSFileManager *__fm = nil;
 				return cpath;	// no symlink or symlink pointing to nowhere
 				}
 			buffer[llen]=0;	// 0-terminate
-#if 1
+#if 0
 			NSLog(@"_traverseLink: %s -> %s", cpath, buffer);
 #endif
 			if(buffer[0] != '/')
-				{
-				NSLog(@"_traverseLink handle relative link");
-				// FIXME: handle relative links
+				{ // handle relative links
+				char *dirname=strrchr(cpath, '/');
+				char *newpath=_autoFreedBufferWithLength(PATH_MAX+1);
+				int dlen;
+				if(!dirname) dirname=cpath-1;	// cpath itself is relative
+				strncpy(newpath, cpath, dirname-cpath+1);	// keep / intact
+				strcpy(newpath+(dirname-cpath+1), buffer);
+#if 0
+				NSLog(@"_traverseLink handle relative link: %s %s %s %s", cpath, dirname, buffer, newpath);
+#endif
+				buffer=newpath;
 				}
 			cpath=buffer;
 		}
