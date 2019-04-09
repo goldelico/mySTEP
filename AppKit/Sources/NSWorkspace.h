@@ -44,11 +44,12 @@ enum {
 	NSWorkspaceLaunchAndHide=0x0100,
 	NSWorkspaceLaunchAndHideOthers=0x0200,
 	NSWorkspaceLaunchDefault=NSWorkspaceLaunchAsync | NSWorkspaceLaunchAllowingClassicStartup
+	NSWorkspaceLaunchAutoRelaunch=0x0400,	// private extension
 };
 
 enum {
-	NSExcludeQuickDrawElementsIconCreationOption    = 1 << 1,
-	NSExclude10_4ElementsIconCreationOption        = 1 << 2
+	NSExcludeQuickDrawElementsIconCreationOption	= 1 << 1,
+	NSExclude10_4ElementsIconCreationOption			= 1 << 2
 };
 
 typedef NSUInteger NSWorkspaceIconCreationOptions;

@@ -734,6 +734,8 @@ additionalEventParamDescriptor:(id) params
 																			  object:self
 																			userInfo:app];
 		}
+	if(options&NSWorkspaceLaunchAutoRelaunch)
+		; // add to keeprunning
 	return YES;
 }
 
@@ -1694,6 +1696,7 @@ static NSMutableArray *keepRunning;	// list of application names that should be 
 
 // FIXME: pass appname or bundle path?
 // FIXME: avoid duplicates
+// FIXME: don't call externally but add a private launch option
 
 - (void) _keepRunning:(NSString *) path;
 { // keep these apps running until user logs out
