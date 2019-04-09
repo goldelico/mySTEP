@@ -771,6 +771,18 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	return ident;
 }
 
+- (NSString *) _localizedBundleName
+{
+	NSString *name=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+	if(!name)
+		name=[self objectForInfoDictionaryKey:@"CFBundleName"];
+	if(!name)
+		name=[[[self bundlePath] lastPathComponent] stringByDeletingPathExtension];
+	// FIXME: check localization of this bundle...
+	name=NSLocalizedString(name, @"Bundle Name");	// try to translate
+	return name;
+}
+
 - (NSString *) developmentLocalization;	{ return [self objectForInfoDictionaryKey:@"CFBundleDevelopmentRegion"]; }
 
 
