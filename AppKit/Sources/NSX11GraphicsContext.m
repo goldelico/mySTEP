@@ -2944,6 +2944,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (BOOL) _grabKey:(NSEvent *) keyEvent;
 {
+#if 1
+	NSLog(@"_grabKey: %@",keyEvent);
+#endif
 	NSAssert([keyEvent type] == NSKeyDown, @"can grab only key events");
 	// translate keycode and modifier from Mac to X11 - take 0 as AnyModifier or AnyKey
 	// example should respond to ctrl-shift-K
@@ -2963,6 +2966,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (BOOL) _ungrabKey:(NSEvent *) keyEvent;
 {
+#if 1
+	NSLog(@"_ungrabKey: %@",keyEvent);
+#endif
 	NSAssert([keyEvent type] == NSKeyDown, @"can grab only key events");
 	// translate keycode and modifier from Mac to X11 - take 0 as AnyModifier or AnyKey
 	// example should respond to ctrl-shift-K
@@ -3987,10 +3993,18 @@ static NSFileHandle *fh;
 				BOOL autorepeat=NO;
 				// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
 				unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
+				buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+				mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
 #if 1
 				{
 				int idx;
-				NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%lu:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
+				NSLog(@"xKeyEvent: type=%s xkey.state=%d keycode=%d keysym=%lu:%s buf=%s mflags=%x",
+					  eventType==NSKeyDown?"down":"up",
+					  xe.xkey.state,
+					  xe.xkey.keycode,
+					  ksym, XKeysymToString(ksym),
+					  buf,
+					  mflags);
 				for(idx=0; idx < 8; idx++)
 					NSLog(@"%d: %08lx", idx, XLookupKeysym(&xe.xkey, idx));
 				/* it looks as if Apple X11 delivers
@@ -4001,26 +4015,32 @@ static NSFileHandle *fh;
 				 */
 				}
 #endif
-				buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
 #if 1
 				NSLog(@"Process key event");
 #endif
-				mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
-				if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
-					{
-					if(count == 0)
-						keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
-					else
-						keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
+				keyCode = xKeyCode(&xe, ksym, &mflags);
+				if(count != 0)
+					{ // named string
+					keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
 					__modFlags=mflags;							// may also be modified
 					}
-				else
+				else if(keyCode != 0)
+					{
+					keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
+					__modFlags=mflags;							// may also be modified
+					}
+				else if(mflags)
 					{ // if we have neither a keyCode nor characters we have just changed a modifier Key
-						if(eventType == NSKeyUp)
-							__modFlags &= ~mflags;	// just reset flags defined by this key
+						if(eventType == NSKeyDown)
+							__modFlags=mflags;		// new modifier flags state
 						else
-							__modFlags=mflags;		// if modified
+							__modFlags &= ~mflags;	// just reset flags defined by this key
 						eventType=NSFlagsChanged;
+					}
+				else
+					{
+					NSLog(@"ignored");
+					break;	// no translation to NSEvent
 					}
 				if (xe.type == KeyRelease && XEventsQueued(_display, QueuedAfterReading))
 					{
@@ -4028,7 +4048,10 @@ static NSFileHandle *fh;
 					XPeekEvent(_display, &next);
 					if (next.type == KeyPress && next.xkey.time == xe.xkey.time &&
 						next.xkey.keycode == xe.xkey.keycode)
-						{
+						{ // same key pressed again
+						  // FIXME: this will set the autorepeat on the first event...
+							// and assumes that the server delivers events before they are processed
+							// wouldn't it be correct to compare to the PREVIOUS event?
 						autorepeat=YES;
 						// skip keyup event?
 						}
