@@ -460,6 +460,17 @@
 		EEA69FAD174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
 		EEA69FAE174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
 		EEA69FAF174BAA6D00F4FBFA /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FAB174BAA6D00F4FBFA /* TestView.m */; };
+		EEAC57B9225D20E000AC1881 /* Basso.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57AE225D20E000AC1881 /* Basso.wav */; };
+		EEAC57BA225D20E000AC1881 /* Blow.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57AF225D20E000AC1881 /* Blow.wav */; };
+		EEAC57BB225D20E000AC1881 /* Bottle.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B0225D20E000AC1881 /* Bottle.wav */; };
+		EEAC57BC225D20E000AC1881 /* Frog.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B1225D20E000AC1881 /* Frog.wav */; };
+		EEAC57BD225D20E000AC1881 /* Glass.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B2225D20E000AC1881 /* Glass.wav */; };
+		EEAC57BE225D20E000AC1881 /* Hero.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B3225D20E000AC1881 /* Hero.wav */; };
+		EEAC57BF225D20E000AC1881 /* Ping.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B4225D20E000AC1881 /* Ping.wav */; };
+		EEAC57C0225D20E000AC1881 /* Pop.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B5225D20E000AC1881 /* Pop.wav */; };
+		EEAC57C1225D20E000AC1881 /* Sosumi.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B6225D20E000AC1881 /* Sosumi.wav */; };
+		EEAC57C2225D20E000AC1881 /* Submarine.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B7225D20E000AC1881 /* Submarine.wav */; };
+		EEAC57C3225D20E000AC1881 /* Tink.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B8225D20E000AC1881 /* Tink.wav */; };
 		EEC8033D09AE4EB6006EEB03 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EEC8033F09AE4EB6006EEB03 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
 		EEC8034009AE4EB6006EEB03 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31970C09AB7E8B0089A9A2 /* main.m */; };
@@ -893,6 +904,17 @@
 		EEA69FAA174BAA6D00F4FBFA /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
 		EEA69FAB174BAA6D00F4FBFA /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestView.m; sourceTree = "<group>"; };
 		EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextInputClient.h; sourceTree = "<group>"; };
+		EEAC57AE225D20E000AC1881 /* Basso.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Basso.wav; sourceTree = "<group>"; };
+		EEAC57AF225D20E000AC1881 /* Blow.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Blow.wav; sourceTree = "<group>"; };
+		EEAC57B0225D20E000AC1881 /* Bottle.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Bottle.wav; sourceTree = "<group>"; };
+		EEAC57B1225D20E000AC1881 /* Frog.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Frog.wav; sourceTree = "<group>"; };
+		EEAC57B2225D20E000AC1881 /* Glass.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Glass.wav; sourceTree = "<group>"; };
+		EEAC57B3225D20E000AC1881 /* Hero.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Hero.wav; sourceTree = "<group>"; };
+		EEAC57B4225D20E000AC1881 /* Ping.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ping.wav; sourceTree = "<group>"; };
+		EEAC57B5225D20E000AC1881 /* Pop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Pop.wav; sourceTree = "<group>"; };
+		EEAC57B6225D20E000AC1881 /* Sosumi.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Sosumi.wav; sourceTree = "<group>"; };
+		EEAC57B7225D20E000AC1881 /* Submarine.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Submarine.wav; sourceTree = "<group>"; };
+		EEAC57B8225D20E000AC1881 /* Tink.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Tink.wav; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
@@ -1457,6 +1479,7 @@
 			children = (
 				EED966420F864C23002E4AD5 /* Cursors */,
 				EEA371A109540271001244CF /* Images */,
+				EEAC57AD225D1C8800AC1881 /* Sounds */,
 				EEA3728F09540273001244CF /* Panels */,
 				EEA331A30953FA54001244CF /* AppKit-Info.plist */,
 				EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */,
@@ -1652,6 +1675,24 @@
 				EEA524FC212B366E002E3B27 /* AppKitViewTest.php */,
 			);
 			name = AppKitViewTest;
+			sourceTree = "<group>";
+		};
+		EEAC57AD225D1C8800AC1881 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				EEAC57AE225D20E000AC1881 /* Basso.wav */,
+				EEAC57AF225D20E000AC1881 /* Blow.wav */,
+				EEAC57B0225D20E000AC1881 /* Bottle.wav */,
+				EEAC57B1225D20E000AC1881 /* Frog.wav */,
+				EEAC57B2225D20E000AC1881 /* Glass.wav */,
+				EEAC57B3225D20E000AC1881 /* Hero.wav */,
+				EEAC57B4225D20E000AC1881 /* Ping.wav */,
+				EEAC57B5225D20E000AC1881 /* Pop.wav */,
+				EEAC57B6225D20E000AC1881 /* Sosumi.wav */,
+				EEAC57B7225D20E000AC1881 /* Submarine.wav */,
+				EEAC57B8225D20E000AC1881 /* Tink.wav */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 		EECD84030A089FA300EF3E30 /* Resources */ = {
@@ -2047,19 +2088,24 @@
 				EE4D5F41213F068A005299D3 /* GSArrowUpH.png in Resources */,
 				EE4D5F42213F068A005299D3 /* GSColorWheel.jpg in Resources */,
 				EE4D5F43213F068A005299D3 /* GSColorWheel.icns in Resources */,
+				EEAC57C3225D20E000AC1881 /* Tink.wav in Resources */,
 				EE4D5F44213F068A005299D3 /* GSComboBox.tiff in Resources */,
 				EE4D5F45213F068A005299D3 /* GSComboBoxH.tiff in Resources */,
 				EE4D5F46213F068A005299D3 /* GSDimple.tiff in Resources */,
 				EE4D5F47213F068A005299D3 /* GSDiscloseH.tiff in Resources */,
+				EEAC57BC225D20E000AC1881 /* Frog.wav in Resources */,
 				EE4D5F48213F068A005299D3 /* GSDiscloseHalf.tiff in Resources */,
+				EEAC57BE225D20E000AC1881 /* Hero.wav in Resources */,
 				EE4D5F49213F068A005299D3 /* GSDiscloseOff.tiff in Resources */,
 				EE4D5F4A213F068A005299D3 /* GSDiscloseOn.tiff in Resources */,
+				EEAC57B9225D20E000AC1881 /* Basso.wav in Resources */,
 				EE4D5F4B213F068A005299D3 /* GSDocument.tiff in Resources */,
 				EE4D5F4C213F068A005299D3 /* GSFolder.tiff in Resources */,
 				EE4D5F4D213F068A005299D3 /* GSHome.tiff in Resources */,
 				EE4D5F4E213F068A005299D3 /* GSMount.tiff in Resources */,
 				EE4D5F4F213F068A005299D3 /* GSMultiple.tiff in Resources */,
 				EE4D5F50213F068A005299D3 /* GSPopup.tiff in Resources */,
+				EEAC57BF225D20E000AC1881 /* Ping.wav in Resources */,
 				EE4D5F51213F068A005299D3 /* GSPullDown.tiff in Resources */,
 				EE4D5F52213F068A005299D3 /* GSPullDownH.tiff in Resources */,
 				EE4D5F53213F068A005299D3 /* GSRight.tiff in Resources */,
@@ -2076,14 +2122,17 @@
 				EE4D5F5E213F068A005299D3 /* NSHighlightedSwitch.tiff in Resources */,
 				EE4D5F5F213F068A005299D3 /* NSMenuCheckmark.tiff in Resources */,
 				EE4D5F60213F068A005299D3 /* NSMenuMixedState.tiff in Resources */,
+				EEAC57BB225D20E000AC1881 /* Bottle.wav in Resources */,
 				EE4D5F61213F068A005299D3 /* NSMultiStateSwitch.tiff in Resources */,
 				EE4D5F62213F068A005299D3 /* NSRadioButton.tiff in Resources */,
 				EE4D5F63213F068A005299D3 /* NSSwitch.tiff in Resources */,
 				EE4D5F64213F068A005299D3 /* NSWindowChangedButton.tiff in Resources */,
 				EE4D5F65213F068A005299D3 /* NSWindowZoomButtonInactive.tiff in Resources */,
+				EEAC57BD225D20E000AC1881 /* Glass.wav in Resources */,
 				EE4D5F66213F068A005299D3 /* NSWindowMiniaturizeButtonInactive.tiff in Resources */,
 				EE4D5F67213F068A005299D3 /* NSWindowCloseButtonInactive.tiff in Resources */,
 				EE4D5F68213F068A005299D3 /* NSWindowCloseButton.tiff in Resources */,
+				EEAC57BA225D20E000AC1881 /* Blow.wav in Resources */,
 				EE4D5F69213F068A005299D3 /* NSWindowMiniaturizeButton.tiff in Resources */,
 				EE4D5F6A213F068A005299D3 /* NSWindowZoomButton.tiff in Resources */,
 				EE4D5F6B213F068A005299D3 /* NSToolbarCustomize.icns in Resources */,
@@ -2092,15 +2141,18 @@
 				EE4D5F6E213F068A005299D3 /* NSToolbarShowFonts.icns in Resources */,
 				EE4D5F6F213F068A005299D3 /* URL.tiff in Resources */,
 				EE4D5F2B213F0676005299D3 /* GSArrowCursor.tiff in Resources */,
+				EEAC57C1225D20E000AC1881 /* Sosumi.wav in Resources */,
 				EE4D5F2C213F0676005299D3 /* GSClosedHandCursor.tiff in Resources */,
 				EE4D5F2D213F0676005299D3 /* GSCopyCursor.tiff in Resources */,
 				EE4D5F2E213F0676005299D3 /* GSCrosshairCursor.tiff in Resources */,
 				EE4D5F2F213F0676005299D3 /* GSDisappearingItemCursor.tiff in Resources */,
 				EE4D5F30213F0676005299D3 /* GSHiddenCursor.tiff in Resources */,
+				EEAC57C0225D20E000AC1881 /* Pop.wav in Resources */,
 				EE4D5F31213F0676005299D3 /* GSIBeamCursor.tiff in Resources */,
 				EE4D5F32213F0676005299D3 /* GSLinkCursor.tiff in Resources */,
 				EE4D5F33213F0676005299D3 /* GSOpenHandCursor.tiff in Resources */,
 				EE4D5F34213F0676005299D3 /* GSPointingHandCursor.tiff in Resources */,
+				EEAC57C2225D20E000AC1881 /* Submarine.wav in Resources */,
 				EE4D5F35213F0676005299D3 /* GSResizeCursor.tiff in Resources */,
 				EE4D5F36213F0676005299D3 /* GSResizeDownCursor.tiff in Resources */,
 				EE4D5F37213F0676005299D3 /* GSResizeRightCursor.tiff in Resources */,
