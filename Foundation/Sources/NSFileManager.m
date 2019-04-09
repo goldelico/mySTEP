@@ -467,6 +467,9 @@ static NSFileManager *__fm = nil;
 #endif
 		return NO;
 		}
+#if 0
+	fprintf(stderr, "fileExistsAtPath %s -> %o\n", [path UTF8String], statbuf.st_mode);
+#endif
 	if (isDirectory)
 		*isDirectory = ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 	return YES;
@@ -792,7 +795,7 @@ static NSFileManager *__fm = nil;
 #endif
 			if(buffer[0] != '/')
 				{ // handle relative links
-				char *dirname=strrchr(cpath, '/');
+				const char *dirname=strrchr(cpath, '/');
 				char *newpath=_autoFreedBufferWithLength(PATH_MAX+1);
 				int dlen;
 				if(!dirname) dirname=cpath-1;	// cpath itself is relative
