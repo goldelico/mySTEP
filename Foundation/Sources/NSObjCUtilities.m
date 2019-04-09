@@ -466,7 +466,7 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 	else
 		{
 		BOOL isDir;
-#if 0
+#if 1	// ignore pwd->pw_dir which usually points to /home/login_name
 		h=[NSString stringWithFormat:@"/Users/%@", login_name];
 #else
 		h=[NSString stringWithUTF8String:pwd->pw_dir];
@@ -709,6 +709,7 @@ NSSelectorFromString(NSString *aSelectorName)
 NSString *
 NSStringFromClass(Class aClass)
 {
+	// FIXME: should check that it is really a class or if someone forgot [obj class]
 	if (aClass)
 		return [NSString stringWithUTF8String:class_getName(aClass)];
 	return nil;
