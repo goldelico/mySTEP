@@ -171,11 +171,15 @@ typedef enum _NSRoundedBezelSegments
 
 @interface NSWorkspace (NSPrivate)
 
-+ (NSArray *) _knownApplications;   // names of known applications
++ (NSArray *) _knownApplications;	// names of known applications
 - (NSDictionary *) _applicationList;	// database of known applications
 - (NSDictionary *) _fileTypeList;		// database of known file types
-+ (NSDictionary *) _standardAboutOptions;   // standard about options of current application ??? move to NSApplication ???
++ (NSDictionary *) _standardAboutOptions;	// standard about options of current application ??? move to NSApplication ???
+
+// should be private methods of NSRunningApplication
 + (NSString *) _activeApplicationPath:(NSString *) path;	// get access to the active applications data base
++ (NSDictionary *) _readActiveApplication:(NSBundle *) bundle;
++ (NSDictionary *) _writeActiveApplication:(NSBundle *) bundle processIdentifier:(pid_t) pid;
 
 @end
 

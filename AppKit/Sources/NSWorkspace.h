@@ -117,7 +117,8 @@ typedef NSUInteger NSWorkspaceIconCreationOptions;
 				  destination:(NSString *) destination
 						files:(NSArray *) files
 						  tag:(NSInteger *) tag;
-- (NSString *) preferredFilenameExtensionForType:(NSString *) type; 
+- (NSString *) preferredFilenameExtensionForType:(NSString *) type;
+- (NSArray *) runningApplications;	// modern interface
 - (BOOL) selectFile:(NSString *) fullPath inFileViewerRootedAtPath:(NSString *) rootFullpath;
 - (BOOL) setIcon:(NSImage *) img forFile:(NSString *) path options:(NSWorkspaceIconCreationOptions) opts; 
 - (void) slideImage:(NSImage *) image

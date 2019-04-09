@@ -127,23 +127,24 @@ static BOOL __fileSystemChanged = NO;
 	if(self)
 		{ // load database (if possible)
 			NSData *data=[NSData dataWithContentsOfFile:APPDATABASE];
-			NSString *error=@"file not found";
+			NSString *error;
 			NSPropertyListFormat format;
-			NSDictionary *defaults=[NSPropertyListSerialization propertyListFromData:data
-																	mutabilityOption:NSPropertyListMutableContainers 
+			NSDictionary *database=[NSPropertyListSerialization propertyListFromData:data
+																	mutabilityOption:NSPropertyListMutableContainers
 																			  format:&format
 																	errorDescription:&error];
 #if 0
-			NSLog(@"LS database=%@", defaults);
+			NSLog(@"LS database (%@)=%@", NSStringFromClass([database class]), database);
 #endif
-			if(data && ![defaults isKindOfClass:[NSMutableDictionary class]])
+			if(!data) error=@"file not found";
+			if(![database respondsToSelector:@selector(setObject:forKey:)])	// is not mutable!
 				NSLog(@"QSLaunchServices did not load %@ due to: %@", APPDATABASE, error);
 			else
 				{
-				QSApplicationIdentsByName = [[defaults objectForKey:@"QSApplicationIdentsByName"] retain];
-				QSApplicationPathsByIdent = [[defaults objectForKey:@"QSApplicationPathsByIdent"] retain];
-				QSApplicationsByExtension = [[defaults objectForKey:@"QSApplicationsByExtension"] retain];
-				QSFilePackageExtensions = [[defaults objectForKey:@"QSFilePackageExtensions"] retain];
+				QSApplicationIdentsByName = [[database objectForKey:@"QSApplicationIdentsByName"] retain];
+				QSApplicationPathsByIdent = [[database objectForKey:@"QSApplicationPathsByIdent"] retain];
+				QSApplicationsByExtension = [[database objectForKey:@"QSApplicationsByExtension"] retain];
+				QSFilePackageExtensions = [[database objectForKey:@"QSFilePackageExtensions"] retain];
 				}
 		}
 	return self;
@@ -254,6 +255,7 @@ static BOOL __fileSystemChanged = NO;
 	NSString *last;
 	//	NSString *ext=[appName pathExtension];
 	NSString *path;
+	NSString *ident;
 	if(!appName)
 		return nil;		// unspecified
 	if([appName isAbsolutePath])
@@ -262,20 +264,23 @@ static BOOL __fileSystemChanged = NO;
 	if(![appName isEqual:last])
 		return nil;		// has path components, i.e. not a plain app name - don't treat as relative name
 	appName=[appName stringByDeletingPathExtension]; // remove extension (if present)
+	ident=[QSApplicationIdentsByName objectForKey:appName];
 #if 0
 	NSLog(@"fullPathForApplication:%@", appName);
 	NSLog(@"QSApplicationIdentsByName:%@", QSApplicationIdentsByName);
+	NSLog(@"ident:%@", ident);
 #endif
 	if(!QSApplicationIdentsByName)
 		{ // first call
 			[self findApplications];	// build database
-			return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
+			return [self absolutePathForAppBundleWithIdentifier:ident];	// try to map name to ident to path
 		}
-	path=[self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
+	path=[self absolutePathForAppBundleWithIdentifier:ident];	// try to map name to ident to path
 	if(!path)
 		{
 #if 1
-		NSLog(@"did not find %@ in database - rebuild database and try again", appName);
+		NSLog(@"did not find %@/%@ in database %@ - rebuild database and try again", appName, ident, path);
+		abort();
 #endif
 		[self findApplications];	// did not find -> rebuild database
 		}
@@ -346,8 +351,9 @@ static BOOL __fileSystemChanged = NO;
 #endif
 		return;	// not an executable at path
 		}
-	appname=[[path lastPathComponent] stringByDeletingPathExtension];	// the bundle name
+	appname=[[path lastPathComponent] stringByDeletingPathExtension];	// the bundle file name
 	// should check if already defined - keep/sort newer one
+	// FIXME: there may be Apps or bundles without identifier!!!
 	ident=[b _bundleIdentifier];
 	[self mapApplicationName:appname toIdent:ident];	// map name to identifier
 	[self mapApplicationIdent:ident toPath:path];		// map identifier to path
@@ -503,12 +509,12 @@ additionalEventParamDescriptor:(id) params
 	NSTask *task;
 	NSDate *date;
 	NSString *executable;
-	NSMutableDictionary *dict;
 	NSString *appname;
 	NSString *appFile;	// active application file
+	NSDictionary *app;	// existing or new contents
+	pid_t pid;
 	NSMutableArray *args;
-	unsigned long psn_low, psn_high;
-	struct timeval tp;
+	// FIXME: encapsulate all this by private class methods of NSRunningApplication
 	//
 	// we keep a record (Plist) for each launched application in /tmp/.QuantumSTEP.apps/<bundleIdentifier>
 	// from that we can properly interlock application launch
@@ -527,17 +533,18 @@ additionalEventParamDescriptor:(id) params
 				return NO;	// is background only
 		}
 	appFile=[NSWorkspace _activeApplicationPath:[b _bundleIdentifier]];
+	app=[NSDictionary dictionaryWithContentsOfFile:appFile];
 	while((options&NSWorkspaceLaunchNewInstance) == 0)
-		{ // try to contact existing application - and launch exactly once
+		{ // try to contact existing application - and launch exactly once unless forced to launch a new instance
 			int fd;
+			// FIXME: this creates an empty file which exists until it is really filled by the launched application
 			if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
 				{ // We are not the first to write the file. This means someone else is launching or has launched the same application
-					NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
-					pid_t pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
-					if(pid)
-						{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
+					pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
+					if(pid > 0)
+						{ // if file is non-empty and defines a pid: process is up and running (DO port is initialized)
 #if 1
-							NSLog(@"App is already running with pid=%d", pid);
+							NSLog(@"%@ is already running with pid=%d", appFile, pid);
 							// should bring it to front???
 #endif
 							if([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]])
@@ -567,6 +574,9 @@ additionalEventParamDescriptor:(id) params
 #if 1
 									NSLog(@"connection to application=%@", a);
 #endif
+									// we should better be able to distinguis between not running and not launched or running but not responding...
+									if(!a)
+										NS_VALUERETURN(YES, BOOL);	// we either have no delegate or can't eonnect - but we know it is running
 									[[a retain] autorelease];	// FIXME: do we really need that???
 									// if we are sending to ourselves, a is the delegate - and should respond to this method!
 									r=[a _application:a openURLs:params withOptions:options];
@@ -604,6 +614,7 @@ additionalEventParamDescriptor:(id) params
 						}
 					else
 						{ // App is not (yet) up and running
+						  // check if record is stale and then wait for the process
 #if 1
 							NSLog(@"app not yet started (or crashed before launching)");
 #endif
@@ -617,28 +628,26 @@ additionalEventParamDescriptor:(id) params
 						}
 				}
 			else
+				{
+				// appFile has been newly created
+				app=[NSWorkspace _writeActiveApplication:b processIdentifier:0];	// we do not yet know the pid
 				close(fd);	// don't leak file handle of the newly created file
+				}
 		}
 	executable=[b executablePath];	// get executable within bundle
 	if(!executable)
 		return NO;	// we have no executable to launch
-	gettimeofday(&tp, NULL);	// the unique PSNs are assigned here and passed to the app by -psn_%lu_%lu
-	psn_high=tp.tv_sec;
-	psn_low=tp.tv_usec;
-	dict=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-		  [b bundlePath], NSApplicationPath,
-		  [[[b bundlePath] lastPathComponent] stringByDeletingPathExtension], NSApplicationName,
-		  [b _bundleIdentifier], NSApplicationBundleIdentifier,
-		  [NSNumber numberWithInt:0], NSApplicationProcessIdentifier,	// we don't know yet
-		  [NSNumber numberWithUnsignedLong:psn_high], @"NSApplicationProcessSerialNumberHigh",
-		  [NSNumber numberWithUnsignedLong:psn_low], @"NSApplicationProcessSerialNumberLow",
-		  nil];
+#if 1
+	NSLog(@"willLaunchApplication: %@", app);
+#endif
 	[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
 																	  object:self
-																	userInfo:dict];
+																	userInfo:app];
 	args=[NSMutableArray arrayWithCapacity:[params count]+6];
 	NS_DURING   // shield caller from exceptions
-	[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", psn_high, psn_low]];
+	[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu",
+						[[app objectForKey:@"NSApplicationProcessSerialNumberHigh"] unsignedLongValue],
+						[[app objectForKey:@"NSApplicationProcessSerialNumberLow"] unsignedLongValue]]];
 	if(params)
 		{ // convert URLs to command line arguments
 			NSEnumerator *e=[params objectEnumerator];
@@ -688,26 +697,42 @@ additionalEventParamDescriptor:(id) params
 		return NO;  // did not launch - e.g. bad executable
 	NS_ENDHANDLER
 	if(!(options&NSWorkspaceLaunchAsync))
-		{ // synchronously, i.e. wait until launched
-			pid_t pid;
+		{ // synchronously, i.e. wait until application reports it has launched
+			BOOL running;
 			while(YES)
 				{
-				// FIXME: timeout? i.e. if App never launches
-				NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
+				// FIXME: timeout? i.e. if App never reaches "finishedLaunching"?
+				app=[NSDictionary dictionaryWithContentsOfFile:appFile];
 				pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
 				if(pid > 0)
-					break;	// wait until app appears to have launched
+					{ // has been written by this or a previous app
+					NSString *path;
+					path=[NSString stringWithFormat:@"/proc/%d", pid];
 #if 1
-				NSLog(@"Wait until launched.");
+					NSLog(@"check if exists %@", path);
 #endif
+					running=[[NSFileManager defaultManager] fileExistsAtPath:path];	// Linux process still exists (assuming that it is very unlikely that the pid is reused by some other process)
+					if(!running)
+						{
+#if 1
+						NSLog(@"stale app info? %@: %@", appFile, app);
+#endif
+						abort();
+						return NO;	// seem to be a stale app record or process crashed
+						}
+					break;	// has finishedLaunching - because it did write the appFile
+					}
+#if 1
+				NSLog(@"Wait until launched %@", appFile);
+#endif
+				// check psn for timeout, e.g. 30 seconds
 				date=[NSDate dateWithTimeIntervalSinceNow:0.5];	// delay a little
 				[[NSRunLoop currentRunLoop] runUntilDate:date];
 				}
 			// should be a distributed notification sent by launched application!
-			[dict setObject:[NSNumber numberWithInt:pid] forKey:NSApplicationProcessIdentifier];
 			[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
 																			  object:self
-																			userInfo:dict];
+																			userInfo:app];
 		}
 	return YES;
 }
@@ -927,18 +952,6 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 - (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
 							   options:(NSWorkspaceLaunchOptions) options
 		additionalEventParamDescriptor:(id) params
-					  launchIdentifier:(NSNumber **) identifiers;
-{ // launch application (without files)
-	return [self launchAppWithBundleIdentifier:identOrApp
-									   options:options
-				additionalEventParamDescriptor:params
-							  launchIdentifier:identifiers
-										asUser:nil];
-}
-
-- (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
-							   options:(NSWorkspaceLaunchOptions) options
-		additionalEventParamDescriptor:(id) params
 					  launchIdentifier:(NSNumber **) identifiers
 								asUser:(NSString *) userName;
 { // launch application (without files)
@@ -973,6 +986,18 @@ inFileViewerRootedAtPath:(NSString *) rootFullpath
 			return YES;
 		}
 	return NO;
+}
+
+- (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
+							   options:(NSWorkspaceLaunchOptions) options
+		additionalEventParamDescriptor:(id) params
+					  launchIdentifier:(NSNumber **) identifiers;
+{ // launch application (without files)
+	return [self launchAppWithBundleIdentifier:identOrApp
+									   options:options
+				additionalEventParamDescriptor:params
+							  launchIdentifier:identifiers
+										asUser:nil];
 }
 
 // internal for workspace file operations
@@ -1463,6 +1488,12 @@ static NSArray *prevList;
 	return hasChanged;
 }
 
+// should be class methods of NSRunningApplication
+// one of them can be active
+
+// rename activeApplication to runningApplication
+// @"active" is just a special case
+
 + (NSString *) _activeApplicationPath:(NSString *) path;	// get access to the active applications data base
 {
 	static NSString *lsdatabase;
@@ -1472,30 +1503,118 @@ static NSArray *prevList;
 	return lsdatabase;
 }
 
++ (NSDictionary *) _readActiveApplication:(NSBundle *) bundle;
+{
+	NSMutableDictionary *app=nil;
+	NSString *ident=[bundle _bundleIdentifier];	// may be missing
+	NSString *file=[NSWorkspace _activeApplicationPath:ident];
+	NS_DURING
+		app=[NSMutableDictionary dictionaryWithContentsOfFile:file];
+	NS_HANDLER
+		; // ignore exceptions while reading a badly formatted plist
+	NS_ENDHANDLER
+	return app;
+}
+
++ (NSDictionary *) _writeActiveApplication:(NSBundle *) bundle processIdentifier:(pid_t) pid;
+{
+	NSString *ident=[bundle _bundleIdentifier];	// may be missing
+	NSString *file=[NSWorkspace _activeApplicationPath:ident];
+	NSString *error;
+	NSError *err;
+	NSMutableDictionary *plist;
+	NSData *data;
+	// FIXME: this does not work properly and prevents applications not running as root
+	NSDictionary *attribs=[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithShort:0777], NSFilePosixPermissions, nil];
+#if 1
+	NSLog(@"creating directory %@", [NSWorkspace _activeApplicationPath:nil]);
+#endif
+	if(![[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] withIntermediateDirectories:YES attributes:attribs error:&err])
+		NSLog(@"createDirectoryAtPath: %@ reports %@", [NSWorkspace _activeApplicationPath:nil], err);
+#if 1
+	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
+#endif
+	plist=[NSMutableDictionary dictionaryWithContentsOfFile:file];
+	if([plist count] == 0)	// should we do other checks? E.g. if NSApplicationName/NSApplicationPath exists?
+		{ // new record
+			NSString *path=[bundle bundlePath];
+			unsigned long psn_low, psn_high;
+			struct timeval tp;
+			gettimeofday(&tp, NULL);	// the unique PSNs are assigned here and passed to the app by -psn_%lu_%lu
+			psn_high=tp.tv_sec;
+			psn_low=tp.tv_usec;
+			plist=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+				   [NSNumber numberWithUnsignedLong:psn_high], @"NSApplicationProcessSerialNumberHigh",
+				   [NSNumber numberWithUnsignedLong:psn_low], @"NSApplicationProcessSerialNumberLow",
+				   path, NSApplicationPath,
+				   [[path lastPathComponent] stringByDeletingPathExtension], NSApplicationName,
+				   ident, NSApplicationBundleIdentifier,	// may be nil
+				   nil];
+		}
+	[plist setObject:[NSNumber numberWithInt:pid] forKey:NSApplicationProcessIdentifier];
+	data=[NSPropertyListSerialization dataFromPropertyList:plist
+												format:NSPropertyListXMLFormat_v1_0
+									  errorDescription:&error];
+	if(![data writeToFile:file atomically:YES])	// let the world know that I am launching
+		NSLog(@"could not write %@", [NSWorkspace _activeApplicationPath:ident]);
+	return plist;
+}
+
+- (NSArray *) runningApplications;	// modern interface
+{
+	// return [NSRunningApplications _runningApplications];
+	// launchedApplications daraus ableiten...
+	return NIMP;
+}
+
 - (NSArray *) launchedApplications;
 {	// get list of launched applications from file system, i.e. a Plist for each app in /tmp/.QuantumSTEP - here we don't check if the app is still alive!
+	NSFileManager *fm=[NSFileManager defaultManager];
 	NSString *lsdatabase=[NSWorkspace _activeApplicationPath:nil];
 	NSEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:lsdatabase];
 	NSString *path;
 	NSMutableArray *list=[NSMutableArray arrayWithCapacity:10];
+	pid_t pid;
+	BOOL running;
 	while((path=[e nextObject]))
 		{
-		NSDictionary *app;
+		NSDictionary *app=nil;
 		if([path hasPrefix:@"."])
 			continue;	// skip
 		if([path isEqualToString:@"active"])
 			continue;	// skip active application
 		path=[lsdatabase stringByAppendingPathComponent:path];	// get full path
 		NS_DURING
+			// could read file owner id and filter "our" processes
 			app=[NSDictionary dictionaryWithContentsOfFile:path];
-#if 0
-		NSLog(@"+ %@ -> %@", path, app);
-#endif
-			if([app count] == 6)	// appears to be complete (ignored otherwise)
-				[list addObject:app];
 		NS_HANDLER
-			; // ignore exceptions
+			; // ignore exceptions while reading the plist
 		NS_ENDHANDLER
+		pid=[[app objectForKey:NSApplicationProcessIdentifier] intValue];
+		running=pid > 0 && [fm fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]];	// Linux process still exists (assuming that it is very unlikely that the pid is reused by some other process)
+		if(!running)
+			{ // crashed - remove from active apps list
+#if 1
+				NSLog(@"crashed %@", app);
+#endif
+				// FIXME: is this a potential problem if someone writes an entry into /tmp/.QS.apps with a name different to the NSApplicationBundleIdentifier?
+				// FIXME: can we check that the name matches the bundle identifier in NSWorkspace?
+				// FIXME: what happens if someone uses a ../ in the bundle identifier??? Can this be misused to remove any file?
+				// FIXME: there may be applications without a bundle identifier!
+				// should be made more encapsulated by NSRunningApplication class
+				NSString *file=[NSWorkspace _activeApplicationPath:[app objectForKey:NSApplicationBundleIdentifier]];
+#if 1
+				NSLog(@"clean up %@", file);
+#endif
+				[fm removeFileAtPath:file handler:nil];	// clean up
+			}
+		else if([app count] > 0)
+			NSLog(@"app has not reached finishLaunching state: %@", path);
+#if 0
+		else
+			NSLog(@"+ %@ -> %@", path, app);
+#endif
+		[list addObject:app];
 		}
 #if 0
 	NSLog(@"launchedApplications=%@", list);
@@ -1506,6 +1625,93 @@ static NSArray *prevList;
 - (NSDictionary *) activeApplication;
 {
 	return [NSDictionary dictionaryWithContentsOfFile:[NSWorkspace _activeApplicationPath:@"active"]];	// get description of active application
+}
+
+// well there should not be two apps which try to keep the same subprocess running...
+// note: this mechanism can be fooled by removing the_activeApplicationPath file - it will launch a new instance
+
+static NSMutableArray *keepRunning;	// list of application names that should be kept running
+
++ (NSArray *) _keepRunningApplications; { return keepRunning; }
+
+- (void) _keepApplicationsRunning;
+{
+	NSFileManager *fm=[NSFileManager defaultManager];
+	NSNumber *active=[[self activeApplication] objectForKey:@"NSApplicationProcessIdentifier"];
+	NSMutableArray *relaunch=[keepRunning mutableCopy];	// the way we remove only apps known to be still running will also relaunch applications that are -terminated regularily
+	NSArray *launched=[self launchedApplications];
+	NSEnumerator *e=[launched objectEnumerator];
+	NSString *path;
+	NSDictionary *dict;
+#if 0
+	NSLog(@"launched apps = %@", launched);
+#endif
+	// FIXME: does not properly handle apps that have not yet finishedLaunching
+	while((dict=[e nextObject]))
+		{ // is running, remove from relaunch list
+			path=[dict objectForKey:NSApplicationPath];
+			if(path)
+				{
+#if 1
+				NSLog(@"remove from relaunch: %@", path);
+#endif
+				[relaunch removeObject:path];
+				}
+		}
+	if([relaunch count] > 0)
+		{ // relaunch all apps that should be kept running but were not found to be launched
+#if 1
+			NSLog(@"relaunch %@", relaunch);
+#endif
+			e=[relaunch objectEnumerator];
+			while((path=[e nextObject]))
+				{
+				path=[self fullPathForApplication:path];
+				if(!path)
+					{
+#if 1
+					NSLog(@"failed to find %@", path);
+#endif
+					[keepRunning removeObject:path];	// can't relaunch
+					continue;	// unknown application
+					}
+				// FIXME: this also returns NO if the App is already running but does not respond to DO
+				if(![[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier:path
+																		 options:0	// don't launch async
+												  additionalEventParamDescriptor:nil
+																launchIdentifier:NULL])	// relaunch
+					{
+					NSLog(@"failed to (re)launch %@", path);
+					// should try several times before doing so
+					[keepRunning removeObject:path];	// can't relaunch so don't try again
+					}
+				}
+		}
+	[relaunch release];
+	if([keepRunning count] > 0)
+		[self performSelector:_cmd withObject:nil afterDelay:2.0];
+}
+
+// FIXME: pass appname or bundle path?
+// FIXME: avoid duplicates
+
+- (void) _keepRunning:(NSString *) path;
+{ // keep these apps running until user logs out
+	if(!keepRunning)
+		keepRunning=[NSMutableArray new];
+	[keepRunning addObject:path];
+#if 1
+	NSLog(@"keepRunning: %@", keepRunning);
+#endif
+	// we could also stop any performer and always run immediately
+	if([keepRunning count] == 1)
+		[self _keepApplicationsRunning];	// launch timer on first start
+}
+
+- (void) _stopKeepRunning:(NSString *) path;
+{
+	[keepRunning removeObject:path];
+	// should we terminate?
 }
 
 - (void) hideOtherApplications;
@@ -1560,12 +1766,7 @@ static NSArray *prevList;
 	id o;
 	// FIXME: localization!
 	[d setObject:[[[NSAttributedString alloc] initWithString:@""] autorelease] forKey:@"Credits"];	// should look for localized (!) ressource file Credits.rtf and load as NSAttributedString
-	o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-	if(!o)
-		o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	if(!o)
-		o=[[[[NSBundle mainBundle] bundlePath] lastPathComponent] stringByDeletingPathExtension];
-	o=NSLocalizedString(o, @"Application Name");	// try to translate
+	o=[[NSBundle mainBundle] _localizedBundleName];
 	[d setObject:o forKey:@"ApplicationName"];
 	if((o=[NSImage imageNamed:NSApplicationIcon]))
 		[d setObject:o forKey:@"ApplicationIcon"];

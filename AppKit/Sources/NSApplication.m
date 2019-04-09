@@ -347,13 +347,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) finishLaunching
 {
-	NSBundle *b=[NSBundle mainBundle];
-	NSDictionary *infoDict = [b infoDictionary];
-	// FIXME: or do we use [[[bundle path] lastPathComponent] stringByDeletingPythExtension] ?
-	NSString *name=[b objectForInfoDictionaryKey:@"CFBundleName"];	// may be missing!
-	NSString *ident=[b _bundleIdentifier];
-	NSString *error;
-	NSDictionary *plist;
 #if 1
 	NSLog(@"willFinishLaunching");
 #endif
@@ -364,28 +357,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"App Icon = %@", _appIcon);
 #endif
-#if 1
-	NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
-#endif
-	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
-#if 1
-	NSLog(@"writing %@ %@", [NSWorkspace _activeApplicationPath:ident], ident);
-#endif
-	plist=[NSDictionary dictionaryWithObjectsAndKeys:
-				 [NSNumber numberWithInt:getpid()], NSApplicationProcessIdentifier,
-				 [NSNumber numberWithInteger:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
-				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
-				 [[NSBundle mainBundle] bundlePath], NSApplicationPath,
-				 ident, NSApplicationBundleIdentifier,
-				 name, NSApplicationName,
-				 nil];
-	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
-												contents:[NSPropertyListSerialization dataFromPropertyList:plist
-																									format:NSPropertyListXMLFormat_v1_0
-																						  errorDescription:&error]
-											  attributes:nil])	// let the world know that I am launching
-		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
-
+	[NSWorkspace _writeActiveApplication:[NSBundle mainBundle] processIdentifier:getpid()];
 	[self activateIgnoringOtherApps:NO];
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
 																					// FIXME: open any files specified by the NSOpen user default (!) according to description
@@ -1626,14 +1598,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	// and should we setAttributedTitle?
 	if([[[aMenu itemAtIndex:0] title] length] == 0)
 		{ // application menu title is empty - substitute from bundle
-			NSString *applicationName;
-			// FIXME: localized version!!!
-			applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-			if(!applicationName)
-				applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-			if(!applicationName)
-				applicationName=[[NSProcessInfo processInfo] processName];	// replacement (is the name of the executable...)
-			applicationName=NSLocalizedString(applicationName, @"Application Name");	// try to translate
+			NSString *applicationName=[[NSBundle mainBundle] _localizedBundleName];
 			if(applicationName)
 				[[aMenu itemAtIndex:0] setTitle:applicationName];	// insert application name
 		}
