@@ -45,15 +45,16 @@ int NSApplicationMain(int argc, const char **argv)
 {
 	id pool=[NSAutoreleasePool new];	// initial ARP
 	NSBundle *b;
+	NSString *ident;
 	NSString *mainModelFile;
 	NSApplication *app=[NSApplication sharedApplication];	// initialize application
 #if 1
 	NSLog(@"NSApplicationMain\n");
 #endif
-	b = [NSBundle mainBundle];
+	b=[NSBundle mainBundle];
 	mainModelFile = [b objectForInfoDictionaryKey:@"NSMainNibFile"];
 #if 1
-	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b objectForInfoDictionaryKey:@"CFBundleName"], mainModelFile, [b _bundleIdentifier]);
+	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b _localizedBundleName], mainModelFile, ident);
 #endif
 
 	if([[b objectForInfoDictionaryKey:@"LSGetAppDiedEvents"] boolValue])
