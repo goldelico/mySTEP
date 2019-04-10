@@ -68,6 +68,7 @@
 	NSMutableDictionary *QSApplicationPathsByIdent;		// array of bundle paths for application identifier
 	NSMutableDictionary *QSApplicationsByExtension;		// record list by extension
 	NSMutableDictionary *QSFilePackageExtensions;		// extensions for file bundles
+	NSMutableArray *keepRunning;		// list of bundle paths that should be kept running
 }
 
 // .ext -> list of idents sorted by preferred app first
@@ -496,6 +497,67 @@ static BOOL __fileSystemChanged = NO;
 - (NSDictionary *) fileTypeList; { if(!QSApplicationsByExtension) [self findApplications]; return QSApplicationsByExtension; }
 - (NSArray *) knownApplications; { if(!QSApplicationIdentsByName) [self findApplications]; return [QSApplicationIdentsByName allKeys]; }
 
+// well there should not be two apps which try to keep the same subprocess running...
+// note: this mechanism can be fooled by removing the_activeApplicationPath file - it will launch a new instance
+
+- (void) _keepApplicationsRunning;
+{
+	NSFileManager *fm=[NSFileManager defaultManager];
+	NSMutableArray *relaunch=[keepRunning mutableCopy];	// the way we remove only apps known to be still running will also relaunch applications that are -terminated regularily
+	NSArray *launched=[[NSWorkspace sharedWorkspace] launchedApplications];
+	NSEnumerator *e=[launched objectEnumerator];
+	NSString *path;
+	NSDictionary *dict;
+#if 0
+	NSLog(@"launched apps = %@", launched);
+#endif
+	// FIXME: does not properly handle apps that have not yet finishedLaunching
+	while((dict=[e nextObject]))
+		{ // is running, remove from relaunch list
+			path=[dict objectForKey:NSApplicationPath];
+			if(path)
+				{
+#if 1
+				NSLog(@"remove from relaunch: %@", path);
+#endif
+				[relaunch removeObject:path];
+				}
+		}
+	if([relaunch count] > 0)
+		{ // relaunch all apps that should be kept running but were not found to be launched
+#if 1
+			NSLog(@"relaunch %@", relaunch);
+#endif
+			e=[relaunch objectEnumerator];
+			while((path=[e nextObject]))
+				{
+				path=[self fullPathForApplication:path];
+				if(!path)
+					{
+#if 1
+					NSLog(@"failed to find %@", path);
+#endif
+					[keepRunning removeObject:path];	// can't relaunch
+					continue;	// unknown application
+					}
+				// FIXME: this also returns NO if the App is already running but does not respond to DO
+				// FIXME: should use our launchAppWithBundle method...
+				if(![[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier:path
+												options:0	// don't launch async
+						 additionalEventParamDescriptor:nil
+									   launchIdentifier:NULL])	// relaunch
+					{
+					NSLog(@"failed to (re)launch %@", path);
+					// should try several times before doing so
+					[keepRunning removeObject:path];	// can't relaunch so don't try again
+					}
+				}
+		}
+	[relaunch release];
+	if([keepRunning count] > 0)
+		[self performSelector:_cmd withObject:nil afterDelay:2.0];
+}
+
 // this is the core application launcher method
 
 // FIXME: how are arguments/URLs from openURL really passed here (if we launch/send openApp event through DO)?
@@ -735,7 +797,16 @@ additionalEventParamDescriptor:(id) params
 																			userInfo:app];
 		}
 	if(options&NSWorkspaceLaunchAutoRelaunch)
-		; // add to keeprunning
+		{ // keep this apps running until user logs out
+			if(!keepRunning)
+				keepRunning=[NSMutableArray new];
+			[keepRunning addObject:[b bundlePath]];	// store path
+#if 1
+			NSLog(@"keepRunning: %@", keepRunning);
+#endif
+			if([keepRunning count] == 1)
+				[self performSelector:@selector(_keepApplicationsRunning) withObject:nil afterDelay:2.0];	// launch timer on first start
+		}
 	return YES;
 }
 
@@ -1627,94 +1698,6 @@ static NSArray *prevList;
 - (NSDictionary *) activeApplication;
 {
 	return [NSDictionary dictionaryWithContentsOfFile:[NSWorkspace _activeApplicationPath:@"active"]];	// get description of active application
-}
-
-// well there should not be two apps which try to keep the same subprocess running...
-// note: this mechanism can be fooled by removing the_activeApplicationPath file - it will launch a new instance
-
-static NSMutableArray *keepRunning;	// list of application names that should be kept running
-
-+ (NSArray *) _keepRunningApplications; { return keepRunning; }
-
-- (void) _keepApplicationsRunning;
-{
-	NSFileManager *fm=[NSFileManager defaultManager];
-	NSNumber *active=[[self activeApplication] objectForKey:@"NSApplicationProcessIdentifier"];
-	NSMutableArray *relaunch=[keepRunning mutableCopy];	// the way we remove only apps known to be still running will also relaunch applications that are -terminated regularily
-	NSArray *launched=[self launchedApplications];
-	NSEnumerator *e=[launched objectEnumerator];
-	NSString *path;
-	NSDictionary *dict;
-#if 0
-	NSLog(@"launched apps = %@", launched);
-#endif
-	// FIXME: does not properly handle apps that have not yet finishedLaunching
-	while((dict=[e nextObject]))
-		{ // is running, remove from relaunch list
-			path=[dict objectForKey:NSApplicationPath];
-			if(path)
-				{
-#if 1
-				NSLog(@"remove from relaunch: %@", path);
-#endif
-				[relaunch removeObject:path];
-				}
-		}
-	if([relaunch count] > 0)
-		{ // relaunch all apps that should be kept running but were not found to be launched
-#if 1
-			NSLog(@"relaunch %@", relaunch);
-#endif
-			e=[relaunch objectEnumerator];
-			while((path=[e nextObject]))
-				{
-				path=[self fullPathForApplication:path];
-				if(!path)
-					{
-#if 1
-					NSLog(@"failed to find %@", path);
-#endif
-					[keepRunning removeObject:path];	// can't relaunch
-					continue;	// unknown application
-					}
-				// FIXME: this also returns NO if the App is already running but does not respond to DO
-				if(![[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier:path
-																		 options:0	// don't launch async
-												  additionalEventParamDescriptor:nil
-																launchIdentifier:NULL])	// relaunch
-					{
-					NSLog(@"failed to (re)launch %@", path);
-					// should try several times before doing so
-					[keepRunning removeObject:path];	// can't relaunch so don't try again
-					}
-				}
-		}
-	[relaunch release];
-	if([keepRunning count] > 0)
-		[self performSelector:_cmd withObject:nil afterDelay:2.0];
-}
-
-// FIXME: pass appname or bundle path?
-// FIXME: avoid duplicates
-// FIXME: don't call externally but add a private launch option
-
-- (void) _keepRunning:(NSString *) path;
-{ // keep these apps running until user logs out
-	if(!keepRunning)
-		keepRunning=[NSMutableArray new];
-	[keepRunning addObject:path];
-#if 1
-	NSLog(@"keepRunning: %@", keepRunning);
-#endif
-	// we could also stop any performer and always run immediately
-	if([keepRunning count] == 1)
-		[self _keepApplicationsRunning];	// launch timer on first start
-}
-
-- (void) _stopKeepRunning:(NSString *) path;
-{
-	[keepRunning removeObject:path];
-	// should we terminate?
 }
 
 - (void) hideOtherApplications;

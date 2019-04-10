@@ -43,8 +43,8 @@ enum {
 	NSWorkspaceLaunchNewInstance=0x0080,
 	NSWorkspaceLaunchAndHide=0x0100,
 	NSWorkspaceLaunchAndHideOthers=0x0200,
-	NSWorkspaceLaunchDefault=NSWorkspaceLaunchAsync | NSWorkspaceLaunchAllowingClassicStartup
-	NSWorkspaceLaunchAutoRelaunch=0x0400,	// private extension
+	NSWorkspaceLaunchDefault=NSWorkspaceLaunchAsync | NSWorkspaceLaunchAllowingClassicStartup,
+	NSWorkspaceLaunchAutoRelaunch=0x0400	// private extension
 };
 
 enum {
