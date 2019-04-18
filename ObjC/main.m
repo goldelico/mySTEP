@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 	while(argv[1] && (!interpret || !result))
 		{ // get file arguments to process
 		char first[512];
-		int l;
+		ssize_t l;
 		Node *n=nil;
 		NSString *object=nil;
 		NSFileManager *fm=[NSFileManager defaultManager];
