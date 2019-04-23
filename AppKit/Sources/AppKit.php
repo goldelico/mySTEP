@@ -722,6 +722,14 @@ class NSControl extends NSView
 		$this->action=$action;
 		$this->target=$target;
 		}
+	public function setAction($action)
+		{
+		$this->action=$action;
+		}
+	public function setTarget(NSObject $target)
+		{
+		$this->target=$target;
+		}
 	public function action() { return $this->action; }
 	public function target() { return $this->target; }
 	public function setTag($val) { $this->tag=$val; }
@@ -880,7 +888,10 @@ class NSButton extends NSControl
 		}
 	public function draw()
 		{
-		html("<input");
+		if($this->buttonType == "Link")
+			html("<a");
+		else
+			html("<input");
 		parameter("id", $this->elementId);
 // FIXME: if default button (shortcut "\r"): invert the selected state
 		if($this->keyEquivalent == "\r")
@@ -920,6 +931,9 @@ class NSButton extends NSControl
 					if(!is_null($this->target))
 						parameter("onchange", $onclick);
 					break;
+				case "Link":
+					parameter("href", $this->action);
+					break;
 				default:
 					parameter("type", "submit");
 					parameter("value", _htmlentities($this->title));
@@ -952,7 +966,9 @@ class NSButton extends NSControl
 			{
 			case "CheckBox":
 			case "Radio":
+			case "Link":
 				html(_htmlentities($this->title));
+				html("</a>");
 				break;
 			}
 		html("\n");
