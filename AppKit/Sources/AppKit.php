@@ -1467,9 +1467,10 @@ class NSImageView extends NSControl
 
 class NSCollectionView extends NSControl
 {
-	protected $columns=1;
+	protected $columns=1;	// 0 = horizontal without spacing, <0 = horizontal with spacing
 	protected $border=0;
 	protected $width="100%";
+
 // control alignment of elements, e.g. left, centered, right
 
 	public function content() { return $this->subviews(); }
@@ -1535,7 +1536,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		$col=1;
 		foreach($this->subviews as $item)
 			{
-			if($this->columns == 0)
+			if($this->columns <= 0)
 				{
 				html("<span");
 				parameter("class", "NSCollectionView");
@@ -1545,6 +1546,8 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				html(">\n");
 				$item->display();
 				html("</span>");
+				if($this->columns < 0)
+					html(" ");	// separate by spaces
 				continue;
 				}
 			if($col == 1)
@@ -1563,7 +1566,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				$col=1;
 				}
 			}
-		if($this->columns == 0)
+		if($this->columns <= 0)
 			return;
 		if($col > 1)
 			{ // handle missing colums
