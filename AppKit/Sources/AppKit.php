@@ -1482,14 +1482,32 @@ class NSImageView extends NSControl
 		}
 }
 
+define('NSTextAlignmentLeft', 0);
+define('NSTextAlignmentCenter', 1);
+define('NSTextAlignmentRight', 2);
+define('NSTextAlignmentJustified', 3);
+
+define('NSVerticalTextAlignmentTop', 0);
+define('NSVerticalTextAlignmentMiddle', 1);
+define('NSVerticalTextAlignmentBottom', 2);
+
 class NSCollectionView extends NSControl
 {
 	protected $columns=1;	// 0 = horizontal without spacing, <0 = horizontal with spacing
 	protected $border=0;
 	protected $width="100%";
+	protected $alignment=NSTextAlignmentLeft;
+	protected $verticalAlignment=NSVerticalTextAlignmentTop;
+	protected $columnWidths;	// array...
 
-// control alignment of elements, e.g. left, centered, right
-
+	public function __construct($cols=0, $objects=null)
+		{
+		parent::__construct();
+		$this->columnWidths=array();
+		$this->columns=$cols;
+		if($objects)
+_NSLog("NSCollectionView with 2 parameters is deprecated");
+		}
 	public function content() { return $this->subviews(); }
 	public function setContent($items)
 		{
@@ -1509,6 +1527,12 @@ class NSCollectionView extends NSControl
 		$this->border=$border;
 		$this->setNeedsDisplay();
 		}
+	public function setVerticalAlignment($align)
+		{
+		if($this->verticalAlignment == $align) return;
+		$this->verticalAlignment=$align;
+		$this->setNeedsDisplay();
+		}
 	public function setColumns($columns)
 		{
 		$columns=0+$columns;
@@ -1516,17 +1540,15 @@ class NSCollectionView extends NSControl
 		$this->columns=$columns;
 		$this->setNeedsDisplay();
 		}
-
-// allow to define colspan and rowspan objects
-// allow to modify alignment
-
-	public function __construct($cols=0, $objects=null)
+	public function setColumnWidth($column, $width="50%")
 		{
-		parent::__construct();
-		$this->columns=$cols;
-		if($objects)
-_NSLog("NSCollectionView with 2 parameters is deprecated");
+		$column=0+$column;
+		if(isset($this->columnWidths[$column]) && $this->columnWidths[$column]==$width) return;
+		$this->columnWidths[$column]=$width;
+		$this->setNeedsDisplay();
 		}
+// control alignment of column, e.g. left, centered, right
+// allow to define colspan and rowspan
 	public function _setElementId($id)
 		{ // special because we must make the subelements unique as well
 		parent::_setElementId($id);
@@ -1571,8 +1593,20 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				html("<tr>");
 			html("<td");
 			parameter("class", "NSCollectionViewItem");
-			if($this->align)
-				parameter("align", $this->align);
+			switch($this->alignment)
+				{
+				case NSTextAlignmentLeft: parameter("align", "left"); break;
+				case NSTextAlignmentCenter: parameter("align", "center"); break;
+				case NSTextAlignmentRight: parameter("align", "right"); break;
+				}
+			switch($this->verticalAlignment)
+				{
+				case NSVerticalTextAlignmentTop: parameter("valign", "top"); break;
+				case NSVerticalTextAlignmentMiddle: parameter("valign", "middle"); break;
+				case NSVerticalTextAlignmentBottom: parameter("valign", "bottom"); break;
+				}
+			if(isset($this->columnWidths[$col]))
+				parameter("width", $this->columnWidths[$col]);	// user defined width
 			html(">\n");
 			$item->display();
 			html("</td>");
@@ -2354,6 +2388,7 @@ class NSTextField extends NSControl
 	protected $textColor;
 	protected $wraps=false;
 	protected $name;	// name of this <input>
+	protected $font;
 	public function stringValue() { return $this->stringValue; }
 	public function attributedStringValue() { return $this->htmlValue; }
 	public function setStringValue($str)
@@ -2398,6 +2433,13 @@ if($name)
 		$this->backgroundColor=$color;
 		$this->setNeedsDisplay();
 		}
+	public function font() { return $this->font; }
+	public function setFont(NSFont $font)
+		{
+		if($font === $this->font) return;
+		$this->font=$font;
+		$this->setNeedsDisplay();
+		}
 	public function __construct($width=30, $default="", $name = null)
 		{
 if($default)
@@ -2432,6 +2474,12 @@ if($name)
 		}
 	public function draw()
 		{
+		if(!is_null($this->font))
+			{
+			html("<span");
+			parameter("style", "font-family:".$this->font->name()."; font-size:".$this->font->size());
+			html(">");
+			}
 		if($this->isEditable)
 			{
 			html("<input");
@@ -2475,6 +2523,8 @@ if($name)
 			if($this->backgroundColor)
 				html("</span>");
 			}
+		if(!is_null($this->font))
+			html("</span>");
 		}
 	public function displayDone()
 		{
