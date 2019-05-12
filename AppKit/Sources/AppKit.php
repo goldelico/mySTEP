@@ -532,6 +532,23 @@ class NSColor extends NSObject
 		}
 	}
 
+class NSFont extends NSObject
+	{
+	protected $name;	// CSS allows a list with comma separated font names
+	protected $size;	// size can have px or pt or mm or other suffixes
+	protected $style;
+	public function name() { return $this->name; }
+	public function setName($name) { $this->name=$name; }
+	public function size() { return $this->size; }
+	public function setSize($size) { $this->size=$size; }
+	public function __construct($name, $size)
+		{
+		parent::__construct();
+		$this->name=$name;
+		$this->size=$size;
+		}
+	}
+
 class NSCell extends NSObject
 	{
 	protected $controlView;
