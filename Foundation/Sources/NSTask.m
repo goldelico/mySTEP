@@ -114,6 +114,7 @@ static NSString *NSTask_DidSignal_Notification = @"NSTask_DidSignal_Notification
 	__notifyTaskDidTerminate=YES;
 	__notificationQueue = [NSNotificationQueue defaultQueue];
 	(void)signal(SIGCHLD, _catchChildExit);				// set sig handler to catch child exit
+	(void)signal(SIGTTOU, SIG_IGN);
 #if 0
 	fprintf(stderr, "NSTask: _catchChildExit installed\n");
 	fprintf(stderr, "NSTask: __didReceiveSignal = %s\n", [[__didReceiveSignal description] UTF8String]);
