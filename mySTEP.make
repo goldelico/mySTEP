@@ -875,6 +875,27 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
 
+# filter "release:package" and "package [architecture..]"
+
+F = filter_dependencies() \
+{ \
+	tr ',' '\n' | \
+	( \
+	SEP="$$1"; \
+	while read LINE; \
+	do \
+		LINE="$${LINE\#$(DEBIAN_RELEASE):}"; \
+		LINE="$${LINE\#$(DEBIAN_ARCH):}"; \
+		LINE="$${LINE/*:*/}"; \
+		if [ "$$LINE" ]; \
+		then \
+			printf "%s" "$$SEP $$LINE"; \
+			SEP=","; \
+		fi; \
+	done; \
+	[ "$$SEP" = "," ] && echo ); \
+}
+
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	# DEBIAN_SECTION: $(DEBIAN_SECTION)
@@ -904,10 +925,10 @@ endif
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
-	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
-	  echo "$(DEBIAN_REPLACES)" | tr ',' '\n' | ( SEP="Replaces:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
-	  echo "$(DEBIAN_CONFLICTS)" | tr ',' '\n' | ( SEP="Conflicts:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
+	  $(F); echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
+	  $(F); echo "$(DEBIAN_CONFLICTS)" | filter_dependencies "Conflicts:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -953,8 +974,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
-	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -1001,8 +1022,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  echo "$(DEBIAN_DEPENDS)" | tr ',' '\n' | ( SEP="Depends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
-	  echo "$(DEBIAN_RECOMMENDS)" | tr ',' '\n' | ( SEP="Recommends:"; while read LINE; do LINE="$${LINE#$(DEBIAN_RELEASE):}"; LINE="$${LINE#$(DEBIAN_ARCH):}"; LINE="$${LINE/*:*/}"; if [ "$$LINE" ]; then printf "%s" "$$SEP $$LINE"; SEP=","; fi; done; [ "$$SEP" = "," ] && echo ); \
+	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
