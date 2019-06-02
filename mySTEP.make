@@ -876,6 +876,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 endif
 
 # filter "release:package" and "package [architecture..]"
+# rules
+#   ignore if it has any release: prefix and none does match $(DEBIAN_RELEASE)
+#   ignore if it has [] and non architecture... does match $(DEBIAN_ARCH)
 
 F = filter_dependencies() \
 { \
@@ -884,13 +887,11 @@ F = filter_dependencies() \
 	SEP="$$1"; \
 	while read LINE; \
 	do \
-		LINE="$${LINE\#$(DEBIAN_RELEASE):}"; \
-		LINE="$${LINE\#$(DEBIAN_ARCH):}"; \
-		LINE="$${LINE/*:*/}"; \
-		if [ "$$LINE" ]; \
-		then \
-			printf "%s" "$$SEP $$LINE"; \
-			SEP=","; \
+		if echo "$$LINE" | grep -q : && ! echo "$$LINE" | grep -q "$(DEBIAN_RELEASE):"; then continue; fi; \
+		if echo "$$LINE" | grep -q '\[.*\]' && ! echo "$$LINE" | grep -q "\[[^]]*$(DEBIAN_ARCH).*\]"; then continue; fi; \
+		LINE=$$(echo "$$LINE" | sed 's|.*:||' | sed 's|[ ]*\[.*\][ ]*||'); \
+		if [ "$$LINE" ]; then \
+			printf "%s" "$$SEP $$LINE"; SEP=","; \
 		fi; \
 	done; \
 	[ "$$SEP" = "," ] && echo ); \
@@ -925,10 +926,11 @@ F = filter_dependencies() \
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
-	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
-	  $(F); echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
-	  $(F); echo "$(DEBIAN_CONFLICTS)" | filter_dependencies "Conflicts:"; \
+	  $(F); \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
+	  [ "$(DEBIAN_REPLACES)" ] && echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
+	  [ "$(DEBIAN_CONFLICTS)" ] && echo "$(DEBIAN_CONFLICTS)" | filter_dependencies "Conflicts:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -974,8 +976,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
-	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
+	  $(F); \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
@@ -1022,8 +1025,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  $(F); echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
-	  $(F); echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
+	  $(F); \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
+	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
