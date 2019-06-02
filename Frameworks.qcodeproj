@@ -66,6 +66,7 @@ export SOURCES+=" CoreWLAN/cwtest.qcodeproj"
 export SOURCES+=" CoreMotion/cmtest.qcodeproj"
 export SOURCES+=" CoreTelephony/cttest.qcodeproj"
 export SOURCES+=" Make.qcodeproj"
+export SOURCES+=" CoreBluetooth/CoreBluetooth.qcodeproj"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
