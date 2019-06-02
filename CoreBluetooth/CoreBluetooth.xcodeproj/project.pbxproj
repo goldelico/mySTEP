@@ -1,0 +1,425 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EE5103A622A3DFE300540E04 /* CoreBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5103A222A3DF8F00540E04 /* CoreBluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE5103A722A3DFEE00540E04 /* CoreBluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5103A322A3DF8F00540E04 /* CoreBluetooth.m */; };
+		EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3B021838440005229C2 /* Foundation.framework */; };
+		EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Headers/objc;
+			dstSubfolderSpec = 1;
+			files = (
+			);
+			name = "Copy objc Headers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE5103A222A3DF8F00540E04 /* CoreBluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreBluetooth.h; sourceTree = "<group>"; };
+		EE5103A322A3DF8F00540E04 /* CoreBluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoreBluetooth.m; sourceTree = "<group>"; };
+		EE5103A422A3DF8F00540E04 /* CoreBluetooth.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = CoreBluetooth.qcodeproj; sourceTree = "<group>"; };
+		EE5103A522A3DF8F00540E04 /* CoreBluetooth-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreBluetooth-Info.plist"; sourceTree = "<group>"; };
+		EE6FE352076F05AF009CC969 /* CoreBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE82D3AF21838423005229C2 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = ../../../../../../../../../System/Library/Frameworks/IOBluetooth.framework; sourceTree = "<group>"; };
+		EE82D3B021838440005229C2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		EE82D3B121838458005229C2 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetoothUI.framework; path = ../../../../../../../../../System/Library/Frameworks/IOBluetoothUI.framework; sourceTree = "<group>"; };
+		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
+		EEE1772F0CDB792500A85BD3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EE6FE350076F05AF009CC969 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */,
+				EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
+			isa = PBXGroup;
+			children = (
+				EE27270005426A7F0000013C /* mySTEP.make */,
+				EE5103A222A3DF8F00540E04 /* CoreBluetooth.h */,
+				EE5103A322A3DF8F00540E04 /* CoreBluetooth.m */,
+				EE5103A422A3DF8F00540E04 /* CoreBluetooth.qcodeproj */,
+				EE5103A522A3DF8F00540E04 /* CoreBluetooth-Info.plist */,
+				EEA3309609537E48001244CF /* Resources */,
+				EEA370EA0953FFFB001244CF /* Frameworks */,
+				EE29D8D8058A38830035639B /* Products */,
+			);
+			name = BrowserTester;
+			sourceTree = "<group>";
+		};
+		EE29D8D8058A38830035639B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EE6FE352076F05AF009CC969 /* CoreBluetooth.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EEA3309609537E48001244CF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		EEA370EA0953FFFB001244CF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EE82D3B021838440005229C2 /* Foundation.framework */,
+				EE82D3B121838458005229C2 /* IOBluetoothUI.framework */,
+				EE82D3AF21838423005229C2 /* IOBluetooth.framework */,
+				EEE1772F0CDB792500A85BD3 /* Cocoa.framework */,
+				EEA3716A095400F2001244CF /* AppKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		EE6FE34D076F05AF009CC969 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE5103A622A3DFE300540E04 /* CoreBluetooth.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		EE6FE351076F05AF009CC969 /* CoreBluetooth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "CoreBluetooth" */;
+			buildPhases = (
+				EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */,
+				EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */,
+				EE6FE34D076F05AF009CC969 /* Headers */,
+				EE6FE34E076F05AF009CC969 /* Resources */,
+				EE6FE34F076F05AF009CC969 /* Sources */,
+				EE6FE350076F05AF009CC969 /* Frameworks */,
+				EE6FE354076F05C9009CC969 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			comments = "
+";
+			dependencies = (
+			);
+			name = CoreBluetooth;
+			productName = Calendar;
+			productReference = EE6FE352076F05AF009CC969 /* CoreBluetooth.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0820;
+			};
+			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "CoreBluetooth" */;
+			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				de,
+				fr,
+			);
+			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
+			productRefGroup = EE29D8D8058A38830035639B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE6FE351076F05AF009CC969 /* CoreBluetooth */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE6FE34E076F05AF009CC969 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EE6FE354076F05C9009CC969 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = ./CoreBluetooth.qcodeproj;
+		};
+		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create Headers-objc";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p ${CONFIGURATION_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Headers/objc";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EE6FE34F076F05AF009CC969 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE5103A722A3DFEE00540E04 /* CoreBluetooth.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EEEB9CF409A7542900626AB7 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = "";
+				INFOPLIST_FILE = "CoreBluetooth-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.CoreBluetooth";
+				PRODUCT_NAME = CoreBluetooth;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EEEB9CF509A7542900626AB7 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = "";
+				INFOPLIST_FILE = "CoreBluetooth-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.CoreBluetooth";
+				PRODUCT_NAME = CoreBluetooth;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEEB9CF609A7542900626AB7 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = "";
+				INFOPLIST_FILE = "CoreBluetooth-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.CoreBluetooth";
+				PRODUCT_NAME = CoreBluetooth;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
+		EEEB9CF809A7542900626AB7 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Development;
+		};
+		EEEB9CF909A7542900626AB7 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Deployment;
+		};
+		EEEB9CFA09A7542900626AB7 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "CoreBluetooth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEB9CF409A7542900626AB7 /* Development */,
+				EEEB9CF509A7542900626AB7 /* Deployment */,
+				EEEB9CF609A7542900626AB7 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "CoreBluetooth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEB9CF809A7542900626AB7 /* Development */,
+				EEEB9CF909A7542900626AB7 /* Deployment */,
+				EEEB9CFA09A7542900626AB7 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
