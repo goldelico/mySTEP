@@ -10,6 +10,12 @@
 #import <Cocoa/Cocoa.h>
 
 
+@interface NSWorkspaceTest : XCTestCase {
+
+}
+
+@end
+
 @implementation NSWorkspaceTest
 
 - (void) setUp;
