@@ -48,7 +48,7 @@
 
 - (void) setUp;
 {
-	window=[[NSWindow alloc] initWithContentRect:NSMakeRect(100.0, 100.0, 300.0, 300.0) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:YES];
+	window=[[NSWindow alloc] initWithContentRect:NSMakeRect(100.0, 100.0, 300.0, 300.0) styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
 	view1=[[[FlippedView alloc] initWithFrame:NSMakeRect(10.0, 10.0, 280.0, 270.0)] autorelease];
 	[[window contentView] addSubview:view1];
 	view2=[[[NSView alloc] initWithFrame:NSMakeRect(5.0, 5.0, 270.0, 260.0)] autorelease];
