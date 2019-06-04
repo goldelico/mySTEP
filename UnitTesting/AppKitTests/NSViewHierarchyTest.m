@@ -27,6 +27,7 @@
 	NSView *view2;
 	NSView *view3;
 	NSView *view4;
+	NSView *view5;
 }
 
 @end
@@ -55,8 +56,11 @@
 	[view1 addSubview:view2];
 	view3=[[[FlippedView alloc] initWithFrame:NSMakeRect(15.0, 15.0, 240.0, 230.0)] autorelease];
 	[view2 addSubview:view3];
-	view4=[[[NSView alloc] initWithFrame:NSMakeRect(7.0, 7.0, 225.0, 215.0)] autorelease];
+	// nesting of two flipped views
+	view4=[[[FlippedView alloc] initWithFrame:NSMakeRect(7.0, 7.0, 225.0, 215.0)] autorelease];
 	[view3 addSubview:view4];
+	view5=[[[NSView alloc] initWithFrame:NSMakeRect(6.0, 6.0, 219.0, 214.0)] autorelease];
+	[view4 addSubview:view5];
 }
 
 - (void) tearDown;
@@ -84,11 +88,44 @@
 	XCTAssert([view1 isFlipped]);
 	XCTAssert(![view2 isFlipped]);
 	XCTAssert([view3 isFlipped]);
-	XCTAssert(![view4 isFlipped]);
+	XCTAssert([view4 isFlipped]);
+	XCTAssert(![view5 isFlipped]);
 }
 
 - (void) test10
 { // test relative coordinates - convertPointFromView: toView: incl. nil view = Window
+	NSPoint pnt=NSMakePoint(25.0, 35.0);
+	XCTAssertEquals([view1 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
+	XCTAssertEquals([view1 convertPoint:pnt toView:view2], NSMakePoint(20.0, 230.0), @"");
+	XCTAssertEquals([view1 convertPoint:pnt fromView:view2], NSMakePoint(30.0, 230.0), @"");
+	XCTAssertEquals([view2 convertPoint:pnt toView:nil], NSMakePoint(40.0, 50.0), @"");
+	XCTAssertEquals([view2 convertPoint:pnt toView:view1], NSMakePoint(30.0, 230.0), @"");
+	XCTAssertEquals([view2 convertPoint:pnt fromView:view1], NSMakePoint(20.0, 230.0), @"");
+	XCTAssertEquals([view3 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0), @"");
+	XCTAssertEquals([view3 convertPoint:pnt toView:view1], NSMakePoint(45.0, 55.0), @"");
+	XCTAssertEquals([view3 convertPoint:pnt toView:view2], NSMakePoint(40.0, 210.0), @"");
+	XCTAssertEquals([view4 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0), @"");
+	XCTAssertEquals([view4 convertPoint:pnt toView:view1], NSMakePoint(52.0, 62.0), @"");
+	XCTAssertEquals([view4 convertPoint:pnt toView:view2], NSMakePoint(47.0, 203.0), @"");
+	XCTAssertEquals([view4 convertPoint:pnt toView:view3], NSMakePoint(32.0, 42.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:nil], NSMakePoint(68.0, 68.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:view1], NSMakePoint(58.0, 212.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:view2], NSMakePoint(53.0, 53.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:view3], NSMakePoint(38.0, 192.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:view4], NSMakePoint(31.0, 185.0), @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:view5], pnt, @"");
+}
+
+- (void) test20
+{ // test relative coordinates - convertPointFromView: toView: incl. nil view = Window
+	NSPoint pnt=NSMakePoint(25.0, 35.0);
+	XCTAssertEquals([view1 convertPointToBacking:pnt], NSMakePoint(50.0, -70.0), @"");
+	XCTAssertEquals([view2 convertPointToBacking:pnt], NSMakePoint(50.0, 70.0), @"");
+}
+
+- (void) test30
+{ // test relative coordinates - convertRectFromView: toView: incl. nil view = Window
+	NSRect rect=NSMakeRect(25.0, 35.0, 50.0, 45.0);
 }
 
 @end
