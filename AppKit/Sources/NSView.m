@@ -958,15 +958,13 @@ printing
 
 - (NSAffineTransform *) _base2bounds
 { // cached
-	static NSAffineTransform *f;
+	static NSAffineTransform *f;	// flip-transform
 	if(!f)
 		{ // appending f is not the same as scaleXBy:1.0 yBy:-1.0 (which gets the .tY wrong)
 		f=[NSAffineTransform transform];
 		[f scaleXBy:1.0 yBy:-1.0];
 		[f retain];
 		}
-	if(!_window)
-		return nil;
 	[self _updateFlipped];
 	if(!_base2bounds)
 		{
@@ -981,14 +979,14 @@ printing
 			_base2bounds=[[_superview _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(_v.superFlippedCache)
+		if(_superview && _v.superFlippedCache)
 			{ // undo flipping of superview (because only our frame position is expressed in flipped coordinates but not our own coordinate system)
 				[_base2bounds translateXBy:0.0 yBy:NSMaxY([_superview bounds])];
 				[_base2bounds appendTransform:f];
-				[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in flipped super_view bounds coordinates
 			}
-		else
-			[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
+		if(_v.flippedCache)
+			;
+		[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)+C];	// frame position is expressed in super_view bounds coordinates
 		if(_frameRotation)
 			[_base2bounds rotateByDegrees:-_frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
 			// ist auch hier ein appendTransform:rotation etwas anderes als rotateByDegrees?
@@ -1005,7 +1003,7 @@ printing
 
 - (NSAffineTransform *) _bounds2base;
 {
-	if(!_bounds2base && _window)
+	if(!_bounds2base)
 		{ // not yet cached
 #if 0
 			NSLog(@"calculating _bounds2base: %@", self);
@@ -1259,6 +1257,7 @@ printing
 	atm=[from _bounds2base];	// convert from bounds to window coordinates
 	if(to)
 		{ // and transform from window to base
+#if 0	// UnitTest shows that this is not an exception on Cocoa!
 			if([from window] != [to window])
 				{
 #if 1
@@ -1267,6 +1266,7 @@ printing
 #endif
 				[NSException raise:NSInternalInconsistencyException format:@"views do not belong to the same window"];				
 				}
+#endif
 			atm=[[atm copy] autorelease];	// get a safely modifiable copy
 			[atm appendTransform:[to _base2bounds]];
 		}
