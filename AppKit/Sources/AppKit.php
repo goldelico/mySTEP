@@ -13,7 +13,7 @@
 global $ROOT;	// must be set by some .app
 
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
-if($_SERVER['SERVER_PORT'] != 443)
+if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 443)
 { // reload page as https
 	$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
 // _NSLog($plist);
@@ -3318,7 +3318,7 @@ NSLog($_POST);
 	$pclass=$mainBundle->principalClass();
 	if(!$pclass)
 		{
-_NSLog("bundle has no principal class");
+NSLog("main bundle has no principal class");
 /*
 		_NSLog($mainBundle);
 		exit;
