@@ -40,6 +40,7 @@
 #define XCTest SenTest
 #define XCTestCase SenTestCase
 
+#define XCTAssert(C, ...)				STAssertTrue(C, @"" __VA_ARGS__)
 #define XCTAssertTrue(C, ...)			STAssertTrue(C, @"" __VA_ARGS__)
 #define XCTAssertFalse(C, ...)			STAssertFalse(C, @"" __VA_ARGS__)
 #define XCTAssertNotNil(O, ...)			STAssertNotNil(O, @"" __VA_ARGS__)
