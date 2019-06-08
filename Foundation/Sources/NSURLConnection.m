@@ -13,26 +13,29 @@
 {
 	NSMutableData **_data;
 	NSError **_error;
+	NSDate *_timeout;
 	NSURLResponse **_response;
 	BOOL _done;
 }
 
-- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response errorPointer:(NSError **) error;
+- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response timeout:(NSDate *) timeout errorPointer:(NSError **) error;
 - (void) run;
 
 @end
 
 @implementation _NSURLConnectionDataCollector
 
-- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response errorPointer:(NSError **) error;
+- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response timeout:(NSDate *) timeout errorPointer:(NSError **) error;
 {
 	if((self=[super init]))
 		{
 		_response=response;
 		*_response=nil;
 		_error=error;
+		*_error=nil;
 		_data=data;
-		_done=NO;
+		*_data=nil;
+		_timeout=[timeout retain];
 		}
 	return self;
 }
@@ -40,9 +43,10 @@
 - (void) dealloc
 {
 #if 1
-	NSLog(@"dealloc %@", self);
+	NSLog(@"_NSURLConnectionDataCollector: dealloc %@", self);
 #endif
-	[*_data autorelease];	// put in ARP that is active when we dealloc this object
+	[_timeout release];
+	[*_data autorelease];	// put in ARP that is active when we dealloc this object (which can happen before ARP drain)
 	[*_error autorelease];
 	[*_response autorelease];
 	[super dealloc];
@@ -51,12 +55,13 @@
 - (void) run;
 { // NOTE: runMode may have an internal ARP. Therefore, objects allocated in callbacks are already autoreleased when runMode returns
 #if 1
-	NSLog(@"loop for data %@", self);
+	NSLog(@"_NSURLConnectionDataCollector: loop for data %@ until %@", self, _timeout);
 #endif
-	while(!_done)
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]; // run loop until we are finished (or we could introduce some timeout!)
+	_done=NO;
+	while(!_done && [_timeout timeIntervalSinceNow] > 0)
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:_timeout]; // run loop until we are finished  or timeout
 #if 1
-	NSLog(@"data received %@", self);
+	NSLog(@"_NSURLConnectionDataCollector: data received %@ done=%d", self, _done);
 #endif
 }
 
@@ -69,7 +74,7 @@
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
 #if 0
-	NSLog(@"did receive %lu bytes %@", [data length], self);
+	NSLog(@"_NSURLConnectionDataCollector: did receive %lu bytes %@", [data length], self);
 #endif
 	if(!*_data)
 		*_data=[data mutableCopy];	// first data block
@@ -101,7 +106,9 @@
 {
 	NSMutableData *data;
 	NSError *dummy;
-	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithDataPointer:&data responsePointer:response errorPointer:error?error:&dummy];
+	NSTimeInterval interval=[request interval];
+	NSDate *timeout=interval > 0?[NSDate dateWithTimeIntervalSinceNow:interval]:[NSDate distantFuture];
+	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithDataPointer:&data responsePointer:response timeout:timeout errorPointer:error?error:&dummy];
 	NSURLConnection *c=[self connectionWithRequest:request delegate:dc];
 	[c start];	// start loading
 	[dc run];		// collect
@@ -130,6 +137,8 @@
 			{ [self release]; return nil; }
 		_delegate=delegate;
 		_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:cachedResponse client:(id <NSURLProtocolClient>) self];
+		if(!_protocol)
+			NSLog(@"unknown protocol for request: %@", request);
 		[_protocol scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 #if 0
 		NSLog(@"  -> protocol %@", _protocol);
@@ -154,6 +163,9 @@
 
 - (void) start;
 { // start loading
+#if 1
+	NSLog(@"NSURLConnection start %@", _protocol);
+#endif
 	[_protocol startLoading];
 }
 
