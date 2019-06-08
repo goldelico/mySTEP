@@ -6,8 +6,6 @@
 //  Copyright (c) 2004 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLRequest.h>
 
 
@@ -29,14 +27,14 @@
 - (BOOL) HTTPShouldHandleCookies; { return _handleCookies; }
 - (NSTimeInterval) interval; { return _timeout; }
 - (NSURL *) URL; { return _url; }
+- (NSData *) HTTPBody; { return [_bodyOrStream isKindOfClass:[NSData class]]?_bodyOrStream:nil; }
+- (NSInputStream *) HTTPBodyStream; { return [_bodyOrStream isKindOfClass:[NSInputStream class]]?_bodyOrStream:nil; }
+- (NSURL *) mainDocumentURL; { return _mainDocumentURL; }
+
 - (NSString *) valueForHTTPHeaderField:(NSString *) field;
 {
 	return [_headerFields objectForKey:[field lowercaseString]];
 }
-
-- (NSData *) HTTPBody; { return nil; }
-- (NSInputStream *) HTTPBodyStream; { return nil; }
-- (NSURL *) mainDocumentURL; { return nil; }
 
 - (id) initWithURL:(NSURL *) url;
 {
@@ -47,7 +45,7 @@
 {
 	if((self=[super init]))
 		{
-		_url=[url retain];
+		_url=[url retain];	// may be nil!
 		_policy=policy;
 		_timeout=timeout;
 		_method=@"GET";
@@ -58,12 +56,13 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ URL=%@ POL=%d time=%f METH=%@ %@", NSStringFromClass([self class]),
+	return [NSString stringWithFormat:@"%@ URL=%@ POL=%d time=%f METH=%@ %@%@", NSStringFromClass([self class]),
 		_url,
 		_policy,
 		_timeout,
 		_method,
-		_headerFields];
+		_headerFields,
+		_bodyOrStream?@" +body":@""];
 }
 
 - (void) dealloc;
@@ -85,10 +84,10 @@
 	if(c)
 		{
 		c->_url=[_url copyWithZone:z];
+		c->_mainDocumentURL=[_mainDocumentURL copyWithZone:z];
 		c->_policy=_policy;
 		c->_timeout=_timeout;
 		c->_method=[_method copyWithZone:z];
-		c->_headerFields=[_headerFields mutableCopyWithZone:z];	// should this be a deep copy for addValue:toHeaderField:
 #if 0
 		NSLog(@"  copied -> %@", c);
 #endif
@@ -110,6 +109,13 @@
 
 @implementation NSMutableURLRequest
 
+- (void) dealloc;
+{
+	[_bodyOrStream release];
+	[_mainDocumentURL release];
+	[super dealloc];
+}
+
 - (void) addValue:(NSString *) value forHTTPHeaderField:(NSString *) field;
 { // append string (comma separated)
 	NSString *c=[self valueForHTTPHeaderField:field];	// already defined
@@ -128,11 +134,11 @@
 }
 
 - (void) setCachePolicy:(NSURLRequestCachePolicy) policy; { _policy=policy; }
-- (void) setHTTPBody:(NSData *) data; { NIMP; }
-- (void) setHTTPBodyStream:(NSInputStream *) stream; { NIMP; }
+- (void) setHTTPBody:(NSData *) data; { ASSIGN(_bodyOrStream, data); }
+- (void) setHTTPBodyStream:(NSInputStream *) stream; { ASSIGN(_bodyOrStream, stream); }
 - (void) setHTTPMethod:(NSString *) method; { ASSIGN(_method, method); }
 - (void) setHTTPShouldHandleCookies:(BOOL) flag; { _handleCookies=flag; }
-- (void) setMainDocumentURL:(NSURL *) url; { NIMP; }
+- (void) setMainDocumentURL:(NSURL *) url; { ASSIGN(_mainDocumentURL, url); }
 - (void) setTimeoutInterval:(NSTimeInterval) interval; { _timeout=interval; }
 - (void) setURL:(NSURL *) url; { ASSIGN(_url, url); }
 
@@ -152,6 +158,8 @@
 		c->_timeout=_timeout;
 		c->_method=[_method retain];
 		c->_headerFields=[_headerFields copyWithZone:z];
+		c->_bodyOrStream=[_bodyOrStream copyWithZone:z];
+		c->_headerFields=[_headerFields mutableCopyWithZone:z];	// should this be a deep copy for addValue:toHeaderField:
 		}
 	return c;
 }

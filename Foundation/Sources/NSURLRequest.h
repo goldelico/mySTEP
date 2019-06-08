@@ -27,12 +27,14 @@ typedef NSUInteger NSURLRequestCachePolicy;
 
 @interface NSURLRequest : NSObject <NSCopying, NSMutableCopying, NSCoding>
 {
-@public
-	NSURL *_url;
+@public	// why public and not protected?
 	NSMutableDictionary *_headerFields;
-	NSString *_method;
 	NSTimeInterval _timeout;
-	NSURLRequestCachePolicy	_policy;
+	id _bodyOrStream;
+	NSURL *_mainDocumentURL;
+	NSString *_method;
+	NSURL *_url;
+	NSURLRequestCachePolicy _policy;
 	BOOL _handleCookies;
 }
 
