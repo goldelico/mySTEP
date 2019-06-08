@@ -552,13 +552,15 @@ FT_Library _ftLibrary(void)
 			{
 			if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
 				NSLog(@"unhandled pixel mode: %d", face->glyph->bitmap.pixel_mode);
-			else
+			else if(face->glyph->bitmap.buffer)
 				{ // count propoertion of white and black pixels
 				lweight=0;
 				while(cnt-- > 0)
 					lweight+=face->glyph->bitmap.buffer[cnt];	// sum up all shaded values
 				weight=(CGFloat)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
 				}
+			else
+				NSLog(@"face->glyph has no bitmap buffer");
 			}
 #if 0
 		NSLog(@"add font %lu [%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
