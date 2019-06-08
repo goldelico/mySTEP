@@ -954,8 +954,6 @@ printing
 	[self _invalidateCTMtoBase];	// subviews can keep their individual bounds2frame mapping intact - only their mapping to the screen will change
 }
 
-// OK
-
 - (NSAffineTransform *) _base2bounds
 { // cached
 	static NSAffineTransform *f;	// flip-transform
@@ -965,14 +963,14 @@ printing
 		[f scaleXBy:1.0 yBy:-1.0];
 		[f retain];
 		}
-	[self _updateFlipped];
+	[self _updateFlipped];	// detect changes and trigger recalculation
 	if(!_base2bounds)
 		{
 #if 0
 		if([self  isKindOfClass:NSClassFromString(@"FlippableView")])
 			NSLog(@"flippable");
 #endif
-#if 0
+#if 1
 		NSLog(@"calculating _base2bounds: %@", self);
 #endif
 		if(_superview)
@@ -981,16 +979,17 @@ printing
 			_base2bounds=[NSAffineTransform new];
 		if(_superview && _v.superFlippedCache)
 			{ // undo flipping of superview (because only our frame position is expressed in flipped coordinates but not our own coordinate system)
-				[_base2bounds translateXBy:0.0 yBy:NSMaxY([_superview bounds])];
+				NSRect svbounds=[_superview bounds];
+				[_base2bounds translateXBy:0.0 yBy:NSMaxY(svbounds)];
 				[_base2bounds appendTransform:f];
+				[_base2bounds translateXBy:-NSMinX(_frame) yBy:NSHeight(_frame)-NSHeight(svbounds)-NSMinY(_frame))];	// frame position is expressed in super_view bounds coordinates
 			}
-		if(_v.flippedCache)
-			;
-		[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)+C];	// frame position is expressed in super_view bounds coordinates
+		else
+			[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
 		if(_frameRotation)
-			[_base2bounds rotateByDegrees:-_frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
+			[_base2bounds rotateByDegrees:-_frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke statt Mitte?
 			// ist auch hier ein appendTransform:rotation etwas anderes als rotateByDegrees?
-		// if(_v.customBounds)
+		// if(_v.customBounds) /* do what?) ;
 		[_base2bounds appendTransform:_frame2bounds];	// transform frame (i.e. superview bound) to our bounds
 		if(_v.flippedCache)
 			{ // finally flip bounds
