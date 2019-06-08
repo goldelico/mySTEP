@@ -243,6 +243,20 @@
 - (void) test_flipped_only_16
 { // test flipped only
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
+	XCTAssertEquals([view6 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
+	XCTAssertEquals([view6 convertPoint:pnt toView:view7], NSMakePoint(20.0, 30.0), @"");
+	XCTAssertEquals([view6 convertPoint:pnt fromView:view7], NSMakePoint(30.0, 40.0), @"");
+	XCTAssertEquals([view7 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0), @"");
+	XCTAssertEquals([view7 convertPoint:pnt toView:view6], NSMakePoint(30.0, 40.0), @"");
+	XCTAssertEquals([view7 convertPoint:pnt fromView:view6], NSMakePoint(20.0, 30.0), @"");
+	XCTAssertEquals([view8 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0), @"");
+	XCTAssertEquals([view8 convertPoint:pnt toView:view6], NSMakePoint(45.0, 55.0), @"");
+	XCTAssertEquals([view8 convertPoint:pnt toView:view7], NSMakePoint(40.0, 50.0), @"");
+	XCTAssertEquals([view9 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0), @"");
+	XCTAssertEquals([view9 convertPoint:pnt toView:view6], NSMakePoint(52.0, 62.0), @"");
+	XCTAssertEquals([view9 convertPoint:pnt toView:view7], NSMakePoint(47.0, 57.0), @"");
+	XCTAssertEquals([view9 convertPoint:pnt toView:view8], NSMakePoint(32.0, 42.0), @"");
+	XCTAssertEquals([view10 convertPoint:pnt toView:nil], NSMakePoint(68.0, 212.0), @"");
 	XCTAssertEquals([view10 convertPoint:pnt toView:view6], NSMakePoint(58.0, 68.0), @"");
 	XCTAssertEquals([view10 convertPoint:pnt toView:view7], NSMakePoint(53.0, 63.0), @"");
 	XCTAssertEquals([view10 convertPoint:pnt toView:view8], NSMakePoint(38.0, 48.0), @"");
@@ -279,7 +293,7 @@
 	XCTAssertEquals([view17 convertPoint:pnt toView:view5], NSMakePoint(-3.0, 207.0), @"");
 }
 
-#if 0	// n/a yet on mySTEP
+#if 0	// n/a yet available with mySTEP
 - (void) test_20
 { // test relative coordinates - convertPointToBacking:
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
