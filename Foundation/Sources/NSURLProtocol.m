@@ -163,15 +163,17 @@ static NSMutableArray *_registeredClasses;
 {
 	NSEnumerator *e=[_registeredClasses reverseObjectEnumerator];	// go through classes starting with last one first
 	Class c;
-#if 0
+#if 1
 	NSLog(@"%@ initWithRequest:%@ client:%@", NSStringFromClass([self class]), request, client);
 #endif
 	if([self class] == [NSURLProtocol class])
 		{ // not a subclass
 			[self release];
+			if(![request URL])
+				return nil;	// missing URL
 			while((c=[e nextObject]))
 				{
-#if 0
+#if 1
 				NSLog(@"check %@", NSStringFromClass(c));
 #endif
 				if([c canInitWithRequest:request])
@@ -187,7 +189,7 @@ static NSMutableArray *_registeredClasses;
 			_cachedResponse=[cachedResponse retain];
 			[(NSObject *) (_client=client) retain];	// we must retain the client (or it may disappear while we still receive data)
 		}
-#if 0
+#if 1
 	NSLog(@"  -> %@", self);
 #endif
 	return self;
@@ -440,12 +442,18 @@ static NSMutableDictionary *_httpConnections;
 			[_bodyStream retain];
 			[_bodyStream setProperty:[NSNumber numberWithInt:0] forKey:NSStreamFileCurrentOffsetKey];	// rewind (if possible)
 			[requestHeaders setObject:@"chunked" forKey:@"Transfer-Encoding"];	// we must send chunked because we don't know the length in advance
+#if 1
+			NSLog(@"sending from HTTPBodyStream %@", _bodyStream);
+#endif
 		}
 	else if((body=[request HTTPBody]))
-		{ // fixed NSData object
+		{ // fixed NSData object - convert into stream
 			unsigned long bodyLength=[body length];
 			[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
 			_bodyStream=[[NSInputStream alloc] initWithData:body];	// prepare to send request body from NSData object
+#if 1
+			NSLog(@"sending from HTTPBody %@", _bodyStream);
+#endif
 		}
 	else
 		[requestHeaders removeObjectForKey:@"Date"];	// must not send a Date: header if we have no body
