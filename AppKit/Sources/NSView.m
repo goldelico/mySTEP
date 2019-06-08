@@ -982,7 +982,7 @@ printing
 				NSRect svbounds=[_superview bounds];
 				[_base2bounds translateXBy:0.0 yBy:NSMaxY(svbounds)];
 				[_base2bounds appendTransform:f];
-				[_base2bounds translateXBy:-NSMinX(_frame) yBy:NSHeight(_frame)-NSHeight(svbounds)-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
+				[_base2bounds translateXBy:-NSMinX(_frame) yBy:NSMaxY(_frame)-NSMaxY(svbounds)-NSMinY(svbounds)];	// frame position is expressed in super_view bounds coordinates
 			}
 		else
 			[_base2bounds translateXBy:-NSMinX(_frame) yBy:-NSMinY(_frame)];	// frame position is expressed in super_view bounds coordinates
