@@ -1,1 +1,1 @@
-#import "../../../Applications/Samples/CircleView/CircleView.m"
+#import "../../../OpenSource/Apple-Samples/CircleView/CircleView.m"
