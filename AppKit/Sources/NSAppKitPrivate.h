@@ -142,7 +142,8 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSBundle (NSPrivate)
-- (NSString *) _bundleIdentifier;	// one that always exists...
+- (NSString *) _bundleIdentifier;		// one that always exists...
+- (NSString *) _localizedBundleName;	// localized for display purposes
 @end
 
 @interface NSDocument (NSPrivate)

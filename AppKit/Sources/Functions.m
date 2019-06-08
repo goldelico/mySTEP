@@ -38,6 +38,18 @@
 	return ident;
 }
 
+- (NSString *) _localizedBundleName;
+{
+	NSString *name=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+	if(!name)
+		name=[self objectForInfoDictionaryKey:@"CFBundleName"];
+	if(!name)
+		name=[[[self bundlePath] lastPathComponent] stringByDeletingPathExtension];
+	// FIXME: check localization of this bundle...
+	name=NSLocalizedString(name, @"Bundle Name");	// try to translate
+	return name;
+}
+
 @end
 
 
@@ -45,7 +57,6 @@ int NSApplicationMain(int argc, const char **argv)
 {
 	id pool=[NSAutoreleasePool new];	// initial ARP
 	NSBundle *b;
-	NSString *ident;
 	NSString *mainModelFile;
 	NSApplication *app=[NSApplication sharedApplication];	// initialize application
 #if 1
@@ -54,7 +65,7 @@ int NSApplicationMain(int argc, const char **argv)
 	b=[NSBundle mainBundle];
 	mainModelFile = [b objectForInfoDictionaryKey:@"NSMainNibFile"];
 #if 1
-	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b _localizedBundleName], mainModelFile, ident);
+	NSLog(@"NSApplicationMain - name=%@ mainmodel=%@ ident=%@", [b _localizedBundleName], mainModelFile, [b _bundleIdentifier]);
 #endif
 
 	if([[b objectForInfoDictionaryKey:@"LSGetAppDiedEvents"] boolValue])
