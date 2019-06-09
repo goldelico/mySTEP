@@ -163,7 +163,7 @@ static NSMutableArray *_registeredClasses;
 {
 	NSEnumerator *e=[_registeredClasses reverseObjectEnumerator];	// go through classes starting with last one first
 	Class c;
-#if 1
+#if 0
 	NSLog(@"%@ initWithRequest:%@ client:%@", NSStringFromClass([self class]), request, client);
 #endif
 	if([self class] == [NSURLProtocol class])
@@ -173,7 +173,7 @@ static NSMutableArray *_registeredClasses;
 				return nil;	// missing URL
 			while((c=[e nextObject]))
 				{
-#if 1
+#if 0
 				NSLog(@"check %@", NSStringFromClass(c));
 #endif
 				if([c canInitWithRequest:request])
@@ -189,7 +189,7 @@ static NSMutableArray *_registeredClasses;
 			_cachedResponse=[cachedResponse retain];
 			[(NSObject *) (_client=client) retain];	// we must retain the client (or it may disappear while we still receive data)
 		}
-#if 1
+#if 0
 	NSLog(@"  -> %@", self);
 #endif
 	return self;
@@ -404,24 +404,39 @@ static NSMutableDictionary *_httpConnections;
 #endif
 	headerData=[[NSMutableData alloc] initWithCapacity:200];
 	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path length] > 0?[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]:(NSString *)@"/"];
-#if 1
+#if 0
 	NSLog(@"request: %@", header);
 #endif
-	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];	// CHECKME:
-																				// CHECKME: what about lower/uppercase in the user provided header fields???
+	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];
+	// CHECKME: what about lower/uppercase in the user provided header fields???
 	requestHeaders=[[request allHTTPHeaderFields] mutableCopy];		// start with the provided headers first so that we can overwrite and remove spurious headers
 	if(!requestHeaders) requestHeaders=[[NSMutableDictionary alloc] initWithCapacity:5];	// no headers provided by request
 	if([request HTTPShouldHandleCookies])
 		{
 		NSHTTPCookieStorage *cs=[NSHTTPCookieStorage sharedHTTPCookieStorage];
 		NSDictionary *cdict=[NSHTTPCookie requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
-		[requestHeaders addEntriesFromDictionary:cdict];	// add to headers
+		[requestHeaders addEntriesFromDictionary:cdict];	// add cookies to headers
 		}
 	if([url port])
 		header=[NSString stringWithFormat:@"%@:%u", [url host], [[url port] intValue]];	// non-default port
 	else
 		header=[url host];
 	[requestHeaders setObject:header forKey:@"Host"];
+	if(![requestHeaders objectForKey:@"Authorization"] && [[url user] length] + [[url password] length] > 0)
+		{ // if no explicit Authorization header is given, try Basic
+		NSString *auth=[NSString stringWithFormat:@"%@:%@", [url user], [url password]];
+#if 0
+		NSLog(@"Authorization = %@", auth);
+#endif
+		auth=[[auth dataUsingEncoding:NSUTF8StringEncoding] _base64String];	// encode
+#if 0
+		NSLog(@"Authorization => %@", auth);
+#endif
+		// FIXME: das hier Ÿbersetzt das " " in %20!
+		// au§erdem sollten wir einen Authorization = ... senden kšnnen
+		[requestHeaders setObject:[NSString stringWithFormat:@"Basic %@", auth] forKey:@"Authorization"];
+		//wie kann man eine Digest Authorization speichern?
+		}
 	if((cachedResponse=[_currentRequest cachedResponse]) && ([method isEqualToString:@"GET"] || [method isEqualToString:@"HEAD"]))
 		{ // ask server to send a new version or a 304 so that we use the cached response
 			NSHTTPURLResponse *resp=(NSHTTPURLResponse *) [cachedResponse response];
@@ -447,33 +462,34 @@ static NSMutableDictionary *_httpConnections;
 #endif
 		}
 	else if((body=[request HTTPBody]))
-		{ // fixed NSData object - convert into stream
+		{ // NSData object with known size - convert into stream
 			unsigned long bodyLength=[body length];
 			[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
 			_bodyStream=[[NSInputStream alloc] initWithData:body];	// prepare to send request body from NSData object
-#if 1
+#if 0
 			NSLog(@"sending from HTTPBody %@", _bodyStream);
 #endif
 		}
 	else
 		[requestHeaders removeObjectForKey:@"Date"];	// must not send a Date: header if we have no body
-														//	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
+	//	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
 	[requestHeaders removeObjectForKey:@"Keep-Alive"];	// HHTP 1.0 feature
-#if 1
+#if 0
 	NSLog(@"headers to send: %@", requestHeaders);
 #endif
 	e=[requestHeaders keyEnumerator];
 	while((key=[e nextObject]))
 		{ // attributes
 			NSString *val=[requestHeaders objectForKey:key];
-#if 1
-			NSLog(@"sending %@: %@", key, val);
-#endif
+			// CHECKME: ist das richtig? So kann man Parameter z.B. bei Authentication: nicht mit " " trennen...
 			val=[val stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding];
+#if 1
+			NSLog(@"sending %@: %@ -> %@", key, [requestHeaders objectForKey:key], val);
+#endif
 			[headerData appendData:[[NSString stringWithFormat:@"%@: %@\r\n", key, val] dataUsingEncoding:NSUTF8StringEncoding]];
 		}
 	[headerData appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-#if 1
+#if 0
 	NSLog(@"header=%@\n%@\n", headerData, [[[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding] autorelease]);
 #endif
 	_headerStream=[[NSInputStream alloc] initWithData:headerData];	// convert into a stream
@@ -483,7 +499,7 @@ static NSMutableDictionary *_httpConnections;
 	_sendChunked=(header=[requestHeaders objectForKey:@"Transfer-Encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
 	[requestHeaders release];	// dictionary no more needed
 	[_bodyStream open];				// if any
-#if 1
+#if 0
 	NSLog(@"ready to send");
 #endif
 	[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// start handling output
@@ -583,7 +599,7 @@ static NSMutableDictionary *_httpConnections;
 { // process header line
 	NSString *key, *val;
 	NSRange colon;
-#if 1
+#if 0
 	NSLog(@"process header line %@", line);
 #endif
 	if([line length] == 0)
@@ -994,7 +1010,9 @@ static NSMutableDictionary *_httpConnections;
 		}
 	if(![methods objectForKey:[_request HTTPMethod]])
 		{ // unknown method
+#if 1
 			NSLog(@"Invalid HTTP Method: %@", _request);
+#endif
 			[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
 			return;
 		}
@@ -1043,16 +1061,25 @@ static NSMutableDictionary *_httpConnections;
 		case 100:
 			return;	// continue - ignore
 		case 401: {
-			// FIXME: read auth challenge from HTTP headers
+			NSString *auth;
 			NSURLAuthenticationChallenge *chall=nil;
+#if 0
+			NSLog(@"needs 401 authentication %@", headers);
+#endif
+			auth=[headers objectForKey:@"WWW-Authenticate"];
+			// Digest realm="SP2101W", nonce="ddbe28ebed1c6203327bfb422e3c7a9b", qop="auth"
+			// Basic realm="something"
 			[_client URLProtocol:self didReceiveAuthenticationChallenge:chall];
 			// retry or abort?
+			// may resend with Authorization header
 			return;
 		}
 		case 407:
+			NSLog(@"needs 407 authentication %@", headers);
 			// notify client and add authentication info + repeat
 			break;
 		case 503:	// retry
+			NSLog(@"retry 503 %@", headers);
 					// check if within reasonable future (retry-after) and then repeat
 			break;
 			// case 206:	// optional
@@ -1060,6 +1087,8 @@ static NSMutableDictionary *_httpConnections;
 			[_client URLProtocol:self cachedResponseIsValid:_cachedResponse];	// will get data from cache
 			[_client URLProtocol:self didLoadData:[_cachedResponse data]];	// and pass data from cache
 			return;
+		default:
+			NSLog(@"unprocessed %d: %@", [response statusCode], headers);
 	}
 	if(([response statusCode]/100 == 3) && (loc=[headers objectForKey:@"Location"]))
 		{ // redirect
