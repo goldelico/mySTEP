@@ -69,6 +69,16 @@
 
 - (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { [*_response release]; *_response=[resp retain]; }
 - (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=[error retain]; [*_data release]; *_data=nil; _done=YES; }
+
+- (void) connection:(NSURLConnection *) conn didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge;
+{
+#if 1
+	NSLog(@"_NSURLConnectionDataCollector: didReceiveAuthenticationChallenge %@ %@", self, challenge);
+#endif
+	// should look up credential or original request user/password and handle "Digest" + "nonce" here?
+	return;
+}
+
 - (void) connectionDidFinishLoading:(NSURLConnection *) conn; { _done=YES; }
 
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
