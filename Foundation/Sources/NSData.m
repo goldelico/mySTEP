@@ -336,7 +336,7 @@ static IMP appendImp;
 { // convert into base64 string
 	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
 	const char *src = [self bytes];
-	NSUInteger length = [self length];
+	NSInteger length = [self length];
 	long bytes = 0;
 	while(length > 0)
 		{
