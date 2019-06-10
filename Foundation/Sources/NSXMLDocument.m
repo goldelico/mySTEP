@@ -148,6 +148,39 @@
 
 - (NSString *) version; { return _version; }
 
+- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+{
+	switch([self documentContentKind]) { // Text, XML, XHTML, HTML etc.
+		case NSXMLDocumentXMLKind:
+			if(_version || _characterEncoding || _isStandalone)
+				{
+				[str appendString:@"<?xml"];
+				if(_version)
+					[str appendFormat:@" version=\"%@\"", _version];
+				else
+					[str appendString:@" version=\"1.0\""];
+				if(_characterEncoding)
+					[str appendFormat:@" encoding=\"%@\"", _characterEncoding];
+				[str appendFormat:@" standalone=\"%@\"", _isStandalone?@"yes":@"no"];
+				[str appendString:@"?>"];
+				}
+			[[self DTD] _XMLStringWithOptions:opts appendingToString:str];
+			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			return;
+		case NSXMLDocumentXHTMLKind:
+			//					[str appendString:@"<?xml UTF-8>\n"];
+		case NSXMLDocumentHTMLKind:
+			[[self DTD] _XMLStringWithOptions:opts appendingToString:str];
+			[str appendString:@"<html>\n"];
+			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			[str appendString:@"</html>\n"];
+			return;
+		case NSXMLDocumentTextKind:
+			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+	}
+	[super _XMLStringWithOptions:opts appendingToString:str];
+}
+
 - (NSData *) XMLData; { return [self XMLDataWithOptions:NSXMLNodeOptionsNone]; }
 
 - (NSData *) _XMLDataWithOptions:(NSUInteger) opts format:(NSUInteger) fmt

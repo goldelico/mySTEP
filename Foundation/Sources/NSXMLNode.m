@@ -117,24 +117,7 @@
 		case NSXMLInvalidKind:
 			break;
 		case NSXMLDocumentKind:
-			switch(documentKind) {
-				case NSXMLDocumentXMLKind:
-//					[str appendString:@"<?xml UTF-8>\n"];
-					[[(NSXMLDocument *) self DTD] _XMLStringWithOptions:opts appendingToString:str];
-					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
-					return;
-				case NSXMLDocumentXHTMLKind:
-//					[str appendString:@"<?xml UTF-8>\n"];
-				case NSXMLDocumentHTMLKind:
-					[[(NSXMLDocument *) self DTD] _XMLStringWithOptions:opts appendingToString:str];
-					[str appendString:@"<html>\n"];
-					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
-					[str appendString:@"</html>\n"];
-					return;
-				case NSXMLDocumentTextKind:
-					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
-			}
-			break;
+			break;	// handled by overwriting
 		case NSXMLElementKind:
 			if([[self children] count] || (opts&NSXMLNodeExpandEmptyElement) || documentKind == NSXMLDocumentTextKind)
 				{
