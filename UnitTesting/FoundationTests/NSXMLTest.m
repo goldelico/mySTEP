@@ -12,6 +12,7 @@
 {
 	NSXMLDocument *doc;
 	NSString *str;
+	NSMutableDictionary *result;
 }
 
 @end
@@ -20,6 +21,7 @@
 
 - (void) setUp
 {
+	result=[[NSMutableDictionary alloc] initWithCapacity:10];
 	[super setUp];
 	str=@"<?xml version=\"1.0\" encoding=\"UTF8\"?><SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State/></CMD></SMARTPLUG>";
 	doc=[[NSXMLDocument alloc] initWithXMLString:str options:0 error:NULL];
@@ -65,30 +67,34 @@
 
 - (void) test30
 {
-	NSXMLNode *n=[doc rootElement];
-	XCTAssertTrue([n rootDocument] == doc);
-
+	NSXMLElement *n=[doc rootElement];
+	NSXMLElement *e=[NSXMLElement elementWithName:@"test" stringValue:@"value"];
+	[n addChild:e];
+	// test rig broken on mySTEP...	XCTAssertThrows([n addChild:e]);	// trying to add a second time
 }
 
-// test attributes
-// test adding/deleting children
+// demonstrate adding/deleting children - should raise exception if child already has a parent
+// demonstrate moving nodes from one subtree to the other
 
-- (void) test100
+- (void) test40
 { // expansion into string
 	NSString *wants=@"<?xml version=\"1.0\" encoding=\"UTF8\" standalone=\"yes\"?><SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State></Device.System.Power.State></CMD></SMARTPLUG>";
-	XCTAssertEqualObjects([doc XMLString], wants);
+	XCTAssertEqualObjects([doc XMLString], wants);	// default of standalone if not given in <?xml?> is "yes"
 	// try encoding with options
 }
 
-- (void) test101
+- (void) test41
 { // without <?xml>
 	NSString *s=@"<SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State/></CMD></SMARTPLUG>";
 	NSXMLDocument *d=[[[NSXMLDocument alloc] initWithXMLString:s options:0 error:NULL] autorelease];
 	NSString *wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State></Device.System.Power.State></CMD></SMARTPLUG>";
 	XCTAssertEqualObjects([d XMLString], wants);
+	/* this differs between Cocoa and mySTEP
+	 * Cocoa leaves it upper case while mySTEP treats this as a html document and converts all tags to lower case
+	 */
 }
 
-- (void) test102
+- (void) test42
 { // manual init - find out when and which xml header is printed
 	NSXMLDocument *d=[[[NSXMLDocument alloc] init] autorelease];
 	XCTAssertTrue([d documentContentKind] == NSXMLDocumentXMLKind);	// 0
@@ -97,7 +103,7 @@
 	XCTAssertFalse([d isStandalone]);
 	XCTAssertEqualObjects([d XMLString], @"");	// but not printed!
 	[d setCharacterEncoding:@"UTF9"];	// unless we modify the object
-	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.0\" encoding=\"UTF9\" standalone=\"no\"?>");
+	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.0\" encoding=\"UTF9\" standalone=\"no\"?>");	// default of  [NSXMLDocument init] is standalone "no"
 	XCTAssertNil([d version]);	// version="1.0" is just a default for printing
 	[d setCharacterEncoding:nil];	// back to default
 	XCTAssertEqualObjects([d XMLString], @"");
@@ -112,6 +118,7 @@
 	XCTAssertEqualObjects([d XMLString], @"");	// no xml header if there is neither version, nor encoding nor standalone
 	[d setRootElement:[NSXMLElement elementWithName:@"test"]];
 	XCTAssertEqualObjects([d XMLString], @"<test></test>");	// body is printed even if no <?xml> header
+	XCTAssertEqualObjects([d XMLStringWithOptions:0], @"<test></test>");	// try different formatting options
 	/* summary: <?xml...> comes if either version, encoding or standalone is set
 	   version defaults to "1.0", encoding may be omitted, standalone is always present
 	   rootElement is generated even if there is no <?xml?> header
@@ -120,6 +127,75 @@
 	 */
 }
 
-// try differnt formats
+- (void) test43
+{ // manual init - find out when and which xml header is printed
+	NSXMLDocument *d=[[[NSXMLDocument alloc] init] autorelease];
+	[d setRootElement:[NSXMLElement elementWithName:@"test"]];
+	XCTAssertEqualObjects([d XMLString], @"<test></test>");	// body is printed without <?xml> header
+	XCTAssertEqualObjects([d XMLStringWithOptions:0], @"<test></test>");	// try different formatting options
+	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeExpandEmptyElement], @"<test></test>");	// is the default
+	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeCompactEmptyElement], @"<test/>");
+	[[d rootElement] addAttribute:[NSXMLElement attributeWithName:@"attrib" stringValue:@"value"]];
+	XCTAssertEqualObjects([d XMLString], @"<test attrib=\"value\"></test>");
+	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeUseSingleQuotes], @"<test attrib=\'value\'></test>");
+	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeUseDoubleQuotes], @"<test attrib=\"value\"></test>");	// is the default
+
+	/*
+	NSXMLNodeIsCDATA												= (1 << 0),
+	NSXMLDocumentTidyHTML											= (1 << 9),
+	NSXMLDocumentTidyXML											= (1 << 10),
+	NSXMLDocumentValidate											= (1 << 13),
+	NSXMLDocumentXInclude											= (1 << 16),
+	NSXMLNodePrettyPrint											= (1 << 17),
+	NSXMLDocumentIncludeContentTypeDeclaration						= (1 << 18),
+	NSXMLNodePreserveNamespaceOrder									= (1 << 20),
+	NSXMLNodePreserveAttributeOrder									= (1 << 21),
+	NSXMLNodePreserveEntities										= (1 << 22),
+	NSXMLNodePreservePrefixes										= (1 << 23),
+	NSXMLNodePreserveCDATA											= (1 << 24),
+	NSXMLNodePreserveWhitespace										= (1 << 25),
+	NSXMLNodePreserveDTD											= (1 << 26),
+	NSXMLNodePreserveCharacterReferences							= (1 << 27),
+	NSXMLNodePreserveEmptyElements									=	(NSXMLNodeExpandEmptyElement | NSXMLNodeCompactEmptyElement),
+	NSXMLNodePreserveQuotes											=	(NSXMLNodeUseSingleQuotes | NSXMLNodeUseDoubleQuotes),
+	NSXMLNodePreserveAll	= ( NSXMLNodePreserveNamespaceOrder |
+	 */
+
+}
+
+/* other tests
+ * demonstrate if NSXMLElement can (not) be initialized to different kind
+ * demonstrate how attributeWithName is initialized and what happens if it is called for NSXMLElement?
+ * demonstrate what the options for initWithKind:options: do and how they relate to XMLStringWithOptions
+ */
+
+- (void) parser:(NSXMLParser *) parser foundProcessingInstructionWithTarget:(NSString *)target data:(NSString *)data;
+{
+	[result setObject:target forKey:@"target"];
+	[result setObject:data forKey:@"data"];
+}
+
+-(void) test200
+{ // should go into a separate NSXMLParserTest
+	NSXMLParser *p=[[[NSXMLParser alloc] initWithData:[@"<?xml something ?>" dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+	[p setDelegate:self];
+	[p parse];
+#if 0	// <?xml should not call foundProcessingInstructionWithTarget because it is not a procesing instruction - see https://en.wikipedia.org/wiki/Processing_Instruction
+	XCTAssertEqualObjects([result objectForKey:@"target"], @"xml");
+	XCTAssertEqualObjects([result objectForKey:@"data"], @"echo '");
+#endif
+	p=[[[NSXMLParser alloc] initWithData:[@"<?php echo '?>'; ?>" dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+	[p setDelegate:self];
+	[p parse];
+#if 0	// Cocoa ends at the first ?> because processing instructions may not contain ?> - see https://en.wikipedia.org/wiki/Processing_Instruction
+	XCTAssertEqualObjects([result objectForKey:@"target"], @"php");
+	XCTAssertEqualObjects([result objectForKey:@"data"], @"echo '");
+#endif
+	p=[[[NSXMLParser alloc] initWithData:[@"<?php    echo 'hello';   ?>" dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+	[p setDelegate:self];
+	[p parse];
+	XCTAssertEqualObjects([result objectForKey:@"target"], @"php");
+	XCTAssertEqualObjects([result objectForKey:@"data"], @"echo 'hello';   ");
+}
 
 @end
