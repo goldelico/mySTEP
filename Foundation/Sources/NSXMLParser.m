@@ -386,6 +386,7 @@ static NSDictionary *entitiesTable;
 					NSMutableDictionary *parameters;
 					NSString *key=nil;		// for arguments
 					const char *tp=++cp;	// remember where tag started
+					const char *te;			// tag end
 					BOOL bang;
 					if(cp == ep)
 						{
@@ -476,6 +477,11 @@ static NSDictionary *entitiesTable;
 						tag=[NSString _string:(char *)tp+1 withEncoding:encoding length:cp-tp-1];	// don't include opening /
 					else
 						tag=[NSString _string:(char *)tp withEncoding:encoding length:cp-tp];
+					te=cp;	// where tag did end
+					// FIXME: processing instructions do not seem to run through the argument parser!
+					// we may simply scan for the closing ?> (even if within quotes like <?php echo "?>"; ?> )
+					// see: https://en.wikipedia.org/wiki/Processing_Instruction which says that ?> may not be part of the processing instruction!
+					// and <?xml is NOT a processing instruction!
 #if 0
 					NSLog(@"tag=%@ - %02x %c", tag, c, isprint(c)?c:' ');
 #endif
@@ -537,18 +543,24 @@ static NSDictionary *entitiesTable;
 										[self _parseError:NSXMLParserLTRequiredError message:[NSString stringWithFormat:@"<%@: found ? but no >", tag]];
 										return;
 										}
+									while(te < ep && *te==' ')
+										te++;	// becomes start of data
 									cp++;	// eat ?>
 									if([tag isEqualToString:@"?xml"])
 										{ // parse, i.e. check for UTF8 encoding and other attributes
-											// FIXME: check encoding
-											// check that it is the first tag of all
+										  // check that it is the first tag of all
+										  // FIXME: test/update encoding
+										  // according to https://en.wikipedia.org/wiki/Processing_Instruction this is NOT a processing instruction
 											acceptHTML=NO;	// enforce strict syntax
+
 										}
 									if([delegate respondsToSelector:@selector(parser:foundProcessingInstructionWithTarget:data:)])
 										{
-										// FXIME:
-										NSString *d=[NSString _string:(char *)tp withEncoding:encoding length:cp-tp];
-										[delegate parser:self foundProcessingInstructionWithTarget:[tag substringFromIndex:1] data:d];						
+										NSString *d=[NSString _string:((char *)te) withEncoding:encoding length:cp-te-2];
+#if 1
+										NSLog(@"tag: %@ processingInstruction: %@", tag, d);
+#endif
+										[delegate parser:self foundProcessingInstructionWithTarget:[tag substringFromIndex:1] data:d];
 										}
 									break; // done
 								}
