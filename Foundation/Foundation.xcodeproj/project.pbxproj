@@ -534,7 +534,7 @@
 		EEA32F5F09537D0D001244CF /* NSValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSValueTransformer.h; path = Sources/NSValueTransformer.h; sourceTree = "<group>"; };
 		EEA32F6009537D0D001244CF /* NSValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSValueTransformer.m; path = Sources/NSValueTransformer.m; sourceTree = "<group>"; };
 		EEA32F6109537D0D001244CF /* NSXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSXMLParser.h; path = Sources/NSXMLParser.h; sourceTree = "<group>"; };
-		EEA32F6209537D0D001244CF /* NSXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLParser.m; path = ../SimpleWebKit/Sources/NSXMLParser.m; sourceTree = "<group>"; };
+		EEA32F6209537D0D001244CF /* NSXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLParser.m; path = Sources/NSXMLParser.m; sourceTree = "<group>"; };
 		EEA32F8609537D0D001244CF /* tzfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tzfile.h; path = Sources/tzfile.h; sourceTree = "<group>"; };
 		EEA32F8709537D0D001244CF /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Unicode.h; sourceTree = "<group>"; };
 		EEA32F8809537D0D001244CF /* Unicode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Unicode.m; sourceTree = "<group>"; };
