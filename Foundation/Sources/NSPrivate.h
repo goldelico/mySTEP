@@ -99,6 +99,12 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 @end
 
+@interface NSXMLNode (NSPrivate)
+- (NSUInteger) _options;	// Cocoa has no official getter or setter???
+- (void) _setParent:(NSXMLNode *) p;
+- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+@end
+
 @interface NSValue (NSPrivate)
 
 + (id) valueFromString:(NSString *)string;					// not OS spec
