@@ -114,6 +114,8 @@
 	return NIMP;
 }
 
+- (NSXMLDocument *) rootDocument; { return self; }	// stop recursion
+
 - (NSXMLElement *) rootElement;
 {
 	return (NSXMLElement *) [self childAtIndex:0];
