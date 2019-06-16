@@ -139,7 +139,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
-- (NSString *) getPowerSupplyValue:(NSString *) value forType:(NSString *) type
+- (NSString *) getPowerSupplyValue:(NSString *) value forType:(NSString *) type returnFilename:(BOOL) flag;
 {
 	int bestQuality;
 	NSString *bestVal=nil;
@@ -150,14 +150,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	while((device = [e nextObject]))
 		{ // find matching device
 		NSString *dpath=[dir stringByAppendingPathComponent:device];
+		NSString *fpath=[dpath stringByAppendingPathComponent:value];
 		int quality=0;
-		NSString *val=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:value]];
+		NSString *val;
 		NSString *t;
 #if 0
 			NSLog(@"%@/%@ -> %@", dpath, value, val);
 #endif
-		if(!val)
-			continue;	// does not provide value
+		if(flag)
+			val=fpath;
+		else
+			{
+			val=[NSString stringWithContentsOfFile:fpath];
+			if(!val)
+				continue;	// does not provide value
+			}
 		t=[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"type"]];
 		t=[t stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 #if 0
@@ -179,6 +186,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSLog(@"%@/%@ bestval = %@", type, value, bestVal);
 #endif
 	return bestVal;
+}
+
+- (NSString *) getPowerSupplyValue:(NSString *) value forType:(NSString *) type;
+{
+	return [self getPowerSupplyValue:value forType:type returnFilename:NO];
 }
 
 - (NSString *) batteryValue:(NSString *) value
@@ -333,6 +345,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// FIXME: use VAC or VBUS whatever is available
 	NSString *val=[self getPowerSupplyValue:@"voltage_now" forType:@"USB"];
 	return val?[val floatValue] * 1e-6 : -1.0;
+}
+
+- (float) inputCurrentLimit;
+{
+	// FIXME: use VAC or VBUS whatever is available
+	NSString *val=[self getPowerSupplyValue:@"input_current_limit" forType:@"USB"];
+	return val?[val floatValue] * 1e-6 : -1.0;
+}
+
+- (void) setInputCurrentLimit:(float) current;
+{
+	// FIXME: use VAC or VBUS whatever is available
+	NSString *fname=[self getPowerSupplyValue:@"input_current_limit" forType:@"USB" returnFilename:YES];
+	if(fname)
+		[[NSString stringWithFormat:@"%f", 1e6*current] writeToFile:fname atomically:NO];
 }
 
 - (NSString *) localizedModel;

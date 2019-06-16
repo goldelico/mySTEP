@@ -97,6 +97,8 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 - (unsigned int) chargingCycles;
 - (float) chargerVoltage;
 - (BOOL) checkCable;	// if user should check charging cable
+- (float) inputCurrentLimit;
+- (void) setInputCurrentLimit:(float) current;
 
 @end
 
