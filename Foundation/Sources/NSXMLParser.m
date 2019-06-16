@@ -557,7 +557,7 @@ static NSDictionary *entitiesTable;
 									if([delegate respondsToSelector:@selector(parser:foundProcessingInstructionWithTarget:data:)])
 										{
 										NSString *d=[NSString _string:((char *)te) withEncoding:encoding length:cp-te-2];
-#if 1
+#if 0
 										NSLog(@"tag: %@ processingInstruction: %@", tag, d);
 #endif
 										[delegate parser:self foundProcessingInstructionWithTarget:[tag substringFromIndex:1] data:d];

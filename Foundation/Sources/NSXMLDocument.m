@@ -54,7 +54,7 @@
 		{
 		NSXMLParser *parser;
 		parser=[[NSXMLParser alloc] initWithData:data];
-#if 1
+#if 0
 		NSLog(@"parser=%@", parser);
 #endif
 		[parser setDelegate:self];	// the delegate methods are implemented in our NSXMLNode superclass
@@ -64,7 +64,7 @@
 		if(![parser parse])
 			{
 #if 1
-			NSLog(@"tree=%@", self);
+			NSLog(@"NSXMLDocument error: err=%@ tree=%@", [parser parserError], self);
 #endif
 			if(err)
 				*err=[parser parserError];
@@ -78,7 +78,7 @@
 			self=nil;
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"parsed XML document: %@", self);
 #endif
 	return self;

@@ -256,7 +256,7 @@
 
 - (void) parserDidStartDocument:(NSXMLParser *) parser;
 {
-#if 1
+#if 0
 	NSLog(@"didStartDocument: %@", self);
 #endif
 	_current=self;
@@ -264,7 +264,7 @@
 
 - (void) parserDidEndDocument:(NSXMLParser *) parser;
 {
-#if 1
+#if 0
 	NSLog(@"didEndDocument: %@", self);
 #endif
 }
@@ -282,7 +282,7 @@
 {
 	NSXMLElement *element=[[NSXMLElement alloc] initWithName:elementName URI:namespaceURI];
 	// what is the qualified name?
-#if 1
+#if 0
 	NSLog(@"didStartElement: %@ namespace: %@ qualified: %@ attributes: %@", elementName, namespaceURI, qualifiedName, attributeDict);
 #endif
 	[element setAttributesAsDictionary:attributeDict];
@@ -292,7 +292,7 @@
 
 - (void) parser:(NSXMLParser *) parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName;
 {
-#if 1
+#if 0
 	NSLog(@"didEndElement: %@ namespace: %@ qualified: %@", elementName, namespaceURI, qualifiedName);
 #endif
 	_current=[_current parent];
@@ -315,8 +315,8 @@
 }
 
 - (void) parser:(NSXMLParser *) parser foundProcessingInstructionWithTarget:(NSString *)target data:(NSString *)data;
-{ // e.g. <?xml> - target=@"xml"
-#if 1
+{ // e.g. <?xml*> - target=@"xml" - well not <?xml?> because that is not a processing instruction!
+#if 0
 	NSLog(@"foundProcessingInstructionWithTarget: %@ data: %@", target, data);
 #endif
 	if([target isEqualToString:@"xml"] && [self isKindOfClass:[NSXMLDocument class]])

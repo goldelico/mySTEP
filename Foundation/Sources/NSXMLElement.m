@@ -78,7 +78,7 @@
 
 - (void) addAttribute:(NSXMLNode *) attr;
 {
-#if 1
+#if 0
 	NSLog(@"addAttribute %@", attr);
 #endif
 	NSAssert([attr kind] == NSXMLAttributeKind, @"addAttribute: NSXMLNode not an attribute");
