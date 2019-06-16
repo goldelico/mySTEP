@@ -95,6 +95,26 @@
 }
 
 - (void) test42
+{ // with html
+	NSString *s=@"<head><title>test</title></head><body>OK</body>";
+	NSXMLDocument *d;
+	NSString *wants;
+	d=[[[NSXMLDocument alloc] initWithXMLString:s options:0 error:NULL] autorelease];
+	XCTAssertNil(d);	// not parsed
+	d=[[[NSXMLDocument alloc] initWithXMLString:s options:NSXMLDocumentTidyHTML error:NULL] autorelease];
+	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>test</title></head><body>OK</body></html>";
+#if 0
+	NSLog(@"%@", [[d XMLString] dataUsingEncoding:NSUTF8StringEncoding]);
+	NSLog(@"%@", [wants dataUsingEncoding:NSUTF8StringEncoding]);
+#endif
+	XCTAssertEqualObjects([d XMLString], wants);
+	s=@"<h1>OK</h1>";	// very simple html without <html> tag
+	d=[[[NSXMLDocument alloc] initWithXMLString:s options:NSXMLDocumentTidyHTML error:NULL] autorelease];
+	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><h1>OK</h1>";
+	XCTAssertEqualObjects([d XMLString], wants);
+}
+
+- (void) test43
 { // manual init - find out when and which xml header is printed
 	NSXMLDocument *d=[[[NSXMLDocument alloc] init] autorelease];
 	XCTAssertTrue([d documentContentKind] == NSXMLDocumentXMLKind);	// 0
@@ -127,9 +147,30 @@
 	 */
 }
 
-- (void) test43
+- (void) test44
 { // manual init - find out when and which xml header is printed
 	NSXMLDocument *d=[[[NSXMLDocument alloc] init] autorelease];
+	/*
+	 NSXMLNodeIsCDATA												= (1 << 0),
+	 NSXMLDocumentTidyHTML											= (1 << 9),
+	 NSXMLDocumentTidyXML											= (1 << 10),
+	 NSXMLDocumentValidate											= (1 << 13),
+	 NSXMLDocumentXInclude											= (1 << 16),
+	 NSXMLNodePrettyPrint											= (1 << 17),
+	 NSXMLDocumentIncludeContentTypeDeclaration						= (1 << 18),
+	 NSXMLNodePreserveNamespaceOrder									= (1 << 20),
+	 NSXMLNodePreserveAttributeOrder									= (1 << 21),
+	 NSXMLNodePreserveEntities										= (1 << 22),
+	 NSXMLNodePreservePrefixes										= (1 << 23),
+	 NSXMLNodePreserveCDATA											= (1 << 24),
+	 NSXMLNodePreserveWhitespace										= (1 << 25),
+	 NSXMLNodePreserveDTD											= (1 << 26),
+	 NSXMLNodePreserveCharacterReferences							= (1 << 27),
+	 NSXMLNodePreserveEmptyElements									=	(NSXMLNodeExpandEmptyElement | NSXMLNodeCompactEmptyElement),
+	 NSXMLNodePreserveQuotes											=	(NSXMLNodeUseSingleQuotes | NSXMLNodeUseDoubleQuotes),
+	 NSXMLNodePreserveAll	= ( NSXMLNodePreserveNamespaceOrder |
+	 */
+
 	[d setRootElement:[NSXMLElement elementWithName:@"test"]];
 	XCTAssertEqualObjects([d XMLString], @"<test></test>");	// body is printed without <?xml> header
 	XCTAssertEqualObjects([d XMLStringWithOptions:0], @"<test></test>");	// try different formatting options
@@ -139,28 +180,7 @@
 	XCTAssertEqualObjects([d XMLString], @"<test attrib=\"value\"></test>");
 	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeUseSingleQuotes], @"<test attrib=\'value\'></test>");
 	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodeUseDoubleQuotes], @"<test attrib=\"value\"></test>");	// is the default
-
-	/*
-	NSXMLNodeIsCDATA												= (1 << 0),
-	NSXMLDocumentTidyHTML											= (1 << 9),
-	NSXMLDocumentTidyXML											= (1 << 10),
-	NSXMLDocumentValidate											= (1 << 13),
-	NSXMLDocumentXInclude											= (1 << 16),
-	NSXMLNodePrettyPrint											= (1 << 17),
-	NSXMLDocumentIncludeContentTypeDeclaration						= (1 << 18),
-	NSXMLNodePreserveNamespaceOrder									= (1 << 20),
-	NSXMLNodePreserveAttributeOrder									= (1 << 21),
-	NSXMLNodePreserveEntities										= (1 << 22),
-	NSXMLNodePreservePrefixes										= (1 << 23),
-	NSXMLNodePreserveCDATA											= (1 << 24),
-	NSXMLNodePreserveWhitespace										= (1 << 25),
-	NSXMLNodePreserveDTD											= (1 << 26),
-	NSXMLNodePreserveCharacterReferences							= (1 << 27),
-	NSXMLNodePreserveEmptyElements									=	(NSXMLNodeExpandEmptyElement | NSXMLNodeCompactEmptyElement),
-	NSXMLNodePreserveQuotes											=	(NSXMLNodeUseSingleQuotes | NSXMLNodeUseDoubleQuotes),
-	NSXMLNodePreserveAll	= ( NSXMLNodePreserveNamespaceOrder |
-	 */
-
+	XCTAssertEqualObjects([d XMLStringWithOptions:NSXMLNodePrettyPrint], @"\n<test attrib=\"value\"></test>");
 }
 
 /* other tests
