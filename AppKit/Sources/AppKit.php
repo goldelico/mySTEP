@@ -2130,7 +2130,7 @@ class NSTableColumn extends NSObject
 	public function setWidth($width) { $this->width=$width; }
 	public function dataCell() { return $this->dataCell; }
 	public function headerCell() { return $this->headerCell; }
-	public function setDataCell(NSView $cell) { $this->dataCell=$cell; }
+	public function setDataCell(NSView $cell) { $this->dataCell=$cell; }	// copy isEditable
 	public function setHeaderCell(NSView $cell) { $this->headerCell=$cell; }
 }
 
@@ -2326,7 +2326,12 @@ class NSTableView extends NSControl
 				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
 // FIXME: make the element handle onclick...
-				$cell=$column->dataCell();
+				if($this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
+					$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
+				else
+					$cell=null;	// could use tableView_dataCellForTableColumn_row with null column to get a cell for each row
+				if(is_null($cell))
+					$cell=$column->dataCell();
 				if(is_null($cell))
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 				else
@@ -2338,12 +2343,15 @@ class NSTableView extends NSControl
 				if($row < $rows)
 					{ // ask delegate for the value to show
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-// _NSLog("row: $row." col:".$column->identifier()." item:".$item);
+// _NSLog($column);
+// _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 // _NSLog($cell);
 					if(!is_null($cell))
 						{ // insert value into cell and let the cell do the formatting
 						// how can we pass down the onclick handler?
 						$cell->setObjectValue($item);
+						if($this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
+							$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
 						$cell->display();
 						}
 					// compatibility if no cells are defined
@@ -2399,6 +2407,7 @@ class NSTextField extends NSControl
 		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
 		$this->setNeedsDisplay();
 		}
+	public function setObjectValue($obj) { $this->setStringValue($obj); }	// used by NSTableView
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) 
 		{
