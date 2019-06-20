@@ -2121,6 +2121,7 @@ class NSTableColumn extends NSObject
 		parent::__construct();
 		$this->headerCell=new NSTextField();
 		$this->headerCell->setEditable(false);
+		$this->headerCell->setAlign("center");
 		$this->dataCell=new NSTextField();
 		}
 
@@ -2289,99 +2290,72 @@ class NSTableView extends NSControl
 		html("<tr");
 		parameter("class", "NSHeaderView");
 		html(">\n");
-		foreach($this->columns as $index => $column)
-			{
-			if($column->isHidden())
-				continue;
-			html("<th");
-			parameter("id", $this->elementId."-".$index);
-			parameter("name", $column->identifier());
-			$class="NSTableHeaderCell";
-			if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
-				$class.=" NSSelectable";
-			parameter("class", $class);
-			if(is_null($column->headerCell()))
-				parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)".";s()");
-			else
-				parameter("onclick", "e('".$this->elementId."');"."r(-1);"."c($index)"."");
-			parameter("width", $column->width());
-			html(">\n");
-			html(_htmlentities($column->title()));
-			html("</th>\n");
-			}
 		html("</tr>\n");
-		$row=0;
+		$row=-1;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
 			{
 			html("<tr");
 			parameter("id", $this->elementId."-".$row);
 			parameter("class", "NSTableRow");
-			// add id="even"/"odd" so that we can define bgcolor by CSS?
 			html(">\n");
+			// FIXME: call tableView_dataCellForTableColumn_row($this, nil, $row)
+			// to get a custom cell for a full row
 			foreach($this->columns as $index => $column)
 				{
 				if($column->isHidden())
 					continue;
-				html("<td");
+				html($row < 0?"<th":"<td");
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
-				$class="NSTableCell";
-				$class.=$row == $this->selectedRow?" NSSelected":" NSUnselected";
-				$class.=(($row%2) == 0)?" NSEven":" NSOdd";
+				if($row < 0)
+					$class="NSTableHeaderCell";
+				else
+					{
+					$class="NSTableCell";
+					$class.=$row == $this->selectedRow?" NSSelected":" NSUnselected";
+					$class.=(($row%2) == 0)?" NSEven":" NSOdd";
+					}
 				if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
 					$class.=" NSSelectable";
 				parameter("class", $class);
 				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
-// FIXME: make the element handle onclick...
-				if($this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
+				if($row < 0)
+					$cell=$column->headerCell();
+				else if(is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
 					$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
 				else
-					$cell=null;	// could use tableView_dataCellForTableColumn_row with null column to get a cell for each row
-				if(is_null($cell))
 					$cell=$column->dataCell();
-				if(is_null($cell))
-					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
-				else if($row < $rows)
+				if($row < $rows)
 					{
+// _NSLog($column);
+// _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
+// _NSLog($cell);
 					$cell->_setElementId($this->elementId."-$row-$index");	// make them unique and attach to table
-					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
-					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
+					// parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
+					if($row < 0)
+						$item=$column->title();
+					else
+						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					$cell->setObjectValue($item);
-					if($this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
+					if($row >= 0 && is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
 						$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
 					if($cell->respondsToSelector("backgroundColor"))
 						{ // copy cell background to full table cell
 						$bgcolor=$cell->backgroundColor();
-						if($bgcolor)
+						if($bgcolor)	// not transparent
 							parameter("style", "background-color:".$bgcolor);
 						}
-					}
-				html(">\n");
-				if($row < $rows)
-					{ // ask delegate for the value to show
-// _NSLog($column);
-// _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
-// _NSLog($cell);
-					if(!is_null($cell))
-						$cell->display(); // let the cell do the formatting
-					else
-						{// compatibility if no cells are defined
-						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-						if(is_object($item) && $item->respondsToSelector("draw"))
-							{
-// _NSLog("deprecated: tableView_objectValueForTableColumn_row should not return NSViews!");
-							$item->draw();
-							}
-						else
-							{
-							html(_htmlentities($item));
-							}
-						}
+					html(">\n");
+					$cell->display(); // let the cell do the formatting
 					}
 				else
+					{
+					html(">\n");
 					html("&nbsp;");	// add empty rows until visibleRows are shown
-				html("</td>");
+					}
+				html($row < 0?"</th>":"</td>");
 				}
 			html("</tr>\n");
 			$row++;
