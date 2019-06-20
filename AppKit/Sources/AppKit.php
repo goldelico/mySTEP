@@ -2112,9 +2112,17 @@ class NSTableColumn extends NSObject
 	protected $isEditable=false;
 	protected $hidden=false;
 	protected $align="";
-	protected $headerCell=null;
-	protected $dataCell=null;
+	protected $headerCell;
+	protected $dataCell;
 	// allow to define colspan and rowspan values
+
+	public function __construct()
+		{
+		parent::__construct();
+		$this->headerCell=new NSTextField();
+		$this->headerCell->setEditable(false);
+		$this->dataCell=new NSTextField();
+		}
 
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
@@ -2122,8 +2130,8 @@ class NSTableColumn extends NSObject
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
 	public function isHidden() { return $this->hidden; }
 	public function setHidden($flag) { $this->hidden=$flag; }
-	public function isEditable() { return $this->isEditable; }
-	public function setEditable($flag) { $this->isEditable=$flag; }
+	public function isEditable() { return $this->dataCell->isEditable; }
+	public function setEditable($flag) { $this->dataCell->setEditable($flag); }
 	public function align() { return $this->align; }
 	public function setAlign($align) { $this->align=$align; }
 	public function width() { return $this->width; }
