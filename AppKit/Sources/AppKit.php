@@ -2342,35 +2342,41 @@ class NSTableView extends NSControl
 					$cell=$column->dataCell();
 				if(is_null($cell))
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
-				else
+				else if($row < $rows)
 					{
 					$cell->_setElementId($this->elementId."-$row-$index");	// make them unique and attach to table
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
+					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+					$cell->setObjectValue($item);
+					if($this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
+						$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
+					if($cell->respondsToSelector("backgroundColor"))
+						{ // copy cell background to full table cell
+						$bgcolor=$cell->backgroundColor();
+						if($bgcolor)
+							parameter("style", "background-color:".$bgcolor);
+						}
 					}
 				html(">\n");
 				if($row < $rows)
 					{ // ask delegate for the value to show
-					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 // _NSLog($column);
 // _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 // _NSLog($cell);
 					if(!is_null($cell))
-						{ // insert value into cell and let the cell do the formatting
-						// how can we pass down the onclick handler?
-						$cell->setObjectValue($item);
-						if($this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
-							$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
-						$cell->display();
-						}
-					// compatibility if no cells are defined
-					else if(is_object($item) && $item->respondsToSelector("draw"))
-						{
-// _NSLog("deprecated: tableView_objectValueForTableColumn_row should not return NSViews");
-						$item->draw();
-						}
+						$cell->display(); // let the cell do the formatting
 					else
-						{
-						html(_htmlentities($item));
+						{// compatibility if no cells are defined
+						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+						if(is_object($item) && $item->respondsToSelector("draw"))
+							{
+// _NSLog("deprecated: tableView_objectValueForTableColumn_row should not return NSViews!");
+							$item->draw();
+							}
+						else
+							{
+							html(_htmlentities($item));
+							}
 						}
 					}
 				else
