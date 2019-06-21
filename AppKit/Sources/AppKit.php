@@ -2156,6 +2156,7 @@ class NSTableView extends NSControl
 	protected $dataSource;
 	protected $visibleRows;
 	protected $selectedRow=-1;
+	protected $columnsSelectable=false;
 	protected $selectedColumn=-1;
 	protected $clickedRow;
 	protected $clickedColumn;
@@ -2247,8 +2248,20 @@ class NSTableView extends NSControl
 	public function selectRow($row, $extend=false)
 		{
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
+		$this->selectedColumn=-1;
 		// if ! extend -> delete previous otherwise merge into set
 		$this->selectedRow=$row;
+		$this->setNeedsDisplay();
+		$delegate=$this->delegate();
+		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
+			$delegate->selectionDidChange($this);
+		}
+	public function selectColumn($col, $extend=false)
+		{
+		NSLog("selectColumn $column extend ".($extend?"yes":"no"));
+		$this->selectedRow=-1;
+		// if ! extend -> delete previous otherwise merge into set
+		$this->selectedColumn=$column;
 		$this->setNeedsDisplay();
 		$delegate=$this->delegate();
 		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
@@ -2259,8 +2272,11 @@ class NSTableView extends NSControl
 		$pos=$event->position();
 		$this->clickedColumn=$pos['x'];
 		$this->clickedRow=$pos['y'];
-		if(false && $this->clickedRow == -1)
-			; // select column
+		if($this->columnsSelectable && $this->clickedRow == -1)
+			{
+			$this->selectColumn($this->clickedColumn);
+			return;
+			}
 		// if this clickedRow is already selected we may have a double-click
 		// then call doubleAction (if defined) or check if NSTableColumn is editable
 		$this->selectRow($this->clickedRow);
@@ -2308,11 +2324,14 @@ class NSTableView extends NSControl
 				parameter("id", $this->elementId."-".$row."-".$index);
 				parameter("name", $column->identifier());
 				if($row < 0)
+					{
 					$class="NSTableHeaderCell";
+					$class.=($index == $this->selectedColumn)?" NSSelected":" NSUnselected";
+					}
 				else
 					{
 					$class="NSTableCell";
-					$class.=$row == $this->selectedRow?" NSSelected":" NSUnselected";
+					$class.=($row == $this->selectedRow || $index == $this->selectedColumn)?" NSSelected":" NSUnselected";
 					$class.=(($row%2) == 0)?" NSEven":" NSOdd";
 					}
 				if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
