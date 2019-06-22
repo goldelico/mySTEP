@@ -142,6 +142,7 @@
 	XCTAssertEquals([view1 bounds], NSMakeRect(0.0, 0.0, 280.0, 270.0));
 	XCTAssertEquals([view2 frame], NSMakeRect(5.0, 5.0, 270.0, 260.0));
 	XCTAssertEquals([view2 bounds], NSMakeRect(0.0, 0.0, 270.0, 260.0));
+	XCTAssertEquals([view2 visibleRect], NSMakeRect(0, 0, 270.0, 260.0));
 
 	XCTAssertEqual([view6 frameRotation], 0.0f);
 	XCTAssertEqual([view6 boundsRotation], 0.0f);
@@ -149,6 +150,9 @@
 	XCTAssertEquals([view6 bounds], NSMakeRect(0.0, 0.0, 280.0, 270.0));
 	XCTAssertEquals([view7 frame], NSMakeRect(5.0, 5.0, 270.0, 260.0));
 	XCTAssertEquals([view7 bounds], NSMakeRect(0.0, 0.0, 270.0, 260.0));
+	XCTAssertEquals([view7 visibleRect], NSMakeRect(0, 0, 270.0, 260.0));
+
+	XCTAssertEquals([view14 visibleRect], NSMakeRect(0, 0, 225.0, 215.0));
 }
 
 - (void) test_isflipped_05

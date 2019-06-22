@@ -20,6 +20,10 @@
 		[NSValue value:&_b withObjCType:@encode(typeof(b))], \
 		##__VA_ARGS__); })
 
+#define IsSameFloat(A, B) (fabs((A)-(B)) < 1e-5)
+#define IsSamePoint(A, B) (IsSameFloat((A).x, (B).x) && IsSameFloat((A).y, (B).y))
+#define IsSameSize(A, B) (IsSameFloat((A).width, (B).width) && IsSameFloat((A).height, (B).height))
+#define IsSameRect(A, B) (IsSamePoint((A).origin, (B).origin) && IsSameSize((A).size, (B).size))
 
 @interface NSViewBoundsTest : XCTestCase {
 	NSView *view;
@@ -73,12 +77,14 @@
 	XCTAssertEqual([view boundsRotation], 0.0f);
 	XCTAssertEquals([view frame], NSMakeRect(0, 0, 500.0, 500.0));
 	XCTAssertEquals([view bounds], NSMakeRect(0, 0, 500.0, 500.0));
+	XCTAssertEquals([view visibleRect], NSMakeRect(0, 0, 500.0, 500.0));
 }
 
 - (void) test05
 { // setting negative frame size is possible
 	[view setFrameSize:NSMakeSize(-200.0, -300.0)];
 	XCTAssertEquals([view frame], NSMakeRect(0.0, 0.0, -200.0, -300.0));
+	XCTAssertEquals([view visibleRect], NSMakeRect(0, 0, -200.0, -300.0));
 }
 
 - (void) test10
@@ -168,8 +174,8 @@
 	
 	// rotate not by 45 degrees
 	[view setBoundsRotation:30.0];
-	XCTAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603), @"");
-
+	// XCTAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603), @"");
+	XCTAssertTrue(IsSameRect([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603)));
 	// and scale in a non-uniform way
 	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.75)];
 	XCTAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0/0.75, 136.603/0.5, 136.603/0.75), @"");
@@ -220,6 +226,7 @@
 	[view setBoundsRotation:0.0];
 	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
 	XCTAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), @"");
+	XCTAssertEquals([view visibleRect], NSMakeRect(0, 0, 100.0, 100.0));
 }
 
 #if 0	// convert to SenTest
