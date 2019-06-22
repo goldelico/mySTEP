@@ -984,6 +984,7 @@ static NSColor *__borderedBackgroundColor = nil;
 			[NSEvent startPeriodicEventsAfterDelay:delay withPeriod:interval];
 			mask |= NSPeriodicMask;
 		}
+	// FIXME: this does not pass the cellFrame to e.g. a NSSliderCell!
 	tracking=[self startTrackingAt:point inView:controlView];
 	if(_c.actOnMouseDown && action)
 		[self _sendActionFrom:controlView];	// do this after starttracking (which may update the cell)
@@ -1013,46 +1014,43 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 			switch([event type])
 			{
-				case NSPeriodic:
-			{ // send periodic action while tracking (e.g. for a slider)
-				if(action)
-					[self _sendActionFrom:controlView];
-				continue;
-			}
-				case NSLeftMouseUp:					// Did mouse go up?
-				{
-				mouseWentUp = YES;
-				break;	// break loop
+				case NSPeriodic: { // send periodic action while tracking (e.g. for a slider)
+					if(action)
+						[self _sendActionFrom:controlView];
+					continue;
 				}
-				case NSLeftMouseDragged:
-			{ // pointer has moved
-				last_point=point;
-				point = [controlView convertPoint:[event locationInWindow] fromView:nil];
-				if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
-					expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
+				case NSLeftMouseUp: { // Did mouse go up?
+					mouseWentUp = YES;
+					break;	// break loop
+				}
+				case NSLeftMouseDragged: { // pointer has moved
+					last_point=point;
+					point = [controlView convertPoint:[event locationInWindow] fromView:nil];
+					if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
+						expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
 #if 0
-				NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
+					NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
 #endif
-				if(!untilMouseUp && ![controlView mouse:point inRect:cellFrame]) // we did leave the cell
-					break;	// break loop when leaving the frame box
-				if(_c.actOnMouseDragged)
-					{ // send action while tracking (e.g. for a slider)
-						if(action)
-							[self _sendActionFrom:controlView];
-					}
-				if(tracking && ![self continueTracking:last_point at:point inView:controlView])
-					tracking=NO;	// cell no longer wants to receive any more tracking calls
-				continue;
-			}
+					if(!untilMouseUp && ![controlView mouse:point inRect:cellFrame]) // we did leave the cell
+						break;	// break loop when leaving the frame box
+					if(_c.actOnMouseDragged)
+						{ // send action while tracking (e.g. for a slider)
+							if(action)
+								[self _sendActionFrom:controlView];
+						}
+					if(tracking && ![self continueTracking:last_point at:point inView:controlView])
+						tracking=NO;	// cell no longer wants to receive any more tracking calls
+					continue;
+				}
 				// scroll wheel?
 				default:
-				continue;	// ignore all others and continue loop
+					continue;	// ignore all others and continue loop
 			}
 			break;	// break in switch also breaks the while loop
 		}
 	if((mask & NSPeriodicMask) != 0)
 		[NSEvent stopPeriodicEvents];					// was still tracking
-	[self stopTracking:last_point 						// Stop tracking mouse
+	[self stopTracking:last_point						// Stop tracking mouse
 					at:point
 				inView:controlView
 			 mouseIsUp:mouseWentUp];
