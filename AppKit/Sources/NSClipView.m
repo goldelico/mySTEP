@@ -59,11 +59,11 @@
 		[_documentView removeFromSuperview];	// this may finally release the view
 		}
 
-	if ((_documentView = aView)) 
+	if ((_documentView = aView))
 		{ // add new
 		if(![_documentView isDescendantOf:self])
 			[self addSubview:_documentView];	// add us first
-		[self _invalidateCTM];		// our isFlipped state may change
+//		[self _invalidateCTM];		// our isFlipped state may change
 		[_documentView setNeedsDisplay:YES];	// this should set ourselves dirty
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
@@ -180,13 +180,14 @@
 	NSRect bounds = [self bounds];
 	if(!_window)
 		return;	// ignore
-	// disable notifications to prevent an infinite loop
-	[_documentView setPostsFrameChangedNotifications:NO];	
-#if 0
+
+#if 1
 	NSLog(@"NSClipView viewFrameChanged");		// An unflipped doc view 
 													// smaller than clip view 
 													// requires an org offset 
 #endif
+#if 0	// questionable if that happens on Cocoa as well - test cases do not confirm (at least for non-flipped document view)
+	[_documentView setPostsFrameChangedNotifications:NO];	// disable notifications to prevent an infinite loop
 	if (mr.size.height < _bounds.size.height)		// in order to appear at
 		{											// top of the clip view.
 		mr.origin.y = bounds.size.height - mr.size.height;	
@@ -196,20 +197,21 @@
 		{						// view. May occur when init docview is resized 		
 		mr.origin.y = 0;
 									// if document is not flipped adjust init
-		if(![self isFlipped])		// scroll position to be top of clip view.
+		if(![[_documentView isFlipped]])		// scroll position to be top of clip view.
 			bounds.origin.y = mr.size.height - bounds.size.height;
 		}
 							
 	if (mr.size.width < bounds.size.width)
 		bounds.origin.x = 0;
 
-	if(![self isFlipped])			// if document is not flipped adjust init
+	if(![[_documentView isFlipped]])			// if document is not flipped adjust init
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
+#endif
+
 	[_superview scrollClipView:self toPoint:bounds.origin];			// will call [self scrollToPoint:] and [self setBounds]
 	[_superview reflectScrolledClipView:self];
-//	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
 	if(NSWidth(mr) < NSWidth(_frame) || NSHeight(mr) < NSHeight(_frame))
 		[self setNeedsDisplayInRect:[self visibleRect]];
 }
@@ -282,15 +284,12 @@
 
 - (id) documentView								{ return _documentView; }
 - (BOOL) isOpaque								{ return YES; }
+- (BOOL) isFlipped								{ return NO; }
 
-/* FIXME/CHECKME: do we really have to track the isFlipped status of the documentView???
-this is how it should be
-but this results in problems with NSTextViews (unflipped) embedded in a NSScrollView (flipped)
-because this reverses the writing direction within the text container
-*/
-// - (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+#if OLD	// Cocoa does not seem to do it this way! This probably simplifies code
+- (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+#endif
 
-- (BOOL) isFlipped								{ return YES; }
 - (BOOL) copiesOnScroll							{ return _clip.copiesOnScroll; }
 - (BOOL) drawsBackground;						{ return _clip.drawsBackground; }
 - (void) setCopiesOnScroll:(BOOL)flag			{ _clip.copiesOnScroll = flag; }
@@ -352,7 +351,7 @@ because this reverses the writing direction within the text container
 		ySlice=(NSRect) { start.origin, { start.size.width, 0.0 } };
 		xSlice=(NSRect) { start.origin, { 0.0, start.size.height } };
 
-		if(delta.height < 0)		 		// scroll down, i.e. move document up
+		if(delta.height < 0)				// scroll down, i.e. move document up
 			{
 			src.size.height += delta.height;	// is negative
 			src.origin.y -= 2.0*delta.height;	// is negative
@@ -367,7 +366,7 @@ because this reverses the writing direction within the text container
 			ySlice.origin.y -= delta.height;
 			}
 
-		if(delta.width < 0)		 			// scroll right, doc left
+		if(delta.width < 0)					// scroll right, doc left
 			{
 			src.size.width += delta.width;	// is negative!
 			src.origin.x -= 2.0*delta.width;	// is negative!
@@ -451,6 +450,7 @@ because this reverses the writing direction within the text container
 	[_documentView resetCursorRects];
 }
 
+#if OLD	// intersection with visibleRect is now done always
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 { // limit dirty area to our visible rect
 #if 0
@@ -480,18 +480,15 @@ because this reverses the writing direction within the text container
 	rect=NSIntersectionRect(rect, [self visibleRect]);
 	[super displayRectIgnoringOpacity:rect inContext:context];
 }
+#endif
 
 - (void) drawRect:(NSRect)rect
 {
 	if(_clip.drawsBackground)
 		{
-		[[self backgroundColor] set];				
-		NSRectFill(rect);
+		[[self backgroundColor] set];
+		NSRectFill([self visibleRect]);
 		}
-#if 1
-	rect=[self documentVisibleRect];
-	[NSBezierPath clipRect:rect];	// install clipping before drawing the subview
-#endif
 }
 
 - (NSView *) hitTest:(NSPoint) aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
