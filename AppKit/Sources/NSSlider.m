@@ -1,16 +1,16 @@
 /*
-   NSSlider.m
+ NSSlider.m
 
-   NSlider and NSSliderCell classes	
+ NSlider and NSSliderCell classes
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+ Copyright (C) 1996 Free Software Foundation, Inc.
 
-   Author:  Felipe A. Rodriguez <far@ix.netcom.com>
-   Date: 	August 1998
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ Author:  Felipe A. Rodriguez <far@ix.netcom.com>
+ Date: 	August 1998
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSSlider.h>
@@ -31,7 +31,7 @@ static Class _sliderCellClass;
 
 //*****************************************************************************
 //
-// 		NSSliderCell 
+// 		NSSliderCell
 //
 //*****************************************************************************
 
@@ -43,23 +43,28 @@ static Class _sliderCellClass;
 		{
 		_altIncrementValue = -1.0;
 		_isVertical = NO;
-		_initializedVertical=!_isVertical;	// force initialization
 		_minValue = 0;
 		_maxValue = 1;
 		_contents = [[NSNumber numberWithFloat:0.0] retain];
 		[self setBordered:NO];
-		[self setBezeled:NO];	
-		_knobCell = [NSCell new];
+		[self setBezeled:NO];
 		}
 	return self;
 }
 
-#if FIXME
 - (id) copyWithZone:(NSZone *) z;
 {
-	return NIMP;
+	NSSliderCell *c=[super copyWithZone:z];
+	c->_minValue=_minValue;
+	c->_maxValue=_maxValue;
+	c->_altIncrementValue=_altIncrementValue;
+	c->_numberOfTickMarks=_numberOfTickMarks;
+	c->_sliderType=_sliderType;
+	c->_tickMarkPosition=_tickMarkPosition;
+	c->_isVertical=_isVertical;
+	c->_allowTickMarkValuesOnly=_allowTickMarkValuesOnly;
+	return c;
 }
-#endif
 
 - (void) dealloc
 {
@@ -108,7 +113,6 @@ static Class _sliderCellClass;
 
 - (NSRect) knobRectFlipped:(BOOL)flipped
 {
-	NSImage *image = [_knobCell image];
 	NSSize size;
 	NSPoint origin;
 	CGFloat floatValue;
@@ -125,17 +129,49 @@ static Class _sliderCellClass;
 #if 0
 	NSLog(@"floatValue=%lf", floatValue);
 #endif
-	size = [image size];
-	if (_isVertical) 
+	if(!_knobCell)
+		{ // needs to setup knob image
+			NSImage *image;
+			CGFloat sz;
+			_knobCell = [NSCell new];
+			if(_isVertical)
+				{
+				image = [NSImage imageNamed:@"GSSliderVert"];
+				sz = _slotRect.size.width-2.0;
+				}
+			else
+				{
+				image = [NSImage imageNamed:@"GSSliderHoriz"];
+				sz = _slotRect.size.height-2.0;
+				}
+			if(_numberOfTickMarks > 0)
+				{
+				if(_tickMarkPosition == NSTickMarkAbove)	// == NSTickMarkLeft
+					;
+				}
+			image=[image copy];	// make an independent copy
+			size=NSMakeSize(sz, sz);
+			[image setSize:size];	// make it square according to orientation
+			[_knobCell setImage:image];
+#if 0
+			NSLog(@"knob cell %@", _knobCell);
+			NSLog(@"knob image %@", image);
+#endif
+			[image autorelease];
+		}
+	else
+		size = [[_knobCell image] size];
+
+	if (_isVertical)
 		{
 		origin.x = 0;
-		origin.y = ((_trackRect.size.height - size.height) * floatValue) + 2;
+		origin.y = ((_slotRect.size.height - size.height) * floatValue) + 2;
 		}
-	else 
+	else
 		{
-		origin.x = ((_trackRect.size.width - size.width) * floatValue) + 0;
+		origin.x = ((_slotRect.size.width - size.width) * floatValue) + 0;
 		if(flipped)
-			origin.y=_trackRect.size.height-2;
+			origin.y=_slotRect.size.height-2;
 		else
 			origin.y = 2;
 		}
@@ -145,7 +181,7 @@ static Class _sliderCellClass;
 			;
 		// adjust to make room for tick marks
 		}
-	return (NSRect){ origin, size };  
+	return (NSRect){ origin, size };
 }
 
 - (void) drawKnob
@@ -164,48 +200,20 @@ static Class _sliderCellClass;
 
 - (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
+	BOOL flipped;
 	NSRect kr;
 	_controlView=(NSControlView *) controlView;	// remember
+	flipped=[_controlView isFlipped];
+	_slotRect=cellFrame;	// used inside knobRectFlipped
 	if(_sliderType == NSCircularSlider)
 		;
-	if(_initializedVertical != _isVertical)
-		{ // needs to adjust
-		NSImage *image;
-		CGFloat size;
-		if((_initializedVertical = _isVertical))
-			{
-			image = [NSImage imageNamed:@"GSSliderVert"];
-			size = cellFrame.size.width-2.0;
-			}
-		else 
-			{
-			image = [NSImage imageNamed:@"GSSliderHoriz"];
-			size = cellFrame.size.height-2.0;
-			}
-		if(_numberOfTickMarks > 0)
-			{
-			if(_tickMarkPosition == NSTickMarkAbove)	// == NSTickMarkLeft
-				;
-			}
-		image=[image copy];	// make an independent copy
-		[image setSize:NSMakeSize(size, size)];	// make it square according to orientation
-		[_knobCell setImage:image];
-#if 0
-		NSLog(@"knob cell %@", _knobCell);
-		NSLog(@"knob image %@", image);
-#endif
-		[image release];
-		}
+	//	if (_titleCell)
+	//		[_titleCell drawInteriorWithFrame:cellFrame inView:controlView];
 
-	_trackRect = cellFrame;
-	
-//	if (_titleCell)
-//		[_titleCell drawInteriorWithFrame:cellFrame inView:controlView];
-	
-	[self drawBarInside:cellFrame flipped:[controlView isFlipped]];
-	kr=[self knobRectFlipped:[_controlView isFlipped]];
+	[self drawBarInside:cellFrame flipped:flipped];
+	kr=[self knobRectFlipped:flipped];
 	kr.origin.x+=cellFrame.origin.x;
-	if([_controlView isFlipped])
+	if(flipped)
 		kr.origin.y+=cellFrame.origin.y-kr.size.height;	// draw relative to given frame
 	else
 		kr.origin.y+=cellFrame.origin.y;	// draw relative to given frame
@@ -214,13 +222,17 @@ static Class _sliderCellClass;
 
 - (CGFloat) knobThickness
 {
-	NSSize size = [[_knobCell image] size];
+	NSSize size;
+	if(!_knobCell) [self knobRectFlipped:NO];
+	size= [[_knobCell image] size];
 	return _isVertical ? size.height : size.width;
 }
 
 - (void) setKnobThickness:(CGFloat)thickness
 {
-	NSImage* image = [_knobCell image];
+	NSImage* image;
+	if(!_knobCell) [self knobRectFlipped:NO];
+	image = [_knobCell image];
 	NSSize size = [image size];
 	if (_isVertical)
 		size.height = thickness;
@@ -237,22 +249,22 @@ static Class _sliderCellClass;
 - (void) setMinValue:(double)aDouble
 {
 	_minValue = aDouble;
-	// check if we should modify the value
+	// check if we should modify the max value
 }
 
 - (void) setMaxValue:(double)aDouble
 {
 	_maxValue = aDouble;
-	// check if we should modify the value
+	// check if we should modify the min value
 }
 
 - (double) minValue						{ return _minValue; }
 - (double) maxValue						{ return _maxValue; }
 // FIXME: is vertical if height > width
 - (NSInteger) isVertical				{ return _isVertical; }
+// changing frame/bounds should wipe out the knob and update _isVertical
 - (double) altIncrementValue			{ return _altIncrementValue; }
 + (BOOL) prefersTrackingUntilMouseUp	{ return YES; }
-- (NSRect) trackRect					{ return _trackRect; }
 
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos; { _tickMarkPosition=pos; }
 - (NSTickMarkPosition) tickMarkPosition; { return _tickMarkPosition; }
@@ -272,12 +284,12 @@ static Class _sliderCellClass;
 	if(_isVertical)
 		{
 		r.origin.x=5.0;	// FIXME: make dependent on left/right
-		r.origin.y=w2+index*(_trackRect.size.height-w)/(_numberOfTickMarks-1);
+		r.origin.y=w2+index*(_slotRect.size.height-w)/(_numberOfTickMarks-1);
 		r.size=NSMakeSize(5.0, 1.0);
 		}
 	else
 		{
-		r.origin.x=w2+index*(_trackRect.size.width-w)/(_numberOfTickMarks-1);
+		r.origin.x=w2+index*(_slotRect.size.width-w)/(_numberOfTickMarks-1);
 		r.origin.y=5.0;	// FIXME: make dependent on above/below
 		r.size=NSMakeSize(1.0, 5.0);
 		}
@@ -292,26 +304,26 @@ static Class _sliderCellClass;
 		{
 		_minValue=[decoder decodeDoubleForKey:@"NSMinValue"];
 		_maxValue=[decoder decodeDoubleForKey:@"NSMaxValue"];
+		if(_maxValue <= _minValue)
+			NSLog(@"invalid min/max values");
 		_isVertical=[decoder decodeBoolForKey:@"NSVertical"];
-		_initializedVertical=!_isVertical;	// force initialization of image
 		_altIncrementValue=[decoder decodeDoubleForKey:@"NSAltIncValue"];
 		[self setFloatValue:[decoder decodeFloatForKey:@"NSValue"]];
-//		[self setDoubleValue:[decoder decodeDoubleForKey:@"NSValue"]];
+		//		[self setDoubleValue:[decoder decodeDoubleForKey:@"NSValue"]];
 		_sliderType=[decoder decodeIntForKey:@"NSSliderType"];
 		_numberOfTickMarks=[decoder decodeIntForKey:@"NSNumberOfTickMarks"];
 		_allowTickMarkValuesOnly=[decoder decodeBoolForKey:@"NSAllowsTickMarkValuesOnly"];
 		_tickMarkPosition=[decoder decodeIntForKey:@"NSTickMarkPosition"];
 		return self;
 		}
-	[decoder decodeValuesOfObjCTypes:"ff@f", &_minValue, &_maxValue, 
-										&_contents, &_altIncrementValue];
+	[decoder decodeValuesOfObjCTypes:"ff@f", &_minValue, &_maxValue, &_contents, &_altIncrementValue];
 	return self;
 }
 
 - (void) encodeWithCoder:(NSCoder*)coder
 {
-	[coder encodeValuesOfObjCTypes:"ff@f", _minValue, _maxValue, 
-									_contents, _altIncrementValue];
+	[coder encodeValuesOfObjCTypes:"ff@f", _minValue, _maxValue,
+	 _contents, _altIncrementValue];
 }
 
 // deprecated
@@ -329,10 +341,10 @@ static Class _sliderCellClass;
 {
 	if(_numberOfTickMarks > 1 && _allowTickMarkValuesOnly)
 		{ // round to nearest tick mark value
-		double dist=(_maxValue-_minValue)/(_numberOfTickMarks-1);	// distance between tick marks
-		double n=(value-_minValue)/dist;
-		n=rint(n);	// round to nearest integer
-		value=n*dist+_minValue;
+			double dist=(_maxValue-_minValue)/(_numberOfTickMarks-1);	// distance between tick marks
+			double n=(value-_minValue)/dist;
+			n=rint(n);	// round to nearest integer
+			value=n*dist+_minValue;
 		}
 	return value;
 }
@@ -352,45 +364,28 @@ static Class _sliderCellClass;
 
 - (CGFloat) _floatValueForMousePoint:(NSPoint)point knobRect:(NSRect)knobRect flipped:(BOOL) isFlipped;
 {
-	NSRect slotRect = [self trackRect];
-	BOOL isVertical = [self isVertical];
 	CGFloat minValue = [self minValue];
 	CGFloat maxValue = [self maxValue];
-	CGFloat floatValue = 0;
-	CGFloat position;
-	// Adjust the point to lie inside the knob slot. We don't have to worry whether the view is flipped or not.
-	if (isVertical)
+	CGFloat floatValue;
+	if ([self isVertical])
 		{
-		if (point.y < slotRect.origin.y + knobRect.size.height / 2)
-			position = slotRect.origin.y + knobRect.size.height / 2;
-    	else 
-			if (point.y <= (position = NSMaxY(slotRect) -NSHeight(knobRect)/2))
-      			position = point.y;
-		// Compute the float value 
-    	floatValue = (position - (slotRect.origin.y + knobRect.size.height/2))
-			/ (slotRect.size.height - knobRect.size.height);
-   		if (isFlipped)
-      		floatValue = 1 - floatValue;
-  		}
+		floatValue = (point.y - _slotRect.origin.y - knobRect.size.height/2) / (_slotRect.size.height - knobRect.size.height);
+		if (isFlipped)
+			floatValue = 1 - floatValue;
+		}
 	else
-		{ // Adjust the point to lie inside the knob slot 
-		if (point.x < slotRect.origin.x + knobRect.size.width / 2)
-			position = slotRect.origin.x + knobRect.size.width / 2;
-		else 
-			if (point.x <= (position = NSMaxX(slotRect) - NSWidth(knobRect)/2))
-      			position = point.x;
-		// Compute the float value given the knob size
-    	floatValue = (position - (slotRect.origin.x + knobRect.size.width / 2))
-			/ (slotRect.size.width - knobRect.size.width);
-  		}
+		floatValue = (point.x - _slotRect.origin.x- knobRect.size.width/2) / (_slotRect.size.width - knobRect.size.width);
 	return floatValue * (maxValue - minValue) + minValue;
 }
 
-- (BOOL) startTrackingAt:(NSPoint)startPoint
+// FIXME: we should save the value until tracking ends successfully!
+
+- (BOOL) startTrackingAt:(NSPoint)startPoint	// coordinate inside control
 				  inView:(NSView*)control
 { // we want to know tracking positions and have the knob follow where we are
 	BOOL isFlipped=[control isFlipped];
-	CGFloat v = [self _floatValueForMousePoint:startPoint knobRect:[self knobRectFlipped:isFlipped] flipped:isFlipped];
+	CGFloat v;
+	v=[self _floatValueForMousePoint:startPoint knobRect:[self knobRectFlipped:isFlipped] flipped:isFlipped];
 	if([self allowsTickMarkValuesOnly])
 		v=[self closestTickMarkValueToValue:v]; // round to nearest tick mark
 	[self setFloatValue:v];	// calls updateCell:
@@ -411,11 +406,20 @@ static Class _sliderCellClass;
 	return YES;	// always continue
 }
 
+- (BOOL) trackMouse:(NSEvent *)event
+			 inRect:(NSRect)cellFrame
+			 ofView:(NSView *)controlView
+	   untilMouseUp:(BOOL)untilMouseUp
+{
+	_slotRect=cellFrame;	// store so that we can calculate relative coordinates in startTrackingAt:inView:
+	return [super trackMouse:event inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];
+}
+
 @end /* NSSliderCell */
 
 //*****************************************************************************
 //
-// 		NSSlider 
+// 		NSSlider
 //
 //*****************************************************************************
 
@@ -470,7 +474,6 @@ static Class _sliderCellClass;
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;	{ [_cell setTickMarkPosition:pos]; }
 - (NSTickMarkPosition) tickMarkPosition;	{ return [_cell tickMarkPosition]; }
 - (double) tickMarkValueAtIndex:(NSInteger) index;	{ return [_cell tickMarkValueAtIndex:index]; }
-- (NSRect) trackRect						{ return [_cell trackRect]; }
 - (BOOL) acceptsFirstMouse:(NSEvent*)event	{ return YES; }
 
 @end /* NSSlider */

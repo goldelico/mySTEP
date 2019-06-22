@@ -42,6 +42,7 @@ typedef enum _NSTickMarkPosition
 
 @interface NSSliderCell : NSActionCell  <NSCoding>
 {
+	NSRect _slotRect;
 	id _knobCell;
 	//	id _titleCell;	// deprecated
 	CGFloat _minValue;	// we store only a float although external access is double!
@@ -49,11 +50,9 @@ typedef enum _NSTickMarkPosition
 	//	float _floatValue;	// NSNumber in _contents
 	CGFloat _altIncrementValue;
 	NSInteger _numberOfTickMarks;
-	NSRect _trackRect;
 	NSSliderType _sliderType;
 	NSTickMarkPosition _tickMarkPosition;
 	BOOL _isVertical;
-	BOOL _initializedVertical;
 	BOOL _allowTickMarkValuesOnly;
 }
 
@@ -66,7 +65,7 @@ typedef enum _NSTickMarkPosition
 - (void) drawKnob;
 - (void) drawKnob:(NSRect) knobRect;
 - (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
-- (NSInteger) isVertical;
+- (NSInteger) isVertical;	// not official!
 - (NSRect) knobRectFlipped:(BOOL) flipped;
 - (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;
@@ -84,7 +83,6 @@ typedef enum _NSTickMarkPosition
 - (NSSliderType) sliderType;
 - (NSTickMarkPosition) tickMarkPosition;
 - (double) tickMarkValueAtIndex:(NSInteger) index;
-- (NSRect) trackRect;
 
 // deprecated
 

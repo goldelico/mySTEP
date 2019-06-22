@@ -37,7 +37,7 @@
 - (double) closestTickMarkValueToValue:(double) value;
 - (NSImage *) image;
 - (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
-- (NSInteger) isVertical;
+- (NSInteger) isVertical;	// official?
 - (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;
 - (double) minValue;									// Cell Limits
@@ -53,7 +53,6 @@
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;
 - (NSTickMarkPosition) tickMarkPosition;
 - (double) tickMarkValueAtIndex:(NSInteger) index;
-- (NSRect) trackRect; // NOT IN API
 
 // deprecated
 - (void) setTitle:(NSString *) aString;
