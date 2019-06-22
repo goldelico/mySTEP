@@ -488,6 +488,10 @@ void printWindowList()
 {
 	NSRect bounds=[clipView bounds];
 	bounds.origin.y=[Sender floatValue];
+#if 0
+	[clipView setBackgroundColor:[NSColor yellowColor]];
+	[clipView setDrawsBackground:YES];
+#endif
 	[clipView setBounds:bounds];
 	[clipView setNeedsDisplay:YES];
 }
