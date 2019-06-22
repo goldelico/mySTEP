@@ -148,7 +148,7 @@
 			// NSSetFocusRingStyle();	// enlarges clipping area and sets focus ring style
 			// NSFrameRect(cellFrame);	// fill
 		}
-	if(_c.bezeled) 
+	if(_c.bezeled)
 		{
 		if(_bezelStyle == NSTextFieldRoundedBezel)
 			{
