@@ -1270,9 +1270,9 @@
 	return NSIntersectionRect([self rectOfRow:row], [self rectOfColumn:column]);
 }
 
-- (void) editColumn:(NSInteger)column 								// Edit fields
+- (void) editColumn:(NSInteger)column								// Edit fields
 				row:(NSInteger)row
-				withEvent:(NSEvent*)event 
+				withEvent:(NSEvent*)event
 				select:(BOOL)select
 {
 	NSRect r;
@@ -1293,6 +1293,8 @@
 		[_editingCell setObjectValue:d];
 		[_editingCell setEditable: YES];
 		}
+	else
+		NSLog(@"already editing");
 
 	r = [self frameOfCellAtColumn:column row:row];
 	[self lockFocus];
@@ -1321,25 +1323,32 @@
 //		[window makeFirstResponder: t];
 		}
 }
-															// NSText delegate
+
+// NSText delegate
 - (void) textDidBeginEditing:(NSNotification *)aNotification
 {
+	if(!_editingCell)
+		NSLog(@"no editing cell?");
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidBeginEditing) object: self];
 }
 
 - (void) textDidChange:(NSNotification *)aNotification
 {
+	if(!_editingCell)
+		NSLog(@"no editing cell?");
 	if ([_editingCell respondsToSelector:@selector(textDidChange:)])
 		return [_editingCell textDidChange:aNotification];
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidChange) object: self];
 }
 
 - (BOOL) textShouldBeginEditing:(NSText*)textObject
-{ 
+{
+	if(!_editingCell)
+		NSLog(@"no editing cell?");
 	if (_delegate && [_delegate respondsToSelector:@selector(control:textShouldBeginEditing:)])
 			return [_delegate control:self textShouldBeginEditing:textObject];
 
-	return YES; 
+	return YES;
 }
 
 - (void) textDidEndEditing:(NSNotification *)aNotification
@@ -1348,7 +1357,9 @@
 
 	NSLog(@" NSTableView textDidEndEditing ");
 
-	[_editingCell endEditing:[aNotification object]];			
+	[_editingCell endEditing:[aNotification object]];
+	if(!_editingCell)
+		NSLog(@"no editing cell?");
 	_editingCell = nil;
 	_editingColumn = _editingRow = -1;
 
@@ -1400,7 +1411,10 @@
 		}	}
 
 	NSBeep();												// entry not valid
-	[textObject setString:[_editingCell stringValue]];
+	if(_editingCell)
+		[textObject setString:[_editingCell stringValue]];
+	else
+		NSLog(@"no editing cell!");
 
 	return NO;
 }
@@ -1456,7 +1470,7 @@
 	startRow = lastRow = row;
 	visibleRect = [self visibleRect];
 
-	while (YES) 
+	while (YES)
 		{
 		eventType = [event type];
 		if([event type] == NSPeriodic)
@@ -1558,7 +1572,7 @@
 				if ((scrolled = [self scrollRectToVisible:r]))
 					visibleRect = [self visibleRect];
 				}
-			if(_clickedCell && [clickedCol isEditable] && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
+			if(_clickedCell && ![_clickedCell isKindOfClass:[NSTextFieldCell class]] && [clickedCol isEditable] && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
 				{ // it was a click into an editable cell - track while we are in the cell
 				BOOL done;
 				[_clickedCell setHighlighted:YES];	
@@ -1615,7 +1629,7 @@
 	_clickedCell=nil;
 }
 
-- (void) tile 
+- (void) tile
 {
 #if 0
 	if(!_window)
