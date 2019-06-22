@@ -11,7 +11,7 @@ int main(int argc, const char *argv[])
 	return NSApplicationMain(argc, argv);
 }
 
-#if 1	// for debugging of image drawing
+#if 0	// for debugging of image drawing
 
 #if 0
 @implementation NSImage (override)

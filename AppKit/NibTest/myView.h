@@ -37,3 +37,6 @@
 
 @end
 
+@interface TrackingCell : NSSliderCell
+@end
+

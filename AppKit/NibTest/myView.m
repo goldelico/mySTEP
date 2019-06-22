@@ -272,3 +272,14 @@ If drawing is below, it starts approx. 2-3 pixels below
 }
 
 @end
+
+@implementation TrackingCell
+
+- (BOOL) startTrackingAt:(NSPoint)startPoint
+				  inView:(NSView*)control
+{
+	NSLog(@"startTrackingAt:%@ inView:%@", NSStringFromPoint(startPoint), control);
+	return [super startTrackingAt:startPoint inView:control];
+}
+
+@end
