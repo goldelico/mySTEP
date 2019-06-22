@@ -838,7 +838,7 @@ printing
 #endif
 	if(_v.postFrameChange)
 		{
-#if 1
+#if 0
 		NSLog(@"notify FrameDidChange");
 #endif
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
@@ -1039,13 +1039,13 @@ printing
 
 - (void) _setBoundsTransform:(NSAffineTransformStruct) t;
 { /* set _frame2bounds, invalidate and post notifications */
-#if 1
+#if 0
 	NSLog(@"_setBoundsTransform: m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
 	NSLog(@"old bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
 #endif
 	[_frame2bounds setTransformStruct:t];
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation! and may remove flipping!
-#if 1
+#if 0
 	NSLog(@"new bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), _frame2bounds, [self boundsRotation]);
 #endif
 	_v.customBounds=YES;
@@ -1060,7 +1060,7 @@ printing
 - (void) setBounds:(NSRect) b
 {
 	// FIXME: needs some work to be 100% compatible to Cocoa
-#if 1
+#if 0
 	NSLog(@"2 setBounds:%@", NSStringFromRect(b));
 #endif
 	NSSize frameSize=_frame.size;
@@ -1105,11 +1105,11 @@ printing
 
 - (void) setBoundsOrigin:(NSPoint) p;
 {
-#if 1
+#if 0
 	NSLog(@"2 setBoundsOrigin:%@", NSStringFromPoint(p));
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
-#if 1
+#if 0
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
 #endif
 	t.tX=p.x;
@@ -1122,11 +1122,11 @@ printing
 
 - (void) setBoundsSize:(NSSize) newSize;
 {
-#if 1
+#if 0
 	NSLog(@"2 setBoundsSize:%@", NSStringFromSize(newSize));
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
-#if 1
+#if 0
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
 #endif
 	// There is a "optimization" for 180 rotation that delivers very different results from 179.999 or 180.001
@@ -1162,11 +1162,11 @@ printing
 
 - (void) setBoundsRotation:(CGFloat) a;
 {
-#if 1
+#if 0
 	NSLog(@"2 setBoundsRotation:%g", a);
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
-#if 1
+#if 0
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
 #endif
 	CGFloat rad=deg2rad(a);
@@ -1194,7 +1194,7 @@ printing
 
 - (void) rotateByAngle:(CGFloat) a;
 {
-#if 1
+#if 0
 	NSLog(@"2 rotateByAngle:%g", a);
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
@@ -1216,7 +1216,7 @@ printing
 
 - (void) translateOriginToPoint:(NSPoint) p;
 {
-#if 1
+#if 0
 	NSLog(@"2 translateOriginToPoint:%@", NSStringFromPoint(p));
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
@@ -1229,7 +1229,7 @@ printing
 
 - (void) scaleUnitSquareToSize:(NSSize) sz;
 {
-#if 1
+#if 0
 	NSLog(@"2 scaleUnitSquareToSize:%@", NSStringFromSize(sz));
 #endif
 	NSAffineTransformStruct t=[_frame2bounds transformStruct];
@@ -1452,7 +1452,7 @@ printing
 {
 #if 0
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(_frame.size), self);
-	NSLog(@"subviews=%@", sub_views);
+	NSLog(@"subviews=%@", _subviews);
 #endif
 	if (_v.isRotatedFromBase)
 		{ // only if we have never been rotated
@@ -1486,7 +1486,7 @@ printing
 	superViewFrameSize = [_superview bounds].size;
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged superview size
-#if 1
+#if 0
 	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
 	// do nothing if view is not resizable
@@ -1589,7 +1589,7 @@ printing
 		// CHECKME: does this overwrite bounds.size?
 		// Yes, unless we have custom bounds
 		[self setFrame:newFrame];
-#if 1
+#if 0
 		NSLog(@"new frame %@", NSStringFromRect(_frame));
 #endif
 		if(_v.postFrameChange)
@@ -1942,7 +1942,7 @@ printing
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
-#if 1
+#if 0
 	NSLog(@"scrollRect:%@ by:%@ %@", NSStringFromRect(src), NSStringFromSize(delta), self);
 	NSLog(@"window %@", _window);
 #endif
@@ -2016,14 +2016,14 @@ printing
 			{ // Check our sub_views front to back
 				if((v = [[_subviews objectAtIndex:i] hitTest:aPoint]))
 					{ // hit in subview
-#if 1
+#if 0
 					NSLog(@"  found %ld=%@", (long)i, v);
 #endif
 					return v;
 					}
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"  success: %@", self);
 #endif
 	return self;	// mouse is within self
