@@ -69,6 +69,11 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "NSShowAllDrawing"
+            value = "YES"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "DYLD_FRAMEWORK_PATH"
             value = "/usr/local/QuantumSTEP/System/Sources/Frameworks/AppKit/NibTest/MixedFrameworks"
             isEnabled = "YES">
