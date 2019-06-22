@@ -45,6 +45,7 @@
 // getters to check events
 - (BOOL) didtextStorageEdited;
 - (BOOL) didsetTextStorage;
+- (BOOL) allowsOriginalFontMetricsOverride;
 - (unsigned) editedMask;
 - (NSRange) range;
 - (int) delta;
@@ -90,6 +91,7 @@
 - (int) delta; { return d; }
 - (NSRange) invalidated; { return invalidated; }
 - (NSTextStorage *) storage; { return storage; }
+- (BOOL) allowsOriginalFontMetricsOverride; { return NO; }
 
 @end
 
