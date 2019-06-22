@@ -767,9 +767,9 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 	if(!_contents)
 		return;
-	if(_c.bezeled) 
+	if(_c.bezeled)
 		frame=NSInsetRect(frame, 2, 2);	// fit within bezel
-	else if(_c.bezeled) 
+	else if(_c.bezeled)
 		frame=NSInsetRect(frame, 1, 1);	// fit within border
 	if(_c.type == NSTextCellType)
 		{
