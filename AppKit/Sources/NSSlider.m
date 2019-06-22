@@ -260,9 +260,8 @@ static Class _sliderCellClass;
 
 - (double) minValue						{ return _minValue; }
 - (double) maxValue						{ return _maxValue; }
-// FIXME: is vertical if height > width
+// FIXME: is vertical if height > width - but it is also initialized from initWithCoder!
 - (NSInteger) isVertical				{ return _isVertical; }
-// changing frame/bounds should wipe out the knob and update _isVertical
 - (double) altIncrementValue			{ return _altIncrementValue; }
 + (BOOL) prefersTrackingUntilMouseUp	{ return YES; }
 
@@ -277,19 +276,19 @@ static Class _sliderCellClass;
 }
 
 - (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
-{
+{ // index from 0 .. numberOfTickmarks-1
 	NSRect r=NSZeroRect;
-	CGFloat w=2.0+16.0;	// knob size
+	CGFloat w=[[_knobCell image] size].width;
 	CGFloat w2=0.5*w;
 	if(_isVertical)
 		{
-		r.origin.x=5.0;	// FIXME: make dependent on left/right
+		r.origin.x=0.0;	// FIXME: make dependent on left/right
 		r.origin.y=w2+index*(_slotRect.size.height-w)/(_numberOfTickMarks-1);
 		r.size=NSMakeSize(5.0, 1.0);
 		}
 	else
 		{
-		r.origin.x=w2+index*(_slotRect.size.width-w)/(_numberOfTickMarks-1);
+		r.origin.x=w2+index*(_slotRect.size.width-w)/(_numberOfTickMarks-1)-1;
 		r.origin.y=5.0;	// FIXME: make dependent on above/below
 		r.size=NSMakeSize(1.0, 5.0);
 		}
@@ -375,6 +374,8 @@ static Class _sliderCellClass;
 		}
 	else
 		floatValue = (point.x - _slotRect.origin.x- knobRect.size.width/2) / (_slotRect.size.width - knobRect.size.width);
+	if(floatValue < 0.0) floatValue=0.0;	// limit to valid range
+	else if(floatValue > 1.0) floatValue=1.0;
 	return floatValue * (maxValue - minValue) + minValue;
 }
 
