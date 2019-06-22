@@ -1572,8 +1572,8 @@
 				if ((scrolled = [self scrollRectToVisible:r]))
 					visibleRect = [self visibleRect];
 				}
-			if(_clickedCell && ![_clickedCell isKindOfClass:[NSTextFieldCell class]] && [clickedCol isEditable] && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
-				{ // it was a click into an editable cell - track while we are in the cell
+			if(_clickedCell && ![_clickedCell isEditable] && [clickedCol isEditable] && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
+				{ // it was a click into an non editable cell - track while we are in the cell; editable cells are edited on double-click
 				BOOL done;
 				[_clickedCell setHighlighted:YES];	
 				[self setNeedsDisplayInRect:_clickedCellFrame];
@@ -1797,13 +1797,19 @@
 		{ // draw rows
 			NSRect rowClipRect=[self rectOfRow:i];
 			// intersect with column range!
-		if([_selectedRows containsIndex:i])
-			[self highlightSelectionInClipRect: rowClipRect];	// draw selected column background
-		[self drawRow:i clipRect:rowClipRect];					// cell might also highlight
+			if([_selectedRows containsIndex:i])
+				[self highlightSelectionInClipRect: rowClipRect];	// draw selected column background
+			[self drawRow:i clipRect:rowClipRect];					// cell might also highlight
 		}
 
 	if(_tv.gridStyleMask !=  NSTableViewGridNone)
 		[self drawGridInClipRect:rect];						// finally draw grid
+
+#if 0
+	[[NSColor blackColor] set];
+	NSRect b=[self bounds];
+	[NSBezierPath strokeLineFromPoint:b.origin toPoint:NSMakePoint(NSMaxX(b), NSMaxY(b))];
+#endif
 }
 
 - (void) updateCell:(NSCell *) cell;
@@ -1838,6 +1844,7 @@
 		return nil;	// row does not exist
 	data=[_dataSource tableView:self objectValueForTableColumn:column row:row];	// ask data source
 	if(!data)
+		// FIXME: just skip setObjectValue but still draw?
 		return nil;	// invalid data
 	aCell = [column dataCellForRow:row];
 #if 0
