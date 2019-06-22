@@ -57,7 +57,7 @@ enum
 	NSSize _offsets;
 	NSRect _borderRect;
 	NSRect _titleRect;
-    struct __boxFlags {
+	struct __boxFlags {
 		TYPEDBITFIELD(NSBorderType, borderType, 2);
 		TYPEDBITFIELD(NSBoxType, boxType, 2);
 		TYPEDBITFIELD(NSTitlePosition, titlePosition, 3);
@@ -66,7 +66,7 @@ enum
 		} _bx;
 }
 
-- (NSColor *) borderColor; 
+- (NSColor *) borderColor;
 - (NSRect) borderRect;									// Border+Title attribs
 - (NSBorderType) borderType;
 - (CGFloat) borderWidth;

@@ -118,9 +118,12 @@
 	[_titleCell release];
 	[super dealloc];
 }
-														// Border+Title attribs
+
+// Border+Title attribs
+- (NSColor *) borderColor;				{ return NIMP; }
 - (NSRect) borderRect					{ return _borderRect; }
 - (NSBorderType) borderType				{ return _bx.borderType; }
+- (CGFloat) borderWidth;				{ NIMP; return 0; }
 
 - (void) setBorderType:(NSBorderType)aType
 {
@@ -133,6 +136,13 @@
 }
 
 - (NSBoxType) boxType				{ return _bx.boxType; }
+
+- (NSColor *) fillColor;	{ return NIMP; }
+
+- (void) setBorderWidth:(CGFloat) width;
+{
+	NIMP;
+}
 
 - (void) setBoxType:(NSBoxType)aType
 {
@@ -159,6 +169,11 @@
 	[_contentView setFrame:[self _calcSizes]];
 	[_contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	[_contentView setAutoresizesSubviews:YES];
+}
+
+- (void) setFillColor:(NSColor *) color;
+{
+	NIMP;
 }
 
 - (void) setTitle:(NSString *)aString
@@ -188,6 +203,11 @@
 		[_contentView setFrame: [self _calcSizes]];
 		[self setNeedsDisplay: YES];
 		}
+}
+
+- (void) setBorderColor:(NSColor *) color;
+{
+	NIMP;
 }
 
 - (NSString *) title					{ return [_titleCell stringValue]; }
@@ -317,7 +337,7 @@
 
 - (void) encodeWithCoder:(NSCoder *) aCoder							// NSCoding protocol
 {
-	[super encodeWithCoder:aCoder];
+	[super encodeWithCoder:aCoder];	// make it not encode the subviews?
 	
 	[aCoder encodeObject: _titleCell];
 	[aCoder encodeObject: _contentView];
