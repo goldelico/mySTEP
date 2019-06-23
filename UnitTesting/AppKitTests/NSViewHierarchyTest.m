@@ -173,37 +173,37 @@
 - (void) test_mixed_11
 { // test relative coordinates - convertPointFromView: toView: incl. nil view = Window
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view1 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
-	XCTAssertEquals([view1 convertPoint:pnt toView:view2], NSMakePoint(20.0, 230.0), @"");
-	XCTAssertEquals([view1 convertPoint:pnt fromView:view2], NSMakePoint(30.0, 230.0), @"");
+	XCTAssertEquals([view1 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0));
+	XCTAssertEquals([view1 convertPoint:pnt toView:view2], NSMakePoint(20.0, 230.0));
+	XCTAssertEquals([view1 convertPoint:pnt fromView:view2], NSMakePoint(30.0, 230.0));
 
-	XCTAssertEquals([view6 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
-	XCTAssertEquals([view6 convertPoint:pnt toView:view7], NSMakePoint(20.0, 30.0), @"");
-	XCTAssertEquals([view6 convertPoint:pnt fromView:view7], NSMakePoint(30.0, 40.0), @"");
+	XCTAssertEquals([view6 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0));
+	XCTAssertEquals([view6 convertPoint:pnt toView:view7], NSMakePoint(20.0, 30.0));
+	XCTAssertEquals([view6 convertPoint:pnt fromView:view7], NSMakePoint(30.0, 40.0));
 };
 
 - (void) test_mixed_12
 	{ // test relative coordinates - convertPointFromView: toView: incl. nil view = Window
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view2 convertPoint:pnt toView:nil], NSMakePoint(40.0, 50.0), @"");
-	XCTAssertEquals([view2 convertPoint:pnt toView:view1], NSMakePoint(30.0, 230.0), @"");
-	XCTAssertEquals([view2 convertPoint:pnt fromView:view1], NSMakePoint(20.0, 230.0), @"");
+	XCTAssertEquals([view2 convertPoint:pnt toView:nil], NSMakePoint(40.0, 50.0));
+	XCTAssertEquals([view2 convertPoint:pnt toView:view1], NSMakePoint(30.0, 230.0));
+	XCTAssertEquals([view2 convertPoint:pnt fromView:view1], NSMakePoint(20.0, 230.0));
 
-	XCTAssertEquals([view7 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0), @"");
-	XCTAssertEquals([view7 convertPoint:pnt toView:view6], NSMakePoint(30.0, 40.0), @"");
-	XCTAssertEquals([view7 convertPoint:pnt fromView:view6], NSMakePoint(20.0, 30.0), @"");
+	XCTAssertEquals([view7 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0));
+	XCTAssertEquals([view7 convertPoint:pnt toView:view6], NSMakePoint(30.0, 40.0));
+	XCTAssertEquals([view7 convertPoint:pnt fromView:view6], NSMakePoint(20.0, 30.0));
 };
 
 - (void) test_mixed_13
 { // test relative coordinates - convertPointFromView: toView: incl. nil view = Window
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view3 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0), @"");
-	XCTAssertEquals([view3 convertPoint:pnt toView:view1], NSMakePoint(45.0, 55.0), @"");
-	XCTAssertEquals([view3 convertPoint:pnt toView:view2], NSMakePoint(40.0, 210.0), @"");
+	XCTAssertEquals([view3 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0));
+	XCTAssertEquals([view3 convertPoint:pnt toView:view1], NSMakePoint(45.0, 55.0));
+	XCTAssertEquals([view3 convertPoint:pnt toView:view2], NSMakePoint(40.0, 210.0));
 
-	XCTAssertEquals([view8 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0), @"");
-	XCTAssertEquals([view8 convertPoint:pnt toView:view6], NSMakePoint(45.0, 55.0), @"");
-	XCTAssertEquals([view8 convertPoint:pnt toView:view7], NSMakePoint(40.0, 50.0), @"");
+	XCTAssertEquals([view8 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0));
+	XCTAssertEquals([view8 convertPoint:pnt toView:view6], NSMakePoint(45.0, 55.0));
+	XCTAssertEquals([view8 convertPoint:pnt toView:view7], NSMakePoint(40.0, 50.0));
 };
 
 - (void) test_mixed_14
@@ -215,15 +215,15 @@
 	 NSViewHierarchyTest.m:124: error: -[NSViewHierarchyTest test14] : '{47, 202}' should be equal to '{47, 203}'
 	 NSViewHierarchyTest.m:125: error: -[NSViewHierarchyTest test14] : '{32, 43}' should be equal to '{32, 42}'
 	 */
-	XCTAssertEquals([view4 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0), @"");
-	XCTAssertEquals([view4 convertPoint:pnt toView:view1], NSMakePoint(52.0, 62.0), @"");
-	XCTAssertEquals([view4 convertPoint:pnt toView:view2], NSMakePoint(47.0, 203.0), @"");
-	XCTAssertEquals([view4 convertPoint:pnt toView:view3], NSMakePoint(32.0, 42.0), @"");
+	XCTAssertEquals([view4 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0));
+	XCTAssertEquals([view4 convertPoint:pnt toView:view1], NSMakePoint(52.0, 62.0));
+	XCTAssertEquals([view4 convertPoint:pnt toView:view2], NSMakePoint(47.0, 203.0));
+	XCTAssertEquals([view4 convertPoint:pnt toView:view3], NSMakePoint(32.0, 42.0));
 
-	XCTAssertEquals([view9 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view6], NSMakePoint(52.0, 62.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view7], NSMakePoint(47.0, 57.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view8], NSMakePoint(32.0, 42.0), @"");
+	XCTAssertEquals([view9 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view6], NSMakePoint(52.0, 62.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view7], NSMakePoint(47.0, 57.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view8], NSMakePoint(32.0, 42.0));
 };
 
 - (void) test_mixed_15
@@ -236,94 +236,121 @@
 	 NSViewHierarchyTest.m:134: error: -[NSViewHierarchyTest test15] : '{38, 182}' should be equal to '{38, 192}'
 	 NSViewHierarchyTest.m:135: error: -[NSViewHierarchyTest test15] : '{31, 174}' should be equal to '{31, 185}'
 	 */
-	XCTAssertEquals([view5 convertPoint:pnt toView:nil], NSMakePoint(68.0, 68.0), @"");
-	XCTAssertEquals([view5 convertPoint:pnt toView:view1], NSMakePoint(58.0, 212.0), @"");
-	XCTAssertEquals([view5 convertPoint:pnt toView:view2], NSMakePoint(53.0, 53.0), @"");
-	XCTAssertEquals([view5 convertPoint:pnt toView:view3], NSMakePoint(38.0, 192.0), @"");
-	XCTAssertEquals([view5 convertPoint:pnt toView:view4], NSMakePoint(31.0, 185.0), @"");
-	XCTAssertEquals([view5 convertPoint:pnt toView:view5], pnt, @"");
+	XCTAssertEquals([view5 convertPoint:pnt toView:nil], NSMakePoint(68.0, 68.0));
+	XCTAssertEquals([view5 convertPoint:pnt toView:view1], NSMakePoint(58.0, 212.0));
+	XCTAssertEquals([view5 convertPoint:pnt toView:view2], NSMakePoint(53.0, 53.0));
+	XCTAssertEquals([view5 convertPoint:pnt toView:view3], NSMakePoint(38.0, 192.0));
+	XCTAssertEquals([view5 convertPoint:pnt toView:view4], NSMakePoint(31.0, 185.0));
+	XCTAssertEquals([view5 convertPoint:pnt toView:view5], pnt);
 }
 
 - (void) test_flipped_only_16
 { // test flipped only
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view6 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
-	XCTAssertEquals([view6 convertPoint:pnt toView:view7], NSMakePoint(20.0, 30.0), @"");
-	XCTAssertEquals([view6 convertPoint:pnt fromView:view7], NSMakePoint(30.0, 40.0), @"");
-	XCTAssertEquals([view7 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0), @"");
-	XCTAssertEquals([view7 convertPoint:pnt toView:view6], NSMakePoint(30.0, 40.0), @"");
-	XCTAssertEquals([view7 convertPoint:pnt fromView:view6], NSMakePoint(20.0, 30.0), @"");
-	XCTAssertEquals([view8 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0), @"");
-	XCTAssertEquals([view8 convertPoint:pnt toView:view6], NSMakePoint(45.0, 55.0), @"");
-	XCTAssertEquals([view8 convertPoint:pnt toView:view7], NSMakePoint(40.0, 50.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view6], NSMakePoint(52.0, 62.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view7], NSMakePoint(47.0, 57.0), @"");
-	XCTAssertEquals([view9 convertPoint:pnt toView:view8], NSMakePoint(32.0, 42.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:nil], NSMakePoint(68.0, 212.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:view6], NSMakePoint(58.0, 68.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:view7], NSMakePoint(53.0, 63.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:view8], NSMakePoint(38.0, 48.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:view9], NSMakePoint(31.0, 41.0), @"");
-	XCTAssertEquals([view10 convertPoint:pnt toView:view10], pnt, @"");
+	XCTAssertEquals([view6 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0));
+	XCTAssertEquals([view6 convertPoint:pnt toView:view7], NSMakePoint(20.0, 30.0));
+	XCTAssertEquals([view6 convertPoint:pnt fromView:view7], NSMakePoint(30.0, 40.0));
+	XCTAssertEquals([view7 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0));
+	XCTAssertEquals([view7 convertPoint:pnt toView:view6], NSMakePoint(30.0, 40.0));
+	XCTAssertEquals([view7 convertPoint:pnt fromView:view6], NSMakePoint(20.0, 30.0));
+	XCTAssertEquals([view8 convertPoint:pnt toView:nil], NSMakePoint(55.0, 225.0));
+	XCTAssertEquals([view8 convertPoint:pnt toView:view6], NSMakePoint(45.0, 55.0));
+	XCTAssertEquals([view8 convertPoint:pnt toView:view7], NSMakePoint(40.0, 50.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:nil], NSMakePoint(62.0, 218.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view6], NSMakePoint(52.0, 62.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view7], NSMakePoint(47.0, 57.0));
+	XCTAssertEquals([view9 convertPoint:pnt toView:view8], NSMakePoint(32.0, 42.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:nil], NSMakePoint(68.0, 212.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:view6], NSMakePoint(58.0, 68.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:view7], NSMakePoint(53.0, 63.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:view8], NSMakePoint(38.0, 48.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:view9], NSMakePoint(31.0, 41.0));
+	XCTAssertEquals([view10 convertPoint:pnt toView:view10], pnt);
 }
 
 - (void) test_nonflipped_only_17
 	{ // test nonflipped only
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view15 convertPoint:pnt toView:view11], NSMakePoint(58.0, 68.0), @"");
-	XCTAssertEquals([view15 convertPoint:pnt toView:view12], NSMakePoint(53.0, 63.0), @"");
-	XCTAssertEquals([view15 convertPoint:pnt toView:view13], NSMakePoint(38.0, 48.0), @"");
-	XCTAssertEquals([view15 convertPoint:pnt toView:view14], NSMakePoint(31.0, 41.0), @"");
-	XCTAssertEquals([view15 convertPoint:pnt toView:view15], pnt, @"");
+	XCTAssertEquals([view15 convertPoint:pnt toView:view11], NSMakePoint(58.0, 68.0));
+	XCTAssertEquals([view15 convertPoint:pnt toView:view12], NSMakePoint(53.0, 63.0));
+	XCTAssertEquals([view15 convertPoint:pnt toView:view13], NSMakePoint(38.0, 48.0));
+	XCTAssertEquals([view15 convertPoint:pnt toView:view14], NSMakePoint(31.0, 41.0));
+	XCTAssertEquals([view15 convertPoint:pnt toView:view15], pnt);
 	}
 
 - (void) test_across_hierarchy_18
 { // test across view hierarchies
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view15 convertPoint:pnt toView:view5], NSMakePoint(25.0, 45.0), @"");
-	XCTAssertEquals([view15 convertPoint:pnt toView:view10], NSMakePoint(25.0, 169.0), @"");
+	XCTAssertEquals([view15 convertPoint:pnt toView:view5], NSMakePoint(25.0, 45.0));
+	XCTAssertEquals([view15 convertPoint:pnt toView:view10], NSMakePoint(25.0, 169.0));
 	// really different windows does not raise an exception
-	XCTAssertEquals([view11 convertPoint:pnt toView:view18], NSMakePoint(25.0, 235.0), @"");
+	XCTAssertEquals([view11 convertPoint:pnt toView:view18], NSMakePoint(25.0, 235.0));
 }
 
 - (void) test_windowless_19
 { // test windowless views (seems to have some default)
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view16 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0), @"");
-	XCTAssertEquals([view16 convertPoint:pnt toView:view17], NSMakePoint(20.0, 30.0), @"");
-	XCTAssertEquals([view17 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0), @"");
-	XCTAssertEquals([view17 convertPoint:pnt toView:view16], NSMakePoint(30.0, 40.0), @"");
-	XCTAssertEquals([view17 convertPoint:pnt toView:view5], NSMakePoint(-3.0, 207.0), @"");
+	XCTAssertEquals([view16 convertPoint:pnt toView:nil], NSMakePoint(35.0, 245.0));
+	XCTAssertEquals([view16 convertPoint:pnt toView:view17], NSMakePoint(20.0, 30.0));
+	XCTAssertEquals([view17 convertPoint:pnt toView:nil], NSMakePoint(40.0, 240.0));
+	XCTAssertEquals([view17 convertPoint:pnt toView:view16], NSMakePoint(30.0, 40.0));
+	XCTAssertEquals([view17 convertPoint:pnt toView:view5], NSMakePoint(-3.0, 207.0));
 }
 
 #if 0	// n/a yet available with mySTEP
 - (void) test_20
 { // test relative coordinates - convertPointToBacking:
 	NSPoint pnt=NSMakePoint(25.0, 35.0);
-	XCTAssertEquals([view1 convertPointToBacking:pnt], NSMakePoint(50.0, -70.0), @"");
-	XCTAssertEquals([view2 convertPointToBacking:pnt], NSMakePoint(50.0, 70.0), @"");
+	XCTAssertEquals([view1 convertPointToBacking:pnt], NSMakePoint(50.0, -70.0));
+	XCTAssertEquals([view2 convertPointToBacking:pnt], NSMakePoint(50.0, 70.0));
 }
 #endif
 
 - (void) test_rect_31
 { // test relative coordinates - convertRectFromView: toView: incl. nil view = Window
 	NSRect rect=NSMakeRect(25.0, 35.0, 50.0, 45.0);
-	XCTAssertEquals([view1 convertRect:rect toView:nil], NSMakeRect(35.0, 200.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view1 convertRect:rect toView:view2], NSMakeRect(20.0, 185.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view1 convertRect:rect fromView:view2], NSMakeRect(30.0, 185.0, 50.0, 45.0), @"");
+	// to window
+	XCTAssertEquals([view1 convertRect:rect toView:nil], NSMakeRect(35.0, 200.0, 50.0, 45.0));
+	XCTAssertEquals([view6 convertRect:rect toView:nil], NSMakeRect(35.0, 200.0, 50.0, 45.0));
+	XCTAssertEquals([view11 convertRect:rect toView:nil], NSMakeRect(35.0, 45.0, 50.0, 45.0));
 
-	XCTAssertEquals([view6 convertRect:rect toView:nil], NSMakeRect(35.0, 200.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view6 convertRect:rect toView:view2], NSMakeRect(20.0, 185.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view6 convertRect:rect fromView:view2], NSMakeRect(30.0, 185.0, 50.0, 45.0), @"");
+	// within hierarchies
+	XCTAssertEquals([view1 convertRect:rect toView:view2], NSMakeRect(20.0, 185.0, 50.0, 45.0));
+	XCTAssertEquals([view1 convertRect:rect toView:view5], NSMakeRect(-8.0, 167.0, 50.0, 45.0));
+	XCTAssertEquals([view1 convertRect:rect fromView:view2], NSMakeRect(30.0, 185.0, 50.0, 45.0));
+	XCTAssertEquals([view1 convertRect:rect fromView:view5], NSMakeRect(58.0, 167.0, 50.0, 45.0));
 
-	XCTAssertEquals([view11 convertRect:rect toView:nil], NSMakeRect(35.0, 45.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view11 convertRect:rect toView:view2], NSMakeRect(20.0, 30.0, 50.0, 45.0), @"");
-	XCTAssertEquals([view11 convertRect:rect fromView:view2], NSMakeRect(30.0, 40.0, 50.0, 45.0), @"");
+	XCTAssertEquals([view6 convertRect:rect toView:view7], NSMakeRect(20.0, 30.0, 50.0, 45.0));
+	XCTAssertEquals([view6 convertRect:rect toView:view10], NSMakeRect(-8.0, 2.0, 50.0, 45.0));
+	XCTAssertEquals([view6 convertRect:rect fromView:view10], NSMakeRect(58.0, 68.0, 50.0, 45.0));
+
+	XCTAssertEquals([view11 convertRect:rect toView:view12], NSMakeRect(20.0, 30.0, 50.0, 45.0));
+	XCTAssertEquals([view11 convertRect:rect toView:view15], NSMakeRect(-8.0, 2.0, 50.0, 45.0));
+	XCTAssertEquals([view11 convertRect:rect fromView:view15], NSMakeRect(58.0, 68.0, 50.0, 45.0));
+
+	// across hierarchies
+	XCTAssertEquals([view6 convertRect:rect toView:view2], NSMakeRect(20.0, 185.0, 50.0, 45.0));
+	XCTAssertEquals([view6 convertRect:rect fromView:view2], NSMakeRect(30.0, 185.0, 50.0, 45.0));
+	XCTAssertEquals([view11 convertRect:rect toView:view2], NSMakeRect(20.0, 30.0, 50.0, 45.0));
+	XCTAssertEquals([view11 convertRect:rect fromView:view2], NSMakeRect(30.0, 40.0, 50.0, 45.0));
+	XCTAssertEquals([view15 convertRect:rect fromView:view5], NSMakeRect(25.0, 25.0, 50.0, 45.0));
+	XCTAssertEquals([view15 convertRect:rect fromView:view10], NSMakeRect(25.0, 124.0, 50.0, 45.0));
 }
 
 /* more rect transforms */
 
 /* transform NSSize */
+
+- (void) test_rect_100
+{ // special test for NSBox
+	NSBox *box=[[NSBox alloc] initWithFrame:NSMakeRect(263.0,16.0,140.0,146.0)];
+	[[window contentView] addSubview:box];
+	XCTAssertEquals([box frame], NSMakeRect(263.0, 16.0, 140.0, 146.0));
+	XCTAssertEquals([box bounds], NSMakeRect(0.0, 0.0, 140.0, 146.0));
+	XCTAssertEquals([[box contentView] frame], NSMakeRect(7.0, 7.0, 126.0, 124.0));
+	XCTAssertEquals([[box contentView] bounds], NSMakeRect(0.0, 0.0, 126.0, 124.0));
+	NSRect subRect=[box convertRect:NSMakeRect(0.0,0.0,140.0,146.0) toView:[box contentView]];
+	XCTAssertEquals(subRect, NSMakeRect(-7.0, -7.0, 140.0, 146.0));
+}
 
 @end
