@@ -313,6 +313,9 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	while(item)
 		{
 		_NSQueueRegistration *n = item->prev;	// get next before removing item
+#if 0
+		NSAssert(item->notification, @"should not be nil");
+#endif
 		[self _postNotification:item->notification forModes:item->modes queue:_idleQueue item:item];
 		item=n;
 		}
@@ -324,6 +327,9 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 	while(item)
 		{
 		_NSQueueRegistration *n = item->prev;	// get next before removing item
+#if 0
+		NSAssert(item->notification, @"should not be nil");
+#endif
 		[self _postNotification:item->notification forModes:item->modes queue:_asapQueue item:item];
 		item=n;
 		}
