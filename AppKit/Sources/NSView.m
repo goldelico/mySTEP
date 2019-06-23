@@ -1851,7 +1851,7 @@ printing
 			if(!NSIntersectsRect([subview frame], rect))
 				{
 #if 1
-				NSLog(@"subview %@ frame is outside rect %@", subview, NSStringFromRect(rect));
+				NSLog(@"subview %@ frame is completely outside rect %@", subview, NSStringFromRect(rect));
 #endif
 				continue;	// subview is not within rect - ignore transformation
 				}
