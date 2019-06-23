@@ -5372,19 +5372,19 @@ DQ
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                             </tableHeaderCell>
-                                            <popUpButtonCell key="dataCell" type="bevel" title="First Item" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="bezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="Lj6-4v-PdJ" id="1395">
+                                            <popUpButtonCell key="dataCell" type="bevel" title="First Item" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="bezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="Lj6-4v-PdJ" id="1395">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="menu"/>
                                                 <menu key="menu" id="2246">
                                                     <items>
-                                                        <menuItem title="First Item" id="Lj6-4v-PdJ">
+                                                        <menuItem title="First Item" state="on" id="Lj6-4v-PdJ">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                         </menuItem>
-                                                        <menuItem title="Second Item" onStateImage="NSMenuCheckmark" mixedStateImage="NSMenuMixedState" id="X8k-JA-78i">
+                                                        <menuItem title="Second Item" id="X8k-JA-78i">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                         </menuItem>
                                                         <menuItem isSeparatorItem="YES" id="wRl-TB-Sxw"/>
-                                                        <menuItem title="Third Item" onStateImage="NSMenuCheckmark" mixedStateImage="NSMenuMixedState" id="stm-O8-BzJ">
+                                                        <menuItem title="Third Item" id="stm-O8-BzJ">
                                                             <modifierMask key="keyEquivalentModifierMask"/>
                                                         </menuItem>
                                                     </items>
@@ -6731,8 +6731,6 @@ Newline
         <image name="Lion.jpg" width="128" height="128"/>
         <image name="Mailsend_16" width="16" height="16"/>
         <image name="NSApplicationIcon" width="128" height="128"/>
-        <image name="NSMenuCheckmark" width="16" height="16"/>
-        <image name="NSMenuMixedState" width="16" height="16"/>
         <image name="addbk_16" width="16" height="16"/>
         <image name="addbk_32" width="32" height="32"/>
         <image name="dial_32" width="32" height="32"/>
