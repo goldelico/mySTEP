@@ -345,6 +345,8 @@
 { // special test for NSBox
 	NSBox *box=[[NSBox alloc] initWithFrame:NSMakeRect(263.0,16.0,140.0,146.0)];
 	[[window contentView] addSubview:box];
+	[[box contentView] setFrameOrigin:NSMakePoint(7.0, 7.0)];	// make it comparable
+	[[box contentView] setFrameSize:NSMakeSize(126.0, 124.0)];	// make it comparable
 	XCTAssertEquals([box frame], NSMakeRect(263.0, 16.0, 140.0, 146.0));
 	XCTAssertEquals([box bounds], NSMakeRect(0.0, 0.0, 140.0, 146.0));
 	XCTAssertEquals([[box contentView] frame], NSMakeRect(7.0, 7.0, 126.0, 124.0));
