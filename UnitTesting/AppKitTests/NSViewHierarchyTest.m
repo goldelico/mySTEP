@@ -344,6 +344,7 @@
 - (void) test_rect_100
 { // special test for NSBox
 	NSBox *box=[[NSBox alloc] initWithFrame:NSMakeRect(263.0,16.0,140.0,146.0)];
+	XCTAssertEqualObjects([box contentView], [[box subviews] objectAtIndex:0]);	//content view is the first subview
 	[[window contentView] addSubview:box];
 	[[box contentView] setFrameOrigin:NSMakePoint(7.0, 7.0)];	// make it comparable
 	[[box contentView] setFrameSize:NSMakeSize(126.0, 124.0)];	// make it comparable
