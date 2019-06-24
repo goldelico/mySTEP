@@ -52,8 +52,7 @@ enum
 
 @interface NSBox : NSView  <NSCoding>
 {
-	id _titleCell;
-	id _contentView;
+	NSCell *_titleCell;
 	NSSize _offsets;
 	NSRect _borderRect;
 	NSRect _titleRect;

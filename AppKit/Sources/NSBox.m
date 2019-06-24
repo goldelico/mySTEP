@@ -36,7 +36,7 @@
 #if 0
 	NSLog(@"NSBox title cell size = %@ for %@", NSStringFromSize(title), [_titleCell title]);
 #endif
-	switch(_bx.borderType)					
+	switch(_bx.borderType)
 		{
 		case NSGrooveBorder:
 		case NSBezelBorder: border = NSMakeSize(3,3);	break;
@@ -107,8 +107,7 @@
 		_borderRect = _bounds;
 		_bx.borderType = NSLineBorder;
 		_bx.titlePosition = NSAtTop;
-		_contentView = [[NSView alloc] initWithFrame:[self _calcSizes]];
-		[super addSubview:_contentView positioned:NSWindowAbove relativeTo:nil];	// don't call our diversion to the contentView
+		[self addSubview:[[[NSView alloc] initWithFrame:[self _calcSizes]] autorelease] positioned:NSWindowAbove relativeTo:nil];	// don't call our diversion to the contentView
 		}
 	return self;
 }
@@ -130,7 +129,7 @@
 	if (_bx.borderType != aType)
 		{
 		_bx.borderType = aType;
-		[_contentView setFrame: [self _calcSizes]];
+		[[self contentView] setFrame: [self _calcSizes]];
 		[self setNeedsDisplay: YES];
 		}
 }
@@ -149,26 +148,31 @@
 	if (_bx.boxType != aType)
 		{
 		_bx.boxType = (unsigned int) aType;
-		[_contentView setFrame: [self _calcSizes]];
+		[[self contentView] setFrame: [self _calcSizes]];
 		[self setNeedsDisplay: YES];
 		}
 }
 
 - (void) setContentView:(NSView *)aView
 {
+	NSView *contentView=[self contentView];
+	if(aView == contentView)
+		return;
 	if(aView)
 		{
-		if(_contentView)
-			[self replaceSubview:_contentView with:aView];	// replace first
+		if(contentView)
+			[self replaceSubview:contentView with:aView];	// replace first
 		else
 			[super addSubview:aView positioned:NSWindowAbove relativeTo:nil];	// don't call our diversion to the contentView
 		}
-	else if([_contentView superview] == self)
-		[_contentView removeFromSuperview];	// if I am still the owner, just remove
-	ASSIGN(_contentView, aView);	// then save
-	[_contentView setFrame:[self _calcSizes]];
-	[_contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	[_contentView setAutoresizesSubviews:YES];
+	else if([contentView superview] == self)
+		{
+		[[contentView retain] autorelease];
+		[contentView removeFromSuperview];	// if I am still the owner, just remove
+		}
+	[contentView setFrame:[self _calcSizes]];
+	[contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	[contentView setAutoresizesSubviews:YES];
 }
 
 - (void) setFillColor:(NSColor *) color;
@@ -179,7 +183,7 @@
 - (void) setTitle:(NSString *)aString
 {
 	[_titleCell setStringValue:aString];
-	[_contentView setFrame: [self _calcSizes]];
+	[[self contentView] setFrame: [self _calcSizes]];
 	[self setNeedsDisplay: YES];
 }
 
@@ -191,7 +195,7 @@
 - (void) setTitleFont:(NSFont *)fontObj
 {
 	[_titleCell setFont:fontObj];
-	[_contentView setFrame: [self _calcSizes]];
+	[[self contentView] setFrame: [self _calcSizes]];
 	[self setNeedsDisplay: YES];
 }
 
@@ -200,7 +204,7 @@
 	if (_bx.titlePosition != aPosition)
 		{
 		_bx.titlePosition = aPosition;
-		[_contentView setFrame: [self _calcSizes]];
+		[[self contentView] setFrame: [self _calcSizes]];
 		[self setNeedsDisplay: YES];
 		}
 }
@@ -210,19 +214,25 @@
 	NIMP;
 }
 
+- (void) setCornerRadius:(CGFloat) radius;
+{
+	NIMP;
+}
+
 - (NSString *) title					{ return [_titleCell stringValue]; }
 - (id) titleCell						{ return _titleCell; }
-- (id) contentView						{ return _contentView; }
+- (id) contentView						{ return [[self subviews] lastObject]; }	// assume there is only one
 - (NSFont *) titleFont					{ return [_titleCell font]; }
 - (NSRect) titleRect					{ return _titleRect; }
 - (NSSize) contentViewMargins			{ return _offsets; }
 - (NSTitlePosition) titlePosition		{ return _bx.titlePosition; }
+- (CGFloat) cornerRadius;				{ NIMP; return 0; }
 
 - (void) setContentViewMargins:(NSSize)offsetSize
 {
 	_offsets = offsetSize;
 #if 0 	// doc says this call does not automatically resize the view!
-	[_contentView setFrame: [self _calcSizes]];
+	[[self contentView] setFrame: [self _calcSizes]];
 	[self setNeedsDisplay: YES];
 #endif
 }
@@ -238,17 +248,18 @@
 
 - (void) sizeToFit
 {
-	if(_contentView)
+	NSView *contentView=[self contentView];
+	if(contentView)
 		{
-		if([_contentView respondsToSelector:_cmd])
+		if([contentView respondsToSelector:_cmd])
 			{ // ask the content view to fit
-			[_contentView sizeToFit];
-			[self setFrameFromContentFrame:[_contentView frame]];
+			[contentView sizeToFit];
+			[self setFrameFromContentFrame:[contentView frame]];
 			}
 		else
 			{ // calculate the union of the content views
 			NSRect r = NSZeroRect;
-			id o, e = [[_contentView subviews] objectEnumerator];
+			id o, e = [[contentView subviews] objectEnumerator];
 			while ((o = [e nextObject]))
 				r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all	
 			[self setFrameFromContentFrame: r];
@@ -258,18 +269,9 @@
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 { // special handling of our content view
-	[_contentView setFrame: [self _calcSizes]];	// resize so that they match our current size
-	[_contentView setNeedsDisplay:YES];
-}
-
-- (void) addSubview:(NSView *)aView
-		 positioned:(NSWindowOrderingMode)place
-		 relativeTo:(NSView *)otherView
-{ // Our subviews get added to our content view's list
-#if 0
-	NSLog(@"NSBox _contentView=%@ addSubview:%@", _contentView, aView);
-#endif
-	[_contentView addSubview:aView positioned:place relativeTo:otherView];
+	NSView *contentView=[self contentView];
+	[contentView setFrame: [self _calcSizes]];	// resize so that they match our current size
+	[contentView setNeedsDisplay:YES];
 }
 
 - (void) drawRect:(NSRect)rect							// Draw the box
@@ -340,7 +342,7 @@
 	[super encodeWithCoder:aCoder];	// make it not encode the subviews?
 	
 	[aCoder encodeObject: _titleCell];
-	[aCoder encodeObject: _contentView];
+	[aCoder encodeObject: [self contentView]];
 	[aCoder encodeSize: _offsets];
 	[aCoder encodeRect: _borderRect];
 	[aCoder encodeRect: _titleRect];
@@ -372,19 +374,18 @@
 		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];		// decode and insert
 		_titleCell = [[aDecoder decodeObjectForKey:@"NSTitleCell"] retain];
 #if 0
-		NSLog(@"_contentView=%@", [_contentView _subtreeDescription]);
+		NSLog(@"contentView=%@", [[self contentView] _subtreeDescription]);
 #endif		
 		[self _calcSizes];	// recalculate _titleRect with latest _titleCell
 		return self;
 		}
 	
 	_titleCell = [[aDecoder decodeObject] retain];
-	_contentView = [[aDecoder decodeObject] retain];
+	// _contentView = [[aDecoder decodeObject] retain];
 	_offsets = [aDecoder decodeSize];
 	_borderRect = [aDecoder decodeRect];
 	_titleRect = [aDecoder decodeRect];
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_bx];
-
 	return self;
 }
 
