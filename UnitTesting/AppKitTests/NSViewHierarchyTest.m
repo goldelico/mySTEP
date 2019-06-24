@@ -341,7 +341,7 @@
 
 /* transform NSSize */
 
-- (void) test_rect_100
+- (void) test_NSBox_rect_100
 { // special test for NSBox
 	NSBox *box=[[NSBox alloc] initWithFrame:NSMakeRect(263.0,16.0,140.0,146.0)];
 	XCTAssertEqualObjects([box contentView], [[box subviews] objectAtIndex:0]);	//content view is the first subview
