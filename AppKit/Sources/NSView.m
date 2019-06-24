@@ -620,14 +620,12 @@ printing
 		NSLog(@"%@ is already a subview of %@ (ignored)", aView, self);
 		return;
 		}
-	[aView viewWillMoveToSuperview:self];
-	
+
 	// FIXME: check for relative position and otherView and insert at expected position
 	
 	[_subviews addObject:aView];				// Append to our subview list
 	[aView _setSuperview:self];
-	[aView viewDidMoveToSuperview];
-													// Make ourselves the next 
+													// Make ourselves the next
 	[aView setNextResponder:self];					// responder of the view
 
 	[aView _setWindow:_window];						// place on same window as we are
@@ -640,10 +638,10 @@ printing
 	if (self == aView)								// Are they the same view?
 		return self;
 
-	if ([self isDescendantOf: aView])				// Is self a descendant of 
+	if ([self isDescendantOf: aView])				// Is self a descendant of
 		return aView;								// view?
 
-	if ([aView isDescendantOf: self])				// Is view a descendant of 
+	if ([aView isDescendantOf: self])				// Is view a descendant of
 		return self;								// self?
 									
 	if (![self superview])			// If neither are descendants of each other
@@ -659,7 +657,7 @@ printing
 	if (aView == self || (_superview == aView))
 		return YES;
 
-	if (!_superview) 								// No superview then this 
+	if (!_superview)								// No superview then this
 		return NO;									// is end of the line
 
 	return [_superview isDescendantOf:aView];
@@ -687,7 +685,7 @@ printing
 	return [_superview enclosingScrollView];	// go up one level
 }
 
-- (void) removeFromSuperviewWithoutNeedingDisplay
+- (void) removeFromSuperviewWithoutNeedingDisplay	// also releases the view!
 {
 	[self retain];	// postpone release
 	if(_window)
@@ -703,19 +701,17 @@ printing
 #endif
 		[_superview willRemoveSubview:self];
 		[[_superview subviews] removeObjectIdenticalTo:self];	// this is the extra release mentioned in the documentation
-		[self viewWillMoveToSuperview:nil];
 		[self _setSuperview:nil];
-		[self viewDidMoveToSuperview];
 #if 0
 		NSLog(@"removeFromSuperviewWithoutNeedingDisplay after: %@", [super_view subviews]);
 #endif
 		}
 	else
 		NSLog(@"trying to remove subview without superview: %@", self);
-	[self release];	// postpone any dealloc
+	[self release];	// postpone any dealloc to here
 }
 
-- (void) removeFromSuperview
+- (void) removeFromSuperview	// also releases the view!
 {
 	[_superview setNeedsDisplay:YES];	// we could restrict to our own frame rect
 	[self removeFromSuperviewWithoutNeedingDisplay];
@@ -729,19 +725,22 @@ printing
 		NSLog(@"NSView warning - can't replace subview %@ with %@", oldView, newView);
 		return;
 		}
+	if(oldView == newView)
+		return;
 	index = [_subviews indexOfObjectIdenticalTo:oldView];
 	
-	if(index != NSNotFound) 
+	if(index != NSNotFound)
 		{
 		[oldView _setWindow:nil];
-		[oldView _setSuperview:nil];
+		// FIXME: call willMoveToSuperview etc.?
+		[oldView _setSuperview:nil];	// CHECKME:before resetting superview or after???
 		
 		[newView setNextResponder:nil];
 		
 		[self willRemoveSubview:oldView];
 		[_subviews replaceObjectAtIndex:index withObject:newView];
 		
-		[self didAddSubview:newView];
+		[self didAddSubview:newView];	// CHECKME:before setting superview or after???
 		[newView _setSuperview:self];	// must be done before _setWindow:
 		[newView _setWindow:_window];
 		[newView setNextResponder:self];
@@ -1416,8 +1415,26 @@ printing
 
 - (void) _setSuperview:(NSView *)superview		
 {
-	if((_superview = superview) == nil)
+	if(superview == _superview)
+		return;	// nothing to do
+	if(!superview)
+		{
+	if([_superview isKindOfClass:[NSBox class]])
+		NSLog(@"is child of NSBox %@", self);
+	if([superview isKindOfClass:[NSBox class]])
+		NSLog(@"becomes child of NSBox %@", self);
+	if([[_superview superview] isKindOfClass:[NSBox class]])
+		NSLog(@"is grandchild of NSBox %@", self);
+	if([[superview superview] isKindOfClass:[NSBox class]])
+		NSLog(@"becomes grandchild of NSBox %@", self);
+		}
+	[self viewWillMoveToSuperview:superview];
+	_superview=superview;
+	if(!_superview)
+		{
+		[self viewDidMoveToSuperview];
 		return;	// removed
+		}
 	[self _invalidateCTMtoBase];	// update when needed
 	if(_v.hasToolTip)
 		{
@@ -1432,10 +1449,12 @@ printing
 				{
 				[trackRects removeObjectAtIndex:i];
 				break;
-			}	}
+				}
+			}
 
 		[self addTrackingRect:_bounds owner:self userData:NULL assumeInside:NO];
 		}
+	[self viewDidMoveToSuperview];
 }
 
 - (void) setPostsFrameChangedNotifications:(BOOL)flag
