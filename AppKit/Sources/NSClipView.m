@@ -371,7 +371,7 @@
 			src.size.width += delta.width;	// is negative!
 			src.origin.x -= 2.0*delta.width;	// is negative!
 			xSlice.size.width = -delta.width;
-			xSlice.origin.x = NSMaxX(start) - xSlice.size.width;
+			xSlice.origin.x = NSMaxX(start) /* - xSlice.size.width */;
 			ySlice.origin.x -= delta.width;
 			ySlice.size.width += delta.width;
 			}
