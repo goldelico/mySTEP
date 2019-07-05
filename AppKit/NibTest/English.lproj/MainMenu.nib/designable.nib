@@ -4059,7 +4059,7 @@ DQ
                         <rect key="frame" x="165" y="217" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="Iu0-yZ-Q8V">
-                            <rect key="frame" x="1" y="1" width="112" height="34"/>
+                            <rect key="frame" x="1" y="1" width="116" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="844">
@@ -4086,7 +4086,7 @@ DQ
                         <rect key="frame" x="165" y="153" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="5bu-c0-4AP">
-                            <rect key="frame" x="1" y="1" width="112" height="49"/>
+                            <rect key="frame" x="1" y="1" width="116" height="49"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="846">
@@ -4113,7 +4113,7 @@ DQ
                         <rect key="frame" x="311" y="153" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="uRi-iN-tco">
-                            <rect key="frame" x="1" y="1" width="127" height="34"/>
+                            <rect key="frame" x="1" y="1" width="127" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="848">
@@ -4140,7 +4140,7 @@ DQ
                         <rect key="frame" x="459" y="153" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="fWw-ev-9h9">
-                            <rect key="frame" x="1" y="1" width="112" height="34"/>
+                            <rect key="frame" x="1" y="1" width="116" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="850">
@@ -4302,7 +4302,7 @@ DQ
                         <rect key="frame" x="311" y="217" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="vfY-Bz-obm">
-                            <rect key="frame" x="1" y="1" width="112" height="34"/>
+                            <rect key="frame" x="1" y="1" width="116" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="862">
@@ -4329,7 +4329,7 @@ DQ
                         <rect key="frame" x="459" y="217" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" drawsBackground="NO" copiesOnScroll="NO" id="WFT-Wf-Bkw">
-                            <rect key="frame" x="1" y="1" width="112" height="34"/>
+                            <rect key="frame" x="1" y="1" width="116" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="864">
@@ -4383,7 +4383,7 @@ DQ
                         <rect key="frame" x="310" y="23" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="7Bk-Jl-vhu">
-                            <rect key="frame" x="1" y="1" width="127" height="34"/>
+                            <rect key="frame" x="1" y="1" width="127" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="870">
@@ -4410,7 +4410,7 @@ DQ
                         <rect key="frame" x="458" y="23" width="129" height="51"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" autoresizesSubviews="NO" id="90f-E1-hui">
-                            <rect key="frame" x="1" y="1" width="127" height="34"/>
+                            <rect key="frame" x="1" y="1" width="127" height="38"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button verticalHuggingPriority="750" id="872">
@@ -5510,8 +5510,27 @@ DQ
                             <action selector="scroll:" target="145" id="1418"/>
                         </connections>
                     </button>
+                    <customView misplaced="YES" id="TiR-kZ-Bsx" customClass="NSScroller">
+                        <rect key="frame" x="301" y="20" width="237" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="knobProportion">
+                                <real key="value" value="0.20000000000000001"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </customView>
+                    <customView misplaced="YES" id="Vwm-a0-qpE" customClass="NSScroller">
+                        <rect key="frame" x="537" y="20" width="24" height="167"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
                 </subviews>
+                <userDefinedRuntimeAttributes>
+                    <userDefinedRuntimeAttribute type="size" keyPath="controlSize">
+                        <size key="value" width="20" height="100"/>
+                    </userDefinedRuntimeAttribute>
+                </userDefinedRuntimeAttributes>
             </view>
+            <point key="canvasLocation" x="131.5" y="-343"/>
         </window>
         <window title="Palmtop" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" releasedWhenClosed="NO" frameAutosaveName="main" animationBehavior="default" id="1438" userLabel="Palmtop">
             <windowStyleMask key="styleMask" titled="YES" resizable="YES"/>
@@ -5530,9 +5549,9 @@ DQ
                             <tabViewItem label="Status" identifier="status" id="1441">
                                 <view key="view" id="1442">
                                     <rect key="frame" x="10" y="29" width="234" height="232"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <searchField verticalHuggingPriority="750" id="1443">
+                                        <searchField wantsLayer="YES" verticalHuggingPriority="750" id="1443">
                                             <rect key="frame" x="0.0" y="212" width="234" height="19"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                             <searchFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" alignment="left" placeholderString="Search" bezelStyle="round" sendsWholeSearchString="YES" id="2178">
