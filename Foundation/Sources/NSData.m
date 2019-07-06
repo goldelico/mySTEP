@@ -778,10 +778,10 @@ static IMP appendImp;
 	return NO;
 }
 
-// FIXME: handle options
 - (id) _initWithBase64EncodedBytes:(const char *) str length:(NSUInteger) len options:(NSDataBase64DecodingOptions) options;
 {
 	char *bytes;
+	const char *end=str+len;
 	char *bp;
 	int cnt=0;
 	int pad=0;
@@ -790,7 +790,7 @@ static IMP appendImp;
 #if 0
 	NSLog(@"_initWithBase64EncodedBytes:%@", string);
 #endif
-	while(bp < bytes+len)
+	while(str < end)
 		{
 		int bit6;
 		char b=*str++;
@@ -809,15 +809,17 @@ static IMP appendImp;
 				case '\t':
 				case '\r':
 				case '\n':
-				continue;	// ignore white space
+					continue;	// ignore white space
 				default:
-				NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
-				objc_free(bytes);
-				[self release];
-				return nil;	// invalid character
+					if(options & NSDataBase64DecodingIgnoreUnknownCharacters)
+						continue;	// ignore unknown characters
+					NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
+					objc_free(bytes);
+					[self release];
+					return nil;	// invalid character
 			}
 		if(pad)
-			{ // invalid character follows after any padding
+			{ // any character follows after any padding
 				objc_free(bytes);
 				[self release];
 				return nil;
@@ -897,6 +899,7 @@ static IMP appendImp;
 	const char *src = [self bytes];
 	NSInteger length = [self length];
 	long bytes = 0;
+	int chars=0;
 	while(length > 0)
 		{
 		int i;
@@ -917,7 +920,7 @@ static IMP appendImp;
 			else
 				bits='/';
 			[result appendFormat:@"%c", bits];
-			// CHECKME: handle padding
+			chars++;
 			if(i == 2 && length == 2)
 				{
 				[result appendString:@"="];
@@ -927,6 +930,18 @@ static IMP appendImp;
 				{
 				[result appendString:@"=="];
 				break;
+				}
+			// FIXME: find out exact meaning if both flags are set
+			// what happens after padding?
+			if(((options & NSDataBase64Encoding64CharacterLineLength) && chars == 64) ||
+			   ((options & NSDataBase64Encoding76CharacterLineLength) && chars == 76))
+				{ // full line
+					// FIXME: find out exact meaning if both flags are set
+					if(options & NSDataBase64EncodingEndLineWithCarriageReturn)
+						[result appendString:@"\r"];
+					if(options & NSDataBase64EncodingEndLineWithLineFeed)
+						[result appendString:@"\n"];
+					chars=0;
 				}
 			}
 		length-=4;
