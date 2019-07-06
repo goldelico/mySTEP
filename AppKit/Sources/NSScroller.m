@@ -51,8 +51,10 @@ static NSActionCell *__knobCell = nil;
 
 - (void) drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
-	NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:cellFrame.size.width < cellFrame.size.height];	// box with halfcircular rounded ends
-	NSWindow *win=[controlView window];
+	NSBezierPath *p;
+	NSWindow *win;
+	p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:cellFrame.size.width < cellFrame.size.height];	// box with halfcircular rounded ends
+	win=[controlView window];
 	if([win isKeyWindow] || [win isKindOfClass:[NSPanel class]])
 		[[NSColor selectedControlColor] setFill];
 	else
@@ -89,12 +91,11 @@ static NSActionCell *__knobCell = nil;
 	if((self=[super initWithFrame:frameRect]))
 		{
 		_isEnabled=YES;
-		_isHorizontal = frameRect.size.width > frameRect.size.height;
+		[self checkSpaceForParts];	// initialize _isHorizontal
 		_arrowsPosition=_isHorizontal?NSScrollerArrowsMinEnd:NSScrollerArrowsMaxEnd;
 		_hitPart = NSScrollerNoPart;
 		_knobProportion = 0.3;
 		[self drawParts];
-		[self checkSpaceForParts];
 		// FIXME: register for user defaults change notifications and redraw if needed
 		}
 	return self;
@@ -120,11 +121,13 @@ static NSActionCell *__knobCell = nil;
 		_controlSize=CONTROLSIZE;
 #define HORIZONTAL ((sflags>>31)&1)
 		_isHorizontal=HORIZONTAL;
-		[self checkSpaceForParts];		// may have changed
 #define ARROWSPOSITION ((sflags>>29)&3)
 		[self setArrowsPosition:ARROWSPOSITION];	// this may apply defaults
 #define USABLEPARTS ((sflags>>27)&3)
 		_usableParts=USABLEPARTS;
+#if 1	// do not assume it was correctly decoded
+		[self checkSpaceForParts];
+#endif
 #define CONTROLTINT ((sflags>>16)&7)
 		_controlTint=CONTROLTINT;
 		[self setFloatValue:[aDecoder decodeFloatForKey:@"NSCurValue"] knobProportion:[aDecoder decodeFloatForKey:@"NSPercent"]/100.0];
@@ -193,14 +196,19 @@ static NSActionCell *__knobCell = nil;
 - (void) checkSpaceForParts
 {
 	NSSize frameSize = [self frame].size;
-	CGFloat size = (_isHorizontal ? frameSize.width : frameSize.height);
-	CGFloat scrollerWidth = (_isHorizontal ? frameSize.height : frameSize.width);
+	CGFloat scrollerLength;
+	CGFloat scrollerWidth;
+	_isHorizontal=(frameSize.width > frameSize.height);
+	scrollerLength = (_isHorizontal ? frameSize.width : frameSize.height);
+	scrollerWidth = (_isHorizontal ? frameSize.height : frameSize.width);
 
-	if(size > 3 * scrollerWidth + 2)
+	if(scrollerLength > 3 * scrollerWidth + 2)
 		_usableParts = NSAllScrollerParts;
-	else if (size > 2 * scrollerWidth + 1)
+	else if (scrollerLength > 2 * scrollerWidth + 1)
 		_usableParts = NSOnlyScrollerArrows;
-	else if (size > scrollerWidth)
+	else if (scrollerLength > scrollerWidth)
+		_usableParts = NSNoScrollerParts;
+	else // length == width...
 		_usableParts = NSNoScrollerParts;
 }
 
@@ -264,8 +272,8 @@ static NSActionCell *__knobCell = nil;
 
 - (void) setFrame:(NSRect)frameRect
 {
-	_isHorizontal=(frameRect.size.width > frameRect.size.height);
-	if (_isHorizontal) 		// determine the
+	_isHorizontal=(frameRect.size.width > frameRect.size.height);	// update first
+	if (_isHorizontal)		// determine the
 		{													// orientation of
 //		frameRect.size.height = [[self class] scrollerWidthForControlSize:_controlSize];		// adjust it's size
 		_arrowsPosition = NSScrollerArrowsMinEnd;			// accordingly
@@ -381,7 +389,7 @@ static NSActionCell *__knobCell = nil;
 	[__knobCell setTarget:_target];
 	[__knobCell setAction:_action];
 
-	switch ((_hitPart = [self testPart: p])) 
+	switch ((_hitPart = [self testPart: p]))
 		{
 		case NSScrollerIncrementLine:
 		case NSScrollerDecrementLine:
@@ -394,7 +402,7 @@ static NSActionCell *__knobCell = nil;
 			[self trackKnob:event];
 			break;
 		
-		case NSScrollerKnobSlot: 
+		case NSScrollerKnobSlot:
 			{
 				if(0 /* ScrollerClickBehaviour default setting */)
 					{
@@ -448,23 +456,14 @@ static NSActionCell *__knobCell = nil;
 				v=(point.x-offset.width-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
 			else
 				v=(point.y-offset.height-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height);
-			if(v < 0.0)
-				v=0.0;
-			else if(v > 1.0)
-				v=1.0;
-			if (v != _floatValue)
-				{ // value has really changed
-				_floatValue = v;
-				knobRect = [self rectForPart: NSScrollerKnob];	// update
-				[self setNeedsDisplayInRect:slotRect];	// redraw (could be optimized to redraw the scroller knob union previous position only)
-				[_target performSelector:_action withObject:self];	// _target should be the NSScrollView and _action should be @selector(_doScroller:)
-				}
+			[self setFloatValue:v];
+			[_target performSelector:_action withObject:self];	// _target should be the NSScrollView and _action should be @selector(_doScroller:)
 			}
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:distantFuture 
 									  inMode:NSEventTrackingRunLoopMode
 									 dequeue:YES];
-  		}
+		}
 	if([_target isKindOfClass:[NSResponder class]])
 		[_target mouseUp:event];
 }
@@ -584,7 +583,8 @@ static NSActionCell *__knobCell = nil;
 	[[NSColor scrollBarColor] set];
 	NSRectFill(rect);		// draw bar slot
 	rect=[self rectForPart:NSScrollerKnob];
-	[__knobCell drawWithFrame:rect inView:self];			// draw frame/interior (i.e. dimple image)
+	if(!NSIsEmptyRect(rect))
+		[__knobCell drawWithFrame:rect inView:self];			// draw frame/interior (i.e. dimple image)
 }
 
 - (NSRect) rectForPart:(NSScrollerPart)partCode
@@ -593,30 +593,31 @@ static NSActionCell *__knobCell = nil;
 	CGFloat x = 1, y = 1, width = 0, height = 0;
 	NSUsableScrollerParts usableParts;
 	// If the scroller is disabled then
-	if (!_isEnabled)						// the scroller buttons and the 
+	if (!_isEnabled)						// the scroller buttons and the
 		usableParts = NSNoScrollerParts;	// knob are not displayed at all.
 	else
 		usableParts = _usableParts;
-	// Assign to `width' and `height' values describing 
+
+	// Assign to `width' and `height' values describing
 	// the width and height of the scroller regardless of orientation
 	if (_isHorizontal)
 		{	
 		width = scrollerFrame.size.height-2;	// room for border
 		height = scrollerFrame.size.width-2;
 		}
-    else 
+	else
 		{
 		width = scrollerFrame.size.width-2;
 		height = scrollerFrame.size.height-2;
-    	}
+		}
 
 	switch (partCode)
-		{ 	// The x, y, width and height values are computed below for the vertical scroller.  The height of the scroll buttons is assumed to be equal to the width.
-    	case NSScrollerKnob:
+		{	// The x, y, width and height values are computed below for the vertical scroller.  The height of the scroll buttons is assumed to be equal to the width.
+		case NSScrollerKnob:
 			{
 				CGFloat knobHeight, knobPosition, slotHeight;
 				if (usableParts == NSNoScrollerParts || usableParts == NSOnlyScrollerArrows)
-					return NSZeroRect;		// If the scroller does not have parts or a knob return a zero rect. 
+					return NSZeroRect;		// If the scroller does not have parts or a knob return a zero rect.
 				slotHeight = height - (_arrowsPosition == NSScrollerArrowsNone ? 0 : 2 * width);	// calc the slot Height
 				knobHeight = floorf(_knobProportion * slotHeight);
 				if (knobHeight < width)			// adjust knob height and proportion if necessary
@@ -632,7 +633,7 @@ static NSActionCell *__knobCell = nil;
 					y += 2 * width;	// leave room for two rectangular buttons
 				height = knobHeight;
 				break;										
-    		}
+			}
 			
 		case NSScrollerKnobSlot:
 			{ // if the scroller does	not have buttons the slot completely fills the scroller.
@@ -680,8 +681,8 @@ static NSActionCell *__knobCell = nil;
 			}
 			
 		case NSScrollerNoPart:
-      		return NSZeroRect;
-  		}
+			return NSZeroRect;
+		}
 	if(_isHorizontal)
 		return (NSRect) {{y, x}, {height, width}};
 	else
