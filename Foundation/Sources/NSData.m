@@ -190,7 +190,7 @@ static IMP appendImp;
 	return [[[dataMalloc alloc] initWithContentsOfFile: path] autorelease];
 }
 
-+ (id) dataWithContentsOfFile:(NSString*)path options:(NSUInteger) mask error:(NSError **) error;
++ (id) dataWithContentsOfFile:(NSString*)path options:(NSDataReadingOptions) mask error:(NSError **) error;
 {
 #if 0
 	NSLog(@"dataWithContentsOfFile: %@", path);
@@ -203,7 +203,7 @@ static IMP appendImp;
 	return [[[dataMalloc alloc] initWithContentsOfURL: url] autorelease];
 }
 
-+ (id) dataWithContentsOfURL:(NSURL*)url options:(NSUInteger) mask error:(NSError **) error;
++ (id) dataWithContentsOfURL:(NSURL*)url options:(NSDataReadingOptions) mask error:(NSError **) error;
 {
 	return [[[dataMalloc alloc] initWithContentsOfURL: url options:mask error:error] autorelease];
 }
@@ -874,12 +874,12 @@ static IMP appendImp;
 	return [self initWithContentsOfURL:url options:0 error:NULL];
 }
 
-- (id) initWithContentsOfFile:(NSString *)path options:(NSUInteger)mask error:(NSError **)errorPtr;
+- (id) initWithContentsOfFile:(NSString *)path options:(NSDataReadingOptions)mask error:(NSError **)errorPtr;
 {
 	return [self initWithContentsOfURL:[NSURL fileURLWithPath:path] options:mask error:errorPtr];
 }
 
-- (id) initWithContentsOfURL:(NSURL *)url options:(NSUInteger)mask error:(NSError **)errorPtr;
+- (id) initWithContentsOfURL:(NSURL *)url options:(NSDataReadingOptions)mask error:(NSError **)errorPtr;
 {
 	NSURLRequest *request;
 	NSURLResponse *response;
@@ -903,17 +903,16 @@ static IMP appendImp;
 	return [data retain];
 }
 
-- (BOOL) writeToFile:(NSString *)path options:(NSUInteger)mask error:(NSError **)errorPtr;
+- (BOOL) writeToFile:(NSString *)path options:(NSDataWritingOptions)mask error:(NSError **)errorPtr;
 {
 	return [self writeToURL:[NSURL fileURLWithPath:path] options:mask error:errorPtr];
 }
 
-- (BOOL) writeToURL:(NSURL *)aURL options:(NSUInteger)mask error:(NSError **)errorPtr;
+- (BOOL) writeToURL:(NSURL *)aURL options:(NSDataWritingOptions)mask error:(NSError **)errorPtr;
 {
 	NIMP;
 	return NO;
 }
-
 @end
 
 @implementation NSData (Zip)
