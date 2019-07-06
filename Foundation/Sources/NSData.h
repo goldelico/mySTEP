@@ -25,12 +25,44 @@
 @class NSError;
 @class NSURL;
 
-enum _NSDataOptions
+typedef enum NSDataReadingOptions
 {
-	NSMappedRead=0x01,
-	NSUncachedRead=0x02,
-	NSAtomicWrite=0x04	// this differs from the documentation
-};
+	NSDataReadingMappedIfSafe						= 1<<0,
+	NSDataReadingUncached							= 1<<1,
+	NSDataReadingMappedAlways						= 1<<3,
+	/* deprecated */
+	NSDataReadingMapped = NSDataReadingMappedIfSafe,
+	NSMappedRead = NSDataReadingMapped,
+	NSUncachedRead = NSDataReadingUncached,
+} NSDataReadingOptions;
+
+typedef enum NSDataWritingOptions
+{
+	NSDataWritingAtomic								= 1<<0,
+	NSDataWritingWithoutOverwriting					= 1<<1,
+	NSDataWritingFileProtectionNone					= 0x10<<24,
+	NSDataWritingFileProtectionComplete				= 0x20<<24,
+	NSDataWritingFileProtectionCompleteUnlessOpen	= 0x30<<24,
+	NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication
+													= 0x40<<24,
+	NSDataWritingFileProtectionMask					= 0xf0<<24,
+	/* deprecated */
+	NSAtomicWrite = NSDataWritingAtomic,
+} NSDataWritingOptions;
+
+typedef enum NSDataBase64EncodingOptions
+{
+	NSDataBase64Encoding64CharacterLineLength		= 1<<0,
+	NSDataBase64Encoding76CharacterLineLength		= 1<<1,
+	NSDataBase64EncodingEndLineWithCarriageReturn	= 1<<4,
+	NSDataBase64EncodingEndLineWithLineFeed			= 1<<5,
+
+} NSDataBase64EncodingOptions;
+
+typedef enum NSDataBase64DecodingOptions
+{
+	NSDataBase64DecodingIgnoreUnknownCharacters		= 1<<0,
+} NSDataBase64DecodingOptions;
 
 @interface NSData : NSObject <NSCoding, NSCopying, NSMutableCopying>
 
@@ -39,10 +71,10 @@ enum _NSDataOptions
 + (id) dataWithBytesNoCopy:(void *) bytes length:(NSUInteger) length;
 + (id) dataWithBytesNoCopy:(void *) bytes length:(NSUInteger) length freeWhenDone:(BOOL) flag;
 + (id) dataWithContentsOfFile:(NSString *) path;
-+ (id) dataWithContentsOfFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
++ (id) dataWithContentsOfFile:(NSString *) path options:(NSDataReadingOptions) mask error:(NSError **) errorPtr;
 + (id) dataWithContentsOfMappedFile:(NSString *) path;
 + (id) dataWithContentsOfURL:(NSURL *) url;
-+ (id) dataWithContentsOfURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
++ (id) dataWithContentsOfURL:(NSURL *) aURL options:(NSDataReadingOptions) mask error:(NSError **) errorPtr;
 + (id) dataWithData:(NSData *) data;
 
 - (const void *) bytes;
@@ -54,18 +86,25 @@ enum _NSDataOptions
 - (id) initWithBytesNoCopy:(void *) bytes length:(NSUInteger) length;
 - (id) initWithBytesNoCopy:(void *) bytes length:(NSUInteger) length freeWhenDone:(BOOL) flag;
 - (id) initWithContentsOfFile:(NSString *) path;
-- (id) initWithContentsOfFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (id) initWithContentsOfFile:(NSString *) path options:(NSDataReadingOptions) mask error:(NSError **) errorPtr;
 - (id) initWithContentsOfMappedFile:(NSString *) path;
 - (id) initWithContentsOfURL:(NSURL *) url;
-- (id) initWithContentsOfURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (id) initWithContentsOfURL:(NSURL *) aURL options:(NSDataReadingOptions) mask error:(NSError **) errorPtr;
 - (id) initWithData:(NSData *) data;
 - (BOOL) isEqualToData:(NSData *) other;
 - (NSUInteger) length;
 - (NSData *) subdataWithRange:(NSRange) aRange;
 - (BOOL) writeToFile:(NSString *) path atomically:(BOOL) useAuxiliaryFile;
-- (BOOL) writeToFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (BOOL) writeToFile:(NSString *) path options:(NSDataWritingOptions) mask error:(NSError **) errorPtr;
 - (BOOL) writeToURL:(NSURL *) url atomically:(BOOL) useAuxiliaryFile;
-- (BOOL) writeToURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (BOOL) writeToURL:(NSURL *) aURL options:(NSDataWritingOptions) mask error:(NSError **) errorPtr;
+
+- (id) initWithBase64EncodedData:(NSData *) data options:(NSDataBase64DecodingOptions) options;
+- (id) initWithBase64EncodedString:(NSString *) string options:(NSDataBase64DecodingOptions) options;
+- (id) initWithBase64Encoding:(NSString *) string;
+- (NSData *) base64EncodedDataWithOptions:(NSDataBase64EncodingOptions)options;
+- (NSString *) base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
+- (NSString *) base64Encoding;
 
 @end
 

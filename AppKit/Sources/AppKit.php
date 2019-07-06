@@ -1461,6 +1461,8 @@ class NSImageView extends NSControl
 // _NSLog($img);
 		$this->setNeedsDisplay();
 		}
+	public function isEditable() { return false; }
+	public function setEditable($flag) { return; }	// ignored
 	public function setObjectValue(NSObject $img=null) { $this->setImage($img); }
 	public function setFrameSize($size)
 		{
