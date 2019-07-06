@@ -143,4 +143,17 @@ XCTAssertEqualObjects( \
 	XCTAssertEquals([clipView visibleRect], NSMakeRect(0.0, 0.0, 200.0, 200.0));
 }
 
+- (void) test300;	// should be a separate test!
+{
+	NSScrollView *sv=[[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 200.0, 200.0)];
+	XCTAssertFalse([sv hasVerticalScroller]);
+	XCTAssertNil([sv verticalScroller]);
+	[sv setHasVerticalScroller:YES];
+	XCTAssertTrue([sv hasVerticalScroller]);
+	XCTAssertNotNil([sv verticalScroller]);	// has created one
+	[sv setHasVerticalScroller:NO];
+	XCTAssertFalse([sv hasVerticalScroller]);
+	XCTAssertNotNil([sv verticalScroller]);	// is not removed
+}
+
 @end
