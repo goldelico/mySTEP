@@ -50,6 +50,20 @@ typedef enum NSDataWritingOptions
 	NSAtomicWrite = NSDataWritingAtomic,
 } NSDataWritingOptions;
 
+typedef enum NSDataBase64EncodingOptions
+{
+	NSDataBase64Encoding64CharacterLineLength		= 1<<0,
+	NSDataBase64Encoding76CharacterLineLength		= 1<<1,
+	NSDataBase64EncodingEndLineWithCarriageReturn	= 1<<4,
+	NSDataBase64EncodingEndLineWithLineFeed			= 1<<5,
+
+} NSDataBase64EncodingOptions;
+
+typedef enum NSDataBase64DecodingOptions
+{
+	NSDataBase64DecodingIgnoreUnknownCharacters		= 1<<0,
+} NSDataBase64DecodingOptions;
+
 @interface NSData : NSObject <NSCoding, NSCopying, NSMutableCopying>
 
 + (id) data;
@@ -84,6 +98,13 @@ typedef enum NSDataWritingOptions
 - (BOOL) writeToFile:(NSString *) path options:(NSDataWritingOptions) mask error:(NSError **) errorPtr;
 - (BOOL) writeToURL:(NSURL *) url atomically:(BOOL) useAuxiliaryFile;
 - (BOOL) writeToURL:(NSURL *) aURL options:(NSDataWritingOptions) mask error:(NSError **) errorPtr;
+
+- (id) initWithBase64EncodedData:(NSData *) data options:(NSDataBase64DecodingOptions) options;
+- (id) initWithBase64EncodedString:(NSString *) string options:(NSDataBase64DecodingOptions) options;
+- (id) initWithBase64Encoding:(NSString *) string;
+- (NSData *) base64EncodedDataWithOptions:(NSDataBase64EncodingOptions)options;
+- (NSString *) base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
+- (NSString *) base64Encoding;
 
 @end
 

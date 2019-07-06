@@ -239,142 +239,6 @@ static IMP appendImp;
 	return [self initWithBytes:[data bytes] length:[data length]];
 }
 
-- (id) _initWithBase64String:(NSString *) string;
-{ // we need that for unarchiving NSData objects in XML format (and somewhere else)
-	NSUInteger len=(3*[string length])/4+2;
-	const char *str=[string UTF8String];
-	char *bytes=objc_malloc(len);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
-	char *bp=bytes;
-	int b;
-	int cnt=0;
-	int pad=0;
-	unsigned long byte=0;
-#if 0
-	NSLog(@"_initWithBase64String:%@", string);
-#endif
-	NSAssert(string, @"does not accept a nil string");
-	while((b=*str++))
-		{
-		int bit6;
-		if(b >= 'A' && b <= 'Z')
-			bit6=b-'A';
-		else if(b >= 'a' && b <= 'z')
-			bit6=b+(26-'a');
-		else if(b >= '0' && b <= '9')
-			bit6=b+(52-'0');
-		else switch(b)
-			{
-				case '+':	bit6=62; break;
-				case '/':	bit6=63; break;
-				case '=':	pad++; continue;	// handle padding
-				case ' ':
-				case '\t':
-				case '\r':
-				case '\n':
-				continue;	// ignore white space
-				default:
-				NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
-				objc_free(bytes);
-				[self release];
-				return nil;	// invalid character
-			}
-		if(pad)
-			{ // invalid character follows after any padding
-				objc_free(bytes);
-				[self release];
-				return nil;
-			}
-		byte=(byte<<6)+bit6;	// append next 6 bits
-		if(++cnt == 4)
-			{ // 4 character ‡ 6 bit = 24 bits decoded
-				*bp++=(byte>>16);
-				*bp++=(byte>>8);
-				*bp++=byte;
-				byte=0;
-				cnt=0;
-			}
-		}
-	if(pad == 2 && cnt != 3)
-		{ // one more byte (ABC=)
-			if((byte&0xffffff00) > 0)
-				{ [self release]; return nil; }	// bad bits...
-			*bp++=byte;
-		}
-	else if(pad == 1 && cnt != 2)
-		{ // two more bytes (AB==)
-			if((byte&0xffff0000) > 0)
-				{ [self release]; return nil; }	// bad bits...
-			*bp++=(byte>>8);
-			*bp++=byte;
-		}
-	else if(!(pad == 0 && cnt == 0))
-		{ // there is bad padding or some partial byte lying around
-#if 0
-			NSLog(@"pad=%d", pad);
-			NSLog(@"cnt=%d", cnt);
-			NSLog(@"byte=%06x", byte);
-			NSLog(@"string=%@", string);
-#endif
-			objc_free(bytes);
-			[self release];
-			return nil;
-		}
-#if 0
-	NSLog(@"new length=%u", (bp-bytes));
-#endif
-	if(bp == bytes)
-		{
-		objc_free(bytes);	// not used...
-		return [self initWithBytesNoCopy:NULL length:0];	// empty data
-		}
-	NSAssert(bp-bytes <= len, @"buffer overflow");
-	bytes=objc_realloc(bytes, (bp-bytes));	// shrink as needed
-	return [self initWithBytesNoCopy:bytes length:(bp-bytes)]; // take ownership
-}
-
-- (NSString *) _base64String
-{ // convert into base64 string
-	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
-	const char *src = [self bytes];
-	NSInteger length = [self length];
-	long bytes = 0;
-	while(length > 0)
-		{
-		int i;
-		for(i=0; i<length && i<3; i++)
-			bytes=(bytes<<8)+(*src++);	// collect bytes
-		for(i=0; i<4; i++)
-			{
-			int bits=bytes&0x3f;
-			bytes >>= 6;
-			if(bits < 26)
-				bits += 'A';
-			else if(bits < 2*26)
-				bits += 'a'-26;
-			else if(bits < 2*26+10)
-				bits += '0'-2*26;
-			else if(bits == 62)
-				bits='+';
-			else
-				bits='/';
-			[result appendFormat:@"%c", bits];
-			// CHECKME: handle padding
-			if(i == 2 && length == 2)
-				{
-				[result appendString:@"="];
-				break;
-				}
-			if(i == 1 && length == 1)
-				{
-				[result appendString:@"=="];
-				break;
-				}
-			}
-		length-=4;
-		}
-	return result;
-}
-
 - (const void*) bytes	{ SUBCLASS return NULL; }
 
 - (void *) _bytesWith0;
@@ -913,6 +777,180 @@ static IMP appendImp;
 	NIMP;
 	return NO;
 }
+
+// FIXME: handle options
+- (id) _initWithBase64EncodedBytes:(const char *) str length:(NSUInteger) len options:(NSDataBase64DecodingOptions) options;
+{
+	char *bytes;
+	char *bp;
+	int cnt=0;
+	int pad=0;
+	unsigned long byte=0;
+	bp=bytes=objc_malloc((3*len)/4+2);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
+#if 0
+	NSLog(@"_initWithBase64EncodedBytes:%@", string);
+#endif
+	while(bp < bytes+len)
+		{
+		int bit6;
+		char b=*str++;
+		if(b >= 'A' && b <= 'Z')
+			bit6=b-'A';
+		else if(b >= 'a' && b <= 'z')
+			bit6=b+(26-'a');
+		else if(b >= '0' && b <= '9')
+			bit6=b+(52-'0');
+		else switch(b)
+			{
+				case '+':	bit6=62; break;
+				case '/':	bit6=63; break;
+				case '=':	pad++; continue;	// handle padding
+				case ' ':
+				case '\t':
+				case '\r':
+				case '\n':
+				continue;	// ignore white space
+				default:
+				NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
+				objc_free(bytes);
+				[self release];
+				return nil;	// invalid character
+			}
+		if(pad)
+			{ // invalid character follows after any padding
+				objc_free(bytes);
+				[self release];
+				return nil;
+			}
+		byte=(byte<<6)+bit6;	// append next 6 bits
+		if(++cnt == 4)
+			{ // 4 character ‡ 6 bit = 24 bits decoded
+				*bp++=(byte>>16);
+				*bp++=(byte>>8);
+				*bp++=byte;
+				byte=0;
+				cnt=0;
+			}
+		}
+	if(pad == 2 && cnt != 3)
+		{ // one more byte (ABC=)
+			if((byte&0xffffff00) > 0)
+				{ [self release]; return nil; }	// bad bits...
+			*bp++=byte;
+		}
+	else if(pad == 1 && cnt != 2)
+		{ // two more bytes (AB==)
+			if((byte&0xffff0000) > 0)
+				{ [self release]; return nil; }	// bad bits...
+			*bp++=(byte>>8);
+			*bp++=byte;
+		}
+	else if(!(pad == 0 && cnt == 0))
+		{ // there is bad padding or some partial byte lying around
+#if 0
+			NSLog(@"pad=%d", pad);
+			NSLog(@"cnt=%d", cnt);
+			NSLog(@"byte=%06x", byte);
+			NSLog(@"string=%@", string);
+#endif
+			objc_free(bytes);
+			[self release];
+			return nil;
+		}
+#if 0
+	NSLog(@"new length=%u", (bp-bytes));
+#endif
+	if(bp == bytes)
+		{
+		objc_free(bytes);	// not used...
+		return [self initWithBytesNoCopy:NULL length:0];	// empty data
+		}
+	NSAssert(bp-bytes <= (3*len)/4+2, @"buffer overflow");
+	bytes=objc_realloc(bytes, (bp-bytes));	// shrink as needed
+	return [self initWithBytesNoCopy:bytes length:(bp-bytes)]; // take ownership
+}
+- (id) initWithBase64EncodedString:(NSString *) string options:(NSDataBase64DecodingOptions) options;
+{
+	const char *str=[string UTF8String];
+	NSAssert(string, @"does not accept a nil string");
+	return [self _initWithBase64EncodedBytes:str length:strlen(str) options:options];
+}
+
+- (id) initWithBase64EncodedData:(NSData *) data options:(NSDataBase64DecodingOptions) options;
+{
+	return [self _initWithBase64EncodedBytes:[data bytes] length:[data length] options:options];
+}
+
+- (id) initWithBase64Encoding:(NSString *) string;
+{
+	return [self initWithBase64EncodedString:string options:0];
+}
+
+- (NSData *) base64EncodedDataWithOptions:(NSDataBase64EncodingOptions)options;
+{
+	return [[self base64EncodedStringWithOptions:options] dataUsingEncoding:NSASCIIStringEncoding];
+}
+
+- (NSString *) base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
+{
+	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
+	const char *src = [self bytes];
+	NSInteger length = [self length];
+	long bytes = 0;
+	while(length > 0)
+		{
+		int i;
+		for(i=0; i<length && i<3; i++)
+			bytes=(bytes<<8)+(*src++);	// collect bytes
+		for(i=0; i<4; i++)
+			{
+			int bits=bytes&0x3f;
+			bytes >>= 6;
+			if(bits < 26)
+				bits += 'A';
+			else if(bits < 2*26)
+				bits += 'a'-26;
+			else if(bits < 2*26+10)
+				bits += '0'-2*26;
+			else if(bits == 62)
+				bits='+';
+			else
+				bits='/';
+			[result appendFormat:@"%c", bits];
+			// CHECKME: handle padding
+			if(i == 2 && length == 2)
+				{
+				[result appendString:@"="];
+				break;
+				}
+			if(i == 1 && length == 1)
+				{
+				[result appendString:@"=="];
+				break;
+				}
+			}
+		length-=4;
+		}
+	return result;
+}
+
+- (NSString *) base64Encoding;
+{
+	return [self base64EncodedStringWithOptions:0];
+}
+
+// old private methods used by NSPropertyList and NSURLProtocol - replace by official ones
+
+- (id) _initWithBase64String:(NSString *) string;
+{ // we need that for unarchiving NSData objects in XML format (and somewhere else)
+	return [self initWithBase64EncodedString:string options:0];
+}
+
+- (NSString *) _base64String
+{ // convert into base64 string
+	return [self base64Encoding];
+}
+
 @end
 
 @implementation NSData (Zip)
