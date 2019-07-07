@@ -786,10 +786,10 @@ static IMP appendImp;
 	int cnt=0;
 	int pad=0;
 	unsigned long byte=0;
-	bp=bytes=objc_malloc((3*len)/4+2);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
 #if 0
-	NSLog(@"_initWithBase64EncodedBytes:%@", string);
+	NSLog(@"_initWithBase64EncodedBytes [%u]:%*s", len, len, str);
 #endif
+	bp=bytes=objc_malloc((3*len)/4+2);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
 	while(str < end)
 		{
 		int bit6;
@@ -805,21 +805,28 @@ static IMP appendImp;
 				case '+':	bit6=62; break;
 				case '/':	bit6=63; break;
 				case '=':	pad++; continue;	// handle padding
+#if OLD	// caller must also set NSDataBase64DecodingIgnoreUnknownCharacters
 				case ' ':
 				case '\t':
 				case '\r':
 				case '\n':
-					continue;	// ignore white space
+					continue;	// always ignore white space
+#endif
 				default:
 					if(options & NSDataBase64DecodingIgnoreUnknownCharacters)
 						continue;	// ignore unknown characters
+#if 0
 					NSLog(@"NSData: invalid base64 character %c (%02x)", b, b&0xff);
+#endif
 					objc_free(bytes);
 					[self release];
 					return nil;	// invalid character
 			}
-		if(pad)
-			{ // any character follows after any padding
+		if(pad && cnt < 2)
+			{ // pading where character was expected
+#if 0
+				NSLog(@"padding error 1");
+#endif
 				objc_free(bytes);
 				[self release];
 				return nil;
@@ -834,26 +841,38 @@ static IMP appendImp;
 				cnt=0;
 			}
 		}
-	if(pad == 2 && cnt != 3)
-		{ // one more byte (ABC=)
-			if((byte&0xffffff00) > 0)
-				{ [self release]; return nil; }	// bad bits...
-			*bp++=byte;
-		}
-	else if(pad == 1 && cnt != 2)
-		{ // two more bytes (AB==)
-			if((byte&0xffff0000) > 0)
-				{ [self release]; return nil; }	// bad bits...
-			*bp++=(byte>>8);
-			*bp++=byte;
-		}
-	else if(!(pad == 0 && cnt == 0))
-		{ // there is bad padding or some partial byte lying around
 #if 0
-			NSLog(@"pad=%d", pad);
-			NSLog(@"cnt=%d", cnt);
-			NSLog(@"byte=%06x", byte);
-			NSLog(@"string=%@", string);
+	NSLog(@"pad %d cnt %d byte=%06x", pad, cnt, byte);
+#endif
+	if(cnt == 3 && pad >= 1)
+		{ // 3 chars plus pad (ABC=) -> 2 bytes
+			if((byte&0xfffc0003) > 0)
+				{ // bad bits...
+#if 0
+				NSLog(@"padding error 2 %08x", byte&0xfffc0003);
+#endif
+				[self release];
+				return nil;
+				}
+			*bp++=(byte>>10);
+			*bp++=(byte>>2);
+		}
+	else if(cnt == 2 && pad >= 2)
+		{ // 2 chars plus 2 pad (AB==) -> 1 byte
+			if((byte&0xfffff00f) > 0)
+				{ // bad bits...
+#if 0
+				NSLog(@"padding error 3 %08x", byte&0xfffff00f);
+#endif
+				[self release];
+				return nil;
+				}
+			*bp++=(byte>>4);
+		}
+	else if(!(cnt < 2 && !pad))
+		{ // there is bad padding or some partial byte lying around
+#if 1
+			NSLog(@"padding error 4");
 #endif
 			objc_free(bytes);
 			[self release];
@@ -871,15 +890,20 @@ static IMP appendImp;
 	bytes=objc_realloc(bytes, (bp-bytes));	// shrink as needed
 	return [self initWithBytesNoCopy:bytes length:(bp-bytes)]; // take ownership
 }
+
 - (id) initWithBase64EncodedString:(NSString *) string options:(NSDataBase64DecodingOptions) options;
 {
-	const char *str=[string UTF8String];
-	NSAssert(string, @"does not accept a nil string");
+	const char *str;
+	if(!string)
+		[NSException raise: NSInvalidArgumentException format: @"Does not accept a nil string"];
+	str=[string UTF8String];
 	return [self _initWithBase64EncodedBytes:str length:strlen(str) options:options];
 }
 
 - (id) initWithBase64EncodedData:(NSData *) data options:(NSDataBase64DecodingOptions) options;
 {
+	if(!data)
+		[NSException raise: NSInvalidArgumentException format: @"Does not accept nil data"];
 	return [self _initWithBase64EncodedBytes:[data bytes] length:[data length] options:options];
 }
 
@@ -900,6 +924,11 @@ static IMP appendImp;
 	NSInteger length = [self length];
 	long bytes = 0;
 	int chars=0;
+	int maxlen=0;
+	switch((options & (NSDataBase64Encoding64CharacterLineLength | NSDataBase64Encoding76CharacterLineLength))) {
+		case NSDataBase64Encoding64CharacterLineLength: maxlen=64; break;
+		case NSDataBase64Encoding76CharacterLineLength: maxlen=76; break;
+	}
 	while(length > 0)
 		{
 		int i;
@@ -931,12 +960,8 @@ static IMP appendImp;
 				[result appendString:@"=="];
 				break;
 				}
-			// FIXME: find out exact meaning if both flags are set
-			// what happens after padding?
-			if(((options & NSDataBase64Encoding64CharacterLineLength) && chars == 64) ||
-			   ((options & NSDataBase64Encoding76CharacterLineLength) && chars == 76))
-				{ // full line
-					// FIXME: find out exact meaning if both flags are set
+			if(maxlen && chars >= maxlen)
+				{ // full line reached
 					if(options & NSDataBase64EncodingEndLineWithCarriageReturn)
 						[result appendString:@"\r"];
 					if(options & NSDataBase64EncodingEndLineWithLineFeed)
