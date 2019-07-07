@@ -871,7 +871,7 @@ static IMP appendImp;
 		}
 	else if(!(cnt < 2 && !pad))
 		{ // there is bad padding or some partial byte lying around
-#if 1
+#if 0
 			NSLog(@"padding error 4");
 #endif
 			objc_free(bytes);
@@ -919,10 +919,10 @@ static IMP appendImp;
 
 - (NSString *) base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
 {
-	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
 	const char *src = [self bytes];
 	NSInteger length = [self length];
-	long bytes = 0;
+	NSMutableString *result=[NSMutableString stringWithCapacity:(3*length/4+1)];
+	unsigned long bytes = 0;
 	int chars=0;
 	int maxlen=0;
 	switch((options & (NSDataBase64Encoding64CharacterLineLength | NSDataBase64Encoding76CharacterLineLength))) {
@@ -932,12 +932,12 @@ static IMP appendImp;
 	while(length > 0)
 		{
 		int i;
-		for(i=0; i<length && i<3; i++)
-			bytes=(bytes<<8)+(*src++);	// collect bytes
+		for(i=0; i<3; i++)
+			bytes=(bytes<<8)+(i<length ? (*src++) : 0);	// collect up to 3 bytes in reverse order but do not read beyonc array
 		for(i=0; i<4; i++)
-			{
-			int bits=bytes&0x3f;
-			bytes >>= 6;
+			{ // make 4 characters
+			int bits=(bytes>>18)&0x3f;
+			bytes <<= 6;
 			if(bits < 26)
 				bits += 'A';
 			else if(bits < 2*26)
@@ -950,26 +950,26 @@ static IMP appendImp;
 				bits='/';
 			[result appendFormat:@"%c", bits];
 			chars++;
-			if(i == 2 && length == 2)
+			if(length == 2 && i == 2)
 				{
 				[result appendString:@"="];
 				break;
 				}
-			if(i == 1 && length == 1)
+			if(length == 1 && i == 1)
 				{
 				[result appendString:@"=="];
 				break;
 				}
-			if(maxlen && chars >= maxlen)
-				{ // full line reached
-					if(options & NSDataBase64EncodingEndLineWithCarriageReturn)
-						[result appendString:@"\r"];
-					if(options & NSDataBase64EncodingEndLineWithLineFeed)
-						[result appendString:@"\n"];
-					chars=0;
-				}
 			}
-		length-=4;
+		if(maxlen && chars >= maxlen)
+			{ // full line reached
+				if(options & NSDataBase64EncodingEndLineWithCarriageReturn)
+					[result appendString:@"\r"];
+				if(options & NSDataBase64EncodingEndLineWithLineFeed)
+					[result appendString:@"\n"];
+				chars=0;
+			}
+		length-=3;	// 3 more bytes processed
 		}
 	return result;
 }
