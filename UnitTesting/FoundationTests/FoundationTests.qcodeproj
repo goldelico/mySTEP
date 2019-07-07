@@ -31,6 +31,7 @@ export SOURCES+=" NSKVCTest.m"
 export SOURCES+=" NSRegularExpressionTest.m"
 export SOURCES+=" NSPropertyListSerialization.m"
 export SOURCES+=" NSXMLTest.m"
+export SOURCES+=" NSDataTest.m"
 export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"

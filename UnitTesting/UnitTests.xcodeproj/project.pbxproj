@@ -48,6 +48,7 @@
 		EE318F7422BE66F100C8C917 /* NSClipViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE318F7322BE66F100C8C917 /* NSClipViewTest.m */; };
 		EE5103A922A6325C00540E04 /* NSViewHierarchyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5103A822A6325C00540E04 /* NSViewHierarchyTest.m */; };
 		EE5B44BD22AD8ABE00E89DA0 /* NSXMLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5B44BC22AD8ABE00E89DA0 /* NSXMLTest.m */; };
+		EE5E672622D1374B0020561B /* NSDataTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5E672522D1374B0020561B /* NSDataTest.m */; };
 		EE65D7351F4A0F8A00B72355 /* NSKVCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */; };
 		EE65D7371F4B1F4600B72355 /* NSRegularExpressionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */; };
 		EE82D3DA21860141005229C2 /* NSWorkspaceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE82D3D921860141005229C2 /* NSWorkspaceTest.m */; };
@@ -157,6 +158,7 @@
 		EE318F7322BE66F100C8C917 /* NSClipViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSClipViewTest.m; sourceTree = "<group>"; };
 		EE5103A822A6325C00540E04 /* NSViewHierarchyTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewHierarchyTest.m; sourceTree = "<group>"; };
 		EE5B44BC22AD8ABE00E89DA0 /* NSXMLTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLTest.m; sourceTree = "<group>"; };
+		EE5E672522D1374B0020561B /* NSDataTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDataTest.m; sourceTree = "<group>"; };
 		EE65D7341F4A0F8A00B72355 /* NSKVCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSKVCTest.m; sourceTree = "<group>"; };
 		EE65D7361F4B1F4600B72355 /* NSRegularExpressionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSRegularExpressionTest.m; sourceTree = "<group>"; };
 		EE82D3D921860141005229C2 /* NSWorkspaceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSWorkspaceTest.m; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 				EE235B661F29D0EA00F026E0 /* NSBundleTest.m */,
 				EE235B671F29D0EA00F026E0 /* NSByteSwappingTest.m */,
 				EE235B681F29D0EA00F026E0 /* NSConnectionTest.m */,
+				EE5E672522D1374B0020561B /* NSDataTest.m */,
 				EE235B691F29D0EA00F026E0 /* NSDistantObjectTest.m */,
 				EE235B6A1F29D0EA00F026E0 /* NSHTTPCookieTest.m */,
 				EE235B6B1F29D0EA00F026E0 /* NSInvocationTest.m */,
@@ -651,6 +654,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE235B851F29D0EA00F026E0 /* NSValueTest.m in Sources */,
+				EE5E672622D1374B0020561B /* NSDataTest.m in Sources */,
 				EE235B831F29D0EA00F026E0 /* NSStringTest.m in Sources */,
 				EE235B751F29D0EA00F026E0 /* FunctionsTest.m in Sources */,
 				EE235B7C1F29D0EA00F026E0 /* NSHTTPCookieTest.m in Sources */,
