@@ -2256,7 +2256,7 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 			NSView *v;
 
 			__toolTipText = [[NSText alloc] initWithFrame:wRect];
-			y = [NSColor colorWithCalibratedRed:1 green:1 blue:0.5 alpha:1];
+			y = [NSColor toolTipColor];
 			[__toolTipText setDrawsBackground:NO];
 			[__toolTipText setSelectable:NO];
 
