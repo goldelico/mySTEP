@@ -95,20 +95,34 @@
 { // wrong padding
 	NSData *has;
 	NSData *wants;
+	// ok case needs one =
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8gd29ybGQ=" options:0] autorelease];
 	wants=[@"hello world" dataUsingEncoding:NSASCIIStringEncoding];
 	XCTAssertEqualObjects(has, wants);
+	// extra = is ignored
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8gd29ybGQ==" options:0] autorelease];
 	wants=[@"hello world" dataUsingEncoding:NSASCIIStringEncoding];
 	XCTAssertEqualObjects(has, wants);
+	// missing =
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8gd29ybGQ" options:0] autorelease];
 	XCTAssertNil(has);
-	// extra padding is ignored!
+	// extra padding is ignored! which means that it is not the lenght that is tested for a multiple of 4
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8gd29ybGQ======" options:0] autorelease];
 	wants=[@"hello world" dataUsingEncoding:NSASCIIStringEncoding];
 	XCTAssertEqualObjects(has, wants);
+	// extra = at a bad position fails
+	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVs=bG8gd29ybGQ==" options:0] autorelease];
+	XCTAssertNil(has);
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsb=G8gd29ybGQ==" options:0] autorelease];
 	XCTAssertNil(has);
+	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG=8gd29ybGQ==" options:0] autorelease];
+	XCTAssertNil(has);
+	// this is the right position of the first = - why does it fail here but not in the next two tests?
+	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8=gd29ybGQ==" options:0] autorelease];
+	XCTAssertNil(has);
+	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8=" options:0] autorelease];
+	wants=[@"hello" dataUsingEncoding:NSASCIIStringEncoding];
+	XCTAssertEqualObjects(has, wants);
 	// characters after padding are ignored
 	has=[[[NSData alloc] initWithBase64EncodedString:@"aGVsbG8gd29ybGQ=abc" options:0] autorelease];
 	wants=[@"hello world" dataUsingEncoding:NSASCIIStringEncoding];
