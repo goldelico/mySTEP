@@ -1067,8 +1067,8 @@ void __NSCountAllocate(Class aClass)
 	if(!initialized)
 		{ // get flags from environment
 			char *log=getenv("NSLog");
-			__printLog=log && log[0] != 0;
-			__logMemory=__printLog && strcmp(log, "memory") == 0;
+			__logMemory=log && strcasecmp(log, "memory") == 0;
+			__printLog=__logMemory || (log && strcasecmp(log, "yes") == 0);
 			initialized=YES;
 		}
 	if(!__logMemory)
