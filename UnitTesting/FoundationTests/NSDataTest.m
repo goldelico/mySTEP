@@ -62,7 +62,7 @@
 }
 
 - (void) test102
-{ // whitespace (space, tab, \r, \n) is always allowed
+{ // whitespace (space, tab, \r, \n) is not always allowed
 	NSData *has;
 	NSData *wants;
 	has=[[[NSData alloc] initWithBase64EncodedString:@"a   GVsbG8gd29ybGQ=" options:0] autorelease];
