@@ -387,6 +387,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 + (NSColor*) shadowColor				{ CLR(); }
 + (NSColor*) textBackgroundColor		{ CLR(); }
 + (NSColor*) textColor					{ CLR(); }
++ (NSColor*) toolTipColor;				{ CLR(); }
 + (NSColor*) windowBackgroundColor		{ CLR(); }  // should be a NSPatternColor
 + (NSColor*) windowFrameColor			{ CLR(); }
 + (NSColor*) windowFrameTextColor		{ CLR(); }

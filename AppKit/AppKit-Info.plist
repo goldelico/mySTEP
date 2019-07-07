@@ -276,6 +276,8 @@
 		<string>whiteColor</string>
 		<key>textColor</key>
 		<string>blackColor</string>
+		<key>toolTipColor</key>
+		<string>1.0 1.0 0.5</string>
 		<key>whiteColor</key>
 		<string>1.0 1.0 1.0</string>
 		<key>windowBackgroundColor</key>

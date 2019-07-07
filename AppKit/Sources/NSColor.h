@@ -152,6 +152,7 @@
 + (NSColor *) shadowColor;
 + (NSColor *) textBackgroundColor;
 + (NSColor *) textColor;
++ (NSColor *) toolTipColor;
 + (NSColor *) whiteColor;
 + (NSColor *) windowBackgroundColor;
 + (NSColor *) windowFrameColor;
