@@ -190,7 +190,7 @@
 	// exactly 76 length does not adds a CRLF at the end
 	has=[[@"hello world hello world hello world hello world hello w" dataUsingEncoding:NSASCIIStringEncoding] base64EncodedDataWithOptions:NSDataBase64Encoding76CharacterLineLength | NSDataBase64EncodingEndLineWithLineFeed];
 	wants=[@"aGVsbG8gd29ybGQgaGVsbG8gd29ybGQgaGVsbG8gd29ybGQgaGVsbG8gd29ybGQgaGVsbG8gdw==" dataUsingEncoding:NSASCIIStringEncoding];
-	XCTAssertEqual([has length], 76);
+	XCTAssertEqual([has length], (NSUInteger) 76);
 	XCTAssertEqualObjects(has, wants);
 	// 64 + 76 length -> is like infinite
 	has=[[@"hello world hello world hello world hello world hello world hello world" dataUsingEncoding:NSASCIIStringEncoding] base64EncodedDataWithOptions:NSDataBase64Encoding64CharacterLineLength | NSDataBase64Encoding76CharacterLineLength | NSDataBase64EncodingEndLineWithLineFeed];
