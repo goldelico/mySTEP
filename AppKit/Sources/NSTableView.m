@@ -637,7 +637,7 @@
 		[NSException raise: NSInternalInconsistencyException 
 					 format: @"TableView's data source does not implement the NSTableDataSource protocol: %@", aSource];
 	_dataSource=aSource;	// weak reference
-	[self reloadData];
+	[self reloadData];	// calls tile
 }
 
 - (id) dataSource								{ return _dataSource; }
@@ -1640,8 +1640,10 @@
 	if(_window && _superview && _dataSource)
 		{
 		NSInteger cols;
+#if 0
 		if(_numberOfRows == NSNotFound)
-			[self noteNumberOfRowsChanged];		// read from data source
+			[self noteNumberOfRowsChanged];		// read from data source - this recursively calls tile!
+#endif
 		cols = [_tableColumns count];
 #if 0
 		NSLog(@"tile %@", self);
@@ -1696,12 +1698,12 @@
 				[_window invalidateCursorRectsForView:_headerView];
 				}
 			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
-			[sv tile];	// tile scrollview (i.e. properly layout header and our superview)
 			lheight=[self rowHeight]+[self intercellSpacing].height;
 			[sv setVerticalLineScroll:lheight];	// scroll by one line
 			[sv setVerticalPageScroll:lheight];	// scroll by one page keeping one line visible
 	//		[sv setHorizontalLineScroll:??];	// smallest column? average column?
 			[sv setHorizontalPageScroll:0.0];	// no additional delta
+			[sv reflectScrolledClipView:[sv contentView]];
 			}
 		else
 			NSLog(@"no columns");
@@ -1712,6 +1714,7 @@
 #endif
 }
 
+#if 0
 - (void) setFrame:(NSRect) rect
 {
 	if(NSEqualRects(rect, _frame))
@@ -1734,6 +1737,7 @@
 		return;		// unchanged
 	[self sizeToFit];	// resize components
 }
+#endif
 
 - (void) viewDidMoveToWindow;
 {
@@ -1757,7 +1761,7 @@
 	NSLog(@"reloadData: %@", self);
 #endif
 	// FIXME: cancel any editing
-	[self noteNumberOfRowsChanged];
+	[self noteNumberOfRowsChanged];	// also calls tile
 	[self setNeedsDisplay:YES];	// number of rows may have been unchanged so it will not have called setNeedsDisplay
 #if 0
 	NSLog(@"reloadData done.");
@@ -1991,7 +1995,7 @@
 		}
 }
 
-- (void) sizeLastColumnToFit 
+- (void) sizeLastColumnToFit;
 { // resize last column to fit for scrollview's width
 	NSUInteger cnt=[_tableColumns count];
 	NSTableColumn *last=[_tableColumns lastObject];
