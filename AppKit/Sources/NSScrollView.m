@@ -95,6 +95,8 @@ static Class __rulerViewClass = nil;
 #endif
 	if((self=[super initWithFrame:rect]))
 		{
+		// FIXME: can we postpone this until we need it?
+		// initWithCoder will almost immediately replace it by the real contentView
 		[self setContentView:[[[NSClipView alloc] initWithFrame:rect] autorelease]];	// install default content view
 		[self setLineScroll:10];
 		[self setPageScroll:40];
@@ -112,7 +114,7 @@ static Class __rulerViewClass = nil;
 }
 #endif
 
-- (void) setContentView:(NSClipView*)aView
+- (void) setContentView:(NSClipView *) aView
 {
 #if 0
 	NSLog(@"NSScrollView setContentView:%@", aView);
@@ -124,8 +126,9 @@ static Class __rulerViewClass = nil;
 	_contentView = aView;
 	[self addSubview:_contentView];
 	if([aView documentView])
-		[self setDocumentView:[aView documentView]];	// set document view as needed/initialized
-	[self tile];
+		[self setDocumentView:[aView documentView]];	// set existing document view as needed/initialized
+	else
+		[self tile];	// tile without documentView
 }
 
 - (void) setHorizontalScroller:(NSScroller*)aScroller
@@ -184,10 +187,9 @@ static Class __rulerViewClass = nil;
 		{
 		if (_vertScroller == nil)
 			{ // create one if not yet
-				[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect ] autorelease]];
+				NSView *dv=[_contentView documentView];
+				[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect] autorelease]];
 				[_vertScroller setControlSize:NSRegularControlSize];
-				if (_contentView && [self isFlipped] != [_contentView isFlipped])
-					[_vertScroller setFloatValue:1];
 			}
 		[self addSubview:_vertScroller];
 		}
@@ -233,14 +235,14 @@ static Class __rulerViewClass = nil;
 			amount = (scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll;
 			break;
 		case NSScrollerIncrementPage:
-			// FIXME: this amount is the delta to a full page - i.e. ask the contentView for a page height
+			// FIXME: this amount is the delta to a full page - i.e. should ask the contentView for a page height
 			amount = (scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll;
 			break;
 		case NSScrollerDecrementLine:
 			amount = -((scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll);
 			break;
 		case NSScrollerDecrementPage:
-			// FIXME: this amount is the delta to a full page - i.e. ask the contentView for a page height
+			// FIXME: this amount is the delta to a full page - i.e. should ask the contentView for a page height
 			amount = -((scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll);
 			break;
 		default:
@@ -251,21 +253,13 @@ static Class __rulerViewClass = nil;
 		{ // button scrolling
 			if (scroller == _horizScroller)
 				p = (NSPoint){NSMinX(clipBounds) + amount, NSMinY(clipBounds)};
-			else
+			else if (scroller == _vertScroller)
 				{
-				if (scroller == _vertScroller)
-					{
-						p.x = clipBounds.origin.x;
-						// If view is differently flipped
-						if ([self isFlipped] != [_contentView isFlipped])			// reverse the scroll
-							amount = -amount;										// direction
-						NSDebugLog (@"increment/decrement: amount = %f, flipped = %d",
-									amount, [_contentView isFlipped]);
-						p.y = clipBounds.origin.y + amount;
-					}
-				else
-					return;										// do nothing
+				p.x = clipBounds.origin.x;
+				p.y = clipBounds.origin.y - amount;
 				}
+			else
+				return;										// do nothing
 		}
 	else
 		{ // knob scolling
@@ -278,9 +272,7 @@ static Class __rulerViewClass = nil;
 			else if (scroller == _vertScroller)
 				{
 				p.x = clipBounds.origin.x;
-				if ([self isFlipped] != [_contentView isFlipped])
-					floatValue = 1 - floatValue;	// differently flipped
-				p.y = floatValue * (NSHeight(documentRect) - NSHeight(clipBounds));
+				p.y = (1.0 - floatValue) * (NSHeight(documentRect) - NSHeight(clipBounds));
 				}
 			else
 				return;										// do nothing if unknown scroller
@@ -325,15 +317,14 @@ static Class __rulerViewClass = nil;
 #endif
 				[_vertScroller setHidden:hide];
 				_sv.autohidingScrollers=YES;
-				[self tile];	// this will recurse!
+				[self tile];	// this may recurse!
 			}
 		if(!hide)
 			{ // update scroller size
 				knobProportion = NSHeight(clipViewBounds) / NSHeight(documentFrame);
 				floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
-																												//			if ([self isFlipped] != [_contentView isFlipped])
-																												//				floatValue = 1 - floatValue;
-				[_vertScroller setFloatValue:floatValue];
+																												//	if (NO && dv && ![dv isFlipped])
+				[_vertScroller setFloatValue:1.0 - floatValue];
 				[_vertScroller setKnobProportion:knobProportion];
 			}
 		}
@@ -419,6 +410,7 @@ static Class __rulerViewClass = nil;
 												  borderType:_sv.borderType];	// default size without any scrollers
 	horizScrollerRect=NSZeroRect;
 	vertScrollerRect=NSZeroRect;
+
 	if(_sv.hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
 			CGFloat height=[_horizScroller frame].size.height;
@@ -427,6 +419,7 @@ static Class __rulerViewClass = nil;
 			horizScrollerRect.size.height = height;	// adjust for scroller height
 			contentRect.size.height -= horizScrollerRect.size.height;
 		}
+
 	if(_sv.hasVertScroller && _vertScroller && ![_vertScroller isHidden])
 		{ // make room on the right or left side
 			BOOL scrollerLeftPosition=[[[NSUserDefaults standardUserDefaults] stringForKey:@"NSScrollerPosition"] isEqualToString:@"left"];
@@ -445,7 +438,7 @@ static Class __rulerViewClass = nil;
 				}
 		}
 
-	if(_sv.hasHorizScroller)
+	if(_sv.hasHorizScroller && _horizScroller)
 		{
 		horizScrollerRect.origin.x = NSMinX(contentRect);
 		horizScrollerRect.origin.y = NSMaxY(contentRect) + borderThickness;	// position below
@@ -473,13 +466,14 @@ static Class __rulerViewClass = nil;
 					[_cornerView setNeedsDisplay:YES];
 				}
 		}
-	if(_sv.hasHorizScroller && _horizScroller && !NSEqualRects([_horizScroller frame], horizScrollerRect))
-		{
+
+	if(_horizScroller && !NSEqualRects([_horizScroller frame], horizScrollerRect))
+		{ // change if needed
 		[_horizScroller setFrame:horizScrollerRect];
 		[_horizScroller setNeedsDisplay:YES];
 		}
-	if(_sv.hasVertScroller && _vertScroller && !NSEqualRects([_vertScroller frame], vertScrollerRect))
-		{
+	if(_vertScroller && !NSEqualRects([_vertScroller frame], vertScrollerRect))
+		{ // change if needed
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
 		}
@@ -491,8 +485,8 @@ static Class __rulerViewClass = nil;
 	[_contentView setNeedsDisplay:YES];		// mark as dirty
 }
 
-- (void) viewDidMoveToWindow;		{ [self tile]; }
-- (void) viewDidMoveToSuperView;	{ [self tile]; }
+- (void) viewDidMoveToWindow;		{ [self tile]; [self reflectScrolledClipView:_contentView]; }
+- (void) viewDidMoveToSuperView;	{ [self tile]; [self reflectScrolledClipView:_contentView]; }
 
 - (void) drawRect:(NSRect)rect
 {
@@ -548,13 +542,11 @@ static Class __rulerViewClass = nil;
 #if 0
 	NSLog(@"NSScrollView setDocumentView:%@ _contentView=%@", aView, _contentView);
 #endif
-	if([_contentView documentView] == aView)
-		return;	// no change
 	if(aView && [aView respondsToSelector:@selector(headerView)])
 		{ // peek from document view (e.g. NSTableView)
 			NSTableHeaderView *header = [(NSTableView*)aView headerView];
 			if(header)
-				{ // really provides a header view
+				{ // really provides a header view - warp in clip view
 					NSRect rect = {{0,0},[header frame].size};
 					if(_headerContentView)
 						[_headerContentView removeFromSuperviewWithoutNeedingDisplay];
@@ -572,10 +564,8 @@ static Class __rulerViewClass = nil;
 				[self addSubview:_cornerView];
 		}
 	[_contentView setDocumentView:aView];
-	if(_contentView && [self isFlipped] != [_contentView isFlipped])
-		[_vertScroller setFloatValue:1];
 	[self tile];
-	[self reflectScrolledClipView:(NSClipView*)_contentView];		// update scroller
+	[self reflectScrolledClipView:(NSClipView *)_contentView];		// update scroller
 }
 
 - (void) setFrame:(NSRect) rect
