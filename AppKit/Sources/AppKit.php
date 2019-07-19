@@ -1165,7 +1165,7 @@ class NSMenuView extends NSMenu
 class NSPopUpButton extends NSButton
 	{
 	protected $menu;
-	protected $pullsDown=true;
+	protected $pullsDown=false;
 	protected $selectedItemIndex=-1;
 
 	public function __construct()
@@ -1258,7 +1258,32 @@ class NSPopUpButton extends NSButton
 		}
 	public function draw()
 		{
+		$index=0;
 		if($this->isHidden()) return;
+		if($this->pullsDown)
+			{ // make a pulldown menu (not really a button)
+			// define/reference CSS
+			html("<div");
+			parameter("class", "NSPopUpButton-PullDown");
+			html(">\n");
+			parent::draw();	// draw the button
+			html("<div");
+			parameter("class", "NSPopUpButton-PullDown-Content");
+			html(">\n");
+			foreach($this->menu as $item)
+				{ // add options
+				html("<a");
+// FIXME: how do we provide inidvidual actions?
+				parameter("href", "call action");
+				html(">");
+				text($item);	// draws the menu text
+				html("</a>\n");
+				$index++;
+				}
+			html("</div>\n");
+			html("</div>\n");
+			return;
+			}
 // _NSLog("NSPopUpButton ".$this->elementId()." draw selected item ".$this->selectedItemIndex);
 		NSGraphicsContext::currentContext()->text($this->title);
 		html("<select");
@@ -1268,7 +1293,6 @@ class NSPopUpButton extends NSButton
 		parameter("onchange", "e('".$this->elementId."');".";s()");
 		parameter("size", 1);	// to make it a popup and not a combo-box
 		html(">\n");
-		$index=0;
 		foreach($this->menu as $item)
 			{ // add options
 			html("<option");
@@ -1284,15 +1308,18 @@ class NSPopUpButton extends NSButton
 		}
 	public function displayDone()
 		{
+		if(!$this->pullsDown)
+			{
 // _NSLog("NSPopUpButton ".$this->elementId()." displayDone ".$this->titleOfSelectedItem());
 // _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
-		if($this->isHidden())	// persist value even if button is currently hidden
-			{
-			$this->_persist("state", null, $this->titleOfSelectedItem());
+			if($this->isHidden())	// persist value even if button is currently hidden
+				{
+				$this->_persist("state", null, $this->titleOfSelectedItem());
 // _NSLog("NSPopUpButton ".$this->elementId()." persist ".$this->titleOfSelectedItem());
+				}
+			else
+				$this->_persist("state", "", "");	// remove from persistence store (because we have our own <input>)
 			}
-		else
-			$this->_persist("state", "", "");	// remove from persistence store (because we have our own <input>)
 		parent::displayDone();
 		}
 	}

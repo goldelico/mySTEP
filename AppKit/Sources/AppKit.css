@@ -44,3 +44,14 @@ td.NSTableCell.NSUnselected.NSOdd { background-color: PaleTurquoise }
 /* :hover can also be used to change the underlining + color */
 td.NSTableCell.NSSelectable { cursor: pointer; cursor: hand; }
 td.NSTableCell.NSSelectable:hover { background-color: LightSteelBlue }
+
+/* NSPopupButton */
+.NSPopUpButton-PullDown { position: relative; display: inline-block; }
+.NSPopUpButton-PullDown-Content { display: none; position: absolute; z-index: 1;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+.NSPopUpButton-PullDown-Content a { color: black; padding: 12px 16px; text-decoration: none; display: block; }
+.NSPopUpButton-PullDown-Content a:hover { background-color: #ddd; }
+.NSPopUpButton-PullDown:hover .NSPopUpButton-PullDown-Content { display: block; }
