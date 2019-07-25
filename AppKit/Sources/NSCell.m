@@ -743,6 +743,8 @@ static NSColor *__borderedBackgroundColor = nil;
 	return string;
 }
 
+// FIXME: shouldn't there be a version where imageScaling, imagePosition etc. is passed as a parameter?
+
 - (void) _drawImage:(NSImage *) image withFrame:(NSRect) rect inView:(NSView *) controlView;
 {
 	NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight : NSCompositeSourceOver;

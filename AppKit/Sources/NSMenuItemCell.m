@@ -429,7 +429,6 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		}
 }
 
-// FIXME: should somehow use drawImage:withFrame:inView: (NSButtonCell)
 
 - (void) drawImageWithFrame:(NSRect) frame inView:(NSView *) view;
 {
@@ -440,6 +439,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(frame), i);
 #endif
+	_c.imagePosition=NSImageOnly;
 	[self _drawImage:i withFrame:frame inView:view];
 }
 
@@ -468,6 +468,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 		if(!__branchImage)
 			__branchImage = [[NSImage imageNamed: @"GSSubmenuArrow"] retain];
+		_c.imagePosition=NSImageOnly;
 		[self _drawImage:__branchImage withFrame:frame inView:view];
 			//		[__branchImage compositeToPoint:NSMakePoint(frame.origin.x+frame.size.width-[__branchImage size].width, frame.origin.y+6.0)
 			//				  operation:NSCompositeHighlight];
@@ -505,6 +506,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"frame:%@\nstateImage=%@", NSStringFromRect(frame), i);
 #endif
+	_c.imagePosition=NSImageOnly;
 	[self _drawImage:i withFrame:frame inView:view];
 	//	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
 }
