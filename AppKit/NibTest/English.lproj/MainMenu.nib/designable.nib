@@ -459,12 +459,12 @@
                 <menuItem title="Submenu" id="766">
                     <menu key="submenu" title="Submenu" id="767">
                         <items>
-                            <menuItem title="My Window" id="768">
+                            <menuItem title="My Window" image="Default" id="768">
                                 <connections>
                                     <action selector="makeKeyAndOrderFront:" target="212" id="772"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Window" id="775">
+                            <menuItem title="Window" image="1bK" id="775">
                                 <connections>
                                     <action selector="makeKeyAndOrderFront:" target="171" id="776"/>
                                 </connections>
@@ -508,12 +508,12 @@
                                     <action selector="makeKeyAndOrderFront:" target="173" id="774"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="KVO" id="777">
+                            <menuItem title="KVO" image="GNUstep" id="777">
                                 <connections>
                                     <action selector="makeKeyAndOrderFront:" target="606" id="785"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="New Controls" id="778">
+                            <menuItem title="New Controls" image="NSTrashFull" id="778">
                                 <attributedString key="attributedTitle">
                                     <fragment content="New Controls">
                                         <attributes>
@@ -5530,7 +5530,7 @@ DQ
                     </userDefinedRuntimeAttribute>
                 </userDefinedRuntimeAttributes>
             </view>
-            <point key="canvasLocation" x="131.5" y="-343"/>
+            <point key="canvasLocation" x="-507" y="-275"/>
         </window>
         <window title="Palmtop" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" releasedWhenClosed="NO" frameAutosaveName="main" animationBehavior="default" id="1438" userLabel="Palmtop">
             <windowStyleMask key="styleMask" titled="YES" resizable="YES"/>
@@ -5762,6 +5762,7 @@ DQ
                     </tabView>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="-477" y="595"/>
         </window>
         <window title="CheckBox Control Matrix Table" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="1474" userLabel="CheckBox">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
@@ -6592,6 +6593,7 @@ Newline
                     </progressIndicator>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="-570" y="204"/>
         </window>
         <window title="Rotation" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="1858" userLabel="ViewRotation">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
@@ -6745,11 +6747,14 @@ Newline
         </window>
     </objects>
     <resources>
+        <image name="1bK" width="32" height="32"/>
         <image name="1bK.png" width="128" height="128"/>
         <image name="Default" width="64" height="54"/>
+        <image name="GNUstep" width="48" height="48"/>
         <image name="Lion.jpg" width="128" height="128"/>
         <image name="Mailsend_16" width="16" height="16"/>
         <image name="NSApplicationIcon" width="128" height="128"/>
+        <image name="NSTrashFull" width="32" height="32"/>
         <image name="addbk_16" width="16" height="16"/>
         <image name="addbk_32" width="32" height="32"/>
         <image name="dial_32" width="32" height="32"/>
