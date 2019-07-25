@@ -92,9 +92,9 @@ enum {
 	NSCellHitTrackableArea = 1 << 2,
 };
 
-typedef NSUInteger NSCellImagePosition;
+typedef NSUInteger NSCellImagePosition;	// NSButton position of image relative to text
 
-enum {
+enum _NSCellImagePosition {
 	NSNoImage = 0,
 	NSImageOnly,
 	NSImageLeft,
@@ -106,7 +106,7 @@ enum {
 
 typedef NSUInteger NSImageScaling;
 
-enum {
+enum _NSImageScaling {
 	NSImageScaleProportionallyDown = 0,
 	NSImageScaleAxesIndependently,
 	NSImageScaleNone,

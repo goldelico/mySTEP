@@ -468,7 +468,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 		if(!__branchImage)
 			__branchImage = [[NSImage imageNamed: @"GSSubmenuArrow"] retain];
-			[self _drawImage:__branchImage withFrame:frame inView:view];
+		[self _drawImage:__branchImage withFrame:frame inView:view];
 			//		[__branchImage compositeToPoint:NSMakePoint(frame.origin.x+frame.size.width-[__branchImage size].width, frame.origin.y+6.0)
 			//				  operation:NSCompositeHighlight];
 		return;		// suppress key equivalent (even if present!)
@@ -511,7 +511,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-	// FIXME: should center vertically
+	// FIXME: should center vertically!
 #if NEW
 	// must implement/override titleRectForBounds in NSButtonCell
 	[self drawTitle:[self _titleAttributedString] withFrame:frame inView:view];

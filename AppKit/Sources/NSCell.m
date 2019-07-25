@@ -747,6 +747,68 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight : NSCompositeSourceOver;
 	float fraction=(_c.highlighted?0.8:1.0);
+#if 1	// new
+	NSSize imageSize = [image size];
+	if(_d.imageScaling != NSImageScaleNone)
+		{
+		NSSize isz;
+		// hm... how/when do we apply this?
+		isz=rect.size;
+		if(_d.imageScaling == NSImageScaleAxesIndependently)
+			imageSize=isz;
+		else
+			{ // proportionally
+				float factor=MIN(isz.width/imageSize.width, isz.height/imageSize.height);
+				if(_d.imageScaling != NSImageScaleProportionallyDown || factor < 1.0)
+					{ // scale down image
+						imageSize.width*=factor;
+						imageSize.height*=factor;
+					}
+			}
+		// [img setScalesWhenResized:YES];
+		// [img setSize:imageSize];	// rescale
+		}
+	switch(_c.imagePosition) { // NSButtonCell - image relative to text
+		case NSImageOnly:			// draw image only - centered
+		case NSImageOverlaps:		// draw title over the centered image
+			rect.origin.x += (NSWidth(rect) - imageSize.width)/2;
+			rect.origin.y += (NSHeight(rect) - imageSize.height)/2;
+			break;
+		case NSImageLeft:								// draw image to the left of title
+			rect.origin.x += 4;
+			rect.origin.y += (NSHeight(rect) - imageSize.height)/2;
+			break;
+		case NSImageRight:								// draw image to the right of the title
+			rect.origin.x += (NSWidth(rect) - imageSize.width) - 4;
+			rect.origin.y += (NSHeight(rect) - imageSize.height)/2;
+			break;
+		case NSImageAbove:								// draw image above the title
+			if(![controlView isFlipped])
+				{
+				rect.origin.x += (NSWidth(rect) - imageSize.width)/2;
+				rect.origin.y += 4;
+				}
+			else
+				{
+				rect.origin.x += (NSWidth(rect) - imageSize.width)/2;
+				rect.origin.y += (NSHeight(rect) - imageSize.height) - 4;
+				}
+			break;
+		case NSImageBelow:								// draw image below the title
+			if(![controlView isFlipped])
+				{
+				rect.origin.x += (NSWidth(rect) - imageSize.width)/2;
+				rect.origin.y += (NSHeight(rect) - imageSize.height) - 4;
+				}
+			else
+				{
+				rect.origin.x += (NSWidth(rect) - imageSize.width)/2;
+				rect.origin.y += 4;
+				}
+		break;
+	}
+	rect.size=imageSize;
+#endif
 	if([controlView isFlipped])
 		{
 		// FIXME: it appears as if we have to update the CTM here to revert flipping...

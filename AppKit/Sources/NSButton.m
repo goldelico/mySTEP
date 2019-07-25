@@ -217,7 +217,7 @@ id __buttonCellClass = nil;
 				NSLog(@"isz %@", NSStringFromSize(isz));
 				NSLog(@"image pos %d", _c.imagePosition);
 #endif
-				switch (_c.imagePosition) 
+				switch (_c.imagePosition)
 					{
 						default:
 					case NSImageOnly:
@@ -345,8 +345,8 @@ id __buttonCellClass = nil;
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSSwitch"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
-				[self setImageDimsWhenDisabled:NO];
-				[self setImageScaling:NSImageScaleProportionallyDown];
+			[self setImageDimsWhenDisabled:NO];
+			[self setImageScaling:NSImageScaleProportionallyDown];
 			break;
 		case NSRadioButton:
 			[self setHighlightsBy:NSContentsCellMask];
@@ -354,8 +354,8 @@ id __buttonCellClass = nil;
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSRadioButton"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
-				[self setImageDimsWhenDisabled:NO];
-				[self setImageScaling:NSImageScaleProportionallyDown];
+			[self setImageDimsWhenDisabled:NO];
+			[self setImageScaling:NSImageScaleProportionallyDown];
 			break;
 		}
 	[self setState:[self state]];		// update our state (to a valid value)
@@ -762,42 +762,33 @@ id __buttonCellClass = nil;
 		op = NSCompositeSourceOver;	// default composition
 	if([img isKindOfClass:[NSButtonImageSource class]])
 		img=[(NSButtonImageSource *) img buttonImageForCell:self];	// substitute
-	// all this should be moved to -imageRectForBounds
-	imageSize = [img size];
-	if(_d.imageScaling != NSImageScaleNone)
+#if 0
+	if(_d.imageScaling == NSImageScaleNone)
 			{
-				NSSize isz;
-				switch(_d.controlSize)
-					{
-						default:
-						case NSRegularControlSize:
-							isz=NSMakeSize(18.0, 18.0);
-							break;
-						case NSSmallControlSize:
-							isz=NSMakeSize(13.0, 13.0);
-							break;
-						case NSMiniControlSize:
-							isz=NSMakeSize(10.0, 10.0);
-							break;
-					}
-				if(_d.imageScaling == NSImageScaleAxesIndependently)
-					imageSize=isz;
-				else
-						{ // proportionally
-							float factor=MIN(isz.width/imageSize.width, isz.height/imageSize.height);
-							if(_d.imageScaling != NSImageScaleProportionallyDown || factor < 1.0)
-									{ // scale image
-										imageSize.width*=factor;
-										imageSize.height*=factor;
-									}
-						}
-//				[img setScalesWhenResized:YES];
-//				[img setSize:imageSize];	// rescale
+			NSSize isz;
+			switch(_d.controlSize)
+				{
+					default:
+					case NSRegularControlSize:
+						isz=NSMakeSize(18.0, 18.0);
+						break;
+					case NSSmallControlSize:
+						isz=NSMakeSize(13.0, 13.0);
+						break;
+					case NSMiniControlSize:
+						isz=NSMakeSize(10.0, 10.0);
+						break;
+				}
+			// FIXME: handle _c.imagePosition to align as needed?
+			cellFrame.size=isz;
 			}
+#endif
+#if OLD
+	// all this should be moved to -imageRectForBounds or _drawImage
 	switch(_c.imagePosition)
 		{
 		case NSImageOnly:			// draw image only - centered
-		case NSImageOverlaps: 		// draw title over the centered image
+		case NSImageOverlaps:		// draw title over the centered image
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
@@ -834,12 +825,13 @@ id __buttonCellClass = nil;
 						}
 				break;
 		}
+	cellFrame.size=imageSize;
+#endif
 	if(stateOrHighlight(NSPushInCellMask))
 		{ // makes button appear pushed in by moving the image by one pixel
 		cellFrame.origin.x += 1;
 		cellFrame.origin.y += 1;
 		}
-	cellFrame.size=imageSize;
 #if 0
 	NSLog(@"drawImage: %@ at %@", img, NSStringFromRect(cellFrame));
 #endif
@@ -888,32 +880,32 @@ id __buttonCellClass = nil;
 				textFrame.size.width-=imageSize.width+8;
 				break;
 			case NSImageAbove:						 		// draw title below the image
-					[self setAlignment:NSCenterTextAlignment];
-					_d.verticallyCentered=NO;
-					if(![controlView isFlipped])
-							{
-								textFrame.origin.y += 4;
-								textFrame.size.height-=imageSize.height+8;
-							}
-					else
-							{
-								textFrame.origin.y += imageSize.height+4;
-								textFrame.size.height-=imageSize.height+8;
-							}
+				[self setAlignment:NSCenterTextAlignment];
+				_d.verticallyCentered=NO;
+				if(![controlView isFlipped])
+					{
+					textFrame.origin.y += imageSize.height+4;
+					textFrame.size.height-=imageSize.height+8;
+					}
+				else
+					{
+					textFrame.origin.y += 4;
+					textFrame.size.height-=imageSize.height+8;
+					}
 				break;
 			case NSImageBelow:								// draw title above the image
-					[self setAlignment:NSCenterTextAlignment];
+				[self setAlignment:NSCenterTextAlignment];
 				_d.verticallyCentered=NO;
-					if(![controlView isFlipped])
-							{
-								textFrame.origin.y += imageSize.height+4;
-								textFrame.size.height-=imageSize.height+8;
-							}
-					else
-							{
-								textFrame.origin.y += 4;
-								textFrame.size.height-=imageSize.height+8;
-							}
+				if(![controlView isFlipped])
+					{
+					textFrame.origin.y += 4;
+					textFrame.size.height-=imageSize.height+8;
+					}
+				else
+					{
+					textFrame.origin.y += imageSize.height+4;
+					textFrame.size.height-=imageSize.height+8;
+					}
 				break;
 			default:
 				break;

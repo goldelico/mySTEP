@@ -154,8 +154,7 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"NSImageCell drawInRect frame=%@", NSStringFromRect(cFrame));
 #endif
-	switch(_ic.imageFrameStyle)
-		{
+	switch(_ic.imageFrameStyle) {
 		case NSImageFrameNone:
 			rect=cFrame;
 			break;
@@ -166,7 +165,8 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif
-	
+	// it may be possible to move this to _drawImage:
+	// if we move _ic.imageAlignment to NSCell and handle it as an alternate to _c.imagePosition
 	switch (_d.imageScaling) {
 		case NSImageScaleProportionallyUpOrDown:
 		case NSImageScaleProportionallyDown:
@@ -228,12 +228,14 @@ id __imageCellClass = nil;
 			break;
 		}
 
+#if 0
 	rect.size = is;
+#endif
 	[NSBezierPath clipRect:cFrame];	// clip image to interior of cell
 #if 0
 	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect(rect));
 #endif
-	[self _drawImage:_contents withFrame:rect inView:controlView];
+	[self _drawImage:_contents withFrame:rect inView:controlView];	// could do scaling as well, but we have to do it on our own
 	if(_ic.imageAnimates)
 		{ // if animates and contents can really be animated, setup performer for automatic redraw
 		  // check for bestRep of _contents
