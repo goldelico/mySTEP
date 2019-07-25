@@ -146,9 +146,11 @@ static BOOL __userKeyEquivalents = YES;
 	if(self)
 		{
 		[self setAlignment:NSLeftTextAlignment];
+#if 0
 		[self setOffStateImage:nil];
 		[self setOnStateImage:nil]; // set checkmark
 		[self setMixedStateImage:nil]; // set horizontal line
+#endif
 		}
 	return self;
 }
@@ -313,7 +315,7 @@ static BOOL __userKeyEquivalents = YES;
 		_toolTip=[[coder decodeObjectForKey:@"NSToolTip"] retain];
 		_onStateImage=[[coder decodeObjectForKey:@"NSOnImage"] retain];
 		_mixedStateImage=[[coder decodeObjectForKey:@"NSMixedImage"] retain];
-		_offStateImage=[[coder decodeObjectForKey:@"NSOffImage"] retain];	// try NSImage
+		_offStateImage=[[coder decodeObjectForKey:@"NSOffImage"] retain];
 		_isAlternate=[coder decodeIntForKey:@"NSIsAlternate"];
 		_attributedTitle=[[coder decodeObjectForKey:@"NSAttributedTitle"] retain];
 		// FIXME
@@ -322,6 +324,7 @@ static BOOL __userKeyEquivalents = YES;
 		// END_FIXME
 		tag=[coder decodeIntForKey:@"NSTag"];
 		[self setFont:[coder decodeObjectForKey:@"NSFont"]];
+		[self setImage:[coder decodeObjectForKey:@"NSImage"]];	// NSButtonCell has _image, _normalImage, _alternateImage
 		[super setEnabled:[coder decodeBoolForKey:@"NSIsDisabled"]];
 		[self setState:[coder decodeIntForKey:@"NSState"]];
 		[self setTarget:[coder decodeObjectForKey:@"NSTarget"]];	// not all menus are connected by connectors...
