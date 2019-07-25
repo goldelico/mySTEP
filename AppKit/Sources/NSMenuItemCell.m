@@ -306,7 +306,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 	stateImageWidth=0.0;
 	if(!isHorizontal)
-		{ // vertical menu has state image, key equivalents, submenu arrow
+		{ // vertical menu has state image, image, key equivalents, submenu arrow
 		int i;
 #if 0
 		NSLog(@"calcSize vertical");
@@ -511,6 +511,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;
 {
+	// FIXME: should center vertically
 #if NEW
 	// must implement/override titleRectForBounds in NSButtonCell
 	[self drawTitle:[self _titleAttributedString] withFrame:frame inView:view];
@@ -635,6 +636,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		[self calcSize];
 	frame.origin.x+=[(NSMenuView *) _controlView imageAndTitleOffset]+(imageWidth > 0.0?[(NSMenuView *) _controlView horizontalEdgePadding]+imageWidth:0.0);	// starts right of image
 	frame.size.width=titleWidth;	// use titleWidth
+	// FIXME: should center vertically
 	frame.origin.y += [(NSMenuView *) _controlView isHorizontal]?8.0:4.0;	// margin from top
 #if 0
 	NSLog(@"view i&t.w=%lf, iw=%f", [(NSMenuView *) _controlView imageAndTitleWidth], imageWidth);
