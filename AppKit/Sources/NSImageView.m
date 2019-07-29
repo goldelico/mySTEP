@@ -23,7 +23,7 @@ id __imageCellClass = nil;
 
 //*****************************************************************************
 //
-// 		NSImageCell 
+//		NSImageCell
 //
 //*****************************************************************************
 
@@ -185,7 +185,7 @@ id __imageCellClass = nil;
 			is = rect.size;
 			break;
 
-			default:
+		default:
 		case NSImageScaleNone:
 			is = [_contents size];
 			break;
@@ -235,6 +235,7 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect(rect));
 #endif
+	_c.imagePosition=NSNoImage;	// no additional aligment
 	[self _drawImage:_contents withFrame:rect inView:controlView];	// could do scaling as well, but we have to do it on our own
 	if(_ic.imageAnimates)
 		{ // if animates and contents can really be animated, setup performer for automatic redraw
