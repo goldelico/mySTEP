@@ -256,8 +256,10 @@ void printWindowList()
 		[_image release];
 	}
 	int i;
-	for(i=1; i<100; i++)
+	for(i=1; i<100; i++)	// make a long menu that needs scrolling
 		[[longMenu submenu] addItemWithTitle:[NSString stringWithFormat:@"-- %d --", i] action:@selector(doSomething:) keyEquivalent:@""];
+	NSMenuItem *item=[[NSApp mainMenu] itemAtIndex:0];
+	[item setImage:[NSImage imageNamed:@"1bK"]];	// set an image
 }
 
 #pragma mark Toolbar
