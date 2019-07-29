@@ -1,31 +1,31 @@
 /** Implementation of NSDateFormatter class
-Copyright (C) 1998 Free Software Foundation, Inc.
+ Copyright (C) 1998 Free Software Foundation, Inc.
 
-Written by:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
-Created: December 1998
+ Written by:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
+ Created: December 1998
 
-This file is part of the GNUstep Base Library.
+ This file is part of the GNUstep Base Library.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
 
-You should have received a copy of the GNU Library General Public
-License along with this library; if not, write to the Free
-Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+ You should have received a copy of the GNU Library General Public
+ License along with this library; if not, write to the Free
+ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 
-<title>NSDateFormatter class reference</title>
-$Date: 2004/09/14 03:34:37 $ $Revision: 1.10 $
+ <title>NSDateFormatter class reference</title>
+ $Date: 2004/09/14 03:34:37 $ $Revision: 1.10 $
 
-adapted for mySTEP
+ adapted for mySTEP
 
-*/
+ */
 
 #include "Foundation/NSDate.h"
 #include "Foundation/NSCalendarDate.h"
@@ -96,10 +96,10 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 
 - (BOOL) getObjectValue: (id*)anObject
 			  forString: (NSString*)string
-       errorDescription: (NSString**)error
+	   errorDescription: (NSString**)error
 {
 	NSCalendarDate	*d;
-	
+
 	d = [NSCalendarDate dateWithString: string calendarFormat:[self dateFormat]];
 	if (d == nil)
 		{
@@ -135,7 +135,7 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 
 - (void) encodeWithCoder: (NSCoder*)aCoder
 {
-//	[aCoder encodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
+	//	[aCoder encodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
 }
 
 - (id) initWithCoder: (NSCoder*)aCoder
@@ -149,18 +149,18 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 		NSLog(@"attributes=%@", _attributes);
 		/* e.g.
 			dateFormat_10_0 = "%b %d, %Y %H:%M:%S";
-		formatterBehavior = 1000;
-		lenient = 0;
+		 formatterBehavior = 1000;
+		 lenient = 0;
 			*/
 #endif
 		return self;
 		}
-//	[aCoder decodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
+	//	[aCoder decodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
 	return self;
 }
 
 - (id) initWithDateFormat: (NSString *)format
-     allowNaturalLanguage: (BOOL)flag
+	 allowNaturalLanguage: (BOOL)flag
 {
 	if((self=[self init]))
 		{
@@ -184,19 +184,22 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 
 - (NSString *) stringFromDate:(NSDate *) date;
 {
-	return NIMP;
+	// TODO: do not use old style formatter! Format strings are different
+	NSString *fmt=[self dateFormat];
+	if([fmt isEqualToString:@"yyyy"]) fmt=@"%Y";
+#if 1
+	NSLog(@"stringFromDate: %@ format: %@ -> %@", date, [self dateFormat], fmt);
+#endif
+	if([date isKindOfClass: [NSCalendarDate class]])
+		return [(NSCalendarDate *) date descriptionWithCalendarFormat:fmt locale: nil /*[self locale]*/];
+	return [date descriptionWithCalendarFormat:fmt timeZone: [NSTimeZone defaultTimeZone] locale: nil /*[self locale]*/];
 }
 
 - (NSString*) stringForObjectValue: (id)anObject
-{
-#if 0
-	NSLog(@"stringForObjectValue: %@", anObject);
-#endif
-	if(![anObject isKindOfClass: [NSDate class]])
+{ // NSFormatter method
+	if(![anObject isKindOfClass:[NSDate class]])
 		return nil;
-	if([anObject isKindOfClass: [NSCalendarDate class]])
-		return [anObject descriptionWithCalendarFormat: [self dateFormat] locale: nil /*[self locale]*/];
-	return [anObject descriptionWithCalendarFormat: [self dateFormat] timeZone: [NSTimeZone defaultTimeZone] locale: nil /*[self locale]*/];
+	return [self stringFromDate:anObject];
 }
 
 - (BOOL) allowsNaturalLanguage { return _allowsNaturalLanguage; }
