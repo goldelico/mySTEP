@@ -410,6 +410,11 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	size.height+=4.0;		// leave some vertical spacing
 #if 0
 	NSLog(@"calcSize done: %@", self);
+	NSLog(@"stateImageWidth: %g", stateImageWidth);
+	NSLog(@"imageWidth: %g", imageWidth);
+	NSLog(@"titleWidth: %g", titleWidth);
+	NSLog(@"keyEquivalentWidth: %g", keyEquivalentWidth);
+	NSLog(@"size: %@", NSStringFromSize(size));
 #endif
 }
 
@@ -439,7 +444,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(frame), i);
 #endif
-	_c.imagePosition=NSImageOnly;
+	_c.imagePosition=NSImageOnly;	// center in frame
 	[self _drawImage:i withFrame:frame inView:view];
 }
 
