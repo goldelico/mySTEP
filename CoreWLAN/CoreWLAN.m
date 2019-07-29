@@ -482,16 +482,19 @@ extern int system(const char *cmd);
 
 + (CWInterface *) interface;
 {
+	// FIXME: return [[CWWiFiClient sharedWiFiClient] interface];
 	return [[self new] autorelease];
 }
 
 + (CWInterface *) interfaceWithName:(NSString *) name;
 {
-	return [[[self alloc] initWithInterfaceName:name] autorelease];	
+	// FIXME: return [[CWWiFiClient sharedWiFiClient] interfaceWithName:name];
+	return [[[self alloc] initWithInterfaceName:name] autorelease];
 }
 
 + (NSArray *) supportedInterfaces;
 { // may be empty if we don't find interfaces - in this case the client should retry later
+  // FIXME: return [CWWiFiClient intefaceNames];
 	static NSMutableArray *supportedInterfaces;
 	FILE *f=NULL;
 	char line[256];
@@ -1003,6 +1006,12 @@ extern int system(const char *cmd);
 {
 	return YES;	// no longer required on >= 3.7 kernel
 }
+
+@end
+
+@implementation CWInterface (NewerMethods)	// 10.6 and later
+
+- (BOOL) powerOn; { return [self power]; }
 
 @end
 
