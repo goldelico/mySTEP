@@ -4042,17 +4042,15 @@ static NSFileHandle *fh;
 					break;	// no translation to NSEvent
 					}
 				if (xe.type == KeyRelease && XEventsQueued(_display, QueuedAfterReading))
-					{
+					{ // key goes up and immediately down - assume autorepeat
 					XEvent next;
 					XPeekEvent(_display, &next);
 					if (next.type == KeyPress && next.xkey.time == xe.xkey.time &&
 						next.xkey.keycode == xe.xkey.keycode)
 						{ // same key pressed again
-						  // FIXME: this will set the autorepeat on the first event...
-							// and assumes that the server delivers events before they are processed
-							// wouldn't it be correct to compare to the PREVIOUS event?
-						autorepeat=YES;
-						// skip keyup event?
+							XNextEvent(_display, &next);	// take the key down event
+							eventType=NSKeyDown;
+							autorepeat=YES;
 						}
 					}
 				e= [NSEvent keyEventWithType:eventType
