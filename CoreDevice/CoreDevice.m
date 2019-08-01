@@ -555,7 +555,9 @@ void AudioServicesPlaySystemSoundWithVibration(SystemSoundID sound, id arg, NSDi
 			rumbleFd = open("/dev/input/rumble", O_RDWR);
 			if (rumbleFd < 0)
 				{
+#if 0
 				perror("rumble open");
+#endif
 				return;	// can't open
 				}
 			}
