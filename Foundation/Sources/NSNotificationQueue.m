@@ -336,7 +336,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 }
 
 + (BOOL) _runLoopMore
-{ // return YES if the idle or asap queue is not empty - this makes the runloop timeout immediately
+{ // return YES if the idle ##or asap## queue is not empty - this makes the runloop timeout immediately
 	_NSQueueInstanceList *item;
 #if 0
 	NSLog(@"_runLoopMore mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
@@ -345,8 +345,10 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 		{
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			return YES;	// found something
+#if 0
 		if(((NSNotificationQueue_t *)item->queue)->_asapQueue->head)
 			return YES;	// found something
+#endif
 		}
 #if 0
 	NSLog(@"_runLoopMore: no");
@@ -357,7 +359,7 @@ _NSRemoveFromQueue(NSNotificationQueueList *queue, _NSQueueRegistration *item)
 + (void) _runLoopIdle
 { // trigger the Idle items
 	_NSQueueInstanceList *item;
-#if 0
+#if 1
 	NSLog(@"_runLoopIdle mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
 	for (item = __notificationQueues; item; item = item->next)
