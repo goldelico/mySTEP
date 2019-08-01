@@ -49,7 +49,7 @@
 #endif
 
 @interface _NSX11Screen
-- (void) _handleEvents;
++ (void) _handleEvents;
 @end
 
 // Menu delegate classes instantiated by NIBLoading
@@ -908,7 +908,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 		NSLog(@"nextEventMatchingMask check for current event (%lu)", (unsigned long)[_eventQueue count]);
 #endif
-		//		[_NSX11Screen _handleNewEvents];	// process any pending X11 events
+		[_NSX11Screen _handleNewEvents];	// process any pending X11 events
 		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
 			break;	// found one
 #if 0
