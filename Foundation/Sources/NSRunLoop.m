@@ -378,7 +378,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 { // this is the core runloop that runs the loop exactly once - blocking until before or the limit date (whichever comes first)
 	NSTimeInterval ti;					// Listen to input sources.
 	struct timeval timeout;
-	void *select_timeout;
+	struct timeval *select_timeout;
 	NSMutableArray *watchers;
 	// fd_set fds;						// file descriptors we will listen to.
 	fd_set read_fds;					// Copy for listening to read-ready fds.
@@ -517,12 +517,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop has any idle notifications and timeout immediately
 		{
-#if 0
-		NSLog(@"_runLoopForMode:%@ beforeDate:%@ - has idle notifications", mode, before);
+#if 1
+			NSLog(@"_runLoopForMode:%@ beforeDate:%@ - has pending idle notifications", mode, before);
 #endif
-		timeout.tv_sec = 0;
-		timeout.tv_usec = 0;
-		select_timeout = &timeout;
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 0;
+			select_timeout = &timeout;
 		}
 	else if(!before || (ti = [before timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
 		{															// set SELECT_TIMEOUT.	Don't
@@ -610,6 +610,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	// FIXME: we must only select until the next timer fires and loop until we have reached the before-date - or any input watcher has data to process
 
+#if 1
+	if(select_timeout)
+		NSLog(@"NSRunLoop select timeout %u.%06u", select_timeout->tv_sec, select_timeout->tv_usec);
+	else
+		NSLog(@"NSRunLoop select timeout NULL");
+#endif
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
 #if 0
 	NSLog(@"NSRunLoop select returned %d", select_return);
@@ -671,8 +677,8 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSResetMapTable (rfd_2_object);					// Clean up before return.
 	NSResetMapTable (wfd_2_object);
 	[NSNotificationQueue _runLoopASAP];	// run any new notifications created by handlers (similar to 'performSelector:withObject:afterDelay:0.0')
-#if 0
-	NSLog(@"acceptInput done");
+#if 1
+	NSLog(@"_runLoopForMode: done");
 #endif
 	_current_mode = saved_mode;	// restore
 	if(limit)
