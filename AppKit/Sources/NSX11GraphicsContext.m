@@ -3717,9 +3717,8 @@ static NSFileHandle *fh;
 
 + (void) _handleNewEvents;
 {
-	int count;
 	NSMutableSet *contextsNeedingFlush=nil;
-	while((count = XPending(_display)) > 0)		// while X events are pending - we don't use the count except for debugging
+	while(XEventsQueued(_display, QueuedAlready) > 0)		// while X events are in the queue
 		{
 		// FIXME: the lastXWin/lastMotionEvent mechanism isn't used any more
 		static Window lastXWin=None;		// last window (cache key)
@@ -3733,8 +3732,8 @@ static NSFileHandle *fh;
 		Window thisXWin;				// window of this event
 		XEvent xe;
 		NSEvent *e = nil;	// resulting event
-#if 0
-		fprintf(stderr,"_NSX11Screen ((XPending count = %d): \n", count);
+#if 1
+		fprintf(stderr,"_NSX11Screen _handleNewEvent: XPending count = %d\n", XEventsQueued(_display, QueuedAlready));
 #endif
 		XNextEvent(_display, &xe);
 		switch(xe.type) { // extract window from event
