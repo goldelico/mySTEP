@@ -2609,9 +2609,15 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[self _renderTrapezoid:points];
 	}
 #endif
-	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) and wait for a MapNotify!
-	while([self flushGraphics], (place == NSWindowOut)?[win isVisible]:![win isVisible])
+	// could we also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) and wait for a MapNotify! and then call _handleNewEvents to process them?
+	while(YES)
 		{ // process incoming X11 events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
+			[self flushGraphics];	// flush
+			[_NSX11Screen _handleNewEvents];	// process any pending events
+			NSLog(@"place=%d visible=%d", place, [win isVisible]);
+			if((place == NSWindowOut)?![win isVisible]:[win isVisible])
+				break;	// window is in right state now
+			// could we wait for distantFuture?
 			[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 		}
 #if 1
@@ -2922,10 +2928,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			_dirty=(XRectangle){ 0, 0, 0, 0 };	// clear
 		}
 	XFlush(_display);
-#if 0
-	NSLog(@"events %d", XPending(_display));
+#if 1
+	NSLog(@"flushGraphics: events %d", XEventsQueued(_display, QueuedAlready));
 #endif
+#if 0	// should not be necessary but is for orderWindow:
+		// well, it IS necessary because XFlush might have read all events from the socket...
+		// the key problem we have is how _handleNewEvents can break the current runloop in a portable way
 	[_NSX11Screen _handleNewEvents];	// flush and process any pending events
+#endif
 }
 
 #if OLD
@@ -3547,7 +3557,9 @@ static NSFileHandle *fh;
 + (void) _X11EventNotification:(NSNotification *) n;
 {
 #if 0
-	NSLog(@"X11 notification");
+	NSLog(@"X11 notification: pending = %d", XPending(_display));
+#else
+	XPending(_display);	// read new events
 #endif
 	[self _handleNewEvents];
 #if 0
