@@ -48,6 +48,10 @@
 #define sel_isEqual(A, B) ((A) == (B))
 #endif
 
+@interface _NSX11Screen
+- (void) _handleEvents;
+@end
+
 // Menu delegate classes instantiated by NIBLoading
 
 @interface _NSWindowMenuUpdater : NSObject
@@ -887,9 +891,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 }
 
-// CHECKME: do we still need this if runMode:beforeDate: is working correctly?
-// we also must install the update-notification in the NSNotificationQueue to run when idle
-
 - (NSEvent *) nextEventMatchingMask:(NSUInteger)mask
 						  untilDate:(NSDate *)expiration
 							 inMode:(NSString *)mode
@@ -907,16 +908,14 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 		NSLog(@"nextEventMatchingMask check for current event (%lu)", (unsigned long)[_eventQueue count]);
 #endif
+		//		[_NSX11Screen _handleNewEvents];	// process any pending X11 events
 		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
 			break;	// found one
 #if 0
 		NSLog(@"nextEventMatchingMask run the loop");
 #endif
 		// will either return on input event or reaching expiration date
-#if 0
-		// use private variant that returns also after firing timers
-		[currentLoop _runLoopForMode:mode beforeDate:expiration limitDate:NULL];
-#else
+		// FIXME: does not return after handling X11 events
 		if(![currentLoop runMode:mode beforeDate:expiration])
 			break;	// did not even run once
 #endif
@@ -1280,7 +1279,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if (flag || ![self isActive])
 		{ // make application known to the public
 			NSString *active=[NSWorkspace _activeApplicationPath:@"active"];
+
 			// FIXME: call deactivate for currently active application!
+
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
 			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// remove other active application
 				NSLog(@"remove error for activate");
