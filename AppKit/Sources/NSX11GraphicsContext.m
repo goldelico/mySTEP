@@ -2980,195 +2980,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 @end /* _NSX11GraphicsContext */
 
-static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
-{ // translate key codes to NSEvent key codes and add some modifier flags
-	unsigned short keyCode = 0;
-
-#if 1
-	NSLog(@"xkeycode: %d", xEvent->xkey.keycode);
-#endif
-#if TRASH	// this is only on Neo...
-	switch(xEvent->xkey.keycode) { // specials
-		case 8:	// AUX button on Neo1973
-			*eventModFlags |= NSFunctionKeyMask;
-			return NSF1FunctionKey;
-	}
-#endif
-	switch(keysym) {
-		case XK_Return:
-		case XK_KP_Enter:
-			return '\r';
-		case XK_Linefeed:
-			return '\r';
-		case XK_Tab:
-			return '\t';
-		case XK_space:
-			return ' ';
-	}
-	if ((keysym >= XK_F1) && (keysym <= XK_F35))
-		{ // if a function key was pressed
-			*eventModFlags |= NSFunctionKeyMask;
-			switch(keysym) { // FIXME: why not use keysym here??
-				case XK_F1:  keyCode = NSF1FunctionKey;  break;
-				case XK_F2:  keyCode = NSF2FunctionKey;  break;
-				case XK_F3:  keyCode = NSF3FunctionKey;  break;
-				case XK_F4:  keyCode = NSF4FunctionKey;  break;
-				case XK_F5:  keyCode = NSF5FunctionKey;  break;
-				case XK_F6:  keyCode = NSF6FunctionKey;  break;
-				case XK_F7:  keyCode = NSF7FunctionKey;  break;
-				case XK_F8:  keyCode = NSF8FunctionKey;  break;
-				case XK_F9:  keyCode = NSF9FunctionKey;  break;
-				case XK_F10: keyCode = NSF10FunctionKey; break;
-				case XK_F11: keyCode = NSF11FunctionKey; break;
-				case XK_F12: keyCode = NSF12FunctionKey; break;
-				case XK_F13: keyCode = NSF13FunctionKey; break;
-				case XK_F14: keyCode = NSF14FunctionKey; break;
-				case XK_F15: keyCode = NSF15FunctionKey; break;
-				case XK_F16: keyCode = NSF16FunctionKey; break;
-				case XK_F17: keyCode = NSF17FunctionKey; break;
-				case XK_F18: keyCode = NSF18FunctionKey; break;
-				case XK_F19: keyCode = NSF19FunctionKey; break;
-				case XK_F20: keyCode = NSF20FunctionKey; break;
-				case XK_F21: keyCode = NSF21FunctionKey; break;
-				case XK_F22: keyCode = NSF22FunctionKey; break;
-				case XK_F23: keyCode = NSF23FunctionKey; break;
-				case XK_F24: keyCode = NSF24FunctionKey; break;
-				case XK_F25: keyCode = NSF25FunctionKey; break;
-				case XK_F26: keyCode = NSF26FunctionKey; break;
-				case XK_F27: keyCode = NSF27FunctionKey; break;
-				case XK_F28: keyCode = NSF28FunctionKey; break;
-				case XK_F29: keyCode = NSF29FunctionKey; break;
-				case XK_F30: keyCode = NSF30FunctionKey; break;
-				case XK_F31: keyCode = NSF31FunctionKey; break;
-				case XK_F32: keyCode = NSF32FunctionKey; break;
-				case XK_F33: keyCode = NSF33FunctionKey; break;
-				case XK_F34: keyCode = NSF34FunctionKey; break;
-				case XK_F35: keyCode = NSF35FunctionKey; break;
-				default:								 break;
-			}
-		}
-	else if ((keysym > XK_KP_Space) && (keysym < XK_KP_9)) 		// If the key press
-		{													// originated from
-			*eventModFlags |= NSNumericPadKeyMask;				// the key pad
-
-			switch(keysym) {
-				case XK_KP_F1:        keyCode = NSF1FunctionKey;         break;
-				case XK_KP_F2:        keyCode = NSF2FunctionKey;         break;
-				case XK_KP_F3:        keyCode = NSF3FunctionKey;         break;
-				case XK_KP_F4:        keyCode = NSF4FunctionKey;         break;
-				case XK_KP_Home:      keyCode = NSHomeFunctionKey;       break;
-				case XK_KP_Left:      keyCode = NSLeftArrowFunctionKey;  break;
-				case XK_KP_Up:        keyCode = NSUpArrowFunctionKey;    break;
-				case XK_KP_Right:     keyCode = NSRightArrowFunctionKey; break;
-				case XK_KP_Down:      keyCode = NSDownArrowFunctionKey;  break;
-				case XK_KP_Page_Up:   keyCode = NSPageUpFunctionKey;     break;
-				case XK_KP_Page_Down: keyCode = NSPageDownFunctionKey;   break;
-				case XK_KP_End:       keyCode = NSEndFunctionKey;        break;
-				case XK_KP_Begin:     keyCode = NSBeginFunctionKey;      break;
-				case XK_KP_Insert:    keyCode = NSInsertFunctionKey;     break;
-				case XK_KP_Delete:    keyCode = NSDeleteFunctionKey;     break;
-				default:												 break;
-			}
-		}
-
-	else
-		{
-		switch(keysym) {
-			case XK_BackSpace:  keyCode = NSBackspaceKey;			break;
-			case XK_Delete: 	keyCode = NSDeleteFunctionKey;		break;
-			case XK_Home:		keyCode = NSHomeFunctionKey;		break;
-			case XK_Left:		keyCode = NSLeftArrowFunctionKey;	break;
-			case XK_Up:  		keyCode = NSUpArrowFunctionKey;		break;
-			case XK_Right:		keyCode = NSRightArrowFunctionKey;	break;
-			case XK_Down:		keyCode = NSDownArrowFunctionKey;	break;
-			case XK_Prior:		keyCode = NSPrevFunctionKey;		break;
-			case XK_Next:  		keyCode = NSNextFunctionKey;		break;
-			case XK_End:  		keyCode = NSEndFunctionKey;			break;
-			case XK_Begin:  	keyCode = NSBeginFunctionKey;		break;
-			case XK_Select:		keyCode = NSSelectFunctionKey;		break;
-			case XK_Print:  	keyCode = NSPrintScreenFunctionKey;	break;
-			case XK_Execute:  	keyCode = NSExecuteFunctionKey;		break;
-			case XK_Insert:  	keyCode = NSInsertFunctionKey;		break;
-			case XK_Undo: 		keyCode = NSUndoFunctionKey;		break;
-			case XK_Redo:		keyCode = NSRedoFunctionKey;		break;
-			case XK_Menu:		keyCode = NSMenuFunctionKey;		break;
-			case XK_Find:  		keyCode = NSFindFunctionKey;		break;
-			case XK_Help:		keyCode = NSHelpFunctionKey;		break;
-			case XK_Break:  	keyCode = NSBreakFunctionKey;		break;
-				//			case XK_Mode_switch:keyCode = NSModeSwitchFunctionKey;	break;
-			case XK_Sys_Req:	keyCode = NSSysReqFunctionKey;		break;
-			case XK_Scroll_Lock:keyCode = NSScrollLockFunctionKey;	break;
-			case XK_Pause:  	keyCode = NSPauseFunctionKey;		break;
-			case XK_Clear:		keyCode = NSClearDisplayFunctionKey;break;
-				// NSPageUpFunctionKey
-				// NSPageDownFunctionKey
-				// NSResetFunctionKey
-				// NSStopFunctionKey
-				// NSUserFunctionKey
-				// and others
-			default:												break;
-		}
-
-		if(!keyCode)
-			{ // no keycode - flag keys to handle
-				if ((keysym == XK_Shift_L) || (keysym == XK_Shift_R))
-					*eventModFlags |= NSShiftKeyMask;
-				else if ((keysym == XK_Control_L) || (keysym == XK_Control_R))
-					*eventModFlags |= NSControlKeyMask;
-				else if ((keysym == XK_Alt_R) || (keysym == XK_Meta_R))
-					*eventModFlags |= NSAlternateKeyMask;
-				else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
-					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
-				else if (keysym == XK_Mode_switch)
-					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
-			}
-		}
-
-	if (((keysym > XK_KP_Space) && (keysym <= XK_KP_9)) ||
-		((keysym > XK_space) && (keysym <= XK_asciitilde)))
-		{ // translate into key code
-
-		}
-
-	return keyCode;
-}
-
-// determine which modifier
-// keys (Command, Control,
-// Shift, etc..) were held down
-// while the event occured.
-
-static unsigned int	xKeyModifierFlags(unsigned int state)
-{
-	unsigned int flags = 0;
-
-	if (state & ControlMask)
-		flags |= NSControlKeyMask;
-
-	if (state & ShiftMask)
-		flags |= NSShiftKeyMask;
-
-	if (state & Mod1Mask)
-		flags |= NSAlternateKeyMask;	// not recognized??
-
-	if (state & Mod2Mask)
-		flags |= NSCommandKeyMask;
-
-	if (state & Mod3Mask)
-		flags |= NSAlphaShiftKeyMask;
-
-	if (state & Mod4Mask)
-		flags |= NSHelpKeyMask;
-
-	if (state & Mod5Mask)
-		flags |= NSControlKeyMask;
-	// we don't handle the NSNumericPadKeyMask and NSFunctionKeyMask here
-#if 0
-	NSLog(@"state=%x flags=%x", state, flags);
-#endif
-	return flags;
-}
-
 static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 {
 	static struct { char *name; int major; } requests[]={
@@ -3460,6 +3271,195 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 }
 
 @end
+
+static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
+{ // translate key codes to NSEvent key codes and add some modifier flags
+	unsigned short keyCode = 0;
+
+#if 1
+	NSLog(@"xkeycode: %d", xEvent->xkey.keycode);
+#endif
+#if TRASH	// this is only on Neo...
+	switch(xEvent->xkey.keycode) { // specials
+		case 8:	// AUX button on Neo1973
+			*eventModFlags |= NSFunctionKeyMask;
+			return NSF1FunctionKey;
+	}
+#endif
+	switch(keysym) {
+		case XK_Return:
+		case XK_KP_Enter:
+			return '\r';
+		case XK_Linefeed:
+			return '\r';
+		case XK_Tab:
+			return '\t';
+		case XK_space:
+			return ' ';
+	}
+	if ((keysym >= XK_F1) && (keysym <= XK_F35))
+		{ // if a function key was pressed
+			*eventModFlags |= NSFunctionKeyMask;
+			switch(keysym) { // FIXME: why not use keysym here??
+				case XK_F1:  keyCode = NSF1FunctionKey;  break;
+				case XK_F2:  keyCode = NSF2FunctionKey;  break;
+				case XK_F3:  keyCode = NSF3FunctionKey;  break;
+				case XK_F4:  keyCode = NSF4FunctionKey;  break;
+				case XK_F5:  keyCode = NSF5FunctionKey;  break;
+				case XK_F6:  keyCode = NSF6FunctionKey;  break;
+				case XK_F7:  keyCode = NSF7FunctionKey;  break;
+				case XK_F8:  keyCode = NSF8FunctionKey;  break;
+				case XK_F9:  keyCode = NSF9FunctionKey;  break;
+				case XK_F10: keyCode = NSF10FunctionKey; break;
+				case XK_F11: keyCode = NSF11FunctionKey; break;
+				case XK_F12: keyCode = NSF12FunctionKey; break;
+				case XK_F13: keyCode = NSF13FunctionKey; break;
+				case XK_F14: keyCode = NSF14FunctionKey; break;
+				case XK_F15: keyCode = NSF15FunctionKey; break;
+				case XK_F16: keyCode = NSF16FunctionKey; break;
+				case XK_F17: keyCode = NSF17FunctionKey; break;
+				case XK_F18: keyCode = NSF18FunctionKey; break;
+				case XK_F19: keyCode = NSF19FunctionKey; break;
+				case XK_F20: keyCode = NSF20FunctionKey; break;
+				case XK_F21: keyCode = NSF21FunctionKey; break;
+				case XK_F22: keyCode = NSF22FunctionKey; break;
+				case XK_F23: keyCode = NSF23FunctionKey; break;
+				case XK_F24: keyCode = NSF24FunctionKey; break;
+				case XK_F25: keyCode = NSF25FunctionKey; break;
+				case XK_F26: keyCode = NSF26FunctionKey; break;
+				case XK_F27: keyCode = NSF27FunctionKey; break;
+				case XK_F28: keyCode = NSF28FunctionKey; break;
+				case XK_F29: keyCode = NSF29FunctionKey; break;
+				case XK_F30: keyCode = NSF30FunctionKey; break;
+				case XK_F31: keyCode = NSF31FunctionKey; break;
+				case XK_F32: keyCode = NSF32FunctionKey; break;
+				case XK_F33: keyCode = NSF33FunctionKey; break;
+				case XK_F34: keyCode = NSF34FunctionKey; break;
+				case XK_F35: keyCode = NSF35FunctionKey; break;
+				default:								 break;
+			}
+		}
+	else if ((keysym > XK_KP_Space) && (keysym < XK_KP_9)) 		// If the key press
+		{													// originated from
+			*eventModFlags |= NSNumericPadKeyMask;				// the key pad
+
+			switch(keysym) {
+				case XK_KP_F1:        keyCode = NSF1FunctionKey;         break;
+				case XK_KP_F2:        keyCode = NSF2FunctionKey;         break;
+				case XK_KP_F3:        keyCode = NSF3FunctionKey;         break;
+				case XK_KP_F4:        keyCode = NSF4FunctionKey;         break;
+				case XK_KP_Home:      keyCode = NSHomeFunctionKey;       break;
+				case XK_KP_Left:      keyCode = NSLeftArrowFunctionKey;  break;
+				case XK_KP_Up:        keyCode = NSUpArrowFunctionKey;    break;
+				case XK_KP_Right:     keyCode = NSRightArrowFunctionKey; break;
+				case XK_KP_Down:      keyCode = NSDownArrowFunctionKey;  break;
+				case XK_KP_Page_Up:   keyCode = NSPageUpFunctionKey;     break;
+				case XK_KP_Page_Down: keyCode = NSPageDownFunctionKey;   break;
+				case XK_KP_End:       keyCode = NSEndFunctionKey;        break;
+				case XK_KP_Begin:     keyCode = NSBeginFunctionKey;      break;
+				case XK_KP_Insert:    keyCode = NSInsertFunctionKey;     break;
+				case XK_KP_Delete:    keyCode = NSDeleteFunctionKey;     break;
+				default:												 break;
+			}
+		}
+
+	else
+		{
+		switch(keysym) {
+			case XK_BackSpace:  keyCode = NSBackspaceKey;			break;
+			case XK_Delete: 	keyCode = NSDeleteFunctionKey;		break;
+			case XK_Home:		keyCode = NSHomeFunctionKey;		break;
+			case XK_Left:		keyCode = NSLeftArrowFunctionKey;	break;
+			case XK_Up:  		keyCode = NSUpArrowFunctionKey;		break;
+			case XK_Right:		keyCode = NSRightArrowFunctionKey;	break;
+			case XK_Down:		keyCode = NSDownArrowFunctionKey;	break;
+			case XK_Prior:		keyCode = NSPrevFunctionKey;		break;
+			case XK_Next:  		keyCode = NSNextFunctionKey;		break;
+			case XK_End:  		keyCode = NSEndFunctionKey;			break;
+			case XK_Begin:  	keyCode = NSBeginFunctionKey;		break;
+			case XK_Select:		keyCode = NSSelectFunctionKey;		break;
+			case XK_Print:  	keyCode = NSPrintScreenFunctionKey;	break;
+			case XK_Execute:  	keyCode = NSExecuteFunctionKey;		break;
+			case XK_Insert:  	keyCode = NSInsertFunctionKey;		break;
+			case XK_Undo: 		keyCode = NSUndoFunctionKey;		break;
+			case XK_Redo:		keyCode = NSRedoFunctionKey;		break;
+			case XK_Menu:		keyCode = NSMenuFunctionKey;		break;
+			case XK_Find:  		keyCode = NSFindFunctionKey;		break;
+			case XK_Help:		keyCode = NSHelpFunctionKey;		break;
+			case XK_Break:  	keyCode = NSBreakFunctionKey;		break;
+				//			case XK_Mode_switch:keyCode = NSModeSwitchFunctionKey;	break;
+			case XK_Sys_Req:	keyCode = NSSysReqFunctionKey;		break;
+			case XK_Scroll_Lock:keyCode = NSScrollLockFunctionKey;	break;
+			case XK_Pause:  	keyCode = NSPauseFunctionKey;		break;
+			case XK_Clear:		keyCode = NSClearDisplayFunctionKey;break;
+				// NSPageUpFunctionKey
+				// NSPageDownFunctionKey
+				// NSResetFunctionKey
+				// NSStopFunctionKey
+				// NSUserFunctionKey
+				// and others
+			default:												break;
+		}
+
+		if(!keyCode)
+			{ // no keycode - flag keys to handle
+				if ((keysym == XK_Shift_L) || (keysym == XK_Shift_R))
+					*eventModFlags |= NSShiftKeyMask;
+				else if ((keysym == XK_Control_L) || (keysym == XK_Control_R))
+					*eventModFlags |= NSControlKeyMask;
+				else if ((keysym == XK_Alt_R) || (keysym == XK_Meta_R))
+					*eventModFlags |= NSAlternateKeyMask;
+				else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
+					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
+				else if (keysym == XK_Mode_switch)
+					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
+			}
+		}
+
+	if (((keysym > XK_KP_Space) && (keysym <= XK_KP_9)) ||
+		((keysym > XK_space) && (keysym <= XK_asciitilde)))
+		{ // translate into key code
+
+		}
+
+	return keyCode;
+}
+
+// determine which modifier
+// keys (Command, Control,
+// Shift, etc..) were held down
+// while the event occured.
+
+static unsigned int	xKeyModifierFlags(unsigned int state)
+{
+	unsigned int flags = 0;
+
+	if (state & ControlMask)
+		flags |= NSControlKeyMask;
+
+	if (state & ShiftMask)
+		flags |= NSShiftKeyMask;
+
+	if (state & Mod1Mask)
+		flags |= NSAlternateKeyMask;	// not recognized??
+
+	if (state & Mod2Mask)
+		flags |= NSCommandKeyMask;
+
+	if (state & Mod3Mask)
+		flags |= NSAlphaShiftKeyMask;
+
+	if (state & Mod4Mask)
+		flags |= NSHelpKeyMask;
+
+	if (state & Mod5Mask)
+		flags |= NSControlKeyMask;
+	// we don't handle the NSNumericPadKeyMask and NSFunctionKeyMask here
+#if 0
+	NSLog(@"state=%x flags=%x", state, flags);
+#endif
+	return flags;
+}
 
 @implementation _NSX11Screen
 
