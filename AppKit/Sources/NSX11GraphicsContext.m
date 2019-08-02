@@ -3408,22 +3408,32 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 				// NSStopFunctionKey
 				// NSUserFunctionKey
 				// and others
+				/*
+				 NSAlphaShiftKeyMask = 1*65536,
+				 NSShiftKeyMask		= 2*65536,
+				 NSControlKeyMask	= 4*65536,
+				 NSAlternateKeyMask	= 8*65536,
+				 NSCommandKeyMask	= 16*65536,
+				 NSNumericPadKeyMask = 32*65536,
+				 NSHelpKeyMask		= 64*65536,
+				 NSFunctionKeyMask	= 128*65536,
+				 */
+			case XK_Shift_L:
+			case XK_Shift_R:	*eventModFlags |= NSShiftKeyMask;		break;
+			case XK_Control_L:
+			case XK_Control_R:	*eventModFlags |= NSControlKeyMask;		break;
+			case XK_Alt_R:
+			case XK_Meta_R:		*eventModFlags |= NSAlternateKeyMask;	break;
+			case XK_Alt_L:
+			case XK_Meta_L:		*eventModFlags |= NSCommandKeyMask;		break;
+			case XK_Mode_switch: *eventModFlags |= NSCommandKeyMask;	break;
+			case XK_Caps_Lock:
+			case XK_Shift_Lock:	*eventModFlags |= NSAlphaShiftKeyMask;	break;
+			case XK_Num_Lock:	*eventModFlags |= NSNumericPadKeyMask;	break;
+
 			default:												break;
 		}
 
-		if(!keyCode)
-			{ // no keycode - flag keys to handle
-				if ((keysym == XK_Shift_L) || (keysym == XK_Shift_R))
-					*eventModFlags |= NSShiftKeyMask;
-				else if ((keysym == XK_Control_L) || (keysym == XK_Control_R))
-					*eventModFlags |= NSControlKeyMask;
-				else if ((keysym == XK_Alt_R) || (keysym == XK_Meta_R))
-					*eventModFlags |= NSAlternateKeyMask;
-				else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
-					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
-				else if (keysym == XK_Mode_switch)
-					*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask;
-			}
 		}
 
 	if (((keysym > XK_KP_Space) && (keysym <= XK_KP_9)) ||
@@ -3435,7 +3445,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 	return keyCode;
 }
 
-// determine which modifier
+// translate which modifier
 // keys (Command, Control,
 // Shift, etc..) were held down
 // while the event occured.
@@ -3465,8 +3475,8 @@ static unsigned int	xKeyModifierFlags(unsigned int state)
 	if (state & Mod5Mask)
 		flags |= NSControlKeyMask;
 	// we don't handle the NSNumericPadKeyMask and NSFunctionKeyMask here
-#if 0
-	NSLog(@"state=%x flags=%x", state, flags);
+#if 1
+	NSLog(@"xKeyModifierFlags: state=%x flags=%x", state, flags);
 #endif
 	return flags;
 }
@@ -4006,7 +4016,8 @@ static NSFileHandle *fh;
 				unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
 				buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
 				mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
-#if 1
+				mflags = 0;
+#if 0
 				{
 				int idx;
 				NSLog(@"xKeyEvent: type=%s xkey.state=%d keycode=%d keysym=%lu:%s buf=%s mflags=%x",
@@ -4026,31 +4037,35 @@ static NSFileHandle *fh;
 				 */
 				}
 #endif
-#if 1
+#if 0
 				NSLog(@"Process key event");
 #endif
 				keyCode = xKeyCode(&xe, ksym, &mflags);
+#if 1
+				NSLog(@"state=%d mflags=%0x __modFlags=%0x", xe.xkey.state, mflags, __modFlags);
+#endif
+				if(eventType == NSKeyDown)
+					__modFlags |= mflags;	// apply new modifier flags
+				else
+					__modFlags &= ~mflags;	// reset modifier flags defined by this key
+#if 1
+				NSLog(@"   =>__modFlags=%0x", __modFlags);
+#endif
 				if(count != 0)
 					{ // named string
 					keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
-					__modFlags=mflags;							// may also be modified
 					}
 				else if(keyCode != 0)
 					{
 					keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
-					__modFlags=mflags;							// may also be modified
 					}
 				else if(mflags)
 					{ // if we have neither a keyCode nor characters we have just changed a modifier Key
-						if(eventType == NSKeyDown)
-							__modFlags=mflags;		// new modifier flags state
-						else
-							__modFlags &= ~mflags;	// just reset flags defined by this key
 						eventType=NSFlagsChanged;
 					}
 				else
 					{
-					NSLog(@"ignored");
+					NSLog(@"key event ignored");	// e.g. the shift lock key (code 65)
 					break;	// no translation to NSEvent
 					}
 				if (xe.type == KeyRelease && XEventsQueued(_display, QueuedAfterReading))
@@ -4059,8 +4074,8 @@ static NSFileHandle *fh;
 					XPeekEvent(_display, &next);
 					if (next.type == KeyPress && next.xkey.time == xe.xkey.time &&
 						next.xkey.keycode == xe.xkey.keycode)
-						{ // same key pressed again
-							XNextEvent(_display, &next);	// take the key down event
+						{ // same key pressed again in very short sequence
+							XNextEvent(_display, &next);	// eat up the new key down event
 							eventType=NSKeyDown;
 							autorepeat=YES;
 						}
