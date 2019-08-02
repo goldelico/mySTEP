@@ -3445,6 +3445,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 	return keyCode;
 }
 
+#if 0	// interferes with decoding key codes directly
 // translate which modifier
 // keys (Command, Control,
 // Shift, etc..) were held down
@@ -3480,6 +3481,7 @@ static unsigned int	xKeyModifierFlags(unsigned int state)
 #endif
 	return flags;
 }
+#endif
 
 @implementation _NSX11Screen
 
@@ -4015,7 +4017,9 @@ static NSFileHandle *fh;
 				// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
 				unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
 				buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+#if OLD
 				mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
+#endif
 				mflags = 0;
 #if 0
 				{
