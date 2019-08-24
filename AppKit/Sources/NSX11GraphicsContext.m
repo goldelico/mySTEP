@@ -86,6 +86,8 @@ static unsigned int xKeyModifierFlags(unsigned int state);
 static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags);
 // extern void xHandleSelectionRequest(XSelectionRequestEvent *xe);
 
+static NSString *_NSX11GraphicsContextMode = @"NSX11GraphicsContextMode";	// private mode
+
 #pragma mark GraphicsPipeline
 
 // A filter pipeline has some resemblance to the concept of Core Image but runs completely on the CPU
@@ -2618,7 +2620,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			if((place == NSWindowOut)?![win isVisible]:[win isVisible])
 				break;	// window is in right state now
 			// could we wait for distantFuture?
-			[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
+			[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/_NSX11GraphicsContextMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 		}
 #if 1
 	NSLog(@"_orderWindow done");
@@ -3542,7 +3544,7 @@ static NSFileHandle *fh;
 #endif
 					NSModalPanelRunLoopMode,
 					NSEventTrackingRunLoopMode,
-					@"NSX11GraphicsContextMode",	// private mode
+					_NSX11GraphicsContextMode,	// private mode
 					nil];
 	[fh waitForDataInBackgroundAndNotifyForModes:_XRunloopModes];
 	if(XInternAtoms(_display, atomNames, sizeof(atomNames)/sizeof(atomNames[0]), False, atoms) == 0)
