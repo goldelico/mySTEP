@@ -713,7 +713,7 @@ class NSView extends NSResponder
 class NSControl extends NSView
 	{
 	protected $action="";	// function name
-	protected $target=null;	// object
+	protected $target=null;	// object or http reference
 	protected $tag=0;
 	protected $align="";
 	protected $enabled=true;
@@ -743,12 +743,19 @@ class NSControl extends NSView
 		{
 		$this->action=$action;
 		}
-	public function setTarget(NSObject $target)
-		{
+	public function setTarget($target)
+		{ // object or string permitted
 		$this->target=$target;
 		}
 	public function action() { return $this->action; }
 	public function target() { return $this->target; }
+	public function _targetActionURL()
+		{
+		$url=$this->target;
+		if($url && substr($url, -1) != '/' && $this->action && substr($this->action, 0, 1) != '/')
+			$url.="/";	// separate
+		return $url.$this->action;
+		}
 	public function setTag($val) { $this->tag=$val; }
 	public function tag() { return $this; }
 	public function setAlign($align) { $this->align=$align; }
