@@ -1661,6 +1661,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 			parameter("width", $this->width);
 			html(">\n");
 			}
+		$row=1;
 		$col=1;
 		foreach($this->subviews as $item)
 			{
@@ -1679,7 +1680,11 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				continue;
 				}
 			if($col == 1)
-				html("<tr>");
+				{
+				html("<tr");
+				parameter("row", $row);
+				html(">");
+				}
 			html("<td");
 			parameter("class", "NSCollectionViewItem");
 			switch($this->alignment)
@@ -1704,6 +1709,7 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				{
 				html("</tr>\n");
 				$col=1;
+				$row++;
 				}
 			}
 		if($this->columns <= 0)
