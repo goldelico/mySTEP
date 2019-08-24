@@ -1588,6 +1588,7 @@ class NSCollectionView extends NSControl
 	protected $alignment=NSTextAlignmentLeft;
 	protected $verticalAlignment=NSVerticalTextAlignmentTop;
 	protected $columnWidths;	// array...
+	protected $backgroundColor;	// for single column
 
 	public function __construct($cols=0, $objects=null)
 		{
@@ -1645,6 +1646,14 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 		foreach($this->subviews() as $item)
 			$item->_setElementId("$id-".$index++);	// make them unique
 		}
+	public function backgroundColor() { return $this->backgroundColor; }
+	public function setBackgroundColor($color)
+		{ // only stored!
+		if($color === $this->backgroundColor) return;
+		$this->backgroundColor=$color;
+// _NSLog("NSCollectionView setBackgroundColor: ".$color);
+		$this->setNeedsDisplay();
+		}
 	public function mouseDown(NSEvent $event)
 		{
 		}
@@ -1671,7 +1680,14 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				parameter("class", "NSCollectionView");
 				parameter("id", $this->elementId);
 				parameter("column", $col++);
-				parameter("style", "display: inline-block");
+				$style="display: inline-block";
+				if($item->respondsToSelector("backgroundColor"))
+					{
+					$color=$item->backgroundColor();
+					if(!is_null($color))
+						$style.=";background-color: ".$color;
+					}
+				parameter("style", $style);
 				html(">\n");
 				$item->display();
 				html("</span>");
@@ -1701,6 +1717,12 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				}
 			if(isset($this->columnWidths[$col]))
 				parameter("width", $this->columnWidths[$col]);	// user defined width
+			if($item->respondsToSelector("backgroundColor"))
+				{
+				$color=$item->backgroundColor();
+				if(!is_null($color))
+					parameter("style", "background-color: ".$color);
+				}
 			html(">\n");
 			$item->display();
 			html("</td>");
