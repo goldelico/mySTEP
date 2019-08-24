@@ -923,10 +923,7 @@ class NSButton extends NSControl
 		}
 	public function draw()
 		{
-		if($this->buttonType == "Link")
-			html("<a");
-		else
-			html("<input");
+		html(is_string($this->target)?"<a":"<input");
 		parameter("id", $this->elementId);
 // FIXME: if default button (shortcut "\r"): invert the selected state
 		if($this->keyEquivalent == "\r")
@@ -937,7 +934,12 @@ class NSButton extends NSControl
 			parameter("style", "background: ".$this->backgroundColor);
 		$super=$this->superview();
 // _NSLog($super->classString());
-		if(!is_null($super) && $super->respondsToSelector("getRowColumnOfCell"))
+		if(is_string($this->target))
+			{
+			parameter("href", $this->_targetActionURL());
+			$onclick="event.stopPropagation();";	// <a> embedded in <td>
+			}
+		else if(!is_null($super) && $super->respondsToSelector("getRowColumnOfCell"))
 			{ // appears to be a Matrix (we could also check $super->isKindOfClass("NSMatrix")
 			$onclick="e('".$super->elementId."')";
 			parameter("name", $super->elementId."-ck");
@@ -956,24 +958,21 @@ class NSButton extends NSControl
 			}
 		switch($this->buttonType)
 			{
-				case "Radio":
-					parameter("type", "radio");
-					if(!is_null($this->target))
-						parameter("onchange", $onclick);
-					break;
-				case "CheckBox":
-					parameter("type", "checkbox");
-					if(!is_null($this->target))
-						parameter("onchange", $onclick);
-					break;
-				case "Link":
-					parameter("href", $this->action);
-					break;
-				default:
-					parameter("type", "submit");
-					parameter("value", _htmlentities($this->title));
-					if(!is_null($this->target))
-						parameter("onclick", $onclick);
+			case "Radio":
+				parameter("type", "radio");
+				if(!is_null($this->target))
+					parameter("onchange", $onclick);
+				break;
+			case "CheckBox":
+				parameter("type", "checkbox");
+				if(!is_null($this->target))
+					parameter("onchange", $onclick);
+				break;
+			default:
+				parameter("type", "submit");
+				parameter("value", _htmlentities($this->title));
+				if(!is_null($this->target))
+					parameter("onclick", $onclick);
 			}
 		if(!$this->enabled)
 			parameter("disabled", "");
@@ -993,18 +992,20 @@ class NSButton extends NSControl
 				break;
 			case NSOnState:
 				parameter("checked", "checked");
-			default:
-				html("/>");
-				break;
 			}
+		html("/>");
 		switch($this->buttonType)
 			{
 			case "CheckBox":
 			case "Radio":
-			case "Link":
 				html(_htmlentities($this->title));
-				html("</a>");
 				break;
+			default:
+				if(is_string($this->target))
+					{
+					html(_htmlentities($this->title));
+					html("</a>");
+					}
 			}
 		html("\n");
 		}
