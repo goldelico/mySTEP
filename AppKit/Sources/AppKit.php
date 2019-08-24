@@ -858,6 +858,17 @@ class NSButton extends NSControl
 		}
 	public function setButtonType($buttonType)
 		{
+		switch($buttonType)
+			{
+			case "NSPopupButton":
+			case "Button":
+			case "CheckBox":
+			case "Radio":
+				break;
+			default:
+				_NSLog(@"invalid button type $buttonType");
+				_NSLog($this);
+			}
 		if($this->buttonType === $buttonType) return;
 		$this->buttonType=$buttonType;
 		$this->setNeedsDisplay();
