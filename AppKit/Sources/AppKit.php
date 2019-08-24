@@ -1024,6 +1024,43 @@ class NSButton extends NSControl
 
 // FIXME: we currently do not correctly separate between NSMenu/NSMenuItem and NSMenuView/NSMenuItemView
 
+class NSMenuItem extends NSObject
+{
+	protected $title;
+	protected $target;
+	protected $action;
+	protected $tag;
+	protected $representedObject;
+	protected $enabled;
+	protected $hidden;
+	protected $state;
+	protected $image;
+	protected $submenu;
+	protected $parent;
+	protected $view;	// custom item
+
+	public function __construct($title="")
+		{
+		parent::__construct();
+		$this->title=$title;
+		}
+
+	public function title() { return $this->title; }
+	public function setTitle($title) { $this->title=$title; }
+	public function target() { return $this->target; }
+	public function setTarget($target) { $this->target=$target; }
+	public function action() { return $this->action; }
+	public function setAction($action) { $this->action=$action; }
+	public function _targetActionURL()
+		{
+		$url=$this->target;
+		if($url && substr($url, -1) != '/' && $this->action && substr($this->action, 0, 1) != '/')
+			$url.="/";	// separate
+		return $url.$this->action;
+		}
+	// ...
+}
+
 class NSMenuItemView extends NSButton
 	{	
 		protected $icon;
