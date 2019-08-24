@@ -918,7 +918,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		// FIXME: does not return after handling X11 events
 		if(![currentLoop runMode:mode beforeDate:expiration])
 			break;	// did not even run once
-#endif
 #if 0
 		NSLog(@"nextEventMatchingMask event queue length %lu", (unsigned long)[_eventQueue count]);
 #endif
