@@ -1228,6 +1228,7 @@ class NSPopUpButton extends NSButton
 		{
 		parent::__construct("", "NSPopupButton");
 		$this->menu=array();
+		$this->actions=array();
 // _NSLog($this->elementId()." created");
 		}
 	public function pullsDown() { return $this->pullsDown; }
@@ -1239,17 +1240,17 @@ class NSPopUpButton extends NSButton
 		$this->setNeedsDisplay();
 		}
 
-	public function addItemWithTitle($title) { $this->menu[]=$title; $this->setNeedsDisplay(); }
+	public function addItemWithTitle($title) { $item=new NSMenuItem($title); $this->menu[]=$item; $this->setNeedsDisplay(); return $item; }
 	public function addItemsWithTitles($titleArray) { foreach($titleArray as $title) $this->addItemWithTitle($title); }
-	public function insertItemWithTitleAtIndex($title, $index) { }
+	public function insertItemWithTitleAtIndex($title, $index) { NIMP(); }
 	public function removeAllItems()
 		{
 		if(count($this->menu) == 0) return;
 		$this->menu=array();
 		$this->setNeedsDisplay();
 		}
-	public function removeItemWithTitle($title) { }
-	public function removeItemWithTitles($titleArray) { }
+	public function removeItemWithTitle($title) { NIMP(); }
+	public function removeItemWithTitles($titleArray) { NIMP(); }
 	public function selectedItem() { return null;	/* NSMenuItem! */ }
 	public function indexOfSelectedItem() { return $this->selectedItemIndex >= count($this->menu)?-1:$this->selectedItemIndex; }
 	public function titleOfSelectedItem() { return $this->indexOfSelectedItem() < 0 ? null : $this->menu[$this->selectedItemIndex]; }
@@ -1265,6 +1266,7 @@ class NSPopUpButton extends NSButton
 // _NSLog("NSPopUpButton ".$this->elementId()." selectItemWithTitle: $title");
 		$this->selectItemAtIndex($this->indexOfItemWithTitle($title));
 		}
+// what is the difference?
 	public function menu() { return $this->menu; }
 	public function itemArray() { return $this->menu; }
 	public function itemWithTitle($title)
@@ -1279,7 +1281,7 @@ class NSPopUpButton extends NSButton
 		for($idx=0; $idx<count($this->menu); $idx++)
 			{
 // _NSLog($this->menu[$idx]." == ".$title);
-			if($this->menu[$idx] == $title)
+			if($this->menu[$idx]->title() == $title)
 				return $idx;
 			}
 		return -1;
@@ -1328,11 +1330,12 @@ class NSPopUpButton extends NSButton
 			html(">\n");
 			foreach($this->menu as $item)
 				{ // add options
+				// check for !is_null($item->view) and draw custom item
 				html("<a");
 // FIXME: how do we provide inidvidual actions?
-				parameter("href", "call action");
+				parameter("href", $item->_targetActionURL());
 				html(">");
-				text($item);	// draws the menu text
+				text($item->title());	// draws the menu text
 				html("</a>\n");
 				$index++;
 				}
@@ -1356,8 +1359,9 @@ class NSPopUpButton extends NSButton
 			if($index == $this->selectedItemIndex)
 				parameter("selected", "selected");	// mark menu title as selected
 			html(">");
-			text($item);	// draws the title
+			text($item->title());	// draws the title
 			html("</option>\n");
+			// FIXME: handle target/action
 			$index++;
 			}
 		html("</select>\n");
