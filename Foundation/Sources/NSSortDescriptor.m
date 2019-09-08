@@ -25,7 +25,7 @@ NSInteger _descriptorComparator(id val1, id val2, void *context)
 	return NSOrderedSame;
 }
 
-@implementation NSSortDescriptor 
+@implementation NSSortDescriptor
 
 - (BOOL) ascending; { return ascending; }
 
