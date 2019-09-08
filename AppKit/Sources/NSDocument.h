@@ -88,14 +88,18 @@ typedef enum _NSSaveOperationType {
 @private
 	NSWindow		*_window;		// Outlet for the single window case - has a private setter setWindow
 	NSMutableArray 	*_windowControllers;	// WindowControllers for this document
+#if NEW
+	NSURL			*_fileURL;		// should also store fileURLs...
+#else
 	NSString		*_fileName;		// Save location
+#endif
 	NSString 		*_fileType;		// file/document type
 	NSPrintInfo 	*_printInfo;		// print info record
-	NSView 		*savePanelAccessory;	// outlet for the accessory save-panel view
-	NSPopUpButton	*spaButton;     	// outlet for "the File Format:" button in the save panel.
+	NSView			*savePanelAccessory;	// outlet for the accessory save-panel view
+	NSPopUpButton	*spaButton;	// outlet for "the File Format:" button in the save panel.
 	NSUndoManager 	*_undoManager;		// Undo manager for this document
-	long		_changeCount;		// number of time the document has been changed
-	int			_documentIndex;		// Untitled index
+	long			_changeCount;		// number of times the document has been changed
+	int				_documentIndex;		// Untitled index
 	struct __docFlags {
 		unsigned int inClose:1;
 		unsigned int hasUndoManager:1;

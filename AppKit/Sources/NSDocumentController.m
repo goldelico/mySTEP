@@ -374,12 +374,17 @@ becomes the shared instance.
 
 - (id) makeUntitledDocumentOfType: (NSString *)type
 {
-	Class documentClass = [self documentClassForType:type];
 	DEPRECATED;
+	return [self makeUntitledDocumentOfType:type error:NULL];
+}
+
+- (id) makeUntitledDocumentOfType: (NSString *)type error:(NSError **) err
+{
+	Class documentClass = [self documentClassForType:type];
 	return [[[documentClass alloc] init] autorelease];
 }
 
-- (id) makeDocumentWithContentsOfFile:(NSString *) fileName 
+- (id) makeDocumentWithContentsOfFile:(NSString *) fileName
 							   ofType:(NSString *) type
 {
 	Class documentClass = [self documentClassForType:type];
@@ -392,8 +397,13 @@ becomes the shared instance.
 
 - (id) makeDocumentWithContentsOfURL: (NSURL *)url ofType: (NSString *)type
 {
-	Class documentClass = [self documentClassForType:type];
 	DEPRECATED;
+	return [self makeDocumentWithContentsOfURL:url ofType:type error:NULL];
+}
+
+- (id) makeDocumentWithContentsOfURL: (NSURL *)url ofType: (NSString *)type error:(NSError **) err
+{
+	Class documentClass = [self documentClassForType:type];
 #if 0
 	if(!documentClass) NSLog(@"no document class defined for type %@", type);
 #endif
@@ -473,16 +483,18 @@ becomes the shared instance.
 	return document;
 }
 
-- (id) openDocumentWithContentsOfURL:(NSURL *) url display:(BOOL) display error:(NSError *) err;
+- (id) openDocumentWithContentsOfURL:(NSURL *) url display:(BOOL) display error:(NSError **) err;
 {
 	NSDocument *document = [self documentForURL:url];
 	DEPRECATED;
 	
 	if (document == nil)
 		{
-		NSString *type = [self typeForContentsOfURL:url error:&err];
+		NSString *type = [self typeForContentsOfURL:url error:err];
+		if(!type)
+			return nil;
 		
-		document = [self makeDocumentWithContentsOfURL: url ofType: type];
+		document = [self makeDocumentWithContentsOfURL: url ofType: type error:err];
 
 		if (document == nil)
 			return nil;
@@ -503,6 +515,7 @@ becomes the shared instance.
 
 - (id) openDocumentWithContentsOfURL:(NSURL *) url display:(BOOL) display;
 {
+	DEPRECATED;
 	return [self openDocumentWithContentsOfURL:url display:display error:NULL];
 }
 
@@ -648,27 +661,27 @@ the user agrees to review the documents, this method calls
     YES after all documents have been closed (or if there are no
 											  unsaved documents.)
 	*/
-- (BOOL) reviewUnsavedDocumentsWithAlertTitle: (NSString *)title 
+- (BOOL) reviewUnsavedDocumentsWithAlertTitle: (NSString *)title
 								  cancellable: (BOOL)cancellable
 {
 	NSString *cancelString = (cancellable)? @"Cancel" : nil;
-	int      result;
+	NSInteger result;
 	DEPRECATED;
-	
+
 	/* Probably as good a place as any to do this */
-	[[NSUserDefaults standardUserDefaults] 
-    setObject: [self currentDirectory] forKey: NSDefaultOpenDirectory];
-	
-	if (![self hasEditedDocuments]) 
+	[[NSUserDefaults standardUserDefaults]
+	setObject: [self currentDirectory] forKey: NSDefaultOpenDirectory];
+
+	if (![self hasEditedDocuments])
 		{
 		return YES;
 		}
-	
+
 	result = NSRunAlertPanel(title, @"You have unsaved documents",
-							 @"Review Unsaved", 
-							 cancelString, 
+							 @"Review Unsaved",
+							 cancelString,
 							 @"Quit Anyways");
-	
+
 #define ReviewUnsaved NSAlertDefaultReturn
 #define Cancel        NSAlertAlternateReturn
 #define QuitAnyways   NSAlertOtherReturn
@@ -943,17 +956,16 @@ the user's home directory if no document has been opened before.
 	[[self currentDocument] printDocument:sender];	// forward to the current document (main window)
 }
 
-/* new methods
-
 - (NSError *) willPresentError:(NSError *) err;
+{
+	return err;
+}
+
+/* new methods not yet implemented
+
 - (BOOL) reopenDocumentForURL:(NSURL *) url
 			withContentsOfURL:(NSURL *) contents
 						error:(NSError **) err;
- - (id) openDocumentWithContentsOfURL:(NSURL *) url
-							display:(BOOL) flag
-							error:(NSError **) err;
- - (id) makeUntitledDocumentOfType:(NSString *) type error:(NSError **) err;
- - (id) makeDocumentWithContentsOfURL:(NSURL *) url ofType:(NSString *) type error:(NSError **) err;
  - (id) makeDocumentForURL:(NSURL *) url
 							withContentsOfURL:(NSURL *) contents
 							ofType:(NSString *) type

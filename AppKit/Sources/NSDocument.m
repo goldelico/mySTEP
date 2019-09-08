@@ -1,31 +1,31 @@
 /** <title>NSDocument</title>
 
-<abstract>The abstract document class</abstract>
+ <abstract>The abstract document class</abstract>
 
-Copyright (C) 1999 Free Software Foundation, Inc.
+ Copyright (C) 1999 Free Software Foundation, Inc.
 
-Author: Carl Lindberg <Carl.Lindberg@hbo.com>
-Date: 1999
-Modifications: Fred Kiefer <FredKiefer@gmx.de>
-Date: June 2000
+ Author: Carl Lindberg <Carl.Lindberg@hbo.com>
+ Date: 1999
+ Modifications: Fred Kiefer <FredKiefer@gmx.de>
+ Date: June 2000
 
-This file is part of the GNUstep GUI Library.
+ This file is part of the GNUstep GUI Library.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
 
-You should have received a copy of the GNU Library General Public
-License along with this library; see the file COPYING.LIB.
-If not, write to the Free Software Foundation,
-59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
+ You should have received a copy of the GNU Library General Public
+ License along with this library; see the file COPYING.LIB.
+ If not, write to the Free Software Foundation,
+ 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 
 #import <Foundation/Foundation.h>
 
@@ -46,7 +46,7 @@ If not, write to the Free Software Foundation,
 + (NSArray *) readableTypes
 {
 	return [[NSDocumentController sharedDocumentController]
-	   _editorAndViewerTypesForClass:self];
+			_editorAndViewerTypesForClass:self];
 }
 
 + (NSArray *) writableTypes
@@ -109,7 +109,7 @@ If not, write to the Free Software Foundation,
 	[_fileName release];
 	[_fileType release];
 	[_windowControllers release];
-//	[_window release];
+	//	[_window release];
 	[_printInfo release];
 	[savePanelAccessory release];
 	[spaButton release];
@@ -123,15 +123,21 @@ If not, write to the Free Software Foundation,
 
 - (NSURL *) fileURL
 {
-	return NIMP;
+	return [NSURL fileURLWithPath:_fileName];
 }
 
 - (void) setFileName:(NSString *)fileName
 {
 	ASSIGN(_fileName, fileName);
-	
+
 	[_windowControllers makeObjectsPerformSelector:
 		@selector(synchronizeWindowTitleWithDocumentName)];
+}
+
+- (void) setFileURL:(NSURL *) url
+{
+	// this should be the general version and setFileName the wrapper...
+	[self setFileName:[url path]];
 }
 
 - (NSString *) fileType
@@ -184,7 +190,7 @@ If not, write to the Free Software Foundation,
 - (void) makeWindowControllers
 {
 	NSString *name = [self windowNibName];
-	
+
 	if (name != nil && [name length] > 0)
 		{
 		NSWindowController *controller;
@@ -217,25 +223,25 @@ If not, write to the Free Software Foundation,
 {
 	NSInteger i, count = [_windowControllers count];
 	BOOL isEdited;
-	
+
 	switch (change)
-		{
+	{
 		case NSChangeDone:		_changeCount++; break;
 		case NSChangeUndone:	_changeCount--; break;
 		case NSChangeCleared:	_changeCount = 0; break;
 		case NSChangeReadOtherContents:
 		case NSChangeAutosaved:
-			break;
-		}
-	
-    /*
-     * NOTE: Apple's implementation seems to not call -isDocumentEdited
-     * here but directly checks to see if _changeCount == 0.  It seems it
-     * would be better to call the method in case it's overridden by a
-     * subclass, but we may want to keep Apple's behavior.
-     */
+		break;
+	}
+
+	/*
+	 * NOTE: Apple's implementation seems to not call -isDocumentEdited
+	 * here but directly checks to see if _changeCount == 0.  It seems it
+	 * would be better to call the method in case it's overridden by a
+	 * subclass, but we may want to keep Apple's behavior.
+	 */
 	isEdited = [self isDocumentEdited];
-	
+
 	for (i=0; i<count; i++)
 		{
 		[[_windowControllers objectAtIndex: i] setDocumentEdited: isEdited];
@@ -244,40 +250,40 @@ If not, write to the Free Software Foundation,
 
 - (BOOL) canCloseDocument
 {
-	int result;
-	
+	NSInteger result;
+
 	if (![self isDocumentEdited])
 		return YES;
-	
-	result = NSRunAlertPanel (@"Close", 
+
+	result = NSRunAlertPanel (@"Close",
 							  @"%@ has changed.  Save?",
-							  @"Save", @"Cancel", @"Don't Save", 
+							  @"Save", @"Cancel", @"Don't Save",
 							  [self displayName]);
-	
+
 #define Save     NSAlertDefaultReturn
 #define Cancel   NSAlertAlternateReturn
 #define DontSave NSAlertOtherReturn
-	
+
 	switch (result)
-		{
+	{
 		// return NO if save failed
 		case Save:
-			{
-				[self saveDocument:nil]; 
-				return ![self isDocumentEdited];
-			}
+		{
+		[self saveDocument:nil];
+		return ![self isDocumentEdited];
+		}
 		case DontSave:	return YES;
 		case Cancel:
 		default:		return NO;
-		}
+	}
 }
 
-- (void) canCloseDocumentWithDelegate:(id)delegate 
-				 shouldCloseSelector:(SEL)shouldCloseSelector 
-						 contextInfo:(void *)contextInfo
+- (void) canCloseDocumentWithDelegate:(id)delegate
+				  shouldCloseSelector:(SEL)shouldCloseSelector
+						  contextInfo:(void *)contextInfo
 {
 	BOOL result = [self canCloseDocument];
-	
+
 	if (delegate != nil && shouldCloseSelector != NULL)
 		{
 		void (*meth)(id, SEL, id, BOOL, void*);
@@ -290,7 +296,7 @@ If not, write to the Free Software Foundation,
 - (BOOL) shouldCloseWindowController:(NSWindowController *)windowController
 {
 	if (![_windowControllers containsObject:windowController]) return YES;
-	
+
 	/* If it's the last window controller, pop up a warning */
 	/* maybe we should count only loaded window controllers (or visible windows). */
 	if ([windowController shouldCloseDocument]
@@ -298,17 +304,17 @@ If not, write to the Free Software Foundation,
 		{
 		return [self canCloseDocument];
 		}
-	
+
 	return YES;
 }
 
-- (void) shouldCloseWindowController:(NSWindowController *)windowController 
-						   delegate:(id)delegate 
-				shouldCloseSelector:(SEL)callback
-						contextInfo:(void *)contextInfo
+- (void) shouldCloseWindowController:(NSWindowController *)windowController
+							delegate:(id)delegate
+				 shouldCloseSelector:(SEL)callback
+						 contextInfo:(void *)contextInfo
 {
 	BOOL result = [self shouldCloseWindowController: windowController];
-	
+
 	if (delegate != nil && callback != NULL)
 		{
 		void (*meth)(id, SEL, id, BOOL, void*);
@@ -347,11 +353,11 @@ If not, write to the Free Software Foundation,
 {
 	if ([wrapper isRegularFile])
 		return [self loadDataRepresentation:[wrapper regularFileContents] ofType:type];
-	
-    /*
-     * This even happens on a symlink.  May want to use
-     * -stringByResolvingAllSymlinksInPath somewhere, but Apple doesn't.
-     */
+
+	/*
+	 * This even happens on a symlink.  May want to use
+	 * -stringByResolvingAllSymlinksInPath somewhere, but Apple doesn't.
+	 */
 	NSLog(@"Warning: %@ must be overridden if your document deals with file packages.", NSStringFromSelector(_cmd));
 	return NO;
 }
@@ -363,9 +369,9 @@ If not, write to the Free Software Foundation,
 
 - (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)typeName error:(NSError **) error;
 { // default load - can/should be overwritten
-	// FIXME: we loose error information that the readFromFileWrapper: could have provided
+  // FIXME: we loose error information that the readFromFileWrapper: could have provided
 	if([self readFromFile:fileName ofType:typeName])
-	   return YES;
+		return YES;
 	if(error)
 		*error=[NSError errorWithDomain:@"NSDocument" code:0 userInfo:nil];
 	return NO;
@@ -397,7 +403,7 @@ If not, write to the Free Software Foundation,
 	wrapper=[[[NSFileWrapper alloc] initWithURL:absoluteURL options:0 error:outError] autorelease];
 	if(!wrapper)
 		return NO;	// outError has been set
-	return [self readFromFileWrapper:wrapper ofType:typeName error:outError];		
+	return [self readFromFileWrapper:wrapper ofType:typeName error:outError];
 }
 
 - (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)type
@@ -420,10 +426,10 @@ If not, write to the Free Software Foundation,
 - (NSFileWrapper *) fileWrapperRepresentationOfType:(NSString *)type
 {
 	NSData *data = [self dataRepresentationOfType:type];
-	
-	if (data == nil) 
+
+	if (data == nil)
 		return nil;
-	
+
 	return [[[NSFileWrapper alloc] initRegularFileWithContents:data] autorelease];
 }
 
@@ -437,10 +443,10 @@ If not, write to the Free Software Foundation,
 - (BOOL) writeToURL:(NSURL *)url ofType:(NSString *)type
 {
 	NSData *data = [self dataRepresentationOfType:type];
-	
-	if (data == nil) 
+
+	if (data == nil)
 		return NO;
-	
+
 	return [url setResourceData: data];
 }
 
@@ -457,12 +463,12 @@ If not, write to the Free Software Foundation,
 }
 
 - (IBAction) changeSaveType:(id)sender
-{ 
+{
 	//FIXME if we have accessory -- store the desired save type somewhere.
 }
 
 - (NSInteger) runModalSavePanel:(NSSavePanel *)savePanel
-       withAccessoryView:(NSView *)accessoryView
+			  withAccessoryView:(NSView *)accessoryView
 {
 	[savePanel setAccessoryView:accessoryView];
 	return [savePanel runModal];
@@ -495,51 +501,51 @@ If not, write to the Free Software Foundation,
 	NSArray *extensions;
 	NSDocumentController *controller;
 	NSSavePanel *savePanel = [NSSavePanel savePanel];
-	
+
 	controller = [NSDocumentController sharedDocumentController];
 	extensions = [controller fileExtensionsFromType:[self fileType]];
-	
+
 	if ([self shouldRunSavePanelWithAccessoryView])
 		{
 		if (savePanelAccessory == nil)
 			[self _loadPanelAccessoryNib];
-		
+
 		[self _addItemsToSpaButtonFromArray:extensions];
-		
+
 		accessory = savePanelAccessory;
 		}
-	
+
 	if ([extensions count] > 0)
 		[savePanel setRequiredFileType:[extensions objectAtIndex:0]];
-	
+
 	switch (saveOperation)
-		{
+	{
 		case NSSaveAsOperation: title = @"Save As"; break;
-		case NSSaveToOperation: title = @"Save To"; break; 
-		case NSSaveOperation: 
+		case NSSaveToOperation: title = @"Save To"; break;
+		case NSSaveOperation:
 		default:
-			title = @"Save";    
-			break;
-		}
-	
+		title = @"Save";
+		break;
+	}
+
 	[savePanel setTitle:title];
-	
-	
+
+
 	if ([self fileName])
 		directory = [[self fileName] stringByDeletingLastPathComponent];
 	else
 		directory = [controller currentDirectory];
 	[savePanel setDirectory: directory];
-	
+
 	if ([self runModalSavePanel:savePanel withAccessoryView:accessory])
 		{
 		return [savePanel filename];
 		}
-	
+
 	return nil;
 }
 
-- (BOOL) shouldChangePrintInfo:(NSPrintInfo *)newPrintInfo
+- (BOOL) shouldChangePrintInfo:(NSPrintInfo *) newPrintInfo
 {
 	return YES;
 }
@@ -557,15 +563,15 @@ If not, write to the Free Software Foundation,
 
 // Page layout panel (Page Setup)
 
-- (NSInteger) runModalPageLayoutWithPrintInfo:(NSPrintInfo *)printInfo
+- (NSInteger) runModalPageLayoutWithPrintInfo:(NSPrintInfo *) printInfo
 {
 	return [[NSPageLayout pageLayout] runModalWithPrintInfo:printInfo];
 }
 
-- (IBAction) runPageLayout:(id)sender
+- (IBAction) runPageLayout:(id) sender
 {
 	NSPrintInfo *printInfo = [self printInfo];
-	
+
 	if ([self runModalPageLayoutWithPrintInfo:printInfo]
 		&& [self shouldChangePrintInfo:printInfo])
 		{
@@ -575,7 +581,7 @@ If not, write to the Free Software Foundation,
 }
 
 /* This is overridden by subclassers; the default implementation does nothing. */
-- (void)printShowingPrintPanel:(BOOL)flag
+- (void) printShowingPrintPanel:(BOOL) flag
 {
 }
 
@@ -588,9 +594,9 @@ If not, write to the Free Software Foundation,
 {
 	if ([anItem action] == @selector(revertDocumentToSaved:))
 		return ([self fileName] != nil && [self isDocumentEdited]);
-	
+
 	// FIXME should validate spa popup items; return YES if it's a native type.
-    
+
 	return YES;
 }
 
@@ -598,7 +604,7 @@ If not, write to the Free Software Foundation,
 {
 	if ([anItem action] == @selector(revertDocumentToSaved:))
 		return ([self fileName] != nil);
-	
+
 	return YES;
 }
 
@@ -609,57 +615,57 @@ If not, write to the Free Software Foundation,
 	return [self fileType];
 }
 
-- (NSDictionary *) fileAttributesToWriteToFile: (NSString *)fullDocumentPath 
-									   ofType: (NSString *)docType 
-								saveOperation: (NSSaveOperationType)saveOperationType
+- (NSDictionary *) fileAttributesToWriteToFile: (NSString *)fullDocumentPath
+										ofType: (NSString *)docType
+								 saveOperation: (NSSaveOperationType)saveOperationType
 {
 	// FIXME: Implement.
 	return [NSDictionary dictionary];
 }
 
-- (BOOL) writeToFile:(NSString *)fileName 
-			 ofType:(NSString *)type 
-       originalFile:(NSString *)origFileName
-      saveOperation:(NSSaveOperationType)saveOp
+- (BOOL) writeToFile:(NSString *)fileName
+			  ofType:(NSString *)type
+		originalFile:(NSString *)origFileName
+	   saveOperation:(NSSaveOperationType)saveOp
 {
 	return [self writeToFile: fileName ofType: type];
 }
 
-- (BOOL) writeWithBackupToFile:(NSString *)fileName 
-					   ofType:(NSString *)fileType 
-				saveOperation:(NSSaveOperationType)saveOp
+- (BOOL) writeWithBackupToFile:(NSString *)fileName
+						ofType:(NSString *)fileType
+				 saveOperation:(NSSaveOperationType)saveOp
 {
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSString *backupFilename = nil;
-	
+
 	if (fileName)
 		{
 		if ([fileManager fileExistsAtPath:fileName])
 			{
 			NSString *extension  = [fileName pathExtension];
-			
+
 			backupFilename = [fileName stringByDeletingPathExtension];
 			backupFilename = [backupFilename stringByAppendingString:@"~"];
 			backupFilename = [backupFilename stringByAppendingPathExtension:extension];
-			
+
 			/* Save panel has already asked if the user wants to replace it */
-			
+
 			/* NSFileManager movePath: will fail if destination exists */
 			if ([fileManager fileExistsAtPath:backupFilename])
 				[fileManager removeFileAtPath:backupFilename handler:nil];
-			
+
 			// Move or copy?
 			if (![fileManager movePath:fileName toPath:backupFilename handler:nil] &&
 				[self keepBackupFile])
 				{
-				int result = NSRunAlertPanel(@"File Error",
-											 @"Can't create backup file.  Save anyways?",
-											 @"Save", @"Cancel", nil);
-				
+				NSInteger result = NSRunAlertPanel(@"File Error",
+												   @"Can't create backup file.  Save anyways?",
+												   @"Save", @"Cancel", nil);
+
 				if (result != NSAlertDefaultReturn) return NO;
 				}
 			}
-		if ([self writeToFile: fileName 
+		if ([self writeToFile: fileName
 					   ofType: fileType
 				 originalFile: backupFilename
 				saveOperation: saveOp])
@@ -670,69 +676,69 @@ If not, write to the Free Software Foundation,
 				[self setFileType: fileType];
 				[self updateChangeCount:NSChangeCleared];
 				}
-			
+
 			if (backupFilename && ![self keepBackupFile])
 				{
 				[fileManager removeFileAtPath:backupFilename handler:nil];
 				}
-			
+
 			return YES;
 			}
 		}
-	
+
 	return NO;
 }
 
 - (IBAction) saveDocument:(id)sender
 {
 	NSString *filename = [self fileName];
-	
+
 	if (filename == nil)
 		{
 		[self saveDocumentAs: sender];
 		return;
 		}
-	
-	[self writeWithBackupToFile: filename 
+
+	[self writeWithBackupToFile: filename
 						 ofType: [self fileType]
 				  saveOperation: NSSaveOperation];
 }
 
 - (IBAction) saveDocumentAs:(id)sender
 {
-	NSString *filename = 
-	[self fileNameFromRunningSavePanelForSaveOperation: 
+	NSString *filename =
+	[self fileNameFromRunningSavePanelForSaveOperation:
 		NSSaveAsOperation];
-	
-	[self writeWithBackupToFile: filename 
+
+	[self writeWithBackupToFile: filename
 						 ofType: [self fileTypeFromLastRunSavePanel]
 				  saveOperation: NSSaveAsOperation];
 }
 
 - (IBAction) saveDocumentTo:(id)sender
 {
-	NSString *filename = 
-	[self fileNameFromRunningSavePanelForSaveOperation: 
+	NSString *filename =
+	[self fileNameFromRunningSavePanelForSaveOperation:
 		NSSaveToOperation];
-	
-	[self writeWithBackupToFile: filename 
+
+	[self writeWithBackupToFile: filename
 						 ofType: [self fileTypeFromLastRunSavePanel]
 				  saveOperation: NSSaveToOperation];
 }
 
-- (void) saveDocumentWithDelegate:(id)delegate 
-				 didSaveSelector:(SEL)didSaveSelector 
-					 contextInfo:(void *)contextInfo
+- (void) saveDocumentWithDelegate:(id)delegate
+				  didSaveSelector:(SEL)didSaveSelector
+					  contextInfo:(void *)contextInfo
 {
 	// FIXME
 	NIMP;
 }
 
-- (void) saveToFile:(NSString *)fileName 
-     saveOperation:(NSSaveOperationType)saveOperation 
-		  delegate:(id)delegate
-   didSaveSelector:(SEL)didSaveSelector 
-       contextInfo:(void *)contextInfo
+- (void) saveToFile:(NSString *)fileName
+	  saveOperation:(NSSaveOperationType)saveOperation
+		   delegate:(id)delegate
+	didSaveSelector:(SEL)didSaveSelector
+		contextInfo:(void *)contextInfo
 {
 	// FIXME
 	NIMP;
@@ -743,10 +749,10 @@ If not, write to the Free Software Foundation,
 	return YES;
 }
 
-- (void) runModalSavePanelForSaveOperation:(NSSaveOperationType)saveOperation 
-								 delegate:(id)delegate
-						  didSaveSelector:(SEL)didSaveSelector 
-							  contextInfo:(void *)contextInfo
+- (void) runModalSavePanelForSaveOperation:(NSSaveOperationType)saveOperation
+								  delegate:(id)delegate
+						   didSaveSelector:(SEL)didSaveSelector
+							   contextInfo:(void *)contextInfo
 {
 	// FIXME
 	NIMP;
@@ -754,14 +760,14 @@ If not, write to the Free Software Foundation,
 
 - (IBAction) revertDocumentToSaved:(id)sender
 {
-	int result;
-	
-	result = NSRunAlertPanel 
-		(@"Revert",
-		 @"%@ has been edited.  Are you sure you want to undo changes?",
-		 @"Revert", @"Cancel", nil, 
-		 [self displayName]);
-	
+	NSInteger result;
+
+	result = NSRunAlertPanel
+	(@"Revert",
+	 @"%@ has been edited.  Are you sure you want to undo changes?",
+	 @"Revert", @"Cancel", nil,
+	 [self displayName]);
+
 	if (result == NSAlertDefaultReturn &&
 		[self revertToSavedFromFile:[self fileName] ofType:[self fileType]])
 		{
@@ -770,19 +776,19 @@ If not, write to the Free Software Foundation,
 }
 
 /** Closes all the windows owned by the document, then removes itself
-from the list of documents known by the NSDocumentController. This
-method does not ask the user if they want to save the document before
-closing. It is closed without saving any information.
-*/
+ from the list of documents known by the NSDocumentController. This
+ method does not ask the user if they want to save the document before
+ closing. It is closed without saving any information.
+ */
 - (void) close
 {
 	if (_docFlags.inClose == NO)
 		{
 		NSInteger count = [_windowControllers count];
 		/* Closing a windowController will also send us a close, so make
-		sure we don't go recursive */
+		 sure we don't go recursive */
 		_docFlags.inClose = YES;
-		
+
 		if (count > 0)
 			{
 			NSWindowController *array[count];
@@ -803,7 +809,7 @@ closing. It is closed without saving any information.
 		{
 		[self setUndoManager: [[[NSUndoManager alloc] init] autorelease]];
 		}
-	
+
 	return _undoManager;
 }
 
@@ -812,7 +818,7 @@ closing. It is closed without saving any information.
 	if (undoManager != _undoManager)
 		{
 		NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-		
+
 		if (_undoManager)
 			{
 			[center removeObserver:self
@@ -825,9 +831,9 @@ closing. It is closed without saving any information.
 							  name:NSUndoManagerDidRedoChangeNotification
 							object:_undoManager];
 			}
-		
+
 		ASSIGN(_undoManager, undoManager);
-		
+
 		if (_undoManager == nil)
 			{
 			[self setHasUndoManager:NO];
@@ -843,9 +849,9 @@ closing. It is closed without saving any information.
 						   name:NSUndoManagerDidUndoChangeNotification
 						 object:_undoManager];
 			[[NSNotificationCenter defaultCenter]
-	    addObserver:self
-		   selector:@selector(_changeWasRedone:)
-			   name:NSUndoManagerDidRedoChangeNotification
+			 addObserver:self
+			 selector:@selector(_changeWasRedone:)
+			 name:NSUndoManagerDidRedoChangeNotification
 			 object:_undoManager];
 			}
 		}
@@ -860,7 +866,7 @@ closing. It is closed without saving any information.
 {
 	if (_undoManager && !flag)
 		[self setUndoManager:nil];
-	
+
 	_docFlags.hasUndoManager = flag;
 }
 @end
@@ -877,10 +883,10 @@ closing. It is closed without saving any information.
 	if ([_windowControllers containsObject:windowController])
 		{
 		BOOL autoClose = [windowController shouldCloseDocument];
-		
+
 		[windowController setDocument:nil];
 		[_windowControllers removeObject:windowController];
-		
+
 		if (autoClose || [_windowControllers count] == 0)
 			{
 			[self close];
