@@ -725,7 +725,7 @@
 #endif
 		return;	// don't ask data source before it exists
 		}
-	_numberOfRows=[_dataSource numberOfRowsInTableView:self];
+	_numberOfRows=[_dataSource numberOfRowsInTableView:self];	// may be called before awakeFromNib!
 	if(_numberOfRows == n)
 		return;	// hasn't really changed
 	[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
@@ -890,6 +890,8 @@
 	BOOL colSelectionDidChange = NO;
 	BOOL rowSelectionDidChange = NO;
 	NSRect rect = [self visibleRect];
+	if(column < 0 || column >= [self numberOfColumns])
+		return;	// raise exception?
 	// FIXME: check delegate to allow selection change
 	if([_selectedRows count] > 0)
 		{
@@ -933,6 +935,8 @@
 	// FIXME: should be based on selectIndexes and optimize redrawing!
 	BOOL colSelectionDidChange = NO;
 	BOOL rowSelectionDidChange = NO;
+	if(row < 0 || row >= [self numberOfRows])
+		return;	// raise exception?
 	// FIXME: check delegate to allow selection change
 	if([_selectedColumns count] > 0)
 		{ // deselect any column
@@ -1068,10 +1072,10 @@
 }
 
 // Return index of last column/row selected or added to the selection, or -1 if no column/row is selected.
-- (NSInteger) selectedColumn 			{ return _lastSelectedColumn; }
-- (NSInteger) selectedRow 				{ return _lastSelectedRow; }
-- (NSIndexSet *) selectedColumnIndexes 	{ return _selectedColumns; }
-- (NSIndexSet *) selectedRowIndexes 	{ return _selectedRows; }
+- (NSInteger) selectedColumn			{ return _lastSelectedColumn; }
+- (NSInteger) selectedRow				{ return _lastSelectedRow; }
+- (NSIndexSet *) selectedColumnIndexes	{ return _selectedColumns; }
+- (NSIndexSet *) selectedRowIndexes		{ return _selectedRows; }
 - (NSInteger) editedColumn				{ return _editingColumn; }
 - (NSInteger) editedRow					{ return _editingRow; }
 - (NSInteger) clickedColumn				{ return _clickedColumn; }
@@ -2146,6 +2150,7 @@
 		_selectedColumns = [NSMutableIndexSet new];
 		_selectedRows = [NSMutableIndexSet new];
 		_lastSelectedRow = _lastSelectedColumn = -1;	// empty selection
+		_clickedRow = _clickedColumn = -1;	// empty selection
 		_editingRow = _editingColumn = -1;
 		_autosaveName=[[aDecoder decodeObjectForKey:@"NSAutosaveName"] retain];
 		// we might also have to load some settings from autosaved values!
