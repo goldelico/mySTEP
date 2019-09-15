@@ -42,7 +42,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 @interface CWNetwork (Private)
 
-- (id) _initWithAttributes:(NSArray *) attributes;
+- (id) _initWithBssid:(NSString *) bssid interface:(CWInterface *) interface;
 
 @end
 
@@ -356,7 +356,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 // FIXME: make thread safe...
 
-- (void) dataReceived:(NSNotification *) n;
+- (void) _dataReceived:(NSNotification *) n;
 {
 	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
 	if(!data)
@@ -370,13 +370,14 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (NSArray *) _runClient:(NSString *) process args:(NSArray *) args
 { // run command and return result
-	NSTask *_task=[[NSTask new] autorelease];
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	NSTask *_task=[NSTask new];
 	NSArray *r=nil;
 	[_task setLaunchPath:process];			// on base OS
 	[_task setArguments:args];
 	NSPipe *p=[NSPipe pipe];
 	[_task setStandardOutput:p];
-	NSFileHandle *_stdoutput=[p fileHandleForReading];
+	NSFileHandle *stdoutput=[p fileHandleForReading];
 	// [_task setStandardError:p];	// use a single pipe for both stdout and stderr
 	// or set standarError:nil
 	// add initializer that we pass the pipe to
@@ -386,11 +387,11 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	[_dataCollector release];
 	_dataCollector=nil;
 	// [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(terminateNotification:) name:NSTaskDidTerminateNotification object:_task];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadCompletionNotification object:_stdoutput];
-	[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// collect data and notify once when done
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_dataReceived:) name:NSFileHandleReadCompletionNotification object:stdoutput];
+	[stdoutput readInBackgroundAndNotifyForModes:_modes];	// collect data and notify once when done
 	NS_DURING
 #if 1
-		NSLog(@"launch %@", _task);
+		NSLog(@"launch: %@ %@", process, [args componentsJoinedByString:@" "]);
 #endif
 		[_task launch];
 	NS_HANDLER
@@ -398,6 +399,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	NS_ENDHANDLER
 	// waitUntilExit fails if we do not readInBackgroundAndNotifyForModes]
 	[_task waitUntilExit];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadCompletionNotification object:stdoutput];
 	if([_task terminationStatus] == 0)
 		{
 		if(_dataCollector)
@@ -412,31 +414,59 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 #if 1
 	NSLog(@"result %d %@", [_task terminationStatus], r);
 #endif
+	[r retain];
+	[_task release];
+	[arp release];
+	[r autorelease];	// carry to outer ARP
 	return r;
 }
 
+- (NSArray *) _runWPA:(NSString *) cmd arg:(NSString *) arg;
+{ // run simple wpa_cli command witn one argument
+#if 0 // may we have to switch interface first if we are not the current interface???
+	  // but currently we do not handle multiple interfaces
+	static NSString *currentInterface;
+	if([_name isEqualToString:currentInterface])
+		{ // has changed
+			if(![self _runClient:@"/sbin/wpa_cli" args:[NSArray arrayWithObjects:@"interface", _name, nil]])
+				return nil;	// can't change
+			[currentInterface release];
+			currentInterface=[_name retain];
+		}
+#endif
+	return [self _runClient:@"/sbin/wpa_cli" args:[NSArray arrayWithObjects:cmd, arg, nil]];
+}
+
 - (NSArray *) _runWPA:(NSString *) cmd;
-{ // run simple wpa_cli command
-	return [self _runClient:@"/sbin/wpa_cli" args:[NSArray arrayWithObject:cmd]];
+{ // run simple wpa_cli command with no arguments
+	return [self _runWPA:cmd arg:nil];
 }
 
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 { // may block and ask for admin password
-	return [self _runClient:@"select_network" args:[NSArray arrayWithObject:@"id"]] != nil;
+	if([self _runClient:@"select_network" args:[network _id]])
+		{
+		[_associatedNetwork autorelease];
+		_associatedNetwork=[network retain];
+		return YES;
+		}
+	return NO;
 }
 
 - (void) disassociate;
 {
-	[self _runWPA:@"disconnect"];
-	[_associatedNetwork release];
-	_associatedNetwork=nil;
+	if(_associatedNetwork)
+		{
+		[self _runWPA:@"disconnect" args:[_associatedNetwork _id]];
+		[_associatedNetwork release];
+		_associatedNetwork=nil;
+		}
 }
 
 - (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 { // enable as ad-hoc station
 	NSString *network=[params objectForKey:kCWIBSSKeySSID];	// get from params or default to machine name
 	int channel=[[params objectForKey:kCWIBSSKeyChannel] intValue];	// value may be an NSString
-	NSString *cmd;
 	NSError *dummy;
 	if(!err) err=&dummy;
 #if 1
@@ -447,6 +477,11 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	if(channel <= 0)
 		channel=11;	// default
 	return NO;
+}
+
+- (NSSet *) cachedScanResults;
+{
+	return [NSSet setWithArray:_networks];
 }
 
 - (void) _setNetworks:(NSArray *) networks;
@@ -485,7 +520,9 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	nw=[NSMutableArray arrayWithCapacity:10];
 	while((line=[e nextObject]))
 		{
-		CWNetwork *n=[[[CWNetwork alloc] _initWithAttributes:[line componentsSeparatedByString:@"\t"]] autorelease];
+		NSRange rng=[line rangeOfString:@"\t"];
+		NSString *bssid=[line substringToIndex:rng.location];
+		CWNetwork *n=[[[CWNetwork alloc] _initWithBssid:bssid interface:self] autorelease];
 		if(!n)
 			return nil;	// error
 		[nw addObject:n];
@@ -498,19 +535,19 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 - (SFAuthorization *) authorization; { return _authorization; }
 - (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
 
-// FIXME: store in _associatedNetwork
-
 - (NSString *) bssid;
 {
-	return @"?";
+	return [_associatedNetwork bssid];
 }
 
-//- (NSData *) bssidData; // convert NSString to NSData
+- (NSData *) bssidData;
+{ // convert NSString to NSData
+	return nil;
+}
 
-- (NSNumber *) channel;	// iwgetid wlan13 --channel
+- (NSNumber *) channel;
 {
-	//	return [NSNumber numberWithInt:[[self _getiw:@"channel"] intValue]];
-	return @"?";
+	return [[[[CWNetwork alloc] _initWithBssid:[self bssid] interface:self] autorelease] channel];
 }
 
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
@@ -538,6 +575,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (NSNumber *) interfaceState;
 {
+	return [NSNumber numberWithInt:kCWInterfaceStateRunning];
+#if OLD
 	// FIXME
 	// read iwconfig name -> Access Point: Not-Associated or Cell : address
 	// or get iwgetid address and check for 00:00:00:00:00:00
@@ -553,57 +592,62 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		return [NSNumber numberWithInt:kCWInterfaceStateRunning];
 #endif
 	return [NSNumber numberWithInt:kCWInterfaceStateInactive];
+#endif
 }
 
 - (NSString *) name; { return _name; }
+- (NSString *) interfaceName; { return _name; }
 
 - (NSNumber *) noise;
 { // in dBm
-	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Noise level:"];
-	if([a count] >= 2)
-		{
-		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];		
-		}
-	return [NSNumber numberWithInt:-99.0];
+	return [[[[CWNetwork alloc] _initWithBssid:[self bssid] interface:self] autorelease] noise];
 }
 
 - (NSNumber *) opMode;
 {
+	return [NSNumber numberWithInt:kCWOpModeStation];
+#if OLD
 	switch([[self _getiw:@"mode"] intValue]) {
 		case 2:	return [NSNumber numberWithInt:kCWOpModeStation];
 		case 3:	return [NSNumber numberWithInt:kCWOpModeIBSS];
 		case 4:	return [NSNumber numberWithInt:kCWOpModeHostAP];
 	}
 	return nil;	// unknown
+#endif
 }
 
 - (NSNumber *) phyMode;
 { // get current phyMode
+	return nil;
+#if OLD
 	NSString *mode=[self _getiw:@"protocol"];
 	if([mode isEqualToString:@"IEEE 802.11b/g"])
 		return [NSNumber numberWithInt:kCWPHYMode11G];
 /*
- kCWPHYMode11A,
+		kCWPHYMode11A,
 		kCWPHYMode11B,
 		kCWPHYMode11G,
 		kCWPHYMode11N
 */		
 	return nil;
+#endif
 }
 
 - (BOOL) power;
-{
+{ // check if ifconfig up and wpa_supplicant is running
 	NSString *str=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/sys/class/net/%@/flags", _name]];
 #if 1
 	NSLog(@"power state=%@", str);
 #endif
-	// FIXME: or should we check if wpa_client status responds?
-	// or even both?
-	// and is the currently selected interface?
-	return [str hasPrefix:@"0x1003"];	// or 0x1002
+	if(![str hasPrefix:@"0x1003"])	// or 0x1002
+		return NO;
+	return [self _runWPA:@"status"] != nil;
 }
 
-//- (BOOL) powerSave;
+- (BOOL) powerSave;
+{
+	return NO;
+}
 
 - (BOOL) setPower:(BOOL) power error:(NSError **) err;
 {
@@ -615,14 +659,22 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		{
 		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"up", nil]])
 			return NO;
-		// delete /run/wpa_supplicant/wlan1 to make sure we can start?
 		if(![self _runClient:@"/sbin/wpa_supplicant" args:[NSArray arrayWithObjects:@"-B", @"-i", [self name], @"-c", @"/etc/wpa_supplicant/wpa_supplicant.conf", nil]])
-			return NO;
+			{ // failed
+				if(![self _runWPA:@"status"])
+					{ // but does not respond
+						NSLog(@"wpa_supplicant is already running but it does not respond");
+						// kill and
+						// delete /run/wpa_supplicant/wlan1 to make sure we can start?
+						return NO;
+					}
+				else
+					NSLog(@"wpa_supplicant is already running");
+			};
 		}
 	else
 		{
-		if(![self _runWPA:@"terminate"])
-			return NO;
+		[self _runWPA:@"terminate"];	// ignore errors
 		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"down", nil]])
 			return NO;
 		}
@@ -631,36 +683,17 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (NSNumber *) rssi;
 { // in dBm
-	NSString *iw=[self _getiwconfig];
-	NSArray *a=[iw componentsSeparatedByString:@"Signal level:"];
-#if 1
-	NSLog(@"iwconfig: %@", a);
-#endif
-	if([a count] >= 2)
-		{
-		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];		
-		}
-	return [NSNumber numberWithInt:-99.0];
+	return [[[[CWNetwork alloc] _initWithBssid:[self bssid] interface:self] autorelease] rssiValue];
 }
 
 - (NSNumber *) securityMode;
 {
-	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Encryption key:"];
-	if([a count] >= 2)
-		{
-		NSString *m=[a objectAtIndex:1];
-		if([m hasPrefix:@"off"])
-			return [NSNumber numberWithInt:kCWSecurityModeOpen];
-#if 1
-		NSLog(@"Encryption mode: %@", m);
-#endif
-		}
-	return [NSNumber numberWithInt:kCWSecurityModeOpen];
+	return [[[[CWNetwork alloc] _initWithBssid:[self bssid] interface:self] autorelease] securityMode];
 }
 
 - (NSString *) ssid;
 {
-	return [self _getiw:@""];
+	return [_associatedNetwork ssid];
 }
 
 - (NSArray *) supportedChannels;
@@ -713,94 +746,136 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 @implementation CWInterface (NewerMethods)	// 10.6 and later
 
-- (BOOL) powerOn; { return [self power]; }
-
 /*
- - (BOOL) setPairwiseMasterKey:(NSData *) key
- error:(out NSError **) error;
- - (BOOL) setWEPKey:(NSData *) key
- flags:(CWCipherKeyFlags) flags
- index:(NSInteger) index
- error:(out NSError **) error;
- - (BOOL) setWLANChannel:(CWChannel *) channel
- error:(out NSError **)error;
- - (NSSet *) scanForNetworksWithName:(NSString *) networkName
- error:(out NSError **) error;
- - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
- error:(out NSError **) error;
- - (BOOL) startIBSSModeWithSSID:(NSData *) ssidData
- security:(CWIBSSModeSecurity) security
- channel:(NSUInteger) channel
- password:(NSString *) password
- error:(out NSError **) error;
- - (BOOL) commitConfiguration:(CWConfiguration *) configuration
- authorization:(SFAuthorization *) authorization
- error:(out NSError **) error;
- - (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
- identity:(SecIdentityRef) identity
- username:(NSString *) username
- password:(NSString *) password
- error:(out NSError **) error;
- - (BOOL) associateToNetwork:(CWNetwork *) network
- password:(NSString *) password
- error:(out NSError **) error;
+ - (BOOL) setPairwiseMasterKey:(NSData *) key error:(out NSError **) error;
+ - (BOOL) setWEPKey:(NSData *) key flags:(CWCipherKeyFlags) flags index:(NSInteger) index error:(out NSError **) error;
+ - (BOOL) setWLANChannel:(CWChannel *) channel error:(out NSError **)error;
+ - (NSSet *) scanForNetworksWithName:(NSString *) networkName error:(out NSError **) error;
+ - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid error:(out NSError **) error;
+ - (BOOL) startIBSSModeWithSSID:(NSData *) ssidData security:(CWIBSSModeSecurity) security channel:(NSUInteger) channel password:(NSString *) password error:(out NSError **) error;
+ - (BOOL) commitConfiguration:(CWConfiguration *) configuration authorization:(SFAuthorization *) authorization error:(out NSError **) error;
+ - (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network identity:(SecIdentityRef) identity username:(NSString *) username password:(NSString *) password error:(out NSError **) error;
+ - (BOOL) associateToNetwork:(CWNetwork *) network password:(NSString *) password error:(out NSError **) error;
  - (BOOL) deviceAttached;
- - (NSString *) interfaceName;
  - (CWPHYMode) activePHYMode;
- - (NSSet *) cachedScanResults;
- - (NSString *) hardwareAddress;
  - (CWInterfaceMode) interfaceMode;
- - (NSInteger) noiseMeasurement;	// dBm
- - (BOOL) powerOn;
- - (NSInteger) rssiValue;
- - (NSSet *) scanForNetworksWithName:(NSString *) networkName
- includeHidden:(BOOL) includeHidden
- error:(out NSError **) error;
- - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
- includeHidden:(BOOL) includeHidden
- error:(out NSError **) error;
+ - (NSSet *) scanForNetworksWithName:(NSString *) networkName includeHidden:(BOOL) includeHidden error:(out NSError **) error;
+ - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid includeHidden:(BOOL) includeHidden error:(out NSError **) error;
  - (BOOL) serviceActive;
- - (NSData *) ssidData;
  - (NSSet *) supportedWLANChannels;
- - (NSInteger) transmitPower;	// mW
- - (double) transmitRate;	// Mbit/s
  - (CWChannel *)wlanChannel;
 */
+
+- (NSString *) hardwareAddress;
+{
+	// get local MAC address
+	return @"?";
+}
+
+- (NSInteger) noiseMeasurement;	// dBm
+{
+	return [[self noise] integerValue];
+}
+
+- (BOOL) powerOn; { return [self power]; }
+
+- (NSInteger) rssiValue;
+{ // in dBm
+	return [[self rssi] integerValue];
+}
+
+- (NSData *) ssidData;
+{ // convert NSString to NSData
+	return nil;
+}
+
+- (NSInteger) transmitPower;
+{
+	return [[self txPower] integerValue];
+}
+
+- (double) transmitRate;	// Mbit/s
+{
+	return [[self txRate] doubleValue];
+}
+
 @end
 
 @implementation CWNetwork
 
 /* wpa_cli scan_result:
-bssid / frequency / signal level / flags / ssid
-c0:25:06:e4:8e:cc	2462	-43	[ESS]	DSITRI-3
-c0:25:06:e4:8e:cb	5200	-60	[ESS]	DSITRI-3-5G
-here we get one line
-*/
+ wpa_cli bss c0:25:06:e4:8e:cc
+ id=2
+ bssid=c0:25:06:e4:8e:cc
+ freq=2462
+ beacon_int=100
+ capabilities=0x0421
+ qual=0
+ noise=0
+ level=-33
+ tsf=0000000069346696
+ age=74
+ ie=00084453495452492d33010882848b968c12982403010b0706444520010d142a01003204b048606c2d1ace111bffff0000000000000000000001000000000000000000003d160b0f06000000000000000000000000000000000000007f080000000000000040dd180050f2020101000003a4000027a4000042435e0062322f00dd0900037f01010000ff7fdd0c00040e010102010000000000
+ flags=[ESS]
+ ssid=DSITRI-3*/
 
-- (id) _initWithAttributes:(NSArray *) attribs
+// an alternative would be to store everything in an NSDictionary
+// and ket the key->value inside the getters
+// would also simplify copy and be extensible
+
+- (id) _initWithBssid:(NSString *) bssid interface:(CWInterface *) interface
 { // initialize with attributes
 #if 0
-	NSLog(@"attributes=%@", attribs);
+	NSLog(@"bssid=%@", bssid);
 #endif
-	if([attribs count] != 5)
+	if(!bssid)
 		{
 		[self release];
 		return nil;
 		}
 	if((self=[self init]))
 		{
-		_bssid=[[attribs objectAtIndex:0] retain];
-		// _channel = convert from frequency
-		_ieData=nil;
-		_isIBSS=NO;
-		//			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:0] intValue]];	//something like 49/70
-		_rssi=[[NSNumber alloc] initWithFloat:(float)[[attribs objectAtIndex:2] intValue]];
-#if 0
-			NSLog(@"rssi = %@", _rssi);
-#endif
-		// _phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
-		_securityMode=kCWSecurityModeOpen;	// encoded in flags?
-		_ssid=[[attribs objectAtIndex:4] retain];
+		NSArray *bssattribs;
+		NSEnumerator *e;
+		NSString *line;
+		bssattribs=[interface _runWPA:@"bss" arg:bssid];	// get more info
+		if(!bssattribs)
+			{
+			[self release];
+			return nil;
+			}
+		e=[bssattribs objectEnumerator];
+		while((line=[e nextObject]))
+			{
+			NSRange rng=[line rangeOfString:@"="];
+			NSString *key;
+			NSString *value;
+			if(rng.location == NSNotFound)
+				{
+				[self release];
+				return nil;
+				}
+			key=[line substringToIndex:rng.location];
+			value=[line substringFromIndex:NSMaxRange(rng)];
+			if([key isEqualToString:@"id"])
+				;
+			else if([key isEqualToString:@"bssid"])
+				[_bssid release], _bssid=[value retain];
+			else if([key isEqualToString:@"freq"])
+				;	// convert to channel number
+			else if([key isEqualToString:@"qual"])
+				;
+			else if([key isEqualToString:@"noise"])
+				;
+			else if([key isEqualToString:@"level"])
+				;
+			else if([key isEqualToString:@"ie"])
+				[_ieData release], _ieData=[value retain];
+			else if([key isEqualToString:@"ssid"])
+				[_ssid release], _ssid=[value retain];
+			else
+				NSLog(@"unknown key %@ value %@", key, value);
+			}
 		}
 	return self;
 }
@@ -862,7 +937,7 @@ here we get one line
 - (NSNumber *) rssi; { return _rssi; }
 - (NSInteger) rssiValue; { return [_rssi integerValue]; }
 - (NSNumber *) securityMode; { return _securityMode; }
-- (NSString *) ssid; { return _ssid; }	// ??? what is the difference to bssid?
+- (NSString *) ssid; { return _ssid; }
 
 - (CWWirelessProfile *) wirelessProfile;
 { // get from database (based on SSID)
