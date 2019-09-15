@@ -20,6 +20,8 @@
 	id _scanner;	// internal type
 	CWNetwork *_associatedNetwork;
 	// add cached values and timestamps
+	NSArray *_modes;
+	NSMutableData *_dataCollector;
 }
 
 + (NSArray *) supportedInterfaces;
@@ -138,3 +140,14 @@ typedef void *SecIdentityRef;
 - (CWChannel *)wlanChannel;
 
 @end
+
+@interface CWWiFiClient : NSObject
+
++ (CWWiFiClient *) sharedWiFiClient;
++ (NSArray *) interfaceNames;
+
+- (CWInterface *) interface;
+- (CWInterface *) interfaceWithName:(NSString *) name;
+
+@end
+

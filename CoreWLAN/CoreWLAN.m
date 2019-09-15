@@ -40,24 +40,30 @@ NSString * const kCWScanKeyScanType=@"kCWScanKeyScanType";
 NSString * const kCWScanKeySSID=@"kCWScanKeySSID";
 NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
+#if OLD
 #if 0	// debugging
 #define system(CMD) (printf("system: %s\n", (CMD)), 0)
 #endif
 
 extern int system(const char *cmd);
+#endif
 
 @interface CWInterface (Private)
 
+#if OLD
 + (BOOL) _bluetoothIsActive;
 + (BOOL) _activateHardware:(BOOL) flag;
+#endif
 
 @end
 
 @interface CWNetwork (Private)
 
-- (id) initWithAttributes:(NSDictionary *) attributes;
+- (id) _initWithAttributes:(NSArray *) attributes;
 
 @end
+
+// what is the difference to CWWirelessProfile ???
 
 @implementation CW8021XProfile
 
@@ -69,7 +75,7 @@ extern int system(const char *cmd);
 
 + (CW8021XProfile *) profile; { return [[self new] autorelease]; }
 
-- (CW8021XProfile *) init; 
+- (CW8021XProfile *) init;
 {
 	if((self=[super init]))
 		{
@@ -211,6 +217,8 @@ extern int system(const char *cmd);
 - (void) setRequireAdminForPowerChange:(BOOL) flag; { _requireAdminForPowerChange=flag; }
 
 @end
+
+#if OLD
 
 @interface IWListScanner : NSObject
 { // scan for networks in a background process using iwlist scan command
@@ -478,23 +486,91 @@ extern int system(const char *cmd);
 
 @end
 
+#endif
+
+@implementation CWWiFiClient
+
++ (CWWiFiClient *) sharedWiFiClient;
+{
+	static CWWiFiClient *sharedWiFiClient;
+	if(!sharedWiFiClient)
+		sharedWiFiClient=[self new];
+	return sharedWiFiClient;
+}
+
++ (NSArray *) interfaceNames;
+{
+	static NSMutableArray *supportedInterfaces;
+	FILE *f=NULL;
+	char line[256];
+	if(!supportedInterfaces)
+		supportedInterfaces=[NSMutableArray new];
+#if 1
+	else
+		return supportedInterfaces;	// collect only once to avoid repeated calls to popen()
+#endif
+	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
+	// FIXME: this popen may also timeout and make the process (GUI!) hang!
+	// set up NSTask + Timer that interrupts/terminates the task?
+	// i.e. task=[NSTask ....]
+	// [task performSelector:@(terminate) withObject:nil afterDelay:3];
+	f=popen("iwconfig 2>/dev/null", "r");
+	if(f)
+		{
+		while(fgets(line, sizeof(line)-1, f))
+			{
+			char *e=strchr(line, ' ');
+			if(e && e != line)
+				{ // non-empty entries are interface names
+					NSString *interface=[NSString stringWithCString:line length:e-line];
+					if(![supportedInterfaces containsObject:interface])
+						[supportedInterfaces addObject:interface];	// new interface found
+				}
+			}
+		pclose(f);
+		}
+#if 0
+	NSLog(@"supportedInterfaces: %@", supportedInterfaces);
+#endif
+	return supportedInterfaces;
+}
+
+- (CWInterface *) interface;
+{
+	// 	[self _runClient:[NSArray arrayWIthObject:@"ifname"]];
+	return [[[CWInterface alloc] init] autorelease];
+}
+
+- (CWInterface *) interfaceWithName:(NSString *) name;
+{
+	return [[[CWInterface alloc] initWithInterfaceName:name] autorelease];
+}
+
+@end
+
 @implementation CWInterface
 
 + (CWInterface *) interface;
 {
-	// FIXME: return [[CWWiFiClient sharedWiFiClient] interface];
+#if OLD
 	return [[self new] autorelease];
+#else
+	return [[CWWiFiClient sharedWiFiClient] interface];
+#endif
 }
 
 + (CWInterface *) interfaceWithName:(NSString *) name;
 {
-	// FIXME: return [[CWWiFiClient sharedWiFiClient] interfaceWithName:name];
+#if OLD
 	return [[[self alloc] initWithInterfaceName:name] autorelease];
+#else
+	return [[CWWiFiClient sharedWiFiClient] interfaceWithName:name];
+#endif
 }
 
 + (NSArray *) supportedInterfaces;
 { // may be empty if we don't find interfaces - in this case the client should retry later
-  // FIXME: return [CWWiFiClient intefaceNames];
+#if OLD
 	static NSMutableArray *supportedInterfaces;
 	FILE *f=NULL;
 	char line[256];
@@ -528,11 +604,19 @@ extern int system(const char *cmd);
 			}
 		else
 			[self _activateHardware:NO];	// can't open
-#if 0
+#if 1
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
 		}
 	return supportedInterfaces;
+#else
+	return [CWWiFiClient interfaceNames];
+#endif
+}
+
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"%@ if=%@", [super description], [self name]];
 }
 
 // FIXME: what do we do if we can't initialize or locate the wlan interface???
@@ -546,7 +630,7 @@ extern int system(const char *cmd);
 
 - (CWInterface *) init;
 {
-	NSArray *ifs=[CWInterface supportedInterfaces];	// this will power on
+	NSArray *ifs=[CWInterface supportedInterfaces];
 	if([ifs count] > 0)
 		return [self initWithInterfaceName:[ifs objectAtIndex:0]];	// take the first interface
 	[self release];
@@ -586,6 +670,8 @@ extern int system(const char *cmd);
 	[_name release];
 	[_scanner setDelegate:nil];
 	[_scanner release];
+	[_modes release];
+	[_dataCollector release];
 	[super dealloc];
 }
 
@@ -604,6 +690,73 @@ extern int system(const char *cmd);
 	return [_name isEqualToString:[(CWInterface *) other name]];
 }
 
+// FIXME: make thread safe...
+
+- (void) dataReceived:(NSNotification *) n;
+{
+	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
+	if(!data)
+		return;
+	if(!_dataCollector)
+		_dataCollector=[data mutableCopy];
+	else
+		[_dataCollector appendData:data];
+	[[n object] readInBackgroundAndNotifyForModes:_modes];	// collect more data
+}
+
+- (NSArray *) _runClient:(NSString *) process args:(NSArray *) args
+{ // run command and return result
+	NSTask *_task=[[NSTask new] autorelease];
+	NSArray *r=nil;
+	[_task setLaunchPath:process];			// on base OS
+	[_task setArguments:args];
+	NSPipe *p=[NSPipe pipe];
+	[_task setStandardOutput:p];
+	NSFileHandle *_stdoutput=[p fileHandleForReading];
+	// [_task setStandardError:p];	// use a single pipe for both stdout and stderr
+	// or set standarError:nil
+	// add initializer that we pass the pipe to
+	// it does all setup we need...
+	if(!_modes)
+		_modes=[[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, NSModalPanelRunLoopMode, nil];
+	[_dataCollector release];
+	_dataCollector=nil;
+	// [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(terminateNotification:) name:NSTaskDidTerminateNotification object:_task];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadCompletionNotification object:_stdoutput];
+	[_stdoutput readInBackgroundAndNotifyForModes:_modes];	// collect data and notify once when done
+	NS_DURING
+#if 1
+		NSLog(@"launch %@", _task);
+#endif
+		[_task launch];
+	NS_HANDLER
+		NSLog(@"Could not launch %@ due to %@ because %@.", [_task launchPath], [localException name], [localException reason]);
+	NS_ENDHANDLER
+	// waitUntilExit fails if we do not readInBackgroundAndNotifyForModes]
+	[_task waitUntilExit];
+	if([_task terminationStatus] == 0)
+		{
+		if(_dataCollector)
+			{ // convert string lines into array
+				NSString *s=[[[NSString alloc] initWithData:_dataCollector encoding:NSASCIIStringEncoding] autorelease];
+				s=[s stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+				r=[s componentsSeparatedByString:@"\n"];
+			}
+		else
+			r=[NSArray array];
+		}
+#if 1
+	NSLog(@"result %d %@", [_task terminationStatus], r);
+#endif
+	return r;
+}
+
+- (NSArray *) _runWPA:(NSString *) cmd;
+{ // run simple wpa_cli command
+	return [self _runClient:@"/sbin/wpa_cli" args:[NSArray arrayWithObject:cmd]];
+}
+
+#if OLD
 // FIXME: should be cached and we should re-read value(s) only if older than 1 second since last fetch
 
 - (NSString *) _get:(NSString *) command parameter:(NSString *) parameter
@@ -638,9 +791,11 @@ extern int system(const char *cmd);
 { // call iwconfig
 	return [self _get:@"iwconfig" parameter:@""];
 }
+#endif
 
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 { // may block and ask for admin password
+#if OLD
 	NSString *cmd;
 	NSError *dummy;
 	if(!err) err=&dummy;
@@ -669,6 +824,10 @@ extern int system(const char *cmd);
 		// set err
 		return NO;
 		}
+#else
+	[self _runClient:@"select_network" args:[NSArray arrayWithObject:@"id"]];
+	// set_network_parameters
+#endif
 	[_associatedNetwork autorelease];
 	_associatedNetwork=[network retain];
 #if 1
@@ -676,19 +835,17 @@ extern int system(const char *cmd);
 #endif
 	return YES;
 }
- 
+
 - (void) disassociate;
 {
+	[self _runWPA:@"disconnect"];
 	[_associatedNetwork release];
 	_associatedNetwork=nil;
-	// CHECKME: is that really a disassociate?
-	// FIXME: we should set SSID="" to disassociate
-//	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
-//	system([cmd UTF8String]);
 }
 
 - (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 { // enable as ad-hoc station
+#if OLD
 	NSString *network=[params objectForKey:kCWIBSSKeySSID];	// get from params or default to machine name
 	int channel=[[params objectForKey:kCWIBSSKeyChannel] intValue];	// value may be an NSString
 	NSString *cmd;
@@ -722,19 +879,27 @@ extern int system(const char *cmd);
 		return NO;
 		}
 	return YES;
+#else
+	return NO;
+#endif
 }
 
 - (void) _setNetworks:(NSArray *) networks;
 { // swap in new network list
-#if 0
+#if 1
 	NSLog(@"_setNetworks: %@", networks);
 #endif
+	// wpa_cli add_network
 	[_networks autorelease];
 	_networks=[networks retain];
 }
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
 {
+	NSEnumerator *e;
+	NSString *line;
+	NSMutableArray *nw;
+#if OLD
 	// should start scanning every 10 seconds
 	if(!_scanner)
 		{
@@ -742,54 +907,37 @@ extern int system(const char *cmd);
 		[_scanner setDelegate:self];
 		}
 	[_scanner startScanning:err];
-	return _networks;	// already scanning - return what we know
-}
-
-- (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
-{
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, (unsigned int) channel];
-	NSError *dummy;
-	if(!err) err=&dummy;
-	if(system([cmd UTF8String]) != 0)
-		{
-		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];		
-		return NO;
-		}
-	return YES;
-}
-
-- (BOOL) setPower:(BOOL) power error:(NSError **) err;
-{
-	NSError *dummy;
-	NSString *cmd;
-	if(!err) err=&dummy;
-	if([self power] == power)
-		return YES;	// no change needed
-	if(power)
-		cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
-	else
-		cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
-	if(system([cmd UTF8String]) != 0)
-		{ // interface does not exist
-			// set err
-			*err=nil;
-			return NO;
-		}
-	sleep(1);
-	return YES;
-	
-#if 0	// has no result on our hardware
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' power '%@'", _name, power?@"on":@"off"];
-	if(system([cmd UTF8String]) != 0)
-		{
-		if(err)
-			*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
-		return NO;
-		}
-	return YES;
 #else
-	return [CWInterface _activateHardware:power];	// we should count activations/deactivations
+	// rate limit?
+	if(![self _runWPA:@"scan"])	// start scanning - if not yet?
+		/*
+		 Selected interface 'wlan1'
+		 OK
+		 */
+		return NO;
+	e=[[self _runWPA:@"scan_result"] objectEnumerator];
+	if(!e)
+		return NO;
+	/*
+	 Selected interface 'wlan1'
+	 bssid / frequency / signal level / flags / ssid
+	 c0:25:06:e4:8e:cc	2462	-43	[ESS]	DSITRI-3
+	 c0:25:06:e4:8e:cb	5200	-60	[ESS]	DSITRI-3-5G
+	 */
+	[e nextObject];
+	[e nextObject];
+	nw=[NSMutableArray arrayWithCapacity:10];
+	while((line=[e nextObject]))
+		{
+		CWNetwork *n=[[[CWNetwork alloc] _initWithAttributes:[line componentsSeparatedByString:@"\t"]] autorelease];
+		if(!n)
+			return nil;	// error
+		[nw addObject:n];
+		}
+	// should we sort or somehow keep sequence stable?
+	[self _setNetworks:nw];
 #endif
+	return _networks;
 }
 
 - (SFAuthorization *) authorization; { return _authorization; }
@@ -799,23 +947,50 @@ extern int system(const char *cmd);
 
 - (NSString *) bssid;
 {
+#if OLD
 	return [self _getiw:@"ap"];
+#else
+	return @"?";
+#endif
 }
 
 //- (NSData *) bssidData; // convert NSString to NSData
 
 - (NSNumber *) channel;	// iwgetid wlan13 --channel
 {
+#if OLD
 	return [NSNumber numberWithInt:[[self _getiw:@"channel"] intValue]];
+#else
+	return @"?";
+#endif
+}
+
+- (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
+{
+#if OLD
+	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, (unsigned int) channel];
+	NSError *dummy;
+	if(!err) err=&dummy;
+	if(system([cmd UTF8String]) != 0)
+		{
+		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
+		return NO;
+		}
+#endif
+	return YES;
 }
 
 - (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
 { 
 	NSError *dummy;
 	if(!err) err=&dummy;
+#if OLD
 	// change current configuration of interface (preferred networks?)
 	// there is one configuration for each interface
 	// we archive the config in some file - or store it as a NSData in NSUserDefault
+#else
+	[self _runWPA:@"save_config"];
+#endif
 	return NO;
 }
 
@@ -888,13 +1063,60 @@ extern int system(const char *cmd);
 - (BOOL) power;
 {
 	NSString *str=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/sys/class/net/%@/flags", _name]];
-#if 0
+#if 1
 	NSLog(@"power state=%@", str);
 #endif
+	// FIXME: or should we check if wpa_client status responds?
+	// or even both?
+	// and is the currently selected interface?
 	return [str hasPrefix:@"0x1003"];	// or 0x1002
 }
 
 //- (BOOL) powerSave;
+
+- (BOOL) setPower:(BOOL) power error:(NSError **) err;
+{
+	NSError *dummy;
+	if(!err) err=&dummy;
+	if([self power] == power)
+		return YES;	// no change needed
+#if OLD
+	// FIXME: we can keep wpa_supplicant running
+	// but ifconfig up / down should manage power on/off automatically
+	if(power)
+		{ // stat wpa_supplicant
+			if(system("/root/wlan-on") != 0)
+				{ // interface does not exist
+				  // set err
+					*err=nil;
+					return NO;
+				}
+			sleep(1);
+		}
+	else
+		{
+		[self _runClient:@"terminate"];
+		// ifdown interface!
+		}
+#else
+	if(power)
+		{
+		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"up", nil]])
+			return NO;
+		// delete /run/wpa_supplicant/wlan1 to make sure we can start?
+		if(![self _runClient:@"/sbin/wpa_supplicant" args:[NSArray arrayWithObjects:@"-B", @"-i", [self name], @"-c", @"/etc/wpa_supplicant/wpa_supplicant.conf", nil]])
+			return NO;
+		}
+	else
+		{
+		if(![self _runWPA:@"terminate"])
+			return NO;
+		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"down", nil]])
+			return NO;
+		}
+#endif
+	return YES;
+}
 
 - (NSNumber *) rssi;
 { // in dBm
@@ -977,6 +1199,9 @@ extern int system(const char *cmd);
 }
 
 // FIXME: we should link to IOBluetooth and use their method
+// FIXME: why do we need this as private method at all?
+
+#if OLD
 
 + (BOOL) _bluetoothIsActive;
 { // power is up - check if bluetooth is active
@@ -1001,11 +1226,11 @@ extern int system(const char *cmd);
 #endif
 	return strlen(line) > 0;	// yes, is active
 }
+#else
 
-+ (BOOL) _activateHardware:(BOOL) flag;
-{
-	return YES;	// no longer required on >= 3.7 kernel
-}
+// use 	[[IOBluetoothController sharedController] bluetoothHardwareIsActive];
+
+#endif
 
 @end
 
@@ -1013,93 +1238,92 @@ extern int system(const char *cmd);
 
 - (BOOL) powerOn; { return [self power]; }
 
+/*
+ - (BOOL) setPairwiseMasterKey:(NSData *) key
+ error:(out NSError **) error;
+ - (BOOL) setWEPKey:(NSData *) key
+ flags:(CWCipherKeyFlags) flags
+ index:(NSInteger) index
+ error:(out NSError **) error;
+ - (BOOL) setWLANChannel:(CWChannel *) channel
+ error:(out NSError **)error;
+ - (NSSet *) scanForNetworksWithName:(NSString *) networkName
+ error:(out NSError **) error;
+ - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
+ error:(out NSError **) error;
+ - (BOOL) startIBSSModeWithSSID:(NSData *) ssidData
+ security:(CWIBSSModeSecurity) security
+ channel:(NSUInteger) channel
+ password:(NSString *) password
+ error:(out NSError **) error;
+ - (BOOL) commitConfiguration:(CWConfiguration *) configuration
+ authorization:(SFAuthorization *) authorization
+ error:(out NSError **) error;
+ - (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
+ identity:(SecIdentityRef) identity
+ username:(NSString *) username
+ password:(NSString *) password
+ error:(out NSError **) error;
+ - (BOOL) associateToNetwork:(CWNetwork *) network
+ password:(NSString *) password
+ error:(out NSError **) error;
+ - (BOOL) deviceAttached;
+ - (NSString *) interfaceName;
+ - (CWPHYMode) activePHYMode;
+ - (NSSet *) cachedScanResults;
+ - (NSString *) hardwareAddress;
+ - (CWInterfaceMode) interfaceMode;
+ - (NSInteger) noiseMeasurement;	// dBm
+ - (BOOL) powerOn;
+ - (NSInteger) rssiValue;
+ - (NSSet *) scanForNetworksWithName:(NSString *) networkName
+ includeHidden:(BOOL) includeHidden
+ error:(out NSError **) error;
+ - (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
+ includeHidden:(BOOL) includeHidden
+ error:(out NSError **) error;
+ - (BOOL) serviceActive;
+ - (NSData *) ssidData;
+ - (NSSet *) supportedWLANChannels;
+ - (NSInteger) transmitPower;	// mW
+ - (double) transmitRate;	// Mbit/s
+ - (CWChannel *)wlanChannel;
+*/
 @end
 
 @implementation CWNetwork
 
-/*
- gta04:~# iwlist wlan13 scanning     
- wlan13    Scan completed :
-			Cell 01 - Address: 00:**:BF:**:CE:E6
-			ESSID:"******"
-			Mode:Managed
-			Frequency:2.427 GHz (Channel 4)
-			Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
-			Encryption key:off
-			Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
-					11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
-					48 Mb/s; 54 Mb/s
- 
+/* wpa_cli scan_result:
+bssid / frequency / signal level / flags / ssid
+c0:25:06:e4:8e:cc	2462	-43	[ESS]	DSITRI-3
+c0:25:06:e4:8e:cb	5200	-60	[ESS]	DSITRI-3-5G
+here we get one line
 */
 
-/* NSDictionary:
- attributes={
- Address = B2:9C:**:D4:**:CC;
- "Bit Rates" = "1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s";
- Cell = 01;
- ESSID = "MacBookPro";
- "Encryption key" = off;
- Frequency = "2.462 GHz (Channel 11)";
- Mode = "Ad-Hoc";
- Quality = "97/100  Signal level=-29 dBm  Noise level=-96 dBm";
- }
-*/
-
-// post-process "Frequency" into freq & channel
-// post-process "Quailty" into quality and level
-// post-process bit rates into array
-
-- (id) initWithAttributes:(NSDictionary *) attribs
+- (id) _initWithAttributes:(NSArray *) attribs
 { // initialize with attributes
 #if 0
 	NSLog(@"attributes=%@", attribs);
 #endif
+	if([attribs count] != 5)
+		{
+		[self release];
+		return nil;
+		}
 	if((self=[self init]))
 		{
-		NSArray *f=[[attribs objectForKey:@"Frequency"] componentsSeparatedByString:@" "];
-		// FIXME: format isn't very stable... sometimes separates by :and sometimes by =
-		NSArray *q=[[attribs objectForKey:@"Quality"] componentsSeparatedByString:@"="];
-		NSArray *r=[[attribs objectForKey:@"Bit Rates"] componentsSeparatedByString:@";"];
-		NSString *m=[attribs objectForKey:@"Mode"];
-#if 0
-		NSLog(@"frequency: %@", f);
-		NSLog(@"quality: %@", q);
-#endif
-		_bssid=[[attribs objectForKey:@"Address"] retain];
-		if([f count] >= 4)
-			_channel=[[NSNumber alloc] initWithInt:[[f objectAtIndex:3] intValue]];
+		_bssid=[[attribs objectAtIndex:0] retain];
+		// _channel = convert from frequency
 		_ieData=nil;
-		_isIBSS=[m hasPrefix:@"Ad-Hoc"];
-		if([q count] >= 2)
-			{
-			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:0] intValue]];	//something like 49/70
-			_rssi=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:1] intValue]];
+		_isIBSS=NO;
+		//			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:0] intValue]];	//something like 49/70
+		_rssi=[[NSNumber alloc] initWithFloat:(float)[[attribs objectAtIndex:2] intValue]];
 #if 0
 			NSLog(@"rssi = %@", _rssi);
 #endif
-			// quality [[q objectAtIndex:1] intValue]
-			}
-		_phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
-		_securityMode=kCWSecurityModeOpen;
-		m=[attribs objectForKey:@"Encryption key"];
-		if([m hasPrefix:@"off"])
-			_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeOpen];
-		else 
-			{ // assume "on"
-			  // process multiple entries!
-				m=[attribs objectForKey:@"IE"];
-				if([m hasPrefix:@"WEP"])
-					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWEP];
-				else if([m hasPrefix:@"WEP"])
-					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA_PSK];
-				else if([m hasPrefix:@"IEEE 802.11i/WPA2 Version 1"])
-					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA2_PSK];
-				else if([m hasPrefix:@"Unknown:"])
-					;
-				else
-					NSLog(@"unknown Encryption: %@", m);
-			}
-		_ssid=[[[attribs objectForKey:@"ESSID"] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\""]] retain];
+		// _phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
+		_securityMode=kCWSecurityModeOpen;	// encoded in flags?
+		_ssid=[[attribs objectAtIndex:4] retain];
 		}
 	return self;
 }
@@ -1136,9 +1360,9 @@ extern int system(const char *cmd);
 
 - (BOOL) isEqualToNetwork:(CWNetwork *) network;
 { // ssid, securityMode, isIBSS
-	return [_ssid isEqual:[network ssid]]
-	&& [_securityMode isEqual:[network securityMode]]
-	&& _isIBSS == [network isIBSS];
+	return [_ssid isEqual:[network ssid]] &&
+			[_securityMode isEqual:[network securityMode]] &&
+			_isIBSS == [network isIBSS];
 }
 
 - (BOOL) isEqual:(id) other
@@ -1169,6 +1393,8 @@ extern int system(const char *cmd);
 	return [profiles objectForKey:_ssid];
 }
 
+// setWirelessProfile?
+
 // initwithcoder
 // encodewithcoder
 
@@ -1179,19 +1405,37 @@ extern int system(const char *cmd);
 + (CWWirelessProfile *) profile; { return [[self new] autorelease]; }
 
 /*
-- (CWWirelessProfile *) init; 
-- (BOOL) isEqualToProfile:(CWWirelessProfile *) profile; 
- - (BOOL) isEqual:(id) other; 
+- (BOOL) isEqualToProfile:(CWWirelessProfile *) profile;
+ - (BOOL) isEqual:(id) other;
  - (NSUInteger) hash;
-
-- (NSString *) passphrase;
-- (void) setPassphrase:(NSString *) str;	// copy
-- (NSNumber *) securityMode;
-- (void) setSecurityMode:(NSNumber *) str;
-- (NSString *) ssid;
-- (void) setSsid:(NSString *) name;
-- (CW8021XProfile *) user8021XProfile;
-- (void) setUser8021XProfile:(CW8021XProfile *) name;
 */
+
+- (NSString *) passphrase; { return _passphrase; }
+- (void) setPassphrase:(NSString *) str;
+{
+	[_passphrase autorelease];
+	_passphrase=[str copy];
+}
+
+- (NSNumber *) securityMode; { return _mode; }
+- (void) setSecurityMode:(NSNumber *) mode;
+{
+	[_mode autorelease];
+	_mode=[mode copy];
+}
+
+- (NSString *) ssid; { return _ssid; }
+- (void) setSsid:(NSString *) ssid;
+{
+	[_ssid autorelease];
+	_ssid=[ssid copy];
+}
+
+- (CW8021XProfile *) user8021XProfile; { return _profile; }
+- (void) setUser8021XProfile:(CW8021XProfile *) profile;
+{
+	[_profile autorelease];
+	_profile=[profile copy];
+}
 
 @end
