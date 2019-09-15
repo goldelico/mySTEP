@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
-	NSError *err;
+	NSError *err=@"can't find interface";	// will be printed if cw == nil
 	CWInterface *cw=[CWInterface interface];
 	NSArray *nw;
 	NSEnumerator *e;
