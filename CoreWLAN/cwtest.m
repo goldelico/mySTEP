@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
 	NSArray *nw;
 	NSEnumerator *e;
 	CWNetwork *network;
+	BOOL power=[cw power];	// save power state
 	if(![cw setPower:YES error:&err])
 		{
 		NSLog(@"WLAN power on error: %@", err);
@@ -40,13 +41,8 @@ int main(int argc, char *argv[])
 		NSString *str=[NSString stringWithFormat:@"%@: %ld dBm", [network ssid], (long)[network rssiValue]];
 		printf("%s\n", [str UTF8String]);
 		}
-#if 0
-	// turn off only if it was off before
-	if(![cw setPower:NO error:&err])
-		{
+	if(![cw setPower:power error:&err])	// turn off only if it was off before
 		NSLog(@"WLAN power off error: %@", err);
-		}
-#endif
 	[arp release];
 	return 0;
 }
