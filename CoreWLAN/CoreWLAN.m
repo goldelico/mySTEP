@@ -40,23 +40,6 @@ NSString * const kCWScanKeyScanType=@"kCWScanKeyScanType";
 NSString * const kCWScanKeySSID=@"kCWScanKeySSID";
 NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
-#if OLD
-#if 0	// debugging
-#define system(CMD) (printf("system: %s\n", (CMD)), 0)
-#endif
-
-extern int system(const char *cmd);
-#endif
-
-@interface CWInterface (Private)
-
-#if OLD
-+ (BOOL) _bluetoothIsActive;
-+ (BOOL) _activateHardware:(BOOL) flag;
-#endif
-
-@end
-
 @interface CWNetwork (Private)
 
 - (id) _initWithAttributes:(NSArray *) attributes;
@@ -218,276 +201,6 @@ extern int system(const char *cmd);
 
 @end
 
-#if OLD
-
-@interface IWListScanner : NSObject
-{ // scan for networks in a background process using iwlist scan command
-	NSArray *_modes;
-	NSTask *_task;
-	NSFileHandle *_stdoutput;
-	/* nonretained */ CWInterface *_delegate;	// notify when done by [_delegate _setNetworks:array]
-}
-@end
-
-@implementation IWListScanner
-
-- (id) init;
-{
-	if((self=[super init]))
-		{
-		_modes=[[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, NSModalPanelRunLoopMode, nil];
-		}
-	return self;
-}
-
-- (void) dealloc;
-{
-#if 0
-	NSLog(@"IWListScanner dealloc");
-#endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadCompletionNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSTaskDidTerminateNotification object:nil];
-	if(_task && [_task isRunning])
-		[_task terminate];
-	[_stdoutput release];
-	[_task release];
-	[_modes release];
-	[super dealloc];
-}
-
-- (void) setDelegate:(CWInterface *) delegate; { _delegate=delegate; }
-
-- (void) startScanning:(NSError **) err;
-{ // start the background process if it is not yet running
-#if 0
-	NSLog(@"startScanning");
-#endif
-	if(!_delegate)
-		return;
-	if(!_task)
-		{ // not yet scanning or still waiting for end of last data stream
-			NSPipe *p;
-#if 0
-			NSLog(@"new task");
-#endif
-			_task=[NSTask new];
-			[_task setLaunchPath:@"/sbin/iwlist"];			// on base OS
-			[_task setArguments:[NSArray arrayWithObjects:[_delegate name], @"scanning", nil]];
-			p=[NSPipe pipe];
-			_stdoutput=[[p fileHandleForReading] retain];
-			[_task setStandardOutput:p];
-			//			[_task setStandardError:p];	// use a single pipe for both stdout and stderr
-										// add initializer that we pass the pipe to
-										// it does all setup we need...
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(terminateNotification:) name:NSTaskDidTerminateNotification object:_task];
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReceived:) name:NSFileHandleReadToEndOfFileCompletionNotification object:_stdoutput];
-			[_stdoutput readToEndOfFileInBackgroundAndNotifyForModes:_modes];	// collect data and notify once when done
-			NS_DURING
-#if 0
-			NSLog(@"launch %@", _task);
-#endif
-			[_task launch];
-			NS_HANDLER
-			NSLog(@"Could not launch %@ due to %@ because %@.", [_task launchPath], [localException name], [localException reason]);
-			NS_ENDHANDLER
-		}
-}
-
-- (void) stopScanning
-{
-	[_task terminate];
-}
-
-/* sample output
-
- gta04:~# iwconfig
- lo        no wireless extensions.
-
- hso0      no wireless extensions.
-
- usb0      no wireless extensions.
-
- pan0      no wireless extensions.
-
- wlan13    IEEE 802.11b/g  ESSID:""
- Mode:Managed  Frequency:2.412 GHz  Access Point: Not-Associated
- Bit Rate:0 kb/s   Tx-Power=15 dBm
- Retry short limit:8   RTS thr=2347 B   Fragment thr=2346 B
- Encryption key:off
- Power Management:off
- Link Quality:0  Signal level:0  Noise level:0
- Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
- Tx excessive retries:0  Invalid misc:0   Missed beacon:0
-
- gta04:~# ifconfig wlan13   (is down!)
- wlan13    Link encap:Ethernet  HWaddr 00:19:88:3d:ff:eb
- BROADCAST MULTICAST  MTU:1500  Metric:1
- RX packets:0 errors:0 dropped:0 overruns:0 frame:0
- TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
- collisions:0 txqueuelen:1000
- RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
- gta04:~# iwlist wlan13 scan
- wlan13    No scan results
-
- gta04:~# iwlist wlan13 scanning
- wlan13		Scan completed :
- Cell 01 - Address: 00:**:BF:**:CE:E6
- ESSID:"******"
- Mode:Managed
- Frequency:2.427 GHz (Channel 4)
- Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
- Encryption key:off
- Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
- 11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
- 48 Mb/s; 54 Mb/s
-
- another example:
-
- bb-debian:~# iwlist wlan1 scan
- wlan1     Scan completed :
- Cell 01 - Address: 00:**:**:9B:**:E9
- ESSID:"****-4"
- Mode:Managed
- Frequency:2.417 GHz (Channel 2)
- Quality=96/100  Signal level=-53 dBm  Noise level=-96 dBm
- Encryption key:on
- Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 11 Mb/s; 9 Mb/s
- 18 Mb/s; 36 Mb/s; 54 Mb/s; 6 Mb/s; 12 Mb/s
- 24 Mb/s; 48 Mb/s
- IE: IEEE 802.11i/WPA2 Version 1
- Group Cipher : CCMP
- Pairwise Ciphers (1) : CCMP
- Authentication Suites (1) : PSK
- Cell 02 - Address: 46:**:**:58:**:D5
- ESSID:"MacBookPro"
- Mode:Ad-Hoc
- Frequency:2.462 GHz (Channel 11)
- Quality=99/100  Signal level=-33 dBm  Noise level=-96 dBm
- Encryption key:off
- Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
- 11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
- 48 Mb/s; 54 Mb/s
-
- bb-debian:~#
-
-
- */
-
-- (void) dataReceived:(NSNotification *) n;
-{ // all data received
-	NSData *data=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
-	int err=[[[n userInfo] objectForKey:@"NSFileHandleError"] intValue];
-#if 0
-	NSLog(@"CoreWLAN dataReceived:_ %@", data);
-#endif
-	NSString *s=[[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
-	NSEnumerator *e=[[s componentsSeparatedByString:@"\n"] objectEnumerator];
-	NSString *line;
-	NSMutableArray *networks=[NSMutableArray arrayWithCapacity:10];
-	NSString *key=@"";	// last key that has been processed
-	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:10];
-	while((line=[e nextObject]))
-		{
-		NSRange r={NSNotFound, 0};
-		NSString *prev;
-		NSString *value;
-#if 0
-		NSLog(@"processLine: %@", line);
-#endif
-			r=[line rangeOfString:@":"];	// key:value
-			if(r.location == NSNotFound)
-				r=[line rangeOfString:@"="];	// key=value
-			if(r.location != NSNotFound)
-				{ // (new) key = value
-					[key release];
-					key=[line substringToIndex:r.location];	// everything up to delimiter
-					key=[key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
-					[key retain];
-					if([key hasSuffix:@"Scan completed"])
-						continue;	// ignore
-					value=[line substringFromIndex:NSMaxRange(r)];	// take everything behind delimiter
-				}
-			else
-				{ // value only - repeat previous key
-					if([key isEqualToString:@"Bit Rates"])
-						{
-#if 0
-						NSLog(@"may be more for Bit Rates");	// continuation line of "Bit Rates"
-#endif
-						}
-					else
-						continue;
-					value=line;	// take full line
-				}
-			value=[value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
-		if([key hasPrefix:@"Cell"])
-			{ // special handling for EOF or line starting with "Cell"
-				NSArray *cell;
-#if 0
-				NSLog(@"process %@: %@", key, _attributes);
-#endif
-				if([attributes count] > 0)
-					{ // process previous entry
-						CWNetwork *n=[[CWNetwork alloc] initWithAttributes:attributes];
-#if 0
-						NSLog(@"found %@ %@", n, _attributes);
-#endif
-						[networks addObject:n];
-						[n release];
-						[attributes removeAllObjects];	// clear for next record
-						[key release];
-						key=@"";
-					}
-				cell=[key componentsSeparatedByString:@" "];
-				if([cell count] >= 2)
-					[attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
-				[key release];
-				key=@"Address";
-			}
-		prev=[attributes objectForKey:key];
-		if(prev)
-			{ // collect if key is the same
-				if([key isEqualToString:@"Bit Rates"])
-					value=[NSString stringWithFormat:@"%@; %@", prev, value];	// needs different separator
-				else
-					value=[NSString stringWithFormat:@"%@ %@", prev, value];
-			}
-		[attributes setObject:value forKey:key];	// collect all key: value pairs
-#if 0
-		NSLog(@"attribs: %@", attributes);
-#endif
-		}
-	if([attributes count] > 0)
-		{ // process last entry
-			CWNetwork *n=[[CWNetwork alloc] initWithAttributes:attributes];
-#if 0
-			NSLog(@"found %@ %@", n, _attributes);
-#endif
-			[networks addObject:n];
-			[n release];
-		}
-	[_delegate _setNetworks:networks];	// notify delegate about new network list
-}
-
-- (void) terminateNotification:(NSNotification *) n;
-{
-#if 0
-	NSLog(@"CoreWLAN terminateNotification %@", n);
-#endif
-	if([_task terminationStatus] == 0)
-		{ // ok
-		}
-	[_task release];
-	_task=nil;
-	[_stdoutput release];
-	_stdoutput=nil;
-}
-
-@end
-
-#endif
-
 @implementation CWWiFiClient
 
 + (CWWiFiClient *) sharedWiFiClient;
@@ -552,66 +265,17 @@ extern int system(const char *cmd);
 
 + (CWInterface *) interface;
 {
-#if OLD
-	return [[self new] autorelease];
-#else
 	return [[CWWiFiClient sharedWiFiClient] interface];
-#endif
 }
 
 + (CWInterface *) interfaceWithName:(NSString *) name;
 {
-#if OLD
-	return [[[self alloc] initWithInterfaceName:name] autorelease];
-#else
 	return [[CWWiFiClient sharedWiFiClient] interfaceWithName:name];
-#endif
 }
 
 + (NSArray *) supportedInterfaces;
 { // may be empty if we don't find interfaces - in this case the client should retry later
-#if OLD
-	static NSMutableArray *supportedInterfaces;
-	FILE *f=NULL;
-	char line[256];
-	if(!supportedInterfaces)
-		supportedInterfaces=[NSMutableArray new];
-#if 1
-	else
-		return supportedInterfaces;	// collect only once to avoid repeated calls to popen()
-#endif
-	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
-	if([self _activateHardware:YES])
-		{
-		// FIXME: this popen may also timeout and make the process (GUI!) hang!
-		// set up NSTask + Timer that interrupts/terminates the task?
-		// i.e. task=[NSTask ....]
-		// [task performSelector:@(terminate) withObject:nil afterDelay:3];
-		f=popen("iwconfig 2>/dev/null", "r");
-		if(f)
-			{
-			while(fgets(line, sizeof(line)-1, f))
-				{
-				char *e=strchr(line, ' ');
-				if(e && e != line)
-					{ // non-empty entries are interface names
-						NSString *interface=[NSString stringWithCString:line length:e-line];
-						if(![supportedInterfaces containsObject:interface])
-							[supportedInterfaces addObject:interface];	// new interface found
-					}
-				}
-			pclose(f);
-			}
-		else
-			[self _activateHardware:NO];	// can't open
-#if 1
-		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
-#endif
-		}
-	return supportedInterfaces;
-#else
 	return [CWWiFiClient interfaceNames];
-#endif
 }
 
 - (NSString *) description
@@ -756,84 +420,9 @@ extern int system(const char *cmd);
 	return [self _runClient:@"/sbin/wpa_cli" args:[NSArray arrayWithObject:cmd]];
 }
 
-#if OLD
-// FIXME: should be cached and we should re-read value(s) only if older than 1 second since last fetch
-
-- (NSString *) _get:(NSString *) command parameter:(NSString *) parameter
-{
-	NSString *cmd=[NSString stringWithFormat:@"%@ '%@' %@", command, _name, parameter];
-	FILE *f=popen([cmd UTF8String], "r");
-	NSString *r;
-	char line[512];
-	unsigned int n;
-	if(!f)
-		return nil;
-	n=fread(line, 1, sizeof(line)-1, f);
-	pclose(f);
-	r=[[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-#if 1
-	NSLog(@"%@: %@", cmd, r);
-#endif
-	return r;
-}
-
-- (NSString *) _getiw:(NSString *) parameter;
-{ // call iwconfig or iwlist or iwgetid
-	return [self _get:@"iwgetid" parameter:[NSString stringWithFormat:@"--raw --%@", parameter]];
-}
-
-- (NSString *) _getiwlist:(NSString *) parameter;
-{ // call iwconfig
-	return [self _get:@"iwlist" parameter:parameter];
-}
-
-- (NSString *) _getiwconfig;
-{ // call iwconfig
-	return [self _get:@"iwconfig" parameter:@""];
-}
-#endif
-
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 { // may block and ask for admin password
-#if OLD
-	NSString *cmd;
-	NSError *dummy;
-	if(!err) err=&dummy;
-	if(!network)
-		{
-			// set err
-			return NO;
-		}
-#if 0
-	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
-#if 1
-	NSLog(@"%@", cmd);
-#endif
-	if(system([cmd UTF8String]) != 0)
-		{ // interface does not exist
-			// set err
-			return NO;
-		}		
-#endif
-	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
-#if 1
-	NSLog(@"%@", cmd);
-#endif
-	if(system([cmd UTF8String]) != 0)
-		{
-		// set err
-		return NO;
-		}
-#else
-	[self _runClient:@"select_network" args:[NSArray arrayWithObject:@"id"]];
-	// set_network_parameters
-#endif
-	[_associatedNetwork autorelease];
-	_associatedNetwork=[network retain];
-#if 1
-	NSLog(@"associated to %@", network);
-#endif
-	return YES;
+	return [self _runClient:@"select_network" args:[NSArray arrayWithObject:@"id"]] != nil;
 }
 
 - (void) disassociate;
@@ -845,7 +434,6 @@ extern int system(const char *cmd);
 
 - (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 { // enable as ad-hoc station
-#if OLD
 	NSString *network=[params objectForKey:kCWIBSSKeySSID];	// get from params or default to machine name
 	int channel=[[params objectForKey:kCWIBSSKeyChannel] intValue];	// value may be an NSString
 	NSString *cmd;
@@ -855,33 +443,10 @@ extern int system(const char *cmd);
 	NSLog(@"parameters %@", params);
 #endif
 	if(!network)
-		network=@"GTA04";	// default; should we use [[NSProcessInfo processInfo] hostName] ?
+		network=@"Letux";	// default; should we use [[NSProcessInfo processInfo] hostName] ?
 	if(channel <= 0)
 		channel=11;	// default
-#if 0
-	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
-	if(system([cmd UTF8String]) != 0)
-		{
-		// set err
-		return NO;
-		}
-#endif
-	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
-	if(system([cmd UTF8String]) != 0)
-		{
-		// set err
-		return NO;
-		}
-	cmd=[NSString stringWithFormat:@"ifconfig '%@' '%@'", _name, @"10.1.1.1"];
-	if(system([cmd UTF8String]) != 0)
-		{
-		// set err
-		return NO;
-		}
-	return YES;
-#else
 	return NO;
-#endif
 }
 
 - (void) _setNetworks:(NSArray *) networks;
@@ -899,15 +464,6 @@ extern int system(const char *cmd);
 	NSEnumerator *e;
 	NSString *line;
 	NSMutableArray *nw;
-#if OLD
-	// should start scanning every 10 seconds
-	if(!_scanner)
-		{
-		_scanner=[IWListScanner new];
-		[_scanner setDelegate:self];
-		}
-	[_scanner startScanning:err];
-#else
 	// rate limit?
 	if(![self _runWPA:@"scan"])	// start scanning - if not yet?
 		/*
@@ -936,7 +492,6 @@ extern int system(const char *cmd);
 		}
 	// should we sort or somehow keep sequence stable?
 	[self _setNetworks:nw];
-#endif
 	return _networks;
 }
 
@@ -947,36 +502,19 @@ extern int system(const char *cmd);
 
 - (NSString *) bssid;
 {
-#if OLD
-	return [self _getiw:@"ap"];
-#else
 	return @"?";
-#endif
 }
 
 //- (NSData *) bssidData; // convert NSString to NSData
 
 - (NSNumber *) channel;	// iwgetid wlan13 --channel
 {
-#if OLD
-	return [NSNumber numberWithInt:[[self _getiw:@"channel"] intValue]];
-#else
+	//	return [NSNumber numberWithInt:[[self _getiw:@"channel"] intValue]];
 	return @"?";
-#endif
 }
 
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
 {
-#if OLD
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, (unsigned int) channel];
-	NSError *dummy;
-	if(!err) err=&dummy;
-	if(system([cmd UTF8String]) != 0)
-		{
-		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
-		return NO;
-		}
-#endif
 	return YES;
 }
 
@@ -984,14 +522,7 @@ extern int system(const char *cmd);
 { 
 	NSError *dummy;
 	if(!err) err=&dummy;
-#if OLD
-	// change current configuration of interface (preferred networks?)
-	// there is one configuration for each interface
-	// we archive the config in some file - or store it as a NSData in NSUserDefault
-#else
-	[self _runWPA:@"save_config"];
-#endif
-	return NO;
+	return [self _runWPA:@"save_config"] != nil;
 }
 
 - (CWConfiguration *) configuration;
@@ -1080,25 +611,6 @@ extern int system(const char *cmd);
 	if(!err) err=&dummy;
 	if([self power] == power)
 		return YES;	// no change needed
-#if OLD
-	// FIXME: we can keep wpa_supplicant running
-	// but ifconfig up / down should manage power on/off automatically
-	if(power)
-		{ // stat wpa_supplicant
-			if(system("/root/wlan-on") != 0)
-				{ // interface does not exist
-				  // set err
-					*err=nil;
-					return NO;
-				}
-			sleep(1);
-		}
-	else
-		{
-		[self _runClient:@"terminate"];
-		// ifdown interface!
-		}
-#else
 	if(power)
 		{
 		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"up", nil]])
@@ -1114,7 +626,6 @@ extern int system(const char *cmd);
 		if(![self _runClient:@"/sbin/ifconfig" args:[NSArray arrayWithObjects:_name, @"down", nil]])
 			return NO;
 		}
-#endif
 	return YES;
 }
 
@@ -1197,40 +708,6 @@ extern int system(const char *cmd);
 		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]/1000];	// kb/s -> Mbit/s
 	return [NSNumber numberWithInt:0];
 }
-
-// FIXME: we should link to IOBluetooth and use their method
-// FIXME: why do we need this as private method at all?
-
-#if OLD
-
-+ (BOOL) _bluetoothIsActive;
-{ // power is up - check if bluetooth is active
-	FILE *file;
-	char line[256];
-	NSString *cmd=@"hciconfig -a";
-	file=popen([cmd UTF8String], "r");	// check status
-	if(!file)
-		return NO;
-	/* result looks like
-	 hci0:   Type: USB				<- we may have more than one Bluetooth interface!
-	 BD Address: 00:06:6E:14:4B:5A ACL MTU: 384:8 SCO MTU: 64:8    <- this is our own address (if we need it)
-	 UP RUNNING PSCAN ISCAN
-	 RX bytes:154 acl:0 sco:0 events:17 errors:0
-	 TX bytes:314 acl:0 sco:0 commands:16 errors:0
-	 */
-	memset(line, sizeof(line), 0);
-	line[fread(line, sizeof(line[0]), sizeof(line)-1, file)]=0; // read as much as we get but not more than buffer holds
-	pclose(file);
-#if 1
-	NSLog(@"_bluetoothIsActive -> %d", strlen(line) > 0);
-#endif
-	return strlen(line) > 0;	// yes, is active
-}
-#else
-
-// use 	[[IOBluetoothController sharedController] bluetoothHardwareIsActive];
-
-#endif
 
 @end
 
