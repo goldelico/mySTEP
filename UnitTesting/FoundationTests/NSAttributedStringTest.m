@@ -92,6 +92,37 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 	[s release];
 }
 
+- (void) test4
+{
+	NSMutableAttributedString *s=[[NSMutableAttributedString alloc] initWithString:@"type here"];
+	NSRange rng;
+	XCTAssertEqual([s length], (NSUInteger) 9);
+	[s replaceCharactersInRange:NSMakeRange(0, 0) withString:@""];	// empty replacement
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 9);
+	[s replaceCharactersInRange:NSMakeRange([s length], 0) withString:@""];	// empty replacement at end
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 9);
+	[s replaceCharactersInRange:NSMakeRange(0, 0) withString:@" "];	// add at beginning
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 10);
+	XCTAssertEqualObjects([s string], @" type here");
+	[s replaceCharactersInRange:NSMakeRange(0, 1) withString:@""];	// remove at beginning
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 9);
+	XCTAssertEqualObjects([s string], @"type here");
+	[s replaceCharactersInRange:NSMakeRange([s length], 0) withString:@" "];	// add at end
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 10);
+	XCTAssertEqualObjects([s string], @"type here ");
+	[s replaceCharactersInRange:NSMakeRange([s length]-1, 1) withString:@""];	// remove at end
+	[s attributesAtIndex:0 effectiveRange:&rng];
+	XCTAssertEqual([s length], (NSUInteger) 9);
+	XCTAssertEqualObjects([s string], @"type here");
+	// test what happens...
+	[s release];
+}
+
 // add more tests
 // e.g. empty string
 // trying to add nil attribute
