@@ -107,7 +107,6 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 	BOOL usesFindPanel;
 	BOOL usesFontPanel;
 	BOOL usesRuler;
-	BOOL insertionPointIsOn;
 }
 
 + (void) registerForServices;			// sent each time a view is initialized

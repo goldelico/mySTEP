@@ -119,7 +119,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) checkSpelling:(id)sender;						// Spelling
 {
 	NSInteger wordCount;
-    NSRange range=[[NSSpellChecker sharedSpellChecker]
+	NSRange range=[[NSSpellChecker sharedSpellChecker]
 				   checkSpellingOfString:[textStorage string]
 				   startingAt:NSMaxRange(_selectedRange)
 				   language:nil
@@ -746,7 +746,7 @@ object:self]
 {
 	NSRange rng=[self selectedRange];
 #if 1
-	NSLog(@"insertText: %@", text);
+	NSLog(@"NSText insertText: %@", text);
 #endif
 	if([text isKindOfClass:[NSString class]])
 		[self replaceCharactersInRange:rng withString:text];
@@ -831,7 +831,7 @@ object:self]
 								   untilDate:[NSDate distantFuture]						// get next event
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
-  		}
+		}
 	if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng];	// finally update selection
 #if 1

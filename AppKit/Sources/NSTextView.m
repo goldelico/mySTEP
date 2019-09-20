@@ -1,17 +1,17 @@
 /*
  NSTextView.m
- 
+
  Copyright (C) 1996 Free Software Foundation, Inc.
- 
+
  Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
  Date: August 1998
  Source by Daniel Bðhringer integrated into mySTEP gui
- by Felipe A. Rodriguez <far@ix.netcom.com> 
- 
+ by Felipe A. Rodriguez <far@ix.netcom.com>
+
  Complete rewrite
  Author:	H. N. Schaller <hns@computer.org>
  Date:	Jun 2006 - aligned with 10.4
- 
+
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
  */
@@ -70,14 +70,16 @@
 
 static NSTimer *__caretBlinkTimer = nil;
 static NSCursor *__textCursor = nil;
+static NSMutableArray *__blinkingCursors = nil;	// all NSTextViews with blinking cursor(s)
+static BOOL __insertionPointIsOn = NO;
 
 @implementation NSTextView
 
-// Registers send and return types for the Services facility. This method 
+// Registers send and return types for the Services facility. This method
 // is invoked automatically; you should never need to invoke it directly.
 
 + (void) registerForServices
-{ 
+{
 	return; // does nothing for now
 }
 
@@ -103,7 +105,7 @@ static NSCursor *__textCursor = nil;
 {
 	NSTextContainer *tc=textContainer;	// notify if we want a non-owned textStorage
 	NSLayoutManager *lm=[textContainer layoutManager]; // preinitialize
-	textStorage=[lm textStorage];				
+	textStorage=[lm textStorage];
 	if((self=[super initWithFrame:frameRect]))	// the original values may be lost if we receive a proxy here
 		{ // create simple text network
 			insertionPointColor=[[NSColor blackColor] retain];
@@ -111,7 +113,7 @@ static NSCursor *__textCursor = nil;
 			if(tc)
 				{ // don't create the default if called from initWithCoder
 					layoutManager=lm;
-					textStorage=[layoutManager textStorage];	// non-owned textStorage				
+					textStorage=[layoutManager textStorage];	// non-owned textStorage
 				}
 			else
 				{ // create a default container
@@ -145,14 +147,14 @@ static NSCursor *__textCursor = nil;
 // The text container calls this set method from its setTextView: method.
 
 - (void) setTextContainer:(NSTextContainer *)container
-{	
+{
 	textContainer=container;	// not retained!
 	[self setNeedsDisplay:YES];
 }
 
 - (NSTextContainer*) textContainer			{ return textContainer; }
 
-// This method should be used instead of the primitive -setTextContainer: 
+// This method should be used instead of the primitive -setTextContainer:
 // if you need to replace a view's text container with a new one leaving the rest of the web intact.
 // This method deals with all the work of making sure the view doesn't get deallocated
 // and removing the old container from the layoutManager and replacing it with the new one.
@@ -174,9 +176,9 @@ static NSCursor *__textCursor = nil;
 	[self release];
 }
 
-// The textContianerInset determines the padding that the view provides around the container. 
-// The container's origin will be inset by this amount from the bounds point {0,0} and padding 
-// will be left to the right and below the container of the same amount. 
+// The textContianerInset determines the padding that the view provides around the container.
+// The container's origin will be inset by this amount from the bounds point {0,0} and padding
+// will be left to the right and below the container of the same amount.
 // This inset affects the view sizing in response to new layout and is used by the rectangular text
 // containers when they track the view's frame dimensions.
 
@@ -186,7 +188,7 @@ static NSCursor *__textCursor = nil;
 // The container's origin in the view is determined from the current usage of the container, the
 // container inset, and the view size.  textContainerOrigin returns this point.
 // invalidateTextContainerOrigin is sent automatically whenever something changes that causes the
-// origin to possibly move.  You usually do not need to call invalidate yourself. 
+// origin to possibly move.  You usually do not need to call invalidate yourself.
 
 - (NSPoint) textContainerOrigin					{ return textContainerOrigin; }
 - (void) invalidateTextContainerOrigin			{ NIMP; }
@@ -195,7 +197,7 @@ static NSCursor *__textCursor = nil;
 
 // New miscellaneous API beyond NSText
 
-// Sets the frame size of the view to desiredSize 
+// Sets the frame size of the view to desiredSize
 // constrained within min and max size.
 
 - (void) setConstrainedFrameSize:(NSSize) desiredSize
@@ -212,7 +214,7 @@ static NSCursor *__textCursor = nil;
 	NSLog(@"newSize=%@", NSStringFromSize(newSize));
 #endif
 	[self setFrameSize:newSize];	// this should also adjust the container depending on its tracking flags and trigger layout invalidation
-	// FIXME: check if Cocoa des this! If yes, we have a problem that redrawing a NSTextView triggers this which triggers redrawing...
+									// FIXME: check if Cocoa des this! If yes, we have a problem that redrawing a NSTextView triggers this which triggers redrawing...
 	//	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"container=%@", [self textContainer]);
@@ -263,7 +265,7 @@ static NSCursor *__textCursor = nil;
 	NIMP;
 }
 
-// New Font menu commands 
+// New Font menu commands
 
 - (void) turnOffKerning:(id) sender
 {
@@ -333,7 +335,7 @@ static NSCursor *__textCursor = nil;
 	// FIXME: accumulate?
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0]
 														   forKey:NSBaselineOffsetAttributeName]
-						 range:[self rangeForUserCharacterAttributeChange]];	
+						 range:[self rangeForUserCharacterAttributeChange]];
 	[self didChangeText];
 }
 
@@ -342,10 +344,10 @@ static NSCursor *__textCursor = nil;
 	// FIXME: accumulate?
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0]
 														   forKey:NSBaselineOffsetAttributeName]
-						 range:[self rangeForUserCharacterAttributeChange]];	
+						 range:[self rangeForUserCharacterAttributeChange]];
 	[self didChangeText];
 }
-// Ruler support 
+// Ruler support
 
 - (void) rulerView:(NSRulerView *)ruler didMoveMarker:(NSRulerMarker *)marker
 { NIMP;
@@ -359,7 +361,7 @@ static NSCursor *__textCursor = nil;
 { NIMP;
 }
 
-- (BOOL) rulerView:(NSRulerView *)ruler 
+- (BOOL) rulerView:(NSRulerView *)ruler
   shouldMoveMarker:(NSRulerMarker *)marker
 { NIMP; return NO;
 }
@@ -369,19 +371,19 @@ static NSCursor *__textCursor = nil;
 }
 
 - (CGFloat) rulerView:(NSRulerView *)ruler
-	 willMoveMarker:(NSRulerMarker *)marker 
-		 toLocation:(CGFloat)location
+	   willMoveMarker:(NSRulerMarker *)marker
+		   toLocation:(CGFloat)location
 { NIMP; return 0.0;
 }
 
-- (BOOL) rulerView:(NSRulerView *)ruler 
+- (BOOL) rulerView:(NSRulerView *)ruler
 shouldRemoveMarker:(NSRulerMarker *)marker
 { NIMP; return NO;
 }
 
 - (CGFloat) rulerView:(NSRulerView *)ruler
-	  willAddMarker:(NSRulerMarker *)marker 
-		 atLocation:(CGFloat)location
+		willAddMarker:(NSRulerMarker *)marker
+		   atLocation:(CGFloat)location
 { NIMP; return 0.0;
 }
 
@@ -425,7 +427,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (NSSelectionGranularity) selectionGranularity	{ return selectionGranularity;}
 
 - (void) setSelectionGranularity:(NSSelectionGranularity)granularity
-{	
+{
 	selectionGranularity = granularity;
 }
 
@@ -448,10 +450,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (void) setInsertionPointColor:(NSColor *)color { ASSIGN(insertionPointColor, color); }
-- (NSColor *)insertionPointColor				{ return insertionPointColor; }
-
-// FIXME: if several texviews share the same layout manager, all views must blink the cursor!!
-// use -NSWindow cacheImageInRect and restoreCachedImage to handle cursor blinking
+- (NSColor *) insertionPointColor				{ return insertionPointColor; }
 
 - (NSRect) _caretRect
 {
@@ -464,50 +463,81 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	return _caretRect;
 }
 
-- (void) _blinkCaret:(NSTimer *) timer
+- (void) _blinkCaret:(NSTimer *) timer	// could now become a class method...
 { // toggle the caret and trigger redraw
 #if 0
 	NSLog(@"_blinkCaret %@", NSStringFromRect([self _caretRect]));
 #endif
-	insertionPointIsOn = !insertionPointIsOn;	// toggle state
-	[self setNeedsDisplayInRect:[self _caretRect] avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled		
+	__insertionPointIsOn = !__insertionPointIsOn;	// toggle state
+	if([__blinkingCursors count] > 0)
+		{
+		NSEnumerator *e=[__blinkingCursors objectEnumerator];
+		NSTextView *tv;
+		while((tv=[e nextObject]))
+			{
+			[tv setNeedsDisplayInRect:[tv _caretRect] avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled
+			}
+		// FIXME: use -NSWindow cacheImageInRect and restoreCachedImage to optimize cursor blinking?
+		}
+	else
+		{ // stop timer
+#if 1
+			NSLog(@"stop %@", __caretBlinkTimer);
+#endif
+			[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
+			__caretBlinkTimer=nil;
+		}
 }
 
 - (void) updateInsertionPointStateAndRestartTimer:(BOOL) restartFlag
 { // does nothing if we should draw insertion point but have no restart
-	// FIXME: the cursor rect should be calculated here and then just used to redraw the cursor
-#if 0
-	NSLog(@"updateInsertionPointStateAndRestartTimer");
+  // FIXME: the cursor rect should be calculated here and then just used to redraw the cursor
+#if 1
+	NSLog(@"updateInsertionPointStateAndRestartTimer %@", self);
+	NSLog(@"  editable %d", _tx.editable);
+	NSLog(@"  selection %@", NSStringFromRange(_selectedRange));
+	NSLog(@"  window %@", _window);
+	NSLog(@"  firstResponder %@", [_window firstResponder]);
 #endif
 	if(!NSIsEmptyRect(_caretRect))
 		[self setNeedsDisplayInRect:_caretRect avoidAdditionalLayout:YES];	// update previous rect
 	_caretRect=NSZeroRect;	// determine new rect as soon as needed
 	if([self shouldDrawInsertionPoint])
 		{ // add to list
+			if(!__blinkingCursors)
+				__blinkingCursors=[[NSMutableArray alloc] initWithCapacity:10];
+			if([__blinkingCursors indexOfObjectIdenticalTo:self] == NSNotFound)
+				[__blinkingCursors addObject:self];	// add to list of textviews with blinking cursor
 			if(restartFlag)
-				{ // stop existing timer
+				{ // stop any existing timer
+#if 1
+					NSLog(@"restart %@", __caretBlinkTimer);
+#endif
 					[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
 					__caretBlinkTimer=nil;
 				}
 			if(!__caretBlinkTimer)
 				{ // no timer yet
-					NSRunLoop *rl = [NSRunLoop currentRunLoop];		
+					NSRunLoop *rl = [NSRunLoop currentRunLoop];
 					__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.6
 																target: self
 															  selector: @selector(_blinkCaret:)
 															  userInfo: nil
-															   repeats: YES];		
-					[rl addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];
+															   repeats: YES];
+#if 1
+					NSLog(@"new %@", __caretBlinkTimer);
+#endif
+					[rl addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];	// this retains until the timer is invalidated in this mode
 					[rl addTimer:__caretBlinkTimer forMode:NSModalPanelRunLoopMode];
-					insertionPointIsOn=NO;	// (re) start with cursor being on
+					__insertionPointIsOn=NO;	// (re) start with cursor being on
 					[self _blinkCaret:nil];	// and immediately show cursor
 				}
 		}
 	else
-		{ // stop timer
-			[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
-			__caretBlinkTimer=nil;
-		}
+		[__blinkingCursors removeObjectIdenticalTo:self];
+#if 1
+	NSLog(@"__caretBlinkTimer = %@", __caretBlinkTimer);
+#endif
 }
 
 - (void) drawViewBackgroundInRect:(NSRect)rect
@@ -545,7 +575,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (NSInteger) spellCheckerDocumentTag
-{ 
+{
 	return _spellCheckerDocumentTag;	// from superclass
 }
 
@@ -566,15 +596,15 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		attribs=[textStorage attributesAtIndex:_selectedRange.location effectiveRange:NULL];
 	else
 		{ // cursor is at end of string
-		if(length > 0)
-			attribs=[textStorage attributesAtIndex:length-1 effectiveRange:NULL];	// continue with attribs et end of text
-		else
-			attribs=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFontOfSize:0.0], NSFontAttributeName, nil];	// set default typing attributes		
+			if(length > 0)
+				attribs=[textStorage attributesAtIndex:length-1 effectiveRange:NULL];	// continue with attribs et end of text
+			else
+				attribs=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFontOfSize:0.0], NSFontAttributeName, nil];	// set default typing attributes
 		}
-	[self setTypingAttributes:attribs];	// reset from first selected character	
+	[self setTypingAttributes:attribs];	// reset from first selected character
 }
 
-- (BOOL) shouldChangeTextInRange:(NSRange)affectedCharRange 
+- (BOOL) shouldChangeTextInRange:(NSRange)affectedCharRange
 			   replacementString:(NSString *)replacementString
 {
 	if(![self isEditable])
@@ -590,7 +620,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(DidChange) object:self];
 	[self setNeedsDisplay:YES];
-}		
+}
 
 - (NSRange) rangeForUserTextChange
 {
@@ -624,9 +654,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 { NIMP; return NSMakeRange(0, 0);
 }
 
-- (void) smartInsertForString:(NSString *)pasteString 
-			   replacingRange:(NSRange)charRangeToReplace 
-				 beforeString:(NSString **)beforeString 
+- (void) smartInsertForString:(NSString *)pasteString
+			   replacingRange:(NSRange)charRangeToReplace
+				 beforeString:(NSString **)beforeString
 				  afterString:(NSString **)afterString
 { NIMP;
 }
@@ -637,12 +667,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (NSUInteger) draggingEntered:(id <NSDraggingInfo>)sender		// Dragging
-{	
+{
 	return NSDragOperationGeneric;
 }
 
 - (NSUInteger) draggingUpdated:(id <NSDraggingInfo>)sender
-{	
+{
 	return NSDragOperationGeneric;
 }
 
@@ -651,12 +681,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (BOOL) prepareForDragOperation:(id <NSDraggingInfo>)sender
-{	
+{
 	return YES;
 }
 
 - (BOOL) performDragOperation:(id <NSDraggingInfo>)sender
-{	
+{
 	return [self performPasteOperation:[sender draggingPasteboard]];
 }
 
@@ -666,39 +696,39 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (NSArray*) acceptableDragTypes
-{	
+{
 	NSMutableArray *ret = [NSMutableArray arrayWithObjects:NSStringPboardType, NSColorPboardType, nil];
-	if(_tx.isRichText)			
+	if(_tx.isRichText)
 		[ret addObject:NSRTFPboardType];
-	if([self importsGraphics])		
+	if([self importsGraphics])
 		[ret addObject:NSRTFDPboardType];
 	return ret;
 }
 
 - (void) updateDragTypeRegistration
-{	
+{
 	[self registerForDraggedTypes:[self acceptableDragTypes]];
 }
 
 - (void) setImportsGraphics:(BOOL)flag
-{	
+{
 	[super setImportsGraphics:flag];
 	[self updateDragTypeRegistration];
 }
 
 - (void) setRichText:(BOOL)flag
-{	
+{
 	[super setRichText:flag];
 	[self updateDragTypeRegistration];
 }
 
 - (IBAction) performFindPanelAction:(id) sender
 {
-	static NSFindPanel *sharedFindPanel;	
+	static NSFindPanel *sharedFindPanel;
 	if (!sharedFindPanel)
 		{ // looks for FindPanel in ressources of NSApp's bundle
 			if(![NSBundle loadNibNamed:@"FontPanel" owner:NSApp])
-				[NSException raise: NSInternalInconsistencyException 
+				[NSException raise: NSInternalInconsistencyException
 							format: @"Unable to open find panel model file."];
 			[sharedFindPanel center];
 		}
@@ -745,7 +775,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
  Sources/NSTextView.m:512: warning: method definition for `-rangesForUserCharacterAttributeChange' not found
  Sources/NSTextView.m:512: warning: method definition for `-rangeForUserCompletion' not found
  Sources/NSTextView.m:512: warning: method definition for `-preferredPasteboardTypeFromArray:restrictedToTypesFromArray:' not found
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontTablePanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontSpacingPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontListPanel:' not found
@@ -756,21 +786,21 @@ shouldRemoveMarker:(NSRulerMarker *)marker
  Sources/NSTextView.m:512: warning: method definition for `-dragOperationForDraggingInfo:type:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragImageForSelectionWithEvent:origin:' not found
  Sources/NSTextView.m:512: warning: method definition for `-completionsForPartialWordRange:indexOfSelectedItem:' not found
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-complete:' not found --- open a NSTableView Panel with completions from dictionary (usually on F5 key)
  Sources/NSTextView.m:512: warning: method definition for `-insertCompletion:forPartialWordRange:movement:isFinal:' not found
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-clickedOnLink:atIndex:' not found
  call textView:clickedOnLink:atIndex: if available
  if NO -> next responder
  if not available call textView:clickedOnLink:
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-cleanUpAfterDragOperation' not found
  Sources/NSTextView.m:512: warning: method definition for `-changeDocumentBackgroundColor:' not found
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-changeColor:' not found --- apply
  Sources/NSTextView.m:512: warning: method definition for `-changeAttributes:' not found -- apply
- 
+
  Sources/NSTextView.m:512: warning: method definition for `-breakUndoCoalescing' not found
  Sources/NSTextView.m:512: warning: method definition for `-allowsUndo' not found
  Sources/NSTextView.m:512: warning: method definition for `-allowsDocumentBackgroundColorChange' not found
@@ -787,7 +817,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	// FIXME:
 	return;
-	
+
 	if(!_tx.isRichText)
 		return;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:NSUnderlineStyleSingle]
@@ -799,9 +829,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #pragma mark overridden superclass(es) methods
 
 - (BOOL) becomeFirstResponder
-{	
+{
 	// FIXME: check if we change the layout manager from previous
-	
+
 	if(![super becomeFirstResponder])
 		return NO;
 	return YES;
@@ -851,7 +881,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		{
 		NSRect r=[self _caretRect];
 		if(NSIntersectsRect(r, rect))
-			[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:insertionPointIsOn];
+			[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:__insertionPointIsOn];
 		}
 #if 0
 	if(!NSEqualSizes(_bounds.size, _frame.size))
@@ -909,7 +939,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				// _tf.uses_ruler = ((0x100 & flags) > 0);
 				_tx.drawsBackground = ((0x800 & flags) != 0);
 				smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
-				// _tf.allows_undo = ((0x40000000 & flags) > 0);	  
+				// _tf.allows_undo = ((0x40000000 & flags) > 0);
 				[self setInsertionPointColor:[shared insertionPointColor]];
 				[self setDefaultParagraphStyle:[shared defaultParagraphStyle]];
 				[self setLinkTextAttributes:[shared linkTextAttributes]];
@@ -972,20 +1002,20 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSEvent *lastMouseEvent=nil;
 	if(!_tx.selectable)
 		return;	// ignore
-	
+
 	// handle ruler view
-	
+
 #if 1
 	NSLog(@"NSTextView mouseDown");
 #endif
-	while(YES)	// loop outside until mouse goes up 
+	while(YES)	// loop outside until mouse goes up
 		{
 		NSPoint p;
 		NSUInteger pos;
 		if([event type] == NSPeriodic)
 			{
 			event=lastMouseEvent;	// repeat
-			continue;			
+			continue;
 			}
 		p=[self convertPoint:[event locationInWindow] fromView:nil];
 		pos=[self characterIndexForPoint:p];	// convert to character index
@@ -1006,22 +1036,22 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 							rng=[textStorage doubleClickAtIndex:pos];	// gets the word or linguistic unit
 							break;
 						case 3: // select full line
-							// get effectiveRange of lineFragmentRect
+								// get effectiveRange of lineFragmentRect
 						case 4:	{ // select full paragraph
-//							NSString *str=[textStorage string];
-//							NSUInteger length=[str length];
-							
+								  //							NSString *str=[textStorage string];
+								  //							NSUInteger length=[str length];
+
 							// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
-							
+
 							rng=[[textStorage string] paragraphRangeForRange:NSMakeRange(pos, 0)];
-/*
-							rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
-							rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
-							if(rng.length == NSNotFound)
+							/*
+							 rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
+							 rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
+							 if(rng.length == NSNotFound)
 								rng.length = length-rng.location;
-							else
+							 else
 								rng.length = rng.length-rng.location;
- */
+							 */
 						}
 						default:
 							break;
@@ -1049,7 +1079,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 											break;	// tracking is done
 										event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 																   untilDate:[NSDate distantFuture]						// get next event
-																	  inMode:NSEventTrackingRunLoopMode 
+																	  inMode:NSEventTrackingRunLoopMode
 																	 dequeue:YES];
 									}
 								return;
@@ -1067,7 +1097,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 					{ // repeat autoscroll
 						if(!lastMouseEvent)
 							[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
-						lastMouseEvent=event;					
+						lastMouseEvent=event;
 					}
 				else
 					{
@@ -1077,18 +1107,18 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			}
 		if([event type] == NSLeftMouseUp)
 			break;	// done with loop
-		// FIXME: handle [self selectionGranularity]
+					// FIXME: handle [self selectionGranularity]
 		[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:[NSDate distantFuture]						// get next event
-									  inMode:NSEventTrackingRunLoopMode 
+									  inMode:NSEventTrackingRunLoopMode
 									 dequeue:YES];
 		}
 	if(lastMouseEvent) [NSEvent stopPeriodicEvents];
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
 	NSLog(@"NSTextView mouseDown up");
-#endif	
+#endif
 }
 
 - (void) setSelectedRange:(NSRange) range affinity:(NSSelectionAffinity) affinity stillSelecting:(BOOL) flag;
@@ -1099,8 +1129,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				[super setSelectedRange:range];	// did change
 		}
 	else
-		{ // full version			
-			// FIXME: this may notify the wrong old-range during selection by the user!
+		{ // full version
+		  // FIXME: this may notify the wrong old-range during selection by the user!
 			// we must cache the last selectedRange until it is used next time
 			NSRange _old=_selectedRange;
 			if(_delegate) range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
@@ -1126,11 +1156,11 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	else
 		{
 		CGFloat cx=_stableCursorColumn;	// save for cursor stability
-		// [layoutManager lineFragmentRectForGlyph: effectiveRange
-		// go one back from effective range and get lfr again (if possible)
-		// take NSMidY(lfr)
+										// [layoutManager lineFragmentRectForGlyph: effectiveRange
+										// go one back from effective range and get lfr again (if possible)
+										// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
-		// FIXME: this method expects SCREEN coordinates!
+																	// FIXME: this method expects SCREEN coordinates!
 		NSUInteger pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
 		if(pos != NSNotFound)
 			[self setSelectedRange:NSMakeRange(pos, 0)];
@@ -1145,11 +1175,11 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	else
 		{
 		CGFloat cx=_stableCursorColumn;	// save for cursor stability
-		// [layoutManager lineFragmentRectForGlyph: effectiveRange
-		// go to glyph after effective range and get lfr again (if possible)
-		// take NSMidY(lfr)
+										// [layoutManager lineFragmentRectForGlyph: effectiveRange
+										// go to glyph after effective range and get lfr again (if possible)
+										// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
-		// FIXME: this method expects SCREEN coordinates!
+																	// FIXME: this method expects SCREEN coordinates!
 		NSUInteger pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
 		if(pos != NSNotFound)
 			[self setSelectedRange:NSMakeRange(pos, 0)];
@@ -1209,12 +1239,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSPoint pos;
 	if(range.length == 0 && range.location == [textStorage length])
 		{ // wants to know about position of last character
-		[layoutManager ensureLayoutForCharacterRange:range];	// generate extra Fragment if needed
-		if([layoutManager extraLineFragmentTextContainer])
-			lfur=[layoutManager extraLineFragmentUsedRect];
-		else
-			lfur=NSZeroRect;	// don't know
-		act=range;
+			[layoutManager ensureLayoutForCharacterRange:range];	// generate extra Fragment if needed
+			if([layoutManager extraLineFragmentTextContainer])
+				lfur=[layoutManager extraLineFragmentUsedRect];
+			else
+				lfur=NSZeroRect;	// don't know
+			act=range;
 		}
 	else
 		{
@@ -1337,42 +1367,42 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 
 #if 0
-- (void) textView:(NSTextView *) textView 
-	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) textView
+	clickedOnCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) cellFrame;
-- (void) textView:(NSTextView *) textView 
-	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) textView
+	clickedOnCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) cellFrame
 		  atIndex:(NSUInteger) index;
-- (void) textView:(NSTextView *) textView 
+- (void) textView:(NSTextView *) textView
 	clickedOnLink:(id) link; /* DEPRECATED */
-- (BOOL) textView:(NSTextView *) textView 
+- (BOOL) textView:(NSTextView *) textView
 	clickedOnLink:(id) link
 		  atIndex:(NSUInteger) index;
-- (void) textView:(NSTextView *) textView 
-doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) textView
+doubleClickedOnCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) cellFrame; /* DEPRECATED */
-- (void) textView:(NSTextView *) textView 
-doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) textView
+doubleClickedOnCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) cellFrame
 		  atIndex:(NSUInteger) index;
-- (void) textView:(NSTextView *) view 
-	  draggedCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) view
+	  draggedCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) rect
 			event:(NSEvent *) event; /* DEPRECATED */
-- (void) textView:(NSTextView *) view 
-	  draggedCell:(id <NSTextAttachmentCell>) cell 
+- (void) textView:(NSTextView *) view
+	  draggedCell:(id <NSTextAttachmentCell>) cell
 		   inRect:(NSRect) rect
 			event:(NSEvent *) event
 		  atIndex:(NSUInteger) index;
-- (BOOL) textView:(NSTextView *) textView 
-shouldChangeTextInRanges:(NSArray *) affectedCharRange 
+- (BOOL) textView:(NSTextView *) textView
+shouldChangeTextInRanges:(NSArray *) affectedCharRange
 replacementStrings:(NSArray *) replacementString;
-- (NSInteger) textView:(NSTextView *) textView 
-shouldSetSpellingState:(NSInteger) val 
-				 range:(NSRange) charRange; 
-- (NSRange) textView:(NSTextView *) textView 
-willChangeSelectionFromCharacterRanges:(NSArray *) oldSelectedCharRanges 
+- (NSInteger) textView:(NSTextView *) textView
+shouldSetSpellingState:(NSInteger) val
+				 range:(NSRange) charRange;
+- (NSRange) textView:(NSTextView *) textView
+willChangeSelectionFromCharacterRanges:(NSArray *) oldSelectedCharRanges
    toCharacterRanges:(NSArray *) newSelectedCharRanges;
 - (NSArray *) textView:(NSTextView *) textView
 writablePasteboardTypesForCell:(id <NSTextAttachmentCell>) cell
