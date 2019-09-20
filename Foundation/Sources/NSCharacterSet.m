@@ -166,7 +166,7 @@ static NSString *__charSetPath = @"CharacterSets";
 
 + (id) newlineCharacterSet
 {
-#if 1
+#if 0
 	fprintf(stderr, "newlineCharacterSet\n");
 #endif
 //	return [self characterSetWithCharactersInString:@"\n\r"];	// makes some problem
