@@ -34,7 +34,7 @@
 
 //*****************************************************************************
 //
-// 		_NSRunLoopPerformer
+//		_NSRunLoopPerformer
 //
 //*****************************************************************************
 
@@ -353,9 +353,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		NSMapInsert(_mode_2_timers, mode, timers);
 		[timers release];
 		}
-	if([timers containsObject:timer])
-		NSLog(@"trying to add timer twice: %@", timer);
-	[timers addObject:timer];	// append timer
+	if([timers indexOfObjectIdenticalTo:timer] != NSNotFound)
+		NSLog(@"trying to add timer twice for mode %@: %@", mode, timer);
+	else
+		[timers addObject:timer];	// append timer
 #if 0
 	NSLog(@"timers: %@", timers);
 #endif
@@ -397,12 +398,19 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSDate *limitDate=[NSDate distantFuture];	// default
 
 	NSAssert(mode, NSInvalidArgumentException);
-#if 0
+#if 1
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
 	arp=[NSAutoreleasePool new];
 #if 0
 	NSLog(@"_checkPerformersAndTimersForMode:%@ count=%d", mode, count);
+#endif
+#if 0
+	NSLog(@"timers = %@", _mode_2_timers);
+	NSLog(@"input_watchers = %@", _mode_2_inputwatchers);
+	NSLog(@"outputwatchers = %@", _mode_2_outputwatchers);
+	NSLog(@"performers = %@", _performers);
+	NSLog(@"timedPerformers = %@", _timedPerformers);
 #endif
 	_current_mode = mode;
 	for(loop = 0, i=0; loop < count; loop++)
@@ -443,7 +451,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					NSLog(@"retainCount=%d", [timer retainCount]);
 #endif
 					[timer retain];	// note: we may reenter this run-loop through -fire - where the timer may already be invalid; the inner run-loop will remove the timer from the array
-					if(timer->_is_valid)
+					if([timer isValid])
 						{ // valid timer (may be left over with negative interval from firing while we did run in a different mode or did have too much to do)
 #if 0
 							NSLog(@"timeFromNow = %lf", [[timer fireDate] timeIntervalSinceNow]);
@@ -454,15 +462,11 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 									NSLog(@"fire %p!", timer);
 #endif
 									/* NOTEs:
-									 * this might also fire an attached timed performer object
-									 * append new timers etc.
-									 * and even re-enter this run-loop!
-									 * will update the fireDate for repeating timers
+									 * - this might also fire an attached timed performer object
+									 *   append new timers etc.
+									 *   and even re-enter this run-loop!
+									 * - will update the fireDate for repeating timers
 									 */
-
-									// FIXME: if the fire method re-enters this runloop, it may invalidate
-									// and remove timers we have not yet processed here!
-									// So we better should start over with our index i and check it against [timers count]
 
 									[timer fire];
 #if 0
@@ -470,14 +474,30 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 									NSLog(@"retainCount=%d", [timer retainCount]);
 #endif
 									[NSNotificationQueue _runLoopASAP];
+
+									// FIXME: if the fire method re-enters this runloop, it may invalidate
+									// and remove timers we have not yet processed here!
+									// So we better should start over with our index i and check it against [timers count]
+
+#if 0
+									[timer release];
+									i=[timers count];	// start over
+									continue;
+#endif
 								}
 						}
-					if(!timer->_is_valid)
+					if(![timer isValid])
 						{ // now invalid after firing (i.e. this is not a repeating timer or was invalidated)
+							NSMapEnumerator e=NSEnumerateMapTable(_mode_2_timers);
+							NSString *key;
+							NSMutableArray *timers;
+							while(NSNextMapEnumeratorPair(&e, (void **) &key, (void **) &timers))
+								{ // remove from all modes
 #if 0
-							NSLog(@"%d[%d] remove %@", i, [timers count], timer);
+								NSLog(@"remove from %@: %@", mode, timer);
 #endif
-							[timers removeObjectIdenticalTo:timer];
+								[timers removeObjectIdenticalTo:timer];
+								}
 						}
 					[timer release];	// this should finally dealloc an invalid timer (and a timed performer) if it is the last mode we have checked
 				}
@@ -492,7 +512,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #if 0
 				NSLog(@"%d: check timer for limit %p: %@ forMode:%@", i, min_timer, min_timer, mode);
 #endif
-				if(min_timer->_is_valid)
+				if([min_timer isValid])
 					{
 #if 0
 					NSLog(@"timeFromNow = %lf", [[min_timer fireDate] timeIntervalSinceNow]);
@@ -529,13 +549,13 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			timeout.tv_sec = 0;											// wait if no limit date or it lies in the past. i.e.
 			timeout.tv_usec = 0;										// call select() once with 0 timeout effectively polling inputs
 			select_timeout = &timeout;
-#if 0
+#if 1
 			NSLog(@"_runLoopForMode:%@ beforeDate:%@ - don't wait", mode, before);
 #endif
 		}
 	else if (ti < LONG_MAX)
 		{ // Wait until the LIMIT_DATE.
-#if 0
+#if 1
 			NSLog(@"NSRunLoop accept input %g seconds from now %f", [before timeIntervalSinceReferenceDate], ti);
 #endif
 			timeout.tv_sec = ti;
@@ -544,7 +564,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	else
 		{ // Wait very long (beyond precision), i.e. forever
-#if 0
+#if 1
 			NSLog(@"NSRunLoop accept input waiting forever");
 #endif
 			select_timeout = NULL;
@@ -561,7 +581,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _readFileDescriptor];
-#if 0
+#if 1
 				NSLog(@"watch fd=%d for input", fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
@@ -580,7 +600,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _writeFileDescriptor];
-#if 0
+#if 1
 				NSLog(@"watch fd=%d for output", fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
@@ -594,6 +614,9 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if(num_inputs == 0)
 		{
+#if 1
+		NSLog(@"no inputs - run idle");
+#endif
 		_current_mode = saved_mode;
 		[arp release];
 #if 1
@@ -617,7 +640,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		NSLog(@"NSRunLoop select timeout NULL");
 #endif
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
-#if 0
+#if 1
 	NSLog(@"NSRunLoop select returned %d", select_return);
 #endif
 	anyInput=NO;
@@ -634,7 +657,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if(select_return == 0)
 		{
-#if 0
+#if 1
 		NSLog(@"NSRunLoop run idle");
 #endif
 		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
@@ -665,7 +688,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					NSObject *w = NSMapGet(rfd_2_object, (void*)fd_index);
 					// FIXME: is it possible that some other handler or _runLoopASAP has removed this watcher while we did wait/select?
 					NSAssert(w, NSInternalInconsistencyException);
-#if 0
+#if 1
 					NSLog(@"_readFileDescriptorReady: %@", w);
 #endif
 					[w _readFileDescriptorReady];	// notify
@@ -717,7 +740,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	// should run once if we have any timers (?)
 	if([((NSArray *)NSMapGet(_mode_2_inputwatchers, mode)) count]+[((NSArray *)NSMapGet(_mode_2_outputwatchers, mode)) count] == 0)
 		{
-#if 0
+#if 1
 		NSLog(@"runMode:%@ beforeDate:%@ - no watchers for this mode!", mode, limit_date);
 #endif
 		return NO;	// we have no watchers for this mode
