@@ -923,6 +923,11 @@ class NSButton extends NSControl
 		}
 	public function draw()
 		{
+		if(is_string($this->target) && !$this->enabled)
+			{ // disabled link button
+			html(_htmlentities($this->title));
+			return;
+			}
 		html(is_string($this->target)?"<a":"<input");
 		parameter("id", $this->elementId);
 // FIXME: if default button (shortcut "\r"): invert the selected state
