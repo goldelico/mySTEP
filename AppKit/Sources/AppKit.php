@@ -2442,31 +2442,35 @@ class NSTableView extends NSControl
 				{
 				if($column->isHidden())
 					continue;
-				html($row < 0?"<th":"<td");
-				parameter("id", $this->elementId."-".$row."-".$index);
-				parameter("name", $column->identifier());
 				if($row < 0)
 					{
+					$cell=$column->headerCell();
 					$class="NSTableHeaderCell";
 					$class.=($index == $this->selectedColumn)?" NSSelected":" NSUnselected";
+					$item=$column->title();
 					}
 				else
 					{
 					$class="NSTableCell";
 					$class.=($row == $this->selectedRow || $index == $this->selectedColumn)?" NSSelected":" NSUnselected";
 					$class.=(($row%2) == 0)?" NSEven":" NSOdd";
+					if($row < $rows)
+						{
+						if(is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
+							$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
+						else
+							$cell=$column->dataCell();
+						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+						}
 					}
 				if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
 					$class.=" NSSelectable";
+				html($row < 0?"<th":"<td");
+				parameter("id", $this->elementId."-".$row."-".$index);
+				parameter("name", $column->identifier());
 				parameter("class", $class);
 				if($column->align()) parameter("align", $column->align());
 				parameter("width", $column->width());
-				if($row < 0)
-					$cell=$column->headerCell();
-				else if(is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
-					$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
-				else
-					$cell=$column->dataCell();
 				if($row < $rows)
 					{
 // _NSLog($column);
@@ -2475,10 +2479,6 @@ class NSTableView extends NSControl
 					$cell->_setElementId($this->elementId."-$row-$index");	// make them unique and attach to table
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 					// parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
-					if($row < 0)
-						$item=$column->title();
-					else
-						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					$cell->setObjectValue($item);
 					if($row >= 0 && is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
 						$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
