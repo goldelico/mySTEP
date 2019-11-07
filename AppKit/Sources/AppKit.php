@@ -526,10 +526,13 @@ class NSColor extends NSObject
 	protected $rgb;
 	public function name() { }
 	public static function systemColorWithName($name)
-		{
+		{ // accept html name or #rgb or #rrggbb
 //		NSBundle::bundleForClass($this->classString());
-		// get system colors
+		// get system colors (html names)
 		}
+	public function rgb() { return $this->rgb; }
+	public function htmlColor() { return "#".$this->rgb; }
+	public function contrastColor() { return "#000000"; }
 	}
 
 class NSFont extends NSObject
@@ -778,6 +781,7 @@ class NSButton extends NSControl
 	protected $buttonType;
 	protected $keyEquivalent;	// set to "\r" to make it the default button
 	protected $backgroundColor;
+	protected $textColor;
 	public function __construct($newtitle = "NSButton", $buttonType="Button")
 		{
 		parent::__construct();
@@ -823,6 +827,13 @@ class NSButton extends NSControl
 		if($color == $this->backgroundColor)
 			return;
 		$this->backgroundColor=$color;
+		$this->setNeedsDisplay();
+		}
+	public function textColor() { return $this->textColor; }
+	public function setTextColor($color)
+		{
+		if($color === $this->textColor) return;
+		$this->textColor=$color;
 		$this->setNeedsDisplay();
 		}
 	public function state() { return $this->state; }
@@ -937,6 +948,8 @@ class NSButton extends NSControl
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		if($this->backgroundColor)
 			parameter("style", "background: ".$this->backgroundColor);
+		if($this->textColor)
+			parameter("style", "color: ".$this->textColor);
 		$super=$this->superview();
 // _NSLog($super->classString());
 		if(is_string($this->target))
@@ -1692,6 +1705,12 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 					if(!is_null($color))
 						$style.=";background-color: ".$color;
 					}
+				if($item->respondsToSelector("textColor"))
+					{
+					$color=$item->textColor();
+					if(!is_null($color))
+						$style.=";color: ".$color;
+					}
 				parameter("style", $style);
 				html(">\n");
 				$item->display();
@@ -1727,6 +1746,12 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 				$color=$item->backgroundColor();
 				if(!is_null($color))
 					parameter("style", "background-color: ".$color);
+				}
+			if($item->respondsToSelector("textColor"))
+				{
+				$color=$item->textColor();
+				if(!is_null($color))
+					parameter("style", "color: ".$color);
 				}
 			html(">\n");
 			$item->display();
@@ -2482,12 +2507,15 @@ class NSTableView extends NSControl
 					$cell->setObjectValue($item);
 					if($row >= 0 && is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
 						$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
-					if($cell->respondsToSelector("backgroundColor"))
-						{ // copy cell background to full table cell
-						$bgcolor=$cell->backgroundColor();
-						if($bgcolor)	// not transparent
-							parameter("style", "background-color:".$bgcolor);
-						}
+
+					$style=array();
+					// copy cell colors to full table cell
+					if($cell->respondsToSelector("backgroundColor") && $cell->backgroundColor())
+						$style[]="background-color: ".$cell->backgroundColor();
+					if($cell->respondsToSelector("textColor") && $cell->textColor())
+						$style[]="color: ".$cell->textColor();
+					if(count($style) > 0)
+						parameter("style", implode(';', $style));
 					html(">\n");
 					$cell->display(); // let the cell do the formatting
 					}
@@ -2571,6 +2599,13 @@ if($name)
 		$this->backgroundColor=$color;
 		$this->setNeedsDisplay();
 		}
+	public function textColor() { return $this->textColor; }
+	public function setTextColor($color)
+		{
+		if($color === $this->textColor) return;
+		$this->textColor=$color;
+		$this->setNeedsDisplay();
+		}
 	public function font() { return $this->font; }
 	public function setFont(NSFont $font)
 		{
@@ -2625,8 +2660,13 @@ if($name)
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
+			$style=array();
 			if($this->backgroundColor)
-				parameter("style", "background-color: ".$this->backgroundColor);
+				$style[]="background-color: ".$this->backgroundColor;
+			if($this->textColor)
+				$style[]="color: ".$this->textColor;
+			if(count($style) > 0)
+				parameter("style", implode(';', $style));
 			if($this->placeholder)
 				parameter("placeholder", $this->placeholder);
 			parameter("name", is_null($this->name)?$this->elementId."-string":$this->name);	// default or override name
@@ -2648,17 +2688,22 @@ if($name)
 			}
 		else
 			{
+			$style=array();
 			if($this->backgroundColor)
+				$style[]="background-color: ".$this->backgroundColor;
+			if($this->textColor)
+				$style[]="color: ".$this->textColor;
+			if(count($style) > 0)
 				{
 				html("<span");
-				parameter("style", "background-color: ".$this->backgroundColor);
+				parameter("style", implode(';', $style));
 				html(">");
 				}
 			if($this->wraps)
 				html(nl2br($this->htmlValue));
 			else
 				html($this->htmlValue);
-			if($this->backgroundColor)
+			if(count($style) > 0)
 				html("</span>");
 			}
 		if(!is_null($this->font))
