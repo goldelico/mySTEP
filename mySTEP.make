@@ -72,8 +72,9 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
 #   (*) DEBIAN_DEPENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - quantumstep-cocoa-framework
-#   (*) DEBIAN_CONFLICTS - quantumstep-cocoa-framework
-#   (*) DEBIAN_REPLACES - quantumstep-cocoa-framework
+#   (*) DEBIAN_CONFLICTS -
+#   (*) DEBIAN_REPLACES -
+#   (*) DEBIAN_PROVIDES -
 #   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
 #   (*) DEBIAN_DESCRIPTION
 #   (*) DEBIAN_MAINTAINER
@@ -385,7 +386,7 @@ build_architectures:
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
-	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
+	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
 	[ "$$RELEASES" ] || RELEASES="staging"; \
 	echo $$RELEASES; \
 	for DEBIAN_RELEASE in $$RELEASES; do \
@@ -906,6 +907,7 @@ F = filter_dependencies() \
 	# DEBIAN_RECOMMENDS: $(DEBIAN_RECOMMENDS)
 	# DEBIAN_CONFLICTS: $(DEBIAN_CONFLICTS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
+	# DEBIAN_PROVIDES: $(DEBIAN_PROVIDES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
@@ -929,8 +931,9 @@ F = filter_dependencies() \
 	  $(F); \
 	  [ "$(DEBIAN_DEPENDS)" ] && echo "$(DEBIAN_DEPENDS)" | filter_dependencies "Depends:"; \
 	  [ "$(DEBIAN_RECOMMENDS)" ] && echo "$(DEBIAN_RECOMMENDS)" | filter_dependencies "Recommends:"; \
-	  [ "$(DEBIAN_REPLACES)" ] && echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
 	  [ "$(DEBIAN_CONFLICTS)" ] && echo "$(DEBIAN_CONFLICTS)" | filter_dependencies "Conflicts:"; \
+	  [ "$(DEBIAN_REPLACES)" ] && echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
+	  [ "$(DEBIAN_PROVIDES)" ] && echo "$(DEBIAN_PROVIDES)" | filter_dependencies "Provides:"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
