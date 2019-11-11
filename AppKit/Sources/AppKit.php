@@ -3485,7 +3485,7 @@ class NSNib extends NSObject
 
 /* main function */
 
-function NSApplicationMain($name)
+function NSApplicationMain($name, $nibfile="NSMainNibFile")
 {
 	global $NSApp;
 	global $ROOT;
@@ -3510,14 +3510,21 @@ NSLog("main bundle has no principal class");
 		}
 	$NSApp=new $pclass($name);
 	$loaded=false;
-	$nibname=$mainBundle->objectForInfoDictionaryKey("NSMainNibFile");
-	if($nibname)
+// we need a mechanism to disable loading the NIB from Info.plist
+// especially if the main script is NOT the executablePath
+// this happens for other php scripts stored in the Bundle
+// the easiest way would be if the script can override the NIB file name
+// when calling NSApplicationMain() - potentially with null
+	if(!is_null($nibfile))
+		$nibname=$mainBundle->objectForInfoDictionaryKey($nibfile);
+	if(!is_null($nibfile) && $nibname)
 		{
 		$nib=new NSNib();
 		$nib=$nib->initWithNibAndBundle($nibname, $mainBundle);
 		if(!is_null($nib))
 			{
 			$nib->instantiateNibWithExternalNameTable(array("NSOwner" => $NSApp));	// load nib with NSApp object as NSOwner
+_NSLog("PNIB $nibname loaded - not working well");
 			$loaded=true;
 			}
 		}
