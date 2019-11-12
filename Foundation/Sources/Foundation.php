@@ -1146,6 +1146,82 @@ _NSLog($errs);
 
 	}
 
+class NSTimer extends NSObject
+{
+	protected $fireDate;
+	protected $interval;
+	protected $target;
+	protected $action;
+	protected $userInfo;
+	protected $repeats;
+	protected $hash;	// unique identifier for runloop being able to separate multiple timer
+
+	public function __construct($timestamp=null)
+		{
+		parent::__construct();
+		$trace=debug_backtrace();
+_NSLog($trace);
+		$trace=json_encode($trace);	// make a hopefully unique hash that only depends on code location where the timer is created
+_NSLog($trace);
+		$trace=md5($trace);
+_NSLog($trace);
+		$this->hash=$trace;
+		}
+
+	public static function scheduledTimerWithTimeInterval($interval, $target, $selector, $userInfo=null, $repeats=false)
+		{
+		$fireDate=NSDate::dateWithTimeIntervalSinceNow($interval);
+		$timer=new NSTimer();
+		$timer=$timer->initWithFireDate($fireDate, $interval, $target, $selector, $userInfo, $repeats);
+		// NSRunLoop::currentRunLoop()->addTimer($timer, "");
+		return $timer;
+		}
+
+	public function initWithFireDate($fireDate, $interval, $target, $selector, $userInfo=null, $repeats=false)
+		{
+		$this->fireDate=$fireDate;
+		$this->interval=$interval;
+		$this->target=$target;
+		$this->selector=$selector;
+		$this->userInfo=$userInfo;
+		$this->repeats=$repeats;
+		return $this;
+		}
+
+	public function fire()
+		{
+		if(!is_null($this->fireDate))
+			{
+			$action=$this->selector;
+			if(method_exists($target, $action))
+				$target->$action($from);
+			else
+				_NSLog(/*$target->description().*/"target does no handle $action");
+			if($this->repeats)
+				{
+				$time=$this->fireDate->timeIntervalSince1970()+$this->interval;
+				$date=NSDate::dateWithTimeIntervalSince1970($time);
+				$this->fireDate=$date;
+				}
+			else
+				$this->invalidate();
+			}
+		}
+
+	public function _fireIfExpired()
+		{
+		if($this->timeIntervalSinceNow() < 0)
+			$this->fire();
+		}
+
+	public function invalidate() { $this->fireDate=nil; }
+	public function isValid() { return !is_null($this->fireDate); }
+	public function fireDate() { return $this->fireDate; }
+	public function timeInterval() { return $this->timeInterval; }
+	public function userInfo() { return $this->userInfo; }
+	public function hash() { return $this->hash; }
+}
+
 class NSProcessInfo extends NSObject
 {
 	protected static $processInfo;
