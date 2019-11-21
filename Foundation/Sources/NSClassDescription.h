@@ -37,7 +37,7 @@
 @class NSDictionary;
 @class NSString;
 
-NSString *const NSClassDescriptionNeededForClassNotification;
+extern NSString *const NSClassDescriptionNeededForClassNotification;
 
 @interface NSClassDescription : NSObject
 
