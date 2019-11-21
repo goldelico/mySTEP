@@ -29,6 +29,8 @@ typedef enum _NSPropertyListMutabilityOptions
 
 typedef enum _NSPropertyListFormat
 {
+	NSPropertyListYAMLBlockFormat=-6,	// extension: YAML block format
+	NSPropertyListYAMLFormat=-5,		// extension: YAML inline format
 	NSPropertyListJSONPrettyPrintedFormat=-4,	// extension: pretty printed JSON format
 	NSPropertyListJSONFormat=-3,		// extension: tight JSON format
 	NSPropertyListStringFileFormat=-2,	// extension: StringFile format

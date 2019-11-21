@@ -114,7 +114,7 @@
 {
 	if (!currentValue)
 		currentValue = [[NSMutableString alloc] initWithCapacity:50];
-	[currentValue appendString:string];    
+	[currentValue appendString:string];
 }
 
 - (void) parser:(NSXMLParser *) parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict
@@ -122,28 +122,28 @@
 #if 0
 	NSLog(@"didStartElement: %@ <%@ %@>", currentValue, elementName, attributeDict);
 #endif
-//	if(isLeaf)
-//		;	// nesting error
-    if([elementName isEqualToString:@"plist"] ||
+	//	if(isLeaf)
+	//		;	// nesting error
+	if([elementName isEqualToString:@"plist"] ||
 	   [elementName isEqualToString:@"dict"] ||
 	   [elementName isEqualToString:@"array"])
 		{ // nested elements
-		_NSXMLPropertyList *subelement;
-		// can we check here for nesting error, e.g. <string> xxx <dict> yyy </dict> zzz </string> ???
-		subelement=[[[_NSXMLPropertyList alloc] initWithType:elementName
-										   withMutabilityOption:isMutable
-													  andParent:self] autorelease];
-		// should we not release here but in didEndElement?
-		[parser setDelegate:subelement];
+			_NSXMLPropertyList *subelement;
+			// can we check here for nesting error, e.g. <string> xxx <dict> yyy </dict> zzz </string> ???
+			subelement=[[[_NSXMLPropertyList alloc] initWithType:elementName
+											withMutabilityOption:isMutable
+													   andParent:self] autorelease];
+			// should we not release here but in didEndElement?
+			[parser setDelegate:subelement];
 		}
 	else
 		{ // leaf elements
-		// isLeaf=YES;
-		// could check for other valid entries
-		// but NSXMLParser already checks nesting
+			// isLeaf=YES;
+			// could check for other valid entries
+			// but NSXMLParser already checks nesting
 		}
- 	[currentValue release];  
- 	currentValue=nil;
+	[currentValue release];
+	currentValue=nil;
 }
 
 - (void) parser:(NSXMLParser *) parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
@@ -169,7 +169,7 @@
 		}
 	// leaf elements
 	else if([elementName isEqualToString:@"key"])
-// FIXME: handle currentValue == nil
+		// FIXME: handle currentValue == nil
 		[self setKey:currentValue];	// pass key to parent
 	else if([elementName isEqualToString:@"data"])
 		{
@@ -215,35 +215,59 @@
 #if 1
 		NSLog(@"unrecognized tag <%@>", elementName);
 #endif
-		[currentValue release];  
+		[currentValue release];
 		currentValue=nil;
 		[parser abortParsing];
 		return;
 		}
 	// isLeaf=NO;
- 	[currentValue release];  
- 	currentValue=nil;
+	[currentValue release];
+	currentValue=nil;
 }
 
 @end
 
 @interface NSScanner (NSPropertyList)
+- (void) propertyListStart;
 - (void) propertyListSkipSpace;
 - (void) propertyListSkipSpaceAndComments;
+- (void) propertyListSkipSpaceAndYAMLComments;
+- (NSUInteger) column;
+- (NSUInteger) level;
+- (NSUInteger) line;
 - (NSString *) propertyListScanQuotedString;
 - (NSString *) propertyListScanUnquotedString;
+- (NSString *) propertyListScanUnquotedYAMLString;
 - (id) propertyListScanPropertyListDictionary:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err withBrace:(BOOL) flag;
 - (id) propertyListScanPropertyListElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
 - (id) propertyListScanJSONElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
+- (id) propertyListScanYAMLElement:(NSPropertyListMutabilityOptions) opt level:(NSUInteger) level errorDescription:(NSString **) err;
+- (id) propertyListScanYAMLLines:(NSPropertyListMutabilityOptions) opt level:(NSUInteger) level errorDescription:(NSString **) err;
 @end
 
 @implementation NSScanner (NSPropertyList)
 
 static NSCharacterSet *spaces;		// @" \t\n\r"
-static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"
+
+// FIXME: should not be global - breaks Thread-Safety
+static NSUInteger lastNewLine;	// scanLocation behind last \n
+static NSUInteger level;	// current indentation level (for YAML)
+static NSUInteger line;	// line number
+
+- (NSUInteger) line; { return line; }
+// FIXME: should handle \t between lastNewLine and scanLocation
+- (NSUInteger) column; { return [self scanLocation]-lastNewLine; }
+- (NSUInteger) level; { return level; }
+
+- (void) propertyListStart;
+{
+	line=1;
+	lastNewLine=1;
+}
 
 - (void) propertyListSkipSpace;
 { // skip whitespace and newlines
+	BOOL updateLevel=[self column] == 0;
 	if(!spaces)
 		spaces=[[NSCharacterSet characterSetWithCharactersInString:@" \t\r"] retain];
 	while(YES)
@@ -253,8 +277,19 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		//	NS_TIME_END(VAR, "propertyListSkipSpace 1");	// ca. 1-2 µs
 		if([self scanString:@"\n" intoString:NULL])
 			{
-			// line++;	// count line numbers
+			lastNewLine=[self scanLocation];	// to get column
+			line++;	// count line numbers
+			updateLevel=YES;
 			continue;
+			}
+		if(updateLevel)
+			{
+			// could handle tabs between lastNewLine and [self scanLocation]
+			level=[self column];	// first indentation
+#if 0
+			if(level > 0)
+				NSLog(@"level=%ld", (unsigned long) level);
+#endif
 			}
 		return;
 		}
@@ -280,6 +315,21 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		}
 }
 
+- (void) propertyListSkipSpaceAndYAMLComments;
+{ // skip space and YAML comments
+	while(YES)
+		{
+		[self propertyListSkipSpace];
+		if([self scanString:@"#" intoString:NULL])
+			{ // C++ style comment
+				[self scanUpToString:@"\n" intoString:NULL];	// ignore until end of line
+				continue;	// \n will be eaten by next propertyListSkipSpace
+			}
+		return;
+		}
+}
+
+// FIXME: separate between QuotedString and DoubleQuotedString
 - (NSString *) propertyListScanQuotedString;
 { // first quote aready absorbed - scan until second quote; handle \n etc. - return nil on unexpected isAtEnd
 	NSMutableString *str=[NSMutableString stringWithCapacity:10];
@@ -301,25 +351,25 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		[self scanString:@"\\" intoString:NULL];	// must be the backslash
 		if([self scanString:@"U" intoString:NULL])
 			{ // hex Unicode
-			unichar chr=0x00a4;
+				unichar chr=0x00a4;
 				// FIXME:
-			[str appendFormat:@"%C", chr];	// splice together
+				[str appendFormat:@"%C", chr];	// splice together
 			}
 		else if([self scanString:@"0" intoString:NULL])
 			{ // octal
-			  // FIXME:
+				// FIXME:
 			}
 		else if([self scanString:@"\n" intoString:NULL])
 			{ // \ + newline
-			continue;	// ignore (i.e. continuation line)
+				continue;	// ignore (i.e. continuation line)
 			}
 		else if([self scanString:@"n" intoString:NULL])
 			{ // \n
-			[str appendString:@"\n"];
+				[str appendString:@"\n"];
 			}
 		else if([self scanString:@"r" intoString:NULL])
 			{ // \r
-			[str appendString:@"\r"];
+				[str appendString:@"\r"];
 			}
 		// more escape characters...
 		else if([self scanString:@"\\" intoString:NULL])
@@ -328,7 +378,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			}
 		else if([self scanInt:&val])
 			{ // \ddd
-			[str appendFormat:@"%c", val];	// splice together
+				[str appendFormat:@"%c", val];	// splice together
 			}
 		}
 	return nil;	// unterminated!
@@ -337,6 +387,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 - (NSString *) propertyListScanUnquotedString;
 { // scan unquoted string meaning all characters not requiring being quoted
 	NSString *str;
+	static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"
 	if(!unquoted)
 		unquoted=[[[NSCharacterSet characterSetWithCharactersInString:@",;={}()[] \"\n"] invertedSet] retain];
 #if 0
@@ -345,6 +396,40 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 	if([self scanCharactersFromSet:unquoted intoString:&str])
 		return str;	// at least one
 	return @"";		// empty!
+}
+
+- (NSString *) propertyListScanUnquotedYAMLString;
+{ // scan unquoted string meaning all characters not requiring being quoted
+	NSString *val=nil;
+	static NSCharacterSet *unquotedYAML;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"
+	if(!unquotedYAML)
+		unquotedYAML=[[[NSCharacterSet characterSetWithCharactersInString:@":,-?{}[]\n"] invertedSet] retain];
+#if 0
+	NSLog(@"propertyListScanYAMLUnquotedString");
+#endif
+	while(![self isAtEnd])
+		{
+		NSString *str;
+		NSString *delim;
+		// FIXME: don't skip or end with spaces here!
+		if(![self scanCharactersFromSet:unquotedYAML intoString:&str])
+			break;	// take what we have so far
+		if(val)
+			val=[val stringByAppendingString:str];
+		else
+			val=str;
+		if([self scanString:@"?" intoString:&delim] || [self scanString:@"-" intoString:&delim] || [self scanString:@":" intoString:&delim] || [self scanString:@"," intoString:&delim])
+			{
+			if([self scanString:@" " intoString:NULL] || [self scanString:@"\n" intoString:NULL])
+				{
+				[self setScanLocation:[self scanLocation]-2];	// backup before ": "
+				break;
+				}
+			val=[val stringByAppendingString:delim];
+			continue;
+			}
+		}
+	return val;
 }
 
 - (id) propertyListScanPropertyListDictionary:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err withBrace:(BOOL) flag;
@@ -377,9 +462,9 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 		if(!val)
 			{
 #if 1
-				NSLog(@"nil value %@", *err);
+			NSLog(@"nil value %@", *err);
 #endif
-				return nil;
+			return nil;
 			}
 #if 0
 		NSLog(@"%@:=%@", key, val);
@@ -392,8 +477,8 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 				break;
 			if(![self scanString:@";" intoString:NULL])
 				{ // must have closing ;
-				*err=[NSString stringWithFormat:@"missing ; for key %@", key];
-				return nil;
+					*err=[NSString stringWithFormat:@"missing ; for key %@", key];
+					return nil;
 				}
 			}
 		else
@@ -415,68 +500,68 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 #endif
 	if([self scanString:@"{" intoString:NULL])
 		{ // { key=value; ... [;] } - NSDictionary
-		return [self propertyListScanPropertyListDictionary:opt errorDescription:err withBrace:YES];
+			return [self propertyListScanPropertyListDictionary:opt errorDescription:err withBrace:YES];
 		}
 	if([self scanString:@"(" intoString:NULL])
 		{ // ( value, value, ...) - NSArray
-		NSMutableArray *a=[NSMutableArray arrayWithCapacity:10];
-//		NSLog(@"( - NSArray");
-		[self propertyListSkipSpaceAndComments];
-		if(![self scanString:@")" intoString:NULL])
-			{ // array is not empty
-			while(YES)
-				{
-				val=[self propertyListScanPropertyListElement:opt errorDescription:err];
-				if(!val)
-					return nil;
-				[a addObject:val];
-				[self propertyListSkipSpaceAndComments];
-				if([self scanString:@")" intoString:NULL])
-					break;
-				if(![self scanString:@"," intoString:NULL])
-					{
-					*err=[NSString stringWithFormat:@"missing ) or , after object %@", val];
-					return nil;
-					}
-				[self propertyListSkipSpaceAndComments];
-				if([self scanString:@")" intoString:NULL])
-					break;  // (value, )
+			NSMutableArray *a=[NSMutableArray arrayWithCapacity:10];
+			//		NSLog(@"( - NSArray");
+			[self propertyListSkipSpaceAndComments];
+			if(![self scanString:@")" intoString:NULL])
+				{ // array is not empty
+					while(YES)
+						{
+						val=[self propertyListScanPropertyListElement:opt errorDescription:err];
+						if(!val)
+							return nil;
+						[a addObject:val];
+						[self propertyListSkipSpaceAndComments];
+						if([self scanString:@")" intoString:NULL])
+							break;
+						if(![self scanString:@"," intoString:NULL])
+							{
+							*err=[NSString stringWithFormat:@"missing ) or , after object %@", val];
+							return nil;
+							}
+						[self propertyListSkipSpaceAndComments];
+						if([self scanString:@")" intoString:NULL])
+							break;  // (value, )
+						}
 				}
-			}
-		// process opt types here and make unmutable copy if requested
-		return a;
+			// process opt types here and make unmutable copy if requested
+			return a;
 		}
 	if([self scanString:@"<" intoString:NULL])
 		{ // <xxxxxx> (hex data) - NSData - may also be the beginning of <?xml !!
-		NSMutableData *a=[NSMutableData dataWithCapacity:100];
-		BOOL second=NO;
-		char value;
-//		NSLog(@"< - NSData");
-		while([self propertyListSkipSpaceAndComments], ![self scanString:@">" intoString:NULL])
-			{
-			unsigned int scl;
-			unichar hc;
-			if([self isAtEnd])
-				{ // not a hex character!
-				*err=@"unexpected end of file in <xx>";
-				return nil;
+			NSMutableData *a=[NSMutableData dataWithCapacity:100];
+			BOOL second=NO;
+			char value=0;
+			//		NSLog(@"< - NSData");
+			while([self propertyListSkipSpaceAndComments], ![self scanString:@">" intoString:NULL])
+				{
+				NSUInteger scl;
+				unichar hc;
+				if([self isAtEnd])
+					{ // not a hex character!
+						*err=@"unexpected end of file in <xx>";
+						return nil;
+					}
+				hc=[[self string] characterAtIndex:(scl=[self scanLocation])];	// get hex character
+				if(!((hc >= '0' && hc <='9') || (hc >= 'a' && hc <='f') || (hc >= 'A' && hc <='F')))
+					{ // not a hex character!
+						*err=[NSString stringWithFormat:@"invalid hex character: %C", hc];
+						return nil;
+					}
+				if(hc <= '9')
+					value=(value<<4) + ((hc-'0')&0x0f);
+				else
+					value=(value<<4) + ((hc-'a'+10)&0x0f);
+				if(second)	// was second character
+					[a appendBytes:&value length:1];
+				second=!second;
+				[self setScanLocation:scl+1];	// point to next character
 				}
-			hc=[[self string] characterAtIndex:(scl=[self scanLocation])];	// get hex character
-			if(!((hc >= '0' && hc <='9') || (hc >= 'a' && hc <='f') || (hc >= 'A' && hc <='F')))
-				{ // not a hex character!
-				*err=[NSString stringWithFormat:@"invalid hex character: %C", hc];
-				return nil;
-				}
-			if(hc <= '9')
-				value=(value<<4) + ((hc-'0')&0x0f);
-			else
-				value=(value<<4) + ((hc-'a'+10)&0x0f);
-			if(second)	// was second character
-				[a appendBytes:&value length:1];
-			second=!second;
-			[self setScanLocation:scl+1];	// point to next character
-			}
-		return a;
+			return a;
 		}
 	if([self scanString:@"\"" intoString:NULL])
 		val=[self propertyListScanQuotedString];
@@ -515,7 +600,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 #endif
 	if([self scanString:@"\"" intoString:NULL])
 		{ // string
-		  //NS_TIME_START(VAR);
+			//NS_TIME_START(VAR);
 			val=[self propertyListScanQuotedString];
 			//NS_TIME_END(VAR, "propertyListScanQuotedString");
 			if(!val)
@@ -618,6 +703,294 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 	return val;
 }
 
+/* see
+ * https://yaml.org/refcard.html
+ * https://en.wikipedia.org/wiki/YAML#Syntax
+ */
+
+// separate between simple and complex elements!
+
+- (id) propertyListScanYAMLElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
+{
+	id val=nil;
+	double dval;
+	BOOL fold;
+	do
+		[self propertyListSkipSpaceAndYAMLComments];
+	while([self scanString:@"\n" intoString:NULL]);
+	if([self scanString:@"?" intoString:NULL])
+		{ // optional prefix for keys
+			val=[self propertyListScanUnquotedYAMLString];
+		}
+	else if((fold=[self scanString:@">" intoString:NULL]) || [self scanString:@"|" intoString:NULL])
+		{ // plain text
+			NSUInteger level=[self level];	// line where |+ is contained
+			[self scanString:@"+" intoString:NULL];
+			[self scanString:@"-" intoString:NULL];
+			[self scanUpToString:@"\n" intoString:NULL];	// ignore until end of line
+			while(![self isAtEnd])
+				{
+				NSString *line;
+				NSInteger moreSpaces;
+				[self propertyListSkipSpaceAndYAMLComments];
+				// FIXME: make sure we skip empty lines as paragraphs
+				if([self level] <= level)
+					break;	// all indentation processed
+				moreSpaces=(NSInteger)[self column] - (level+2);
+				if(moreSpaces < 0)
+					moreSpaces=0;
+				[self scanUpToString:@"\n" intoString:&line];	// read until end of line
+				if(moreSpaces)
+					{
+					NSString *spaces=[@"" stringByPaddingToLength:moreSpaces withString:@" " startingAtIndex:0];
+					line=[spaces stringByAppendingString:line];
+					}
+				if(!fold)
+					line=[line stringByAppendingString:@"\n"];	// keep \n
+				else
+					line=[line stringByAppendingString:@" "];	// convert to space
+				if(!val)
+					val=line;
+				else
+					val=[val stringByAppendingString:line];
+				}
+		}
+	else if([self scanString:@"{" intoString:NULL])
+		{ // { key:value, key:value } -> NSDictionary
+			val=[NSMutableDictionary dictionaryWithCapacity:10];
+			[self propertyListSkipSpaceAndYAMLComments];
+			if(![self scanString:@"}" intoString:NULL])
+				{
+				while(YES)
+					{ // parse elements until }
+						id key;
+						id value;
+						//NS_TIME_START(VAR);
+						key=[self propertyListScanYAMLElement:opt errorDescription:err];
+						//NS_TIME_END(VAR, "key");
+#if 0
+						NSLog(@"key = %@", key);
+#endif
+						if(!key)
+							return nil;
+						[self propertyListSkipSpaceAndYAMLComments];
+						if(![self scanString:@":" intoString:NULL])
+							{
+							*err=[NSString stringWithFormat:@"missing : after key %@", val];
+							return nil;
+							}
+						//NS_TIME_START(VAR);
+						value=[self propertyListScanYAMLElement:opt errorDescription:err];
+						//NS_TIME_END(VAR, "value");
+#if 0
+						NSLog(@"value = %@", value);
+#endif
+						if(!value)
+							return nil;
+						[val setObject:value forKey:key];
+						[self propertyListSkipSpaceAndYAMLComments];
+						if([self scanString:@"}" intoString:NULL])
+							break;
+						if(![self scanString:@"," intoString:NULL])
+							{
+							*err=[NSString stringWithFormat:@"missing } or , after object %@", val];
+							return nil;
+							}
+					}
+				}
+		}
+	else if([self scanString:@"[" intoString:NULL])
+		{ // [ value, value, ...] -> NSArray
+			val=[NSMutableArray arrayWithCapacity:10];
+			[self propertyListSkipSpaceAndYAMLComments];
+			if(![self scanString:@"]" intoString:NULL])
+				{
+				while(YES)
+					{ // parse elements until ]
+						id value;
+						value=[self propertyListScanYAMLElement:opt errorDescription:err];
+						if(!value)
+							return nil;
+						[val addObject:value];
+						[self propertyListSkipSpaceAndYAMLComments];
+						if([self scanString:@"]" intoString:NULL])
+							break;
+						if(![self scanString:@"," intoString:NULL])
+							{
+							*err=[NSString stringWithFormat:@"missing ] or , after object %@", val];
+							return nil;
+							}
+					}
+				}
+		}
+	else if([self scanString:@"~" intoString:NULL])
+		val=[NSNull null];
+	else if([self scanString:@"\"" intoString:NULL])
+		{ // double quoted string
+			//NS_TIME_START(VAR);
+			val=[self propertyListScanQuotedString];
+			//NS_TIME_END(VAR, "propertyListScanQuotedString");
+			if(!val)
+				{
+				*err=@"invalid string";
+				return nil;
+				}
+		}
+	else if([self scanString:@"'" intoString:NULL])
+		{ // quoted string
+		}
+	else if([self scanString:@"0x" intoString:NULL])
+		{
+		unsigned int hex;
+		[self scanHexInt:&hex];
+		val=[NSNumber numberWithInt:(int) hex];
+		}
+	else if([self scanString:@"0" intoString:NULL])
+		{ // octal
+			unsigned int hex;
+			// FIXME
+			[self scanHexInt:&hex];
+			val=[NSNumber numberWithInt:(int) hex];
+		}
+	else if([self scanDouble:&dval])
+		{
+		if(dval <= INT_MAX && dval >= INT_MIN && dval == (double)(int) dval)	// seems to have precise int representation
+			val=[NSNumber numberWithInt:(int) dval];
+		else
+			val=[NSNumber numberWithDouble:dval];
+		}
+	else
+		{ // check for unquoted identifier
+			val=[self propertyListScanUnquotedYAMLString];
+			if([val length] == 0)
+				{
+				NSString *next=[[self string] substringFromIndex:[self scanLocation]];
+				next=[next stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+				*err=[NSString stringWithFormat:@"unknown YAML element: %@", [next substringToIndex:MIN(15, [next length])]];
+				}
+			else if([val caseInsensitiveCompare:@"y"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"yes"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"true"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"on"] == NSOrderedSame)
+				val=[NSNumber numberWithBool:YES];
+			else if([val caseInsensitiveCompare:@"n"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"no"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"false"] == NSOrderedSame ||
+					[val caseInsensitiveCompare:@"off"] == NSOrderedSame)
+				val=[NSNumber numberWithBool:NO];
+			else if([val caseInsensitiveCompare:@"null"] == NSOrderedSame)
+				val=[NSNull null];
+		}
+#if 0
+	NSLog(@"YAML Element parsed: %@ %@", val, *err);
+#endif
+	return val;
+}
+
+- (id) propertyListScanYAMLLines:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
+{
+	id val=nil;
+	NSUInteger level;
+	if(err)
+		*err=@"";
+	[self propertyListSkipSpaceAndYAMLComments];
+	level=[self level];	// where the - or keyword started
+	while(![self isAtEnd])
+		{
+		NSString *key;
+		[self propertyListSkipSpaceAndYAMLComments];
+		if([self column] < level)
+			break;	// return what we have (may be nil on indentation errors)
+		if([self scanString:@"---" intoString:NULL])
+			{ // start of document
+				[self scanUpToString:@"\n" intoString:NULL];	// ignore until end of line
+				continue;
+			}
+		else if([self scanString:@"..." intoString:NULL])
+			{ // end of document
+				[self scanUpToString:@"\n" intoString:NULL];	// ignore until end of line
+				break;
+			}
+		else if([self scanString:@"%" intoString:NULL])
+			{ // directive, e.g. %YAML 1.2
+				[self scanUpToString:@"\n" intoString:NULL];	// ignore until end of line
+				continue;
+			}
+		else if((!val || [val isKindOfClass:[NSArray class]]) && [self scanString:@"-" intoString:NULL])
+			{ // list item(s)
+				while(![self isAtEnd])
+					{
+					id item;
+					[self propertyListSkipSpaceAndYAMLComments];
+					if([self level] < level)
+						break;	// outer level
+					item=[self propertyListScanYAMLLines:opt errorDescription:err];
+					if(!item)
+						{
+						val=nil;
+						break;
+						}
+					if(!val)
+						val=[NSMutableArray arrayWithCapacity:10];
+					[val addObject:item];
+					[self propertyListSkipSpaceAndYAMLComments];
+					if(![self scanString:@"," intoString:NULL])
+						break;
+					}
+				continue;
+			}
+		key=[self propertyListScanYAMLElement:opt errorDescription:err];
+		if(key && (!val || [val isKindOfClass:[NSDictionary class]]) && [self scanString:@":" intoString:NULL])
+			{
+			id item;
+			if(!val)
+				val=[NSMutableDictionary dictionaryWithCapacity:10];
+			[self propertyListSkipSpaceAndYAMLComments];
+			if([self column] < level)
+				{
+				*err=@"indentation error";
+				return nil;
+				}
+			item=[self propertyListScanYAMLLines:opt errorDescription:err];
+			[val setObject:item forKey:key];
+			if([self scanString:@"," intoString:NULL])
+				{ // array of elements
+					id items=[NSMutableArray arrayWithObject:item];	// wrap first item
+					[val setObject:items forKey:key];
+					while(![self isAtEnd])
+						{
+						id item;
+						[self propertyListSkipSpaceAndYAMLComments];
+						if([self level] < level)
+							break;	// outer level
+						item=[self propertyListScanYAMLLines:opt errorDescription:err];
+						if(!item)
+							{
+							val=nil;
+							break;
+							}
+						[items addObject:item];
+						[self propertyListSkipSpaceAndYAMLComments];
+						if(![self scanString:@"," intoString:NULL])
+							break;
+						}
+				}
+			if([self column] < level)
+				break;
+			continue;
+			}
+		if(key)
+			val=key;
+		break;
+		}
+	if(!val && err)
+		*err=@"empty file";
+#if 0
+	NSLog(@"YAML Line parsed: %@ %@", val, *err);
+#endif
+	return val;
+}
+
 @end
 
 @implementation NSCFType
@@ -634,7 +1007,7 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 
 - (NSUInteger) uid; { return value; }
 
-- (NSString *) description; { return [NSString stringWithFormat:@"NSCFType (%u)", value]; }
+- (NSString *) description; { return [NSString stringWithFormat:@"NSCFType (%lu)", (unsigned long)value]; }
 
 @end
 
@@ -684,58 +1057,58 @@ struct trailer
 
 /* compatible to NSPropertyListBinaryFormat_v1_0
 
-Here is a full description: http://darwinsource.opendarwin.org/10.3/CF-299/Parsing.subproj/CFBinaryPList.c
-Header
-bplist00	Version 0.0
+ Here is a full description: http://darwinsource.opendarwin.org/10.3/CF-299/Parsing.subproj/CFBinaryPList.c
+ Header
+ bplist00	Version 0.0
 
-Encoded objects
-00		nil
-08		false
-09		true
-0f		fill	
-1n	(1=I) integer with 2^n bytes
-10xx
-11xxxx
-12xxxxxxxx
-13xxxxxxxxxxxxxxxx
-2n		float (real) with 2^n bytes
-22ffffffff
-3n		NSDate with 2^n bytes float
-33		normally used
-4n		n encoded bytes/NSData (incl. 00)
-4f10nn	n encoded bytes/NSData
-5n	(5=S) ASCII string with n bytes
-5f10nn	ASCII string with n bytes (10=integer with 1 byte)
-6n		Unicode string
-7n		%
-8n		CF$UID with n+1 bytes integer
-9n		%
-an	(a=A) NSArray with n entries
-af10nn	NSArray with n entries
-af11nnnn	NSArray with n entries (11=integer with 2 bytes)
-bn		%
-cn		%
-dn	(d=D) NSDictionary with n entries - note, the keys references come first and then all object references
-df1nnn	NSDictionary with n entries
-en		%
-fn		%
+ Encoded objects
+ 00		nil
+ 08		false
+ 09		true
+ 0f		fill
+ 1n	(1=I) integer with 2^n bytes
+ 10xx
+ 11xxxx
+ 12xxxxxxxx
+ 13xxxxxxxxxxxxxxxx
+ 2n		float (real) with 2^n bytes
+ 22ffffffff
+ 3n		NSDate with 2^n bytes float
+ 33		normally used
+ 4n		n encoded bytes/NSData (incl. 00)
+ 4f10nn	n encoded bytes/NSData
+ 5n	(5=S) ASCII string with n bytes
+ 5f10nn	ASCII string with n bytes (10=integer with 1 byte)
+ 6n		Unicode string
+ 7n		%
+ 8n		CF$UID with n+1 bytes integer
+ 9n		%
+ an	(a=A) NSArray with n entries
+ af10nn	NSArray with n entries
+ af11nnnn	NSArray with n entries (11=integer with 2 bytes)
+ bn		%
+ cn		%
+ dn	(d=D) NSDictionary with n entries - note, the keys references come first and then all object references
+ df1nnn	NSDictionary with n entries
+ en		%
+ fn		%
 
-Offset table 
-		list of ints, byte size of which is given in trailer
+ Offset table
+ list of ints, byte size of which is given in trailer
  -- these are the byte offsets into the file
- -- number of these entries is in the trailer 
+ -- number of these entries is in the trailer
 
-Trailer
-000000		fill
-   n		byte size of offset ints in offset table
-   n		byte size of object refs in arrays and dicts
-nnnn		number of offsets in offset table (the same as the number of objects)
-nnnn		element # in offset table which is top level object 
+ Trailer
+ 000000		fill
+ n		byte size of offset ints in offset table
+ n		byte size of object refs in arrays and dicts
+ nnnn		number of offsets in offset table (the same as the number of objects)
+ nnnn		element # in offset table which is top level object
 
-there is plutil to convert formats
-see also: http://rixstep.com/2/20050503,01.shtml about plutil 
+ there is plutil to convert formats
+ see also: http://rixstep.com/2/20050503,01.shtml about plutil
 
-*/
+ */
 
 #if 1
 + (void) initialize
@@ -743,24 +1116,24 @@ see also: http://rixstep.com/2/20050503,01.shtml about plutil
 	float flt=M_PI;
 	double dbl=M_PI;
 #if 0
-		{
-			float want, have;
-			float dwant, dhave;
-			NSLog(@"host is %@", NSHostByteOrder() == NS_BigEndian?@"BigEndian":@"LittleEndian");
-			NSLog(@"%.30g", NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt)));
-			have=NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt));
-			want=-4.033146e+16;
-			NSLog(@"%08x %08x", *(long *)&have, *(long *)&want);
-			NSLog(@"%.30g", NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)));
-			have=NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt));
-			want=M_PI;
-			NSLog(@"%08x %08x", *(long *)&have, *(long *)&want);
-			NSLog(@"%.30g", NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl)));
-			dhave=NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl));
-			dwant=3.20737563067636581208678536384e-192;
-			NSLog(@"%016llx %016llx", *(long long *)&have, *(long long *)&want);
-			NSLog(@"%.30g", NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)));
-		}
+	{
+	float want, have;
+	float dwant, dhave;
+	NSLog(@"host is %@", NSHostByteOrder() == NS_BigEndian?@"BigEndian":@"LittleEndian");
+	NSLog(@"%.30g", NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt)));
+	have=NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt));
+	want=-4.033146e+16;
+	NSLog(@"%08x %08x", *(long *)&have, *(long *)&want);
+	NSLog(@"%.30g", NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)));
+	have=NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt));
+	want=M_PI;
+	NSLog(@"%08x %08x", *(long *)&have, *(long *)&want);
+	NSLog(@"%.30g", NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl)));
+	dhave=NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl));
+	dwant=3.20737563067636581208678536384e-192;
+	NSLog(@"%016llx %016llx", *(long long *)&have, *(long long *)&want);
+	NSLog(@"%.30g", NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)));
+	}
 #endif
 	NSAssert(NSSwapShort(0x1234) == 0x3412, @"NSSwapShort failed");
 	NSAssert(NSSwapLong(0x12345678L) == 0x78563412L, @"NSSwapLong failed");
@@ -833,8 +1206,8 @@ static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off)
 #endif
 	if(off < sizeof(BPMAGIC)-1 || off >= self->length)
 		{ // not precise but clearly invalid
-		NSLog(@"_binaryObject(..., invalid off=%lu) length=%u", off, self->length);
-		return nil;	// some error
+			NSLog(@"_binaryObject(..., invalid off=%lu) length=%u", off, self->length);
+			return nil;	// some error
 		}
 	// here, we should check if we already have loaded this object and don't need to create a new instance
 	// but this would require a cache for all loaded objects: NSMapTable(int offset, id object)
@@ -845,172 +1218,172 @@ next:
 	NSLog(@"byte=%02x", byte);
 #endif
 	switch(byte&0xf0)
-		{
+	{
 		case 0x00:
+		{
+		switch(byte)
 			{
-			switch(byte)
-				{
 				case 0x00:	return [NSNull null];
 				case 0x08:	return [NSNumber numberWithBool:NO];
 				case 0x09:	return [NSNumber numberWithBool:YES];
 				case 0x0f:	self->bp++; goto next;	// skip fill byte
-				}
-			break;
 			}
+		break;
+		}
 		case 0x10:	// integer
-			return [NSNumber numberWithInt:_binaryInt(self)];
+		return [NSNumber numberWithInt:_binaryInt(self)];
 		case 0x20:	// float/double
 		case 0x30:	// NSDate
-			{
-			unsigned char bytes[8];
-			len=(1<<_binaryLen(self));	// bytes to fetch
+		{
+		unsigned char bytes[8];
+		len=(1<<_binaryLen(self));	// bytes to fetch
 #if 0
-			NSLog(@"float len=%d", len);
+		NSLog(@"float len=%d", len);
 #endif
-			if(len > sizeof(bytes)) len=sizeof(bytes);	// limit
-			memcpy(bytes, self->bp, len);
-//			self->bp+=len;
+		if(len > sizeof(bytes)) len=sizeof(bytes);	// limit
+		memcpy(bytes, self->bp, len);
+		//			self->bp+=len;
 #if 0
-			NSLog(@"bytes=%@", [NSData dataWithBytesNoCopy:bytes length:len freeWhenDone:NO]);
+		NSLog(@"bytes=%@", [NSData dataWithBytesNoCopy:bytes length:len freeWhenDone:NO]);
 #endif
-			if((byte&0xf0) == 0x30)
-				return [NSDate dateWithTimeIntervalSinceReferenceDate:NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes))];
-			if(len == 4)
-				{
-#if 0
-				NSLog(@"decoded float=%le", NSSwapBigFloatToHost(*((NSSwappedFloat *) bytes)));
-#endif
-				return [NSNumber numberWithFloat:NSSwapBigFloatToHost(*((NSSwappedFloat *) bytes))];
-				}
-			if(len == 8)
-				{
-#if 0
-				NSLog(@"decoded double=%le", NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes)));
-#endif
-				return [NSNumber numberWithDouble:NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes))];
-				}
-			return nil;	// raise exception?
-			}
-		case 0x40:	// NSData
-			{
-				len=_binaryLen(self);
-				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
-					return [NSMutableData dataWithBytes:(void *) self->bp length:len];	// return a mutable copy
-				return [NSData dataWithBytes:(void *) self->bp length:len];	// return a copy
-			}
-		case 0x50:	// ASCII NSString
-			{
-				len=_binaryLen(self);
-				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
-					return [NSMutableString stringWithCString:(char *) self->bp length:len];	// return a copy
-				return [NSString stringWithCString:(char *) self->bp length:len];	// return a copy
-			}
-		case 0x60:	// UNICODE NSString
+		if((byte&0xf0) == 0x30)
+			return [NSDate dateWithTimeIntervalSinceReferenceDate:NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes))];
+		if(len == 4)
 			{
 #if 0
-				NSLog(@"offset=%lu", off);
-				NSLog(@"byte=%02x", byte);
-				NSLog(@"record: %@", [NSData dataWithBytes:self->bp length:20]);
+			NSLog(@"decoded float=%le", NSSwapBigFloatToHost(*((NSSwappedFloat *) bytes)));
 #endif
-				len=_binaryLen(self);
-#if 0
-				NSLog(@"unicode len=%d", len);
-				NSLog(@"NS_BigEndian =%d", NS_BigEndian);
-				NSLog(@"NS_LittleEndian =%d", NS_LittleEndian);
-				NSLog(@"hostbyteorder =%d", NSHostByteOrder());
-#endif
-				if(NSHostByteOrder() != NS_BigEndian)
-					{ // we need to swap bytes
-					int i;
-					unichar *bfr=(unichar *) objc_malloc(len*sizeof(bfr));
-#if 0
-						NSLog(@"swapping bytes: %@", [NSData dataWithBytes:self->bp length:MIN(2*len, 10)]);
-#endif
-					for(i=0; i<len; i++)
-						bfr[i]=NSSwapShort(((unichar *)(self->bp))[i]);	// swap bytes
-#if 0
-						NSLog(@"result: %@", [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease]);
-#endif
-						if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
-						return [[[NSMutableString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
-					return [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
-					}
-				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
-					return [NSMutableString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
-				return [NSString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
+			return [NSNumber numberWithFloat:NSSwapBigFloatToHost(*((NSSwappedFloat *) bytes))];
 			}
-		case 0x80:	// CF$UID
+		if(len == 8)
 			{
-			unsigned int uid=0;
-			len=(byte&0x0f)+1;
-			self->bp++;
-			while(len-->0)
-				uid=(uid<<8)+(*self->bp++);	// collect bytes
-			return [NSCFType CFUIDwithValue:uid];
-			}
-		case 0xa0:	// NSArray
-			{
-			NSMutableArray *a;
-			unsigned char *savedbp;
-			len=_binaryLen(self);
-			a=[NSMutableArray arrayWithCapacity:len];
-			while(len-- > 0)
-				{
-				unsigned int onum=0;
-				id obj;
-				int i;
-				for(i=0; i<self->trailer.refSize; i++)
-					onum=(onum<<8)+(*self->bp++);
-				savedbp=self->bp;
-				obj=_binaryObject(self, _binaryObjectPos(self, onum));
-				[a addObject:obj];
-				self->bp=savedbp;
-				}
-			if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
-				; // make immutable
-			return a;
-			}
-		case 0xd0:	// NSDictionary
-			{
-			NSMutableDictionary *d;
-				unsigned char *savedbp;
-			unsigned int delta;
-			len=_binaryLen(self);
-			delta=len*self->trailer.refSize;
 #if 0
-			NSLog(@"delta=%lu", delta);
+			NSLog(@"decoded double=%le", NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes)));
 #endif
-			d=[NSMutableDictionary dictionaryWithCapacity:len];
-			while(len-- > 0)
-				{
-				id key;
-				id obj;
-				unsigned int knum=0;
-				unsigned int onum=0;
-				int i;
-				for(i=0; i<self->trailer.refSize; i++)
-					{
-					knum=(knum<<8)+(self->bp[0]);
-					onum=(onum<<8)+(self->bp[delta]);
-					self->bp++;
-					}
-#if 0
-				NSLog(@"knum=%lu onum=%lu", knum, onum);
-#endif				
-				savedbp=self->bp;
-				key=_binaryObject(self, _binaryObjectPos(self, knum));
-				obj=_binaryObject(self, _binaryObjectPos(self, onum));
-#if 0
-				NSLog(@"<key>%@</key>: %@", key, obj);
-#endif
-				[d setObject:obj forKey:key];
-				self->bp=savedbp;
-				}
-			if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
-				; // make immutable
-			return d;
+			return [NSNumber numberWithDouble:NSSwapBigDoubleToHost(*((NSSwappedDouble *) bytes))];
 			}
+		return nil;	// raise exception?
 		}
+		case 0x40:	// NSData
+		{
+		len=_binaryLen(self);
+		if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
+			return [NSMutableData dataWithBytes:(void *) self->bp length:len];	// return a mutable copy
+		return [NSData dataWithBytes:(void *) self->bp length:len];	// return a copy
+		}
+		case 0x50:	// ASCII NSString
+		{
+		len=_binaryLen(self);
+		if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
+			return [NSMutableString stringWithCString:(char *) self->bp length:len];	// return a copy
+		return [NSString stringWithCString:(char *) self->bp length:len];	// return a copy
+		}
+		case 0x60:	// UNICODE NSString
+		{
+#if 0
+		NSLog(@"offset=%lu", off);
+		NSLog(@"byte=%02x", byte);
+		NSLog(@"record: %@", [NSData dataWithBytes:self->bp length:20]);
+#endif
+		len=_binaryLen(self);
+#if 0
+		NSLog(@"unicode len=%d", len);
+		NSLog(@"NS_BigEndian =%d", NS_BigEndian);
+		NSLog(@"NS_LittleEndian =%d", NS_LittleEndian);
+		NSLog(@"hostbyteorder =%d", NSHostByteOrder());
+#endif
+		if(NSHostByteOrder() != NS_BigEndian)
+			{ // we need to swap bytes
+				int i;
+				unichar *bfr=(unichar *) objc_malloc(len*sizeof(*bfr));
+#if 0
+				NSLog(@"swapping bytes: %@", [NSData dataWithBytes:self->bp length:MIN(2*len, 10)]);
+#endif
+				for(i=0; i<len; i++)
+					bfr[i]=NSSwapShort(((unichar *)(self->bp))[i]);	// swap bytes
+#if 0
+				NSLog(@"result: %@", [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease]);
+#endif
+				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
+					return [[[NSMutableString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
+				return [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
+			}
+		if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
+			return [NSMutableString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
+		return [NSString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
+		}
+		case 0x80:	// CF$UID
+		{
+		unsigned int uid=0;
+		len=(byte&0x0f)+1;
+		self->bp++;
+		while(len-->0)
+			uid=(uid<<8)+(*self->bp++);	// collect bytes
+		return [NSCFType CFUIDwithValue:uid];
+		}
+		case 0xa0:	// NSArray
+		{
+		NSMutableArray *a;
+		unsigned char *savedbp;
+		len=_binaryLen(self);
+		a=[NSMutableArray arrayWithCapacity:len];
+		while(len-- > 0)
+			{
+			unsigned int onum=0;
+			id obj;
+			int i;
+			for(i=0; i<self->trailer.refSize; i++)
+				onum=(onum<<8)+(*self->bp++);
+			savedbp=self->bp;
+			obj=_binaryObject(self, _binaryObjectPos(self, onum));
+			[a addObject:obj];
+			self->bp=savedbp;
+			}
+		if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+			; // make immutable
+		return a;
+		}
+		case 0xd0:	// NSDictionary
+		{
+		NSMutableDictionary *d;
+		unsigned char *savedbp;
+		unsigned int delta;
+		len=_binaryLen(self);
+		delta=len*self->trailer.refSize;
+#if 0
+		NSLog(@"delta=%lu", delta);
+#endif
+		d=[NSMutableDictionary dictionaryWithCapacity:len];
+		while(len-- > 0)
+			{
+			id key;
+			id obj;
+			unsigned int knum=0;
+			unsigned int onum=0;
+			int i;
+			for(i=0; i<self->trailer.refSize; i++)
+				{
+				knum=(knum<<8)+(self->bp[0]);
+				onum=(onum<<8)+(self->bp[delta]);
+				self->bp++;
+				}
+#if 0
+			NSLog(@"knum=%lu onum=%lu", knum, onum);
+#endif
+			savedbp=self->bp;
+			key=_binaryObject(self, _binaryObjectPos(self, knum));
+			obj=_binaryObject(self, _binaryObjectPos(self, onum));
+#if 0
+			NSLog(@"<key>%@</key>: %@", key, obj);
+#endif
+			[d setObject:obj forKey:key];
+			self->bp=savedbp;
+			}
+		if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+			; // make immutable
+		return d;
+		}
+	}
 	return nil;	// unknown
 }
 
@@ -1044,10 +1417,10 @@ next:
 	NSLog(@"object count =%lu", (unsigned long) trailer.objectCount);
 	NSLog(@"top object =%lu", (unsigned long) trailer.topObject);
 	{
-		int i;
-		for(i=0; i<sizeof(trailer); i++)
-			printf("%02x", ((unsigned char *)&trailer)[i]);
-		printf("\n");
+	int i;
+	for(i=0; i<sizeof(trailer); i++)
+		printf("%02x", ((unsigned char *)&trailer)[i]);
+	printf("\n");
 	}
 #endif
 	trailer.objectCount=NSSwapBigLongLongToHost(trailer.objectCount);	// number of objects
@@ -1057,10 +1430,10 @@ next:
 	NSLog(@"object count =%lu", (unsigned long) trailer.objectCount);
 	NSLog(@"top object =%lu", (unsigned long) trailer.topObject);
 	{
-		int i;
-		for(i=0; i<sizeof(trailer); i++)
-			printf("%02x", ((unsigned char *)&trailer)[i]);
-		printf("\n");
+	int i;
+	for(i=0; i<sizeof(trailer); i++)
+		printf("%02x", ((unsigned char *)&trailer)[i]);
+	printf("\n");
 	}
 #endif
 	if(trailer.topObject >= trailer.objectCount)
@@ -1135,48 +1508,48 @@ next:
 		}
 	if([obj isKindOfClass:[NSDictionary class]])
 		{ // we need 4 passes - the first two write out all referenced objects and their keys, i.e. go depth first
-		NSEnumerator *e;
-		id o;
-		e=[obj keyEnumerator];	// keys
-		while((o=[e nextObject]))
-			{ // write keys
-			if(![self _addObject:o])
-				return NO;	// failed
-			}
-		e=[obj objectEnumerator];	// objects
-		while((o=[e nextObject]))
-			{ // write contents first
-			if(![self _addObject:o])
-				return NO;	// failed
-			}
+			NSEnumerator *e;
+			id o;
+			e=[obj keyEnumerator];	// keys
+			while((o=[e nextObject]))
+				{ // write keys
+					if(![self _addObject:o])
+						return NO;	// failed
+				}
+			e=[obj objectEnumerator];	// objects
+			while((o=[e nextObject]))
+				{ // write contents first
+					if(![self _addObject:o])
+						return NO;	// failed
+				}
 		}
 	else if([obj isKindOfClass:[NSArray class]])
 		{ // we need 2 passes - the second writes references only (all objects must already exist!)
-		NSEnumerator *e;
-		id o;
-		e=[obj objectEnumerator];	// objects
-		while((o=[e nextObject]))
-			{ // write contents first
-			if(![self _addObject:o])
-				return NO;	// failed
-			}
+			NSEnumerator *e;
+			id o;
+			e=[obj objectEnumerator];	// objects
+			while((o=[e nextObject]))
+				{ // write contents first
+					if(![self _addObject:o])
+						return NO;	// failed
+				}
 		}
 	offtable[idx]=[data length];	// finally store file offset
 	if([obj isKindOfClass:[NSDictionary class]])
 		{ // we need 4 passes - last two write references only (all objects must already exist!)
-		NSEnumerator *e;
-		id o;
-		[self _addTag:0xd0 withLen:[obj count]];
-		e=[obj keyEnumerator];		// keys first
-		while((o=[e nextObject]))
-			{ // write key indexes
-			[self _addIndexOf:o];
-			}
-		e=[obj objectEnumerator];	// objects
-		while((o=[e nextObject]))
-			{ // write content indexes
-			[self _addIndexOf:o];
-			}
+			NSEnumerator *e;
+			id o;
+			[self _addTag:0xd0 withLen:[obj count]];
+			e=[obj keyEnumerator];		// keys first
+			while((o=[e nextObject]))
+				{ // write key indexes
+					[self _addIndexOf:o];
+				}
+			e=[obj objectEnumerator];	// objects
+			while((o=[e nextObject]))
+				{ // write content indexes
+					[self _addIndexOf:o];
+				}
 		}
 	else if([obj isKindOfClass:[NSArray class]])
 		{
@@ -1186,7 +1559,7 @@ next:
 		e=[obj objectEnumerator];	// objects
 		while((o=[e nextObject]))
 			{ // write content indexes
-			[self _addIndexOf:o];
+				[self _addIndexOf:o];
 			}
 		}
 	else if([obj isKindOfClass:[NSString class]])
@@ -1196,14 +1569,14 @@ next:
 		int len;
 		if(s)
 			{ // we can encode as ASCII
-			len=[s length];
-			[self _addTag:0x50 withLen:len];
+				len=[s length];
+				[self _addTag:0x50 withLen:len];
 			}
 		else
 			{ // encode Unicode
-			s=[obj dataUsingEncoding:NSUnicodeStringEncoding];
-			len=[s length];
-			if(NSHostByteOrder() != NS_BigEndian)
+				s=[obj dataUsingEncoding:NSUnicodeStringEncoding];
+				len=[s length];
+				if(NSHostByteOrder() != NS_BigEndian)
 					{ // swap for little endian encoding
 						unichar *b;
 						int i;
@@ -1215,7 +1588,7 @@ next:
 						for(i=0; i<len/2; i++)
 							b[i]=NSSwapShort(b[i]);
 					}
-			[self _addTag:0x60 withLen:len];
+				[self _addTag:0x60 withLen:len];
 			}
 		[data appendData:s];
 		[arp release];
@@ -1255,16 +1628,16 @@ next:
 			}
 		else
 			{ // other integer
-			// FIXME: should use longLongValue and check for required size
-			long val=[obj longValue];
-			int len;
-			if(val < 128 || val >= -128)
-				len=0;	// byte
-			else if(val < 32768 || val >= -32768)
-				len=1;	// 2 byte
-			else
-				len=2;
-			[self _addInt:val withLen:len];
+				// FIXME: should use longLongValue and check for required size
+				long val=[obj longValue];
+				int len;
+				if(val < 128 || val >= -128)
+					len=0;	// byte
+				else if(val < 32768 || val >= -32768)
+					len=1;	// 2 byte
+				else
+					len=2;
+				[self _addInt:val withLen:len];
 			}
 		}
 	else if([obj isKindOfClass:[NSData class]])
@@ -1291,31 +1664,31 @@ next:
 - (void) _addInt:(long) integer withLen:(int) len;
 { // MSB first with specified length
 	switch(len)
-		{
+	{
 		case 2:
-			{
-				long f=NSSwapHostLongToBig(integer);
-				[self _addChar:0x12];
-				[data appendBytes:&f length:sizeof(f)];
-				break;
-			}
-		case 1:
-			{
-				short f=NSSwapHostShortToBig(integer);
-				[self _addChar:0x11];
-				[data appendBytes:&f length:sizeof(f)];
-				break;
-			}
-		case 0:
-			{
-				char f=integer;	// nothing to swap...
-				[self _addChar:0x10];
-				[data appendBytes:&f length:sizeof(f)];
-				break;
-			}
-		default:
-			[NSException raise:@"BinaryPlist" format:@"can't save integer of size 2^%d", len];
+		{
+		long f=NSSwapHostLongToBig(integer);
+		[self _addChar:0x12];
+		[data appendBytes:&f length:sizeof(f)];
+		break;
 		}
+		case 1:
+		{
+		short f=NSSwapHostShortToBig(integer);
+		[self _addChar:0x11];
+		[data appendBytes:&f length:sizeof(f)];
+		break;
+		}
+		case 0:
+		{
+		char f=integer;	// nothing to swap...
+		[self _addChar:0x10];
+		[data appendBytes:&f length:sizeof(f)];
+		break;
+		}
+		default:
+		[NSException raise:@"BinaryPlist" format:@"can't save integer of size 2^%d", len];
+	}
 }
 
 - (void) _addTag:(int) tag withLen:(int) len;
@@ -1325,8 +1698,8 @@ next:
 #endif
 	if(len<15)
 		{ // short length
-		[self _addChar:tag+len];
-		return;
+			[self _addChar:tag+len];
+			return;
 		}
 	[self _addChar:tag+15];	// long length
 	if(len <= 255)
@@ -1343,91 +1716,91 @@ next:
 	[data appendBytes:BPMAGIC length:sizeof(BPMAGIC)-1];
 	for(trailer.refSize=1; trailer.refSize<3; trailer.refSize++)
 		{ // try to write with increasing index length
-		NSAutoreleasePool *arp=[NSAutoreleasePool new];
-		unsigned long maxindex=(1<<(8*trailer.refSize))-1;
-		objects=[[NSMutableArray alloc] initWithCapacity:256];
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			unsigned long maxindex=(1<<(8*trailer.refSize))-1;
+			objects=[[NSMutableArray alloc] initWithCapacity:256];
 #if 0
-		NSLog(@"try writing refSize=%d bytes maxindex=%lu", trailer.refSize, maxindex);
+			NSLog(@"try writing refSize=%d bytes maxindex=%lu", trailer.refSize, maxindex);
 #endif
-		if([self _addObject:plist])	// write tree
-			{ // ok
-			unsigned int i;
-			[arp release];
+			if([self _addObject:plist])	// write tree
+				{ // ok
+					unsigned int i;
+					[arp release];
 #if 0
-			NSLog(@"writing trailer");
+					NSLog(@"writing trailer");
 #endif
-			trailer.objectCount=[objects count];
-			trailer.objectsOffset=[data length];	// offset of objectTable
-			trailer.topObject=[objects indexOfObject:plist];
-			if(trailer.objectsOffset < 65536)
-				{ // can reduce offsets to words
-				if(trailer.objectsOffset < 256)
-					{ // can reduce offset table to bytes
-						trailer.offsetSize=1;
-					for(i=0; i<trailer.objectCount; i++)
-						((unsigned char *)offtable)[i]=offtable[i];
-					}
-				else
-					{ // reduce to words
-						trailer.offsetSize=2;
-					 if(NSHostByteOrder() != NS_BigEndian)
-							 {
-								 for(i=0; i<trailer.objectCount; i++)
-									 ((unsigned short *)offtable)[i]=NSSwapHostShortToBig((unsigned short) offtable[i]);
-							 }
-						else
-								{
+					trailer.objectCount=[objects count];
+					trailer.objectsOffset=[data length];	// offset of objectTable
+					trailer.topObject=[objects indexOfObject:plist];
+					if(trailer.objectsOffset < 65536)
+						{ // can reduce offsets to words
+							if(trailer.objectsOffset < 256)
+								{ // can reduce offset table to bytes
+									trailer.offsetSize=1;
 									for(i=0; i<trailer.objectCount; i++)
-										((unsigned short *)offtable)[i]=offtable[i];
+										((unsigned char *)offtable)[i]=offtable[i];
 								}
-					}
-				}
-			else if(NSHostByteOrder() != NS_BigEndian)
-				{ // convert to bigendian
-					trailer.offsetSize=4;
-				for(i=0; i<trailer.objectCount; i++)
-					offtable[i]=NSSwapHostLongToBig(offtable[i]);
-				}
-			[data appendBytes:offtable length:[objects count]*trailer.offsetSize];	// append complete offset table
-			objc_free(offtable);
-			trailer.objectsOffset=NSSwapHostLongLongToBig(trailer.objectsOffset);
-			trailer.objectCount=NSSwapHostLongLongToBig(trailer.objectCount);
-			trailer.topObject=NSSwapHostLongLongToBig(trailer.topObject);
-			[data appendBytes:&trailer length:sizeof(trailer)];	// append trailer
-			[objects release];
+							else
+								{ // reduce to words
+									trailer.offsetSize=2;
+									if(NSHostByteOrder() != NS_BigEndian)
+										{
+										for(i=0; i<trailer.objectCount; i++)
+											((unsigned short *)offtable)[i]=NSSwapHostShortToBig((unsigned short) offtable[i]);
+										}
+									else
+										{
+										for(i=0; i<trailer.objectCount; i++)
+											((unsigned short *)offtable)[i]=offtable[i];
+										}
+								}
+						}
+					else if(NSHostByteOrder() != NS_BigEndian)
+						{ // convert to bigendian
+							trailer.offsetSize=4;
+							for(i=0; i<trailer.objectCount; i++)
+								offtable[i]=NSSwapHostLongToBig(offtable[i]);
+						}
+					[data appendBytes:offtable length:[objects count]*trailer.offsetSize];	// append complete offset table
+					objc_free(offtable);
+					trailer.objectsOffset=NSSwapHostLongLongToBig(trailer.objectsOffset);
+					trailer.objectCount=NSSwapHostLongLongToBig(trailer.objectCount);
+					trailer.topObject=NSSwapHostLongLongToBig(trailer.topObject);
+					[data appendBytes:&trailer length:sizeof(trailer)];	// append trailer
+					[objects release];
 #if 0
-			NSLog(@"data=%@", data);
-			NSLog(@"decoded=%@", [[self class] _plistFromBinaryData:data mutabilityOption:NSPropertyListImmutable]);	// parse back
+					NSLog(@"data=%@", data);
+					NSLog(@"decoded=%@", [[self class] _plistFromBinaryData:data mutabilityOption:NSPropertyListImmutable]);	// parse back
 #endif
-			return data;
-			}
-		[arp release];
-		if([objects count] <= maxindex)
-			{
+					return data;
+				}
+			[arp release];
+			if([objects count] <= maxindex)
+				{
 #if 1
-			NSLog(@"other error");
+				NSLog(@"other error");
 #endif
-			[objects release];
-			return nil;	// other error
-			}
+				[objects release];
+				return nil;	// other error
+				}
 #if 0
-		NSLog(@"start over");
+			NSLog(@"start over");
 #endif
-		[objects release];	// there wasn't enough room here
-		[data setLength:sizeof(BPMAGIC)-1];	// start over
+			[objects release];	// there wasn't enough room here
+			[data setLength:sizeof(BPMAGIC)-1];	// start over
 		}
 	return nil;	// can't write in any index length
 }
 
 @end
 
-@implementation NSPropertyListSerialization
+@implementation myNSPropertyListSerialization
 
 + (NSData *) dataFromPropertyList:(id) plist format:(NSPropertyListFormat) format errorDescription:(NSString **) errorString;
 {
 	if(format == NSPropertyListBinaryFormat_v1_0)
 		return [[[_NSBinaryPropertyList new] autorelease] dataFromPlist:plist errorString:errorString];
-	return [[self _stringFromPropertyList:plist format:format errorDescription:errorString] dataUsingEncoding:NSUTF8StringEncoding]; 
+	return [[self _stringFromPropertyList:plist format:format errorDescription:errorString] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 + (void) _appendStringTo:(NSMutableString *) str fromXMLEscapedValue:(NSString *) value tag:(NSString *) tag;
@@ -1493,13 +1866,13 @@ next:
 		}
 	else if([plist isKindOfClass:[NSData class]])
 		{
-			[str appendString:@"<data>\n"];
-			[str appendString:[(NSData *) plist _base64String]];
-			[str appendString:@"</data>\n"];
+		[str appendString:@"<data>\n"];
+		[str appendString:[(NSData *) plist _base64String]];
+		[str appendString:@"</data>\n"];
 		}
 	else if([plist isKindOfClass:[NSDate class]])
 		{
-			[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
+		[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
 		}
 	else
 		{
@@ -1595,13 +1968,156 @@ next:
 		}
 	else
 		{ // unknown object trype (e.g. NSURL)
-		if(errorString)
-			*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as JSON list", NSStringFromClass([plist class])];
-		// seems to raise an exception on Cocoa
-		return NO;
+			if(errorString)
+				*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as JSON list", NSStringFromClass([plist class])];
+			// seems to raise an exception on Cocoa
+			return NO;
 		}
 	if(level >= 0)
 		[str appendString:@"\n"];
+	return YES;
+}
+
+// handle block and inline formats
++ (BOOL) _appendStringTo:(NSMutableString *) str fromYAMLPropertyListElement:(id) plist level:(NSInteger) level errorDescription:(NSString **) errorString;
+{ // encode element as JSON
+	if(!plist)
+		{
+		if(errorString)
+			*errorString=@"Can't encode nil object";
+		return NO;
+		}
+	[str appendString:[@"" stringByPaddingToLength:level withString:@" " startingAtIndex:0]];
+	if([plist isKindOfClass:[NSDictionary class]])
+		{
+		NSEnumerator *enumerator=[plist keyEnumerator];
+		id key, item;
+		while((key=[enumerator nextObject]))
+			{
+			// Note: the key of a mapping table may be an array and should be formatted as JSON
+			if(![self _appendStringTo:str fromYAMLPropertyListElement:key level:level errorDescription:errorString])
+				return NO;
+			item=[(NSDictionary *) plist objectForKey:key];
+			if([item isKindOfClass:[NSArray class]] && [item count] > 1)
+				{ // dictionary made of array - use , notation if multiple entries
+					NSEnumerator *f=[item objectEnumerator];
+					id obj;
+					while(obj=[f nextObject])
+						{
+						if([obj isKindOfClass:[NSArray class]])
+							break;
+						if([obj isKindOfClass:[NSDictionary class]])
+							break;
+						}
+					if(!obj)
+						{ // primitive objects only
+							f=[item objectEnumerator];
+							id obj;
+							BOOL first=YES;
+							while(obj=[f nextObject])
+								{
+								[str appendString:first?@": ":@", "];
+								if(![self _appendStringTo:str fromYAMLPropertyListElement:obj level:0 errorDescription:errorString])
+									return NO;
+								first=NO;
+								}
+							[str appendString:@"\n"];
+							continue;
+						}
+					[str appendString:@":\n"];
+					if(![self _appendStringTo:str fromYAMLPropertyListElement:item level:level+2 errorDescription:errorString])
+						return NO;
+				}
+			else if([item isKindOfClass:[NSDictionary class]])
+				{ // dictionary made of dictionaries
+					[str appendString:@":\n"];
+					if(![self _appendStringTo:str fromYAMLPropertyListElement:item level:level+2 errorDescription:errorString])
+						return NO;
+				}
+			else
+				{ // simple element
+					[str appendString:@": "];
+					if(![self _appendStringTo:str fromYAMLPropertyListElement:item level:0 errorDescription:errorString])
+						return NO;
+					[str appendString:@"\n"];
+				}
+			}
+		}
+	else if([plist isKindOfClass:[NSArray class]])
+		{
+		NSEnumerator *enumerator=[plist objectEnumerator];
+		id item;
+		while((item=[enumerator nextObject]))
+			{
+			// check if simple array of strings and use , separated list
+			if([item isKindOfClass:[NSDictionary class]] || [item isKindOfClass:[NSArray class]])
+				{
+				[str appendString:@"-\n"];
+				if(![self _appendStringTo:str fromYAMLPropertyListElement:item level:level+2 errorDescription:errorString])
+					return NO;
+				}
+			else
+				{ // simple element
+					[str appendString:@"-"];
+					if(![self _appendStringTo:str fromYAMLPropertyListElement:item level:level+2 errorDescription:errorString])
+						return NO;
+				}
+			}
+		}
+	else if([plist isKindOfClass:[NSString class]])	// what about attributed strings??
+		{
+		NSRange rng=[plist rangeOfString:@"\n"];
+		if(rng.location != NSNotFound)
+			{ // if string contains \n use | operator
+				NSString *indent=[@"" stringByPaddingToLength:level+2 withString:@" " startingAtIndex:0];
+				[str appendFormat:@"|\n"];
+				// FIXME: do not indent empty or last line?
+				plist=[plist stringByReplacingOccurrencesOfString:@"\n" withString:[NSString stringWithFormat:@"\n%@", indent]];
+				[str appendFormat:@"%@%@", indent, plist];
+			}
+		else
+			{
+			// check for strings that do need quotes
+			plist=[plist stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];	// double esacpe
+			plist=[plist stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];	// esacpe quote
+			[str appendFormat:@"%@", plist];
+			}
+		}
+	else if([plist isKindOfClass:[NSNumber class]])
+		{
+		if([plist isKindOfClass:[GSBoolNumber class]])
+			[str appendString:[plist boolValue]?@"true":@"false"];
+		else
+			[str appendFormat:@"%@", plist];
+		}
+	else if([plist isKindOfClass:[NSNull class]])
+		{
+		[str appendString:@"null"];
+		}
+#if 0		// can we really encode NSData as YAML?
+	else if([plist isKindOfClass:[NSData class]])
+		{
+		// well, we should convert to Unicode and quote
+		[str appendString:@"<data>\n"];
+		[str appendString:[(NSData *) plist _base64String]];
+		[str appendString:@"</data>\n"];
+		}
+	else if([plist isKindOfClass:[NSDate class]])
+		{
+		// encode as  ISO-8601 string (quoted?)
+		[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
+		}
+#endif
+	else
+		{ // unknown object trype (e.g. NSURL)
+			if(errorString)
+				*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as JSON list", NSStringFromClass([plist class])];
+			// seems to raise an exception on Cocoa
+			return NO;
+		}
+#if 0
+	NSLog(@"-> %@", str);
+#endif
 	return YES;
 }
 
@@ -1619,15 +2135,29 @@ next:
 			[s appendString:@"</plist>\n"];
 			return s;
 		}
+		case NSPropertyListStringFileFormat:
+			// [section]; string=value
+			return nil;
 		case NSPropertyListJSONFormat: level=INT_MIN;
 		case NSPropertyListJSONPrettyPrintedFormat: {
 			NSMutableString *s=[NSMutableString stringWithCapacity:300];
 			if(![self _appendStringTo:s fromJSONPropertyListElement:plist level:level errorDescription:errorString])
 				return nil;
 			return s;
+		case NSPropertyListYAMLFormat: level=INT_MIN;
+		case NSPropertyListYAMLBlockFormat: {
+			NSMutableString *s=[NSMutableString stringWithCapacity:300];
+			[s appendString:@"%YAML 1.2\n"];
+			if(![self _appendStringTo:s fromYAMLPropertyListElement:plist level:level errorDescription:errorString])
+				return nil;
+#if 1
+			NSLog(@"%@", s);
+#endif
+			return s;
 		}
 		default:
 			break;
+		}
 	}
 	if(errorString)
 		*errorString=@"Invalid format";
@@ -1676,68 +2206,70 @@ next:
 		}
 	if(!format) format=&fmt;	// dummy return
 	if(!errorString) errorString=&dummy;
-	*errorString=nil;   // default to being successful
+	*errorString=nil;	// default to being successful
 	bytes=(char *) [data bytes];
 	len=[data length];
 	if(len > 6 && strncmp(bytes, "bplist", 6) == 0)
 		{ // should be a binary property list
 #if 0
-		NSLog(@"propertyListFromData try binary format");
+			NSLog(@"propertyListFromData try binary format");
 #endif
-		NS_DURING
+			NS_DURING
 			plist=[_NSBinaryPropertyList _plistFromBinaryData:data mutabilityOption:opt];	// decode
 #if 0
 			NSLog(@"propertyListFromData found binary format: %@", plist);
 #endif
-		NS_HANDLER
+			NS_HANDLER
 #if 1
 			NSLog(@"Exception while reading binary Plist: %@ - %@", [localException name], [localException reason]);
 #endif
 			*errorString=@"NSData is not a binary Property List";
 			return nil; // some error occurred - can't unarchive
-		NS_ENDHANDLER
-		if(plist)
-			{
-			*format=NSPropertyListBinaryFormat_v1_0;
-			return plist;	// binary list decoded
-			}
+			NS_ENDHANDLER
+			if(plist)
+				{
+				*format=NSPropertyListBinaryFormat_v1_0;
+				return plist;	// binary list decoded
+				}
 		}
 	if(len > 6 && strncmp(bytes, "<?xml ", 6) == 0)
 		{ // can be an XML property list
 #if 0
-		NSLog(@"propertyListFromData try XML format");
+			NSLog(@"propertyListFromData try XML format");
 #endif
-		p=[[NSXMLParser alloc] initWithData:data];	// will not be needed any more when done
-		root=[_NSXMLPropertyList new];
-		[root setMutabilityOption:opt];	// will be passed down to sub-elements
-		[p setDelegate:root];
-		if([p parse])
-			{ // ok, was XML
-			*format=NSPropertyListXMLFormat_v1_0;
+			p=[[NSXMLParser alloc] initWithData:data];	// will not be needed any more when done
+			root=[_NSXMLPropertyList new];
+			[root setMutabilityOption:opt];	// will be passed down to sub-elements
+			[p setDelegate:root];
+			if([p parse])
+				{ // ok, was XML
+					*format=NSPropertyListXMLFormat_v1_0;
 #if 0
-			NSLog(@"propertyListFromData found XML format: %@", [root objectValue]);
+					NSLog(@"propertyListFromData found XML format: %@", [root objectValue]);
 #endif
+					[p release];
+					[root autorelease];
+#if 0
+					// TEST to check if we can read this data into a NSXMLDocument
+					NSError *err=nil;
+					NS_DURING
+					NSLog(@"NSXMLDocument = %@ err = %@", [[[NSXMLDocument	alloc] initWithData:data options:0 error:&err] autorelease], err);
+					NS_HANDLER
+					NSLog(@"NSXMLDocument exception %@", localException);
+					NS_ENDHANDLER
+					abort();
+#endif
+					return [root objectValue];
+				}
 			[p release];
-			[root autorelease];
-#if 0
-				// TEST to check if we can read this data into a NSXMLDocument
-				NSError *err=nil;
-				NS_DURING
-				NSLog(@"NSXMLDocument = %@ err = %@", [[[NSXMLDocument	alloc] initWithData:data options:0 error:&err] autorelease], err);
-				NS_HANDLER
-				NSLog(@"NSXMLDocument exception %@", localException);
-				NS_ENDHANDLER
-				abort();
-#endif
-			return [root objectValue];
-			}
-		[p release];
-		[root release];
+			[root release];
 		}
 #if 0
 	NSLog(@"propertyListFromData try OpenStep/StringsFile format: %@", data);
 #endif
-	if([data length] >= 2 && ([data getBytes:&bom length:sizeof(bom)], (bom == 0xfeff || bom == 0xfffe)))
+	if([data isKindOfClass:[NSString class]])
+		str=(NSString *) data;	// already a string
+	else if([data length] >= 2 && ([data getBytes:&bom length:sizeof(bom)], (bom == 0xfeff || bom == 0xfffe)))
 		str=[[[NSString alloc] initWithData:data encoding:NSUnicodeStringEncoding] autorelease];
 	else
 		str=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
@@ -1747,18 +2279,20 @@ next:
 	sc=[NSScanner scannerWithString:str];
 	[sc setCharactersToBeSkipped:nil];	// skip nothing
 	[sc setCaseSensitive:YES];	// makes string compares a little faster
+	[sc propertyListStart];
+	// how can we know that it is YAML?
 	[sc propertyListSkipSpaceAndComments];
 	loc=[sc scanLocation];
 	if([sc scanString:@"[" intoString:NULL] || [sc scanString:@"{" intoString:NULL])
 		{ // try JSON array / object on top level
-		[sc setScanLocation:loc];
-		plist=[sc propertyListScanJSONElement:opt errorDescription:errorString];
+			[sc setScanLocation:loc];
+			plist=[sc propertyListScanJSONElement:opt errorDescription:errorString];
 #if 0
-		if(!plist)
-			NSLog(@"JSON error: %@ %@", *errorString, [[sc string] substringFromIndex:[sc scanLocation]]);
+			if(!plist)
+				NSLog(@"JSON error: %@ %@", *errorString, [[sc string] substringFromIndex:[sc scanLocation]]);
 #endif
-		// FIXME: should we accept a trailing ";" ?
-		fmt=NSPropertyListJSONFormat;
+			// FIXME: should we accept a trailing ";" ?
+			fmt=NSPropertyListJSONFormat;
 		}
 	if(!plist && [sc scanString:@"(" intoString:NULL])
 		{ // try array on top level
@@ -1778,18 +2312,18 @@ next:
 		}
 	if(plist)
 		{ // has parsed something
-		[sc propertyListSkipSpaceAndComments];
-		if(![sc isAtEnd])
-			{
-			*errorString=[NSString stringWithFormat:@"found extra elements before end of file: %@", plist];
-			return nil;
-			}
+			[sc propertyListSkipSpaceAndComments];
+			if(![sc isAtEnd])
+				{
+				*errorString=[NSString stringWithFormat:@"found extra elements before end of file: %@", plist];
+				return nil;
+				}
 #if 0
-		NSLog(@"propertyListFromData found OpenStep format: %@", plist);
+			NSLog(@"propertyListFromData found OpenStep format: %@", plist);
 #endif
-		if(plist)
-			*format=fmt;
-		return plist;
+			if(plist)
+				*format=fmt;
+			return plist;
 		}
 #if 0
 	NSLog(@"openstep error %@", *errorString);
@@ -1800,6 +2334,7 @@ next:
 }
 
 // should we swap the roles to avoid converting string to data and back again?
+// or should propertyListFromData directly accept a string?
 
 + (id) _propertyListFromString:(NSString *) string mutabilityOption:(NSPropertyListMutabilityOptions) opt
 						format:(NSPropertyListFormat *) format errorDescription:(NSString **) errorString;
