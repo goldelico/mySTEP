@@ -34,8 +34,8 @@ typedef struct _NSRange
 	NSUInteger length;
 } NSRange, *NSRangePointer;
 
-static inline unsigned
-NSMaxRange(NSRange range) 
+static inline NSUInteger
+NSMaxRange(NSRange range)
 {
 	NSUInteger r=range.location + range.length;
 #if LIMITED_NSMaxRange
@@ -45,31 +45,31 @@ NSMaxRange(NSRange range)
 	return r;
 }
 
-static inline NSRange 
-NSMakeRange(NSUInteger location, NSUInteger length) 
+static inline NSRange
+NSMakeRange(NSUInteger location, NSUInteger length)
 {
 	return (NSRange){location, length};
 }
 
-static inline BOOL 
-NSEqualRanges(NSRange range1, NSRange range2) 
+static inline BOOL
+NSEqualRanges(NSRange range1, NSRange range2)
 {
  return (range1.location == range2.location && range1.length == range2.length);
 }
 
-static inline BOOL 
-NSLocationInRange(NSUInteger location, NSRange range) 
+static inline BOOL
+NSLocationInRange(NSUInteger location, NSRange range)
 {
 	return (location >= range.location) && (location < NSMaxRange(range));
 }
 
-extern NSRange 
+extern NSRange
 NSUnionRange(NSRange range1, NSRange range2);
 
-extern NSRange 
+extern NSRange
 NSIntersectionRange(NSRange range1, NSRange range2);
 
-extern NSString * 
+extern NSString *
 NSStringFromRange(NSRange range);
 
 extern NSRange
