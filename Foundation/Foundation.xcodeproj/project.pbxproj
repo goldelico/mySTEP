@@ -18,17 +18,6 @@
 			name = Foundation;
 			productName = All;
 		};
-		EEBAEECA0C94803F00596D9C /* FPU check */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */;
-			buildPhases = (
-				EEBAEEC90C94803F00596D9C /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = "FPU check";
-			productName = "FPU check";
-		};
 		EEBBA9221413B9340006097A /* Documentation */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EEBBA9281413B9520006097A /* Build configuration list for PBXAggregateTarget "Documentation" */;
@@ -1083,7 +1072,8 @@
 				EEAD7D001ED8962C00857F32 /* NSURLTest.m */,
 				EEAD7D011ED8962C00857F32 /* NSValueTest.m */,
 			);
-			path = FoundationTests;
+			name = FoundationTests;
+			path = ../UnitTesting/FoundationTests;
 			sourceTree = "<group>";
 		};
 		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
@@ -1278,7 +1268,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				TargetAttributes = {
 					EEAD7CE21ED893D400857F32 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -1294,6 +1284,7 @@
 				Japanese,
 				French,
 				German,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
@@ -1302,7 +1293,6 @@
 			targets = (
 				EEA331860953829D001244CF /* Foundation */,
 				EEAA86140A148ED200F2E5B5 /* Foundation.framework */,
-				EEBAEECA0C94803F00596D9C /* FPU check */,
 				EEBBA9221413B9340006097A /* Documentation */,
 				EEAD7CE21ED893D400857F32 /* FoundationTests */,
 			);
@@ -1351,19 +1341,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo $CFLAGS\n./Foundation.qcodeproj\n";
-		};
-		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# this shell script identifies all fpu calls in all frameworks and applications\n\necho deprecated\n\nexit\n\nROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\ncd $ROOT\n\nARCHITECTURE=arm-quantumstep-linux-gnu\n# ARCHITECTURE=arm-hardfloat-linux-gnu\n# ARCHITECTURE=arm-softfloat-linux-gnueabi\nCOMPILER=gcc-2.95.3-glibc-2.2.2\nTOOLCHAIN=$SYSTEM_DEVELOPER_DIR/Xtoolchain/native/$COMPILER/$ARCHITECTURE/$ARCHITECTURE\n\nfind Applications Developer Library System/Library \\( -name *.framework -o -name *.app \\) -print -prune | while read file\ndo\n\tcase $file in\n\t\t*.app )\n\t\t\tbinary=$file/Contents/$ARCHITECTURE/*\n\t\t\t;;\n\t\t*.framework )\n\t\t\tbinary=$file/Versions/current/$ARCHITECTURE/*.so\n\t\t\t;;\n\t\t* )\n\t\t\techo $file has no binaries\n\t\t\t;;\n\tesac\n\t$TOOLCHAIN/bin/nm -u $binary\ndone | sort | uniq\n\nexit 0";
 		};
 		EEBBA9211413B9340006097A /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1586,7 +1563,25 @@
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1597,6 +1592,24 @@
 		EE1A0193097304E200EAB703 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
@@ -1606,6 +1619,24 @@
 		EE1A0194097304E200EAB703 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1616,12 +1647,14 @@
 		EEAA86EC0A148ED200F2E5B5 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -1638,7 +1671,7 @@
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isysroot",
 					/,
@@ -1659,6 +1692,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.Foundation";
 				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -1674,12 +1708,14 @@
 		EEAA86ED0A148ED200F2E5B5 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1693,7 +1729,7 @@
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isysroot",
 					/,
@@ -1714,6 +1750,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.Foundation";
 				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -1729,11 +1766,13 @@
 		EEAA86EE0A148ED200F2E5B5 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -1746,7 +1785,7 @@
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isysroot",
 					/,
@@ -1767,6 +1806,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.Foundation";
 				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -1911,35 +1951,6 @@
 			};
 			name = Default;
 		};
-		EEBAEECE0C94805D00596D9C /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "FPU check";
-			};
-			name = Development;
-		};
-		EEBAEECF0C94805D00596D9C /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = "FPU check";
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEBAEED00C94805D00596D9C /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "FPU check";
-			};
-			name = Default;
-		};
 		EEBBA9231413B9340006097A /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2007,16 +2018,6 @@
 				EEAD7CEB1ED893D400857F32 /* Development */,
 				EEAD7CEC1ED893D400857F32 /* Deployment */,
 				EEAD7CED1ED893D400857F32 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEBAEECE0C94805D00596D9C /* Development */,
-				EEBAEECF0C94805D00596D9C /* Deployment */,
-				EEBAEED00C94805D00596D9C /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
