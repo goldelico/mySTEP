@@ -328,7 +328,7 @@ SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
 HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
 
 # additional debian control files
-DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm,$(XSOURCES))
+DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm %.conffiles,$(XSOURCES))
 
 # all sources that are processed specially
 PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
