@@ -89,8 +89,8 @@ typedef NSUInteger au_asid_t;
 {
 	id _remoteObjectProxy;
 	id _exportedObject;
-	NSBlock * _invaldationHandler;
-	NSBlock * _errorHandler;
+	NSBLOCK_POINTER(void, invaldationHandler, void);
+	NSBLOCK_POINTER(void, _errorHandler, void);
 	NSInteger _suspendCount;
 	NSXPCInterface *exportedInterface;
 	NSXPCListenerEndpoint *_endpoint;
@@ -111,8 +111,8 @@ typedef NSUInteger au_asid_t;
 - (gid_t) effectiveGroupIdentifier;
 - (au_asid_t) auditSessionIdentifier;
 
-- (NSBlock *) invaldationHandler;
-- (void) setInvaldationHandler:(NSBlock *) block;
+- (NSBLOCK_POINTER(void,, void)) invaldationHandler;
+- (void) setInvaldationHandler:(NSBLOCK_POINTER(void,, void)) block;
 
 - (id) exportedObject;
 - (void) setExportedObject:(id) anObject;
