@@ -70,4 +70,42 @@
 
 @end
 
+#ifdef CLANG
+
+#define NSBLOCK_POINTER(returnType, name, parameters) ^name(returnType(parameters))
+#define NSBLOCK(parameters, body) ^parameters body
+#define NSBLOCK_CALL(pointer, arguments) pointer(arguments)
+
+#else
+
+/* should translate
+  typedef void(^block)(void);
+  -> typedef NSBLOCK_POINTER(void,block,void);
+  -> typedef NSBlock *block;
+ */
+
+#define NSBLOCK_POINTER(returnType, name, parameters) NSBlock *name
+
+/* should translate
+  return ^() { [x doSomething]; };
+  -> return NSBLOCK(x, [x doSomething]);
+  -> fn(id x) { [x doSomething]; }
+	NSBlock *b=[NSBlock new];
+	[b setParameterList:x];	// use va_list or NSInvocation something - can retain the object x
+	[b setFunction:fn];
+	return block;
+*/
+
+#define NSBLOCK(parameters, body) ({ void fn(parameters) { body }; NSBlock *b=[new NSBlock]; [b setFunction:fn]; b; })
+
+/* should translate
+  bl()
+  -> NSBLOCK_CALL(bl,);
+  -> [bl call]
+*/
+
+#define NSBLOCK_CALL(pointer, arguments) [pointer call];
+
+#endif
+
 #endif /* _mySTEP_H_NSBlock */

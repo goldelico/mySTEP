@@ -92,3 +92,43 @@
 }
 
 @end
+
+#if 0	// demo
+
+@interface X :NSObject
+- (void) doSomething;
+@end
+
+// typedef void(^block)(void);
+typedef NSBLOCK_POINTER(void,block,void);
+
+
+/*
+block callMethodOn(id x)
+{
+	return ^() { [x doSomething]; };
+}
+*/
+
+block callMethodOn(id x)
+{
+	return NSBLOCK(x, [x doSomething]);
+	/*
+	fn(id x) { [x doSomething]; }
+	NSBlock *b=[NSBlock new];
+	[b setParameterList:x];	// use va_list or NSInvocation something - can retain the object x
+	[b setFunction:fn];
+	return block;
+	*/
+}
+
+void test(void)
+{
+	id object=[X new];
+	block bl = callMethodOn(object);
+	[object release];
+	// bl()
+	NSBLOCK_CALL(bl,);
+}
+
+#endif
