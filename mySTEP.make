@@ -133,7 +133,7 @@ endif
 
 include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
-.PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_php make_sh install_local deploy_remote launch_remote bundle headers resources
+.PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
 
 # configure Embedded System if undefined
 
@@ -160,7 +160,14 @@ ifeq ($(PRODUCT_BUNDLE_IDENTIFIER),)
 PRODUCT_BUNDLE_IDENTIFIER=org.quantumstep.$(PRODUCT_NAME)
 endif
 
-ifeq ($(TRIPLE),darwin-x86_64)
+ifeq ($(TRIPLE),php)
+CC := : php -l $SOURCE
+LD := : cp $SOURCE $DEST
+AS := :
+NM := :
+STRIP := :
+SO :=
+else ifeq ($(TRIPLE),darwin-x86_64)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 TOOLCHAIN=/usr/bin
@@ -339,10 +346,12 @@ RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 # default is to build for all
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-# should try to deduce names from $(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
-DEBIAN_ARCHITECTURES=mystep darwin-x86_64 armel armhf i386 mipsel
-# mystep (use our frameworks and X11 except Foundation) and darwin-x86_64 (link app against Macos frameworks) do not work yet
-DEBIAN_ARCHITECTURES=darwin-x86_64 armel armhf i386 mipsel
+DEBIAN_ARCHITECTURES=darwin-x86_64 armel armhf i386 mipsel php
+# mystep (= use our frameworks and X11 except Foundation) does not work yet
+# DEBIAN_ARCHITECTURES+=mystep darwin-x86_64
+ifeq ($(PHPONLY),true)
+DEBIAN_ARCHITECTURES=php
+endif
 # DEBIAN_ARCHITECTURES=macos
 endif
 
@@ -351,7 +360,7 @@ endif
 ifeq ($(NOCOMPILE),true)
 build:	build_subprojects build_doxy install_local
 else
-build:	build_subprojects build_doxy build_architectures make_php make_sh install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy build_architectures make_sh install_local deploy_remote launch_remote
 endif
 	@date
 
@@ -514,6 +523,8 @@ else ifeq ($(TRIPLE),MacOS)
 LIBRARIES := \
 		$(FMWKS) \
 		$(LIBS)
+else ifeq ($(TRIPLE),php)
+# nothing
 else
 LIBRARIES := \
 		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
@@ -645,6 +656,12 @@ $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
+$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.php: %.php
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
+	# compile $< -> $*.o
+	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+
 # FIXME: handle .lm .ym
 
 #
@@ -688,6 +705,7 @@ make_binary: make_exec
 	# make PHP only
 endif
 
+# can we replace by PHPOBJECTS and run some PHP compiler?
 make_php: bundle
 	# PHPSRCS: $(PHPSRCS)
 	for PHP in $(PHPSRCS); \
@@ -783,6 +801,12 @@ DEPENDS := quantumstep-cocoa-framework
 endif
 ifeq ($(DEBIAN_HOMEPAGE),)
 DEBIAN_HOMEPAGE := www.quantum-step.com
+endif
+endif
+
+ifneq ($(strip $(PHPSRCS)),)	# any PHP source
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION := part of QuantumSTEP Cloud Framework
 endif
 endif
 
@@ -1181,7 +1205,7 @@ endif
 endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
 
-"$(BINARY)":: bundle headers $(OBJECTS)
+"$(BINARY)":: bundle headers $(OBJECTS) make_php
 	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
