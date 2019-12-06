@@ -691,23 +691,22 @@ make_bundle:
 
 make_exec: "$(EXEC)"
 # make exec
-
-ifneq ($(PHPONLY),true)
 ifneq ($(strip $(SRCOBJECTS)),)
 make_binary: make_exec "$(BINARY)"
 	ls -l "$(BINARY)"
+else ifneq ($(strip $(PHPSRCS)),)
+make_binary: make_exec make_php
+	ls -l "$(BINARY)"
 else
-make_binary: make_exec
+make_binary:
 	# no sources - no binary
-endif
-else
-make_binary: make_exec
-	# make PHP only
 endif
 
 # can we replace by PHPOBJECTS and run some PHP compiler?
 make_php: bundle
 	# PHPSRCS: $(PHPSRCS)
+ifeq ($(TRIPLE),php)
+ifneq ($(strip $(PHPSRCS)),)
 	for PHP in $(PHPSRCS); \
 	do \
 	if [ -r "$$PHP" ]; \
@@ -716,9 +715,12 @@ make_php: bundle
 			php -l "$$PHP" && \
 			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
+			cp -pf "$$PHP" "$(BINARY)" && \
 			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
 	done
+endif
+endif
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
@@ -839,10 +841,15 @@ build_deb: make_bundle bundle make_binary build_debian_packages
 	echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
+ifneq ($(TRIPLE),php)
 build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb"
+else
+build_debian_packages: prepare_temp_files \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb"
+endif
 	# debian_packages
 	# DEBIAN_ARCH=$(DEBIAN_ARCH)
 	# TRIPLE=$(TRIPLE)
@@ -915,6 +922,7 @@ F = filter_dependencies() \
 		if echo "$$LINE" | grep -q : && ! echo "$$LINE" | grep -q "$(DEBIAN_RELEASE):"; then continue; fi; \
 		if echo "$$LINE" | grep -q '\[.*\]' && ! echo "$$LINE" | grep -q "\[[^]]*$(DEBIAN_ARCH).*\]"; then continue; fi; \
 		LINE=$$(echo "$$LINE" | sed 's|.*:||' | sed 's|[ ]*\[.*\][ ]*||'); \
+		if [ "$(TRIPLE)" = "php" ] && ! echo "$$LINE" | egrep -q '^quantumstep-|^letux-'; then continue; fi; \
 		if [ "$$LINE" ]; then \
 			printf "%s" "$$SEP $$LINE"; SEP=","; \
 		fi; \
@@ -1205,8 +1213,8 @@ endif
 endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
 
-"$(BINARY)":: bundle headers $(OBJECTS) make_php
-	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
+"$(BINARY)":: bundle headers $(OBJECTS)
+	# link for $(ARCH): $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
