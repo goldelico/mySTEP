@@ -350,4 +350,39 @@
 	NSLog(@"134: %@ %g %g", NSStringFromRect([view bounds]), [view boundsRotation], [view boundsRotation]-30.0f);
 #endif
 
+- (void) test30;
+{
+	NSClipView *clipView=[[NSClipView alloc] initWithFrame:NSMakeRect(1, 1, 1336, 840)];
+	view=[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 1336, 840)];
+	[clipView setDocumentView:view];
+	NSRect clipFrame=[clipView frame];	// "window" of ClipView
+	NSRect frame=clipFrame, bounds;
+	NSRect area=NSMakeRect(-2, -55, 64, 78);
+	float scale=8.0;
+	frame.size.width *= scale;
+	frame.size.height *= scale;
+	// FIXME: there may be a limit how big frame and bounds can become!
+	[view setFrame:frame];	// ??? does this modify the clipView?
+	XCTAssertEquals([view frame], frame);
+	bounds.size.width=clipFrame.size.width;
+	bounds.size.height=clipFrame.size.height;
+	bounds.origin.x=NSMidX(area)-0.5*bounds.size.width;	// center area
+	bounds.origin.y=NSMidY(area)-0.5*bounds.size.height;
+#if 0
+	[view setBoundsOrigin:bounds.origin];
+	[view setBoundsSize:bounds.size];
+#else
+	[view setBounds:bounds];
+#endif
+	XCTAssertEquals([view bounds], bounds);
+	[view setBoundsRotation:90];
+	[view setBoundsRotation:180];
+	[view setBoundsRotation:90];
+	[view setBoundsRotation:0];
+	XCTAssertEquals([view bounds], bounds);
+	[view scaleUnitSquareToSize:NSMakeSize(-1.0, 1.0)];
+	[view scaleUnitSquareToSize:NSMakeSize(-1.0, 1.0)];
+	XCTAssertEquals([view bounds], bounds);
+}
+
 @end
