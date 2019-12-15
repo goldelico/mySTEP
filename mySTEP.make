@@ -161,8 +161,8 @@ PRODUCT_BUNDLE_IDENTIFIER=org.quantumstep.$(PRODUCT_NAME)
 endif
 
 ifeq ($(TRIPLE),php)
-CC := : php -l $SOURCE
-LD := : cp $SOURCE $DEST
+CC := : php -l
+LD := : cp
 AS := :
 NM := :
 STRIP := :
@@ -659,8 +659,8 @@ $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.php: %.php
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
-	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	# if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	# php -l $< >$(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -687,20 +687,10 @@ endif
 endif
 
 make_bundle:
-# make bundle
+	# make bundle
 
 make_exec: "$(EXEC)"
-# make exec
-ifneq ($(strip $(SRCOBJECTS)),)
-make_binary: make_exec "$(BINARY)"
-	ls -l "$(BINARY)"
-else ifneq ($(strip $(PHPSRCS)),)
-make_binary: make_exec make_php
-	ls -l "$(BINARY)"
-else
-make_binary:
-	# no sources - no binary
-endif
+	# make exec
 
 # can we replace by PHPOBJECTS and run some PHP compiler?
 make_php: bundle
@@ -721,6 +711,9 @@ ifneq ($(strip $(PHPSRCS)),)
 	done
 endif
 endif
+
+make_binary: make_exec "$(BINARY)" make_php
+	ls -l "$(BINARY)"
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
@@ -1214,6 +1207,7 @@ endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
 
 "$(BINARY)":: bundle headers $(OBJECTS)
+ifneq ($(TRIPLE),php)
 	# link for $(ARCH): $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
@@ -1232,6 +1226,7 @@ else ifeq ($(TRIPLE),MacOS)
 	- ln -sf "$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
 else
 	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+endif
 endif
 endif
 
