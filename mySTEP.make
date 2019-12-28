@@ -692,28 +692,8 @@ make_bundle:
 make_exec: "$(EXEC)"
 	# make exec
 
-# can we replace by PHPOBJECTS and run some PHP compiler?
-make_php: bundle
-	# PHPSRCS: $(PHPSRCS)
-ifeq ($(TRIPLE),php)
-ifneq ($(strip $(PHPSRCS)),)
-	for PHP in $(PHPSRCS); \
-	do \
-	if [ -r "$$PHP" ]; \
-		then \
-			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
-			php -l "$$PHP" && \
-			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
-			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
-			cp -pf "$$PHP" "$(BINARY)" && \
-			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
-		fi; \
-	done
-endif
-endif
-
-make_binary: make_exec "$(BINARY)" make_php
-	ls -l "$(BINARY)"
+make_binary: make_exec "$(BINARY)"
+	- "$(BINARY)" && ls -l "$(BINARY)"
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
@@ -1207,7 +1187,24 @@ endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
 
 "$(BINARY)":: bundle headers $(OBJECTS)
-ifneq ($(TRIPLE),php)
+	# PHPSRCS: $(PHPSRCS)
+ifeq ($(TRIPLE),php)
+ifneq ($(strip $(PHPSRCS)),)
+	for PHP in $(PHPSRCS); \
+	do \
+		if [ -r "$$PHP" ]; \
+		then \
+			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
+			php -l "$$PHP" && \
+			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
+			cp -pf "$$PHP" "$(BINARY)" && \
+			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+		fi; \
+		done
+endif
+endif
+ifneq ($(OBJECTS),)
 	# link for $(ARCH): $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
