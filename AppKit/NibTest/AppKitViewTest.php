@@ -83,21 +83,27 @@ function didFinishLoading()
 	$this->status->setAttributedStringValue("New Mail");
 	$grid->addSubview($this->status);
 
-	$v=new NSPopUpButton();
-	$grid->addSubview($v);
-	$v->addItemWithTitle("item 1");
-	$v->addItemWithTitle("item 2");
-	$v->addItemWithTitle("item 3");
-
 	$button=new NSButton();
 	$button->setButtonType("Radio");
 	$button->setTitle("Radio");
 	$grid->addSubview($button);
 
 	$button=new NSButton();
-	$button->setButtonType("Checkbox");
-	$button->setTitle("Checkbox");
+	$button->setButtonType("CheckBox");
+	$button->setTitle("CheckBox");
 	$grid->addSubview($button);
+
+	$button=new NSButton();
+	$button->setButtonType("CheckBox");
+	$button->setTitle("Mixed");
+	$button->setAllowsMixedState(true);
+	$grid->addSubview($button);
+
+	$v=new NSPopUpButton();
+	$grid->addSubview($v);
+	$v->addItemWithTitle("item 1");
+	$v->addItemWithTitle("item 2");
+	$v->addItemWithTitle("item 3");
 
 	$v=new NSTabView();
 	$grid->addSubview($v);
