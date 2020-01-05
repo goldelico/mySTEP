@@ -687,13 +687,13 @@ class NSView extends NSResponder
 		if(isset($this->tooltip) && $this->tooltip)
 			html("</span>\n");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{ // notify all subviews
 		foreach($this->subviews as $view)
 			{
-// _NSLog("call ".$view->classString()."->displayDone()");
-			$view->displayDone();
-// _NSLog("called ".$view->classString()."->displayDone()");
+// _NSLog("call ".$view->classString()."->_displayDone()");
+			$view->_displayDone();
+// _NSLog("called ".$view->classString()."->_displayDone()");
 			}
 		}
 	public function setToolTip($str=null) { $this->tooltip=$str; }
@@ -1148,7 +1148,7 @@ class NSButton extends NSControl
 			}
 		html("\n");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{
 		switch($this->buttonType)
 			{
@@ -1157,7 +1157,7 @@ class NSButton extends NSControl
 				$this->_persist("state", "", $this->state);	// store for JS mode
 				break;
 			}
-		parent::displayDone();
+		parent::_displayDone();
 		}
 	}
 
@@ -1505,11 +1505,11 @@ class NSPopUpButton extends NSButton
 			}
 		html("</select>\n");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{
 		if(!$this->pullsDown)
 			{
-// _NSLog("NSPopUpButton ".$this->elementId()." displayDone ".$this->titleOfSelectedItem());
+// _NSLog("NSPopUpButton ".$this->elementId()." _displayDone ".$this->titleOfSelectedItem());
 // _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
 			if($this->isHidden())	// persist value even if button is currently hidden
 				{
@@ -1519,7 +1519,7 @@ class NSPopUpButton extends NSButton
 			else
 				$this->_persist("state", "", "");	// remove from persistence store (because we have our own <input>)
 			}
-		parent::displayDone();
+		parent::_displayDone();
 		}
 	}
 
@@ -2071,11 +2071,11 @@ class NSMatrix extends NSControl
 		html("</table>\n");
 		}
 
-	public function displayDone()
+	public function _displayDone()
 		{
 		$this->_persist("selectedRow", -1, $this->selectedRow);
 		$this->_persist("selectedColumn", -1, $this->selectedColumn);
-		parent::displayDone();
+		parent::_displayDone();
 		}
 	}
 
@@ -2360,14 +2360,14 @@ class NSTabView extends NSControl
 		html("</table>\n");
 		}
 
-	public function displayDone()
+	public function _displayDone()
 		{ // treat items like subviews
 		$this->_persist("selectedIndex", 0, $this->selectedIndex);
 		$selectedItem=$this->selectedTabViewItem();
 		foreach($this->tabViewItems as $item)
 			{
 			$item->view()->setHidden($item != $selectedItem);	// we did not call display...
-			$item->view()->displayDone();	// give items a chance to persist
+			$item->view()->_displayDone();	// give items a chance to persist
 			}
 		}
 	}
@@ -2661,12 +2661,12 @@ class NSTableView extends NSControl
 			}
 		html("</table>\n");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{
-// _NSLog("displayDone NSTableView row: ".$this->selectedRow." col: ".$this->selectedColumn);
+// _NSLog("_displayDone NSTableView row: ".$this->selectedRow." col: ".$this->selectedColumn);
 		$this->_persist("selectedRow", -1, $this->selectedRow);
 		$this->_persist("selectedColumn", -1, $this->selectedColumn);
-		parent::displayDone();
+		parent::_displayDone();
 		}
 	}
 	
@@ -2839,7 +2839,7 @@ if($name)
 		if(!is_null($this->font))
 			html("</span>");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{
 		$name=is_null($this->name)?$this->elementId."-string":$this->name;
 		if($this->isHidden())
@@ -2849,7 +2849,7 @@ if($name)
 			}
 		else if($this->isEditable)
 			_persist($name, "", "");	// remove from persistence store (because we have our own <input>)
-		parent::displayDone();
+		parent::_displayDone();
 		}
 }
 
@@ -2921,13 +2921,13 @@ class NSTextView extends NSControl
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
 		}
-	public function displayDone()
+	public function _displayDone()
 		{
 		if($this->isHidden())	// persist stringValue even if text field is currently hidden
 			$this->_persist("string", $this->string);
 		else
 			$this->_persist("string", "", "");	// remove from persistence store (because we have our own <input>)
-		parent::displayDone();
+		parent::_displayDone();
 		}
 }
 
@@ -3171,7 +3171,7 @@ class NSWindow extends NSResponder
 			$mm->display();	// draw main menu before content view
 		// add App-Icon, menu/status bar
 		$this->scrollView->display();	// handles isHidden
-		$this->scrollView->displayDone();	// can handle special persistence processing
+		$this->scrollView->_displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
 		global $persist;
 		foreach($persist as $object => $value)
