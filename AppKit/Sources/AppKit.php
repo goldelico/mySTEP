@@ -919,13 +919,14 @@ class NSButton extends NSControl
 	protected $textColor;
 	public function __construct($newtitle = "NSButton", $buttonType="Button")
 		{
-		parent::__construct();
+		parent::__construct(); // must explicitly call parent!
 // _NSLog("NSButton $newtitle ".$this->elementId);
-		$this->buttonType=$buttonType;
-		$this->title=$newtitle;
+		$this->setButtonType($buttonType);
+		$this->setTitle($newtitle);
 		}
-	public function setAllowsMixedState($value) { $this->allowsMixedState=$value; }
 	public function description() { return parent::description()." ".$this->title; }
+	public function allowsMixedState() { return $this->allowsMixedState; }
+	public function setAllowsMixedState($value) { $this->allowsMixedState=$value; }
 	public function title() { return $this->title; }
 	public function setTitle($title)
 		{
