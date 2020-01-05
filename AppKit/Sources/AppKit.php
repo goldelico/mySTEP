@@ -1058,12 +1058,13 @@ class NSButton extends NSControl
 		}
 	public function draw()
 		{
-		if(is_string($this->target) && !$this->enabled)
+		$islink=is_string($this->target());
+		if($islink && !$this->isEnabled())
 			{ // disabled link button
-			html(_htmlentities($this->title));
+			html(_htmlentities($this->title()));
 			return;
 			}
-		html(is_string($this->target)?"<a":"<input");
+		html($islink?"<a":"<input");
 		parameter("id", $this->elementId);
 // FIXME: if default button (shortcut "\r"): invert the selected state
 		if($this->keyEquivalent == "\r")
@@ -1071,50 +1072,59 @@ class NSButton extends NSControl
 		else
 			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
 		if($this->backgroundColor)
-			parameter("style", "background: ".$this->backgroundColor);
+			parameter("style", "background: ".$this->backgroundColor());
 		if($this->textColor)
-			parameter("style", "color: ".$this->textColor);
+			parameter("style", "color: ".$this->textColor());
 		$super=$this->superview();
-// _NSLog($super->classString());
 		$onclick="";
-		if(is_string($this->target))
+		while(!is_null($super))
+			{ // loop because we may be a sub-sub-view of a Matrix or Table...
+// _NSLog($super->classString());
+			if($super->respondsToSelector("getRowColumnOfCell"))
+				{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+// _NSLog("NSMatrix target");
+				parameter("name", $super->elementId."-ck");
+				$onclick.="e('".$super->elementId."');";
+				if($super->getRowColumnOfCell($row, $column, $this))
+					{
+					$onclick.=";r($row)".";c($column);";
+					if(!is_null($super->action()))
+						$onclick.="s();";
+					}
+				break;
+				}
+			if($super->respondsToSelector("_getRowColumnOfCell"))
+				{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
+// _NSLog("NSTable target");
+				parameter("name", $super->elementId."-ck");
+				$onclick.="e('".$super->elementId."')";
+				$super->_getRowColumnOfCell($row, $column);
+				$onclick.=";r($row)".";c($column);";
+				$onclick.="s();";
+				break;
+				}
+			$super=$super->superview();
+			}
+		if($islink)
 			{
 // _NSLog("link target");
 			parameter("href", $this->_targetActionURL());
-			}
-		else if(!is_null($super) && $super->respondsToSelector("getRowColumnOfCell"))
-			{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
-// _NSLog("NSMatrix target");
-			parameter("name", $super->elementId."-ck");
-			$onclick.="e('".$super->elementId."');";
-			if($super->getRowColumnOfCell($row, $column, $this))
-				{
-				$onclick.=";r($row)".";c($column);";
-				if(!is_null($super->action()))
-					$onclick.="s();";
-				}
-			}
-		else if(!is_null($super) && $super->respondsToSelector("_getRowColumnOfCell"))
-			{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
-// _NSLog("NSTable target");
-			parameter("name", $super->elementId."-ck");
-			$onclick.="e('".$super->elementId."')";
-			$super->_getRowColumnOfCell($row, $column);
-			$onclick.=";r($row)".";c($column);";
-			$onclick.="s();";
+			if($onclick)
+				$onclick="event.stopPropagation()";	// replace s() and stop event propagation but follow href
 			}
 		else
 			{ // stand-alone button with internal action
 // _NSLog("local target");
 			parameter("name", $this->elementId."-ck");
-			$onclick.="e('".$this->elementId."');s();";
+			if(!$onclick)
+				$onclick.="e('".$this->elementId."');s()";
 			}
 		switch($this->buttonType)
 			{
 			case "Radio":
 				parameter("type", "radio");
 				if($onclick)
-					parameter("onchange", $onclick."return false");
+					parameter("onchange", $onclick);
 				break;
 			case "CheckBox":
 				parameter("type", "checkbox");
@@ -1122,25 +1132,27 @@ class NSButton extends NSControl
 				// tableView:setObjectValue:forTableColumn:row: callback
 				// and in a NSMatrix we should probably trigger the matrix target/action?
 				if($onclick)
-					parameter("onchange", $onclick."return false");
+					parameter("onchange", $onclick);
 				break;
 			default:
-				parameter("type", "submit");
-				if(!is_string($this->target()))
+				if(!$islink)
+					{
+					parameter("type", "submit");
 					parameter("value", _htmlentities($this->title));
+					}
 				if($onclick)
-					parameter("onclick", $onclick."return false");
+					parameter("onclick", $onclick);
 			}
-		if(!$this->enabled)
+		if(!$this->isEnabled())
 			parameter("disabled", "");
-		if(isset($this->altTitle))
+		if(!is_null($this->alternateTitle()))
 			{
-			// use CSS to change contents on hover
+			// use CSS to change button title on hover
 			}
 		switch($this->state())
 			{
 			case NSMixedState:
-				// HTML does now understand this: parameter("intermediate", "intermediate");
+				// HTML5 does understand this: parameter("intermediate", "intermediate");
 				html("/><script");
 				parameter("type", "text/javascript");
 				html(">");
@@ -1156,12 +1168,12 @@ class NSButton extends NSControl
 			{
 			case "CheckBox":
 			case "Radio":
-				html(_htmlentities($this->title));
+				html(_htmlentities($this->title()));
 				break;
 			default:
-				if(is_string($this->target()))
+				if($islink)
 					{
-					html(_htmlentities($this->title));
+					html(_htmlentities($this->title()));
 					html("</a>");
 					}
 			}
@@ -1173,7 +1185,7 @@ class NSButton extends NSControl
 			{
 			case "CheckBox":
 			case "Radio":
-				$this->_persist("state", "", $this->state);	// store for JS mode
+				$this->_persist("state", "", $this->state());	// store for JS mode
 				break;
 			}
 		parent::_displayDone();
