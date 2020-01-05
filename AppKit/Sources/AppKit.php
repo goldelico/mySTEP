@@ -2404,6 +2404,11 @@ class NSTableView extends NSControl
 		{
 		return ($this->clickedColumn<$this->numberOfColumns())?$this->clickedColumn:-1;
 		}
+	public function _getRowColumnOfCell(&$row, &$col)
+		{ // here we use 0..n-1 coordinates!
+		$row=$this->drawingRow;
+		$col=$this->drawingColumn;
+		}
 	public function selectRow($row, $extend=false)
 		{
 		NSLog("selectRow $row extend ".($extend?"yes":"no"));
@@ -2513,7 +2518,11 @@ class NSTableView extends NSControl
 // _NSLog($column);
 // _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 // _NSLog($cell);
+					$cell->_setSuperView($this);
+					$this->drawingRow=$row;
+					$this->drawingColumn=$index;
 					$cell->_setElementId($this->elementId."-$row-$index");	// make them unique and attach to table
+					/* this goes to the <td> and is activated by clicking on the cell background */
 					parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)".";s()");
 					// parameter("onclick", "e('".$this->elementId."');"."r($row);"."c($index)");
 					$cell->setObjectValue($item);
