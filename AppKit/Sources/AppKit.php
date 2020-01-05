@@ -885,6 +885,23 @@ class NSButton extends NSControl
 		parent::__construct();
 		$this->cell=new NSButtonCell($newtitle, $buttonType);
 		}
+	public function allowsMixedState() { return $this->cell()->allowsMixedState(); }
+	public function setAllowsMixedState($value) { $this->cell()->setAllowsMixedState($value); }
+	public function title() { return $this->cell()->title(); }
+	public function setTitle($title) { $this->cell()->setTitle($title); }
+	public function alternateTitle() { return $this->cell()->alternateTitle(); }
+	public function setAlternateTitle($title) { $this->cell()->setAlternateTitle($title); }
+	public function backgroundColor() { return $this->cell()->backgroundColor(); }
+	public function setBackgroundColor($color) { $this->cell()->setBackgroundColor($color); }
+	public function textColor() { return $this->cell()->textColor(); }
+	public function setTextColor($color) { $this->cell()->setTextColor($color); }
+	public function state() { return $this->cell()->state(); }
+	public function setState($value) { $this->cell()->setState($value); }
+	public function isSelected() { return $this->cell()->isSelected(); }
+	public function setSelected($value) { $this->cell()->setSelected($value); }
+	public function bjectValue($val) { return $this->cell->()->objectValue(); }
+	public function setObjectValue($val) { $this->cell->()->setObjectValue($val); }
+	public function setButtonType($buttonType) { $this->cell()->setButtonType($buttonType); }
 	}
 
 class NSButtonCell extends NSActionCell
