@@ -29,6 +29,11 @@ class AppController extends NSObject
 		$this->status->setStringValue($status?"Sent":"Not Sent");
 		}
 
+	public function buttonPressed(NSObject $sender)
+		{
+		$this->status->setStringValue($sender->title());
+		}
+
 	public function numberOfRowsInTableView(NSTableView $table)
 		{
 		return 5;
@@ -99,6 +104,21 @@ function didFinishLoading()
 	$button->setAllowsMixedState(true);
 	$grid->addSubview($button);
 
+	$button=new NSButton();
+	$button->setTitle("Local");
+	$button->setActionAndTarget('buttonPressed', $this);
+	$grid->addSubview($button);
+
+	$button=new NSButton();
+	$button->setTitle("No target");
+	$button->setActionAndTarget('buttonPressed', null);
+	$grid->addSubview($button);
+
+	$button=new NSButton();
+	$button->setTitle("Link");
+	$button->setActionAndTarget('index.html', 'http://www.goldelico.com');
+	$grid->addSubview($button);
+
 	$v=new NSPopUpButton();
 	$grid->addSubview($v);
 	$v->addItemWithTitle("item 1");
@@ -109,13 +129,25 @@ function didFinishLoading()
 	$grid->addSubview($v);
 	$c=new NSButton();
 	$c->setTitle("first Button");
+	$c->setActionAndTarget('buttonPressed', $this);
 	$v->addTabViewItem(new NSTabViewItem("1", $c));
 	$c=new NSButton();
 	$c->setTitle("second Button");
+	$c->setActionAndTarget('buttonPressed', $this);
 	$v->addTabViewItem(new NSTabViewItem("2", $c));
+
+	$button=new NSTextField();
+	$button->setAttributedStringValue("");
+	$grid->addSubview($button);
+
+	$button=new NSTextField();
+	$button->setAttributedStringValue("");
+	$grid->addSubview($button);
 
 	$v=new NSTableView(array("first", "second", "third"));
 	$v->setDataSource($this);
+	foreach($v->columns() as $column)
+		$column->setEditable(false);
 	$grid->addSubview($v);
 
 	$this->mainWindow->contentView()->addSubview($grid);
