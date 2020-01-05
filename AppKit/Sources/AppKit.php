@@ -787,8 +787,8 @@ class NSControl extends NSView
 /* required */
 	protected $cell;
 	public function __construct()
-		{ // must explicitly call!
-		parent::__construct();
+		{
+		parent::__construct(); // must explicitly call parent!
 		// we could get our class and append Cell to set a default...
 		}
 	public function cell() { return $this->cell; }
@@ -866,6 +866,7 @@ class NSControl extends NSView
 // _NSLog($this);
 		if(isset($this->cell))
 			$this->cell->_collectEvents();
+		parent::_collectEvents();	// do default (go through subviews)
 		}
 
 	public function draw()
