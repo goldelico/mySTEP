@@ -693,7 +693,7 @@ make_exec: "$(EXEC)"
 	# make exec
 
 make_binary: make_exec "$(BINARY)"
-	- "$(BINARY)" && ls -l "$(BINARY)"
+	- [ -x "$(BINARY)" ] && ls -l "$(BINARY)"
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
