@@ -558,17 +558,6 @@ class NSFont extends NSObject
 		}
 	}
 
-class NSCell extends NSObject
-	{
-	protected $controlView;
-	public function controlView() { return $this->controlView; }
-	public function setControlView($controlView) { $this->controlView=$controlView; }
-	public function drawCell()
-		{ // overwrite in subclass
-		return;
-		}
-	}
-
 class NSView extends NSResponder
 { // semi-abstract superclass
 	protected $frame;
@@ -719,35 +708,45 @@ class NSView extends NSResponder
 		}
 }
 
-class NSControl extends NSView
+class NSCell extends NSObject
 	{
-	protected $action="";	// function name
-	protected $target=null;	// object or http reference
 	protected $tag=0;
 	protected $align="";
 	protected $enabled=true;
-	protected $cell;
-	public function __construct()
-		{ // must explicitly call!
-		parent::__construct();
-		}
+	protected $controlView;
+	public function controlView() { return $this->controlView; }
+	public function setControlView($controlView) { $this->controlView=$controlView; }
 	public function isEnabled() { return $this->enabled; }
 	public function setEnabled($flag) { $this->enabled=$flag; }
-	public function sendAction($action=null, NSObject $target=null)
+	public function setTag($val) { $this->tag=$val; }
+	public function tag() { return $this->tag; }
+	public function setAlign($align) { $this->align=$align; }
+	public function align() { return $this->align; }
+
+	public function _targetActionURL()
 		{
-		global $NSApp;
-		if(is_null($action))
-			$action=$this->action;
-		if(is_null($target))
-			$target=$this->target;
-// NSLog($this->description()." sendAction $action");
-		$NSApp->sendActionToTarget($this, $action, $target);
+		$url=$this->target;
+		if($url && substr($url, -1) != '/' && $this->action && substr($this->action, 0, 1) != '/')
+			$url.="/";	// separate
+		return $url.$this->action;
 		}
-	public function setActionAndTarget($action, $target)
+
+	// define event handling here!
+
+	public function _collectEvents()
 		{
-		$this->action=$action;
-		$this->target=$target;
 		}
+
+	public function drawCell()
+		{ // overwrite in subclass
+		return;
+		}
+	}
+
+class NSActionCell extends NSCell
+	{
+	protected $action="";	// function name
+	protected $target=null;	// object or http reference
 	public function setAction($action)
 		{
 		$this->action=$action;
@@ -758,6 +757,16 @@ class NSControl extends NSView
 		}
 	public function action() { return $this->action; }
 	public function target() { return $this->target; }
+	public function sendAction($action=null, NSObject $target=null)
+		{
+		global $NSApp;
+		if(is_null($action))
+			$action=$this->action;
+		if(is_null($target))
+			$target=$this->target;
+// NSLog($this->description()." sendAction $action");
+		$NSApp->sendActionToTarget($this, $action, $target);
+		}
 	public function _targetActionURL()
 		{
 		$url=$this->target;
@@ -765,10 +774,100 @@ class NSControl extends NSView
 			$url.="/";	// separate
 		return $url.$this->action;
 		}
-	public function setTag($val) { $this->tag=$val; }
-	public function tag() { return $this; }
-	public function setAlign($align) { $this->align=$align; }
-	public function align() { return $this->align; }
+	}
+
+class NSControl extends NSView
+	{
+/* obsolete */
+	protected $action="";	// function name
+	protected $target=null;	// object or http reference
+	protected $tag=0;
+	protected $align="";
+	protected $enabled=true;
+/* required */
+	protected $cell;
+	public function __construct()
+		{ // must explicitly call!
+		parent::__construct();
+		// we could get our class and append Cell to set a default...
+		}
+	public function cell() { return $this->cell; }
+	public function setCell(NSCell $cell) { $this->cell=$cell; }
+	public function isEnabled() { return isset($this->cell)?$this->cell->isEnabled():$this->enabled; }
+	public function setEnabled($flag)
+		{
+		if(isset($this->cell))
+			$this->cell->setEnabled($flag);
+		else
+			$this->enabled=$flag;
+		}
+	public function sendAction($action=null, NSObject $target=null)
+		{
+		if(isset($this->cell))
+			{
+			$this->cell->sendAction($action, $target);
+			return;
+			}
+		global $NSApp;
+		if(is_null($action))
+			$action=$this->action;
+		if(is_null($target))
+			$target=$this->target;
+// NSLog($this->description()." sendAction $action");
+		$NSApp->sendActionToTarget($this, $action, $target);
+		}
+	public function setActionAndTarget($action, $target)
+		{
+		$this->setAction($action);
+		$this->setTarget($target);
+		}
+	public function setAction($action)
+		{
+		if(isset($this->cell))
+			$this->cell->setAction($action);
+		else
+			$this->action=$action;
+		}
+	public function setTarget($target)
+		{ // object or string permitted
+		if(isset($this->cell))
+			$this->cell->setTarget($target);
+		else
+			$this->target=$target;
+		}
+	public function action() { return isset($this->cell)?$this->cell->action():$this->action; }
+	public function target() { return isset($this->cell)?$this->cell->target():$this->target; }
+	public function _targetActionURL()
+		{
+		$url=$this->target();
+		if($url && substr($url, -1) != '/' && $this->action && substr($this->action(), 0, 1) != '/')
+			$url.="/";	// separate
+		return $url.$this->action();
+		}
+	public function setTag($val)
+		{
+		if(isset($this->cell))
+			$this->cell->setTag($val);
+		else
+			$this->tag=$val;
+		}
+	public function tag() { return $isset($this->cell)?$this->cell->tag():$this->tag; }
+	public function setAlign($align)
+		{
+		if(isset($this->cell))
+			$this->cell->setAlign($align);
+		else
+			$this->align=$align;
+		}
+	public function align() { return $isset($this->cell)?$this->cell->align():$this->align; }
+
+	public function _collectEvents()
+		{
+// _NSLog($this);
+		if(isset($this->cell))
+			$this->cell->_collectEvents();
+		}
+
 	public function draw()
 		{
 // _NSLog($this);
@@ -777,9 +876,21 @@ class NSControl extends NSView
 		}
 	}
 
+/*
 class NSButton extends NSControl
 	{
-	protected $tag;
+	public function __construct($newtitle = "NSButton", $buttonType="Button")
+		{
+		parent::__construct();
+		$this->cell=new NSButtonCell($newtitle, $buttonType);
+		}
+	}
+
+class NSButtonCell extends NSActionCell
+*/
+
+class NSButton extends NSControl
+	{
 	protected $title;
 	protected $altTitle;
 	protected $state=NSOffState;
@@ -797,8 +908,6 @@ class NSButton extends NSControl
 		}
 	public function setAllowsMixedState($value) { $this->allowsMixedState=$value; }
 	public function description() { return parent::description()." ".$this->title; }
-	public function tag() { return $this->tag; }
-	public function setTag($tag) { $this->tag=$tag; }
 	public function title() { return $this->title; }
 	public function setTitle($title)
 		{
@@ -998,7 +1107,7 @@ class NSButton extends NSControl
 				break;
 			default:
 				parameter("type", "submit");
-				if(!is_string($this->target))
+				if(!is_string($this->target()))
 					parameter("value", _htmlentities($this->title));
 				if($onclick)
 					parameter("onclick", $onclick."return false");
@@ -1031,7 +1140,7 @@ class NSButton extends NSControl
 				html(_htmlentities($this->title));
 				break;
 			default:
-				if(is_string($this->target))
+				if(is_string($this->target()))
 					{
 					html(_htmlentities($this->title));
 					html("</a>");
