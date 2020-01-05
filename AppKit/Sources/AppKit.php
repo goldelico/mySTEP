@@ -1110,7 +1110,7 @@ class NSButton extends NSControl
 // _NSLog("link target");
 			parameter("href", $this->_targetActionURL());
 			if($onclick)
-				$onclick="event.stopPropagation()";	// replace s() and stop event propagation but follow href
+				$onclick="a()";	// replace s() and stop event propagation but follow href
 			}
 		else
 			{ // stand-alone button with internal action
@@ -3130,9 +3130,10 @@ class NSWindow extends NSResponder
 		html("<script");
 		parameter("type", "text/javascript");
 		html(">");
-		html("function e(v){document.forms[0].NSEvent.value=v;};");
-		html("function r(v){document.forms[0].clickedRow.value=v;};");
-		html("function c(v){document.forms[0].clickedColumn.value=v;}");
+		html("function a(){event.stopPropagation();};");	// used by <a href> buttons embedded in NSTable or NSMatrix
+		html("function e(v){document.forms[0].NSEvent.value=v;};");	// element
+		html("function r(v){document.forms[0].clickedRow.value=v;};");	// row
+		html("function c(v){document.forms[0].clickedColumn.value=v;}");	// column
 		html("function s(){document.forms[0].scrollerX.value=window.pageXOffset;document.forms[0].scrollerY.value=window.pageYOffset;document.forms[0].submit();}");
 		html("</script>");
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
