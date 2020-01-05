@@ -599,6 +599,8 @@ class NSView extends NSResponder
 			$view->setWindow($window);
 		$this->setNeedsDisplay();
 		}
+	public function setToolTip($str=null) { $this->tooltip=$str; }
+	public function toolTip() { return $this->tooltip; }
 	public function superview() { return $this->superview; }
 	public function _setSuperView(NSView $superview=null)
 		{
@@ -696,8 +698,6 @@ class NSView extends NSResponder
 // _NSLog("called ".$view->classString()."->_displayDone()");
 			}
 		}
-	public function setToolTip($str=null) { $this->tooltip=$str; }
-	public function toolTip() { return $this->tooltip; }
 	public function draw()
 		{ // draw our own contents
 		// text("plain NSView");
