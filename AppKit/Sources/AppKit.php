@@ -47,6 +47,12 @@ const NSLeftAlignment="left";
 const NSCenterAlignment="center";
 const NSRightAlignment="right";
 
+const NSButtonTypePushOnPushOff=1;
+const NSButtonTypeToggle=2;
+const NSButtonTypeSwitch=3;
+const NSButtonTypeRadio=4;
+const NSButtonTypeOnOff=6;
+
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
 // these functions should be used internally only!
@@ -737,7 +743,7 @@ class NSControl extends NSView
 // NSLog($this->description()." sendAction $action");
 		$NSApp->sendActionToTarget($this, $action, $target);
 		}
-	public function setActionAndTarget($action, NSObject $target)
+	public function setActionAndTarget($action, $target)
 		{
 		$this->action=$action;
 		$this->target=$target;
@@ -789,18 +795,6 @@ class NSButton extends NSControl
 		$this->buttonType=$buttonType;
 		$this->title=$newtitle;
 		}
-	public function isSelected()
-		{
-		return $this->state == NSOnState;
-		}
-	public function setSelected($value)
-		{
-/*		_NSLog("setSelected");
-		_NSLog($this->state);
-		_NSLog($value);
-*/
-		$this->setState($value?NSOnState:NSOffState);
-		}
 	public function setAllowsMixedState($value) { $this->allowsMixedState=$value; }
 	public function description() { return parent::description()." ".$this->title; }
 	public function tag() { return $this->tag; }
@@ -839,9 +833,8 @@ class NSButton extends NSControl
 	public function state() { return $this->state; }
 	public function setState($value)
 		{
-// _NSLog("setState");
+// _NSLog("setState $value");
 // _NSLog($this->state);
-// _NSLog($value);
 		if($value == $this->state)
 			return;
 		$this->state=$value;
@@ -861,12 +854,15 @@ class NSButton extends NSControl
 			$this->setState(NSOffState);
 // _NSLog("  -> $state");
 		}
-	public function setObjectValue($val)
+	public function isSelected() { return $this->state() == NSOnState; }
+	public function setSelected($value)
 		{
-// _NSLog("setObjectValue"); _NSLog($val);
-		$this->setSelected($val != "");
-// _NSLog($this->state);
+/*		_NSLog("setSelected $value");
+		_NSLog($this->state);
+*/
+		$this->setState($value?NSOnState:NSOffState);
 		}
+	public function setObjectValue($val) { $this->setSelected($val); }
 	public function setButtonType($buttonType)
 		{
 		switch($buttonType)
@@ -952,45 +948,60 @@ class NSButton extends NSControl
 			parameter("style", "color: ".$this->textColor);
 		$super=$this->superview();
 // _NSLog($super->classString());
+		$onclick="";
 		if(is_string($this->target))
 			{
+// _NSLog("link target");
 			parameter("href", $this->_targetActionURL());
-			$onclick="event.stopPropagation();";	// <a> embedded in <td>
 			}
 		else if(!is_null($super) && $super->respondsToSelector("getRowColumnOfCell"))
-			{ // appears to be a Matrix (we could also check $super->isKindOfClass("NSMatrix")
-			$onclick="e('".$super->elementId."')";
+			{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+// _NSLog("NSMatrix target");
 			parameter("name", $super->elementId."-ck");
+			$onclick.="e('".$super->elementId."');";
 			if($super->getRowColumnOfCell($row, $column, $this))
 				{
-				$onclick.=";r($row)".";c($column)";
+				$onclick.=";r($row)".";c($column);";
 				if(!is_null($super->action()))
-					$onclick.=";s()";
+					$onclick.="s();";
 				}
 			}
+		else if(!is_null($super) && $super->respondsToSelector("_getRowColumnOfCell"))
+			{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
+// _NSLog("NSTable target");
+			parameter("name", $super->elementId."-ck");
+			$onclick.="e('".$super->elementId."')";
+			$super->_getRowColumnOfCell($row, $column);
+			$onclick.=";r($row)".";c($column);";
+			$onclick.="s();";
+			}
 		else
-			{ // stand-alone
-			$onclick="e('".$this->elementId."')";
+			{ // stand-alone button with internal action
+// _NSLog("local target");
 			parameter("name", $this->elementId."-ck");
-			$onclick.=";s()";
+			$onclick.="e('".$this->elementId."');s();";
 			}
 		switch($this->buttonType)
 			{
 			case "Radio":
 				parameter("type", "radio");
-				if(!is_null($this->target))
-					parameter("onchange", $onclick);
+				if($onclick)
+					parameter("onchange", $onclick."return false");
 				break;
 			case "CheckBox":
 				parameter("type", "checkbox");
-				if(!is_null($this->target))
-					parameter("onchange", $onclick);
+				// if we are embedded in a tableview a click should trigger the
+				// tableView:setObjectValue:forTableColumn:row: callback
+				// and in a NSMatrix we should probably trigger the matrix target/action?
+				if($onclick)
+					parameter("onchange", $onclick."return false");
 				break;
 			default:
 				parameter("type", "submit");
-				parameter("value", _htmlentities($this->title));
-				if(!is_null($this->target))
-					parameter("onclick", $onclick);
+				if(!is_string($this->target))
+					parameter("value", _htmlentities($this->title));
+				if($onclick)
+					parameter("onclick", $onclick."return false");
 			}
 		if(!$this->enabled)
 			parameter("disabled", "");
@@ -1010,8 +1021,9 @@ class NSButton extends NSControl
 				break;
 			case NSOnState:
 				parameter("checked", "checked");
+			default:
+				html("/>");
 			}
-		html("/>");
 		switch($this->buttonType)
 			{
 			case "CheckBox":
