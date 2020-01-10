@@ -604,7 +604,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	NSString *ext=[NSString stringWithFormat:@".%@", extension];	// contains nonsense if extension is empty
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 #if 0
-	NSLog(@"%@ pathsForResourcesOfType:%@ inDirectory:%@", extension, bundlePath);
+	NSLog(@"%@ pathsForResourcesOfType:%@ inDirectory:%@", NSStringFromClass([self class]), extension, bundlePath);
 #endif
 
 	e = [self _resourcePathEnumeratorFor:_path subPath:bundlePath localization:locale];
@@ -823,10 +823,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSString *file;
 		if(!_infoDict)
 			{ // we are bootstrapping (i.e. looking for global Info.plist)
-#if 0
+#if 1
 				NSLog(@"bootstrapping localization");
 #endif
-				return [NSArray arrayWithObject:@"English"];
+				return [NSArray arrayWithObjects:@"English", @"en", nil];
 			}
 		_localizations=[[NSMutableArray alloc] initWithCapacity:10];
 		while((file=[f nextObject]))
@@ -870,8 +870,8 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 #endif
 	if(!pref)
 		{
-		// get from user defaults
-		pref=[NSArray arrayWithObjects:@"English", @"German", @"French", nil];
+		// should try get from user defaults first
+		pref=[NSArray arrayWithObjects:@"English", @"German", @"French", @"en", @"de", @"fr", nil];
 		}
 	while((locale=[e nextObject]))
 		{
@@ -939,6 +939,9 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		NSString *language;
 		NSString *primary;
 		Class sc=[self class];
+#if 0
+		NSLog(@"languages: %@", languages);
+#endif
 		paths=[NSMutableArray arrayWithCapacity:12];	// typical size
 #if 1	// Cocoa appears to recognize this as well although not documented
 		[paths addObject:[sc _bundleResourcePath:_path subpath:subpath language:nil]];
