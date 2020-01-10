@@ -286,6 +286,8 @@ enum
 - (float) rotation;
 - (float) standardMagnificationThreshold;	// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (float) standardRotationThreshold;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+- (float) scrollingDeltaX;
+- (float) scrollingDeltaY;
 - (short) subtype;
 - (NSUInteger) systemTabletID;
 - (NSUInteger) tabletID;
