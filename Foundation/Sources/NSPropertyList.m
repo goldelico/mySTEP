@@ -1794,7 +1794,7 @@ next:
 
 @end
 
-@implementation myNSPropertyListSerialization
+@implementation NSPropertyListSerialization
 
 + (NSData *) dataFromPropertyList:(id) plist format:(NSPropertyListFormat) format errorDescription:(NSString **) errorString;
 {
