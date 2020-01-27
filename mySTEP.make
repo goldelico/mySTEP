@@ -346,7 +346,7 @@ RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 # default is to build for all
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=darwin-x86_64 armel armhf i386 mipsel php
+DEBIAN_ARCHITECTURES=darwin-x86_64 armel armhf arm64 i386 mipsel php
 # mystep (= use our frameworks and X11 except Foundation) does not work yet
 # DEBIAN_ARCHITECTURES+=mystep darwin-x86_64
 ifeq ($(PHPONLY),true)
@@ -404,6 +404,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			case "$$DEBIAN_ARCH" in \
 			armel ) export TRIPLE=arm-linux-gnueabi;; \
 			armhf ) export TRIPLE=arm-linux-gnueabihf;; \
+			arm64 ) export TRIPLE=aarch64-linux-gnu;; \
 			i386 ) export TRIPLE=i486-linux-gnu;; \
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
 			darwin-x86_64 ) export TRIPLE=MacOS; EXIT=0;; \
