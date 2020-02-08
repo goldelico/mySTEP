@@ -88,7 +88,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NSFileManager *fm = [NSFileManager defaultManager];
 			NSString *path = [[pi arguments] objectAtIndex:0];
 			NSString *virtualRoot;
-			int vrl;
+			NSUInteger vrl;
 			__bundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
 										 NSObjectMapValueCallBacks, 0);	// retains...
 			__bundlesForExecutables = NSCreateMapTable(NSNonOwnedCStringMapKeyCallBacks,
@@ -488,11 +488,11 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 + (NSString *) _findFileInPath:(NSString *) path andName:(NSString *)name
 { // Find the first directory entry with a given name (with any extension)
 	NSArray *resources=[[NSFileManager defaultManager] directoryContentsAtPath:path];
-	int i;
+	NSInteger i;
 #if 0
 	NSLog(@"_resourcePathForPath:%@ andName:%@", path, name);
 #endif
-	for(i=[resources count]-1; i>= 0; i--)  // well, we are reading backwards, but order isn't guaranteed either...
+	for(i=[resources count]-1; i >= 0; i--)  // well, we are reading backwards, but order isn't guaranteed either...
 		{
 		if([[[resources objectAtIndex:i] stringByDeletingPathExtension] isEqualToString:name])
 			{ // found!
@@ -528,7 +528,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 {
 	NSEnumerator *e;
 	NSString *path;
-	int extLength;
+	NSUInteger extLength;
 	NSAutoreleasePool *arp;
 	NSString *fullpath = nil;
 	NSFileManager *fm=[NSFileManager defaultManager];

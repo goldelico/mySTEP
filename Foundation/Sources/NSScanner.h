@@ -56,7 +56,6 @@
 - (BOOL) scanInt:(int *) value;
 - (BOOL) scanInteger:(NSInteger *) value;
 - (NSUInteger) scanLocation;
-- (BOOL) scanInteger:(NSInteger *) value;
 - (BOOL) scanLongLong:(long long *) value;
 - (BOOL) scanString:(NSString *) string intoString:(NSString **) value;
 - (BOOL) scanUpToCharactersFromSet:(NSCharacterSet *) aSet 

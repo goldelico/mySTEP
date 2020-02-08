@@ -380,7 +380,7 @@ static Class _mutableDictClass;
 - (NSArray*) allKeys
 {
 	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-	int count = [self count];
+	NSUInteger count = [self count];
 	id key, value;
 	NSMutableArray *keys=[NSMutableArray arrayWithCapacity:count];
 
@@ -399,7 +399,7 @@ static Class _mutableDictClass;
 - (NSArray*) allKeysForObject:(id)object
 {
 	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-	int count = [self count];
+	NSUInteger count = [self count];
 	id key, value;
 	NSMutableArray *keys=[NSMutableArray arrayWithCapacity:count];
 	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
@@ -411,7 +411,7 @@ static Class _mutableDictClass;
 - (NSArray*) allValues
 {
 	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-	int count = [self count];
+	NSUInteger count = [self count];
 	id key, value;
 	NSMutableArray *values=[NSMutableArray arrayWithCapacity:count];
 
@@ -436,7 +436,7 @@ static Class _mutableDictClass;
 
 - (NSArray*) objectsForKeys:(NSArray*)keys notFoundMarker:notFoundObj
 {
-	int count = [keys count];
+	NSUInteger count = [keys count];
 	id *objs = objc_malloc(sizeof(id)*count);
 	id ret;
 
@@ -596,7 +596,7 @@ static Class _mutableDictClass;
 
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {
-	int count = [self count];
+	NSUInteger count = [self count];
 	NSEnumerator *enumerator = [self keyEnumerator];
 	id key, value;
 

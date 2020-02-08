@@ -654,7 +654,7 @@ static NSDecimalNumber *one;
 	NSDecimalNumber *res;
 
 	error = NSDecimalPower(&result, &d1,
-						   power, [behavior roundingMode]);
+						   (NSInteger) power, [behavior roundingMode]);
 	if (error)
 		{
 		res = [behavior exceptionDuringOperation: _cmd

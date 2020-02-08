@@ -112,7 +112,7 @@ static Class __stringClass = Nil;
 
 @interface NSArrayEnumerator : NSArrayEnumeratorReverse
 {
-	int _count;
+	NSUInteger _count;
 }
 @end
 
@@ -778,7 +778,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 
 - (void) setValue:(id)value forKey:(NSString *)key;
 {
-	unsigned i = _count;
+	NSUInteger i = _count;
 	while (i-- > 0)
 		[_contents[i] setValue:value forKey:key];
 }
@@ -856,7 +856,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 	if (_count >= _capacity)
 		{
 		id *ptr;
-		unsigned newcapacity = 2*_count+2;	// exponentially grow
+		NSUInteger newcapacity = 2*_count+2;	// exponentially grow
 		if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
 			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
 		_capacity = newcapacity;
@@ -879,7 +879,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 	if (_count == _capacity)
 		{ // needs more space
 			id *ptr;
-			unsigned newcapacity = 2*_count+2;	// exponentially grow
+			NSUInteger newcapacity = 2*_count+2;	// exponentially grow
 			if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
 				[NSException raise: NSMallocException format: @"Unable to grow %@", self];
 			_capacity = newcapacity;

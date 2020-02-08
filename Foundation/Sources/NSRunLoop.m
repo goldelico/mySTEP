@@ -43,26 +43,26 @@
 	SEL selector;						// to hold information about messages
 	id target;							// which are due to be sent to objects
 	id argument;						// once a particular runloop iteration
-	unsigned order;						// has passed.
+	NSUInteger order;					// has passed.
 @public
 	NSArray	*modes;
 	NSTimer	*timer;		// nonretained pointer!
 }
 
-- (id) initWithSelector:(SEL)aSelector
-				 target:(id)target
-			   argument:(id)argument
-				  order:(unsigned int)order
-				  modes:(NSArray*)modes;
+- (id) initWithSelector:(SEL) aSelector
+				 target:(id) target
+			   argument:(id) argument
+				  order:(NSUInteger) order
+				  modes:(NSArray*) modes;
 - (void) invalidate;
-- (BOOL) matchesTarget:(id)aTarget;
-- (BOOL) matchesSelector:(SEL)aSelector
-				  target:(id)aTarget
-				argument:(id)anArgument;
-- (unsigned int) order;
-- (void) setTimer:(NSTimer*)timer;
-- (NSArray*) modes;
-- (NSTimer*) timer;
+- (BOOL) matchesTarget:(id) aTarget;
+- (BOOL) matchesSelector:(SEL) aSelector
+				  target:(id) aTarget
+				argument:(id) anArgument;
+- (NSUInteger) order;
+- (void) setTimer:(NSTimer*) timer;
+- (NSArray *) modes;
+- (NSTimer *) timer;
 - (void) fire;
 
 @end
@@ -231,7 +231,7 @@
 - (id) initWithSelector:(SEL)aSelector
 				 target:(id)aTarget
 			   argument:(id)anArgument
-				  order:(unsigned int)theOrder
+				  order:(NSUInteger)theOrder
 				  modes:(NSArray*)theModes
 {
 	if((self = [super init]))
@@ -264,7 +264,7 @@
 
 - (NSArray*) modes						{ return modes; }
 - (NSTimer*) timer						{ return timer; }
-- (unsigned int) order					{ return order; }
+- (NSUInteger) order					{ return order; }
 - (void) setTimer:(NSTimer*)t
 {
 #if 0
@@ -388,9 +388,9 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	int select_return;
 	NSInteger fd_index;
 	int num_inputs = 0;
-	int count = [_performers count];
+	NSUInteger count = [_performers count];
 	id saved_mode=_current_mode;	// an input handler might run the same loop recursively!
-	int i, loop;
+	NSUInteger i, loop;
 	NSMutableArray *timers;
 	NSAutoreleasePool *arp;
 	NSUInteger _prevAllocated=__NSAllocatedObjects;
@@ -575,14 +575,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if((watchers = NSMapGet(_mode_2_inputwatchers, mode)))
 		{										// Do the pre-listening set-up
-			int	i=[watchers count];					// for the file descriptors of
+			NSUInteger	i=[watchers count];					// for the file descriptors of
 													// this mode.
 			while(i-- > 0)
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _readFileDescriptor];
 #if 1
-				NSLog(@"watch fd=%d for input", fd);
+				NSLog(@"watch fd=%ld for input", (long)fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
 					{
@@ -594,14 +594,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	if((watchers = NSMapGet(_mode_2_outputwatchers, mode)))
 		{										// Do the pre-listening set-up
-			int	i=[watchers count];					// for the file descriptors of
+			NSUInteger	i=[watchers count];					// for the file descriptors of
 													// this mode.
 			while(i-- > 0)
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _writeFileDescriptor];
 #if 1
-				NSLog(@"watch fd=%d for output", fd);
+				NSLog(@"watch fd=%ld for output", (long)fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
 					{
@@ -635,7 +635,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 #if 1
 	if(select_timeout)
-		NSLog(@"NSRunLoop select timeout %u.%06u", select_timeout->tv_sec, select_timeout->tv_usec);
+		NSLog(@"NSRunLoop select timeout %ld.%06u", select_timeout->tv_sec, select_timeout->tv_usec);
 	else
 		NSLog(@"NSRunLoop select timeout NULL");
 #endif
@@ -771,7 +771,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 - (void) cancelPerformSelectorsWithTarget:(id)target;
 {
-	int i = [_performers count];
+	NSUInteger i = [_performers count];
 	[target retain];
 	while(i-- > 0)
 		{
@@ -789,7 +789,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 						target:target
 					  argument:argument
 {
-	int i = [_performers count];
+	NSUInteger i = [_performers count];
 	[target retain];
 	[argument retain];
 	while(i-- > 0)
@@ -812,7 +812,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 				   modes:(NSArray*)modes
 {
 	_NSRunLoopPerformer *item;
-	int i, count = [_performers count];
+	NSUInteger i, count = [_performers count];
 	item = [[_NSRunLoopPerformer alloc] initWithSelector: aSelector
 												  target: target
 												argument: argument
@@ -942,7 +942,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 + (void) cancelPreviousPerformRequestsWithTarget:(id) target;
 {
 	NSMutableArray *array = [[NSRunLoop currentRunLoop] _timedPerformers];
-	int i=[array count];
+	NSUInteger i=[array count];
 #if 0
 	NSLog(@"cancel target %@ for timed performers %@", target, array);
 #endif
@@ -967,7 +967,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 										  object:(id)arg
 {
 	NSMutableArray *array = [[NSRunLoop currentRunLoop] _timedPerformers];
-	int i=[array count];
+	NSUInteger i=[array count];
 
 	//	[target retain];
 	//	[arg retain];
@@ -1018,7 +1018,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			  afterDelay:(NSTimeInterval)seconds
 				 inModes:(NSArray*)modes
 {
-	int i, count;
+	NSUInteger i, count;
 	if ((modes != nil) && ((count = [modes count]) > 0))	// HNS
 		{
 		NSRunLoop *loop = [NSRunLoop currentRunLoop];

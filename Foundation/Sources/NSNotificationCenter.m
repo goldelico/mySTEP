@@ -133,7 +133,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 - (void) removeObserver:(id)observer
 {
 	GSNoteObserver *reg;
-	int i, count = NSCountHashTable(observerItems);
+	NSUInteger i, count = NSCountHashTable(observerItems);
 	NSMutableArray *list = [[NSMutableArray alloc] initWithCapacity:count];
 	NSHashEnumerator itemsEnum = NSEnumerateHashTable(observerItems);
 

@@ -243,7 +243,7 @@ static IMP appendImp;
 
 - (void *) _bytesWith0;
 { // bytes with 0-suffix
-	unsigned len=[self length];
+	NSUInteger len=[self length];
 	void *buffer=_autoFreedBufferWithLength(len+1);
 	memcpy(buffer, (char *)[self bytes], len);	// get bytes
 	((char *) buffer)[len]='\0';
@@ -253,9 +253,9 @@ static IMP appendImp;
 - (NSString *) description
 {
 	const char *src = [self bytes];
-	int i;
-	int length = [self length];
-	int l=2 * length + (length+3)/4 + 3;	// 2 hext digits, 1 space every 4 bytes, < > and '\0'
+	NSUInteger i;
+	NSUInteger length = [self length];
+	NSUInteger l=2 * length + (length+3)/4 + 3;	// 2 hext digits, 1 space every 4 bytes, < > and '\0'
 	char *dest, *bp;	// build a cString and convert it to an NSString
 #if 0
 	fprintf(stderr, "NSData description length=%d l=%d\n", length, l);
@@ -293,7 +293,7 @@ static IMP appendImp;
 
 - (void) getBytes:(void*)buffer range:(NSRange)aRange
 { // Check for 'out of range' errors.  This code assumes that the NSRange location and length types will remain unsigned (hence the lack of a less-than-zero check).
-	int s = [self length];
+	NSUInteger s = [self length];
 	if(NSMaxRange(aRange) > s)
 		// FIXME: should we simply limit the range and don't throw an exception?
 		[NSException raise: NSRangeException
@@ -306,7 +306,8 @@ static IMP appendImp;
 - (NSData*) subdataWithRange:(NSRange)aRange
 { // Check for 'out of range' errors before calling [-getBytes:range:] so that we can be sure that we don't get a range exception after we have alloc'd memory.
 	void *buffer;
-	unsigned l = [self length];	if (aRange.location > l || aRange.length > l || NSMaxRange(aRange) > l)
+	NSUInteger l = [self length];
+	if (aRange.location > l || aRange.length > l || NSMaxRange(aRange) > l)
 		[NSException raise: NSRangeException
 					format: @"-[NSData subdataWithRange:] Range: (%u, %u) Size: %d",
 		 aRange.location, aRange.length, l];
@@ -332,7 +333,7 @@ static IMP appendImp;
 
 - (BOOL) isEqualToData:(NSData*)other;
 {													// Querying a Data Object
-	int len;
+	NSUInteger len;
 	if(other == self)
 		return YES;
 	if((len = [self length]) != [other length])
@@ -1459,7 +1460,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		 * More special case: a file in /sys reports 4096 (always???) length
 		 */
 		unsigned char buf[BUFSIZ];	// temporary buffer
-		int l;
+		size_t l;
 		length=0;
 		while((l = fread(buf, 1, BUFSIZ, f)) != 0)
 			{
@@ -1983,8 +1984,8 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 - (void) appendBytes:(const void*)aBuffer length:(unsigned)bufferSize
 {
 	// FIXME: what happens if length+bufferSize overflows? We will not grow but overwrite most memory...
-	unsigned oldLength = length;
-	unsigned minimum = length + bufferSize;
+	NSUInteger oldLength = length;
+	NSUInteger minimum = length + bufferSize;
 
 	NSAssert(minimum >= length && minimum >= bufferSize, @"too many bytes to append");
 
@@ -1995,19 +1996,19 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	length = minimum;
 }
 
-- (unsigned) capacity						{ return capacity; }
+- (NSUInteger) capacity						{ return capacity; }
 - (void*) mutableBytes						{ return bytes; }
 
 - (void) _grow:(unsigned)minimum
 { // recalculate the grow factor
 	if (minimum > capacity)
 		{
-		unsigned nextCapacity = capacity + growth;
-		unsigned nextGrowth = capacity ? capacity : 1;
+		NSUInteger nextCapacity = capacity + growth;
+		NSUInteger nextGrowth = capacity ? capacity : 1;
 
 		while (nextCapacity < minimum)
 			{
-			unsigned tmp = nextCapacity + nextGrowth;
+			NSUInteger tmp = nextCapacity + nextGrowth;
 
 			nextGrowth = nextCapacity;
 			nextCapacity = tmp;

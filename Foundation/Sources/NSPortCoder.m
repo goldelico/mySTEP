@@ -1084,7 +1084,7 @@ const char *objc_skip_typespec (const char *type)
 	if(delegate)
 		{
 		NSArray *components=[self components];
-		unsigned int len=[components count];
+		NSUInteger len=[components count];
 		if(len >= 2)
 			{
 			NSArray *subarray=[components subarrayWithRange:NSMakeRange(0, len-1)];
@@ -1240,7 +1240,7 @@ const char *objc_skip_typespec (const char *type)
 - (void) _encodeWithPortCoder:(NSCoder *) coder;
 {
 	const char *str=[self UTF8String];
-	unsigned int len=strlen(str);
+	NSUInteger len=strlen(str);
 	[coder encodeValueOfObjCType:@encode(unsigned int) at:&len];
 	[coder encodeArrayOfObjCType:@encode(char) count:len at:str];
 }

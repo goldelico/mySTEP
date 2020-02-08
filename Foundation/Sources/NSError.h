@@ -47,7 +47,7 @@ extern NSString *NSRecoveryAttempterErrorKey;
 {
 	NSString *_domain;
 	NSDictionary *_dict;
-	int _code;
+	NSInteger _code;
 }
 
 + (id) errorWithDomain:(NSString *) domain code:(NSInteger) code userInfo:(NSDictionary *) dict;

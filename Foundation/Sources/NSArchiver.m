@@ -361,7 +361,7 @@ enum {
 		case _C_CHARPTR:
 		{
 		const char *cStr = *(void**)data;
-		unsigned value = cStr ? (unsigned long)NSHashGet(pointers,cStr) :0;
+		unsigned long value = cStr ? (unsigned long)NSHashGet(pointers,cStr) :0;
 
 		tag = OP_STRING;
 		if(value)
@@ -377,7 +377,7 @@ enum {
 			(*writeIMP) (mdata, writeSel, &value, @encode(unsigned), nil);
 			if(cStr)
 				{
-				int len = strlen(cStr);
+				NSUInteger len = strlen(cStr);
 
 				NSHashInsert (pointers, cStr);
 				(*writeIMP) (mdata, writeSel, &len, @encode(unsigned),nil);

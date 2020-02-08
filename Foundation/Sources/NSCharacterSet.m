@@ -221,7 +221,7 @@ static NSString *__charSetPath = @"CharacterSets";
 
 + (id) characterSetWithCharactersInString:(NSString *)aString
 {
-	int i, length;
+	NSUInteger i, length;
 	NSMutableData *bitmap = [NSMutableData dataWithLength:BITMAP_SIZE];
 	char *bytes = [bitmap mutableBytes];
 
@@ -244,7 +244,7 @@ static NSString *__charSetPath = @"CharacterSets";
 
 + (id) characterSetWithRange:(NSRange)aRange
 {
-int i;
+NSUInteger i;
 NSMutableData *bitmap = [NSMutableData dataWithLength:BITMAP_SIZE];
 char *bytes = (char *)[bitmap mutableBytes];
 
@@ -304,7 +304,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 - (NSCharacterSet *) invertedSet
 {
 	NSMutableData *bitmap =[[[self bitmapRepresentation] mutableCopy] autorelease];
-	int i, length = [bitmap length];
+	NSUInteger i, length = [bitmap length];
 	char *bytes = [bitmap mutableBytes];
 
 	for (i = 0; i < length; i++)
@@ -467,7 +467,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (void) addCharactersInRange:(NSRange)aRange
 {
-	int i;
+	NSUInteger i;
 
 	if (NSMaxRange(aRange) > UNICODE_SIZE)
 		[NSException raise:NSInvalidArgumentException
@@ -479,7 +479,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (void) addCharactersInString:(NSString *)aString
 {
-	int i, length;
+	NSUInteger i, length;
 
 	if (!aString)
 		[NSException raise:NSInvalidArgumentException
@@ -516,7 +516,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (void) removeCharactersInRange:(NSRange)aRange
 {
-	int i;
+	NSUInteger i;
 
 	if (NSMaxRange(aRange) > UNICODE_SIZE)
 		[NSException raise:NSInvalidArgumentException
@@ -528,7 +528,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (void) removeCharactersInString:(NSString *)aString
 {
-	int i, length;
+	NSUInteger i, length;
 
 	if (!aString)
 		[NSException raise:NSInvalidArgumentException
