@@ -487,7 +487,7 @@ NSString *NSInvalidUnarchiveOperationException=@"NSInvalidUnarchiveOperationExce
 		}
 }
 
-- (void) encodeBOOL:(BOOL)value forKey:(NSString*)name
+- (void) encodeBool:(BOOL)value forKey:(NSString*)name
 {
 	if (!findingConditionals && name)
 		[lastObjectRepresentation setObject:(value ? @"YES": @"NO") 
@@ -881,7 +881,7 @@ etc.
 		return [self _dereference:[obj uid]];	// indirect
 	if([obj isKindOfClass:[NSArray class]])
 		{ // dereference array
-		int i, cnt=[obj count];
+		NSUInteger i, cnt=[obj count];
 #if 0
 		NSLog(@"decode %u NSArray components for %@", cnt, obj);
 #endif
@@ -1014,10 +1014,10 @@ etc.
 	// FIXME: raise NSRangeException if too big for 32!
 	if(![obj isKindOfClass:[NSNumber class]])
 		[NSException raise:NSInvalidUnarchiveOperationException format:@"Can't unarchive object for key %@ as int32 (obj=%@)", key, obj];
-	return [obj longValue];
+	return (int)[obj longValue];
 }
 
-- (long long) decodeInt64ForKey:(NSString *)key;
+- (int64_t) decodeInt64ForKey:(NSString *)key;
 {
 	id obj=[self decodeObjectForKey:key];
 	if(!obj) return 0;	// default
