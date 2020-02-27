@@ -608,10 +608,11 @@ TiffHandleMap(thandle_t handle, tdata_t *data, toff_t *size)
 {
 	chandle_t *chand = (chandle_t *)handle;
 	
-	NSDebugLog (@"TiffHandleMap\n");
+	NSDebugLog(@"TiffHandleMap\n");
 	*data = chand->data;
 	*size = chand->size;
-	
+
+	NSDebugLog(@"data=%p size=%llu\n", *data, *size);
 	return 1;
 }
 
@@ -627,7 +628,7 @@ GSTiffOpenData(char *data, long size, const char *mode)
 {												// Open a tiff from a stream. 
 	chandle_t *handle;								// Returns NULL if can't read 
 													// the tiff info.
-	NSDebugLog (@"GSTiffOpenData\n");
+	NSDebugLog (@"GSTiffOpenData size=%ld mode=%s\n", size, mode);
 	if (!(handle = malloc(sizeof(*handle))))
 		return NULL;
 	handle->data = data;
