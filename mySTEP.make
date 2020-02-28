@@ -35,6 +35,8 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 #  general setup
 #   (*) QuantumSTEP - root of QuantumSTEP - default: /usr/local/QuantumSTEP
+#   (-) QUIET - optional prefix "@" to make some commands quiet
+QUIET=@
 #  sources (input)
 #   * SOURCES
 #   (*) INCLUDES
@@ -418,7 +420,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		export TRIPLE="$$TRIPLE"; \
-		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		echo "$$DEBIAN_ARCH" done; \
 		done \
 	done
@@ -640,22 +642,22 @@ $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.m
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
-	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.i	# store preprocessor result for debugging
-	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.S	# store assembler source for debugging
+	$(QUIET)$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.i	# store preprocessor result for debugging
+	$(QUIET)$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.S	# store assembler source for debugging
 endif
-	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.c
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.php: %.php
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
@@ -694,11 +696,11 @@ make_exec: "$(EXEC)"
 	# make exec
 
 make_binary: make_exec "$(BINARY)"
-	- [ -x "$(BINARY)" ] && ls -l "$(BINARY)"
+	$(QUIET)- [ -x "$(BINARY)" ] && ls -l "$(BINARY)"
 
 make_sh: bundle
 	# SHSRCS: $(SHSRCS)
-	for SH in $(SHSRCS); do \
+	$(QUIET)for SH in $(SHSRCS); do \
 		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
@@ -710,7 +712,7 @@ DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 build_doxy:	build/$(PRODUCT_NAME).docset
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifeq ($(BUILD_DOCUMENTATION),true)
-	- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && $(TAR) cf - $(PRODUCT_NAME).docset) | \
+	$(QUIET)- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && $(TAR) cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
 		$(TAR) xf - && \
 		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
@@ -728,9 +730,9 @@ endif
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifeq ($(BUILD_DOCUMENTATION),true)
-	mkdir -p build
-	- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
-	pwd
+	$(QUIET)mkdir -p build
+	$(QUIET)- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
+	$(QUIET)pwd
 	echo "PROJECT_NAME      = \"$(PRODUCT_NAME).$(WRAPPER_EXTENSION)\"" >>build/$(PRODUCT_NAME).doxygen
 	echo "PROJECT_BRIEF      = \"a QuantumSTEP framework\"" >>build/$(PRODUCT_NAME).doxygen
 #	echo "INPUT = $(SOURCES)" >>build/$(PRODUCT_NAME).doxygen
@@ -745,7 +747,7 @@ ifeq ($(BUILD_DOCUMENTATION),true)
 	echo "EXCLUDE_PATTERNS = */build */.svn *.php" >>build/$(PRODUCT_NAME).doxygen
 	echo "GENERATE_DOCSET  = YES" >>build/$(PRODUCT_NAME).doxygen
 	echo "DOCSET_BUNDLE_ID = com.quantumstep.$(PRODUCT_NAME)" >>build/$(PRODUCT_NAME).doxygen
-	- $(DOXYGEN) build/$(PRODUCT_NAME).doxygen && touch $@
+	$(QUIET)- $(DOXYGEN) build/$(PRODUCT_NAME).doxygen && touch $@
 #	make -C build/DoxygenDocs.docset/html # install
 endif
 endif
@@ -1007,20 +1009,20 @@ endif
 	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
-	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	# copy again including Headers
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	$(QUIET)$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
 	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
-	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
-	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	$(QUIET)find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
+	$(QUIET)find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
+	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
 	# create Receipts file
-	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
+	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
-	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
 	ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1043,10 +1045,10 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	$(TAR) cf - $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) . | gzip >/tmp/$(TMP_CONTROL).tar.gz
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
-	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
-	ls -l $@
+	$(QUIET)ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
+	$(QUIET)ls -l $@
 ifeq ($(OPEN_DEBIAN),true)
-	open $@
+	@open $@
 endif
 else
 	# no debug version
@@ -1064,7 +1066,7 @@ install_local: prepare_temp_files
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
 	# copy again to /tmp/$(TMP_DATA)
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
@@ -1086,7 +1088,7 @@ ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
 	# copy again to /tmp/$(TMP_DATA)
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# download /tmp/$(TMP_DATA) to all devices
 	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
@@ -1112,8 +1114,8 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# FIXME: how do we know the $(TRIPLE) used to specify the EXECUTABLE_PATH?
 	#
 	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
-	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
-	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
+	@rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
+	@export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
 	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) && \
 	[ "$$RUN" ] && [ -x $(DOWNLOAD) ] && $(DOWNLOAD) "$$RUN_DEVICE" \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
@@ -1133,9 +1135,9 @@ endif
 bundle:
 	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
-	[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
-	rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
-	(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
+	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
+	@rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
+	@(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
 endif
 
 headers:
@@ -1144,16 +1146,16 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
 # included header files $(HEADERSRC)
 #	$(TAR) -cf /dev/null --transform='s|Source/||;s|Sources/||;s|src/||' --verbose --show-transformed-names $(HEADERSRC)
-	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) -cf - --transform='s|Source/||;s|Sources/||;s|src/||' $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) xf -) )	# copy headers keeping subdirectory structure
+	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) -cf - --transform='s|Source/||;s|Sources/||;s|src/||' $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) xf -) )	# copy headers keeping subdirectory structure
 endif
-	- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
+	$(QUIET)- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 endif
 ifeq ($(TRIPLE),darwin-x86_64)
 # always use selected system frameworks
 else ifeq ($(TRIPLE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
-	mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)
-	- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
+	$(QUIET)mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)
+	$(QUIET)- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
 	  do \
 	      rm -f $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk); \
 		  ln -sf $$fwk/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk) \
@@ -1165,17 +1167,17 @@ resources: bundle
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
 # included resources $(INFOPLISTS) $(RESOURCES)
-	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
+	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
 ifneq ($(strip $(INFOPLISTS)),)
 # should reject multiple Info.plists
 # should expand ${EXECUTABLE_NAME} and other macros!
-	- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+	$(QUIET)- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 else
 # create a default Info.plist
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
 ifneq ($(strip $(RESOURCES)),)
-	- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
+	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
 #	- cp $(RESOURCES) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"  # copy resources
 	for resource in $(RESOURCES); \
 	do \
