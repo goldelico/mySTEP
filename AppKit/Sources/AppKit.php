@@ -1076,49 +1076,62 @@ class NSButton extends NSControl
 		if($this->textColor)
 			parameter("style", "color: ".$this->textColor());
 		$super=$this->superview();
-		$onclick="";
+		$row=null;
+		$col=null;
+		$submit=false;
+		// find enclosing container and row/column - daraus vielleicht eine allgemeine Methode von NSControl machen?
 		while(!is_null($super))
 			{ // loop because we may be a sub-sub-view of a Matrix or Table...
 // _NSLog($super->classString());
 			if($super->respondsToSelector("getRowColumnOfCell"))
 				{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
 // _NSLog("NSMatrix target");
-				parameter("name", $super->elementId."-ck");
-				$onclick.="e('".$super->elementId."');";
 				if($super->getRowColumnOfCell($row, $column, $this))
 					{
-					$onclick.=";r($row)".";c($column);";
 					if(!is_null($super->action()))
-						$onclick.="s();";
+						$submit=true;
 					}
 				break;
 				}
 			if($super->respondsToSelector("_getRowColumnOfCell"))
 				{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
 // _NSLog("NSTable target");
-				parameter("name", $super->elementId."-ck");
-				$onclick.="e('".$super->elementId."')";
 				$super->_getRowColumnOfCell($row, $column);
-				$onclick.=";r($row)".";c($column);";
-				$onclick.="s();";
+				$submit=true;
 				break;
 				}
 			$super=$super->superview();
 			}
 		if($islink)
-			{
+			{ // linked button
 // _NSLog("link target");
 			parameter("href", $this->_targetActionURL());
-			if($onclick)
-				$onclick="a()";	// replace s() and stop event propagation but follow href
+			$onclick="";
+			$submit=false;
 			}
 		else
-			{ // stand-alone button with internal action
-// _NSLog("local target");
-			parameter("name", $this->elementId."-ck");
-			if(!$onclick)
-				$onclick.="e('".$this->elementId."');s()";
+			{ // standard action button
+			// parameter("name", $super->elementId."-ck");
+			if(!is_null($super) && is_null($this->action))
+				{ // embedded in NSTable or NSMatrix with no specific action
+				$onclick="e('".$super->elementId."');";
+				}
+			else
+				{ // standalone
+				parameter("name", $this->elementId."-ck");
+				$onclick="e('".$this->elementId."');";
+				}
+			if(!is_null($row))
+				$onclick.="r('$row');";
+			if(!is_null($row))
+				$onclick.="c('$column');";
+			$submit=true;
 			}
+		if(!is_null($super))
+			$onclick.="a();";	// stop propagation if embedded
+		if($submit)
+			$onclick.="s();";
+		$onclick=trim($onclick, ";");
 		switch($this->buttonType)
 			{
 			case "Radio":
@@ -2821,6 +2834,7 @@ if($name)
 			parameter("class", "NSTextField");
 			parameter("type", $this->type);
 			parameter("size", $this->width);
+			parameter("onclick", "a()");	// do not inherit from NSTableView
 			$style=array();
 			if($this->backgroundColor)
 				$style[]="background-color: ".$this->backgroundColor;
