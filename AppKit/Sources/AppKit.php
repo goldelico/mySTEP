@@ -260,17 +260,27 @@ class NSResponder extends NSObject
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
 
-	public function _collectEvents()
-		{ // go through hierarchy and update initialization values by user input
-		// we could postpone elementid assignment up to here!
-		// default responder does nothing
-		}
-
 	public function _eventIsForMe()
 		{ // there is some event for us!
 		if(!isset($_POST['NSEvent']))
 			return false;
 		return $_POST['NSEvent'] == $this->elementId;
+		}
+
+	public function _collectEvents()
+		{ // go through hierarchy and update initialization values by user input
+		// we could postpone elementid assignment up to here!
+		// default responder does nothing
+		if($this->_eventIsForMe())
+			{
+			global $NSApp;
+_NSLog("is for me");
+			$event=new NSEvent($this, 'NSMouseDown');
+			$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
+			_persist('clickedRow', "", "");	// reset
+			_persist('clickedColumn', "", "");	// reset
+			$NSApp->queueEvent($event);	// queue a mouseDown event for us
+			}
 		}
 
 	public static function _objectForId($id)
@@ -317,7 +327,7 @@ class NSApplication extends NSResponder
 
 	public function queueEvent(NSEvent $event)
 		{ // there may be multiple mouse-down events (for NSPopUpButton!)
-// _NSLog("queueEvent: ".$event->description());
+_NSLog("queueEvent: ".$event->description());
 		$this->eventQueue[]=$event;
 		}
 
@@ -429,6 +439,11 @@ _NSLog("sendAction $action to first responder");
 	public function _collectEvents()
 		{
 		$this->mainWindow->_collectEvents();	// collect from subelements
+
+if(false)
+{
+// FIXME: do we still need this if it is already done within _collectEvents()?
+
 // _NSLog($_POST);
 		$targetId=_persist('NSEvent', null);	// set by the e(n) onlick handler
 // _NSLog("targetId $targetId");
@@ -446,6 +461,7 @@ _NSLog("sendAction $action to first responder");
 			_persist('clickedColumn', "", "");	// reset
 			$NSApp->queueEvent($event);
 			}
+}
 		_persist('NSEvent', "", "");	// reset
 		}
 	public function updateWindows()
@@ -670,6 +686,19 @@ class NSView extends NSResponder
 		{ // go through hierarchy
 		foreach($this->subviews as $view)
 			$view->_collectEvents();
+		parent::_collectEvents();	// do default (go through subviews)
+		}
+	public function hitTest(NSEvent $event)
+		{
+		foreach($this->subviews as $view)
+			{
+			$subview=$view->hitTest($event);
+			if(!is_null($subview))
+				return $subview;	// hit found
+			}
+		if($event->target() == $this)
+			return $this;
+		return null;
 		}
 	public function display()
 		{ // draw subviews first
@@ -731,10 +760,10 @@ class NSCell extends NSObject
 		return $url.$this->action;
 		}
 
-	// define event handling here!
-
 	public function _collectEvents()
 		{
+		// define event handling here!
+		// $this->controlView()->_collectEvents();	// ???
 		}
 
 	public function drawCell()
@@ -803,12 +832,12 @@ class NSControl extends NSView
 		}
 	public function sendAction($action=null, NSObject $target=null)
 		{
+		global $NSApp;
 		if(isset($this->cell))
 			{
 			$this->cell->sendAction($action, $target);
 			return;
 			}
-		global $NSApp;
 		if(is_null($action))
 			$action=$this->action;
 		if(is_null($target))
@@ -1008,27 +1037,66 @@ class NSButton extends NSControl
 		$this->buttonType=$buttonType;
 		$this->setNeedsDisplay();
 		}
+	public function keyEquivalent() { return $this->keyEquivalent; }
+	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
+	public function _getEnclosingMatrix(&$row, &$column, &$submit)
+		{
+		$super=$this->superview();
+		$row=null;
+		$col=null;
+		$submit=false;
+		// find enclosing container and row/column - daraus vielleicht eine allgemeine Methode von NSControl machen?
+		while(!is_null($super))
+			{ // loop because we may be a sub-sub-view of a Matrix or Table...
+// _NSLog($super->classString());
+			if($super->respondsToSelector("getRowColumnOfCell"))
+				{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+// _NSLog("NSMatrix target");
+				if($super->getRowColumnOfCell($row, $column, $this))
+					{
+					if(!is_null($super->action()))
+						$submit=true;
+					}
+				break;
+				}
+			if($super->respondsToSelector("_getRowColumnOfCell"))
+				{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
+// _NSLog("NSTable target");
+				$super->_getRowColumnOfCell($row, $column);
+				$submit=true;
+				break;
+				}
+			$super=$super->superview();
+			}
+		return $super;
+		}
 	public function mouseDown(NSEvent $event)
-	{ // this button may have been pressed
-// _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
+		{ // this button may have been pressed
+_NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		// if radio button or checkbox, watch for value
 		// but then the mouseDown is handled by the NSMatrix superview
 		// FIXME: handle checkbox tristate
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
 			$this->setNextState();	// toggle before sending action (why?)
-		$this->sendAction();
-	}
-	public function keyEquivalent() { return $this->keyEquivalent; }
-	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
+		if(is_null($this->action()))
+			{ // no specific action defined
+			$super=$this->_getEnclosingMatrix($row, $column, $submit);
+_NSLog($super);
+_NSLog("$row $column $submit");
+			// if we are embedded in a tableview a click should trigger the
+			// tableView:setObjectValue:forTableColumn:row: callback
+			// and in a NSMatrix we should trigger the matrix target/action
+			}
+		else
+			$this->sendAction();
+		}
 	public function _collectEvents()
 		{
 		if($this->buttonType != "NSPopupButton")
 			{
-// _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
-// _NSLog($_POST);
 /*
  * In JS Mode, e() has triggered the POST and
- * _POST['NSEvent'] is set.
+ * _POST['NSEvent'] is set to the object element id.
  * _eventIsForMe returns true.
  * An NSEvent will be queued by _collectEvents() of NSApplication.
  * And we store the state explicitly.
@@ -1040,9 +1108,13 @@ class NSButton extends NSControl
  *
  * So we have to separate state-detection and event generation!
  */
+_NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
+_NSLog($_POST);
 			if(!is_null(_persist("NSEvent", null)))
-				{ // e(other) tiggered - store state in separate variable
+				{ // e(something) triggered - store state in separate variable
 				$this->state=$this->_persist("state", $this->state);
+_NSLog("NSButton pressed: ".$this->state);
+//				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 				}
 			else if(!is_null($this->_persist("ck", null)))
 				{ // non-java-script detection
@@ -1075,33 +1147,7 @@ class NSButton extends NSControl
 			parameter("style", "background: ".$this->backgroundColor());
 		if($this->textColor)
 			parameter("style", "color: ".$this->textColor());
-		$super=$this->superview();
-		$row=null;
-		$col=null;
-		$submit=false;
-		// find enclosing container and row/column - daraus vielleicht eine allgemeine Methode von NSControl machen?
-		while(!is_null($super))
-			{ // loop because we may be a sub-sub-view of a Matrix or Table...
-// _NSLog($super->classString());
-			if($super->respondsToSelector("getRowColumnOfCell"))
-				{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
-// _NSLog("NSMatrix target");
-				if($super->getRowColumnOfCell($row, $column, $this))
-					{
-					if(!is_null($super->action()))
-						$submit=true;
-					}
-				break;
-				}
-			if($super->respondsToSelector("_getRowColumnOfCell"))
-				{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
-// _NSLog("NSTable target");
-				$super->_getRowColumnOfCell($row, $column);
-				$submit=true;
-				break;
-				}
-			$super=$super->superview();
-			}
+		$super=$this->_getEnclosingMatrix($row, $column, $submit);
 		if($islink)
 			{ // linked button
 // _NSLog("link target");
@@ -1141,9 +1187,6 @@ class NSButton extends NSControl
 				break;
 			case "CheckBox":
 				parameter("type", "checkbox");
-				// if we are embedded in a tableview a click should trigger the
-				// tableView:setObjectValue:forTableColumn:row: callback
-				// and in a NSMatrix we should probably trigger the matrix target/action?
 				if($onclick)
 					parameter("onchange", $onclick);
 				break;
@@ -1483,8 +1526,8 @@ class NSPopUpButton extends NSButton
 		{ // Warning - this only works correctly if titles are unique!
 		global $NSApp;
 		$oldtitle=$this->titleOfSelectedItem();
-// _NSLog($_POST);
-// _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
+_NSLog($_POST);
+_NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
 		$oldtitle=$this->_persist("state", $oldtitle);	// potentially overwrite by persisted hidden state (but don't treat as change event)
 		$title=$this->_persist("", $oldtitle);	// potentially update selected item by form
 // _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: ".$oldtitle."[".$this->selectedItemIndex."] -> $title");
@@ -2356,6 +2399,7 @@ class NSTabView extends NSControl
 			}
 		parent::_collectEvents();	// and from all subviews
 		foreach($this->tabViewItems as $item)
+			// should we skip $selectedItem?
 			$item->view()->_collectEvents();	// give items a chance to persist even if swapped out
 		}
 	public function display()
@@ -3074,19 +3118,17 @@ class NSWindow extends NSResponder
 			$NSApp->setMainWindow($this);
 // NSLog($NSApp);
 		}
-	public function hitTest(NSEvent $event)
-		{
-		return $event->target();
-		}
 	public function sendEvent(NSEvent $event)
 		{
 		global $NSApp;
-		NSLog("sendEvent: ".$event->description());
+_NSLog("sendEvent: ".$event->description());
 		$window=$target=$event->window();
 		if(is_null($window))
 			$window=$NSApp->mainWindow();
-		$target=$window->hitTest($event);
-		$target->mouseDown($event);
+		$target=$window->contentView()->hitTest($event);
+// _NSLog($target);
+		if(!is_null($target))
+			$target->mouseDown($event);
 		}
 	public function update()
 		{
