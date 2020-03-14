@@ -31,6 +31,7 @@ class AppController extends NSObject
 
 	public function buttonPressed(NSObject $sender)
 		{
+_NSLog("button pressed: ".$sender->classString()." title=".$sender->title());
 		$this->status->setStringValue($sender->title());
 		}
 
@@ -124,6 +125,7 @@ function didFinishLoading()
 	$v->addItemWithTitle("item 1");
 	$v->addItemWithTitle("item 2");
 	$v->addItemWithTitle("item 3");
+	$v->setActionAndTarget('buttonPressed', $this);
 
 	$v=new NSTabView();
 	$grid->addSubview($v);
@@ -136,9 +138,13 @@ function didFinishLoading()
 	$c->setActionAndTarget('buttonPressed', $this);
 	$v->addTabViewItem(new NSTabViewItem("2", $c));
 
-	$button=new NSTextField();
-	$button->setAttributedStringValue("");
-	$grid->addSubview($button);
+	$v=new NSPopUpButton();
+	$grid->addSubview($v);
+	$v->addItemWithTitle("right 1");
+	$v->addItemWithTitle("right 2");
+	$v->addItemWithTitle("right 3");
+	$v->addItemWithTitle("right 4");
+	$v->setActionAndTarget('buttonPressed', $this);
 
 	$button=new NSTextField();
 	$button->setAttributedStringValue("");
