@@ -126,13 +126,13 @@ function _persist($object, $default, $value=null)
 		{
 // _NSLog("unset persist $object");
 		unset($persist[$object]);	// default values need not waste http bandwidth
-		unset($_POST[$object]);		// if we want to read back again this will return $default
+		unset($_POST[$object]);	// if we want to read back again this will return $default
 		}
 	else
 		{
 // _NSLog("set persist $object = $value");
 		$persist[$object]=$value;	// store (new/non-default value) until we draw
-		$_POST[$object]=$value;		// store if we overwrite and want to read back again
+		$_POST[$object]=$value;	// store if we overwrite and want to read back again
 		}
 	return $value;
 }
@@ -326,7 +326,7 @@ class NSApplication extends NSResponder
 	public function setMainMenu(NSMenu $m=null) { $this->mainMenu=$m; }
 
 	public function queueEvent(NSEvent $event)
-		{ // there may be multiple mouse-down events (for NSPopUpButton!)
+		{
 _NSLog("queueEvent: ".$event->description());
 		$this->eventQueue[]=$event;
 		}
@@ -424,7 +424,7 @@ _NSLog("queueEvent: ".$event->description());
 			return;	// no action is set
 		if(!isset($target))
 			{ // it $target does not exist -> take first responder
-_NSLog("sendAction $action to first responder");
+// _NSLog("sendAction $action to first responder");
 			$target=null;	// FIXME: locate first responder
 			}
 		else
@@ -686,7 +686,7 @@ class NSView extends NSResponder
 		{ // go through hierarchy
 		foreach($this->subviews as $view)
 			$view->_collectEvents();
-		parent::_collectEvents();	// do default (go through subviews)
+		parent::_collectEvents();
 		}
 	public function hitTest(NSEvent $event)
 		{
@@ -894,7 +894,7 @@ class NSControl extends NSView
 		{
 // _NSLog($this);
 		if(isset($this->cell))
-			$this->cell->_collectEvents();
+			$this->cell->_collectEvents();	// handle attached cell first
 		parent::_collectEvents();	// do default (go through subviews)
 		}
 
@@ -1072,7 +1072,7 @@ class NSButton extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{ // this button may have been pressed
-_NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
+// _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		// if radio button or checkbox, watch for value
 		// but then the mouseDown is handled by the NSMatrix superview
 		// FIXME: handle checkbox tristate
@@ -1108,19 +1108,17 @@ _NSLog("$row $column $submit");
  *
  * So we have to separate state-detection and event generation!
  */
-_NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
-_NSLog($_POST);
+// _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
+// _NSLog($_POST);
 			if(!is_null(_persist("NSEvent", null)))
 				{ // e(something) triggered - store state in separate variable
 				$this->state=$this->_persist("state", $this->state);
-_NSLog("NSButton pressed: ".$this->state);
-//				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
+// _NSLog("NSButton ".$this->buttonType." pressed state=".$this->state);
 				}
 			else if(!is_null($this->_persist("ck", null)))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
 // _NSLog("ck: ".$this->classString());
-//				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
 				$this->_persist("ck", "", "");  // unset
 				}
 			else
@@ -1485,7 +1483,12 @@ class NSPopUpButton extends NSButton
 		if($this->selectedItemIndex == $index) return;	// no change
 		$this->selectedItemIndex=$index;
 // _NSLog("selectItemAtIndex $index -> ".$this->selectedItemIndex);
-		$this->setNeedsDisplay();
+		$this->_persist("state", null, $this->indexOfSelectedItem());
+		$title=$this->titleOfSelectedItem();
+		if(!is_null($title))
+			parent::setTitle($title);
+		else
+			$this->setNeedsDisplay();
 		}
 	public function selectItemWithTitle($title)
 		{
@@ -1523,22 +1526,22 @@ class NSPopUpButton extends NSButton
 		$this->sendAction();
 		}
 	public function _collectEvents()
-		{ // Warning - this only works correctly if titles are unique!
-		global $NSApp;
-		$oldtitle=$this->titleOfSelectedItem();
-_NSLog($_POST);
-_NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
-		$oldtitle=$this->_persist("state", $oldtitle);	// potentially overwrite by persisted hidden state (but don't treat as change event)
-		$title=$this->_persist("", $oldtitle);	// potentially update selected item by form
-// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: ".$oldtitle."[".$this->selectedItemIndex."] -> $title");
-	//	_persist($this->elementId, "", "");	// and remove
-		if($title !== $oldtitle)
-			{ // form was updated
+		{
+// _NSLog($_POST);
+// _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
+		$state=0+$this->_persist("state", $this->indexOfSelectedItem());	// stored state - default to item selected by app
+		$this->selectItemAtIndex($state);		// preselect
+		$value=0+$this->_persist("", null);		// user potentially changed selected item - default to first
+		$this->_persist("", "", "");			// wipe out from hidden list
+// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $state -> $value");
+		if($value != $state)
+			{ // was updated by user
+			global $NSApp;
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // if changed, queue a mouseDown event for us
-			$this->selectItemWithTitle($title);	// and already select for next round
+			$this->selectItemAtIndex($value);	// and already select for next round
 // _NSLog("NSPopUpButton ".$this->elementId()." queued item ".$this->selectedItemIndex);
 			}
-		parent::_collectEvents();
+		// parent::_collectEvents();
 		}
 	public function draw()
 		{
@@ -1570,24 +1573,25 @@ _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visibl
 			return;
 			}
 // _NSLog("NSPopUpButton ".$this->elementId()." draw selected item ".$this->selectedItemIndex);
-		NSGraphicsContext::currentContext()->text($this->title);
+// NSGraphicsContext::currentContext()->text($this->title); // no we do not need to write $this->title
 		html("<select");
 		parameter("id", $this->elementId);
 		parameter("class", "NSPopUpButton");
 		parameter("name", $this->elementId);
-		parameter("onchange", "e('".$this->elementId."');".";s()");
+		parameter("onchange", "e('".$this->elementId."');"."s()");
 		parameter("size", 1);	// to make it a popup and not a combo-box
 		html(">\n");
+		$index=0;
 		foreach($this->menu as $item)
 			{ // add options
 			html("<option");
 			parameter("class", "NSMenuItem");
+			parameter("value", $index);	// pass index and not title
 			if($index == $this->selectedItemIndex)
 				parameter("selected", "selected");	// mark menu title as selected
 			html(">");
-			text($item->title());	// draws the title
+			text($item->title());	// draw the item title
 			html("</option>\n");
-			// FIXME: handle target/action
 			$index++;
 			}
 		html("</select>\n");
@@ -1598,13 +1602,7 @@ _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visibl
 			{
 // _NSLog("NSPopUpButton ".$this->elementId()." _displayDone ".$this->titleOfSelectedItem());
 // _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
-			if($this->isHidden())	// persist value even if button is currently hidden
-				{
-				$this->_persist("state", null, $this->titleOfSelectedItem());
 // _NSLog("NSPopUpButton ".$this->elementId()." persist ".$this->titleOfSelectedItem());
-				}
-			else
-				$this->_persist("state", "", "");	// remove from persistence store (because we have our own <input>)
 			}
 		parent::_displayDone();
 		}
@@ -2378,10 +2376,9 @@ class NSTabView extends NSControl
 		global $NSApp;
 // _NSLog("NSTabView _collectEvents");
 // _NSLog($_POST);
-		$this->selectedIndex=$this->_persist("selectedIndex", 0);
-		$selectedItem=$this->selectedTabViewItem();
-		if(!is_null($selectedItem))
-			$selectedItem->view()->_collectEvents();
+		$this->selectedIndex=$this->_persist("selectedIndex", $this->indexOfSelectedTabViewItem());
+		foreach($this->tabViewItems as $item)
+			$item->view()->_collectEvents();	// give all items a chance to handle events and persist changed state even if swapped out
 		$this->clickedItemIndex=-1;
 		$cnt=count($this->tabViewItems);
 		for($i=0; $i<$cnt; $i++)
@@ -2397,10 +2394,17 @@ class NSTabView extends NSControl
 				break;	// only one button should have been pressed
 				}
 			}
-		parent::_collectEvents();	// and from all subviews
+		parent::_collectEvents();	// and from all direct subviews (there shouldn't be any)
+		}
+	public function hitTest(NSEvent $event)
+		{
 		foreach($this->tabViewItems as $item)
-			// should we skip $selectedItem?
-			$item->view()->_collectEvents();	// give items a chance to persist even if swapped out
+			{
+			$subview=$item->view()->hitTest($event);
+			if(!is_null($subview))
+				return $subview;	// hit found
+			}
+		return parent::hitTest($event);
 		}
 	public function display()
 		{
@@ -3121,7 +3125,7 @@ class NSWindow extends NSResponder
 	public function sendEvent(NSEvent $event)
 		{
 		global $NSApp;
-_NSLog("sendEvent: ".$event->description());
+// _NSLog("sendEvent: ".$event->description());
 		$window=$target=$event->window();
 		if(is_null($window))
 			$window=$NSApp->mainWindow();
@@ -3189,7 +3193,7 @@ _NSLog("sendEvent: ".$event->description());
 		html("function a(){event.stopPropagation();};");	// used by <a href> buttons embedded in NSTable or NSMatrix
 		html("function e(v){document.forms[0].NSEvent.value=v;};");	// element
 		html("function r(v){document.forms[0].clickedRow.value=v;};");	// row
-		html("function c(v){document.forms[0].clickedColumn.value=v;}");	// column
+		html("function c(v){document.forms[0].clickedColumn.value=v;};");	// column
 		html("function s(){document.forms[0].scrollerX.value=window.pageXOffset;document.forms[0].scrollerY.value=window.pageYOffset;document.forms[0].submit();}");
 		html("</script>");
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
@@ -3381,7 +3385,7 @@ class NSWorkspace extends NSObject
 			{ // path represents a bundle
 			$bundle=NSBundle::bundleWithPath($path);
 			$icon=$bundle->objectForInfoDictionaryKey('CFBundleIconFile');
-//_NSLog("$icon for $path");
+// _NSLog("$icon for $path");
 			if(is_null($icon))
 				return NSImage::imageNamed("NSApplication");	// entry wasn't found
 			$file=$bundle->pathForResourceOfType($icon, "");
@@ -3675,7 +3679,7 @@ class NSNib extends NSObject
 			{ // create objects
 			$this->instantiateObject($value, $nametable);
 			}
-//_NSLog($this->objects);
+// _NSLog($this->objects);
 		foreach($this->connections as $value)
 			{ // connect objects
 // _NSLog("connect");
@@ -3712,8 +3716,8 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 		echo '$ROOT is not set globally!';
 		exit;
 		}
-NSLog("_POST:");
-NSLog($_POST);
+// _NSLog("_POST:");
+// _NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	$mainBundle=NSBundle::mainBundle();
 	$pclass=$mainBundle->principalClass();
