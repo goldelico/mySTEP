@@ -3120,16 +3120,20 @@ class NSWindow extends NSResponder
 		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
 		if(is_null($NSApp->mainWindow()))
 			$NSApp->setMainWindow($this);
-// NSLog($NSApp);
+// _NSLog($NSApp);
 		}
 	public function sendEvent(NSEvent $event)
 		{
 		global $NSApp;
-// _NSLog("sendEvent: ".$event->description());
-		$window=$target=$event->window();
+_NSLog("sendEvent: ".$event->description());
+		$window=$event->window();
 		if(is_null($window))
 			$window=$NSApp->mainWindow();
-		$target=$window->contentView()->hitTest($event);
+// _NSLog($window);
+		if(is_null($window->contentView()))
+			$target=$event->target();
+		else
+			$target=$window->contentView()->hitTest($event);
 // _NSLog($target);
 		if(!is_null($target))
 			$target->mouseDown($event);
