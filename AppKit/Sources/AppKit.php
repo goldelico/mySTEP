@@ -260,6 +260,21 @@ class NSResponder extends NSObject
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
 
+	public function _persist($component, $default, $value=null)
+		{
+		if(!$this->elementId)
+			{ // called before elementId was assigned (should not happen)
+			_NSLog("missing elementId");
+			_NSLog($this);
+			}
+		if($component !== "")	// allow for -0
+			$id=$this->elementId."-".$component;
+		else
+			$id=$this->elementId;	// handle empty id
+// _NSLog("persist $id");
+		return _persist($id, $default, $value);	// add namespace for this view
+		}
+
 	public function _eventIsForMe()
 		{ // there is some event for us!
 		if(!isset($_POST['NSEvent']))
@@ -274,7 +289,7 @@ class NSResponder extends NSObject
 		if($this->_eventIsForMe())
 			{
 			global $NSApp;
-_NSLog("is for me");
+// _NSLog("is for me");
 			$event=new NSEvent($this, 'NSMouseDown');
 			$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
 			_persist('clickedRow', "", "");	// reset
@@ -439,29 +454,6 @@ _NSLog("queueEvent: ".$event->description());
 	public function _collectEvents()
 		{
 		$this->mainWindow->_collectEvents();	// collect from subelements
-
-if(false)
-{
-// FIXME: do we still need this if it is already done within _collectEvents()?
-
-// _NSLog($_POST);
-		$targetId=_persist('NSEvent', null);	// set by the e(n) onlick handler
-// _NSLog("targetId $targetId");
-		if(!is_null($targetId) && $targetId)
-			$target=NSResponder::_objectForId($targetId);
-		else
-			$target=null;
-// _NSLog($target);
-		if(!is_null($target))
-			{ // user did click into this object when sending this form
-			global $NSApp;
-			$event=new NSEvent($target, 'NSMouseDown');
-			$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
-			_persist('clickedRow', "", "");	// reset
-			_persist('clickedColumn', "", "");	// reset
-			$NSApp->queueEvent($event);
-			}
-}
 		_persist('NSEvent', "", "");	// reset
 		}
 	public function updateWindows()
@@ -588,20 +580,6 @@ class NSView extends NSResponder
 		{
 		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, 0, 0);
-		}
-	public function _persist($component, $default, $value=null)
-		{
-		if(!$this->elementId)
-			{ // called before elementId was assigned (should not happen)
-			_NSLog("missing elementId");
-			_NSLog($this);
-			}
-		if($component !== "")	// allow for -0
-			$id=$this->elementId."-".$component;
-		else
-			$id=$this->elementId;	// handle empty id
-// _NSLog("persist $id");
-		return _persist($id, $default, $value);	// add namespace for this view
 		}
 	public function frame() { return $this->frame; }
 	public function setFrame($frame) { $this->frame=$frame; }
