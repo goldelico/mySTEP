@@ -101,48 +101,72 @@ function text($html)
 	NSGraphicsContext::currentContext()->text($html);
 }
 
-/*
- * persistence is achieved by posting object->value relations through hidden <input> fields
- * so that they are available on next refresh of the page through $_POST;
- * a variable should be persisted
- * - if it belongs to the view state of the current window (model state should be persisted through CoreDataBase and NSUserDefaults)
- * - if it needs to survive the display (run) loop
-*/
+/* new persistency manager */
+$persistent_objects=array();
+$persistent_properties=array();
+$persistent_defaults=array();
 
-$persist=array();
+function _read_persist($name)
+	{
+	global $persistent_defaults;
+	if(isset($_POST[$name]))
+		return $_POST[$name];
+	if(isset($persistent_defaults[$name]))
+		return $persistent_defaults[$name];
+	return null;
+	}
 
-/*
- * default = null,  value = null  => query, return null if undefined, persist value if found
- * default != null, value = null  => query, return default if undefined, persist value if found and != default
- * default = null,  value != null => return value, persist
- * default != null, value != null => return value, persist if != default
- */
+function _persist($name, NSObject $object=null, $property_name="", $default=null)
+	{ // make $object->$property_name persistent under $name and define $default
+	global $persistent_objects;
+	global $persistent_properties;
+	global $persistent_defaults;
+	$persistent_objects[$name]=$object;
+	$persistent_properties[$name]=$property_name;
+	$persistent_defaults[$name]=$default;
+	if($property_name && isset($_POST[$name]))
+		$object->$property_name=$_POST[$name];	// initialize from persistent store
+	}
 
-function _persist($object, $default, $value=null)
-{
-	global $persist;	// will come back as $_POST[] next time (+ values from <input>)
-	if(is_null($value))
-		{ // query
-		if(isset($_POST[$object]))
-			$value=$_POST[$object];
+function _no_persist($name)
+	{ // remove name from persistence
+	global $persistent_objects;
+	global $persistent_properties;
+	global $persistent_defaults;
+	unset($persistent_objects[$name]);
+	unset($persistent_properties[$name]);
+	unset($persistent_defaults[$name]);
+	}
+
+function _write_persistent()
+	{
+	global $persistent_objects;
+	global $persistent_properties;
+	global $persistent_defaults;
+	foreach($persistent_objects as $name => $object)
+		{
+		$variable=$persistent_properties[$name];
+		NSLog(@"persist $name $object $variable");
+		if($variable)
+			{
+			if($object->$variable == $persistent_defaults[$name])
+				continue;	// has default value
+			html("<input");
+			parameter("type", "hidden");
+			parameter("name", $name);
+			// JSON-Encode values?
+			parameter("value", $object->$variable);
+			}
 		else
-			$value=$default;
-// _NSLog("query persist $object -> $value");
+			{
+			html("<input");
+			parameter("type", "hidden");
+			parameter("name", $name);
+			parameter("value", "");
+			}
+		html(">\n");
 		}
-	if($value === $default)
-		{
-// _NSLog("unset persist $object");
-		unset($persist[$object]);	// default values need not waste http bandwidth
-		unset($_POST[$object]);	// if we want to read back again this will return $default
-		}
-	else
-		{
-// _NSLog("set persist $object = $value");
-		$persist[$object]=$value;	// store (new/non-default value) until we draw
-		$_POST[$object]=$value;	// store if we overwrite and want to read back again
-		}
-	return $value;
-}
+	}
 
 class NSGraphicsContext extends NSObject
 	{
@@ -154,27 +178,6 @@ class NSGraphicsContext extends NSObject
 			self::$currentContext=new NSHTMLGraphicsContext;
 		return self::$currentContext;
 		}
-	}
-
-/* new persistency manager */
-$persistent_objects=array();
-$persistent_properties=array();
-
-function _read_persist($name, $default=null)
-	{
-	if(isset($_POST[$name]))
-		return $_POST[$name];
-	return $default;
-	}
-
-function _newpersist($name, NSObject $object=null, $property_name="")
-	{
-	global $persistent_objects;
-	global $persistent_properties;
-	$persistent_objects[$name]=$object;
-	$persistent_properties[$name]=$property_name;
-	if($property_name && isset($_POST[$name]))
-		$object->$property_name=$_POST[$name];	// initialize from persistent store
 	}
 
 class NSHTMLGraphicsContext extends NSGraphicsContext
@@ -288,24 +291,9 @@ class NSResponder extends NSObject
 		self::$objects[$this->elementId]=$this;	// store reference
 	}
 
-	public function _persist($component, $default, $value=null)
-		{
-		if(!$this->elementId)
-			{ // called before elementId was assigned (should not happen)
-			_NSLog("missing elementId");
-			_NSLog($this);
-			}
-		if($component !== "")	// allow for -0
-			$id=$this->elementId."-".$component;
-		else
-			$id=$this->elementId;	// handle empty id
-// _NSLog("persist $id");
-		return _persist($id, $default, $value);	// add namespace for this view
-		}
-
 	/* usage: $this->_read_persist("state") to get current state - mainly in _collectEvents */
 
-	public function _read_persist($name, $default=null)
+	public function _read_persist($name)
 		{ // read object specific property
 		if(!$this->elementId)
 			{ // called before elementId was assigned (should not happen)
@@ -316,13 +304,13 @@ class NSResponder extends NSObject
 			$id=$this->elementId."-".$name;
 		else
 			$id=$this->elementId;	// handle empty id
-// _NSLog("persist $id");
-		return _read_persist($id, $default);
+// _NSLog("read_persist $id");
+		return _read_persist($id);
 		}
 
-	/* usage: $this->_newpersist("state") in __construct to persist $this->state */
+	/* usage: $this->_persist("state") in __construct to persist $this->state */
 
-	public function _newpersist($name, $property_name=null)
+	public function _persist($name, $property_name=null)
 		{ // make $property_name persistent with given name
 		if(is_null($property_name))
 			$property_name=$name;	// same as name
@@ -336,7 +324,22 @@ class NSResponder extends NSObject
 		else
 			$id=$this->elementId;	// handle empty id
 // _NSLog("persist $id");
-		_newpersist($id, $this, $property_name);
+		_persist($id, $this, $property_name, $this->$property_name);	// initialize with current default
+		}
+
+	public function _no_persist($name)
+		{ // make $name not persistent
+		if(!$this->elementId)
+			{ // called before elementId was assigned (should not happen)
+			_NSLog("missing elementId");
+			_NSLog($this);
+			}
+		if($name !== "")	// allow for -0
+			$id=$this->elementId."-".$name;
+		else
+			$id=$this->elementId;	// handle empty id
+// _NSLog("no_persist $id");
+		_no_persist($id);
 		}
 
 	public function _eventIsForMe()
@@ -356,9 +359,7 @@ class NSResponder extends NSObject
 			global $NSApp;
 // _NSLog("is for me");
 			$event=new NSEvent($this, 'NSMouseDown');
-			$event->setPosition(array('y' => _persist('clickedRow', null), 'x' => _persist('clickedColumn', null)));
-			_persist('clickedRow', "", "");	// reset
-			_persist('clickedColumn', "", "");	// reset
+			$event->setPosition(array('y' => _read_persist("clickedRow"), 'x' => _read_persist("clickedColumn")));
 			$NSApp->queueEvent($event);	// queue a mouseDown event for us
 			}
 		}
@@ -519,7 +520,6 @@ _NSLog("queueEvent: ".$event->description());
 	public function _collectEvents()
 		{
 		$this->mainWindow->_collectEvents();	// collect from subelements
-//		_persist('NSEvent', null, "");	// reset
 		}
 	public function updateWindows()
 		{
@@ -983,7 +983,7 @@ class NSButton extends NSControl
 	{
 	protected $title;
 	protected $altTitle;
-	protected $state=NSOffState;
+	public $state=NSOffState;
 	protected $allowsMixedState=false;
 	protected $buttonType;
 	protected $keyEquivalent;	// set to "\r" to make it the default button
@@ -995,6 +995,7 @@ class NSButton extends NSControl
 // _NSLog("NSButton $newtitle ".$this->elementId);
 		$this->setButtonType($buttonType);
 		$this->setTitle($newtitle);
+		$this->_persist("state");
 		}
 	public function description() { return parent::description()." ".$this->title; }
 	public function allowsMixedState() { return $this->allowsMixedState; }
@@ -1155,14 +1156,12 @@ _NSLog("$row $column $submit");
 // _NSLog($_POST);
 			if($this->_eventIsForMe())
 				{ // e(something) triggered - store state in separate variable
-				$this->state=$this->_persist("state", $this->state);
 // _NSLog("NSButton ".$this->buttonType." pressed state=".$this->state);
 				}
-			else if(!is_null($this->_persist("ck", null)))
+			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
 // _NSLog("ck: ".$this->classString());
-				$this->_persist("ck", "", "");  // unset
 				}
 			else
 				$this->state=NSOffState; // non-JS mode and seems to be off
@@ -1276,17 +1275,18 @@ _NSLog("$row $column $submit");
 			}
 		html("\n");
 		}
+/*
 	public function _displayDone()
 		{
 		switch($this->buttonType)
 			{
 			case "CheckBox":
 			case "Radio":
-				$this->_persist("state", "", $this->state());	// store for JS mode
 				break;
 			}
 		parent::_displayDone();
 		}
+*/
 	}
 
 // FIXME: we currently do not correctly separate between NSMenu/NSMenuItem and NSMenuView/NSMenuItemView
@@ -1301,6 +1301,7 @@ class NSMenuItem extends NSObject
 	protected $enabled;
 	protected $hidden;
 	protected $state;
+	public $selected=false;
 	protected $image;
 	protected $submenu;
 	protected $parent;
@@ -1310,6 +1311,7 @@ class NSMenuItem extends NSObject
 		{
 		parent::__construct();
 		$this->title=$title;
+// FIXME: this is not a child of NSResponder!		$this->_persist("selected");
 		}
 
 	public function title() { return $this->title; }
@@ -1335,16 +1337,18 @@ class NSMenuItemView extends NSButton
 		protected $subMenuView;
 		protected $isSelected;
 		public function isSelected() { return $this->isSelected; }
-		public function setSelected($sel) { $this->isSelected=$this->_persist("isSelected", 0, $sel); }
+		public function setSelected($sel) { $this->isSelected=$sel; }
 		public function __construct($label)
 			{
 			parent::__construct($label);
 			}
+/*
 		public function _collectEvents()
 			{
-			$this->isSelected=$this->_persist("isSelected", 0);
+			$this->isSelected=$this->_read_persist("isSelected", 0);
 			parent::_collectEvents();
 			}
+*/
 		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; $this->setNeedsDisplay(); }
 		public function submenu() { return $this->subMenuView; }
 		public function draw()
@@ -1413,12 +1417,9 @@ class NSMenuView extends NSMenu
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
 		$menuItems=array();
+		$this->_new_persist("selectedItem");
 		}
-	public function _collectEvents()
-		{
-		$this->selectedItem=$this->_persist("selectedIndex", -1);
-		parent::_collectEvents();
-		}
+
 	public function menuItems() { return $this->menuItems; }
 	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
 	public function addMenuItem(NSMenuItemView $item) { $this->menuItems[]=$item; $this->setNeedsDisplay(); }
@@ -1439,7 +1440,6 @@ class NSMenuView extends NSMenu
 		{
 		if(0)
 			{ // show menu as buttons
-			$this->_persist("selectedIndex", -1, $this->selectedItem);
 			html("<table");
 			parameter("border", $this->border);
 			if($this->isHorizontal)
@@ -1489,16 +1489,16 @@ class NSPopUpButton extends NSButton
 	{
 	protected $menu;
 	protected $pullsDown=false;
-	protected $selectedItemIndex;
+	public $selectedItemIndex=0;
 
 	public function __construct()
 		{
 		parent::__construct("", "NSPopupButton");
 		$this->menu=array();
 		$this->actions=array();
-_NSLog($this->elementId()." created");
+// _NSLog($this->elementId()." created");
 		// we can't call selectItemAtIndex here because the items are not yet attached!
-		$this->selectedItemIndex=0+$this->_persist("state", -1);	// stored state - default to item selected by app
+		$this->_persist("selectedItemIndex");
 		}
 	public function pullsDown() { return $this->pullsDown; }
 	public function setPullsDown($flag)
@@ -1528,7 +1528,6 @@ _NSLog($this->elementId()." created");
 // _NSLog("selectItemAtIndex $index <- ".$this->selectedItemIndex);
 		if($this->selectedItemIndex == $index) return;	// no change
 		$this->selectedItemIndex=$index;
-		$this->_persist("state", null, $this->indexOfSelectedItem());
 		$title=$this->titleOfSelectedItem();
 		if(!is_null($title))
 			parent::setTitle($title);
@@ -1575,8 +1574,7 @@ _NSLog($this->elementId()." created");
 // _NSLog($_POST);
 // _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
 		$state=$this->indexOfSelectedItem();	// stored state - default to item selected by app
-		$value=0+$this->_persist("", null);		// user potentially changed selected item - default to first (0)
-		$this->_persist("", "", "");			// wipe out from hidden list
+		$value=0+$this->_read_persist("");		// user potentially changed selected item - default to first (0)
 _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $state -> $value");
 		if($value != $state)
 			{ // was updated by user
@@ -1639,18 +1637,6 @@ _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $state -> $value");
 			$index++;
 			}
 		html("</select>\n");
-		}
-	public function _displayDone()
-		{
-		if(!$this->pullsDown)
-			{
-// _NSLog("NSPopUpButton ".$this->elementId()." _displayDone ".$this->titleOfSelectedItem());
-// _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
-			// persist even if hidden
-			$this->_persist("state", null, $this->indexOfSelectedItem());
-// _NSLog("NSPopUpButton ".$this->elementId()." persist ".$this->titleOfSelectedItem());
-			}
-		parent::_displayDone();
 		}
 	}
 
@@ -2031,8 +2017,8 @@ _NSLog("NSCollectionView with 2 parameters is deprecated");
 class NSMatrix extends NSControl
 	{ // matrix of several buttons or fields - radio buttons are grouped
 	protected $columns=1;
-	protected $selectedColumn=-1;
-	protected $selectedRow=-1;
+	public $selectedColumn=-1;
+	public $selectedRow=-1;
 	protected $clickedColumn=-1;
 	protected $clickedRow=-1;
 	protected $border=0;
@@ -2065,6 +2051,10 @@ class NSMatrix extends NSControl
 		{
 		parent::__construct();
 		$this->columns=$cols;
+		$this->_new_persist("selectedRow");
+		$this->_new_persist("selectedColumn");
+		_new_persist("clickedRow");
+		_new_persist("clickedColumn");
 		}
 
 	public function _setElementId($id)
@@ -2152,9 +2142,9 @@ class NSMatrix extends NSControl
 
 	public function _collectEvents()
 		{
-		$this->selectedRow=$this->_persist("selectedRow", -1);
-		$this->selectedColumn=$this->_persist("selectedColumn", -1);
 // _NSLog("init $this->elementId: $this->selectedRow / $this->selectedColumn");
+		$this->clickedColumn=_read_persist("clickedColumn");
+		$this->clickedRow=_read_persist("clickedRow");
 		parent::_collectEvents();
 		}
 
@@ -2202,12 +2192,6 @@ class NSMatrix extends NSControl
 		html("</table>\n");
 		}
 
-	public function _displayDone()
-		{
-		$this->_persist("selectedRow", -1, $this->selectedRow);
-		$this->_persist("selectedColumn", -1, $this->selectedColumn);
-		parent::_displayDone();
-		}
 	}
 
 class NSFormCell extends NSView /* NSCell - but then we can't addSubview() */
@@ -2339,7 +2323,7 @@ class NSTabView extends NSControl
 	protected $border=1;
 	protected $width="100%";
 	protected $tabViewItems=array();
-	protected $selectedIndex;
+	public $selectedIndex=0;
 	protected $clickedItemIndex=-1;
 	protected $delegate;
 	protected $segmentedControl;
@@ -2348,7 +2332,7 @@ class NSTabView extends NSControl
 		parent::__construct();
 		foreach($items as $item)
 			$this->addTabViewItem($item);
-		$this->selectedIndex=$this->_persist("selectedIndex", 0);
+		$this->_persist("selectedIndex");
 _NSLog("selectedIndex=".$this->selectedIndex);
 		}
 	public function delegate() { return $this->delegate; }
@@ -2405,7 +2389,6 @@ _NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[$index]);
 		$this->selectedIndex=$index;
-		$this->_persist("selectedIndex", 0, $this->indexOfSelectedTabViewItem());	// persist new index
 _NSLog("selectedIndex=".$this->selectedIndex);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
@@ -2434,10 +2417,9 @@ _NSLog("selectedIndex=".$this->selectedIndex);
 		for($i=0; $i<$cnt; $i++)
 			{ // find out which _persist index exists i.e. which button was pressed
 // _NSLog($i);
-// _NSLog($this->_persist($i, null));
-			if(!is_null($this->_persist($i, null)))
+// _NSLog($this->_read_persist($i));
+			if(!is_null($this->_read_persist($i)))
 				{ // this index was clicked
-				$this->_persist($i, "", "");	// reset event
 				$this->clickedItemIndex=$i;
 // _NSLog($this->classString()." index ".$this->clickedItemIndex);
 				$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // queue a mouseDown event for us
@@ -2505,7 +2487,6 @@ _NSLog("clickedItemIndex=".$this->clickedItemIndex);
 
 	public function _displayDone()
 		{ // treat items like subviews
-//		$this->_persist("selectedIndex", 0, $this->selectedIndex);
 		$selectedItem=$this->selectedTabViewItem();
 		foreach($this->tabViewItems as $item)
 			{
@@ -2567,9 +2548,9 @@ class NSTableView extends NSControl
 	protected $delegate;
 	protected $dataSource;
 	protected $visibleRows;
-	protected $selectedRow=-1;
 	protected $columnsSelectable=false;
-	protected $selectedColumn=-1;
+	public $selectedRow=-1;
+	public $selectedColumn=-1;
 	protected $clickedRow;
 	protected $clickedColumn;
 	protected $doubleAction;
@@ -2609,6 +2590,8 @@ class NSTableView extends NSControl
 			$this->addColumn($col);
 			}
 		NSLog($this->classString());
+		$this->_persist("selectedRow");
+		$this->_persist("selectedColumn");
 		}
 	public function reloadData() { $this->setNeedsDisplay(); }
 	public function columns()
@@ -2700,8 +2683,8 @@ class NSTableView extends NSControl
 		}
 	public function _collectEvents()
 		{
-		$this->selectedRow=$this->_persist("selectedRow", $this->selectedRow);
-		$this->selectedColumn=$this->_persist("selectedColumn", $this->selectedColumn);
+		$this->clickedRow=$this->_read_persist("clickedRow");
+		$this->clickedColumn=$this->_read_persist("clickedColumn");
 		parent::_collectEvents();
 		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
@@ -2805,18 +2788,11 @@ class NSTableView extends NSControl
 			}
 		html("</table>\n");
 		}
-	public function _displayDone()
-		{
-// _NSLog("_displayDone NSTableView row: ".$this->selectedRow." col: ".$this->selectedColumn);
-		$this->_persist("selectedRow", -1, $this->selectedRow);
-		$this->_persist("selectedColumn", -1, $this->selectedColumn);
-		parent::_displayDone();
-		}
 	}
 	
 class NSTextField extends NSControl
 {
-	protected $stringValue;	// should this be a property of NSControl?
+	public $stringValue;	// should this be a property of NSControl?
 	protected $placeholder="";
 	protected $htmlValue;
 	protected $backgroundColor;
@@ -2828,11 +2804,24 @@ class NSTextField extends NSControl
 	protected $wraps=false;
 	protected $name;	// name of this <input>
 	protected $font;
+	public function __construct($width=30, $default="", $name = null)
+		{
+if($default)
+	_NSLog("NSTextField with default (deprecated): $default");
+if($name)
+	_NSLog("NSTextField with name (deprecated): $name");
+       		parent::__construct();
+		// should be depreacted and replaced by setFrame() ...
+		$this->width=$width;
+		$this->setName($name);
+//		$this->_persist("stringValue");
+		}
 	public function stringValue() { return $this->stringValue; }
 	public function attributedStringValue() { return $this->htmlValue; }
 	public function setStringValue($str)
 		{
-// _NSLog("setStringValue for ".$this->name.": $str");
+// $name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
+// _NSLog("setStringValue for ".$name.": $str");
 		if($this->stringValue === $str) return;
 		$this->stringValue=$str;
 		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
@@ -2842,6 +2831,8 @@ class NSTextField extends NSControl
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) 
 		{
+// $name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
+// _NSLog("setAttributedStringValue for ".$name.": $astr");
 		if($this->htmlValue === $astr) return;
 		$this->htmlValue=$astr;
 		$this->isEditable=false;
@@ -2858,6 +2849,7 @@ if($name)
 		if(!is_null($name))
 			$this->name=$name;	// override (must be done in didFinishLoading())
 		$this->setNeedsDisplay();
+		$this->setHidden($this->isHidden());
 		}
 	public function placeholderString() { return $this->placeholder; }
 	public function setPlaceholderString($str)
@@ -2887,17 +2879,6 @@ if($name)
 		$this->font=$font;
 		$this->setNeedsDisplay();
 		}
-	public function __construct($width=30, $default="", $name = null)
-		{
-if($default)
-	_NSLog("NSTextField with default (deprecated): $default");
-if($name)
-	_NSLog("NSTextField with name (deprecated): $name");
-       		parent::__construct();
-		// should be depreacted and replaced by setFrame() ...
-		$this->width=$width;
-		$this->setName($name);
-		}
 	public function setName($name)
 		{
 		$this->name=$name;
@@ -2913,11 +2894,26 @@ if($name)
 	public function _collectEvents()
 		{
 		$name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
-		$str=_persist($name, $this->stringValue);
+		$str=_read_persist($name);
 // _NSLog("NSTextField _collectEvents for ".$name.": $str");
-		$this->setStringValue($str);
+		if(!is_null($str))
+			$this->setStringValue($str);	// has been provided
 		// if changed, queue a change event?
 		parent::_collectEvents();
+		}
+	public function setHidden($hide)
+		{
+// _NSLog("setHidden ".0+$hide);
+		if($this->isEditable && $hide && $this->type != "password")
+			$this->_persist("stringValue");	// editable field is hidden - there is no <input> but we should keep the value
+		else
+			$this->_no_persist("stringValue");
+		parent::setHidden($hide);
+		}
+	public function setType($type)
+		{
+		$this->type=$type;
+		$this->setHidden($this->isHidden());
 		}
 	public function draw()
 		{
@@ -2944,9 +2940,10 @@ if($name)
 				parameter("style", implode(';', $style));
 			if($this->placeholder)
 				parameter("placeholder", $this->placeholder);
-			parameter("name", is_null($this->name)?$this->elementId."-string":$this->name);	// default or override name
+			$name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
+			parameter("name", $name);	// default or override name
 			if($this->type != "password")
-				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty
+				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty for each redraw
 			switch($this->type)
 				{ // special types
 				case "search":
@@ -2984,18 +2981,6 @@ if($name)
 		if(!is_null($this->font))
 			html("</span>");
 		}
-	public function _displayDone()
-		{
-		$name=is_null($this->name)?$this->elementId."-string":$this->name;
-		if($this->isHidden())
-			{ // persist stringValue even if text field is currently hidden
-			if($this->isEditable && $this->type != "password")
-				_persist($name, $this->stringValue);
-			}
-		else if($this->isEditable)
-			_persist($name, "", "");	// remove from persistence store (because we have our own <input>)
-		parent::_displayDone();
-		}
 }
 
 class NSSecureTextField extends NSTextField
@@ -3003,7 +2988,7 @@ class NSSecureTextField extends NSTextField
 	public function __construct($width=30, $name=null)
 	{
 		parent::__construct($width, null, $name);
-		$this->type="password";
+		$this->setType("password");
 	}
 
 }
@@ -3013,7 +2998,7 @@ class NSSearchField extends NSTextField
 	public function __construct($width=30, $name=null)
 	{
 		parent::__construct($width, null, $name);
-		$this->type="search";
+		$this->setType("search");
 	}
 
 }
@@ -3023,20 +3008,21 @@ class NSSlider extends NSTextField
 	public function __construct()
 	{
 		parent::__construct();
-		$this->type="range";
+		$this->setType("range");
 	}
 
 }
 
 class NSTextView extends NSControl
 {
-	protected $string;
+	public $string;
 	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, $width, $height);
 		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
+		$this->_persist("string");
 		}
 	public function setString($string)
 		{
@@ -3048,11 +3034,15 @@ class NSTextView extends NSControl
 	public function mouseDown(NSEvent $event)
 		{ // some button has been pressed
 		}
+/*
 	public function _collectEvents()
 		{
-		$this->string=$this->_persist("string", $this->string);
 		parent::_collectEvents();
 		}
+*/
+/*
+	setHidden: persist an/ausschalten!
+*/
 	public function draw()
 		{
 		if($this->isHidden()) return;	// don't draw
@@ -3066,14 +3056,6 @@ class NSTextView extends NSControl
 		html(_htmlentities($this->string));
 		html("</textarea>\n");
 		}
-	public function _displayDone()
-		{
-		if($this->isHidden())	// persist stringValue even if text field is currently hidden
-			$this->_persist("string", $this->string);
-		else
-			$this->_persist("string", "", "");	// remove from persistence store (because we have our own <input>)
-		parent::_displayDone();
-		}
 }
 
 // NSClipView? with different overflow-setting?
@@ -3086,17 +3068,20 @@ class NSClipView extends NSView
 class NSScrollView extends NSView
 {
 	protected $point;
+	public $scrollerX=0;
+	public $scrollerY=0;
 
 	public function __construct()
 		{
-// FIXME: does not work properly :(
        		parent::__construct();
-		_newpersist("scrollerX");
-		_newpersist("scrollerY");
+		$this->_persist("scrollerX");
+		$this->_persist("scrollerY");
+		_persist("scrollX");
+		_persist("scrollY");
 		}
 	public function _collectEvents()
 		{
-		$this->point=NSMakePoint(_persist('scrollerX', null), _persist('scrollerY', null));
+		$this->point=NSMakePoint(_read_persist('scrollX', null), _read_persist('scrollY', null));
 // _NSLog("point");
 // _NSLog($this->point);
 		// what do we do with this?
@@ -3177,9 +3162,9 @@ class NSWindow extends NSResponder
 		$persist["scrollerX"]="";	// store default value
 		$persist["scrollerY"]="";	// store default value
 */
-		_newpersist("NSEvent");
-		_newpersist("clickedRow");
-		_newpersist("clickedColumn");
+		_persist("NSEvent");
+		_persist("clickedRow");
+		_persist("clickedColumn");
 		parent::__construct();
 		$this->scrollView=new NSScrollView();
 		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
@@ -3262,7 +3247,7 @@ _NSLog("sendEvent: ".$event->description());
 		html("function e(v){document.forms[0].NSEvent.value=v;};");	// element
 		html("function r(v){document.forms[0].clickedRow.value=v;};");	// row
 		html("function c(v){document.forms[0].clickedColumn.value=v;};");	// column
-		html("function s(){document.forms[0].scrollerX.value=window.pageXOffset;document.forms[0].scrollerY.value=window.pageYOffset;document.forms[0].submit();}");
+		html("function s(){document.forms[0].scrollX.value=window.pageXOffset;document.forms[0].scrollY.value=window.pageYOffset;document.forms[0].submit();}");
 		html("</script>");
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "js");
 		if(isset($r))
@@ -3295,39 +3280,12 @@ _NSLog("sendEvent: ".$event->description());
 		// scan whole tree for first non-hidden NSButton with $this->keyEquivalent() == "\r" and title() != ""
 		if(false)
 			{ // define default button if Enter is pressed in some text field
-			// _persist($button->elementId()."-ck", null, $button->title());
 			html("<input");
 			parameter("type", "hidden");
 			parameter("name", $button->elementId()."-ck");
 			parameter("value", _htmlentities($button->title()));
 			html(">\n");
 			}
-/*		html("<input");
-		parameter("type", "hidden");
-		parameter("name", "NSEvent");
-		parameter("value", "");	// can be set by the e(e) function in JavaScript
-		html(">\n");
-		html("<input");
-		parameter("type", "hidden");
-		parameter("name", "clickedRow");
-		parameter("value", "");	// can be set by the r(n) function in JavaScript
-		html(">\n");
-		html("<input");
-		parameter("type", "hidden");
-		parameter("name", "clickedColumn");
-		parameter("value", "");	// can be set by the c(n) function in JavaScript
-		html(">\n");
-		html("<input");
-		parameter("type", "hidden");
-		parameter("name", "scrollerX");
-		parameter("value", "");	// can be set by the s(n) function in JavaScript
-		html(">\n");
-		html("<input");
-		parameter("type", "hidden");
-		parameter("name", "scrollerY");
-		parameter("value", "");	// can be set by the s(n) function in JavaScript
-		html(">\n");
-*/
 		$mm=$NSApp->mainMenu();
 		if(isset($mm))
 			$mm->display();	// draw main menu before content view
@@ -3335,33 +3293,7 @@ _NSLog("sendEvent: ".$event->description());
 		$this->scrollView->display();	// handles isHidden
 		$this->scrollView->_displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
-		global $persistent_objects;
-		global $persistent_properties;
-		foreach($persistent_objects as $name => $object)
-			{
-			$variable=$persistent_properties[$name];
-			NSLog(@"persist $name $object $variable");
-			html("<input");
-			parameter("type", "hidden");
-			parameter("name", $name);
-			// JSON-Encode values?
-			if($variable)
-				parameter("value", $object->$variable);
-			else
-				parameter("value", "");
-			html(">\n");
-			}
-		global $persist;
-		foreach($persist as $object => $value)
-			{
-			NSLog(@"persist $object $value");
-			html("<input");
-			parameter("type", "hidden");
-			parameter("name", $object);
-			// JSON-Encode values?
-			parameter("value", $value);
-			html(">\n");
-			}
+		_write_persistent();
 		html("</form>\n");
 		html("</body>\n");
 		html("</html>\n");
