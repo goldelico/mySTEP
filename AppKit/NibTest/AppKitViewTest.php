@@ -20,13 +20,13 @@ class AppController extends NSObject
 	public function checkAddress(NSObject $sender)
 		{
 		$status=NSMailDelivery::isEmailValid($this->to->stringValue());
-		$this->status->setStringValue($status?"Valid":"Not Valid");
+		$this->status->setStringValue($status?"Address Valid":"Address Not Valid");
 		}
 
 	public function sendTheMail(NSObject $sender)
 		{
 		$status=NSMailDelivery::deliverMessageSubjectTo($this->body->string(), $this->subject->stringValue(), $this->to->stringValue());
-		$this->status->setStringValue($status?"Sent":"Not Sent");
+		$this->status->setStringValue($status?"Mail Sent":"Mail Not Sent");
 		}
 
 	public function buttonPressed(NSObject $sender)
@@ -92,17 +92,20 @@ function didFinishLoading()
 	$button=new NSButton();
 	$button->setButtonType("Radio");
 	$button->setTitle("Radio");
+	$button->setActionAndTarget('buttonPressed', $this);
 	$grid->addSubview($button);
 
 	$button=new NSButton();
 	$button->setButtonType("CheckBox");
 	$button->setTitle("CheckBox");
+	$button->setActionAndTarget('buttonPressed', $this);
 	$grid->addSubview($button);
 
 	$button=new NSButton();
 	$button->setButtonType("CheckBox");
 	$button->setTitle("Mixed");
 	$button->setAllowsMixedState(true);
+	$button->setActionAndTarget('buttonPressed', $this);
 	$grid->addSubview($button);
 
 	$button=new NSButton();
