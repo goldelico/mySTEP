@@ -140,6 +140,12 @@ function didFinishLoading()
 	$c->setTitle("second Button");
 	$c->setActionAndTarget('buttonPressed', $this);
 	$v->addTabViewItem(new NSTabViewItem("2", $c));
+	$c=new NSPopUpButton();
+	$c->setActionAndTarget('buttonPressed', $this);
+	$c->addItemWithTitle("tab item 1");
+	$c->addItemWithTitle("tab item 2");
+	$c->addItemWithTitle("tab item 3");
+	$v->addTabViewItem(new NSTabViewItem("3", $c));
 
 	$v=new NSPopUpButton();
 	$grid->addSubview($v);
