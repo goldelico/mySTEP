@@ -57,12 +57,14 @@ function didFinishLoading()
 	$tf->setAttributedStringValue("To:");
 	$grid->addSubview($tf);
 	$this->to=new NSTextField();
+	$this->to->setName("to");
 	$grid->addSubview($this->to);
 
 	$tf=new NSTextField();
 	$tf->setAttributedStringValue("Subject:");
 	$grid->addSubview($tf);
 	$this->subject=new NSTextField();
+	$this->subject->setName("subject");
 	$grid->addSubview($this->subject);
 
 	$tf=new NSTextField();
