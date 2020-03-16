@@ -132,7 +132,7 @@ function _persist($name, NSObject $object=null, $property_name="", $default=null
 	global $persistent_objects;
 	global $persistent_properties;
 	global $persistent_defaults;
-	$persistent_objects[$name]=$object;
+	$persistent_objects[$name]=$object;	// null means "global"
 	$persistent_properties[$name]=$property_name;
 	$persistent_defaults[$name]=$default;
 	if($property_name && isset($_POST[$name]))
@@ -147,6 +147,22 @@ function _no_persist($name)
 	unset($persistent_objects[$name]);
 	unset($persistent_properties[$name]);
 	unset($persistent_defaults[$name]);
+	}
+
+function _rename_persist($old, $new)
+	{
+	global $persistent_objects;
+	global $persistent_properties;
+	global $persistent_defaults;
+	if($old == $new) return;
+	if(!isset($persistent_objects[$old])) return;	// isn't persisted - so there is nothing to rename
+	// also match names with suffix if we rename just the (parent) element-id!
+	// $old or $new may be null but shouldn't
+	// we may be able to get rid of this renaming if the $object has a method to provide the name
+// _NSLog("rename persists $old -> $new");
+	// loop and do the same for subpatterns
+	_persist($new, $persistent_objects[$old], $persistent_properties[$old], $persistent_defaults[$old]);	// may read/update!
+	_no_persist($old);
 	}
 
 function _write_persistent()
@@ -387,6 +403,7 @@ class NSResponder extends NSObject
 
 	public function _setElementId($id)
 		{ // used when displaying as NSCell in NSTableView
+		_rename_persist($this->elementId, $id);
 		$this->elementId=$id;
 		}
 }
@@ -1165,12 +1182,12 @@ _NSLog("$row $column $submit");
 // _NSLog($_POST);
 			if($this->_eventIsForMe())
 				{ // e(something) triggered - store state in separate variable
-// _NSLog("NSButton ".$this->buttonType." pressed state=".$this->state);
+_NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
 				}
 			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
-// _NSLog("ck: ".$this->classString());
+_NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
 				}
 			else
 				$this->state=NSOffState; // non-JS mode and seems to be off
@@ -1488,9 +1505,8 @@ class NSPopUpButton extends NSButton
 		parent::__construct("", "NSPopupButton");
 		$this->menu=array();
 		$this->actions=array();
-// _NSLog($this->elementId()." created");
-		// we can't call selectItemAtIndex here because the items are not yet attached!
 		$this->_persist("selectedItemIndex", "index");
+// _NSLog($this->elementId()." created");
 		}
 	public function pullsDown() { return $this->pullsDown; }
 	public function setPullsDown($flag)
@@ -1555,7 +1571,7 @@ class NSPopUpButton extends NSButton
 		{ // triggered only if there was a change
 // _NSLog($event);
 // _NSLog("NSPopUpButton ".$this->elementId()." mouseDown ".$this->titleOfSelectedItem());
-		$pos=$event->position();
+//		$pos=$event->position();
 // _NSLog($event->target()->elementId());
 // _NSLog($this->elementId());
 // _NSLog($pos);
@@ -1567,8 +1583,9 @@ class NSPopUpButton extends NSButton
 // _NSLog("NSPopUpButton ".$this->elementId().($this->isHidden()?" hidden":" visible"));
 		$state=$this->indexOfSelectedItem();	// stored state - default to item selected by app
 		$value=$this->_read_persist("");		// user potentially changed selected item - default to first (0)
-_NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $state -> $value");
-		if(!is_null($value) && $value !== $state)
+// _NSLog("NSPopUpButton ".$this->elementId()." _collectEvents: $state -> $value");
+// _NSLog($value);
+		if(!is_null($value) && $value != $state)
 			{ // was drawn and updated by user
 			global $NSApp;
 			$NSApp->queueEvent(new NSEvent($this, 'NSMouseDown')); // if changed, queue a mouseDown event for us
@@ -2316,7 +2333,7 @@ class NSTabView extends NSControl
 		foreach($items as $item)
 			$this->addTabViewItem($item);
 		$this->_persist("selectedIndex");
-_NSLog("selectedIndex=".$this->selectedIndex);
+// _NSLog("selectedIndex=".$this->selectedIndex);
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -2409,7 +2426,7 @@ _NSLog("selectedIndex=".$this->selectedIndex);
 				break;	// only one button should have been pressed
 				}
 			}
-_NSLog("clickedItemIndex=".$this->clickedItemIndex);
+// _NSLog("clickedItemIndex=".$this->clickedItemIndex);
 		parent::_collectEvents();	// and from all direct subviews (there shouldn't be any)
 		}
 	public function hitTest(NSEvent $event)
@@ -2734,8 +2751,8 @@ class NSTableView extends NSControl
 				parameter("width", $column->width());
 				if($row < $rows)
 					{
-// _NSLog($column);
-// _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
+_NSLog($column);
+_NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 // _NSLog($cell);
 					$cell->_setSuperView($this);
 					$this->drawingRow=$row;
@@ -2747,7 +2764,6 @@ class NSTableView extends NSControl
 					$cell->setObjectValue($item);
 					if($row >= 0 && is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_willDisplayCell_forTableColumn_row"))
 						$this->delegate->tableView_willDisplayCell_forTableColumn_row($this, $cell, $column, $row);
-
 					$style=array();
 					// copy cell colors to full table cell
 					if($cell->respondsToSelector("backgroundColor") && $cell->backgroundColor())
@@ -2796,8 +2812,8 @@ if($name)
        		parent::__construct();
 		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
-		$this->setName($name);
 		$this->_persist("stringValue", "string");
+		$this->setName($name);	//optionally rename
 		}
 	public function stringValue() { return $this->stringValue; }
 	public function attributedStringValue() { return $this->htmlValue; }
@@ -2867,11 +2883,10 @@ if($name)
 		}
 	public function setName($name)
 		{
-		$n=is_null($this->name)?$this->elementId."-string":$this->name;
-		_no_persist($n);
+		$old=is_null($this->name)?$this->elementId."-string":$this->name;
+		$new=is_null($name)?$this->elementId."-string":$name;
+		_rename_persist($old, $new);
 		$this->name=$name;
-		$n=is_null($this->name)?$this->elementId."-string":$this->name;
-		_persist($n);	// does this cancel any changes of the variable?
 // _NSLog("NSTextField name: ".$this->name);
 		}
 	public function name() { return $this->name; }
