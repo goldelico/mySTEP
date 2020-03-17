@@ -31,7 +31,7 @@ class AppController extends NSObject
 
 	public function buttonPressed(NSObject $sender)
 		{
-_NSLog("button pressed: ".$sender->classString()." title=".$sender->title());
+// _NSLog("button pressed: ".$sender->classString()." title=".$sender->title());
 		$this->status->setStringValue($sender->title());
 		}
 
@@ -163,6 +163,7 @@ function didFinishLoading()
 
 	$v=new NSTableView(array("first", "second", "third"));
 	$v->setDataSource($this);
+	$v->setAllowsColumnSelection(true);
 	foreach($v->columns() as $column)
 		$column->setEditable(false);
 	$grid->addSubview($v);
