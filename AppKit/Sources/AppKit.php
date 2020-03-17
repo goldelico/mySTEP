@@ -135,7 +135,7 @@ function _persist($name, NSObject $object=null, $property_name="", $default=null
 	$persistent_objects[$name]=$object;	// null means "global"
 	$persistent_properties[$name]=$property_name;
 	$persistent_defaults[$name]=$default;
-	if($property_name && isset($_POST[$name]))
+	if(!is_null($object) && $property_name && isset($_POST[$name]))
 		$object->$property_name=$_POST[$name];	// initialize from persistent store
 	}
 
@@ -149,21 +149,52 @@ function _no_persist($name)
 	unset($persistent_defaults[$name]);
 	}
 
+$deb=false;	// debug renaming of persist items
+
 function _rename_persist($old, $new)
 	{
 	global $persistent_objects;
 	global $persistent_properties;
 	global $persistent_defaults;
+global $deb;
+if($deb) _NSLog("$old -> $new");
 	if($old == $new) return;
-	if(!isset($persistent_objects[$old])) return;	// isn't persisted - so there is nothing to rename
-	// also match names with suffix if we rename just the (parent) element-id!
-	// $old or $new may be null but shouldn't
-	// we may be able to get rid of this renaming if the $object has a method to provide the name
-// _NSLog("rename persists $old -> $new");
-	// loop and do the same for subpatterns
-	_persist($new, $persistent_objects[$old], $persistent_properties[$old], $persistent_defaults[$old]);	// may read/update!
-	_no_persist($old);
+	foreach(array_keys($persistent_objects) as $name)
+		{
+		if($name === $old)
+			{
+if($deb)
+{
+_NSLog("found $old -> $new - $name");
+_NSLog($persistent_objects[$name]);
+_NSLog($persistent_properties[$name]);
+_NSLog($persistent_defaults[$name]);
+}
+			_persist($new, $persistent_objects[$name], $persistent_properties[$name], $persistent_defaults[$name]);	// make a copy and read/update the property!
+			_no_persist($name);	// delete old from _write_persistent()
+			continue;
+			}
+		$sidx=strlen($old);
+		if(substr($name, 0, $sidx+1) == $old."-")
+			{ // there is a -suffix and prefix is matching
+			$nnew=$new.substr($name, $sidx);
+if($deb)
+{
+_NSLog("found $old -> $new - $name -- $nnew");
+}
+			_persist($nnew, $persistent_objects[$name], $persistent_properties[$name], $persistent_defaults[$name]);	// make a copy and read/update the property!
+			_no_persist($name);	// delete old from _write_persistent()
+			}
+		}
 	}
+
+if($deb)
+{
+_persist("test-123-string");
+_persist("test-123");
+_rename_persist("test-123", "test-123-1-2");
+$deb=false;
+}
 
 function _write_persistent()
 	{
@@ -404,6 +435,8 @@ class NSResponder extends NSObject
 	public function _setElementId($id)
 		{ // used when displaying as NSCell in NSTableView
 		_rename_persist($this->elementId, $id);
+		self::$objects[$id]=$this;
+		unset(self::$objects[$this->elementId]);
 		$this->elementId=$id;
 		}
 }
@@ -436,7 +469,7 @@ class NSApplication extends NSResponder
 
 	public function queueEvent(NSEvent $event)
 		{
-_NSLog("queueEvent: ".$event->description());
+// _NSLog("queueEvent: ".$event->description());
 		$this->eventQueue[]=$event;
 		}
 
@@ -1170,8 +1203,8 @@ _NSLog("$row $column $submit");
 			{
 /*
  * In JS Mode, e() has triggered the POST and
- * _POST['NSEvent'] is set to the object element id.
- * _eventIsForMe returns true.
+ * _POST['NSEvent'] is set to some object element id.
+ * Not necessarily us.
  *
  * In non-JS mode (i.e. onclick is ignored)
  * "ck" returns "on" if a checkbox/radio is active.
@@ -1180,14 +1213,14 @@ _NSLog("$row $column $submit");
  */
 // _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
 // _NSLog($_POST);
-			if($this->_eventIsForMe())
-				{ // e(something) triggered - store state in separate variable
-_NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
+			if(!is_null(_read_persist("NSEvent")))
+				{ // e(something) triggered (potentially by other object) - store state in separate variable
+// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
 				}
 			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
-_NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
+// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
 				}
 			else
 				$this->state=NSOffState; // non-JS mode and seems to be off
@@ -2378,7 +2411,7 @@ class NSTabView extends NSControl
 		}
 	public function selectTabViewItemAtIndex($index)
 		{
-_NSLog("selectTabViewItemAtIndex $index");
+// _NSLog("selectTabViewItemAtIndex $index");
 		if($index < 0 || $index >= count($this->tabViewItems))
 			return;	// ignore (or could rise an exception)
 		if($this->tabViewItems[$index]->isHidden())
@@ -2389,7 +2422,7 @@ _NSLog("selectTabViewItemAtIndex $index");
 		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
 			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[$index]);
 		$this->selectedIndex=$index;
-_NSLog("selectedIndex=".$this->selectedIndex);
+// _NSLog("selectedIndex=".$this->selectedIndex);
 		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
 			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
 // _NSLog("selectTabViewItemAtIndex $index done");
@@ -2548,7 +2581,11 @@ class NSTableView extends NSControl
 	protected $delegate;
 	protected $dataSource;
 	protected $visibleRows;
-	protected $columnsSelectable=false;
+	protected $allowsColumnSelection=false;
+	// allowsEmtpySelection
+	// allowsMultipleSelection
+	// allowsColumnResizing
+	// allowsColumnReordering
 	public $selectedRow=-1;
 	public $selectedColumn=-1;
 	protected $clickedRow;
@@ -2593,6 +2630,8 @@ class NSTableView extends NSControl
 	public function numberOfColumns() { return count($this->headers); }
 	public function doubleAction() { return $this->doubleAction; }
 	public function setDoubleAction($sel) { $this->doubleAction=$sel; }
+	public function allowsColumnSelection() { return $this->allowsColumnSelection; }
+	public function setAllowsColumnSelection($flag) { $this->allowsColumnSelection=$flag; }
 	public function reloadData() { $this->setNeedsDisplay(); }
 	public function columns()
 		{
@@ -2658,10 +2697,10 @@ class NSTableView extends NSControl
 		}
 	public function selectColumn($col, $extend=false)
 		{
-		NSLog("selectColumn $column extend ".($extend?"yes":"no"));
+		NSLog("selectColumn $col extend ".($extend?"yes":"no"));
 		$this->selectedRow=-1;
 		// if ! extend -> delete previous otherwise merge into set
-		$this->selectedColumn=$column;
+		$this->selectedColumn=$col;
 		$this->setNeedsDisplay();
 		$delegate=$this->delegate();
 		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
@@ -2669,10 +2708,11 @@ class NSTableView extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{
+// if we make s() encode MouseEvent.shiftKey/altKey/metaKey we could handle extend-selection modifiers
 		$pos=$event->position();
 		$this->clickedColumn=$pos['x'];
 		$this->clickedRow=$pos['y'];
-		if($this->columnsSelectable && $this->clickedRow == -1)
+		if($this->allowsColumnSelection && $this->clickedRow == -1)
 			{
 			$this->selectColumn($this->clickedColumn);
 			return;
@@ -2751,8 +2791,8 @@ class NSTableView extends NSControl
 				parameter("width", $column->width());
 				if($row < $rows)
 					{
-_NSLog($column);
-_NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
+// _NSLog($column);
+// _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 // _NSLog($cell);
 					$cell->_setSuperView($this);
 					$this->drawingRow=$row;
@@ -2791,7 +2831,7 @@ _NSLog("row: ".$row." col:".$column->identifier()." item:".$item);
 	
 class NSTextField extends NSControl
 {
-	public $stringValue;	// should this be a property of NSControl?
+	public $stringValue="";	// should this be a property of NSControl?
 	protected $placeholder="";
 	protected $htmlValue;
 	protected $backgroundColor;
@@ -2833,6 +2873,7 @@ if($name)
 // $name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
 // _NSLog("setAttributedStringValue for ".$name.": $astr");
 		if($this->htmlValue === $astr) return;
+		$this->stringValue=$astr;
 		$this->htmlValue=$astr;
 		$this->isEditable=false;
 		$this->wraps=true;
@@ -2846,7 +2887,7 @@ if($name)
 		if($this->isEditable == $flag) return;
 		$this->isEditable=$flag;
 		if(!is_null($name))
-			$this->name=$name;	// override (must be done in didFinishLoading())
+			$this->setName($name);	// override
 		$this->setNeedsDisplay();
 		}
 	public function placeholderString() { return $this->placeholder; }
@@ -2952,6 +2993,7 @@ if($name)
 			}
 		else
 			{
+// _NSLog($this->elementId." string=".$this->stringValue." html=".$this->htmlValue);
 			$style=array();
 			if($this->backgroundColor)
 				$style[]="background-color: ".$this->backgroundColor;
@@ -3152,7 +3194,7 @@ class NSWindow extends NSResponder
 	public function sendEvent(NSEvent $event)
 		{
 		global $NSApp;
-_NSLog("sendEvent: ".$event->description());
+// _NSLog("sendEvent: ".$event->description());
 		$window=$event->window();
 		if(is_null($window))
 			$window=$NSApp->mainWindow();
@@ -3712,8 +3754,8 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 		echo '$ROOT is not set globally!';
 		exit;
 		}
- _NSLog("_POST:");
- _NSLog($_POST);
+ // _NSLog("_POST:");
+ // _NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	$mainBundle=NSBundle::mainBundle();
 	$pclass=$mainBundle->principalClass();
