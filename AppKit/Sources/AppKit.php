@@ -204,16 +204,16 @@ function _write_persistent()
 	foreach($persistent_objects as $name => $object)
 		{
 		$variable=$persistent_properties[$name];
-		NSLog(@"persist $name $object $variable");
+// _NSLog(@"persist $name $object $variable");
 		if($variable)
 			{
-			if($object->$variable == $persistent_defaults[$name])
+			$value=$object->$variable;
+			if($value == $persistent_defaults[$name])
 				continue;	// has default value
 			html("<input");
 			parameter("type", "hidden");
 			parameter("name", $name);
-			// JSON-Encode values?
-			parameter("value", $object->$variable);
+			parameter("value", _htmlentities($value));
 			}
 		else
 			{
