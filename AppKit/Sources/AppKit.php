@@ -226,6 +226,56 @@ function _write_persistent()
 		}
 	}
 
+class _NSPersist extends NSObject
+	{
+	protected $object;
+	protected $property;	// property name i.e. $object->$property (must be public)
+	protected $default;
+	protected $name;	// external name
+
+	public function name()
+		{
+		if(!is_null($this->name))
+			return $this->name;
+		return $this->object->elementId()."-".$this->property;
+		}
+
+	public function __construct(NSResponder $object, $property)
+		{
+		parent::__construct();
+		$this->object=$object;
+		$this->property=$property;
+		$this->default=$object->$property;	// read default
+		$id=$this->name();
+		if(isset($_POST[$id]))
+			$object->$property=$_POST[$id];	// initialize from persistent store
+		$object->_persists[$property]=$this;	// register
+		}
+
+	public function setName($name)
+		{
+		$this->name=$name;
+		$id=$this->name();
+		$property=$this->property;
+		if(isset($_POST[$id]))
+			$this->object->$property=$_POST[$id];	// initialize from persistent store
+		}
+
+	public function write()
+		{
+		$id=$this->name();
+		$property=$this->property;
+		$value=$this->object->$property;
+		if($value === $this->default)
+			return;	// (still) has the default value
+		html("<input");
+		parameter("type", "hidden");
+		parameter("name", $id);
+		parameter("value", _htmlentities($value));
+		html(">\n");
+		}
+	}
+
 class NSGraphicsContext extends NSObject
 	{
 	protected static $currentContext;
@@ -340,14 +390,23 @@ global $NSApp;
 
 class NSResponder extends NSObject
 {
-	protected static $objects=array();	// all objects
-	protected $elementId;	// unique object id
+	protected static $objects=array();	// all objects for _objectForId
+
+	protected $elementId;			// unique object id
+	public $_persists=array();		// all persistent properties
+
 	public function __construct()
 		{
 		parent::__construct();
 		$this->elementId=1+count(self::$objects);	// assign element numbers
 		self::$objects[$this->elementId]=$this;	// store reference
-	}
+		}
+
+	public function _write_persist()
+		{
+		foreach($this->_persists as $persistor)
+			$persistor->write();
+		}
 
 	/* usage: $this->_read_persist("state") to get current state - mainly in _collectEvents */
 
@@ -830,6 +889,11 @@ class NSView extends NSResponder
 			$view->_displayDone();
 // _NSLog("called ".$view->classString()."->_displayDone()");
 			}
+		}
+	public function _write_persist()
+		{ // notify all subviews
+		foreach($this->subviews as $view)
+			$view->_write_persist();
 		}
 	public function draw()
 		{ // draw our own contents
@@ -1459,7 +1523,7 @@ class NSMenuView extends NSMenu
 		$this->isHorizontal=$horizontal;
 //		NSLog($this->isHorizontal?"horizontal":"vertical");
 		$menuItems=array();
-		$this->_new_persist("selectedItem");
+		$this->_persist("selectedItem");
 		}
 
 	public function menuItems() { return $this->menuItems; }
@@ -2064,10 +2128,10 @@ class NSMatrix extends NSControl
 		{
 		parent::__construct();
 		$this->columns=$cols;
-		$this->_new_persist("selectedRow");
-		$this->_new_persist("selectedColumn");
-		_new_persist("clickedRow");
-		_new_persist("clickedColumn");
+		$this->_persist("selectedRow");
+		$this->_persist("selectedColumn");
+		_persist("clickedRow");
+		_persist("clickedColumn");
 		}
 
 	public function numberOfColumns() { return $this->columns; }
@@ -2608,6 +2672,8 @@ class NSTableView extends NSControl
 		NSLog($this->classString());
 		$this->_persist("selectedRow");
 		$this->_persist("selectedColumn");
+		_persist("clickedRow");
+		_persist("clickedColumn");
 		}
 	public function delegate() { return $this->delegate; }
 	public function setDelegate(NSObject $d=null) { $this->delegate=$d; }
@@ -3171,6 +3237,7 @@ class NSWindow extends NSResponder
 	protected $title;
 	protected $scrollView;
 	protected $heads="";
+	public $event;
 
 	public function contentView()
 		{
@@ -3194,7 +3261,10 @@ class NSWindow extends NSResponder
 		{
 		global $NSApp;
 		parent::__construct();
-		_persist("NSEvent");
+		(new _NSPersist($this, "event"))->setName("NSEvent");
+		$this->event="";	// may have read $_POST["NSEvent"]
+		// replaced _persist("NSEvent");
+		/* braucht es das eigentlich noch? */
 		_persist("clickedRow");
 		_persist("clickedColumn");
 		$this->scrollView=new NSScrollView();
@@ -3325,6 +3395,7 @@ class NSWindow extends NSResponder
 		$this->scrollView->_displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
 		_write_persistent();
+		$this->_write_persist();
 		html("</form>\n");
 		html("</body>\n");
 		html("</html>\n");
