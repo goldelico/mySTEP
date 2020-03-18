@@ -2853,7 +2853,7 @@ if($name)
 		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
 		$this->_persist("stringValue", "string");
-		$this->setName($name);	//optionally rename
+		$this->setName($name);	// optionally rename
 		}
 	public function stringValue() { return $this->stringValue; }
 	public function attributedStringValue() { return $this->htmlValue; }
@@ -2883,7 +2883,7 @@ if($name)
 	public function setEditable($flag, $name=null)
 		{
 if($name)
-	_NSLog("NSTextField setEditable with name (deprecated): $name");
+	_NSLog("NSTextField setEditable with name is deprecated: $name");
 		if($this->isEditable == $flag) return;
 		$this->isEditable=$flag;
 		if(!is_null($name))
@@ -2937,8 +2937,15 @@ if($name)
 // _NSLog($this);
 		$this->sendAction();
 		}
+
+/*
 	public function _collectEvents()
 		{
+// die Alternative ist den bisherigen Wert unter anderem Namen zu persistieren und hier nur das Eingabefeld mit dem neuen Wert abzufragen!
+// das ist zwingend wenn wir Changes erkennen wollen und eine action auslösen
+// also Grundprinzip: state/value/string separat persistieren
+// und persist und neue Werte aus User-Form trennen
+// <input> das ein View erzeugt schreibt einen -new (oder das was per setName definiert ist)
 		$name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
 		$str=_read_persist($name);
 // _NSLog("NSTextField _collectEvents for ".$name.": $str");
@@ -2947,6 +2954,8 @@ if($name)
 		// if changed, queue a change event?
 		parent::_collectEvents();
 		}
+*/
+
 	public function draw()
 		{
 		if(!is_null($this->font))
@@ -2974,6 +2983,8 @@ if($name)
 				parameter("placeholder", $this->placeholder);
 			$name=is_null($this->name)?$this->elementId."-string":$this->name;	// default or override name
 			parameter("name", $name);	// default or override name
+// die Alternative ist den bisherigen Wert unter anderem Namen zu persistieren!
+// dann braucht es auch keinen _no_persist
 			_no_persist($name);	// no need to separately persist
 			if($this->type != "password")
 				parameter("value", _htmlentities($this->stringValue));	// password is always shown cleared/empty for each redraw
