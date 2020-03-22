@@ -1989,8 +1989,8 @@ class NSMatrix extends NSControl
 	protected $columns=1;
 	public $selectedColumn=-1;
 	public $selectedRow=-1;
-	public $clickedColumn=-1;
-	public $clickedRow=-1;
+	protected $clickedColumn=-1;
+	protected $clickedRow=-1;
 	protected $border=0;
 	protected $width="100%";
 	protected $currentCell;
@@ -2003,8 +2003,6 @@ class NSMatrix extends NSControl
 		$this->columns=$cols;
 		new _NSPersist($this, "selectedRow");
 		new _NSPersist($this, "selectedColumn");
-		(new _NSPersist($this, "clickedRow"))->setName("clickedRow");
-		(new _NSPersist($this, "clickedColumn"))->setName("clickedColumn");
 		}
 
 	public function numberOfColumns() { return $this->columns; }
@@ -2103,9 +2101,10 @@ class NSMatrix extends NSControl
 	public function mouseDown(NSEvent $event)
 		{
 // _NSLog("mouseDown $this->elementId: $this->clickedRow / $this->clickedColumn");
+		$pos=$event->position();
+		$this->clickedColumn=$pos['x'];
+		$this->clickedRow=$pos['y'];
 		$this->selectRowColumn($this->clickedRow, $this->clickedColumn);
-		$this->clickedRow="";	// don't persist this value but keep the variable
-		$this->clickedColumn="";
 		$this->sendAction();
 		}
 
@@ -2528,8 +2527,8 @@ class NSTableView extends NSControl
 	// allowsColumnReordering
 	public $selectedRow=-1;
 	public $selectedColumn=-1;
-	public $clickedRow=-1;
-	public $clickedColumn=-1;
+	protected $clickedRow=-1;
+	protected $clickedColumn=-1;
 	protected $doubleAction;
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
@@ -2547,8 +2546,6 @@ class NSTableView extends NSControl
 			}
 		new _NSPersist($this, "selectedRow");
 		new _NSPersist($this, "selectedColumn");
-		(new _NSPersist($this, "clickedRow"))->setName("clickedRow");
-		(new _NSPersist($this, "clickedColumn"))->setName("clickedColumn");
 // _NSLog($this->classString());
 		}
 	public function delegate() { return $this->delegate; }
@@ -2634,8 +2631,12 @@ class NSTableView extends NSControl
 		$this->selectedRow=$row;
 		$this->setNeedsDisplay();
 		$delegate=$this->delegate();
-		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
-			$delegate->selectionDidChange($this);
+// _NSLog("selectRow");
+// _NSLog("respondsToSelector = ".(0+$delegate->respondsToSelector("tableViewSelectionDidChange")));
+// _NSLog($delegate);
+		if(is_object($delegate) && $delegate->respondsToSelector("tableViewSelectionDidChange"))
+// FIXME: protect agains recursion!!!
+			$delegate->tableViewSelectionDidChange($this);
 		}
 	public function selectColumn($col, $extend=false)
 		{
@@ -2645,12 +2646,15 @@ class NSTableView extends NSControl
 		$this->selectedColumn=$col;
 		$this->setNeedsDisplay();
 		$delegate=$this->delegate();
-		if(is_object($delegate) && $delegate->respondsToSelector("selectionDidChange"))
-			$delegate->selectionDidChange($this);
+		if(is_object($delegate) && $delegate->respondsToSelector("tableViewSelectionDidChange"))
+			$delegate->tableViewSelectionDidChange($this);
 		}
 	public function mouseDown(NSEvent $event)
 		{
 // if we make s() encode MouseEvent.shiftKey/altKey/metaKey we could handle extend-selection modifiers
+		$pos=$event->position();
+		$this->clickedColumn=$pos['x'];
+		$this->clickedRow=$pos['y'];
 		if($this->allowsColumnSelection && $this->clickedRow == -1)
 			{
 			$this->selectColumn($this->clickedColumn);
@@ -2661,8 +2665,6 @@ class NSTableView extends NSControl
 			// then call doubleAction (if defined) or check if NSTableColumn is editable
 			$this->selectRow($this->clickedRow);
 			}
-		$this->clickedRow="";	// don't persist this value but keep the variable
-		$this->clickedColumn="";
 		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
 	public function display()
@@ -3046,6 +3048,7 @@ class NSScrollView extends NSView
        		parent::__construct();
 		new _NSPersist($this, "scrollerX");
 		new _NSPersist($this, "scrollerY");
+// FIXME: is this really global? Conflicts if we have multiple NSScrollViews
 		(new _NSPersist($this, "scrollX"))->setName("scrollX");
 		(new _NSPersist($this, "scrollY"))->setName("scrollY");
 		}
@@ -3074,8 +3077,8 @@ class NSScrollView extends NSView
 				html("window.scrollTo($x, $y)");
 				html("</script>\n");
 				}
-			$this->scrollX="";	// may have read $_POST["NSEvent"]
-			$this->scrollY="";	// may have read $_POST["NSEvent"]
+			$this->scrollX="";	// may have read $_POST["scrollX"]
+			$this->scrollY="";	// may have read $_POST["scrollY"]
 			}
 		else
 			{ // embed subview into Scrollview - use e.g. setFrameSize(NSMakeSize("100%", "500px"))
@@ -3097,7 +3100,22 @@ class NSWindow extends NSResponder
 	protected $title;
 	protected $scrollView;
 	protected $heads="";
-	public $event;
+	public $event=-1;
+	public $clickedRow=-1;
+	public $clickedColumn=-1;
+
+	public function __construct()
+		{
+		global $NSApp;
+		parent::__construct();
+		(new _NSPersist($this, "event"))->setName("NSEvent");
+		(new _NSPersist($this, "clickedRow"))->setName("clickedRow");
+		(new _NSPersist($this, "clickedColumn"))->setName("clickedColumn");
+		$this->scrollView=new NSScrollView();
+		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
+		if(is_null($NSApp->mainWindow()))
+			$NSApp->setMainWindow($this);
+		}
 
 	public function contentView()
 		{
@@ -3117,17 +3135,6 @@ class NSWindow extends NSResponder
 	public function setTitle($title) { $this->title=$title; }
 	public function _addToHead($line) { $this->heads.=$line."\n"; }
 
-	public function __construct()
-		{
-		global $NSApp;
-		parent::__construct();
-		(new _NSPersist($this, "event"))->setName("NSEvent");
-		$this->event="";	// may have read $_POST["NSEvent"]
-		$this->scrollView=new NSScrollView();
-		$this->scrollView->addSubView(new NSClipView());	// add empty container for more subviews
-		if(is_null($NSApp->mainWindow()))
-			$NSApp->setMainWindow($this);
-		}
 	public function sendEvent(NSEvent $event)
 		{
 		global $NSApp;
@@ -3255,7 +3262,9 @@ class NSWindow extends NSResponder
 		$this->scrollView->display();	// handles isHidden
 		$this->scrollView->_displayDone();	// can handle special persistence processing
 		// append all values we want (still) to see persisted if someone presses a send button in the form
-//		_write_persistent();
+		$this->event="";	// don't persist but keep the variable
+		$this->clickedRow="";	// don't persist but keep the variable
+		$this->clickedColumn="";	// don't persist but keep the variable
 		$this->_write_persist();
 		html("</form>\n");
 		html("</body>\n");
