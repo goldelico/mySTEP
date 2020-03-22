@@ -45,6 +45,11 @@ class AppController extends NSObject
 		return $column->identifier()." ".$row;
 		}
 
+	public function tableViewSelectionDidChange(NSTableView $tableView)
+		{
+		$this->status->setStringValue("Table selection: ".$tableView->selectedColumn()." / ".$tableView->selectedRow());
+		}
+
 function didFinishLoading()
 	{
 
@@ -163,6 +168,36 @@ function didFinishLoading()
 	/* embedded text field - does it persist if hidden? */
 	$c=new NSTextField();
 	$v->addTabViewItem(new NSTabViewItem("4", $c));
+	/* embed a table */
+	$c=new NSTableView(array("a", "b", "c"));
+	$c->setDataSource($this);
+	$c->setDelegate($this);
+	$c->setAllowsColumnSelection(true);
+	foreach($c->columns() as $column)
+		$column->setEditable(false);
+	$c->columns()[0]->setEditable(true);	// make first column editable
+	$c->columns()[2]->setDataCell(new NSButton("value", "CheckBox"));	// make checkbox
+	$v->addTabViewItem(new NSTabViewItem("5", $c));
+	/* embedded Matrix with Radio Buttons */
+	$c=new NSMatrix(2);
+	$c->setActionAndTarget('buttonPressed', $this);
+	for($row=0; $row<2; $row++)
+		for($col=0; $col<2; $col++)
+			{
+			$button=new NSButton("radio $row/$col", "Radio");
+			$c->addSubview($button);
+			}
+	$v->addTabViewItem(new NSTabViewItem("6", $c));
+	/* embedded Matrix with Checkboxes */
+	$c=new NSMatrix(2);
+	$c->setActionAndTarget('buttonPressed', $this);
+	for($row=0; $row<2; $row++)
+		for($col=0; $col<2; $col++)
+			{
+			$button=new NSButton("check $row/$col", "CheckBox");
+			$c->addSubview($button);
+			}
+	$v->addTabViewItem(new NSTabViewItem("7", $c));
 
 	/* another popupbutton to check if they act independently */
 	$v=new NSPopUpButton();
@@ -181,6 +216,7 @@ function didFinishLoading()
 	/* a table which allows column selection */
 	$v=new NSTableView(array("first", "second", "third"));
 	$v->setDataSource($this);
+	$v->setDelegate($this);
 	$v->setAllowsColumnSelection(true);
 	foreach($v->columns() as $column)
 		$column->setEditable(false);
