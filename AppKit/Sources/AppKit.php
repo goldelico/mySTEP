@@ -2566,7 +2566,7 @@ class NSTableView extends NSControl
 		$this->setNeedsDisplay();
 		}
 	public function numberOfRows() { if(!isset($this->dataSource)) return 1; return $this->dataSource->numberOfRowsInTableView($this); }
-	public function numberOfColumns() { return count($this->headers); }
+	public function numberOfColumns() { return count($this->columns); }
 	public function doubleAction() { return $this->doubleAction; }
 	public function setDoubleAction($sel) { $this->doubleAction=$sel; }
 	public function allowsColumnSelection() { return $this->allowsColumnSelection; }
