@@ -140,26 +140,32 @@ class _NSPersist extends NSObject
 		$this->object=$object;
 		$this->property=$property;
 		$this->default=$object->$property;	// read default
-		$id=$this->name();
-		if(isset($_POST[$id]))
-			$object->$property=$_POST[$id];	// initialize from persistent store
 		$object->_persists[$property]=$this;	// register
+		$this->read();
 		}
 
 	public function setName($name)
 		{
 		$this->name=$name;
 		$id=$this->name();
-		$property=$this->property;
-		if(isset($_POST[$id]))
-			$this->object->$property=$_POST[$id];	// initialize from persistent store
+		$this->read();
 		}
 
 	public function unpersist()
-		{
+		{ // modify default so that it will not be persisted
 		$property=$this->property;
 		$value=$this->object->$property;
 		$this->default=$value;
+		}
+
+	public function read()
+		{
+		$id=$this->name();
+		if(isset($_POST[$id]))
+			{
+			$property=$this->property;
+			$this->object->$property=$_POST[$id];	// initialize from persistent store
+			}
 		}
 
 	public function write()
@@ -364,7 +370,7 @@ class NSResponder extends NSObject
 		unset(self::$objects[$this->elementId]);
 		$this->elementId=$id;
 		foreach($this->_persists as $persistor)
-			;	// make it re-read nrew value
+			$persistor->read(); // make it re-read new value
 		}
 }
 
@@ -1081,7 +1087,7 @@ class NSButton extends NSControl
 		}
 	public function keyEquivalent() { return $this->keyEquivalent; }
 	public function setKeyEquivalent($str) { $this->keyEquivalent=$str; }
-	public function _getEnclosingMatrix(&$row, &$column, &$submit)
+	public function _getEnclosingTable(&$row, &$column, &$submit)
 		{
 		$super=$this->superview();
 		$row=null;
@@ -1091,16 +1097,6 @@ class NSButton extends NSControl
 		while(!is_null($super))
 			{ // loop because we may be a sub-sub-view of a Matrix or Table...
 // _NSLog($super->classString());
-			if($super->respondsToSelector("getRowColumnOfCell"))
-				{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
-// _NSLog("NSMatrix target");
-				if($super->getRowColumnOfCell($row, $column, $this))
-					{
-					if(!is_null($super->action()))
-						$submit=true;
-					}
-				break;
-				}
 			if($super->respondsToSelector("_getRowColumnOfCell"))
 				{ // appears to be a NSTableColumn cell - we could also check $super->isKindOfClass("NSTableView")
 // _NSLog("NSTable target");
@@ -1115,19 +1111,26 @@ class NSButton extends NSControl
 	public function mouseDown(NSEvent $event)
 		{ // this button may have been pressed
 // _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
-		// if radio button or checkbox, watch for value
-		// but then the mouseDown is handled by the NSMatrix superview
-		// FIXME: handle checkbox tristate
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
 			$this->setNextState();	// toggle before sending action (why?)
-		if(is_null($this->action()))
-			{ // no specific action defined
-			$super=$this->_getEnclosingMatrix($row, $column, $submit);
-_NSLog($super);
-_NSLog("$row $column $submit");
+		if(!$this->action())
+			{ // no specific action defined - find out if we should foward to a matrix action
+// _NSLog("action is_null");
+			$super=$this->superview();
+			while(!is_null($super))
+				{ // walk upwards because we may be a sub-sub-view of a Matrix or Table...
+// _NSLog($super->classString());
+				if($super->respondsToSelector("_clickedCell"))
+					{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+// _NSLog("NSMatrix target");
+					$super->_clickedCell($event, $this);
+					break;
+					}
+				$super=$super->superview();
+				}
 			// if we are embedded in a tableview a click should trigger the
 			// tableView:setObjectValue:forTableColumn:row: callback
-			// and in a NSMatrix we should trigger the matrix target/action
+// _NSLog($super);
 			}
 		else
 			$this->sendAction();
@@ -1183,7 +1186,7 @@ _NSLog("$row $column $submit");
 			parameter("style", "background: ".$this->backgroundColor());
 		if($this->textColor)
 			parameter("style", "color: ".$this->textColor());
-		$super=$this->_getEnclosingMatrix($row, $column, $submit);
+		$super=$this->_getEnclosingTable($row, $column, $submit);
 		if($islink)
 			{ // linked button
 // _NSLog("link target");
@@ -1194,8 +1197,8 @@ _NSLog("$row $column $submit");
 		else
 			{ // standard action button
 			// parameter("name", $super->elementId."-ck");
-			if(!is_null($super) && is_null($this->action))
-				{ // embedded in NSTable or NSMatrix with no specific action
+			if(!is_null($super) && !$this->action)
+				{ // no specific action and embedded in NSTable or NSMatrix 
 				$onclick="e('".$super->elementId."');";
 				}
 			else
@@ -1983,6 +1986,10 @@ class NSCollectionView extends NSControl
 }
 
 // FIXME: handle multiple selections...
+// FIXME: define a prototype
+// FIXME: allow to add/remove rows/columns
+// Matrix is just sort of a NSCollectionView
+// all children have their own elementId
 
 class NSMatrix extends NSControl
 	{ // matrix of several buttons or fields - radio buttons are grouped
@@ -1993,9 +2000,7 @@ class NSMatrix extends NSControl
 	protected $clickedRow=-1;
 	protected $border=0;
 	protected $width="100%";
-	protected $currentCell;
-	protected $currentRow;
-	protected $currentColumn;
+	protected $mode="NSListModeMatrix";
 
 	public function __construct($cols=1)
 		{
@@ -2003,6 +2008,11 @@ class NSMatrix extends NSControl
 		$this->columns=$cols;
 		new _NSPersist($this, "selectedRow");
 		new _NSPersist($this, "selectedColumn");
+		}
+
+	public function setMode($mode)
+		{
+		$this->mode=$mode;
 		}
 
 	public function numberOfColumns() { return $this->columns; }
@@ -2025,50 +2035,14 @@ class NSMatrix extends NSControl
 		return ($this->selectedColumn<$this->numberOfColumns())?$this->selectedColumn:-1;
 		}
 
-	public function _setElementId($id)
-		{ // special because we must make the subelements unique as well
-		parent::_setElementId($id);
-		$row=0;
-		$col=0;
-		foreach($this->subviews as $item)
-			{
-			$item->_setElementId("$id-$row-$col");	// make subelements unique
-			$col++;
-			if($col >= $this->columns)
-				{
-				$row++;
-				$col=0;
-				}
-			}
-		}
-
 	public function getRowColumnOfCell(&$row, &$col, $cell)
 		{ // here we use 0..n-1 coordinates!
-		if($cell === $this->currentCell)
-			{ // same as last time...
-			$row=$this->currentRow;
-			$col=$this->currentColumn;
-			return true;
-			}
-		$row=0;
-		$col=0;
-		foreach($this->subviews as $item)
-			{
-			if($item == $cell)
-				{
-				$this->currentRow=$row;
-				$this->currentColumn=$col;
-				$this->currentCell=$cell;
-				return true;
-				}
-			$col++;
-			if($col >= $this->columns)
-				{
-				$row++;
-				$col=0;
-				}
-			}
-		return false;
+		$idx=array_search($cell, array_values($this->subviews()));
+		if($idx === false)
+			return false;
+		$row=(int)($idx/$this->columns);
+		$col=(int)($idx%$this->columns);
+		return true;
 		}
 
 	public function cellAtRowColumn($row, $column)
@@ -2088,30 +2062,40 @@ class NSMatrix extends NSControl
 
 	public function selectRowColumn($row, $column)
 		{
-// unselect auf vorheriges?
+		if($this->mode == "NSRadioModeMatrix")
+			{ // unselect previous
+			$item=$this->selectedCell();
+			if(!is_null($item))
+				$item->setSelected(false);	// unselect previous item
+			}
 		$this->selectedRow=$row;
 		$this->selectedColumn=$column;
 // _NSLog("select new $this->elementId: $this->selectedRow / $this->selectedColumn");
-		$item=$this->cellAtRowColumn($row, $column);
-		if(!is_null($item))
-			$item->setSelected(true);	// set item selected
+		if($this->mode == "NSRadioModeMatrix")
+			{ // select new
+			$item=$this->selectedCell();
+			if(!is_null($item))
+				$item->setSelected(true);	// set item selected
+			}
 		$this->setNeedsDisplay();
 		}
 
 	public function mouseDown(NSEvent $event)
 		{
 // _NSLog("mouseDown $this->elementId: $this->clickedRow / $this->clickedColumn");
-		$pos=$event->position();
-		$this->clickedColumn=$pos['x'];
-		$this->clickedRow=$pos['y'];
 		$this->selectRowColumn($this->clickedRow, $this->clickedColumn);
 		$this->sendAction();
 		}
 
-	public function _collectEvents()
+	public function _clickedCell(NSEvent $event, NSView $cell)
 		{
-// _NSLog("init $this->elementId: $this->selectedRow / $this->selectedColumn");
-		parent::_collectEvents();
+// _NSLog("_clickedCell");
+		if($this->getRowColumnOfCell($row, $col, $cell))
+			{
+			$this->clickedRow=$row;
+			$this->clickedColumn=$col;
+			$this->mouseDown($event);
+			}
 		}
 
 	public function display()
@@ -2126,20 +2110,22 @@ class NSMatrix extends NSControl
 		html(">\n");
 		$row=0;
 		$col=0;
+		if($this->mode == "NSRadioModeMatrix" && ($this->selectedRow < 0 || $this->selectedColumn < 0))
+			$this->selectRowColumn(0, 0);	// select first	
 		foreach($this->subviews as $item)
 			{
 			if($col == 0)
 				html("<tr>");
 			html("<td");
 			parameter("class", "NSMatrixItem");
+			parameter("id", $this->elementId."-$row-$col");
 			if($this->align)
 				parameter("align", $this->align);
 			html(">\n");
+/*
 			if($item->respondsToSelector("setSelected"))
 				$item->setSelected($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected state
-			$this->currentCell=$item;	// use cache when calling getRowColumnOfCell from within $item->display()
-			$this->currentRow=$row;
-			$this->currentColumn=$col;
+*/
 			$item->display();
 			html("</td>");
 			$col++;
