@@ -380,6 +380,7 @@ class NSApplication extends NSResponder
 	protected $mainWindow;
 	protected $mainMenu;
 	protected $eventQueue=array();
+	protected $currentEvent;
 
 	public function _url($withrequest=true)
 		{ // the URL of the script we are currently running
@@ -496,7 +497,24 @@ class NSApplication extends NSResponder
 	public function sendActionToTarget(NSResponder $from, $action, $target)
 		{
 		if(!$action)
-			return;	// no action is set
+			{ // no specific action defined - find out if we should foward to a matrix action superview
+// _NSLog("action is_null");
+			$super=$from->superview();
+			while(!is_null($super))
+				{ // walk upwards because we may be a sub-sub-view of a Matrix or Table...
+// _NSLog($super->classString());
+				if($super->respondsToSelector("_clickedCell"))
+					{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+// _NSLog("NSMatrix target");
+					$super->_clickedCell($this->currentEvent, $from);
+					return;
+					}
+				$super=$super->superview();
+				}
+			// if we are embedded in a tableview a click should trigger the
+			// tableView:setObjectValue:forTableColumn:row: callback
+			return;	// ignore
+			}
 		if(!isset($target))
 			{ // it $target does not exist -> take first responder
 // _NSLog("sendAction $action to first responder");
@@ -586,7 +604,10 @@ class NSApplication extends NSResponder
 		while(true)
 			{
 			foreach($this->eventQueue as $event)
+				{
+				$this->currentEvent=$event;
 				$this->mainWindow->sendEvent($event);	// deliver all events
+				}
 			$this->updateWindows();	// and finally display
 			// could we run an AJAX loop here?
 			return; // not really a loop in a http response...
@@ -1113,27 +1134,7 @@ class NSButton extends NSControl
 // _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
 			$this->setNextState();	// toggle before sending action (why?)
-		if(!$this->action())
-			{ // no specific action defined - find out if we should foward to a matrix action
-// _NSLog("action is_null");
-			$super=$this->superview();
-			while(!is_null($super))
-				{ // walk upwards because we may be a sub-sub-view of a Matrix or Table...
-// _NSLog($super->classString());
-				if($super->respondsToSelector("_clickedCell"))
-					{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
-// _NSLog("NSMatrix target");
-					$super->_clickedCell($event, $this);
-					break;
-					}
-				$super=$super->superview();
-				}
-			// if we are embedded in a tableview a click should trigger the
-			// tableView:setObjectValue:forTableColumn:row: callback
-// _NSLog($super);
-			}
-		else
-			$this->sendAction();
+		$this->sendAction();
 		}
 	public function _collectEvents()
 		{
@@ -1994,8 +1995,8 @@ class NSCollectionView extends NSControl
 class NSMatrix extends NSControl
 	{ // matrix of several buttons or fields - radio buttons are grouped
 	protected $columns=1;
-	public $selectedColumn=-1;
-	public $selectedRow=-1;
+	public $selectedColumn=0;
+	public $selectedRow=0;
 	protected $clickedColumn=-1;
 	protected $clickedRow=-1;
 	protected $border=0;
@@ -2110,8 +2111,6 @@ class NSMatrix extends NSControl
 		html(">\n");
 		$row=0;
 		$col=0;
-		if($this->mode == "NSRadioModeMatrix" && ($this->selectedRow < 0 || $this->selectedColumn < 0))
-			$this->selectRowColumn(0, 0);	// select first	
 		foreach($this->subviews as $item)
 			{
 			if($col == 0)
@@ -2122,10 +2121,8 @@ class NSMatrix extends NSControl
 			if($this->align)
 				parameter("align", $this->align);
 			html(">\n");
-/*
-			if($item->respondsToSelector("setSelected"))
+			if($this->mode == "NSRadioModeMatrix" && $item->respondsToSelector("setSelected"))
 				$item->setSelected($row == $this->selectedRow && $col == $this->selectedColumn);	// set item selected state
-*/
 			$item->display();
 			html("</td>");
 			$col++;
