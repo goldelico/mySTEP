@@ -50,6 +50,11 @@ class AppController extends NSObject
 		return $column->identifier()." ".$row;
 		}
 
+	public function tableView_setObjectValue_forTableColumn_row(NSTableView $table, $value, NSTableColumn $column, $row)
+		{
+		$this->status->setStringValue("Table: ".$tableView->selectedColumn()." / ".$tableView->selectedRow()." := $value");
+		}
+
 	public function tableViewSelectionDidChange(NSTableView $tableView)
 		{
 		$this->status->setStringValue("Table selection: ".$tableView->selectedColumn()." / ".$tableView->selectedRow());
