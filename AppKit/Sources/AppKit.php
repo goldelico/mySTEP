@@ -658,6 +658,12 @@ class NSView extends NSResponder
 	protected $hidden=false;
 	public function __construct()
 		{
+		global $lockViewHierarchy;
+		if($lockViewHierarchy)
+			{
+			_NSLog("BUG: view hierarchy is locked");
+			_NSLog($this);
+			}
 		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, 0, 0);
 		}
@@ -3732,6 +3738,8 @@ _NSLog("PNIB $nibname loaded - not working well");
 	$delegate=$NSApp->delegate();
 	if(is_object($delegate) && $delegate->respondsToSelector("didFinishLoading"))
 		$delegate->didFinishLoading();
+	global $lockViewHierarchy;
+	$lockViewHierarchy=true;
 // _NSLog($NSApp);
 	$NSApp->run();
 _NSLog("_POST:");
