@@ -385,4 +385,16 @@ TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// impli
 	XCTAssertEqual([obj doubleValue], 3.14159265358979323846264, @"");
 }
 
+- (void) testConvertData
+{
+	NSString *obj;
+	char *bytes="hello";
+	NSData *data=[NSData dataWithBytes:bytes length:strlen(bytes)];
+	obj=[[[NSString alloc] initWithData:nil encoding:NSUTF8StringEncoding] autorelease];
+	XCTAssertEqualObjects(obj, @"");	// returns empty string!
+	obj=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+	XCTAssertEqualObjects(obj, @"hello");	// converted
+	// more tests
+}
+
 @end
