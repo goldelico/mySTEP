@@ -498,13 +498,13 @@ class NSApplication extends NSResponder
 		{
 		if(!$action)
 			{ // no specific action defined - find out if we should foward to a matrix action superview
-// _NSLog("action is_null");
+_NSLog("action is_null");
 			$super=$from->superview();
 			while(!is_null($super))
 				{ // walk upwards because we may be a sub-sub-view of a Matrix or Table...
-// _NSLog($super->classString());
-				if($super->respondsToSelector("_clickedCell"))
-					{ // appears to be embedded in a Matrix - we could also check $super->isKindOfClass("NSMatrix")
+_NSLog($super->classString());
+				if($super->respondsToSelector("_clickedCell"))	// we could also check $super->isKindOfClass("NSMatrix")
+					{ // appears to be embedded in a Matrix
 // _NSLog("NSMatrix target");
 					$super->_clickedCell($this->currentEvent, $from);
 					return;
@@ -513,6 +513,7 @@ class NSApplication extends NSResponder
 				}
 			// if we are embedded in a tableview a click should trigger the
 			// tableView:setObjectValue:forTableColumn:row: callback
+_NSLog("null action ignored");
 			return;	// ignore
 			}
 		if(!isset($target))
@@ -1160,14 +1161,12 @@ class NSButton extends NSControl
 // _NSLog($_POST);
 			if(!is_null(_read_persist("NSEvent")))
 				{ // e(something) triggered (potentially by other object) - store state in separate variable
-// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
+_NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
 				}
-			//   if($this->ck)
 			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
 // _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
-				// $this->_persists["ck"]->unpersist();
 				}
 			else
 				$this->state=NSOffState; // non-JS mode and seems to be off
@@ -1203,16 +1202,9 @@ class NSButton extends NSControl
 			}
 		else
 			{ // standard action button
-			// parameter("name", $super->elementId."-ck");
-			if(!is_null($super) && !$this->action)
-				{ // no specific action and embedded in NSTable or NSMatrix 
-				$onclick="e('".$super->elementId."');";
-				}
-			else
-				{ // standalone
-				parameter("name", $this->elementId."-ck");
-				$onclick="e('".$this->elementId."');";
-				}
+			if(is_null($super))
+				parameter("name", $this->elementId."-ck");	// standalone
+			$onclick="e('".$this->elementId."');";
 			if(!is_null($row))
 				$onclick.="r('$row');";
 			if(!is_null($row))
