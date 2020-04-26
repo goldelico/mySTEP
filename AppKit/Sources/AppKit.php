@@ -333,7 +333,7 @@ class NSResponder extends NSObject
 			$id=$this->elementId()."-".$name;
 		else
 			$id=$this->elementId();	// handle empty id
-// _NSLog("read_persist $id");
+//_NSLog("read_persist: $id");
 		return _read_persist($id);
 		}
 
@@ -342,7 +342,7 @@ class NSResponder extends NSObject
 		$id=_read_persist("NSEvent");
 		if(is_null($id))
 			return false;
-		return $id+0 == $this->elementId();
+		return (int)$id == $this->elementId();
 		}
 
 	public function _collectEvents()
@@ -1367,7 +1367,7 @@ class NSMenuItemView extends NSButton
 
 class NSMenuItemSeparator extends NSMenuItemView
 	{	
-		public function NSMenuItemSeparator()
+		public function __construct()
 		{
 			parent::__construct("---");
 		}
@@ -3051,10 +3051,8 @@ class NSScrollView extends NSView
 				html("<script");
 				parameter("type", "text/javascript");
 				html(">");
-				// +0 is to protect against code injection through manipulated point coordinates not being numerical
-				// use it here because either _NSPersist or read_persist may be manipulated
-				$x=0+$this->scrollX;
-				$y=0+$this->scrollY;
+				$x=(int)$this->scrollX;	// may be string value trying code injection...
+				$y=(int)$this->scrollY;
 				html("window.scrollTo($x, $y)");
 				html("</script>\n");
 				}
