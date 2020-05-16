@@ -3509,7 +3509,7 @@ _NSLog($exts);
 			}
 		return $this->openApplicationWithArguments($app, array($file));
 		}
-	public function openApplicationWithArguments($app, $args=array())
+	public function openApplicationWithArguments($app, $args=array(), $returnLink=false)
 		{ // switch to a different app
 		$bundle=NSBundle::mainBundle();
 		if($app != $bundle->objectForInfoDictionaryKey("CFBundleName"))	// not us...
@@ -3545,6 +3545,8 @@ else	// new version
 					$delim='&';
 					}
 // _NSLog("new URL: $url");
+				if($returnLink)
+					return $url;
 				header("location: ".$url);	// how to handle special characters here? rawurlencode?
 				exit;
 				}
