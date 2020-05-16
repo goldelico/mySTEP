@@ -1,7 +1,7 @@
 <?php
 /*
  * AppKit.framework
- * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2015
+ * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2020
  * All rights reserved.
  *
  * defines (simple) classes for NSWindow, NSView, NSButton, NSTextField, NSSecureTextField, NSForm, NSImage, NSTable, NSPopUpButton
@@ -1321,7 +1321,7 @@ class NSMenuItemView extends NSButton
 		protected $icon;
 		protected $shortcut;
 		protected $subMenuView;
-		protected $isSelected=false;
+		public $isSelected=false;
 		public function isSelected() { return $this->isSelected; }
 		public function setSelected($sel) { $this->isSelected=$sel; }
 		public function __construct($label)
@@ -1391,7 +1391,7 @@ class NSMenuView extends NSMenu
 	protected $width="100%";
 	protected $isHorizontal;
 	protected $menuItems;
-	protected $selectedItem=-1;
+	public $selectedItem=-1;
 	public function __construct($horizontal=false)
 		{
 		parent::__construct();
