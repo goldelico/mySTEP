@@ -13,7 +13,9 @@
 global $ROOT;	// must be set by some .app
 
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
-if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 443)
+
+$redirect=false;		// we can eliminate/rearrange the mapping.plist
+if($redirect && isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 443)
 { // reload page as https
 	$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
 // _NSLog($plist);
@@ -63,6 +65,9 @@ define('NSVerticalTextAlignmentMiddle', 1);
 define('NSVerticalTextAlignmentBottom', 2);
 
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
+
+$_mappinglist="$ROOT/Library/WebServer/mapping.list";
+global $_mappinglist;
 
 // these functions should be used internally only!
 
@@ -3515,7 +3520,22 @@ _NSLog($exts);
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
-			$url=$this->_externalURLForPath($exec);
+
+if(false)	 // old version
+				$url=$this->_externalURLForPath($exec);
+else	// new version
+	{
+			global $_mappinglist;	// should be a property of this class
+			// and updating the mapping should be a method...
+			if(file_exists($_mappinglist))
+				{
+				$string=file_get_contents($_mappinglist);
+				$json=json_decode($string, true);
+				if(isset($json[$exec])
+					$url=$json[$exec];
+				// else scan the tree or try some other method
+				}
+	}
 			if(!is_null($url))
 				{
 				$delim='?';
@@ -3680,6 +3700,7 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 {
 	global $NSApp;
 	global $ROOT;
+	global $_mappinglist;
 	if(!isset($ROOT))
 		{
 		echo '$ROOT is not set globally!';
@@ -3689,6 +3710,28 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 // _NSLog($_POST);
 	if($GLOBALS['debug']) echo "<h1>NSApplicationMain($name)</h1>";
 	$mainBundle=NSBundle::mainBundle();
+
+	$exec=realpath($_SERVER['SCRIPT_FILENAME']);
+// _NSLog($exec);
+	$exec=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($exec);
+	$url=$_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+// _NSLog("map $exec -> $url");
+	if(file_exists($_mappinglist))
+		{
+		$string=file_get_contents($_mappinglist);
+		$json=json_decode($string, true);
+		}
+	else
+		$json=array();	// first
+	// take http://something only if it is shorter than https://something
+	if(!isset($json[$exec]) || strlen(str_replace("http:", "httpss:", $url) < strlen($json[$exec]))
+		{ // prefer shorter link
+		$json[$exec]=$url;
+		// could also use a time stamp to delete stale entries
+		$string=json_encode($json, JSON_PRETTY_PRINT);
+		file_put_contents($_mappinglist, $string);
+		}
+
 	$pclass=$mainBundle->principalClass();
 	if(!$pclass)
 		{

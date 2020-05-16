@@ -519,8 +519,9 @@ class NSBundle extends NSObject
 		}
 	public static function bundleWithPath($path) 
 		{
-// FIXME: do we return null if there is no valid bundle?
 // _NSLog("bundleWithPath: $path");
+// FIXME: do we return null if there is no valid bundle?
+// _NSLog("realpath: $path");
 		if(isset(self::$allBundlesByPath[$path]))
 			return self::$allBundlesByPath[$path];	// return bundle object we already know
 		$r=new NSBundle($path);
@@ -581,6 +582,7 @@ class NSBundle extends NSObject
 // _NSLog(" bundleForClass $class path $path");
 		return NSBundle::bundleWithPath($path);
 		}
+	public function bundlePath() { return $this->path; }
 	public function infoDictionary()
 		{
 		if(!isset($this->infoDictionary))
@@ -886,10 +888,11 @@ class NSFileManager extends NSObject
 			}
 		if(substr($ROOT, -1) != "/")
 			_NSLog("invalid \$ROOT (must end in /): $ROOT");	// must end in /
-		if(substr($path, 0, 5) == '/tmp/' && substr($path, 5, 2) != '..')	// FIXME: protected against /tmp/../anything
-			return $path;	// map directly to host
+		if(substr($path, 0, 5) == '/tmp/' && substr($path, 5, 2) != '..')
+			// FIXME: protected against /tmp/../anything
+			return $path;	// map /tmp directly to host
 		if(substr($path, 0, 1) == '/')
-			return substr($ROOT, 0, strlen($ROOT)-1).$path;	// absolute path - but don't duplicate the /
+			return realpath(substr($ROOT, 0, strlen($ROOT)-1).$path);	// absolute path - but don't duplicate the /
 		return $path;	// relative path
 		}
 	public function stringWithFileSystemRepresentation($path)
