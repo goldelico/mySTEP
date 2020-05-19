@@ -3531,7 +3531,7 @@ else	// new version
 				{
 				$string=file_get_contents($_mappinglist);
 				$json=json_decode($string, true);
-				if(isset($json[$exec])
+				if(isset($json[$exec]))
 					$url=$json[$exec];
 				// else scan the tree or try some other method
 				}
@@ -3726,7 +3726,7 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 	else
 		$json=array();	// first
 	// take http://something only if it is shorter than https://something
-	if(!isset($json[$exec]) || strlen(str_replace("http:", "httpss:", $url) < strlen($json[$exec]))
+	if(!isset($json[$exec]) || strlen(str_replace("http:", "httpss:", $url)) < strlen($json[$exec]))
 		{ // prefer shorter link
 		$json[$exec]=$url;
 		// could also use a time stamp to delete stale entries
