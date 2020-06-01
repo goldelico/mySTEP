@@ -16,6 +16,7 @@ class AppController extends NSObject
 	public $subject;
 	public $body;
 	public $status;
+	public $tableInTab;
 
 	public function checkAddress(NSObject $sender)
 		{
@@ -42,16 +43,33 @@ class AppController extends NSObject
 
 	public function numberOfRowsInTableView(NSTableView $table)
 		{
+		if($table == $this->tableInTab)
+			return 6;
 		return 5;
 		}
 
 	public function tableView_objectValueForTableColumn_row(NSTableView $table, NSTableColumn $column, $row)
 		{
+		if($table == $this->tableInTab)
+			{
+			switch($column->identifier())
+				{
+				case "a":
+					break;
+				case "b":
+					break;
+				case "c":
+					return ($row%2) == 0?"1":"0";
+				}
+			}
 		return $column->identifier()." ".$row;
 		}
 
 	public function tableView_setObjectValue_forTableColumn_row(NSTableView $table, $value, NSTableColumn $column, $row)
 		{
+		if($table == $this->tableInTab)
+			{
+			}
 		$this->status->setStringValue("Table: ".$tableView->selectedColumn()." / ".$tableView->selectedRow()." := $value");
 		}
 
@@ -180,6 +198,7 @@ class AppController extends NSObject
 		$v->addTabViewItem(new NSTabViewItem("4", $c));
 		/* embed a table */
 		$c=new NSTableView(array("a", "b", "c"));
+		$this->tableInTab=$c;
 		$c->setDataSource($this);
 		$c->setDelegate($this);
 		$c->setAllowsColumnSelection(true);
