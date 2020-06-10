@@ -516,8 +516,6 @@ _NSLog($super->classString());
 					}
 				$super=$super->superview();
 				}
-			// if we are embedded in a tableview a click should trigger the
-			// tableView:setObjectValue:forTableColumn:row: callback
 _NSLog("null action ignored");
 			return;	// ignore
 			}
@@ -1005,6 +1003,7 @@ class NSButton extends NSControl
 	public function isSelected() { return $this->cell()->isSelected(); }
 	public function setSelected($value) { $this->cell()->setSelected($value); }
 	public function bjectValue($val) { return $this->cell->()->objectValue(); }
+	public function objectValue() { return $this->cell()->objectValue(); }
 	public function setObjectValue($val) { $this->cell->()->setObjectValue($val); }
 	public function setButtonType($buttonType) { $this->cell()->setButtonType($buttonType); }
 	}
@@ -1100,6 +1099,8 @@ class NSButton extends NSControl
 // _NSLog($this->state);
 		$this->setState($value?NSOnState:NSOffState);
 		}
+	public function isEditable() { return false; }
+	public function objectValue($val) { return $this->state(); }
 	public function setObjectValue($val) { $this->setSelected($val); }
 	public function setButtonType($buttonType)
 		{
@@ -1792,6 +1793,7 @@ class NSImageView extends NSControl
 		}
 	public function isEditable() { return false; }
 	public function setEditable($flag) { return; }	// ignored
+	public function objectValue() { return $this->image(); }
 	public function setObjectValue(NSObject $img=null) { $this->setImage($img); }
 	public function setFrameSize($size)
 		{
@@ -2457,6 +2459,7 @@ class NSTabView extends NSControl
 
 class NSTableColumn extends NSObject
 {
+	protected $table;
 	protected $title;
 	protected $identifier="";
 	protected $width="*";
@@ -2476,6 +2479,8 @@ class NSTableColumn extends NSObject
 		$this->dataCell=new NSTextField();
 		}
 
+	public function tableView() { return $this->tableView; }
+	public function setTableView(/*NSTableView*/ $table) { $this->tableView=$table; }
 	public function title() { return $this->title; }
 	public function setTitle($title) { $this->title=$title; }
 	public function identifier() { return $this->identifier; }
@@ -2489,6 +2494,7 @@ class NSTableColumn extends NSObject
 	public function width() { return $this->width; }
 	public function setWidth($width) { $this->width=$width; }
 	public function dataCell() { return $this->dataCell; }
+	public function dataCellForRow($row) { return $this->dataCell(); }
 	public function headerCell() { return $this->headerCell; }
 	public function setDataCell(NSView $cell) { $this->dataCell=$cell; }	// copy isEditable
 	public function setHeaderCell(NSView $cell) { $this->headerCell=$cell; }
@@ -2581,10 +2587,12 @@ class NSTableView extends NSControl
 	public function addColumn(NSTableColumn $column)
 		{
 		$this->columns[]=$column;
+		$column->setTableView($this);
 		$this->reloadData();
 		}
 	public function removeColumnAtIndex($index)
 		{
+		$column->setTableView(null);
 		unset($this->columns[$index]);
 		$this->reloadData();
 		}
@@ -2652,7 +2660,49 @@ class NSTableView extends NSControl
 			$this->selectRow($this->clickedRow);
 			}
 		}
+	public function _collectEvents()
+		{
+		parent::_collectEvents();	// process subviews, i.e. cells
+		// scan all rows/columns for text fields
+		$rows=$this->numberOfRows();	// may trigger a callback that changes something
+		$row=-1;
+		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
+			{
+			foreach($this->columns as $index => $column)
+				{ // send update messages for all changed editable entries
+				if($column->isHidden())
+					continue;
+				$cell=$this->_dataCell($row, $column);
+				if($row < $rows && $cell->isEditable())
+					{ // check if value has changed
+					$cell->_collectEvents();
+					$newval=$cell->objectValue();
+					$oldval=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+					if($newval != $oldval)
+						$this->dataSource->tableView_setObjectValue_forTableColumn_row($this, $newval, $column, $row);
+					}
+				}
+			$row++;
+			}
+		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
+	function _dataCell($row, NSTableColumn $column)
+		{
+		$index=-1;
+		if(is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
+			$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
+		else if($row < 0)
+			$cell=$column->headerCell();
+		else
+			{
+			$cell=$column->dataCellForRow($row);
+			foreach($this->columns as $index => $c) {
+   				if ($c == $cell)
+				        break;
+    			}
+		$cell->_setElementId($this->elementId()."-$row-$index");	// make them unique and attach to table
+		return $cell;
+		}
 	public function display()
 		{
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
@@ -2685,35 +2735,34 @@ class NSTableView extends NSControl
 				{
 				if($column->isHidden())
 					continue;
+				$cell=$this->_dataCell($row, $column);
 				if($row < 0)
 					{
-					$cell=$column->headerCell();
 					$class="NSTableHeaderCell";
 					$class.=($index == $this->selectedColumn)?" NSSelected":" NSUnselected";
 					$item=$column->title();
 					}
-				else
+				else if($row < $rows)
 					{
 					$class="NSTableCell";
 					$class.=($row == $this->selectedRow || $index == $this->selectedColumn)?" NSSelected":" NSUnselected";
 					$class.=(($row%2) == 0)?" NSEven":" NSOdd";
 					if($row < $rows)
-						{
-						if(is_object($this->delegate) && $this->delegate->respondsToSelector("tableView_dataCellForTableColumn_row"))
-							$cell=$this->delegate->tableView_dataCellForTableColumn_row($this, $column, $row);
-						else
-							$cell=$column->dataCell();
 						$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-						}
+					else
+						$item=null;
 					}
-				if(is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
+				if($row < $rows && is_object($this->delegate) && $this->delegate->respondsToSelector("selectionDidChange"))
 					$class.=" NSSelectable";
 				html($row < 0?"<th":"<td");
-				parameter("id", $this->elementId()."-".$row."-".$index);
-				parameter("name", $column->identifier());
+				if($row < $rows)
+					{
+					parameter("id", $this->elementId()."-".$row."-".$index);
+					parameter("name", $column->identifier());
+					if($column->align()) parameter("align", $column->align());
+					parameter("width", $column->width());
+					}
 				parameter("class", $class);
-				if($column->align()) parameter("align", $column->align());
-				parameter("width", $column->width());
 				if($row < $rows)
 					{
 // _NSLog($column);
@@ -2722,7 +2771,6 @@ class NSTableView extends NSControl
 					$cell->_setSuperView($this);
 					$this->drawingRow=$row;
 					$this->drawingColumn=$index;
-					$cell->_setElementId($this->elementId()."-$row-$index");	// make them unique and attach to table
 					/* this goes to the <td> and is activated by clicking on the cell background */
 					parameter("onclick", "e('".$this->elementId()."');"."r($row);"."c($index)".";s()");
 					// parameter("onclick", "e('".$this->elementId()."');"."r($row);"."c($index)");
@@ -2791,6 +2839,7 @@ if($name)
 		$this->htmlValue=htmlentities($str, ENT_COMPAT | ENT_SUBSTITUTE, NSHTMLGraphicsContext::encoding);
 		$this->setNeedsDisplay();
 		}
+	public function objectValue() { return $this->stringValue(); }
 	public function setObjectValue($obj) { $this->setStringValue($obj); }	// used by NSTableView
 	// should be used for static text fields
 	public function setAttributedStringValue($astr) 
