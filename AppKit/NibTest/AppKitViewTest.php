@@ -55,6 +55,9 @@ class AppController extends NSObject
 			switch($column->identifier())
 				{
 				case "a":
+					$values=NSUserDefaults::standardUserDefaults()->objectForKey("values");
+					if(!is_null($values) && isset($values[$row]))
+						return $values[$row];
 					break;
 				case "b":
 					break;
@@ -70,7 +73,11 @@ class AppController extends NSObject
 		if($table == $this->tableInTab)
 			{
 			}
-		$this->status->setStringValue("Table: ".$tableView->selectedColumn()." / ".$tableView->selectedRow()." := $value");
+		$values=NSUserDefaults::standardUserDefaults()->objectForKey("values");
+		if(is_null($values))
+			$values=array();
+		$values[$row]=$value;
+		NSUserDefaults::standardUserDefaults()->setObjectForKey("values", $values);
 		}
 
 	public function tableViewSelectionDidChange(NSTableView $tableView)
