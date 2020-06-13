@@ -758,13 +758,14 @@ class NSView extends NSResponder
 		}
 	public function hitTest(NSEvent $event)
 		{
+// _NSLog($this->classString()." hitTest");
 		foreach($this->subviews as $view)
 			{
 			$subview=$view->hitTest($event);
 			if(!is_null($subview))
-				return $subview;	// hit found
+				return $subview;	// subview hit found
 			}
-		if($event->target() == $this)
+		if($event->target() === $this)
 			return $this;
 		return null;
 		}
@@ -2313,7 +2314,7 @@ class NSTabView extends NSControl
 		$index=0;
 		foreach($this->tabViewItems as $i)
 			{
-			if($i == $item)
+			if($i === $item)
 				return $index;
 			$index++;			
 			}
@@ -2666,15 +2667,18 @@ class NSTableView extends NSControl
 		// scan all rows/columns for text fields
 		$rows=$this->numberOfRows();	// may trigger a callback that changes something
 		$row=-1;
+//_NSLog("ce1");
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
 			{
 			foreach($this->columns as $index => $column)
 				{ // send update messages for all changed editable entries
+//_NSLog("ce2 $row ".$column->identifier());
 				if($column->isHidden())
 					continue;
 				$cell=$this->_dataCell($row, $column);
 				if($row < $rows && $cell->isEditable())
 					{ // check if value has changed
+//_NSLog($cell);
 					$cell->_collectEvents();
 					$newval=$cell->objectValue();
 					$oldval=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
@@ -2684,6 +2688,7 @@ class NSTableView extends NSControl
 				}
 			$row++;
 			}
+// _NSLog("ce3");
 		}
 	public function draw() { _NSLog("don't call NSTableView -> draw()"); }
 	function _dataCell($row, NSTableColumn $column)
@@ -2696,9 +2701,12 @@ class NSTableView extends NSControl
 		else
 			{
 			$cell=$column->dataCellForRow($row);
-			foreach($this->columns as $index => $c) {
-   				if ($c == $cell)
+			// $index=$this->indexOfColumn($column);
+			foreach($this->columns as $index => $c)
+				{
+				if ($c === $column)
 				        break;
+				}
     			}
 		$cell->_setElementId($this->elementId()."-$row-$index");	// make them unique and attach to table
 		return $cell;
@@ -2787,6 +2795,7 @@ class NSTableView extends NSControl
 						parameter("style", implode(';', $style));
 					html(">\n");
 					$cell->display(); // let the cell do the formatting
+					$cell->_setSuperView(null);
 					}
 				else
 					{
@@ -3180,7 +3189,7 @@ class NSWindow extends NSResponder
 			$target=$event->target();
 		else
 			$target=$window->contentView()->hitTest($event);
-// _NSLog($target);
+// _NSLog(is_null($target)?"null":$target->classString());
 		if(!is_null($target))
 			$target->mouseDown($event);
 		}
