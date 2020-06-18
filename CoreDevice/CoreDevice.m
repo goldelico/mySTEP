@@ -201,10 +201,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (float) batteryLevel;
 {
 	NSString *val=[self batteryValue:@"capacity"];
-	if(!val)
-		{
-		// battery may be decalibrated!
-		return 0.5;
+	if([val length] == 0)
+		{ // battery missing or not yet calibrated!
+		return -1.0;
 		}
 #if 0
 	NSLog(@"batteryLevel = %@", val);
