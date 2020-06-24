@@ -55,7 +55,9 @@ class AppController extends NSObject
 			switch($column->identifier())
 				{
 				case "a":
-					$values=NSUserDefaults::standardUserDefaults()->objectForKey("values");
+					$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
+_NSLog("tableView_objectValueForTableColumn_row: ".$column->identifier()." ".$row);
+_NSLog($values);
 					if(!is_null($values) && isset($values[$row]))
 						return $values[$row];
 					break;
@@ -70,14 +72,16 @@ class AppController extends NSObject
 
 	public function tableView_setObjectValue_forTableColumn_row(NSTableView $table, $value, NSTableColumn $column, $row)
 		{
+_NSLog("tableView_setObjectValue_forTableColumn_row: ".$column->identifier()." ".$row);
 		if($table == $this->tableInTab)
 			{
+			$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
+			if(is_null($values))
+				$values=array();
+			$values[$row]=trim($value);	// may have applied some NSFormatter
+_NSLog($values);
+			NSUserDefaults::standardUserDefaults()->setObjectForKey($column->identifier(), $values);
 			}
-		$values=NSUserDefaults::standardUserDefaults()->objectForKey("values");
-		if(is_null($values))
-			$values=array();
-		$values[$row]=$value;
-		NSUserDefaults::standardUserDefaults()->setObjectForKey("values", $values);
 		}
 
 	public function tableViewSelectionDidChange(NSTableView $tableView)
@@ -189,10 +193,12 @@ class AppController extends NSObject
 		$c->setTitle("first Button");
 		$c->setActionAndTarget('buttonPressed', $this);
 		$v->addTabViewItem(new NSTabViewItem("1", $c));
+
 		$c=new NSButton();
 		$c->setTitle("second Button");
 		$c->setActionAndTarget('buttonPressed', $this);
 		$v->addTabViewItem(new NSTabViewItem("2", $c));
+
 		/* embedded popupbutton - does it persist if hidden? */
 		$c=new NSPopUpButton();
 		$c->setActionAndTarget('buttonPressed', $this);
@@ -200,9 +206,11 @@ class AppController extends NSObject
 		$c->addItemWithTitle("tab item 2");
 		$c->addItemWithTitle("tab item 3");
 		$v->addTabViewItem(new NSTabViewItem("3", $c));
+
 		/* embedded text field - does it persist if hidden? */
 		$c=new NSTextField();
 		$v->addTabViewItem(new NSTabViewItem("4", $c));
+
 		/* embed a table */
 		$c=new NSTableView(array("a", "b", "c"));
 		$this->tableInTab=$c;
@@ -214,6 +222,7 @@ class AppController extends NSObject
 		$c->columns()[0]->setEditable(true);	// make first column editable
 		$c->columns()[2]->setDataCell(new NSButton("value", "CheckBox"));	// make checkbox
 		$v->addTabViewItem(new NSTabViewItem("5", $c));
+
 		/* embedded Matrix with Radio Buttons */
 		$c=new NSMatrix(2);
 		$c->setMode("NSRadioModeMatrix");
@@ -225,6 +234,7 @@ class AppController extends NSObject
 				$c->addSubview($button);
 				}
 		$v->addTabViewItem(new NSTabViewItem("6", $c));
+
 		/* embedded Matrix with Checkboxes */
 		$c=new NSMatrix(2);
 		$c->setActionAndTarget('matrixPressed', $this);
