@@ -2663,9 +2663,11 @@ class NSTableView extends NSControl
 		}
 	public function _collectEvents()
 		{
+_NSLog("_collectEvents: isHidden: ".$this->isHidden()?"yes":"no");
+		if($this->isHidden())
+			return;	// don't process events
 		parent::_collectEvents();	// process subviews, i.e. cells
-		// scan all rows/columns for text fields
-		$rows=$this->numberOfRows();	// may trigger a callback that changes something
+		$rows=$this->numberOfRows();	// note: may trigger a callback that changes something
 		$row=-1;
 //_NSLog("ce1");
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
@@ -2679,11 +2681,15 @@ class NSTableView extends NSControl
 				if($row < $rows && $cell->isEditable())
 					{ // check if value has changed
 //_NSLog($cell);
-					$cell->_collectEvents();
-					$newval=$cell->objectValue();
+					$cell->_setSuperView($this);
 					$oldval=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
+					$cell->setObjectValue($oldval);
+					$cell->_setElementId($this->elementId()."-$row-$index");	// was already set by _dataCell but we must read $POST after setObjectValue
+					$cell->_collectEvents();	// object value may or may not change by this
+					$newval=$cell->objectValue();
 					if($newval != $oldval)
 						$this->dataSource->tableView_setObjectValue_forTableColumn_row($this, $newval, $column, $row);
+					$cell->_setSuperView(null);
 					}
 				}
 			$row++;
