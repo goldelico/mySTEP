@@ -503,11 +503,11 @@ class NSApplication extends NSResponder
 		{
 		if(!$action)
 			{ // no specific action defined - find out if we should foward to a matrix action superview
-_NSLog("action is_null");
+// _NSLog("action is_null");
 			$super=$from->superview();
 			while(!is_null($super))
 				{ // walk upwards because we may be a sub-sub-view of a Matrix or Table...
-_NSLog($super->classString());
+// _NSLog($super->classString());
 				if($super->respondsToSelector("_clickedCell"))	// we could also check $super->isKindOfClass("NSMatrix")
 					{ // appears to be embedded in a Matrix
 // _NSLog("NSMatrix target");
@@ -815,7 +815,7 @@ class NSView extends NSResponder
 class NSCell extends NSObject
 	{
 	protected $tag=0;
-	protected $align="";
+	protected $align=NSLeftAlignment;
 	protected $enabled=true;
 	protected $controlView;
 	public function controlView() { return $this->controlView; }
@@ -955,15 +955,16 @@ class NSControl extends NSView
 		else
 			$this->tag=$val;
 		}
-	public function tag() { return $isset($this->cell)?$this->cell->tag():$this->tag; }
+	public function tag() { return isset($this->cell)?$this->cell->tag():$this->tag; }
 	public function setAlign($align)
 		{
 		if(isset($this->cell))
 			$this->cell->setAlign($align);
 		else
 			$this->align=$align;
+// _NSLog("setAlign: $align -> ".$this->align());
 		}
-	public function align() { return $isset($this->cell)?$this->cell->align():$this->align; }
+	public function align() { return isset($this->cell)?$this->cell->align():$this->align; }
 
 	public function _collectEvents()
 		{
@@ -1144,7 +1145,7 @@ class NSButton extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{ // this button may have been pressed
-_NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
+// _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
 			$this->setNextState();	// toggle before sending action (why?)
 		$this->sendAction();
@@ -1347,13 +1348,14 @@ class NSMenuItemView extends NSButton
 		protected $icon;
 		protected $shortcut;
 		protected $subMenuView;
+		protected $select_persistor;
 		public $isSelected=false;
 		public function isSelected() { return $this->isSelected; }
 		public function setSelected($sel) { $this->isSelected=$sel; }
 		public function __construct($label)
 			{
 			parent::__construct($label);
-			new _NSPersist($this, "isSelected");
+			$this->select_persistor=new _NSPersist($this, "isSelected");
 			}
 		public function setSubmenu(NSMenu $submenu) { $this->subMenuView=$submenu; $this->setNeedsDisplay(); }
 		public function submenu() { return $this->subMenuView; }
@@ -1368,7 +1370,7 @@ class NSMenuItemView extends NSButton
 				parameter("id", $this->elementId());
 				parameter("class", "NSMenuItemView");
 				parameter("name", $this->elementId());
-				$this->_persists["isSelected"]->unpersist();
+				$this->select_persistor->unpersist();
 				parameter("onchange", "e('".$this->elementId()."');s()");
 				parameter("size", 1);	// make a popup not a combo-box
 				html(">\n");
@@ -1840,7 +1842,6 @@ class NSCollectionView extends NSControl
 	protected $columns=1;	// 0 = horizontal without spacing, <0 = horizontal with spacing
 	protected $border=0;
 	protected $width="100%";
-	protected $alignment=NSTextAlignmentLeft;
 	protected $verticalAlignment=NSVerticalTextAlignmentTop;
 	protected $columnWidths;	// array...
 	protected $backgroundColor;	// for single column
@@ -1892,7 +1893,6 @@ class NSCollectionView extends NSControl
 		$this->columnWidths[$column]=$width;
 		$this->setNeedsDisplay();
 		}
-// control alignment of column, e.g. left, centered, right
 // allow to define colspan and rowspan
 	public function _setElementId($id)
 		{ // special because we must make the subelements unique as well
@@ -1916,6 +1916,7 @@ class NSCollectionView extends NSControl
 		{
 		if($this->isHidden())
 			return;
+// _NSLog("this align: ".$this->align());
 		if($this->columns > 0)
 			{
 			html("<table");
@@ -1964,11 +1965,15 @@ class NSCollectionView extends NSControl
 				}
 			html("<td");
 			parameter("class", "NSCollectionViewItem");
-			switch($this->alignment)
+			switch($this->align)
 				{
-				case NSTextAlignmentLeft: parameter("align", "left"); break;
-				case NSTextAlignmentCenter: parameter("align", "center"); break;
-				case NSTextAlignmentRight: parameter("align", "right"); break;
+				case NSCenterAlignment:
+				case NSTextAlignmentCenter: parameter("align", NSCenterAlignment); break;
+				case NSRightAlignment:
+				case NSTextAlignmentRight: parameter("align", NSRightAlignment); break;
+				case NSLeftAlignment:
+				// NSTextAlignmentLeft === 0 i.e. any string starting without a digit will match!
+				case NSTextAlignmentLeft: parameter("align", NSLeftAlignment); break;
 				}
 			switch($this->verticalAlignment)
 				{
@@ -2174,6 +2179,7 @@ class NSFormCell extends NSView /* NSCell - but then we can't addSubview() */
 	protected $value;
 	public function __construct()
 		{
+		parent::__construct();
 		$this->label=new NSTextField();
 		$this->label->setAttributedStringValue("Label:");
 		$this->addSubview($this->label);
@@ -2290,7 +2296,7 @@ class NSTabViewItem extends NSObject
 	public function setHideTab($flag) { $this->hideTab=$flag; }
 	public function __construct($label, NSView $view)
 		{
-//		parent::__construct();
+		parent::__construct();
 		$this->identifier=$label;	// use same...
 		$this->label=$label;
 		$this->view=$view;
@@ -2452,7 +2458,7 @@ class NSTabView extends NSControl
 		html("</tr>\n");
 		html("<tr>");
 		html("<td");
-		parameter("align", "center");
+		parameter("align", NSCenterAlignment);
 		html(">\n");
 		$selectedItem=$this->selectedTabViewItem();
 		if(!is_null($selectedItem))
@@ -2500,7 +2506,7 @@ class NSTableColumn extends NSObject
 		parent::__construct();
 		$this->headerCell=new NSTextField();
 		$this->headerCell->setEditable(false);
-		$this->headerCell->setAlign("center");
+		$this->headerCell->setAlign(NSCenterAlignment);
 		$this->dataCell=new NSTextField();
 		}
 
@@ -2698,25 +2704,25 @@ class NSTableView extends NSControl
 		}
 	public function _collectEvents()
 		{
-_NSLog("_collectEvents: isHidden: ".($this->isHidden()?"yes":"no"));
+// _NSLog("_collectEvents: isHidden: ".($this->isHidden()?"yes":"no"));
 		if($this->isHidden())
 			return;	// don't process events
 		parent::_collectEvents();	// process subviews, i.e. cells
 		$rows=$this->numberOfRows();	// note: may trigger a callback that changes something
 		$row=-1;	// making the table headers editable needs a different solution
-//_NSLog("ce1");
+// _NSLog("ce1");
 		$row=0;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
 			{
 			foreach($this->columns as $index => $column)
 				{ // send update messages for all changed editable entries
-//_NSLog("ce2 $row ".$column->identifier());
+// _NSLog("ce2 $row ".$column->identifier());
 				if($column->isHidden())
 					continue;
 				$cell=$this->_dataCell($row, $column);
 				if($row < $rows && $column->isEditable())
 					{ // check if value has changed
-//_NSLog($cell);
+// _NSLog($cell);
 					$cell->_setSuperView($this);
 					$oldval=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					$cell->setObjectValue($oldval);
@@ -3006,9 +3012,8 @@ if($name)
 				parameter("placeholder", $this->placeholder);
 // problem: draw() may be called twice in Wiki context!
 			parameter("name", $this->string_persisitor->name());	// default or overridden name
-			$this->_persists["string"]->unpersist();
 			if($this->type != "password")
-				parameter("value", _htmlentities($this->string));	// password is always shown cleared/empty for each redraw
+				parameter("value", _htmlentities($this->string));
 			switch($this->type)
 				{ // special types
 				case "search":
@@ -3043,10 +3048,14 @@ if($name)
 				html($this->htmlValue);
 			if(count($style) > 0)
 				html("</span>");
-			$this->_persists["string"]->unpersist();
 			}
 		if(!is_null($this->font))
 			html("</span>");
+		}
+	public function _displayDone()
+		{
+		$this->string_persisitor->unpersist();	// do not persist static content (hidden or not) or add another <input>
+		parent::_displayDone();
 		}
 }
 
@@ -3083,13 +3092,14 @@ class NSSlider extends NSTextField
 class NSTextView extends NSControl
 {
 	public $string;
+	protected $string_persistor;
 	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
 		$this->frame=NSMakeRect(0, 0, $width, $height);
 		// should be depreacted and replaced by setFrame() ...
 		$this->width=$width;
-		new _NSPersist($this, "string");
+		$this->string_persistor=new _NSPersist($this, "string");
 		}
 	public function setString($string)
 		{
@@ -3109,7 +3119,7 @@ class NSTextView extends NSControl
 		parameter("width", NSWidth($this->frame));
 		parameter("height", NSHeight($this->frame));
 		parameter("name", $this->elementId()."-string");
-		$this->_persists["string"]->unpersist();	// no need to separately persist
+		$this->string_persistor->unpersist();	// no need to separately persist
 	// not tested	parameter("onchange", "e('".$this->elementId()."');".";s()");
 		html(">");
 		html(_htmlentities($this->string));
@@ -3337,7 +3347,10 @@ class NSWindow extends NSResponder
 			{ // define hidden default button if Enter is pressed in some text field
 			html("<input");
 			parameter("type", "submit");
-			parameter("style", "visibility: hidden");
+// the first one works as intended, but displays an empty white block
+		//	parameter("style", "visibility: hidden");
+// this one completely hides the button but also removes it from being the default submit
+			parameter("style", "display: none");
 			html(">\n");
 			}
 		$mm=$NSApp->mainMenu();
@@ -3878,8 +3891,10 @@ _NSLog("PNIB $nibname loaded - not working well");
 	$lockViewHierarchy=true;
 // _NSLog($NSApp);
 	$NSApp->run();
-_NSLog("_POST:");
-_NSLog($_POST);
+
+// dangerous since it will reveal a posted password...
+// _NSLog("_POST:");
+// _NSLog($_POST);
 }
 
 // EOF
