@@ -357,7 +357,7 @@ class NSResponder extends NSObject
 		if($this->_eventIsForMe())
 			{
 			global $NSApp;
-_NSLog("is for me - queue NSMouseDown ".$this->elementId());
+// _NSLog("is for me - queue NSMouseDown ".$this->elementId());
 			$event=new NSEvent($this, 'NSMouseDown');
 			$event->setPosition(array('y' => _read_persist("clickedRow"), 'x' => _read_persist("clickedColumn")));
 			$NSApp->queueEvent($event);	// queue a mouseDown event for us
@@ -1101,7 +1101,7 @@ class NSButton extends NSControl
 		$this->setState($value?NSOnState:NSOffState);
 		}
 	public function objectValue() { return $this->state(); }
-	public function setObjectValue($val) { $this->setSelected($val); }
+	public function setObjectValue($val) { $this->setState($val); }	// may be negative for mixed
 	public function setButtonType($buttonType)
 		{
 		switch($buttonType)
@@ -1163,18 +1163,29 @@ _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
  * And null if it is inactive.
  * State is not stored explicitly (well, it is stored but not processed)
  */
- _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
- _NSLog($_POST);
+// _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
+// _NSLog($_POST);
 			if(!is_null(_read_persist("NSEvent")))
 				{ // JS mode: e(something) triggered (potentially by other object) - store state in separate variable
- _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
+// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
 				if($this->_eventIsForMe())
-					_NSLog("isforme");
+					{
+// _NSLog("isforme");
+					if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
+						{ // special code for radio/checkbox in table column
+						$super=$this->_getEnclosingTable($row, $column, $submit);
+						if($submit)
+							{
+							$this->setNextState();	// toggle because there is no event processed
+							return;
+							}
+						}
+					}
 				}
 			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
- _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
+// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
 				}
 			else
 				$this->state=NSOffState; // non-JS mode and seems to be off now
@@ -1191,11 +1202,15 @@ _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 			}
 		html($islink?"<a":"<input");
 		parameter("id", $this->elementId());
-// FIXME: if default button (shortcut "\r"): invert the selected state
-		if($this->keyEquivalent == "\r")
-			parameter("class", "NSButton ".(!$this->isSelected()?"NSOnState":"NSOffState"));
+		if($this->state() != NSMixedState)
+			{
+			$on=$this->isSelected();
+			if($this->keyEquivalent == "\r")
+				$on=!$on;
+			parameter("class", "NSButton ".($on?"NSOnState":"NSOffState"));
+			}
 		else
-			parameter("class", "NSButton ".($this->isSelected()?"NSOnState":"NSOffState"));
+			parameter("class", "NSButton NSMixedState");
 		if($this->backgroundColor)
 			parameter("style", "background: ".$this->backgroundColor());
 		if($this->textColor)
@@ -1254,11 +1269,14 @@ _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		switch($this->state())
 			{
 			case NSMixedState:
-				// HTML5 does understand this: parameter("intermediate", "intermediate");
-				html("/><script");
+				// HTML5 would understand this: parameter("intermediate", "intermediate");
+				html("/>");
+				// FIXME: does not work for checkbox in table because script is ignored by browser
+				// maybe we have to globally collect and batch add such code to the end before </body>
+				html("<script");
 				parameter("type", "text/javascript");
 				html(">");
-				html("document.getElementById(".$this->elementId().").indeterminate=true");
+				html("document.getElementById('".$this->elementId()."').indeterminate=true");
 				html("</script>");
 				break;
 			case NSOnState:
@@ -2090,7 +2108,7 @@ class NSMatrix extends NSControl
 
 	public function mouseDown(NSEvent $event)
 		{
-// _NSLog("mouseDown ".$this->elementId().": $this->clickedRow / $this->clickedColumn");
+// _NSLog("NSMatrix ".$this->elementId()." mouseDown "."$this->clickedRow / $this->clickedColumn");
 		$this->selectRowColumn($this->clickedRow, $this->clickedColumn);
 		$this->sendAction();
 		}
@@ -2353,7 +2371,7 @@ class NSTabView extends NSControl
 	public function setBorder($border) { $this->border=0+$border; $this->setNeedsDisplay(); }
 	public function mouseDown(NSEvent $event)
 		{
-// _NSLog("tabview item ".$this->clickedItemIndex." was clicked: ".$event->description());
+// _NSLog("NSTabView item ".$this->clickedItemIndex." was clicked: ".$event->description());
 		$this->selectTabViewItemAtIndex($this->clickedItemIndex);
 		}
 	public function _collectEvents()
@@ -2656,6 +2674,7 @@ class NSTableView extends NSControl
 		$pos=$event->position();
 		$this->clickedColumn=$pos['x'];
 		$this->clickedRow=$pos['y'];
+// _NSLog("NSTableView ".$this->elementId()." mouseDown "."$this->clickedRow / $this->clickedColumn");
 		if($this->allowsColumnSelection && $this->clickedRow == -1)
 			{
 			$this->selectColumn($this->clickedColumn);
@@ -2691,6 +2710,8 @@ _NSLog("_collectEvents: isHidden: ".($this->isHidden()?"yes":"no"));
 					$oldval=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
 					$cell->setObjectValue($oldval);
 					$cell->_setElementId($this->elementId()."-$row-$index");	// was already set by _dataCell but we must read $POST after setObjectValue
+					$this->drawingRow=$row;
+					$this->drawingColumn=$index;
 					$cell->_collectEvents();	// object value may or may not change by this
 					$newval=$cell->objectValue();
 					if($newval != $oldval)
