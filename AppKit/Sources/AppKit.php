@@ -3294,13 +3294,12 @@ class NSWindow extends NSResponder
 		parameter("method", "POST");	// a window is a big form to handle all persistence and mouse events through POST - and goes back to the same
 		parameter("enctype", NSHTMLGraphicsContext::encoding);
 		html(">\n");
-		// scan whole tree for first non-hidden NSButton with $this->keyEquivalent() == "\r" and title() != ""
-		if(false)
-			{ // define default button if Enter is pressed in some text field
+		// should scan whole tree for first non-hidden NSButton with $this->keyEquivalent() == "\r" and title() != ""
+		if(true)
+			{ // define hidden default button if Enter is pressed in some text field
 			html("<input");
-			parameter("type", "hidden");
-			parameter("name", $button->elementId()."-ck");
-			parameter("value", _htmlentities($button->title()));
+			parameter("type", "submit");
+			parameter("style", "visibility: hidden");
 			html(">\n");
 			}
 		$mm=$NSApp->mainMenu();
