@@ -2693,8 +2693,9 @@ _NSLog("_collectEvents: isHidden: ".($this->isHidden()?"yes":"no"));
 			return;	// don't process events
 		parent::_collectEvents();	// process subviews, i.e. cells
 		$rows=$this->numberOfRows();	// note: may trigger a callback that changes something
-		$row=-1;
+		$row=-1;	// making the table headers editable needs a different solution
 //_NSLog("ce1");
+		$row=0;
 		while(($this->visibleRows == 0 && $row<$rows) || $row<$this->visibleRows)
 			{
 			foreach($this->columns as $index => $column)
