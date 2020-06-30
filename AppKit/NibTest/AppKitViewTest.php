@@ -72,7 +72,7 @@ class AppController extends NSObject
 
 	public function tableView_setObjectValue_forTableColumn_row(NSTableView $table, $value, NSTableColumn $column, $row)
 		{
-_NSLog("tableView_setObjectValue_forTableColumn_row: ".$column->identifier()." ".$row." = $value");
+// _NSLog("tableView_setObjectValue_forTableColumn_row: ".$column->identifier()." ".$row." = $value");
 		if($table == $this->tableInTab)
 			{
 			$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
