@@ -3054,7 +3054,8 @@ if($name)
 		}
 	public function _displayDone()
 		{
-		$this->string_persisitor->unpersist();	// do not persist static content (hidden or not) or add another <input>
+		if((!$this->isEditable || !$this->isHidden()) && $this->type != "password")
+			$this->string_persisitor->unpersist();	// do not add another <input>
 		parent::_displayDone();
 		}
 }
