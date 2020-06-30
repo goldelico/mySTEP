@@ -55,6 +55,7 @@ class AppController extends NSObject
 			switch($column->identifier())
 				{
 				case "a":
+				case "c":
 					$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
 _NSLog("tableView_objectValueForTableColumn_row: ".$column->identifier()." ".$row);
 _NSLog($values);
@@ -62,9 +63,8 @@ _NSLog($values);
 						return $values[$row];
 					break;
 				case "b":
+					return $column->identifier()."/".$row;
 					break;
-				case "c":
-					return ($row%2) == 0?"1":"0";
 				}
 			}
 		return $column->identifier()." ".$row;
@@ -221,6 +221,7 @@ _NSLog($values);
 			$column->setEditable(false);
 		$c->columns()[0]->setEditable(true);	// make first column editable
 		$c->columns()[2]->setDataCell(new NSButton("value", "CheckBox"));	// make checkbox
+		$c->columns()[2]->setEditable(true);	// make editable
 		$v->addTabViewItem(new NSTabViewItem("5", $c));
 
 		/* embedded Matrix with Radio Buttons */
