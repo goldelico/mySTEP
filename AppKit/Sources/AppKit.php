@@ -2266,18 +2266,28 @@ class NSSegmentedControl extends NSControl
 	protected $selectedIndex=0;
 	}
 
+// FIXME: can we hide an item?
+// this would be done by the application code to make button and item disappear
+// can we hide the view?
+// this would be used by selectItem to unhide only the selected one
+// these two mechanisms interfere with each other!
+// there is also tabState but that is only for visual feedback of the buttons - not for hiding them
+
 class NSTabViewItem extends NSObject
 	{
 	protected $identifier;
 	protected $label;
 	protected $view;
+	protected $hideTab;
 
 	public function identifier() { return $this->label; }
 	public function label() { return $this->label; }
 	public function view() { return $this->view; }
+	public function hideTab() { return $this->hideTab; }
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
 	public function setLabel($label) { $this->label=$label; }
 	public function setView(NSView $view) { $this->view=$view; }
+	public function setHideTab($flag) { $this->hideTab=$flag; }
 	public function __construct($label, NSView $view)
 		{
 //		parent::__construct();
@@ -2350,7 +2360,7 @@ class NSTabView extends NSControl
 // _NSLog("selectTabViewItemAtIndex $index");
 		if($index < 0 || $index >= count($this->tabViewItems))
 			return;	// ignore (or could rise an exception)
-		if($this->tabViewItems[$index]->view()->isHidden())
+		if($this->tabViewItems[$index]->hideTab())
 			return;	// can't select (or we might be able to unhide a hidden tab by a fake $POST)
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
 			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[$index]))
@@ -2422,8 +2432,8 @@ class NSTabView extends NSControl
 		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
-			if(!$item->view()->isHidden())
-				{
+			if(!$item->hideTab())
+				{ // app did not hide the while tab
 
 // should use ordinary NSButtons and use setTag(tabindex)
 // in some NSMatrix of NSButtons as a single subview
@@ -3611,12 +3621,12 @@ _NSLog($exts);
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
-
 if(false)	 // old version
 				$url=$this->_externalURLForPath($exec);
 else	// new version
 	{
 			global $_mappinglist;	// should be a property of this class
+			$url=null;
 			// and updating the mapping should be a method...
 			if(file_exists($_mappinglist))
 				{
