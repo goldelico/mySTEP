@@ -357,7 +357,7 @@ class NSResponder extends NSObject
 		if($this->_eventIsForMe())
 			{
 			global $NSApp;
-// _NSLog("is for me");
+_NSLog("is for me - queue NSMouseDown ".$this->elementId());
 			$event=new NSEvent($this, 'NSMouseDown');
 			$event->setPosition(array('y' => _read_persist("clickedRow"), 'x' => _read_persist("clickedColumn")));
 			$NSApp->queueEvent($event);	// queue a mouseDown event for us
@@ -1100,8 +1100,7 @@ class NSButton extends NSControl
 // _NSLog($this->state);
 		$this->setState($value?NSOnState:NSOffState);
 		}
-	public function isEditable() { return false; }
-	public function objectValue($val) { return $this->state(); }
+	public function objectValue() { return $this->state(); }
 	public function setObjectValue($val) { $this->setSelected($val); }
 	public function setButtonType($buttonType)
 		{
@@ -1145,7 +1144,7 @@ class NSButton extends NSControl
 		}
 	public function mouseDown(NSEvent $event)
 		{ // this button may have been pressed
-// _NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
+_NSLog("NSButton ".$this->elementId()." mouseDown ".$this->buttonType);
 		if($this->buttonType == "Radio" || $this->buttonType == "CheckBox")
 			$this->setNextState();	// toggle before sending action (why?)
 		$this->sendAction();
@@ -1164,19 +1163,21 @@ class NSButton extends NSControl
  * And null if it is inactive.
  * State is not stored explicitly (well, it is stored but not processed)
  */
-// _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
-// _NSLog($_POST);
+ _NSLog("NSButton ".$this->elementId()." _collectEvents ".$this->buttonType);
+ _NSLog($_POST);
 			if(!is_null(_read_persist("NSEvent")))
-				{ // e(something) triggered (potentially by other object) - store state in separate variable
-// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
+				{ // JS mode: e(something) triggered (potentially by other object) - store state in separate variable
+ _NSLog("NSButton ".$this->elementId()." ".$this->buttonType." pressed state=".$this->state);
+				if($this->_eventIsForMe())
+					_NSLog("isforme");
 				}
 			else if(!is_null($this->_read_persist("ck")))
 				{ // non-java-script detection
 				$this->state=NSOffState;	// mouseDown will switch to NSOnState
-// _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
+ _NSLog("NSButton ".$this->elementId()." ".$this->buttonType.$this->classString());
 				}
 			else
-				$this->state=NSOffState; // non-JS mode and seems to be off
+				$this->state=NSOffState; // non-JS mode and seems to be off now
 			}
 		parent::_collectEvents();
 		}
@@ -2266,11 +2267,6 @@ class NSTabViewItem extends NSObject
 		$this->label=$label;
 		$this->view=$view;
 		}
-
-	/* AppKit.php extension */
-	protected $hidden;
-	public function isHidden() { return $this->hidden; }
-	public function setHidden($flag) { $this->hidden=$flag; }
 	}
 
 class NSTabView extends NSControl
@@ -2336,7 +2332,7 @@ class NSTabView extends NSControl
 // _NSLog("selectTabViewItemAtIndex $index");
 		if($index < 0 || $index >= count($this->tabViewItems))
 			return;	// ignore (or could rise an exception)
-		if($this->tabViewItems[$index]->isHidden())
+		if($this->tabViewItems[$index]->view()->isHidden())
 			return;	// can't select (or we might be able to unhide a hidden tab by a fake $POST)
 		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
 			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[$index]))
@@ -2408,7 +2404,7 @@ class NSTabView extends NSControl
 		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
-			if(!$item->isHidden())
+			if(!$item->view()->isHidden())
 				{
 
 // should use ordinary NSButtons and use setTag(tabindex)
@@ -2488,8 +2484,13 @@ class NSTableColumn extends NSObject
 	public function setIdentifier($identifier) { $this->identifier=$identifier; }
 	public function isHidden() { return $this->hidden; }
 	public function setHidden($flag) { $this->hidden=$flag; }
-	public function isEditable() { return $this->dataCell->isEditable; }
-	public function setEditable($flag) { $this->dataCell->setEditable($flag); }
+	public function isEditable() { return $this->isEditable; }
+	public function setEditable($flag)
+		{
+		$this->isEditable=$flag;
+		if(!is_null($this->dataCell) && $this->dataCell->respondsToSelector("setEditable"))
+			$this->dataCell->setEditable($this->isEditable);
+		}
 	public function align() { return $this->align; }
 	public function setAlign($align) { $this->align=$align; }
 	public function width() { return $this->width; }
@@ -2497,7 +2498,12 @@ class NSTableColumn extends NSObject
 	public function dataCell() { return $this->dataCell; }
 	public function dataCellForRow($row) { return $this->dataCell(); }
 	public function headerCell() { return $this->headerCell; }
-	public function setDataCell(NSView $cell) { $this->dataCell=$cell; }	// copy isEditable
+	public function setDataCell(NSView $cell)
+		{
+		$this->dataCell=$cell;
+		if(!is_null($this->dataCell) && $this->dataCell->respondsToSelector("setEditable"))
+			$this->dataCell->setEditable($this->isEditable);
+		}
 	public function setHeaderCell(NSView $cell) { $this->headerCell=$cell; }
 }
 
@@ -2663,7 +2669,7 @@ class NSTableView extends NSControl
 		}
 	public function _collectEvents()
 		{
-_NSLog("_collectEvents: isHidden: ".$this->isHidden()?"yes":"no");
+_NSLog("_collectEvents: isHidden: ".($this->isHidden()?"yes":"no"));
 		if($this->isHidden())
 			return;	// don't process events
 		parent::_collectEvents();	// process subviews, i.e. cells
@@ -2678,7 +2684,7 @@ _NSLog("_collectEvents: isHidden: ".$this->isHidden()?"yes":"no");
 				if($column->isHidden())
 					continue;
 				$cell=$this->_dataCell($row, $column);
-				if($row < $rows && $cell->isEditable())
+				if($row < $rows && $column->isEditable())
 					{ // check if value has changed
 //_NSLog($cell);
 					$cell->_setSuperView($this);
