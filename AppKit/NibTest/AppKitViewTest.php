@@ -57,8 +57,8 @@ class AppController extends NSObject
 				case "a":
 				case "c":
 					$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
-_NSLog("tableView_objectValueForTableColumn_row: ".$column->identifier()." ".$row);
-_NSLog($values);
+// _NSLog("tableView_objectValueForTableColumn_row: ".$column->identifier()." ".$row);
+// _NSLog($values);
 					if(!is_null($values) && isset($values[$row]))
 						return $values[$row];
 					break;
@@ -72,14 +72,14 @@ _NSLog($values);
 
 	public function tableView_setObjectValue_forTableColumn_row(NSTableView $table, $value, NSTableColumn $column, $row)
 		{
-_NSLog("tableView_setObjectValue_forTableColumn_row: ".$column->identifier()." ".$row);
+_NSLog("tableView_setObjectValue_forTableColumn_row: ".$column->identifier()." ".$row." = $value");
 		if($table == $this->tableInTab)
 			{
 			$values=NSUserDefaults::standardUserDefaults()->objectForKey($column->identifier());
 			if(is_null($values))
 				$values=array();
 			$values[$row]=trim($value);	// may have applied some NSFormatter
-_NSLog($values);
+// _NSLog($values);
 			NSUserDefaults::standardUserDefaults()->setObjectForKey($column->identifier(), $values);
 			}
 		}
@@ -222,6 +222,7 @@ _NSLog($values);
 		$c->columns()[0]->setEditable(true);	// make first column editable
 		$c->columns()[2]->setDataCell(new NSButton("value", "CheckBox"));	// make checkbox
 		$c->columns()[2]->setEditable(true);	// make editable
+		$c->columns()[2]->dataCell()->setAllowsMixedState(true);
 		$v->addTabViewItem(new NSTabViewItem("5", $c));
 
 		/* embedded Matrix with Radio Buttons */
