@@ -347,7 +347,7 @@ class NSResponder extends NSObject
 		$id=_read_persist("NSEvent");
 		if(is_null($id))
 			return false;
-		return (int)$id == $this->elementId();
+		return $id == $this->elementId();
 		}
 
 	public function _collectEvents()
