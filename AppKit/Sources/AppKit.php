@@ -3558,6 +3558,22 @@ _NSLog($exts);
 		}
 	public function _externalURLForPath($path)
 		{ // translate executable path into external URL
+if(true)
+	{ // new version
+			global $_mappinglist;	// should be a property of this class
+			$path=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
+			$url=null;
+			// and updating the mapping should be a method...
+			if(file_exists($_mappinglist))
+				{
+				$string=file_get_contents($_mappinglist);
+				$json=json_decode($string, true);
+				if(isset($json[$path]))
+					$url=$json[$path];
+				// else scan the tree or try some other method
+				}
+			return $url;
+	}
 		$fm=NSFileManager::defaultManager();
 		$exec=$fm->fileSystemRepresentationWithPath($path);
 		$exec=realpath($exec);	// expand symlinks
@@ -3635,22 +3651,7 @@ _NSLog($exts);
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
 // _NSLog("open: ".$exec);
-if(false)	 // old version
-				$url=$this->_externalURLForPath($exec);
-else	// new version
-	{
-			global $_mappinglist;	// should be a property of this class
-			$url=null;
-			// and updating the mapping should be a method...
-			if(file_exists($_mappinglist))
-				{
-				$string=file_get_contents($_mappinglist);
-				$json=json_decode($string, true);
-				if(isset($json[$exec]))
-					$url=$json[$exec];
-				// else scan the tree or try some other method
-				}
-	}
+			$url=$this->_externalURLForPath($exec);
 			if(!is_null($url))
 				{
 				$delim='?';
@@ -3840,12 +3841,15 @@ function NSApplicationMain($name, $nibfile="NSMainNibFile")
 		}
 	else
 		$json=array();	// first
+// _NSLog($_mappinglist);
+// _NSLog($json);
 	// take http://something only if it is shorter than https://something
-	if(!isset($json[$exec]) || strlen(str_replace("http:", "httpss:", $url)) < strlen($json[$exec]))
+	if(!isset($json[$exec]) || strlen(str_replace("http:", "http++:", $url)) < strlen($json[$exec]))
 		{ // prefer shorter link
 		$json[$exec]=$url;
 		// could also use a time stamp to delete stale entries
 		$string=json_encode($json, JSON_PRETTY_PRINT);
+// _NSLog("write $_mappinglist");
 		file_put_contents($_mappinglist, $string);
 		}
 
