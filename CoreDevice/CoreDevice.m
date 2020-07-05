@@ -170,8 +170,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 0
 		NSLog(@"%@ = %@", t, type);
 #endif
-		if([t isEqualToString:type])
-			quality+=4;	// type matches
+		if(![t isEqualToString:type])
+			continue;	// type does not match
 		if([[NSString stringWithContentsOfFile:[dpath stringByAppendingPathComponent:@"present"]] intValue] == 1)
 			quality+=2;	// is present
 		if([device hasPrefix:@"bq27"])
@@ -248,10 +248,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		status=[self getPowerSupplyValue:@"status" forType:@"USB"];
 		if([status hasPrefix:@"Charging"])
 			{ // USB charger active
-				{ // USB charger active
-					if([self chargerVoltage] < 4.7)	// VBUS < 4.7V - risk of HW-disconnect
-						return YES;	// weak and unreliable charging - check cable
-				}
+				if([self chargerVoltage] < 4.7)	// VBUS < 4.7V - risk of HW-disconnect
+					return YES;	// weak and unreliable charging - check cable
 			}
 		}
 	/* if unplugged:
@@ -274,15 +272,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if([status hasPrefix:@"Full"])
 			return UIDeviceBatteryStateFull;
 		if([status hasPrefix:@"Charging"])
-			{
+			{ // Battery reports it is charging
 			if([self batteryLevel] > 0.99)
 				return UIDeviceBatteryStateFull;
 			status=[self getPowerSupplyValue:@"status" forType:@"USB"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateCharging;
 			status=[self getPowerSupplyValue:@"status" forType:@"Mains"];
+			if(!status)
+				status=[self getPowerSupplyValue:@"status" forType:@"AC"];
 			if([status hasPrefix:@"Charging"])
 				return UIDeviceBatteryStateACCharging;
+			return UIDeviceBatteryStateCharging;	// needed for PinePhone
 			return UIDeviceBatteryStateUnknown;	// we don't know why the battery is charging...
 			}
 		if([status hasPrefix:@"Discharging"])
@@ -330,6 +331,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSString *val=[self batteryValue:@"temp"];
 	if(!val)
 		val=[self getPowerSupplyValue:@"temp" forType:@"USB"];	// on some devices only the charger reports the temperature
+	if(!val)
+		val=[self getPowerSupplyValue:@"temp" forType:@"AC"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"temp" forType:@"Mains"];
 	return val?[val floatValue] * 0.1:-1000.0;	// sysfs reports temperature in 0.1°C steps
 }
 
@@ -343,6 +348,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	// FIXME: use VAC or VBUS whatever is available
 	NSString *val=[self getPowerSupplyValue:@"voltage_now" forType:@"USB"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"voltage_now" forType:@"AC"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"voltage_now" forType:@"Mains"];
 	return val?[val floatValue] * 1e-6 : -1.0;
 }
 
@@ -350,6 +359,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	// FIXME: use VAC or VBUS whatever is available
 	NSString *val=[self getPowerSupplyValue:@"input_current_limit" forType:@"USB"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"input_current_limit" forType:@"AC"];
+	if(!val)
+		val=[self getPowerSupplyValue:@"input_current_limit" forType:@"Mains"];
 	return val?[val floatValue] * 1e-6 : -1.0;
 }
 
@@ -357,6 +370,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	// FIXME: use VAC or VBUS whatever is available
 	NSString *fname=[self getPowerSupplyValue:@"input_current_limit" forType:@"USB" returnFilename:YES];
+	if(!fname)
+		fname=[self getPowerSupplyValue:@"input_current_limit" forType:@"AC" returnFilename:YES];
+	if(!fname)
+		fname=[self getPowerSupplyValue:@"input_current_limit" forType:@"Mains" returnFilename:YES];
 	if(fname)
 		[[NSString stringWithFormat:@"%f", 1e6*current] writeToFile:fname atomically:NO];
 }
