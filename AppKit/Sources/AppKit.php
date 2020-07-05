@@ -2504,10 +2504,10 @@ class NSTableColumn extends NSObject
 	public function __construct()
 		{
 		parent::__construct();
-		$this->headerCell=new NSTextField();
+		$this->setHeaderCell(new NSTextField());
 		$this->headerCell->setEditable(false);
 		$this->headerCell->setAlign(NSCenterAlignment);
-		$this->dataCell=new NSTextField();
+		$this->setDataCell(new NSTextField());
 		}
 
 	public function tableView() { return $this->tableView; }
