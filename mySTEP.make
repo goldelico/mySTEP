@@ -49,7 +49,7 @@ QUIET=@
 #   (+) BUILT_PRODUCTS_DIR - default: build/Deployment
 #   (+) TARGET_BUILD_DIR - default: build/Deployment
 #   (+) PHPONLY - build only PHP - default: no
-#   (+) RECURSIVE - build subprojects first - default: no
+#   (+) RECURSIVE - build subprojects first ("true", "no") - default: no
 #   (+) BUILD_FOR_DEPLOYMENT - default: no
 #   (+) OPTIMIZE - optimize level - default: s
 #   (+) INSPECT - save .i and .S intermediate steps - default: no
@@ -932,6 +932,7 @@ F = filter_dependencies() \
 	  echo "Priority: $(DEBIAN_PRIORITY)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
+	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
 	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
@@ -983,6 +984,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
+	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
 	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
@@ -1032,6 +1034,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
+	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
 	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
 	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
 	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
