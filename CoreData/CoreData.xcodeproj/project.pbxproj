@@ -38,6 +38,12 @@
 		EE12FABE0D059049000E4BA5 /* NSRelationshipDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = EE12FAA20D059049000E4BA5 /* NSRelationshipDescription.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE12FABF0D059049000E4BA5 /* NSRelationshipDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = EE12FAA30D059049000E4BA5 /* NSRelationshipDescription.m */; };
 		EE12FAE30D0590FD000E4BA5 /* gscoredata-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = EE12FAE20D0590FD000E4BA5 /* gscoredata-logo.png */; };
+		EE84F45924BD819200650FD0 /* NSPersistentContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE84F45724BD819200650FD0 /* NSPersistentContainer.h */; };
+		EE84F45A24BD819200650FD0 /* NSPersistentContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE84F45824BD819200650FD0 /* NSPersistentContainer.m */; };
+		EE84F45D24BD821F00650FD0 /* NSPersistentCloudKitContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE84F45B24BD821F00650FD0 /* NSPersistentCloudKitContainer.h */; };
+		EE84F45E24BD821F00650FD0 /* NSPersistentCloudKitContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE84F45C24BD821F00650FD0 /* NSPersistentCloudKitContainer.m */; };
+		EE84F46124BD827400650FD0 /* NSFetchedResultsController.h in Headers */ = {isa = PBXBuildFile; fileRef = EE84F45F24BD827400650FD0 /* NSFetchedResultsController.h */; };
+		EE84F46224BD827400650FD0 /* NSFetchedResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE84F46024BD827400650FD0 /* NSFetchedResultsController.m */; };
 		EEFA7F220D1904910061DC52 /* GSSQLitePersistentStore.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFA7F200D1904910061DC52 /* GSSQLitePersistentStore.h */; };
 		EEFA7F230D1904910061DC52 /* GSSQLitePersistentStore.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFA7F210D1904910061DC52 /* GSSQLitePersistentStore.m */; };
 /* End PBXBuildFile section */
@@ -88,6 +94,12 @@
 		EE12FAC50D059087000E4BA5 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		EE12FAE20D0590FD000E4BA5 /* gscoredata-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "gscoredata-logo.png"; path = "Images/gscoredata-logo.png"; sourceTree = "<group>"; };
 		EE6226AD1739503E005CEDC1 /* CoreData.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreData.qcodeproj; sourceTree = "<group>"; };
+		EE84F45724BD819200650FD0 /* NSPersistentContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPersistentContainer.h; sourceTree = "<group>"; };
+		EE84F45824BD819200650FD0 /* NSPersistentContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPersistentContainer.m; sourceTree = "<group>"; };
+		EE84F45B24BD821F00650FD0 /* NSPersistentCloudKitContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPersistentCloudKitContainer.h; sourceTree = "<group>"; };
+		EE84F45C24BD821F00650FD0 /* NSPersistentCloudKitContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPersistentCloudKitContainer.m; sourceTree = "<group>"; };
+		EE84F45F24BD827400650FD0 /* NSFetchedResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFetchedResultsController.h; sourceTree = "<group>"; };
+		EE84F46024BD827400650FD0 /* NSFetchedResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFetchedResultsController.m; sourceTree = "<group>"; };
 		EEFA7B7F0D185F5C0061DC52 /* CoreDataHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataHeaders.h; sourceTree = "<group>"; };
 		EEFA7F200D1904910061DC52 /* GSSQLitePersistentStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GSSQLitePersistentStore.h; sourceTree = "<group>"; };
 		EEFA7F210D1904910061DC52 /* GSSQLitePersistentStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GSSQLitePersistentStore.m; sourceTree = "<group>"; };
@@ -185,6 +197,12 @@
 				EE12FAA10D059049000E4BA5 /* NSPropertyDescription.m */,
 				EE12FAA20D059049000E4BA5 /* NSRelationshipDescription.h */,
 				EE12FAA30D059049000E4BA5 /* NSRelationshipDescription.m */,
+				EE84F45724BD819200650FD0 /* NSPersistentContainer.h */,
+				EE84F45824BD819200650FD0 /* NSPersistentContainer.m */,
+				EE84F45B24BD821F00650FD0 /* NSPersistentCloudKitContainer.h */,
+				EE84F45C24BD821F00650FD0 /* NSPersistentCloudKitContainer.m */,
+				EE84F45F24BD827400650FD0 /* NSFetchedResultsController.h */,
+				EE84F46024BD827400650FD0 /* NSFetchedResultsController.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -239,12 +257,15 @@
 				EE12FAA50D059049000E4BA5 /* CoreDataErrors.h in Headers */,
 				EE12FAA70D059049000E4BA5 /* CoreDataUtilities.h in Headers */,
 				EE12FAA80D059049000E4BA5 /* GSPersistentStore.h in Headers */,
+				EE84F45924BD819200650FD0 /* NSPersistentContainer.h in Headers */,
 				EE12FAAA0D059049000E4BA5 /* NSAttributeDescription.h in Headers */,
 				EE12FAAC0D059049000E4BA5 /* NSEntityDescription.h in Headers */,
 				EE12FAAE0D059049000E4BA5 /* NSFetchedPropertyDescription.h in Headers */,
 				EE12FAB00D059049000E4BA5 /* NSFetchRequest.h in Headers */,
+				EE84F45D24BD821F00650FD0 /* NSPersistentCloudKitContainer.h in Headers */,
 				EE12FAB20D059049000E4BA5 /* NSManagedObject.h in Headers */,
 				EE12FAB40D059049000E4BA5 /* NSManagedObjectContext.h in Headers */,
+				EE84F46124BD827400650FD0 /* NSFetchedResultsController.h in Headers */,
 				EE12FAB60D059049000E4BA5 /* NSManagedObjectID.h in Headers */,
 				EE12FAB80D059049000E4BA5 /* NSManagedObjectModel.h in Headers */,
 				EE12FABA0D059049000E4BA5 /* NSPersistentStoreCoordinator.h in Headers */,
@@ -282,6 +303,8 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreData" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
@@ -337,17 +360,20 @@
 			files = (
 				EE12FAA60D059049000E4BA5 /* CoreDataErrors.m in Sources */,
 				EE12FAA90D059049000E4BA5 /* GSPersistentStore.m in Sources */,
+				EE84F45A24BD819200650FD0 /* NSPersistentContainer.m in Sources */,
 				EE12FAAB0D059049000E4BA5 /* NSAttributeDescription.m in Sources */,
 				EE12FAAD0D059049000E4BA5 /* NSEntityDescription.m in Sources */,
 				EE12FAAF0D059049000E4BA5 /* NSFetchedPropertyDescription.m in Sources */,
 				EE12FAB10D059049000E4BA5 /* NSFetchRequest.m in Sources */,
 				EE12FAB30D059049000E4BA5 /* NSManagedObject.m in Sources */,
 				EE12FAB50D059049000E4BA5 /* NSManagedObjectContext.m in Sources */,
+				EE84F46224BD827400650FD0 /* NSFetchedResultsController.m in Sources */,
 				EE12FAB70D059049000E4BA5 /* NSManagedObjectID.m in Sources */,
 				EE12FAB90D059049000E4BA5 /* NSManagedObjectModel.m in Sources */,
 				EE12FABB0D059049000E4BA5 /* NSPersistentStoreCoordinator.m in Sources */,
 				EE12FABD0D059049000E4BA5 /* NSPropertyDescription.m in Sources */,
 				EE12FABF0D059049000E4BA5 /* NSRelationshipDescription.m in Sources */,
+				EE84F45E24BD821F00650FD0 /* NSPersistentCloudKitContainer.m in Sources */,
 				EEFA7F230D1904910061DC52 /* GSSQLitePersistentStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
