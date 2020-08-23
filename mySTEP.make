@@ -199,10 +199,10 @@ else
 DEFINES += -D__mySTEP__
 ifeq ($(DEBIAN_RELEASE),staging)
 # use default toolchain
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(TRIPLE)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/Jessie/$(DEBIAN_ARCH)/usr
 else
-# use specific toolchain depending on DEBAIN_RELEASE (wheezy, jessie, stretch)
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions-$(DEBIAN_RELEASE)/Current/gcc/$(TRIPLE)
+# use specific toolchain depending on DEBAIN_RELEASE (wheezy, jessie, stretch) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE)/$(DEBIAN_ARCH)/usr
 endif
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
