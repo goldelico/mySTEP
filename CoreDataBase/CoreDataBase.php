@@ -167,7 +167,7 @@ class _CSV
 		$c=pathinfo($file);
 		if(!isset($c['extension']))
 			return false;	// file w/o extension
-		return $c['extension'] == "csv" || $c['extension'] == "tsv" ||
+		return $c['extension'] == "csv" || $c['extension'] == "tsv" || $c['extension'] == "ssv" ||
 			$c['extension'] == "xls" || $c['extension'] == "html";
 	}
 
@@ -209,6 +209,10 @@ class _CSV
 			{
 			$this->separator="\t";
 			$this->enclosure="\n";	// should never occur
+			}
+		if(substr($file, -4) == ".ssv")
+			{
+			$this->separator=";";
 			}
 		else if(substr($file, -4) == ".xls" || substr($file, -5) == ".html")
 			{ // try to read html
@@ -259,7 +263,8 @@ class _CSV
 			}
 		if(($this->columns = fgetcsv($handle, 0, $this->separator, $this->enclosure)) === false)
 			return false;
-// print_r($this->columns);
+// _NSLog($this->separator);
+// _NSLog($this->columns);
 		$this->rows[]=array();
 		while(($values = fgetcsv($handle, 0, $this->separator, $this->enclosure)) !== false)
 			{
