@@ -65,6 +65,7 @@ class NSMailDelivery extends NSObject
 // to send to multiple recipients, provide $headers['To'] as an array
 // to send MIME with attachments, use an attributed string
 
+
 	public static function deliverMessageHeadersFormatProtocol(/*NSAttributedString*/$body, array $headers, $format, $protocol=null)
 	{
 		if(is_null($protocol)) $protocol=self::NSSMTPDeliveryProtocol;
@@ -80,7 +81,7 @@ class NSMailDelivery extends NSObject
 				$headers[$key]=$value=implode(',', $value);	// merge into list
 			if($key == 'To' || $key == 'Subject')
 				continue;	// skip
-			// should check if To, Bcc, CC are isValid
+			// should check if To, Bcc, CC, Reply-To: are isValid
 			$hdrs.="$key: $value\r\n";	// convert
 			}
 		if($format == self::NSASCIIMailFormat)
@@ -94,81 +95,46 @@ class NSMailDelivery extends NSObject
 			$msg=$body;
 		else
 			{
-			// extract attachments from $body
-			$msg=$body;
-			// build additional MIME headers/sections
 
 /*****
+			// if there are attachments:
 
-NOTE: this is now wrong with latest PHP. Only the first Content-Type: multipart/alternative can be in the headers
-part. Everthing else must be in $body.
+			// specify MIME version 1.0
+			$hdrs .= "Mime-Version: 1.0\n";
 
-I.e. we scan the body for attachments and add them
+			// unique boundary
+			$boundary = uniqid("QuantumSTEP");
 
-		//add From: header
-		$headers  = "From: service@$httpdomain\n";
-		$headers .= "Bcc: sales@$httpdomain\n";	// make us always receive a copy...
-		//	$headers .= "To: $dest\n";
-		$headers .= "Reply-To: service@$httpdomain\n";
-		//	$headers .= "Subject: $subject - $orderid\n";
+			// tell e-mail client this e-mail contains alternate versions
+			$hdrs .= "Content-Type: multipart/mixed" . "; boundary=$boundary\n\n";
 
-		//specify MIME version 1.0
-		$headers .= "Mime-Version: 1.0\n";
+			$msg="";
 
-		//unique boundary
-		$boundary = uniqid("HHLXSHOP");
+			// loop over strings and attachments in NSAttributedString $body
+				{
+				$string=...;
+				$infos[]=...;
 
-		//tell e-mail client this e-mail contains//alternate versions
-		$headers .= "Content-Type: multipart/alternative" . "; boundary=$boundary\n";
-		$headers .= "Content-Transfer-Encoding: 8bit\n";
-		$headers .= "\n";
+				$msg .= "--$boundary\n";
+				// get from attachment infos
+				$msg .= "Content-Transfer-Encoding: quoted-printable\n";
+				$msg .= "Content-Type: text/plain; charset=ISO-8859-1\n";
+				// if we attach a PDF or something for download
+				$msg .= "Content-Disposition: attachment; something.pdf\n";
+				$body .= "\n";
 
-		$b = "Dear ".$orow['Rechnungsname'].",\n".$body."\n\n";
-		$b .= "To view the current and complete status of your order, please open your personal order link:\n  <$orderlink>\nWe recommend to bookmark this link.\n\n";
-		$b .= "With kind regards,\nYour team from Golden Delicious Computers.\n\n";
-		$b .= signature();
-		$b .= "\n";
-		$b=str_replace("\n\n", "\n \n", $b);
+				if(string)
+					$msg .= $string;
+				else
+					$msg .= chunk_split(base64_encode($attachment), 76, "\n");
 
-		// message to people with clients who don't understand MIME
-
-		$headers .= $b;
-
-		// plain text version of message
-		$headers .= "--$boundary\n";
-		$headers .= "Content-Type: text/plain; charset=ISO-8859-1\n";
-		$headers .= "Content-Transfer-Encoding: 8bit\n";
-		$headers .= "\n";
-		$headers .= $b;
-
-		// append order page
-		if($addhtml)
-			{ // add a HTML version of order page
-// FIXME: we don't find shop.goldelico.com through the nameserver!
-				$path=$httphome."/".orderlink($orderid)."&info=mail";
-				$path="http://www.handheld-linux.com"."/".orderlink($orderid)."&info=mail";
-				// echo htmlentities($path);
-				$fd=@fopen($path, "r");	// get order page (through http! - for https we would have to provide authentication infos) - but it is local anyway
-				if($fd)
-					{
-// echo "loading.";
-					$headers .= "--$boundary\n" .
-					"Content-Type: text/html; charset=ISO-8859-1\n" .
-					"Content-Transfer-Encoding: 8bit\n";
-					$headers .= "\n";
-					while(!feof($fd))
-						$headers .= fread($fd, 999999);
-					fclose($fd);
-					// split long lines at existing blank!
-					$headers .= "\n--$boundary--";
-					}
-			}
-		else
-			$headers .= "\n--$boundary--";
-		$headers .= "\n";
+				$msg .= "\n\n";
+				}
+			$msg .= "\n--$boundary--";	// final boundary
 
 *****/
 			}
+// get error: error_get_last()['message']
 		return mail($headers['To'], $headers['Subject'], $msg, $hdrs);
 	}
 
