@@ -205,6 +205,8 @@ class PDFDocument extends NSObject
 {
 	private $pages;
 	private $size;
+	private $url;
+	private $data;
 
 	public function __construct()
 	{
@@ -217,47 +219,120 @@ class PDFDocument extends NSObject
 		parent::__destruct();
 	}
 
+	public function initWithData($data)
+	{
+		if(substr($data, 0, 4) != "%PDF")
+			NSLog("Is not PDF: ".substr($this->data, 0, 20));
+		else
+			$this->data=$data;
+		return $this;
+	}
+
+	private function load()
+	{
+		if($this->data)
+			{
+			// parse PDFPpages from $this->data
+			}
+	}
+
+	public function initWithURL($url)
+	{
+		$this->url=$url;
+		$fd=@fopen($this->url, "r");
+		$data="";
+		if($fd)
+			{
+			while(!feof($fd))
+				$data .= fread($fd, 999999);
+			fclose($fd);
+			return $this->initWithData($data);
+			}
+		NSLog("Could not receive data from ".$this->url);
+		return null;
+	}
+
+	public function documentURL()
+	{
+		return $this->url;
+	}
+
+	public function majorVersion()
+	{
+		return 1;
+	}
+
+	public function minorVersion()
+	{
+		return 0;
+	}
+
+	public function documentAttributes()
+	{
+		$this->load();
+		return $this->attributes;
+	}
+
+	public function dataRepresentationWithOptions($options)
+	{
+		// collect from pages
+		return $this->data;
+	}
+
 	public function dataRepresentation()
 	{
-		return PDFPage::dataRepresentation();
+		return $this->dataRepresentationWithOptions(0);
 	}
+
+	public function string()
+	{
+	}
+
+	// writeToFile/URL+withOptions
 
 	public function exchangePageAtIndexWithPageAtIndex($i1, $i2)
 	{
+		$this->load();
 		$this->pages->exchangeObjectAtIndexWithObjectAtIndex($i1, $i2);
 	}
 
 	public function indexForPage(PDFPage $page)
 	{
+		$this->load();
 		return $this->pages->indexForObject($page);
 	}
 
 	public function insertPageAtIndex(PDFPage $page, $index)
 	{
+		$this->load();
 		$this->pages->insertObjectAtIndex($page, $index);
 	}
 
 	public function pageAtIndex($index)
 	{
+		$this->load();
 		return $this->pages->objectAtIndex($index);
 	}
 
 	public function pageCount()
 	{
+		$this->load();
 		return $this->pages->count();
 	}
 
-	function removePageAtIndex($index)
+	public function removePageAtIndex($index)
 	{
+		$this->load();
 		return $this->pages->removeObjectAtIndex($index);
 	}
 
-	function pageClass()
+	public function pageClass()
 	{
 		return "PDFPage";
 	}
 
 // PDF generator
+// this is non-standard. Use $this->insertPageAtIndex((new $this->pageClass())->initWithDocument($this), $this->pageCount();
 
 	function startNewPage()
 	{
@@ -268,6 +343,7 @@ class PDFDocument extends NSObject
 		return $page;
 	}
 
+// non-standard...
 	function pageSize()
 	{
 		return $this->pageSize;
