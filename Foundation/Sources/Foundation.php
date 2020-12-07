@@ -187,6 +187,16 @@ class NSObject /* root class */
 		return $this->description();
 		}
 
+	public function isKindOfClass($classString)
+		{
+		return is_a($this, $classString);
+		}
+
+	public function isMemberOfClass($classString)
+		{
+		return is_a($this, $classString) && !is_subclass_of($this, $classString);
+		}
+
 	public function respondsToSelector($selector)
 		{
 		return method_exists($this, $selector);
