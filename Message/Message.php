@@ -137,18 +137,15 @@ class NSMailDelivery extends NSObject
 						$msg .= "Content-Disposition: attachment; somefile.pdf\n";
 						$msg .= "\n";
 						$msg .= chunk_split(base64_encode($part->dataRepresentation()), 76, "\n");
-						$msg .= "\n";
 						}
 					else
 						{ // string
+						// get this from attachment infos and type from $body
 						$msg .= "Content-Transfer-Encoding: quoted-printable\n";
 						$msg .= "Content-Type: text/plain; charset=ISO-8859-1\n";
 						$msg .= "\n";
 						$msg .= $part;
-						$msg .= "\n";
 						}
-						// get from attachment infos and type from $body
-
 					$msg .= "\n";
 					}
 				$msg .= "\n--$boundary--";	// final boundary
