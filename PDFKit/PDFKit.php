@@ -7,12 +7,14 @@
 
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/AppKit.framework/Versions/Current/php/AppKit.php";
+
+// there may be newer version e.g. at https://github.com/rospdf - but compatibility is not clear
 require_once "$ROOT/Internal/Frameworks/EzPDF.framework/Versions/Current/php/class.Cpdf.php";
 // require_once "$ROOT/Internal/Frameworks/EzPDF.framework/Versions/Current/php/class.ezpdf.php";
 
 if($GLOBALS['debug']) echo "<h1>PDFKit.framework</h1>";
 
-// FIXME: handle Unicode translation
+// FIXME: properly handle Unicode translation!
 
 const para="\247";	// paragraph
 const ae="\344";
@@ -22,8 +24,7 @@ const ss="\337";
 const AE="\304";
 const OE="\326";
 const UE="\334";
-// const eur="\200"; // there is no EUR symbol in ISO Latin-1
-const eur="EUR";
+const eur="\200"; // there is no EUR symbol in ISO Latin-1
 
 function cm2pt($cm)
 {
@@ -32,32 +33,73 @@ function cm2pt($cm)
 
 class PDFPage extends NSObject
 {
-	private static $ezpdf;
 	private $document;	// reference to owning document
 	private $angle=0.0;
-	private $fontSize=12.0;
 	private $justification='left';
 	private $lineSpacing=1.1;
+	private $bounds;
+	private $label;
 
-	public function document() { return $this->document; }
+	public function init()
+	{
+		super::init();
+		$this->bounds=array();
+	}
 
 	public function initWithDocument(PDFDocument $document)
 	{ // override to add background for all pages
-		$this->document=$document;
-		if(!isset(self::$ezpdf))
-			{
-			$ps=$document->pageSize();
-			self::$ezpdf=new Cpdf(array(NSMinX($ps), NSMinY($ps), NSWidth($ps), NSHeight($ps)));
-			$this->setFont('Helvetica');
-			}
-		else
-			self::$ezpdf->newPage();
+		$this->init();
+		$document->insertPageAtIndex($this, $document->pageCount());	// append
 		return $this;
 	}
 
+	public function initWithImage(NSImage $image)
+	{ // override to add background for all pages
+		$this->init();
+		// here we have neither a document() nor a pageRef()
+		$this->drawImageInRect($image, $rect);
+		return $this;
+	}
+
+	public function document() { return $this->document; }
+	public function _setDocument(PDFDocument $doc) { $this->document=$doc; }
+
+	public function label() { return $this->label; }
+	public function setLabel($label) { $this->label=$label; }
+
+	const kPDFDisplayBoxMediaBox=0;
+	const kPDFDisplayBoxCropBox=1;
+	const kPDFDisplayBoxBleedBox=2;
+	const kPDFDisplayBoxTrimBox=3;
+	const kPDFDisplayBoxArtBox=4;
+
+	public function boundsForBox($box)
+	{
+		return $this->bounds[$box];
+	}
+
+	public function setBoundsForBox($box, /*NSRect*/ $bounds)
+	{
+		$this->bounds[$box]=$bounds;
+	}
+
+	public function dataRepresentation()
+	{
+		// FIXME: should return only this page!
+		return $this->document()->dataRepresentation();
+	}
+
+	public function pageRef()
+	{
+		return $this->document->_ezpdf();
+	}
+
+	/* non-standard drawing methods */
+	/* a page must be added to a PDFDocument right after init to use these functions */
+
 	function setFontSize($fontSize=12.0)
 	{
-		$this->fontSize=$fontSize;
+		$this->pageRef()->fontSize=$fontSize;
 	}
 
 	function setFont($fontName)
@@ -72,24 +114,26 @@ class PDFPage extends NSObject
 // _NSLog("fpath $fpath");
 		$fpath=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($fpath);	// use internal representation
 // _NSLog("fpath $fpath");
-		self::$ezpdf->selectFont($fpath, array(/*"encoding"=>"StandardEncoding",*/ "differences" => array((eur+0) => "Euro")));
+		$this->pageRef()->selectFont($fpath, array(/*"encoding"=>"StandardEncoding",*/ "differences" => array((int)eur => "Euro")));
 	}
 
 	function setColor(NSColor $color)
 	{
-		self::$ezpdf->setColor($color->r(), $color->g(), $color->b());
+		$this->pageRef()->setColor($color->r(), $color->g(), $color->b());
 	}
 
 	function setStrokeColor(NSColor $color)
 	{
-		self::$ezpdf->setStrokeColor($color->r(), $color->g(), $color->b());
+		$this->pageRef()->setStrokeColor($color->r(), $color->g(), $color->b());
 	}
 
 	// we could implement NSBezierPath to store control points and line styles
+	// and use curve($x0,$y0,$x1,$y1,$x2,$y2,$x3,$y3)
+
 
 	function strokeLine($start, $end)	// NSPoints
 	{
-		self::$ezpdf->line(NSMinX($start), NSMinY($start), NSMinX($end), NSMinY($end));
+		$this->pageRef()->line(NSMinX($start), NSMinY($start), NSMinX($end), NSMinY($end));
 	}
 
 	function strokeRect($rect)
@@ -102,17 +146,17 @@ class PDFPage extends NSObject
 
 	function setLineStyle($width=1, $cap='', $join='', $dash='', $phase=0)
 	{
-		self::$ezpdf->setLineStyle($width, $cap, $join, $dash, $phase);
+		$this->pageRef()->setLineStyle($width, $cap, $join, $dash, $phase);
 	}
 
 	function getFontHeight()
 	{
-		return self::$ezpdf->getFontHeight(1.0);
+		return $this->pageRef()->getFontHeight(1.0);
 	}
 
 	function getFontDecender()
 	{
-		return self::$ezpdf->getFontDecender(1.0);
+		return $this->pageRef()->getFontDecender(1.0);
 	}
 
 	function setAngle($angle=0.0)
@@ -132,7 +176,7 @@ class PDFPage extends NSObject
 
 	function widthOfText($text)
 	{
-		return self::$ezpdf->getTextWidth($this->fontSize, $text);
+		return $this->pageRef()->getTextWidth($this->pageRef()->fontSize, $text);
 	}
 
 	// handle attributed strings to define line spacing, fonts etc.
@@ -141,17 +185,16 @@ class PDFPage extends NSObject
 	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
 // _NSLog("drawTextAtPoint: $text");
 // _NSLog($rect);
-	// FIXME: EUR symbol?
+		// FIXME: EUR symbol?
 		$text=iconv("UTF-8", "CP1252", $text);
 		$width=NSWidth($rect);
 		$height=NSHeight($rect);
-		if($width <= 0.0) $width=99999999.9;
+		if($width <= 0.0) $width=99999999.9;	// no limitations
 		if($height <= 0.0) $height=99999999.9;
-$this->strokeRect($rect);
 		$lines=explode("\n", $text);
-		$py=NSHeight($this->document->pageSize());
 		$x=NSMinX($rect);
 		$y=NSMaxY($rect);	// start point
+//		$py=NSHeight($this->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
 //		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
 		$ymin=$y-$height;
 		for($i=0; $i<count($lines); $i++)
@@ -159,24 +202,24 @@ $this->strokeRect($rect);
 			$line=$lines[$i];
 			while(true)
 				{
-// _NSLog(($y-$this->fontSize)." ".($ymin-$height));
-				if($y-$this->fontSize < $ymin)
+// _NSLog(($y-$this->pageRef()->fontSize)." ".($ymin-$height));
+				if($y-$this->pageRef()->fontSize < $ymin)
 					{ // no room for another line
 					$lines[$i]=$line;	// what is not printed on this line
 					break;
 					}
-// _NSLog("addTextWrap x=$x y=$y w=$width s=$this->fontSize l=$line j=$this->justification a=$this->angle");
-				$line=self::$ezpdf->addTextWrap($x, $y-$this->fontSize, $width, $this->fontSize, $line, $this->justification, $this->angle);
-				$y -= $this->lineSpacing*$this->fontSize;
+// _NSLog("addTextWrap x=$x y=$y w=$width s=$this->pageRef()->fontSize l=$line j=$this->justification a=$this->angle");
+				$line=$this->pageRef()->addTextWrap($x, $y-$this->pageRef()->fontSize, $width, $this->pageRef()->fontSize, $line, $this->justification, $this->angle);
+				$y -= $this->lineSpacing*$this->pageRef()->fontSize;
 				if($line == "")
 					break;	// done with this line
 				}
 			}
 		if(NSHeight($rect) > 0)
-			$rect['height']-=$y-NSMinY($rect);	// reduce by amount we have printed
+			$rect['height']-=$y-NSMinY($rect);	// reduce rect by amount we have printed
 //		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
 		$rect['y']=$y;	// where next line can start
-		return implode("\n", array_slice($lines, $i));	// return text that has not been processed
+		return implode("\n", array_slice($lines, $i));	// return any text that has not been processed
 	}
 
 	function drawImageInRect(NSImage $image, $rect)
@@ -189,16 +232,16 @@ $this->strokeRect($rect);
 		if($height <= 0.0) $height=NSHeight($image->size());
 		$x=NSMinX($rect);
 		$y=NSMinY($rect);
-//		$py=NSHeight($this->document->pageSize());
+//		$py=NSHeight($this->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
 //		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
-		self::$ezpdf->addImage($data, $x, $y-$height, $width, $height);
+		$this->pageRef()->addImage($data, $x, $y-$height, $width, $height);
 	}
 
-	public static function dataRepresentation()
-	{
-// _NSLog(self::$ezpdf);
-		return self::$ezpdf->output();
-	}
+	/* more ideas
+		addLink
+		addInternalLink
+		setEncryption
+	*/
 }
 
 class PDFDocument extends NSObject
@@ -207,6 +250,8 @@ class PDFDocument extends NSObject
 	private $size;
 	private $url;
 	private $data;
+
+	private $ezpdf;
 
 	public function __construct()
 	{
@@ -217,6 +262,11 @@ class PDFDocument extends NSObject
 	public function __destruct()
 	{
 		parent::__destruct();
+	}
+
+	public function _ezpdf()
+	{
+		return $this->ezpdf;
 	}
 
 	public function initWithData($data)
@@ -275,7 +325,10 @@ class PDFDocument extends NSObject
 
 	public function dataRepresentationWithOptions($options)
 	{
-		// collect from pages
+		if(isset($this->ezpdf))
+			{ // sould collect from pages
+			return $this->ezpdf->output();
+			}
 		return $this->data;
 	}
 
@@ -306,6 +359,17 @@ class PDFDocument extends NSObject
 	{
 		$this->load();
 		$this->pages->insertObjectAtIndex($page, $index);
+		$page->_setDocument($this);	// set backlink
+		if(!isset($this->ezpdf))
+			{ // first page - defines page size for all
+			$ps=$page->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
+			$this->ezpdf=new Cpdf(array(NSMinX($ps), NSMinY($ps), NSWidth($ps), NSHeight($ps)));
+			$page->setFont('Helvetica');
+			}
+		else
+			// there is an optional $insert=0,$id=0,$pos='after' parameter if we do not append
+			$this->ezpdf->newPage();
+			// can we change page size on the fly?
 	}
 
 	public function pageAtIndex($index)
@@ -323,6 +387,7 @@ class PDFDocument extends NSObject
 	public function removePageAtIndex($index)
 	{
 		$this->load();
+		$page->_setDocument(null);
 		return $this->pages->removeObjectAtIndex($index);
 	}
 
@@ -330,30 +395,6 @@ class PDFDocument extends NSObject
 	{
 		return "PDFPage";
 	}
-
-// PDF generator
-// this is non-standard. Use $this->insertPageAtIndex((new $this->pageClass())->initWithDocument($this), $this->pageCount();
-
-	function startNewPage()
-	{
-		$pclass=$this->pageClass();
-		$page=new $pclass;
-		$page=$page->initWithDocument($this);
-		$this->insertPageAtIndex($page, $this->pageCount());	// append new page
-		return $page;
-	}
-
-// non-standard...
-	function pageSize()
-	{
-		return $this->pageSize;
-	}
-
-	function setPageSize($size)
-	{
-		return $this->pageSize=$size;
-	}
-
 }
 
 class PDFView extends NSView
