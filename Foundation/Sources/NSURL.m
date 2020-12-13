@@ -1520,13 +1520,11 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	NIMP; return NULL;
 }
 
-// these do % unescaping for components!
-
-- (NSString *) lastPathComponent; { return [[self pathComponents] lastObject]; }	// since 10.6
-- (NSArray *) pathComponents; { return NIMP; }	// since 10.6
-- (NSString *) pathExtension; { return NIMP; }	// since 10.6
-- (NSURL *) URLByDeletingLastPathComponent; { return NIMP; }	// since 10.6
-- (NSURL *) URLByDeletingPathExtension; { return NIMP; }	// since 10.6
+- (NSString *) lastPathComponent; { return [[self path] lastObject]; }	// since 10.6
+- (NSArray *) pathComponents; { return [[self path] pathComponents]; }	// since 10.6
+- (NSString *) pathExtension; { return [[self path] pathExtension]; }	// since 10.6
+- (NSURL *) URLByDeletingLastPathComponent; { return [[self path] stringByDeletingLastPathComponent]; }	// since 10.6
+- (NSURL *) URLByDeletingPathExtension; { return [[self path] stringByDeletingPathExtension]; }	// since 10.6
 - (NSURL *) URLByResolvingSymlinksInPath; { return NIMP; }	// since 10.6
 - (NSURL *) URLByStandardizingPath; { return NIMP; }	// since 10.6
 
