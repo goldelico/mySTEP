@@ -10,21 +10,17 @@
 
 @class LKLayer;
 @class CIFilter;
-@class CGImage;
-
-// typedef CGImage *CGImageRef;
 
 @interface IKImageView : NSView
 {
-	CGImageRef _image;
 	NSColor *_backgroundColor;
 	NSString *_currentToolMode;
 	id _delegate;
 	CIFilter *_imageCorrection;
-	CGFloat _rotationAngle;
-	CGFloat _zoomFactor;
 	NSScrollView *_scrollView;
-	BOOL _autohidesScrollers;
+	NSView *_rotationView;
+	NSImageView *_imageView;
+	NSDictionary *_imageProperties;
 	BOOL _autoresizes;
 	BOOL _doubleClickOpensImageEditPanel;
 	BOOL _editable;
@@ -60,24 +56,24 @@
 - (void) setZoomFactor:(CGFloat) zoom;
 
 - (NSPoint) convertImagePointToViewPoint:(NSPoint) pnt;
-- (NSRect) convertImageRectToViewRect:(NSRect) pnt;
+- (NSRect) convertImageRectToViewRect:(NSRect) rect;
 - (NSPoint) convertViewPointToImagePoint:(NSPoint) pnt;
-- (NSRect) convertViewRectToImageRect:(NSRect) pnt;
-- (void) flipImageHorizontal:(id) sender;
-- (void) flipImageVertical:(id) sender;
-- (CGImageRef) image;
+- (NSRect) convertViewRectToImageRect:(NSRect) rect;
+- (IBAction) flipImageHorizontal:(id) sender;
+- (IBAction) flipImageVertical:(id) sender;
+- (CGImageRef) image;	/* note that we return an NSImage */
 - (NSDictionary *) imageProperties;
 - (NSSize) imageSize;
 - (LKLayer *) overlayForType:(NSString *) type;
 - (void) scrollToPoint:(NSPoint) pnt;
 - (void) scrollToRect:(NSRect) rect;
-- (void) setImage:(CGImageRef) image imageProperties:(NSDictionary *) meta;
+- (void) setImage:(CGImageRef) image imageProperties:(NSDictionary *) meta;	/* note that we expect an NSImage */
 - (void) setImageWithURL:(NSURL *) url;
 - (void) setImageZoomFactor:(CGFloat) zoom centerPoint:(NSPoint) center;
 - (void) setOverlay:(LKLayer *) layer forType:(NSString *) type;
 - (void) setRotationAngle:(CGFloat) angle centerPoint:(NSPoint) center;
-- (void) zoomImageToActualSize:(id) sender;
-- (void) zoomImageToFit:(id) sender;
+- (IBAction) zoomImageToActualSize:(id) sender;
+- (IBAction) zoomImageToFit:(id) sender;
 - (void) zoomImageToRect:(NSRect) rect;
 
 @end

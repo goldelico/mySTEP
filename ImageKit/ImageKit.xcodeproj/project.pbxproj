@@ -14,6 +14,8 @@
 		EE51D70B0CEDA8AC00BC61D5 /* IKImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE51D70C0CEDA8AC00BC61D5 /* IKImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */; };
 		EEC4A68B08633B7A00309A0C /* ImageKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* ImageKit.framework */; };
+		EEE303AE25856F2A0009590F /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE303AC25856EC70009590F /* AppKitExtensions.framework */; };
+		EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +46,7 @@
 		EE6FE352076F05AF009CC969 /* ImageKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7AB21017476251003133D9 /* ImageKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ImageKit.qcodeproj; sourceTree = "<group>"; };
 		EE8F5C7B092F79AD00648BBF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
+		EEE303AC25856EC70009590F /* AppKitExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKitExtensions.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/AppKitExtensions-frzdvqnphbudvgeyriukqtialsoj/Build/Products/Debug/AppKitExtensions.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +54,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEE303AE25856F2A0009590F /* AppKitExtensions.framework in Frameworks */,
+				EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +65,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EEE303AC25856EC70009590F /* AppKitExtensions.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -151,6 +157,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = EED61B1009D5B06500F2B623 /* Build configuration list for PBXProject "ImageKit" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
@@ -214,9 +222,15 @@
 		EED61B0109D5B06500F2B623 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
+					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+				);
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -224,9 +238,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
+				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -239,6 +254,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ImageKit;
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -252,16 +268,23 @@
 		EED61B0209D5B06500F2B623 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
+					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+				);
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
+				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -274,6 +297,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ImageKit;
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -287,14 +311,21 @@
 		EED61B0309D5B06500F2B623 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
+					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
+				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -307,6 +338,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ImageKit;
+				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
