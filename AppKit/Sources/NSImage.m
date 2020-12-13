@@ -236,6 +236,28 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return self;
 }
 
+- (id) initByReferencingURL:(NSURL *) url
+{ // must have explicitly an extension
+	NSString *e = [url pathExtension];
+#if 0
+	NSLog(@"NSImage initByReferencingURL:%@", url);
+#endif
+	if (!e || ([[NSImageRep imageFileTypes] indexOfObject:e] == NSNotFound))
+		{ // no extension or is not recognized by type
+			[self release];
+			return nil;
+		}
+	if((self=[self initWithSize:NSZeroSize]))
+		{
+		_img.dataRetained = YES;
+		_imageFilePath = (NSString *) [url retain];
+		}
+#if 0
+	NSLog(@"NSImage initByReferencingFile -> %@", self);
+#endif
+	return self;
+}
+
 - (id) initWithContentsOfFile:(NSString*)fileName
 {
 	if((self=[self initByReferencingFile:fileName]))
@@ -244,6 +266,19 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			{ // wasn't able to load
 			[self release];
 			return nil;
+			}
+		}
+	return self;
+}
+
+- (id) initWithContentsOfURL:(NSURL*) url
+{
+	if((self=[self initByReferencingURL:url]))
+		{
+		if(![self isValid])
+			{ // wasn't able to load
+				[self release];
+				return nil;
 			}
 		}
 	return self;
@@ -668,9 +703,12 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #endif
 		if(_imageFilePath)
 			{ // (re)load from path if possible
-			reps = [NSImageRep imageRepsWithContentsOfFile:_imageFilePath];
-			if(!reps)
-				NSLog(@"could not load image at path: %@", _imageFilePath);
+				if([_imageFilePath isKindOfClass:[NSURL class]])
+					reps = [NSImageRep imageRepsWithContentsOfURL:(NSURL *) _imageFilePath];
+				else
+					reps = [NSImageRep imageRepsWithContentsOfFile:_imageFilePath];
+				if(!reps)
+					NSLog(@"could not load image at path: %@", _imageFilePath);
 			}
 		else if(_data)
 			{ // (re)load from data
@@ -827,16 +865,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (void) setCacheMode:(NSImageCacheMode) mode;			{ _img.cacheMode=mode; }
 - (void) setTemplate:(BOOL) flag;										{ _img.isTemplate=flag; }
 - (void) setUsesEPSOnResolutionMismatch:(BOOL)flag;	{ _img.usesEPSOnResolutionMismatch=flag; }
-
-- (id) initByReferencingURL:(NSURL*)url;
-{
-	return NIMP;
-}
-
-- (id) initWithContentsOfURL:(NSURL*)url;
-{
-	return NIMP;
-}
 
 - (void) cancelIncrementalLoad;
 {

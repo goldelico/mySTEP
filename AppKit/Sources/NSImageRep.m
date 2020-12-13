@@ -137,6 +137,13 @@ static NSCountedSet *__pb;
 	return ([array count]) ? [array objectAtIndex: 0] : nil;	// return first
 }
 
++ (id) imageRepWithContentsOfURL:(NSString *)url
+{ // Creating an NSImageRep
+	NSArray *array = [self imageRepsWithContentsOfURL:url];
+
+	return ([array count]) ? [array objectAtIndex: 0] : nil;	// return first
+}
+
 // CHECKME: can we cache the image reps???
 // this would only create a problem if we save an image rep to a file and then reload
 // or expect that an externally changed file can be immediately seen when loading again.
@@ -158,6 +165,25 @@ static NSCountedSet *__pb;
 			return [NSArray arrayWithObject:[rep imageRepWithData:data]];
 		}
 	
+	return nil;
+}
+
++ (NSArray *) imageRepsWithContentsOfURL:(NSURL *) url
+{
+	NSString *ext = [url pathExtension];
+	Class rep;
+
+	if (ext && (rep = [self imageRepClassForFileType: ext]))
+		{
+		NSData *data = [NSData dataWithContentsOfURL:url];
+		if(!data)
+			return nil;	// can't open
+		if([rep respondsToSelector: @selector(imageRepsWithData:)])
+			return [rep imageRepsWithData: data];
+		else if ([rep respondsToSelector: @selector(imageRepWithData:)])
+			return [NSArray arrayWithObject:[rep imageRepWithData:data]];
+		}
+
 	return nil;
 }
 
@@ -208,7 +234,9 @@ static NSCountedSet *__pb;
 + (Class) imageRepClassForFileType:(NSString *)type
 {
 	NSInteger i, count = [__imageRepClasses count];
-	
+
+	// FIXME: convert type to lower case?
+
 	for (i = 0; i < count; i++)
 		{
 		Class rep = [__imageRepClasses objectAtIndex: i];
@@ -714,7 +742,7 @@ GSTiffGetColormap(TIFF *tif)				// if there is one. Returns a
 	if (info->photoInterp != PHOTOMETRIC_PALETTE)
 		return NULL;
 	
-    if (!(map = malloc(sizeof(*map))))
+	if (!(map = malloc(sizeof(*map))))
 		return NULL;
 	map->size = 1 << info->bitsPerSample;
 	
@@ -876,11 +904,11 @@ GSTiffRead(TIFF *tif, NSTiffInfo *info, char *data)
 
 //*****************************************************************************
 //
-// 		NSBitmapImageRep 
+//		NSBitmapImageRep
 //
 //*****************************************************************************
 
-@implementation NSBitmapImageRep 
+@implementation NSBitmapImageRep
 
 // BitmapImageRep Class variables
 static NSArray *__bitmapImageReps;

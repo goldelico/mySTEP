@@ -16,11 +16,11 @@
 
 }
 
-+ (id)imageRepWithData:(NSData *) data; 
++ (id) imageRepWithData:(NSData *) data;
 
-- (NSRect) boundingBox; 
-- (NSData *) EPSRepresentation; 
-- (id) initWithData:(NSData *) data; 
-- (void) prepareGState; 
+- (NSRect) boundingBox;
+- (NSData *) EPSRepresentation;
+- (id) initWithData:(NSData *) data;
+- (void) prepareGState;
 
 @end
