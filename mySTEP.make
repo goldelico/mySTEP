@@ -1141,6 +1141,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	@rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
 	@(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
+	@rm -f "$(PKG)/$(NAME_EXT)/Versions/Current/$(EXECUTABLE_NAME)"; ln -sf "MacOS/lib$(EXECUTABLE_NAME).dylib" "$(PKG)/$(NAME_EXT)/Versions/Current/$(EXECUTABLE_NAME)"
+	@rm -f "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; ln -sf "Versions/Current/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"
+	@rm -f "$(PKG)/$(NAME_EXT)/Headers"; ln -sf "Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/Headers"
+	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
+	@rm -f "$(PKG)/$(NAME_EXT)/Resources"; ln -sf "Versions/Current/Resources" "$(PKG)/$(NAME_EXT)/Resources"
 endif
 
 headers:
