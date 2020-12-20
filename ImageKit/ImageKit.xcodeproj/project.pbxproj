@@ -14,8 +14,10 @@
 		EE51D70B0CEDA8AC00BC61D5 /* IKImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE51D70C0CEDA8AC00BC61D5 /* IKImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */; };
 		EEC4A68B08633B7A00309A0C /* ImageKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* ImageKit.framework */; };
-		EEE303AE25856F2A0009590F /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE303AC25856EC70009590F /* AppKitExtensions.framework */; };
 		EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		EEE303B12586AD5C0009590F /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE303B02586AD5C0009590F /* AppKitExtensions.framework */; };
+		EEE303B42586ADE70009590F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
+		EEE303B52586ADEA0009590F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,7 +48,7 @@
 		EE6FE352076F05AF009CC969 /* ImageKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7AB21017476251003133D9 /* ImageKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ImageKit.qcodeproj; sourceTree = "<group>"; };
 		EE8F5C7B092F79AD00648BBF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
-		EEE303AC25856EC70009590F /* AppKitExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKitExtensions.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/AppKitExtensions-frzdvqnphbudvgeyriukqtialsoj/Build/Products/Debug/AppKitExtensions.framework"; sourceTree = "<group>"; };
+		EEE303B02586AD5C0009590F /* AppKitExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKitExtensions.framework; path = ../../../Library/Frameworks/AppKitExtensions.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,33 +56,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE303AE25856F2A0009590F /* AppKitExtensions.framework in Frameworks */,
 				EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */,
+				EEE303B42586ADE70009590F /* AppKit.framework in Frameworks */,
+				EEE303B52586ADEA0009590F /* Foundation.framework in Frameworks */,
+				EEE303B12586AD5C0009590F /* AppKitExtensions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EEE303AC25856EC70009590F /* AppKitExtensions.framework */,
-				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
-			);
-			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EE8F5C7B092F79AD00648BBF /* Quartz.framework */,
-				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
-				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
@@ -102,8 +87,11 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
-				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+				EEE303B02586AD5C0009590F /* AppKitExtensions.framework */,
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				EE8F5C7B092F79AD00648BBF /* Quartz.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -201,7 +189,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./ImageKit.qcodeproj";
+			shellScript = ./ImageKit.qcodeproj;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -228,8 +216,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
-					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+					/Library/Frameworks,
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -241,7 +228,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -274,8 +261,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
-					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+					/Library/Frameworks,
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -284,7 +270,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -316,8 +302,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
-					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+					/Library/Frameworks,
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -325,7 +310,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -355,7 +340,12 @@
 					ppc,
 					i386,
 				);
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				PREBINDING = NO;
+				SDKROOT = macosx;
 			};
 			name = Development;
 		};
@@ -366,7 +356,12 @@
 					ppc,
 					i386,
 				);
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				PREBINDING = NO;
+				SDKROOT = macosx;
 			};
 			name = Deployment;
 		};
@@ -377,7 +372,12 @@
 					ppc,
 					i386,
 				);
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				PREBINDING = NO;
+				SDKROOT = macosx;
 			};
 			name = Default;
 		};
