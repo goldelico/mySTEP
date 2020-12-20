@@ -11,9 +11,8 @@
 		EE39694623C753B3008A75A6 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE39694823C753B3008A75A6 /* Credits.rtf */; };
 		EE39694923C753B9008A75A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE39694B23C753B9008A75A6 /* InfoPlist.strings */; };
 		EE39694C23C753C1008A75A6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE39694E23C753C1008A75A6 /* MainMenu.xib */; };
+		EED71955258FBAB8008F9584 /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED71954258FBAB8008F9584 /* AppKitExtensions.framework */; };
 		EEE3039925856BB50009590F /* AppKitExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE3039725856BB40009590F /* AppKitExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEE3039D25856BCD0009590F /* NSScaleRotateFlipView.h in Headers */ = {isa = PBXBuildFile; fileRef = EECA88C1239BCE64006897A3 /* NSScaleRotateFlipView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEE3039E25856C060009590F /* NSScaleRotateFlipView.m in Sources */ = {isa = PBXBuildFile; fileRef = EECA88C2239BCE64006897A3 /* NSScaleRotateFlipView.m */; };
 		EEE3039F25856C100009590F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */; };
 		EEE303A025856C130009590F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */; };
 		EEE303A125856C160009590F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE5DF54821F8BC0C00A44F6B /* Cocoa.framework */; };
@@ -38,8 +37,7 @@
 		EE5DF54821F8BC0C00A44F6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		EE885C5623C74E0F00C6D3AE /* AppKitExtensions.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitExtensions.qcodeproj; sourceTree = "<group>"; };
 		EE885C5723C74E0F00C6D3AE /* NSScaleRotateFlipViewDemo.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = NSScaleRotateFlipViewDemo.qcodeproj; sourceTree = "<group>"; };
-		EECA88C1239BCE64006897A3 /* NSScaleRotateFlipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSScaleRotateFlipView.h; path = Sources/NSScaleRotateFlipView.h; sourceTree = "<group>"; };
-		EECA88C2239BCE64006897A3 /* NSScaleRotateFlipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSScaleRotateFlipView.m; path = Sources/NSScaleRotateFlipView.m; sourceTree = "<group>"; };
+		EED71954258FBAB8008F9584 /* AppKitExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKitExtensions.framework; path = ../../../../../../../../../Library/Frameworks/AppKitExtensions.framework; sourceTree = "<group>"; };
 		EEE3038E258565270009590F /* AppKitExtensions-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "AppKitExtensions-Info.plist"; path = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKitExtensions/Sources/AppKitExtensions-Info.plist"; sourceTree = "<absolute>"; };
 		EEE3039525856BB40009590F /* AppKitExtensions.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKitExtensions.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEE3039725856BB40009590F /* AppKitExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppKitExtensions.h; path = Sources/AppKitExtensions.h; sourceTree = "<group>"; };
@@ -55,6 +53,7 @@
 				EEE303A925856E300009590F /* Foundation.framework in Frameworks */,
 				EEE303AA25856E320009590F /* AppKit.framework in Frameworks */,
 				EEE303AB25856E350009590F /* Cocoa.framework in Frameworks */,
+				EED71955258FBAB8008F9584 /* AppKitExtensions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +110,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EED71954258FBAB8008F9584 /* AppKitExtensions.framework */,
 				2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */,
 				2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */,
 				EE5DF54821F8BC0C00A44F6B /* Cocoa.framework */,
@@ -123,8 +123,6 @@
 			isa = PBXGroup;
 			children = (
 				EEE3039725856BB40009590F /* AppKitExtensions.h */,
-				EECA88C1239BCE64006897A3 /* NSScaleRotateFlipView.h */,
-				EECA88C2239BCE64006897A3 /* NSScaleRotateFlipView.m */,
 				EEE3038E258565270009590F /* AppKitExtensions-Info.plist */,
 			);
 			name = Framework;
@@ -138,7 +136,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEE3039925856BB50009590F /* AppKitExtensions.h in Headers */,
-				EEE3039D25856BCD0009590F /* NSScaleRotateFlipView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,6 +168,7 @@
 				EEE3039125856BB40009590F /* Frameworks */,
 				EEE3039225856BB40009590F /* Headers */,
 				EEE3039325856BB40009590F /* Resources */,
+				EED71950258D414E008F9584 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -237,6 +235,22 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		EED71950258D414E008F9584 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./AppKitExtensions.qcodeproj\n(cd $BUILT_PRODUCTS_DIR && tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd /Library/Frameworks && tar xvzf -)\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8D15AC300486D014006FF6A4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -250,7 +264,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE3039E25856C060009590F /* NSScaleRotateFlipView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +308,7 @@
 					"$(inherited)",
 					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
 					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -305,7 +319,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /Library/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DDEBUG_BUILD";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
@@ -325,13 +339,14 @@
 					"$(inherited)",
 					/usr/local/QuantumSTEP/Developer/Library/Frameworks,
 					/Users/hns/Documents/Projects/QuantumSTEP/Developer/Library/Frameworks,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /usr/local/QuantumSTEP/Developer/Library/Frameworks /usr/local/QuantumSTEP/Library/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "/System/Library/Frameworks /Library/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = NSScaleRotateFlipViewDemo;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
@@ -509,6 +524,7 @@
 				EEE3039C25856BB50009590F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
