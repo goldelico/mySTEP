@@ -67,7 +67,7 @@
 				// get values from query result
 				// if everything is ok:
 				placemark=[[[CLPlacemark alloc] initWithCoordinate:coord addressDictionary:addr] autorelease];
-				[h performWithObject:[NSArray arrayWithObject:placemark] withObject:error];
+				[h placemarks:[NSArray arrayWithObject:placemark] error:error];
 				[xml release];
 				}
 		}
@@ -155,7 +155,7 @@
 				}
 			else
 				error=[NSError errorWithDomain:@"GeoCoder" code:0 userInfo:nil];	// invalid search string
-			[h performWithObject:placemarks withObject:error];
+			[h placemarks:placemarks error:error];
 			[h release];
 		}
 }

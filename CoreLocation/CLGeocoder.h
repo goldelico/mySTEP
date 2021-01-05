@@ -11,23 +11,17 @@
 
 @class CLRegion, CLLocation;
 
-#ifndef NSBlockHandler
-#ifdef __APPLE__
-#define NSBlockHandler mySTEP_NSBlockHandler
-
-@interface NSBlockHandler : NSObject;	// mySTEP extension
-- (void) performWithObject:(id) obj withObject:(id) obj;
+@protocol CLGeocodeCompletionHandler <NSObject>	// mySTEP extension
+- (void) placemarks:(NSArray *) placemarks error:(NSError *) error;
 @end
-#endif
-#endif
 
 // should be typedef void (^CLGeocodeCompletionHandler)(NSArray *placemark, NSError *error);
-typedef NSBlockHandler *CLGeocodeCompletionHandler;
+typedef id <CLGeocodeCompletionHandler> CLGeocodeCompletionHandler;
 
 @interface CLGeocoder : NSObject
 {
 	NSURLConnection *connection;
-	NSBlockHandler *handler;
+	CLGeocodeCompletionHandler handler;
 }
 
 - (BOOL) isGeocoding;
