@@ -140,7 +140,7 @@ extern id NSApp;					// NSApp global var
 - (void) cancelUserAttentionRequest:(NSInteger) req;
 - (void) changeWindowsItem:(NSWindow *) window title:(NSString *) string filename:(BOOL) isFile;
 - (NSGraphicsContext *) context;										// Display context
-- (NSEvent*) currentEvent;									// Events
+- (NSEvent *) currentEvent;									// Events
 - (void) deactivate;
 - (id) delegate;
 - (void) discardEventsMatchingMask:(NSUInteger) matchingMask beforeEvent:(NSEvent *) event;
