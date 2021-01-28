@@ -24,6 +24,7 @@
 				 @"objc2",	// translate (simplify) to ObjC-2.0
 				 @"pretty",	// no translation, just pretty print
 				 @"arm",	// translate to ARM asm statements
+				 @"PHP",	// translate to PHP code for mySTEP.php
 				 nil];
 	return targets;
 }
@@ -35,7 +36,9 @@
 
 - (void) compile:(NSString *) target;
 {
-	[self treeWalk:[NSString stringWithFormat:@"compile_%@_", target]];
+	target=[@"compile_" stringByAppendingString:target];
+	// check if target exists...
+	[self treeWalk:target];
 }
 
 - (void) compile_arm_default;

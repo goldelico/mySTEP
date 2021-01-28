@@ -1,5 +1,5 @@
 //
-//  objc2c.h
+//  objc2php.h
 //  objc2pp
 //
 //  Created by H. Nikolaus Schaller on 11.04.13.
@@ -8,11 +8,6 @@
 
 #import <ObjCKit/AST.h>
 
-@interface Node (ObjC2PHP)
-
-- (void) compile_C_interface;
-- (void) compile_C_classimp;
-- (void) compile_C_methodimp;
-- (void) compile_C_methodcall;
+@interface Node (ObjC2C)
 
 @end

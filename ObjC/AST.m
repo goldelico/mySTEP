@@ -89,6 +89,10 @@ static id <Notification> globalDelegate;
 {
 	if((self=[super init]))
 		{
+#if 1
+		extern Node *scopestack;	/* global and local scope stack */
+		[scopestack type];
+#endif
 		type=[t retain];
 		}
 	return self;
@@ -197,8 +201,11 @@ static id <Notification> globalDelegate;
 
 - (void) setType:(NSString *) t;
 {
-	[type autorelease];
-	type=[t retain];
+	if(t != type)
+		{
+		[type release];
+		type=[t retain];
+		}
 }
 
 /* children (and parent) management */
@@ -241,6 +248,11 @@ static id <Notification> globalDelegate;
 
 - (void) addChild:(Node *)n
 {
+#if 1
+	extern Node *scopestack;	/* global and local scope stack */
+	[n description];
+	[scopestack description];
+#endif
 	if(children)
 		[children addObject:n];
 	else
@@ -249,16 +261,28 @@ static id <Notification> globalDelegate;
 
 - (void) removeChild:(Node *)n
 {
+#if 1
+	extern Node *scopestack;	/* global and local scope stack */
+	[scopestack description];
+#endif
 	[children removeObject:n];
 }
 
 - (void) removeChildAtIndex:(NSUInteger)idx
 {
+#if 1
+	extern Node *scopestack;	/* global and local scope stack */
+	[scopestack description];
+#endif
 	[children removeObjectAtIndex:idx];
 }
 
 - (Node *) firstChild;
 {
+#if 1
+	extern Node *scopestack;	/* global and local scope stack */
+	[scopestack description];
+#endif
 	if([children count] > 0)
 		return [children objectAtIndex:0];
 	return nil;
@@ -266,6 +290,10 @@ static id <Notification> globalDelegate;
 
 - (Node *) lastChild
 {
+#if 1
+	extern Node *scopestack;	/* global and local scope stack */
+	[scopestack description];
+#endif
 	return [children lastObject];
 }
 

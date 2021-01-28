@@ -1,17 +1,17 @@
 //
-//  objc2c.m
+//  objc2php.m
 //  objc2pp
 //
 //  Created by H. Nikolaus Schaller on 11.04.13.
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "objc2c.h"
+#import "objc2php.h"
 
 
-@implementation Node (ObjC2C)
+@implementation Node (ObjC2PHP)
 
-- (void) compile_C_default;
+- (void) compile_PHP_default;
 {
 	return;	// leave untouched
 }
