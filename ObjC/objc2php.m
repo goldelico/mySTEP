@@ -9,9 +9,9 @@
 #import "objc2c.h"
 
 
-@implementation Node (ObjC2C)
+@implementation Node (ObjC2PHP)
 
-- (void) compile_C_default;
+- (void) compile_PHP_default;
 {
 	// translate ObjC to PHP for mySTEP.php
 }

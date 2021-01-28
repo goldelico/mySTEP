@@ -8,6 +8,6 @@
 
 #import <ObjCKit/AST.h>
 
-@interface Node (ObjC2C)
+@interface Node (ObjC2PHP)
 
 @end
