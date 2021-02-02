@@ -20,6 +20,7 @@ typedef struct _CLLocationCoordinate2D
 } CLLocationCoordinate2D;
 
 extern const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid;
+extern BOOL CLLocationCoordinate2DIsValid(CLLocationCoordinate2D loc);
 
 #import <CoreLocation/CLLocationManager.h>	// defines CLLocationDistance
 

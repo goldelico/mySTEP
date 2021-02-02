@@ -13,6 +13,11 @@
 NSString *const kCLErrorDomain=@"CLErrorDomain";
 const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
 
+BOOL CLLocationCoordinate2DIsValid(CLLocationCoordinate2D loc)
+{
+	return loc.latitude != kCLLocationCoordinate2DInvalid.latitude && loc.longitude != kCLLocationCoordinate2DInvalid.longitude;
+}
+
 @implementation CLLocation
 
 - (CLLocationDistance) altitude; { return altitude; }
