@@ -46,7 +46,7 @@ static void usage(void)
 	fprintf(stderr, "       -l   lint\n");
 	fprintf(stderr, "       -p   print\n");
 	fprintf(stderr, "       -d   debug\n");
-	fprintf(stderr, "       -m   set machine (C, objc1, objc2, pretty)\n");
+	fprintf(stderr, "       -m   set machine (C, objc1, objc2, pretty, php)\n");
 	fprintf(stderr, "       -r   refactor\n");
 	fprintf(stderr, "       -f   script\n");
 	exit(1);
@@ -61,7 +61,7 @@ static BOOL older(NSDictionary *file1attribs, NSDictionary *file2attribs)
 
 int main(int argc, char *argv[])
 {
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	[NSAutoreleasePool new];
 	BOOL lint=NO;		// -l
 	BOOL print=NO;		// -p
 	BOOL compile=NO;	// -c
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 		NSLog(@"simplified:\n%@", result);
 #endif
 		// we should be able to chain several loadable bundles
-		[result compile:machine];	// translate
+		[result compileForTarget:machine];	// translate
 #if 1
 		NSLog(@"translated:\n%@", result);
 #endif
@@ -268,18 +268,20 @@ int main(int argc, char *argv[])
 			printf("%s", [[result prettyObjC] UTF8String]);	// pretty print
 			return 0;
 		}
-	main=[result attributeForKey:@"main"];	// get main function
-	if(!main /* || is not function */)
+	if(interpret)
 		{
-		fprintf(stderr, "no main() function found\n");	// pretty print
-		return 1;
+		main=[result attributeForKey:@"main"];	// get main function
+		if(!main /* || is not function */)
+			{
+			fprintf(stderr, "no main() function found\n");	// pretty print
+			return 1;
+			}
+		// manipulate NSProcessInfo so that $0 = script name (arg0), $1... are the additional parameters
+		// as defined by the current argv pointer
+		// and make us call the main(argc, argv, envp) function
+		// maybe we should create a "functioncall" node with the main-function, argc and argv as children
+		// but we can't call evaluate directly, since tree-walk calls the children only
+		[main evaluate];	// run in interpreter
 		}
-	// manipulate NSProcessInfo so that $0 = script name (arg0), $1... are the additional parameters
-	// as defined by the current argv pointer
-	// and make us call the main(argc, argv, envp) function
-	// maybe we should create a "functioncall" node with the main-function, argc and argv as children
-	// but we can't call evaluate directly, since tree-walk calls the children only
-	[main evaluate];	// run in interpreter
-	[arp release];
 	return 0;
 }

@@ -34,14 +34,14 @@
 	
 }
 
-- (void) compile:(NSString *) target;
+- (void) compileForTarget:(NSString *) target;
 {
 	target=[@"compile_" stringByAppendingString:target];
 	// check if target exists...
 	[self treeWalk:target];
 }
 
-- (void) compile_arm_default;
+- (void) compile_arm_unknown;
 { // translate to asm() statements
 	Node *n=[Node node:@"asm"];
 	[n addChild:[Node leaf:@"string" value:[NSString stringWithFormat:@"some asm statement for %@", [self type]]]];

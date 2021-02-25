@@ -197,7 +197,6 @@ Node *constant(char *str);
 void scaninit(void)
 	{
 	int i;
-	Node *n;
 	keywordtab=[[Node leaf:@"$keywords$"] retain];
 	for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
 		{ // use attributes as keyword symbol table
@@ -226,7 +225,8 @@ void scaninit(void)
 	pushscope();	// create initially empty global symbol table
 #if 0
 	/* predefine some globals or should we always include /usr/include/objc/objc.h */
-	=[[scopestack lastChild] define:@"id" type:"identifier" value:@"id"];
+	Node *n;
+	n=[[scopestack lastChild] define:@"id" type:"identifier" value:@"id"];
 	// make them typedefs...
 	n=[[scopestack lastChild] define:@"SEL" type:"identifier" value:@"SEL"];
 #endif
@@ -345,7 +345,7 @@ int symbol(void)
 	 * @"type" is the data type tree (if specified)
 	 */
 	id s;
-	int n;
+	NSInteger n;
 	char *csym=yytext;
 	NSString *sym;
 	sym=[NSString stringWithUTF8String:csym];
@@ -366,17 +366,17 @@ int symbol(void)
 	n=[scopestack childrenCount];
 	while(n-- > 0)
 		{ // loop through scope stack from end (most locally) to global
-			// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
-			s=[ [scopestack childAtIndex:n] attributeForKey:sym];
+			s=[/* please keep this between [[ since there is a bug in flex that copies it to output as ]] */[scopestack childAtIndex:n] attributeForKey:sym];
 			if(s)
 				break;
 		}
 	if(!s)
 		{ // add new and still unknown identifier (without type) to most local level
 			s=[Node leaf:@"identifier" value:sym];
-			// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
-			[ [scopestack lastChild] setAttribute:s forKey:sym];
+			[/* please keep this between [[ since there is a bug in flex that copies it to output as ]] */[scopestack lastChild] setAttribute:s forKey:sym];
 		}
+	if([s parent])
+		s=[[s copy] autorelease];
 	yylval=s;
 	if(typename)
 		{ // check if we have a type name here

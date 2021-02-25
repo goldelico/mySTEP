@@ -10,7 +10,7 @@
 
 @interface Node (Objc10)
 
-- (void) compile_objc1_default;
+- (void) compile_objc1_unknown;
 - (void) compile_objc1_synchronized;
 - (void) compile_objc1_synthesize;
 - (void) compile_objc1_autorelease;

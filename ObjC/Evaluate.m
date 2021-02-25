@@ -26,11 +26,11 @@
 #if 1
 	NSLog(@"evaluate %@", self);
 #endif
-	[self treeWalk:@"evaluate_" withObject:machine];	// recursive
+	[self treeWalk:@"evaluate" withObject:machine];	// recursive
 	return self;
 }
 
-- (id) evaluate_default:(id) machine
+- (id) evaluate_unknown:(id) machine
 {
 	NSLog(@"can't evaluate");
 	return nil;
@@ -80,7 +80,7 @@
 	return self;
 }
 
-- (id) evaluate_methodcall:(id) machine
+- (id) evaluate_message:(id) machine
 {
 	// dereference children
 	SEL sel=@selector(selectorOfCalledMethod);

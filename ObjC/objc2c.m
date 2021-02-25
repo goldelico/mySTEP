@@ -1,19 +1,19 @@
 //
-//  objc2php.m
+//  objc2c.m
 //  objc2pp
 //
 //  Created by H. Nikolaus Schaller on 11.04.13.
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "objc2php.h"
+#import "objc2c.h"
 
 
-@implementation Node (ObjC2PHP)
+@implementation Node (ObjC2C)
 
-- (void) compile_PHP_default;
+- (void) compile_C_unknown;
 {
-	return;	// leave untouched
+	NSLog(@"unknown how to translate `%@`", [self type]);
 }
 
 - (void) compile_C_stringliteral;
@@ -90,7 +90,7 @@
 
 }
 
-- (void) compile_C_methodcall;
+- (void) compile_C_message;
 {
 	// transform into a call to objc_sendMsg(obj, selector, args...)
 

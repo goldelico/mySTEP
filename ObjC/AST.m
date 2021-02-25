@@ -5,7 +5,16 @@
 #import <ObjCKit/Postprocess.h>
 #import <ObjCKit/Inspector.h>
 
+#include <objc/runtime.h>
+
 BOOL _debug;
+
+@implementation NSObject (deepCopy)
+- (id) deepCopy
+{
+	return [[self copy] autorelease];
+}
+@end
 
 @implementation Node
 
@@ -117,8 +126,7 @@ static id <Notification> globalDelegate;
 		NSString *key;
 		c->attributes=[[NSMutableDictionary alloc] initWithCapacity:[attributes count]];
 		while((key=[e nextObject]))
-			// we need a category of NSObject that defines deepCopy as the same as copy so that we can deepCopy ordinary objects
-			[c->attributes setObject:[[[attributes objectForKey:key] deepCopy] autorelease] forKey:key];
+			[c->attributes setObject:[[attributes objectForKey:key] deepCopy] forKey:key];
 		}
 	if(children)
 		{
@@ -126,10 +134,9 @@ static id <Notification> globalDelegate;
 		Node *child;
 		c->children=[[NSMutableArray alloc] initWithCapacity:[children count]];
 		while((child=[e nextObject]))
-			// we need a category of NSObject that defines deepCopy as the same as copy so that we can deepCopy ordinary objects
-			[c->children addObject:[[child deepCopy] autorelease]];
+			[c->children addObject:[child deepCopy]];
 		}
-	return c;
+	return [c autorelease];
 }
 
 - (NSString *) description
@@ -239,11 +246,18 @@ static id <Notification> globalDelegate;
 	return children;
 }
 
+static Class nClass;
+
 - (void) insertChild:(Node *)n atIndex:(NSUInteger)idx
 {
+	NSAssert(![n parent], @"Child already has a parent!");
+	if(!nClass)
+		nClass=[Node class];
+	NSAssert(object_getClass(n) == nClass, @"Child is not a Node!");
 	if(!children)
 		children=[[NSMutableArray alloc] initWithCapacity:10];
 	[children insertObject:n atIndex:idx];
+	[n _setParent:self];
 }
 
 - (void) addChild:(Node *)n
@@ -253,10 +267,15 @@ static id <Notification> globalDelegate;
 	[n description];
 	[scopestack description];
 #endif
+	NSAssert(![n parent], @"Child already has a parent!");
+	if(!nClass)
+		nClass=[Node class];
+	NSAssert(object_getClass(n) == nClass, @"Child is not a Node!");
 	if(children)
 		[children addObject:n];
 	else
 		children=[[NSMutableArray alloc] initWithObjects:&n count:1];
+	[n _setParent:self];
 }
 
 - (void) removeChild:(Node *)n
@@ -344,11 +363,11 @@ static id <Notification> globalDelegate;
 - (void) treeWalk:(NSString *) prefix;
 {
 	NSEnumerator *e=[children objectEnumerator];
-	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"default"]);	// default
+	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_unknown"]);	// default
 	Node *c;
 	while((c=[e nextObject]))
 		{
-		SEL sel=NSSelectorFromString([prefix stringByAppendingString:[c type]]);	// node specific selector
+		SEL sel=NSSelectorFromString([NSString stringWithFormat:@"%@_%@", prefix, [c type]]);	// node specific selector
 		if(![c respondsToSelector:sel])
 			sel=defaultsel;	// no special method for this node type
 		[c treeWalk:prefix];	// recursive first
@@ -359,11 +378,11 @@ static id <Notification> globalDelegate;
 - (void) treeWalk:(NSString *) prefix withObject:(id) object;
 {
 	NSEnumerator *e=[children objectEnumerator];
-	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_default:"]);	// default
+	SEL defaultsel=NSSelectorFromString([prefix stringByAppendingString:@"_unknown:"]);	// default
 	Node *c;
 	while((c=[e nextObject]))
 		{
-		SEL sel=NSSelectorFromString([prefix stringByAppendingFormat:@"%@:", [c type]]);	// node specific selector
+		SEL sel=NSSelectorFromString([NSString stringWithFormat:@"%@_%@:", prefix, [c type]]);	// node specific selector
 		if(![c respondsToSelector:sel])
 			sel=defaultsel;	// no special method for this node type
 		[c treeWalk:prefix withObject:object];	// recursive first

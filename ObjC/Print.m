@@ -195,7 +195,7 @@ static unsigned maxLineLength=80;
 	return s;
 }
 
-- (void) compile_pretty_default;
+- (void) compile_pretty_unknown;
 { // no processing of tree nodes
 	return;
 }

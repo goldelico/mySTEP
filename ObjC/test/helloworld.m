@@ -9,7 +9,10 @@
 
 int main(int argc, char *argv[])
 {
+	@"Hello world!";
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	@"Hello world!";
+	NSLog(5);
 	NSLog(@"Hello world!");
 	[arp release];
 	return 0;

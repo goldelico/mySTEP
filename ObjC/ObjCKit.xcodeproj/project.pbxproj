@@ -21,6 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		EE15C3CC25C32B710052E465 /* objc2php.h in Headers */ = {isa = PBXBuildFile; fileRef = EE15C3CA25C32B710052E465 /* objc2php.h */; };
+		EE15C3CD25C32B710052E465 /* objc2php.m in Sources */ = {isa = PBXBuildFile; fileRef = EE15C3CB25C32B710052E465 /* objc2php.m */; };
 		EE5539D71913C78900C22634 /* Evaluate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5539D41913C78900C22634 /* Evaluate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5539D81913C78900C22634 /* Evaluate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE5539D51913C78900C22634 /* Evaluate.m */; };
 		EE5583AD191F6DBA00C22634 /* objc20.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5583AB191F6DBA00C22634 /* objc20.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -68,6 +70,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EE15C3CA25C32B710052E465 /* objc2php.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc2php.h; sourceTree = "<group>"; };
+		EE15C3CB25C32B710052E465 /* objc2php.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc2php.m; sourceTree = "<group>"; };
 		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
 		EE22088714EDB47600E78349 /* Print.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
 		EE22088814EDB47600E78349 /* Print.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Print.m; sourceTree = "<group>"; };
@@ -242,6 +246,8 @@
 				EE5583AC191F6DBA00C22634 /* objc20.m */,
 				EEC876BD1716E49C0093590B /* objc2c.h */,
 				EEC876BE1716E49C0093590B /* objc2c.m */,
+				EE15C3CA25C32B710052E465 /* objc2php.h */,
+				EE15C3CB25C32B710052E465 /* objc2php.m */,
 			);
 			name = "Compiler Output";
 			sourceTree = "<group>";
@@ -273,6 +279,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE15C3CC25C32B710052E465 /* objc2php.h in Headers */,
 				EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */,
 				EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */,
 				EE5539D71913C78900C22634 /* Evaluate.h in Headers */,
@@ -440,6 +447,7 @@
 				EEEB7100150DD753000EE2E5 /* Expression.m in Sources */,
 				EE5539D81913C78900C22634 /* Evaluate.m in Sources */,
 				EEC876B11716E39E0093590B /* Print.m in Sources */,
+				EE15C3CD25C32B710052E465 /* objc2php.m in Sources */,
 				EEC876B01716E3900093590B /* Simplify.m in Sources */,
 				EE8E488A16F21D6400DF50B4 /* Refactor.m in Sources */,
 				EE8E48C116F22B1200DF50B4 /* objc10.m in Sources */,

@@ -18,23 +18,34 @@
 
 #import <ObjCKit/AST.h>
 
-	/* variables that control the scanner */
-	extern int nokeyword;	// if set to 1, an IDENTIFIER is always returned (even if it looks like a keyword or type name)
-	extern int attoken;		// if set to 1, decode @ keywords (e.g. @interface)
-	extern int objctype;	// if set to 1, decode some special identifiers as keywords (e.g. in, byref, oneway)
-	extern int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
+/* variables that control the scanner */
+extern int nokeyword;	// if set to 1, an IDENTIFIER is always returned (even if it looks like a keyword or type name)
+extern int attoken;		// if set to 1, decode @ keywords (e.g. @interface)
+extern int objctype;	// if set to 1, decode some special identifiers as keywords (e.g. in, byref, oneway)
+extern int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
 
-	extern Node *scopestack;	// scope stack
-	extern Node *globals(void);	// returns the globals level
+extern Node *scopestack;	// scope stack
+extern Node *globals(void);	// returns the globals level
 
-	extern void pushscope();
-	extern void popscope();
+extern void pushscope();
+extern void popscope();
 	
-	Node *declaredName;	// current declarator IDENTIFIER object
-	Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
+Node *declaredName;	// current declarator IDENTIFIER object
+Node *currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
 
-	void checkTypedef(void);
-	void yyerror(char *s);
+void checkTypedef(void);
+void yyerror(char *s);
+
+@implementation Node (ObjCSyntax)
+
++ (Node *) functionCall:(Node *) call args:(Node *) args
+{
+	if([[call type] isEqualToString:@"identifier"])
+	// FIXME: check if the postfix_expression is a simple IDENTIFIER: then make it an implicitly declared extern function()
+		;
+	return [Node node:@"functioncall", call, args, nil];
+}
+@end
 
 %}
 
@@ -83,26 +94,28 @@ asm_statement
 // FIXME: should we merge the selector components into a single node value?
 
 selector
-	: { nokeyword=1; } IDENTIFIER { $$=[Node node:@"selector", $2, nil]; }
+	: { nokeyword=1; } IDENTIFIER { $$=[Node node:@"selector", $1, nil]; nokeyword=0; }
 	| ':'  { $$=[Node node:@"selector", [Node leaf:@"identifier" value:@":"], nil]; }
-	| selector { nokeyword=1; } IDENTIFIER { $$=$1; [$$ addChild:$3]; }	// checkme: this would be [obj method:arg suffix]
+	| selector { nokeyword=1; } IDENTIFIER { $$=$1; [$$ addChild:$3];  nokeyword=0; }	// checkme: this would be [obj method:arg suffix]
 	| selector ':'  { $$=$1; [$$ addChild:[Node leaf:@"identifier" value:@":"]]; }
 	;
 
 selector_with_arguments
-	: { nokeyword=1; } IDENTIFIER { $$=[Node node:@"selector", $2, nil]; }
+	: { nokeyword=1; } IDENTIFIER {
+		$$=[Node node:@"selector", $1, nil];
+		nokeyword=0; }
 	| ':' expression  { $$=[Node node:@"selector", $2, nil]; }
-	| selector_with_arguments { nokeyword=1; } IDENTIFIER { $$=$1; [$$ addChild:$3]; }	// checkme: this would be [obj method:arg suffix]
+	| selector_with_arguments { nokeyword=1; } IDENTIFIER { $$=$1; [$$ addChild:$3];  nokeyword=0; }	// checkme: this would be [obj method:arg suffix]
 	| selector_with_arguments ':' expression  { $$=$1; [$$ addChild:$3]; }
 	;
 
 string_literal
-	: STRING_LITERAL	{ [$$ setType:@"string"]; }
+	: STRING_LITERAL  { [$$ setType:@"string"]; }
 	| string_literal STRING_LITERAL { $$=$1; [$1 addChild:$2]; }
 	;
 
 at_primary_expression
-	: string_literal	{ [$$ setType:@"stringobject"]; } /* convert into obj-C string literal */
+	: string_literal  { [$$ setType:@"stringobject"]; } /* convert into obj-C string literal */
 	| CONSTANT	{ $$=[Node node:@"box", $1, nil]; }
 	| AT_SELECTOR '(' selector ')'  { $$=$3; }
 /*	| AT_SELECTOR '(' selector { $$=$5; error("missing )"); } */
@@ -124,18 +137,17 @@ primary_expression
 	/* gcc extension */
 	| '(' compound_statement ')'  { $$=[Node node:@"statementexpr", $2, nil]; }
 	/* Obj-C extensions */
-	| AT_TOKEN { attoken=1; } at_primary_expression
-	| '[' expression selector_with_arguments ']'  { $$=[Node node:@"methodcall", $2, $3, nil]; }
+	| AT_TOKEN { attoken=1; } at_primary_expression { attoken=0; }
+	| '[' expression selector_with_arguments ']'  { $$=[Node node:@"message", $2, $3, nil]; }
 	/* catch error */
-	| error 	{ $$=[Node leaf:@"error"]; }
+	| error  { $$=[Node leaf:@"error"]; }
 	;
 
 postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'  { $$=[Node node:@"index", $1, $3, nil]; }
-// FIXME: check if the postfix_expression is a IDENTIFIER: then make it an implicitly declared extern function()
-	| postfix_expression '(' argument_expression_list ')'  { $$=[Node node:@"functioncall", $1, $3, nil]; }
-	| postfix_expression '(' ')'  { $$=[Node node:@"functioncall", $1, nil]; }
+	| postfix_expression '(' argument_expression_list ')'  { $$=[Node functionCall:$1 args:$3]; }
+	| postfix_expression '(' ')'  { $$=[Node functionCall:$1 args:nil]; }
 	| postfix_expression '.' IDENTIFIER  { $$=[Node node:@"structref", $1, $3, nil]; }
 	| postfix_expression PTR_OP IDENTIFIER  { $$=[Node node:@"structderef", $1, $3, nil]; }
 	| postfix_expression INC_OP  { $$=[Node node:@"postinc", $1, nil]; }
@@ -143,7 +155,7 @@ postfix_expression
 	;
 
 argument_expression_list
-	: assignment_expression	{ $$=[Node node:@"expr", $1, nil]; }
+	: assignment_expression	{ $$=[Node node:@"args", $1, nil]; }
 	| argument_expression_list ',' assignment_expression  { $$=$1; [$$ addChild:$3]; }
 	;
 
@@ -167,7 +179,7 @@ unary_operator
 	;
 
 struct_component_expression
-	: conditional_expression { $$=[Node node:@"list", $1, nil]; }
+	: conditional_expression { $$=[Node node:@"components", $1, nil]; }
 	| struct_component_expression ',' conditional_expression   { $$=$1; [$$ addChild:$2]; }
 	;
 														
@@ -260,7 +272,7 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression{ $$=[Node node:@"list", $1, nil]; }
+	: assignment_expression  { $$=[Node node:@"exprlist", $1, nil]; }
 	| expression ',' assignment_expression  { $$=$1; [$$ addChild:$2]; }
 	;
 
@@ -274,8 +286,7 @@ class_with_superclass
 	;
 
 category_name
-// FIXME: can we use C-Keywords as category names?
-	: IDENTIFIER
+	: { nokeyword=1; } IDENTIFIER { nokeyword=0; }
 	;
 
 inherited_protocols
@@ -724,7 +735,7 @@ jump_statement
 function_definition
 	: declaration_specifiers declarator
 	{
-		[declaredName setAttribute:currentDeclarationSpecifier forKey:@"type"];
+		[declaredName setAttribute:[currentDeclarationSpecifier deepCopy] forKey:@"type"];
 	}
 	compound_statement
 		{

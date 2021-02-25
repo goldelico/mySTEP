@@ -65,6 +65,7 @@ extern BOOL _debug;
 - (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
 - (void) _setParent:(Node *) n;
 - (Node *) root;
+- (Node *) deepCopy;	// not retained!
 
 - (NSString *) description;	// create an XML representation
 - (void) inspect;	// open in GUI

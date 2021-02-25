@@ -12,6 +12,6 @@
 
 + (NSArray *) compileTargets;
 
-- (void) compile:(NSString *) target;	// translate to asm() statements
+- (void) compileForTarget:(NSString *) target;	// translate to asm() statements
 
 @end

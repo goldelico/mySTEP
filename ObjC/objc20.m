@@ -11,9 +11,9 @@
 
 @implementation Node (Objc20)
 
-- (void) compile_objc2_default;
+- (void) compile_objc2_unknown;
 {
-	return;	// leave untouched
+	NSLog(@"unknown how to translate `%@`", [self type]);
 }
 
 // check for idioms
