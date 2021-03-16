@@ -1207,7 +1207,7 @@
 			name = "Views & Cells";
 			sourceTree = "<group>";
 		};
-		EE52F20E0B8F2F180093595A /* Additions */ = {
+		EE52F20E0B8F2F180093595A /* Foundation Additions */ = {
 			isa = PBXGroup;
 			children = (
 				EEA371EB09540272001244CF /* NSAffineTransform.h */,
@@ -1226,7 +1226,7 @@
 				EEA3726909540273001244CF /* NSSpellChecker.m */,
 				EEA3726A09540273001244CF /* NSSpellProtocol.h */,
 			);
-			name = Additions;
+			name = "Foundation Additions";
 			sourceTree = "<group>";
 		};
 		EE52F20F0B8F2F2C0093595A /* Controller */ = {
@@ -1504,7 +1504,7 @@
 				EE349C3B097027D500CBF42C /* NSAppAccessibility.h */,
 				EE349C43097027D500CBF42C /* NSErrors.h */,
 				EE349C45097027D500CBF42C /* NSHelpManager.h */,
-				EE52F20E0B8F2F180093595A /* Additions */,
+				EE52F20E0B8F2F180093595A /* Foundation Additions */,
 				EE52F2130B8F2FA60093595A /* Application & Document & Workspace */,
 				EE52F2120B8F2F800093595A /* Color */,
 				EE52F20F0B8F2F2C0093595A /* Controller */,

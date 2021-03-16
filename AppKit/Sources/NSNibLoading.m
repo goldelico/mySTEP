@@ -891,7 +891,7 @@ static id _nibOwner;
 - (id) initWithNibNamed:(NSString *) name bundle:(NSBundle *) referencingBundle;
 {
 	NSString *path;
-	// if nil, should first look in the file owner's bundl (but how do we know it here?)
+	// if nil, should first look in the file owner's bundle (but how do we know it here?)
 	if(!referencingBundle) referencingBundle=[NSBundle mainBundle];
 #if 0
 	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [referencingBundle bundlePath]);
@@ -1007,7 +1007,7 @@ static id _nibOwner;
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif	
-	[arp release]; 
+	[arp release];
 	return self;
 }
 
