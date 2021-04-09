@@ -59,6 +59,9 @@
 #import <Foundation/NSURL.h>
 #import "NSPrivate.h"
 #include <zlib.h>
+#ifdef __linux__
+#include <linux/limits.h>	// for PATH_MAX
+#endif
 
 #if	HAVE_MMAP
 #include <sys/mman.h>
