@@ -26,6 +26,9 @@
 #import "NSPrivate.h"
 
 #include <unistd.h>
+#ifdef __linux__
+#include <linux/limits.h>	// for PATH_MAX
+#endif
 
 #ifndef NO_DIRENT_H
 # include <dirent.h>
