@@ -197,11 +197,15 @@ STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
 DEFINES += -D__mySTEP__
+
+### checkme - why does this depend on staging?
+
 ifeq ($(DEBIAN_RELEASE),staging)
 # use default toolchain
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/Jessie/$(DEBIAN_ARCH)/usr
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/8-Jessie/$(DEBIAN_ARCH)/usr
 else
-# use specific toolchain depending on DEBAIN_RELEASE (wheezy, jessie, stretch) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
+# use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
+# Fixme: prefix DEBIAN_RELEASE by version number
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE)/$(DEBIAN_ARCH)/usr
 endif
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
