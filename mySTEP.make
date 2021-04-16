@@ -250,7 +250,7 @@ ifeq ($(EXECUTABLE_NAME),)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
-STDCFLAGS := $(CFLAGS)
+STDCFLAGS := $(CFLAGS) -std=gnu99
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
