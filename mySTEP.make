@@ -453,7 +453,7 @@ endif
 ### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
 ### But we don't know exactly where it is located
 INCLUDES += \
--I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/include/freetype2 \
+-I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2 \
 -I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
 -I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"') \
 -I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
@@ -515,12 +515,12 @@ LIBRARIES := -L/opt/local/lib \
 		/System/Library/Frameworks/AppKit.framework/Versions/Current/AppKit \
 		/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa \
 		-L$(QuantumSTEP)/usr/lib \
-		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-L$(TOOLCHAIN)/lib \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-Wl,-rpath,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-Wl,-rpath,$(TOOLCHAIN)/lib \
 		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
 		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
 		-Wl,-rpath,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath,/g"') \
@@ -535,12 +535,12 @@ else ifeq ($(TRIPLE),php)
 else
 LIBRARIES := \
 		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
-		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-Wl,-rpath-link,$(TOOLCHAIN)/lib \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(QuantumSTEP)/usr/lib \
-		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(TRIPLE)/usr/lib \
+		-L$(TOOLCHAIN)/lib \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
 		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE) | sed "s/ / -L/g"') \
