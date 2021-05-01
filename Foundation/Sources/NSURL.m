@@ -1520,9 +1520,10 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	NIMP; return NULL;
 }
 
-- (NSString *) lastPathComponent; { return [[self path] lastObject]; }	// since 10.6
+- (NSString *) lastPathComponent; { return [[self path] lastPathComponent]; }	// since 10.6
 - (NSArray *) pathComponents; { return [[self path] pathComponents]; }	// since 10.6
 - (NSString *) pathExtension; { return [[self path] pathExtension]; }	// since 10.6
+// FIXME: these are wrong! should just modify the path and keep the rest intact
 - (NSURL *) URLByDeletingLastPathComponent; { return [[self path] stringByDeletingLastPathComponent]; }	// since 10.6
 - (NSURL *) URLByDeletingPathExtension; { return [[self path] stringByDeletingPathExtension]; }	// since 10.6
 - (NSURL *) URLByResolvingSymlinksInPath; { return NIMP; }	// since 10.6
