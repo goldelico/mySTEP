@@ -767,7 +767,28 @@
 	 */
 }
 
-- (void) test3986
+- (void) test40
+{ // path components
+	NSURL *url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent.extension;fragment?query=something#anchor"];
+	XCTAssertEqualObjects([url description], @"http://localhost:0080/path/with/lastpathcomponent.extension;fragment?query=something#anchor", @"");
+
+	XCTAssertEqualObjects([url pathComponents], ([NSArray arrayWithObjects:@"/", @"path", @"with", @"lastpathcomponent.extension", nil]), @"");
+
+	XCTAssertEqualObjects([url lastPathComponent], @"lastpathcomponent.extension", @"");
+	XCTAssertEqualObjects([url pathExtension], @"extension", @"");
+
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/;fragment?query=something#anchor", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent;fragment?query=something#anchor", @"");
+
+	// we should test sdditional special cases:
+	// http://localhost:0080/path/with/lastpathcomponent
+	// http://localhost:0080/path/with/lastpathcomponent.
+	// http://localhost:0080/path/with/.extension
+	// http://localhost:0080/
+}
+
+
+- (void) testRFC3986
 { // normalization according to RFC
 	// FIXME: completely test the examples of http://tools.ietf.org/html/rfc3986#section-5.4
 	NSURL *url;
@@ -895,6 +916,5 @@
 
 
 // add more such tests
-// -isEqual case sensitive or insensitive?...
 
 @end
