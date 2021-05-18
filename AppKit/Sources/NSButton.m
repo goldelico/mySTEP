@@ -560,7 +560,7 @@ id __buttonCellClass = nil;
 					backgroundColor=[NSColor selectedControlColor];	// selected or default button
 				else if(!backgroundColor)
 					backgroundColor=[NSColor controlColor];	// never transparent
-				bezel=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+				bezel=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
 				[ctxt saveGraphicsState];
 				[bezel addClip];	// clip to contour
 				[backgroundColor setFill];
@@ -575,46 +575,6 @@ id __buttonCellClass = nil;
 		case NSThickerSquareBezelStyle:		// 4 px
 			{
 				[NSBezierPath _drawRoundedBezel:3 inFrame:cellFrame enabled:YES selected:NO highlighted:stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask) radius:5.0];	// draw segment
-#if 0
-				float radius=3.0;
-				ctxt=[NSGraphicsContext currentContext];
-				bezel=[NSBezierPath new];
-				[bezel appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(cellFrame)+radius, NSMinY(cellFrame)+radius)
-												  radius:radius
-											  startAngle:270.0
-												endAngle:180.0
-											   clockwise:YES];
-				[bezel appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(cellFrame)+radius, NSMaxY(cellFrame)-radius)
-												  radius:radius
-											  startAngle:180.0
-												endAngle:90.0
-											   clockwise:YES];
-				[bezel appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(cellFrame)-radius, NSMaxY(cellFrame)-radius)
-												  radius:radius
-											  startAngle:90.0
-												endAngle:0.0
-											   clockwise:YES];
-				[bezel appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(cellFrame)-radius, NSMinY(cellFrame)+radius)
-												  radius:radius
-											  startAngle:0.0
-												endAngle:270.0
-											   clockwise:YES];
-				[bezel closePath];
-				[ctxt saveGraphicsState];
-				[bezel addClip];	// clip to contour
-				if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
-					backgroundColor = [NSColor whiteColor];		// make background white dependent on state/highlight
-				if(!backgroundColor)
-					[[NSColor controlHighlightColor] setFill]; // bordered cell never has transparent background
-				else
-					[backgroundColor setFill];
-				[bezel fill];		// fill with background color
-				[[NSColor controlShadowColor] setStroke];	// border shadow
-				[ctxt restoreGraphicsState];
-				[[NSColor blackColor] setStroke];
-				[bezel stroke];		// and stroke rounded button
-				[bezel release];
-#endif
 				break;
 			}
 		case NSDisclosureBezelStyle:
@@ -716,7 +676,7 @@ id __buttonCellClass = nil;
 				ctxt=[NSGraphicsContext currentContext];
 				if(!backgroundColor)
 					backgroundColor=[NSColor controlColor];
-				bezel=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+				bezel=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
 				[ctxt saveGraphicsState];
 				[bezel addClip];	// clip to contour
 				[backgroundColor setFill];
@@ -731,7 +691,7 @@ id __buttonCellClass = nil;
 				ctxt=[NSGraphicsContext currentContext];
 				if(!backgroundColor)
 					backgroundColor=[NSColor controlColor];
-				bezel=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+				bezel=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
 				[ctxt saveGraphicsState];
 				[bezel addClip];	// clip to contour
 				[backgroundColor setFill];

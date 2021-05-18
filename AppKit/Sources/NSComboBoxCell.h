@@ -35,16 +35,16 @@
 
 @interface NSComboBoxCell : NSTextFieldCell
 {
-    id _dataSource;
-    NSButtonCell *_buttonCell;
+	id _dataSource;
+	NSButtonCell *_buttonCell;
 	NSTableView *_tableView;
 	NSPanel *_popUpWindow;
-    NSMutableArray *_popUpList;
-    NSSize _intercellSpacing;
+	NSMutableArray *_popUpList;
+	NSSize _intercellSpacing;
 	CGFloat _itemHeight;
 	NSInteger _visibleItems;
 
-    struct __comboBoxCellFlags {
+	struct __comboBoxCellFlags {
 		unsigned int usesDataSource:1;
 		unsigned int hasVerticalScroller:1;
 		unsigned int buttonBordered:1;

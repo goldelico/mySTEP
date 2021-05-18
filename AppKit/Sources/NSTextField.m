@@ -153,7 +153,7 @@
 		if(_bezelStyle == NSTextFieldRoundedBezel)
 			{
 			NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-			NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+			NSBezierPath *p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
 			if(_c.drawsBackground)
 				{
 				[ctxt saveGraphicsState];

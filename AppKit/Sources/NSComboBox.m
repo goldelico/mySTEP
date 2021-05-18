@@ -403,7 +403,7 @@
 	if(_d.controlSize ==  NSSmallControlSize) sz=NSMakeSize(16.0, 16.0);
 	else if(_d.controlSize ==  NSMiniControlSize) sz=NSMakeSize(10.0, 10.0);
 	cellFrame=[self drawingRectForBounds:cellFrame];
-	cellFrame.size.width -= sz.width+3.0;							// we have to leave space for the button
+	cellFrame.size.width -= sz.width+2.0;							// we have to leave space for the button
 	[super drawInteriorWithFrame:cellFrame inView:controlView];		// draw text field
 }
 
@@ -413,8 +413,8 @@
 	if(_d.controlSize ==  NSSmallControlSize) sz=NSMakeSize(16.0, 16.0);
 	else if(_d.controlSize ==  NSMiniControlSize) sz=NSMakeSize(10.0, 10.0);
 	cellFrame=[self drawingRectForBounds:cellFrame];
-	cellFrame.size.width -= sz.width+3.0;						// we have to leave space for the button
-	[_buttonCell drawWithFrame:(NSRect) { {NSMaxX(cellFrame)-7.0, NSMaxY(cellFrame)-sz.height-1.0 }, { sz.width+10.0, sz.height+3.0 } } inView:controlView];	// draw button (incl. its bezel) to the top/right
+	cellFrame.size.width -= sz.width+2.0;						// we have to leave space for the button
+	[_buttonCell drawWithFrame:(NSRect) { {NSMaxX(cellFrame)-7.0, NSMaxY(cellFrame)-sz.height-2.0 }, { sz.width+10.0, sz.height+3.0 } } inView:controlView];	// draw button (incl. its bezel) to the top/right
 	[super drawWithFrame:cellFrame inView:controlView];		// text cell background goes to the left
 }
 

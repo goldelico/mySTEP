@@ -103,6 +103,7 @@ typedef struct _PathElement
 	} PathElement;
 
 + (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(CGFloat) radius;		// box with rounded corners
+/* unused */
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
 
 typedef enum _NSRoundedBezelSegments

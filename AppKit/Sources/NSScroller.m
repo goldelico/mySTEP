@@ -53,7 +53,8 @@ static NSActionCell *__knobCell = nil;
 {
 	NSBezierPath *p;
 	NSWindow *win;
-	p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:cellFrame.size.width < cellFrame.size.height];	// box with halfcircular rounded ends
+	CGFloat radius=0.5*MIN(cellFrame.size.height, cellFrame.size.width);
+	p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:radius yRadius:radius];
 	win=[controlView window];
 	if([win isKeyWindow] || [win isKindOfClass:[NSPanel class]])
 		[[NSColor selectedControlColor] setFill];

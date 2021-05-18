@@ -83,7 +83,7 @@
 #if 0
 	NSLog(@"%@ drawWithFrame:%@", self, NSStringFromRect(cellFrame));
 #endif
-	p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+	p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
 	[ctxt saveGraphicsState];
 	[[NSColor whiteColor] set];
 	[p fill];		// fill with background color

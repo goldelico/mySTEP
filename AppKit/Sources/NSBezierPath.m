@@ -211,12 +211,11 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 #if 1	// should be replaced by 10.5 method + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 
-// this is a special case of _drawRoundedBezel:
+// this is just a special case of _drawRoundedBezel:
 
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
 {
-//	return [self bezierPathWithRoundedRect:borderRect xRadius:flag? :borderRect.size.width/2.0 yRadius:flag?borderRect.size.height/2.0: ];
-#if 1
+#if 0
 	NSBezierPath *p=[self new];
 	NSPoint point=borderRect.origin;
 	float radius;
@@ -244,6 +243,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		}
 	[p closePath];
 	return [p autorelease];
+#else
+	CGFloat radius=0.5*(flag?borderRect.size.height:borderRect.size.width);
+	return [self bezierPathWithRoundedRect:borderRect xRadius:radius yRadius:radius];
 #endif
 }
 
@@ -1024,34 +1026,41 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
 {
-	NSPoint p, c;
+	NSPoint p, c, s;
 	if(xrad <= 0.0 || yrad <= 0.0)
 		xrad=yrad=0.0;	// results in rectangle
+	else
+		{ // clamp to half size
+		xrad=MIN(xrad, 0.5*borderRect.size.width);
+		yrad=MIN(yrad, 0.5*borderRect.size.height);
+		}
 	borderRect.size.width-=1.0;
 	borderRect.size.height-=1.0;	// draw inside
-	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// left bottom
+	/* start top left an go counter-clockwise */
+	s=p=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect)-yrad);	// top left w/o corner point
 	[self moveToPoint:p];
-	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect));	// right bottom
+	p=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect)+yrad);	// bottom left w/o corner
 	[self lineToPoint:p];
-	p=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect)+yrad);	// right bottom after curve
-	c=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect));	// corner
+	c=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect));	// bottom left corner
+	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// bottom left curve
+	// braucht 2 unterschiedliche Control-Points!!!
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect)-yrad);	// right top
+	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect));	// bottom right
 	[self lineToPoint:p];
-	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect));	// right top after curve
-	c=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect));	// corner
+	c=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect));	// bottom right corner
+	p=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect)+yrad);	// bottom right curve
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect)-yrad);	// left top
+	p=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect)-yrad);	// top right
 	[self lineToPoint:p];
-	p=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect)-yrad);	// left top after curve
-	c=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect));	// corner
+	c=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect));	// top right corner
+	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect));	// top right curve
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect)+yrad);	// left bottom
+	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect));	// top left
 	[self lineToPoint:p];
-	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// left bottom after curve
-	c=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect));	// corner
+	c=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect));	// top left corner
+	p=s;
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	[self closePath];	// close to first point of segment
+	[self closePath];	// close to first point of segment (should be empty)
 }
 
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
