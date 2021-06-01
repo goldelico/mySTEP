@@ -13,6 +13,8 @@
 		EE39694C23C753C1008A75A6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE39694E23C753C1008A75A6 /* MainMenu.xib */; };
 		EE3B380225928D5B00243575 /* NSScaleRotateFlipView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE3B380025928D5B00243575 /* NSScaleRotateFlipView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3B380325928D5B00243575 /* NSScaleRotateFlipView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3B380125928D5B00243575 /* NSScaleRotateFlipView.m */; };
+		EE99499D26237BCD00B99CFF /* NSDOCX.h in Headers */ = {isa = PBXBuildFile; fileRef = EE99499B26237BCD00B99CFF /* NSDOCX.h */; };
+		EE99499E26237BCD00B99CFF /* NSDOCX.m in Sources */ = {isa = PBXBuildFile; fileRef = EE99499C26237BCD00B99CFF /* NSDOCX.m */; };
 		EEBDB7EE25F753D9009B0634 /* NSXIBLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBDB7ED25F753D9009B0634 /* NSXIBLoading.m */; };
 		EED71955258FBAB8008F9584 /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED71954258FBAB8008F9584 /* AppKitExtensions.framework */; };
 		EEE3039925856BB50009590F /* AppKitExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE3039725856BB40009590F /* AppKitExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -42,8 +44,10 @@
 		EE5DF54821F8BC0C00A44F6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		EE885C5623C74E0F00C6D3AE /* AppKitExtensions.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = AppKitExtensions.qcodeproj; sourceTree = "<group>"; };
 		EE885C5723C74E0F00C6D3AE /* NSScaleRotateFlipViewDemo.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = NSScaleRotateFlipViewDemo.qcodeproj; sourceTree = "<group>"; };
-		EEBDB7EC25F753D9009B0634 /* NSXIBLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXIBLoading.h; sourceTree = "<group>"; };
-		EEBDB7ED25F753D9009B0634 /* NSXIBLoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXIBLoading.m; sourceTree = "<group>"; };
+		EE99499B26237BCD00B99CFF /* NSDOCX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSDOCX.h; path = Sources/NSDOCX.h; sourceTree = "<group>"; };
+		EE99499C26237BCD00B99CFF /* NSDOCX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSDOCX.m; path = Sources/NSDOCX.m; sourceTree = "<group>"; };
+		EEBDB7EC25F753D9009B0634 /* NSXIBLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXIBLoading.h; path = Sources/NSXIBLoading.h; sourceTree = "<group>"; };
+		EEBDB7ED25F753D9009B0634 /* NSXIBLoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXIBLoading.m; path = Sources/NSXIBLoading.m; sourceTree = "<group>"; };
 		EED71954258FBAB8008F9584 /* AppKitExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKitExtensions.framework; path = ../../../../../../../../../Library/Frameworks/AppKitExtensions.framework; sourceTree = "<group>"; };
 		EEE3038E258565270009590F /* AppKitExtensions-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "AppKitExtensions-Info.plist"; path = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKitExtensions/Sources/AppKitExtensions-Info.plist"; sourceTree = "<absolute>"; };
 		EEE3039525856BB40009590F /* AppKitExtensions.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKitExtensions.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,6 +139,8 @@
 				EE3B380125928D5B00243575 /* NSScaleRotateFlipView.m */,
 				EEBDB7EC25F753D9009B0634 /* NSXIBLoading.h */,
 				EEBDB7ED25F753D9009B0634 /* NSXIBLoading.m */,
+				EE99499B26237BCD00B99CFF /* NSDOCX.h */,
+				EE99499C26237BCD00B99CFF /* NSDOCX.m */,
 			);
 			name = Framework;
 			sourceTree = "<group>";
@@ -147,6 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEE3039925856BB50009590F /* AppKitExtensions.h in Headers */,
+				EE99499D26237BCD00B99CFF /* NSDOCX.h in Headers */,
 				EE3B380225928D5B00243575 /* NSScaleRotateFlipView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -277,6 +284,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE99499E26237BCD00B99CFF /* NSDOCX.m in Sources */,
 				EE3B380325928D5B00243575 /* NSScaleRotateFlipView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
