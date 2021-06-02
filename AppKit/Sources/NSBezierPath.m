@@ -890,38 +890,38 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 					
 					if(pts[2].x > maxx) maxx = pts[2].x;
 					if(pts[2].x < minx) minx = pts[2].x;
-						if(pts[2].y > maxy) maxy = pts[2].y;
-							if(pts[2].y < miny) miny = pts[2].y;
+					if(pts[2].y > maxy) maxy = pts[2].y;
+					if(pts[2].y < miny) miny = pts[2].y;
 								
-								if(pts[0].x > cpmaxx) cpmaxx = pts[0].x;
-									if(pts[0].x < cpminx) cpminx = pts[0].x;
-										if(pts[0].y > cpmaxy) cpmaxy = pts[0].y;
-											if(pts[0].y < cpminy) cpminy = pts[0].y;
-												if(pts[1].x > cpmaxx) cpmaxx = pts[1].x;
-													if(pts[1].x < cpminx) cpminx = pts[1].x;
-														if(pts[1].y > cpmaxy) cpmaxy = pts[1].y;
-															if(pts[1].y < cpminy) cpminy = pts[1].y;
-																if(pts[2].x > cpmaxx) cpmaxx = pts[2].x;
-																	if(pts[2].x < cpminx) cpminx = pts[2].x;
-																		if(pts[2].y > cpmaxy) cpmaxy = pts[2].y;
-																			if(pts[2].y < cpminy) cpminy = pts[2].y;
+					if(pts[0].x > cpmaxx) cpmaxx = pts[0].x;
+					if(pts[0].x < cpminx) cpminx = pts[0].x;
+					if(pts[0].y > cpmaxy) cpmaxy = pts[0].y;
+					if(pts[0].y < cpminy) cpminy = pts[0].y;
+					if(pts[1].x > cpmaxx) cpmaxx = pts[1].x;
+					if(pts[1].x < cpminx) cpminx = pts[1].x;
+					if(pts[1].y > cpmaxy) cpmaxy = pts[1].y;
+					if(pts[1].y < cpminy) cpminy = pts[1].y;
+					if(pts[2].x > cpmaxx) cpmaxx = pts[2].x;
+					if(pts[2].x < cpminx) cpminx = pts[2].x;
+					if(pts[2].y > cpmaxy) cpmaxy = pts[2].y;
+					if(pts[2].y < cpminy) cpminy = pts[2].y;
 																				
-																				for(t = k; t <= 1+k; t += k) 
-																					{
-																					x = (p.x+t*(-p.x*3+t*(3*p.x-p.x*t)))+
-																					t*(3*pts[0].x+t*(-6*pts[0].x+pts[0].x*3*t))+
-																					t*t*(pts[1].x*3-pts[1].x*3*t)+pts[2].x*t*t*t;
-																					y = (p.y+t*(-p.y*3+t*(3*p.y-p.y*t)))+
-																						t*(3*pts[0].y+t*(-6*pts[0].y+pts[0].y*3*t))+
-																						t*t*(pts[1].y*3-pts[1].y*3*t)+pts[2].y*t*t*t;
+					for(t = k; t <= 1+k; t += k)
+						{
+						x = (p.x+t*(-p.x*3+t*(3*p.x-p.x*t)))+
+							t*(3*pts[0].x+t*(-6*pts[0].x+pts[0].x*3*t))+
+							t*t*(pts[1].x*3-pts[1].x*3*t)+pts[2].x*t*t*t;
+						y = (p.y+t*(-p.y*3+t*(3*p.y-p.y*t)))+
+							t*(3*pts[0].y+t*(-6*pts[0].y+pts[0].y*3*t))+
+							t*t*(pts[1].y*3-pts[1].y*3*t)+pts[2].y*t*t*t;
+
+						if(x > cpmaxx) cpmaxx = x;
+						if(x < cpminx) cpminx = x;
+						if(y > cpmaxy) cpmaxy = y;
+						if(y < cpminy) cpminy = y;
+						}
 																					
-																					if(x > cpmaxx) cpmaxx = x;
-																					if(x < cpminx) cpminx = x;
-																					if(y > cpmaxy) cpmaxy = y;
-																					if(y < cpminy) cpminy = y;
-																					}
-																					
-																			p = pts[2];
+					p = pts[2];
 					break;
 					
 				case NSClosePathBezierPathElement:
@@ -1063,7 +1063,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[self closePath];	// close to first point of segment (should be empty)
 }
 
-- (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
+- (void) appendBezierPathWithArcWithCenter:(NSPoint)center
 									radius:(CGFloat)radius
 								startAngle:(CGFloat)startAngle
 								  endAngle:(CGFloat)endAngle
@@ -1310,7 +1310,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithPackedGlyphs:(const char *)packedGlyphs
 {
-	BACKEND;
+	BACKEND;	// libFreetype can provide and override this as a category
 }
 
 - (BOOL) cachesBezierPath	{ return NO; }	// no effect

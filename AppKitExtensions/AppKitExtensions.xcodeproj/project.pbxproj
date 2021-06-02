@@ -222,6 +222,7 @@
 				French,
 				German,
 				ja,
+				en,
 			);
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* ElectroniCAD */;
 			projectDirPath = "";
