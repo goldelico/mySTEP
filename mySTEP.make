@@ -1213,10 +1213,14 @@ ifneq ($(strip $(PHPSRCS)),)
 			php -l "$$PHP" && \
 			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
-			cp -pf "$$PHP" "$(BINARY)" && \
+			: cp -pf "$$PHP" "$(BINARY)" && \
 			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
 		done
+	# we need to fake a binary for the Makefile rule
+	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+	echo "<?php ?>" >"$(BINARY)"; \
+	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/";
 endif
 endif
 ifneq ($(OBJECTS),)
