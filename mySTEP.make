@@ -70,7 +70,7 @@ QUIET=@
 #   - TRIPLE - the architecture triple to use
 #  Debian packaging (postprocess 1)
 #   * DEBIAN_PACKAGE_NAME - quantumstep-$PRODUCT_NAME-$WRAPPER-extension
-#   - DEBIAN_VERSION - current date/time
+#   - DEBIAN_PACKAGE_VERSION - current date/time
 #   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
 #   (*) DEBIAN_DEPENDS - quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - quantumstep-cocoa-framework
@@ -804,8 +804,8 @@ endif
 ifeq ($(DEBIAN_PRIORITY),)
 DEBIAN_PRIORITY := optional
 endif
-ifeq ($(DEBIAN_VERSION),)
-DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
+ifeq ($(DEBIAN_PACKAGE_VERSION),)
+DEBIAN_PACKAGE_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
 ifeq ($(DEBIAN_RELEASE),)
 DEBIAN_RELEASE := staging
@@ -823,12 +823,12 @@ build_deb: make_bundle bundle make_binary build_debian_packages
 ifeq ($(DEBIAN_NOPACKAGE),)
 ifneq ($(TRIPLE),php)
 build_debian_packages: prepare_temp_files \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb"
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 else
 build_debian_packages: prepare_temp_files \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb"
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 endif
 	# debian_packages
 	# DEBIAN_ARCH=$(DEBIAN_ARCH)
@@ -910,8 +910,8 @@ F = filter_dependencies() \
 	[ "$$SEP" = "," ] && echo ); \
 }
 
-"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
-	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# DEBIAN_SECTION: $(DEBIAN_SECTION)
 	# DEBIAN_PRIORITY: $(DEBIAN_PRIORITY)
 	# DEBIAN_CONTROL: $(DEBIAN_CONTROL)
@@ -924,7 +924,7 @@ F = filter_dependencies() \
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
-	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
+	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	# write protect and pack data.tar.gz
 	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
@@ -934,7 +934,7 @@ F = filter_dependencies() \
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Priority: $(DEBIAN_PRIORITY)"; \
-	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Version: $(DEBIAN_PACKAGE_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
 	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
@@ -959,8 +959,8 @@ ifeq ($(OPEN_DEBIAN),true)
 	open $@
 endif
 
-"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
-	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
@@ -975,7 +975,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
-	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
@@ -985,7 +985,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Priority: extra"; \
-	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Version: $(DEBIAN_PACKAGE_VERSION)"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
@@ -1011,8 +1011,8 @@ else
 	# no development version
 endif
 
-"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
-	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
@@ -1025,7 +1025,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
 	# create Receipts file
-	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
+	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
@@ -1035,7 +1035,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dbg"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Priority: extra"; \
-	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Version: $(DEBIAN_PACKAGE_VERSION)"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  [ "$(DEBIAN_ARCH)" != all ] && echo "Multi-Arch: same"; \
