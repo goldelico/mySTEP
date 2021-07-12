@@ -197,17 +197,19 @@ STRIP := $(TOOLCHAIN)/strip
 SO := dylib
 else
 DEFINES += -D__mySTEP__
-
-### checkme - why does this depend on staging?
-
-ifeq ($(DEBIAN_RELEASE),staging)
-# use default toolchain
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/8-Jessie/$(DEBIAN_ARCH)/usr
-else
 # use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
-# Fixme: prefix DEBIAN_RELEASE by version number
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE)/$(DEBIAN_ARCH)/usr
-endif
+# and fall back to some default for e.g. "staging"
+TOOLCHAIN_FALLBACK = 8-Jessie
+DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
+	( wheezy ) echo "7-Wheezy";; \
+	( jessie ) echo "8-Jessie";; \
+	( stretch ) echo "9-Stretch";; \
+	( buster ) echo "10-Stretch";; \
+	( bullseye ) echo "11-Stretch";; \
+	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
+	esac;}
+# FIXME: should check if toolchain is installed...
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib
@@ -412,6 +414,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			armhf ) export TRIPLE=arm-linux-gnueabihf;; \
 			arm64 ) export TRIPLE=aarch64-linux-gnu;; \
 			i386 ) export TRIPLE=i486-linux-gnu;; \
+			amd64 ) export TRIPLE=x86_64-linux-gnu;; \
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
 			darwin-x86_64 ) export TRIPLE=MacOS; EXIT=0;; \
 			mystep ) export TRIPLE=darwin-x86_64; EXIT=0;; \
