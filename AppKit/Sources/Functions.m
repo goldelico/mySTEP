@@ -55,7 +55,7 @@
 
 int NSApplicationMain(int argc, const char **argv)
 {
-	id pool=[NSAutoreleasePool new];	// initial ARP
+	NSAutoreleasePool *pool=[NSAutoreleasePool new];	// initial ARP
 	NSBundle *b;
 	NSString *mainModelFile;
 	NSApplication *app=[NSApplication sharedApplication];	// initialize application
