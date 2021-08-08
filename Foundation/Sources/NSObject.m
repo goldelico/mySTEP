@@ -383,7 +383,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #endif
 	if(NSGetExtraRefCount(self) != -1)
 		{
-		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc]");
+		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc] - extra refcount = %d", NSGetExtraRefCount(self));
 		abort();	// this is a severe bug
 		}
 #if 0
