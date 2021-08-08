@@ -105,6 +105,13 @@ QUIET=@
 
 endif
 
+# makefile debug hack https://www.cmcrossroads.com/article/tracing-rule-execution-gnu-make
+
+ifeq (yes,no)
+OLD_SHELL := $(SHELL)
+SHELL = $(warning Building $@)$(OLD_SHELL)
+endif
+
 # don't compile for MacOS (but copy/install) if called as build script phase from within Xcode
 
 ifneq ($(XCODE_VERSION_ACTUAL),)
@@ -204,7 +211,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( wheezy ) echo "7-Wheezy";; \
 	( jessie ) echo "8-Jessie";; \
 	( stretch ) echo "9-Stretch";; \
-	( buster ) echo "10-Stretch";; \
+	( buster ) echo "10-Buster";; \
 	( bullseye ) echo "11-Stretch";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
@@ -242,6 +249,7 @@ endif
 ifeq ($(TARGET_BUILD_DIR),)
 TARGET_BUILD_DIR=build/Deployment
 endif
+TTT=$(TARGET_BUILD_DIR)/$(DEBIAN_RELEASE)/$(TRIPLE)/
 
 # define CONTENTS subdirectory as expected by the Foundation library
 
@@ -259,7 +267,7 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	# shared between all binary tools
 	NAME_EXT=bin
 	# this keeps the binaries separated for installation/packaging
-	PKG=$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).bin
+	PKG=$(BUILT_PRODUCTS_DIR)/$(DEBIAN_RELEASE)/$(PRODUCT_NAME).bin
 	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
 	# architecture specific version (only if it does not yet have the prefix)
@@ -278,7 +286,7 @@ CURRENT_PROJECT_VERSION=1.0.0
 endif
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
-	PKG=$(BUILT_PRODUCTS_DIR)
+	PKG=$(BUILT_PRODUCTS_DIR)/$(DEBIAN_RELEASE)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
@@ -293,7 +301,7 @@ endif
 else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
-	PKG=$(BUILT_PRODUCTS_DIR)
+	PKG=$(BUILT_PRODUCTS_DIR)/$(DEBIAN_RELEASE)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 ifeq ($(WRAPPER_EXTENSION),app)
@@ -323,11 +331,11 @@ YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
 # FIXME: include LEX/YACC?
 SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
 
-OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
-OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
-OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
-OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
-OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o)
+OBJECTS := $(SRCOBJECTS:%.m=$(TTT)+%.o)
+OBJECTS := $(OBJECTS:%.mm=$(TTT)+%.o)
+OBJECTS := $(OBJECTS:%.c=$(TTT)+%.o)
+OBJECTS := $(OBJECTS:%.cpp=$(TTT)+%.o)
+OBJECTS := $(OBJECTS:%.c++=$(TTT)+%.o)
 
 # PHP and shell scripts
 PHPSRCS   := $(filter %.php,$(XSOURCES))
@@ -368,7 +376,7 @@ endif
 ifeq ($(NOCOMPILE),true)
 build:	build_subprojects build_doxy install_local
 else
-build:	build_subprojects build_doxy build_architectures make_sh install_local deploy_remote launch_remote
+build:	build_subprojects build_doxy build_architectures deploy_remote launch_remote
 endif
 	@date
 
@@ -400,12 +408,13 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
 build_architectures:
+	@echo build_architectures
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
 	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
 	[ "$$RELEASES" ] || RELEASES="staging"; \
-	echo $$RELEASES; \
+	echo RELEASES: $$RELEASES; \
 	for DEBIAN_RELEASE in $$RELEASES; do \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
@@ -429,10 +438,13 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		export TRIPLE="$$TRIPLE"; \
 		$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		echo "$$DEBIAN_ARCH" done; \
-		done \
+		done ;\
+	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make make_sh install_local; \
+	echo "$$DEBIAN_RELEASE" done; \
 	done
 endif
 endif
+	@echo build_architectures done
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -462,7 +474,7 @@ INCLUDES += \
 -I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE)/Headers | sed "s/ / -I/g"')
 
 # allow to use #import <framework/header.h> while building the framework
-INCLUDES := -I$(TARGET_BUILD_DIR)/$(TRIPLE)/ -I$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/Headers $(INCLUDES)
+INCLUDES := -I$(TTT) -I$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/Headers $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(TRIPLE),darwin-x86_64)
@@ -484,6 +496,8 @@ INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
 	else echo -I$$FMWK.headers; \
 	fi; done)
+# FIXME: this should also become DEBIAN_RELEASE dependent!
+# really? the API of bundles created should NOT depend on DEBIAN_RELEASE any more
 LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
@@ -644,33 +658,33 @@ endif
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
 # FIXME: please use $(subst ...)
 
-$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.m
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
+$(TTT)+%.o: %.m
+	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
-	$(QUIET)$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.i	# store preprocessor result for debugging
-	$(QUIET)$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.S	# store assembler source for debugging
+	$(QUIET)$(CC) -c $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
+	$(QUIET)$(CC) -c $(OBJCFLAGS) -S $< -o $(TTT)+$*.S	# store assembler source for debugging
 endif
-	$(QUIET)$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(OBJCFLAGS) $< -o $(TTT)+$*.o
 
-$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.c
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
+$(TTT)+%.o: %.c
+	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
-$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.o: %.cpp
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
+$(TTT)+%.o: %.cpp
+	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
-$(TARGET_BUILD_DIR)/$(TRIPLE)/+%.php: %.php
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)/+$(*D)
+$(TTT)+%.php: %.php
+	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	# if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	# php -l $< >$(TARGET_BUILD_DIR)/$(TRIPLE)/+$*.o
+	# php -l $< >$(TTT)+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -681,6 +695,8 @@ $(TARGET_BUILD_DIR)/$(TRIPLE)/+%.php: %.php
 # FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
 build_subprojects:
+	# DEBIAN_ARCHITECTURES: $(DEBIAN_ARCHITECTURES)
+	# DEBIAN_ARCH: $(DEBIAN_ARCH)
 	# PROJECT_NAME: $(PROJECT_NAME)
 	# PRODUCT_NAME: $(PRODUCT_NAME)
 	# FRAMEWORK_VERSION: $(FRAMEWORK_VERSION)
@@ -706,6 +722,7 @@ make_binary: make_exec "$(BINARY)"
 	$(QUIET)- [ -x "$(BINARY)" ] && ls -l "$(BINARY)"
 
 make_sh: bundle
+	@echo make_sh
 	# SHSRCS: $(SHSRCS)
 	$(QUIET)for SH in $(SHSRCS); do \
 		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
@@ -713,6 +730,7 @@ make_sh: bundle
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
+	@echo make_sh done
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
@@ -821,7 +839,7 @@ endif
 # allow to disable building debian packages
 
 build_deb: make_bundle bundle make_binary build_debian_packages
-	echo build_deb done
+	@echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
 ifneq ($(TRIPLE),php)
@@ -1072,6 +1090,7 @@ endif
 
 # strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
 install_local: prepare_temp_files
+	@echo install_local
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
@@ -1090,10 +1109,12 @@ endif
 else
 	# don't install locally
 endif
+	@echo install_local done
 
 # this one could strip off architectures different from the one to download
 # TRIPLE is undefined!
 deploy_remote: prepare_temp_files
+	@echo deploy_remote
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
@@ -1110,11 +1131,13 @@ ifeq ($(DEPLOY),true)
 else
 	# not deployed
 endif
+	@echo deploy_remote done
 
 launch_remote:
 ifeq ($(DEPLOY),true)
 ifeq ($(RUN),true)
 ifeq ($(WRAPPER_EXTENSION),app)
+	@echo launch_remote
 	# DEPLOY: $(DEPLOY)
 	# RUN: $(RUN)
 	# RUN_CMD: $(RUN_CMD)
@@ -1130,6 +1153,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	[ "$$RUN" ] && [ -x $(DOWNLOAD) ] && $(DOWNLOAD) "$$RUN_DEVICE" \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
 		|| echo failed to run;
+	@echo launch_remote done
 endif
 endif
 endif
@@ -1143,6 +1167,7 @@ endif
 # link headers of framework
 
 bundle:
+	@echo bundle
 	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
@@ -1154,8 +1179,10 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
 	@rm -f "$(PKG)/$(NAME_EXT)/Resources"; ln -sf "Versions/Current/Resources" "$(PKG)/$(NAME_EXT)/Resources"
 endif
+	@echo bundle done
 
 headers:
+	@echo headers
 	# create headers $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
@@ -1169,15 +1196,17 @@ ifeq ($(TRIPLE),darwin-x86_64)
 # always use selected system frameworks
 else ifeq ($(TRIPLE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
-	$(QUIET)mkdir -p $(TARGET_BUILD_DIR)/$(TRIPLE)
+	$(QUIET)mkdir -p $(TTT)
 	$(QUIET)- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
 	  do \
-	      rm -f $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk); \
-		  ln -sf $$fwk/Versions/Current/Headers $(TARGET_BUILD_DIR)/$(TRIPLE)/$$(basename $$fwk) \
+	      rm -f $(TTT)/$$(basename $$fwk); \
+		  ln -sf $$fwk/Versions/Current/Headers $(TTT)/$$(basename $$fwk) \
 	  ; done
 endif
+	@echo headers done
 
 resources: bundle
+	@echo resources
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
@@ -1203,6 +1232,7 @@ ifneq ($(strip $(RESOURCES)),)
 endif
 endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
+	@echo resources done
 
 "$(BINARY)":: bundle headers $(OBJECTS)
 	# PHPSRCS: $(PHPSRCS)
