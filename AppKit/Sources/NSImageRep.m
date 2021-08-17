@@ -137,7 +137,7 @@ static NSCountedSet *__pb;
 	return ([array count]) ? [array objectAtIndex: 0] : nil;	// return first
 }
 
-+ (id) imageRepWithContentsOfURL:(NSString *)url
++ (id) imageRepWithContentsOfURL:(NSURL *)url
 { // Creating an NSImageRep
 	NSArray *array = [self imageRepsWithContentsOfURL:url];
 
