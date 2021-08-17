@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <CoreData/NSPersistentContainer.h>
 
 @interface NSPersistentCloudKitContainer : NSPersistentContainer
 
