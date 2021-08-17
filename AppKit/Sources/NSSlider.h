@@ -37,7 +37,7 @@
 - (double) closestTickMarkValueToValue:(double) value;
 - (NSImage *) image;
 - (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
-- (NSInteger) isVertical;	// official?
+- (BOOL) isVertical;
 - (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;
 - (double) minValue;									// Cell Limits
