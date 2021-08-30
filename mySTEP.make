@@ -842,7 +842,8 @@ build_deb: make_bundle bundle make_binary build_debian_packages
 	@echo build_deb done
 
 ifeq ($(DEBIAN_NOPACKAGE),)
-ifneq ($(TRIPLE),php)
+ifneq ($(DEBIAN_ARCH),none)
+ifneq ($(DEBIAN_ARCH),php)
 build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
@@ -855,6 +856,7 @@ endif
 	# DEBIAN_ARCH=$(DEBIAN_ARCH)
 	# TRIPLE=$(TRIPLE)
 	@echo build_debian_packages done
+endif
 else
 build_debian_packages:
 	@echo packing_debian_packages skipped
