@@ -266,10 +266,15 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	PKG=$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).bin
 ifeq ($(DEBIAN_RELEASE),none)
 	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
-else
-	EXEC=$(PKG)/$(NAME_EXT)/$(DEBIAN_RELEASE)/$(TRIPLE)
-endif
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
+else
+	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
+ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+	BINARY=$(EXEC)/$(PRODUCT_NAME)
+else	# release specific
+	BINARY=$(EXEC)/$(PRODUCT_NAME)-$(DEBIAN_RELEASE)
+endif
+endif
 	# architecture specific version (only if it does not yet have the prefix)
 ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(TRIPLE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(TRIPLE)$(INSTALL_PATH)
@@ -289,12 +294,18 @@ endif
 	PKG=$(BUILT_PRODUCTS_DIR)
 ifeq ($(DEBIAN_RELEASE),none)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-else
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/Debian/$(DEBIAN_RELEASE)/$(TRIPLE)
-endif
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
+else
+ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
+else	# release specific
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
+endif
+endif
 #	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
-	STDCFLAGS := -I$(EXEC)/Headers/ $(STDCFLAGS)
+	STDCFLAGS := -I$(EXEC)/../Headers/ $(STDCFLAGS)
 ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
@@ -305,11 +316,12 @@ else
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 ifeq ($(DEBIAN_RELEASE),none)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/Debian/all/$(TRIPLE)
-else
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/Debian/$(DEBIAN_RELEASE)/$(TRIPLE)
-endif
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+else
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
+endif
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else
@@ -481,34 +493,40 @@ INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
 # add link so that we can #import <Framework/File.h>
 ### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
 ### But we don't know exactly where it is located
-INCLUDES += \
--I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/Headers.qualified | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/Headers.qualified | sed "s/ / -I/g"') \
--I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/Headers.qualified | sed "s/ / -I/g"')
+#INCLUDES += \
+#-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"') \
+#-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"') \
+#-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"')
+
+ifeq ($(TRIPLE),MacOS)
+LNK :=
+else
+LNK := .link
+endif
 
 # allow to use #import <framework/header.h> while building the framework
-INCLUDES := -I$(TTT) -I$(EXEC)/Headers $(INCLUDES)
+INCLUDES := -I$(TTT) -I$(EXEC)/../Headers$(LNK) $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(TRIPLE),MacOS)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
 ### FIXME: why do we need this? MacOS only...
+### MacOS should use -F and the framework path!
 INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then :; \
 	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
+	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
 	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
+	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
 	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
+	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers; \
 	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/Headers; \
+	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
 	else echo -I$$FMWK.headers; \
 	fi; done)
-# FIXME: this should also become DEBIAN_RELEASE dependent!
-# really? the API of bundles created should NOT depend on DEBIAN_RELEASE any more
+
 ### FIXME: why do we need this? MacOS only...
 LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
@@ -525,7 +543,35 @@ LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	else echo lib$$FMWK.dylib; \
 	fi; done)
 else
-FMWKS := $(addprefix -l ,$(FRAMEWORKS))
+# look up headers and libs to link
+INCLUDES += $(shell for FMWK in $(FRAMEWORKS); \
+	do \
+	if [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
+	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
+	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
+	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
+	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
+	else echo -I$$FMWK$(LNK); \
+	fi; done)
+
+### hier fehlt vermutlich noch der rlink-path!
+
+FMWKS += $(shell for FMWK in $(FRAMEWORKS); \
+	do \
+	for DIR in $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks; \
+		do \
+		if [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so; \
+		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK; \
+		fi; \
+		done; \
+	done)
+
+# FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
 
@@ -555,12 +601,8 @@ LIBRARIES := \
 ### FIXME: the first path (w/o "Debian") is for old framework compatibility
 # Linux gcc has no -F option for framework paths
 LIBRARIES += $(shell for FMWK in $(QuantumSTEP)/System/Library/*Frameworks/*.framework $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework echo $(QuantumSTEP)/Library/*Frameworks/*.framework; do \
-		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/$(DEBIAN_RELEASE)/$(TRIPLE)"; \
-		echo "-L$$FMWK/Versions/Current/$(DEBIAN_RELEASE)/$(TRIPLE)"; \
-		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/Debian/$(DEBIAN_RELEASE)/$(TRIPLE)"; \
-		echo "-L$$FMWK/Versions/Current/Debian/$(DEBIAN_RELEASE)/$(TRIPLE)"; \
-		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/Debian/staging/$(TRIPLE)"; \
-		echo "-L$$FMWK/Versions/Current/Debian/staging/$(TRIPLE)"; \
+		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/$(TRIPLE)"; \
+		echo "-L$$FMWK/Versions/Current/$(TRIPLE)"; \
 		done)
 
 LIBRARIES += $(FMWKS) $(LIBS)
@@ -1198,7 +1240,7 @@ endif
 #	$(QUIET)- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 #endif
 endif
-	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.qualified"; rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.qualified/$(PRODUCT_NAME)" && ln -sf ../Headers "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.qualified/$(PRODUCT_NAME)")	# link to Headers to find <Framework/File.h>
+	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link"; rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link/$(PRODUCT_NAME)" && ln -sf ../Headers "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link/$(PRODUCT_NAME)")	# link to Headers to find <Framework/File.h>
 ifeq ($(TRIPLE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
 	$(QUIET)mkdir -p $(TTT)
