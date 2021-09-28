@@ -3,7 +3,7 @@
 //
 
 #ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
+    #import <Foundation/Foundation.h>
 #endif
 
 typedef struct drand48_data { unsigned short xseed[3]; } drand48_data;
