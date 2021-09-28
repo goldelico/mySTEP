@@ -673,11 +673,16 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	GSBitmapImageRepGIF *imageRep;
 	GIF *handle;
 	GifFileType *GifFile;
-	NSAssert(data, @"GIF imageRep data is nil");		
+	NSAssert(data, @"GIF imageRep data is nil");
 
 	handle = GIFOpenData((char *)[data bytes], [data length]);
+#if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5
+	int error;
+	GifFile = DGifOpen(handle, ReadGIF, &error);
+#else
 	GifFile = DGifOpen(handle, ReadGIF);
-	
+#endif
+
 #if 0
 	NSLog(@"GifFile->SWidth=%d", GifFile->SWidth);
 	NSLog(@"GifFile->SHeight=%d", GifFile->SHeight);
