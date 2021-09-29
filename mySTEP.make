@@ -8,7 +8,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2018
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2021
 # This document is licenced using LGPL
 #
 # Requires Xcode 3.2 or later
@@ -490,14 +490,6 @@ endif
 
 INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
 
-# add link so that we can #import <Framework/File.h>
-### FIXME: we should only -I the $(FRAMEWORKS) requested and not all existing!
-### But we don't know exactly where it is located
-#INCLUDES += \
-#-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"') \
-#-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"') \
-#-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/Headers.link | sed "s/ / -I/g"')
-
 ifeq ($(TRIPLE),MacOS)
 LNK :=
 else
@@ -600,10 +592,10 @@ LIBRARIES := \
 ### FIXME: we may check which path exists to shorten command line
 ### FIXME: the first path (w/o "Debian") is for old framework compatibility
 # Linux gcc has no -F option for framework paths
-LIBRARIES += $(shell for FMWK in $(QuantumSTEP)/System/Library/*Frameworks/*.framework $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework echo $(QuantumSTEP)/Library/*Frameworks/*.framework; do \
-		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/$(TRIPLE)"; \
-		echo "-L$$FMWK/Versions/Current/$(TRIPLE)"; \
-		done)
+#LIBRARIES += $(shell for FMWK in $(QuantumSTEP)/System/Library/*Frameworks/*.framework $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework echo $(QuantumSTEP)/Library/*Frameworks/*.framework; do \
+#		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/$(TRIPLE)"; \
+#		echo "-L$$FMWK/Versions/Current/$(TRIPLE)"; \
+#		done)
 
 LIBRARIES += $(FMWKS) $(LIBS)
 
@@ -1149,6 +1141,7 @@ ifeq ($(NAME_EXT),bin)
 else
 	- if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink)); fi
 endif
+	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
 	# don't install locally
@@ -1166,10 +1159,12 @@ ifeq ($(DEPLOY),true)
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# download /tmp/$(TMP_DATA) to all devices
-	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
+	[ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
-		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | gzip | $(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -" \
-		&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
+		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
+				gzip | \
+				$(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -; cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE && if [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -r lib$(PRODUCT_NAME).so ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; fi; ls -l lib$(PRODUCT_NAME)*.so;" \
+				&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
 	#done
 else
