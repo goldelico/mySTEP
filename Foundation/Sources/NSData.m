@@ -208,7 +208,8 @@ static IMP appendImp;
 
 + (id) dataWithContentsOfURL:(NSURL*)url options:(NSDataReadingOptions) mask error:(NSError **) error;
 {
-	return [[[dataMalloc alloc] initWithContentsOfURL: url options:mask error:error] autorelease];
+	// explicit cast to avoid compiler confusion with -[NSXMLDocument initWithContentsOfURL:options:error:]
+	return [[(NSData *) [dataMalloc alloc] initWithContentsOfURL: url options:mask error:error] autorelease];
 }
 
 + (id) dataWithContentsOfMappedFile:(NSString*)path
