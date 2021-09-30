@@ -162,8 +162,36 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 #ifdef __linux__
 { return NSLinuxOperatingSystem; }
 #endif
-- (NSString*) operatingSystemName;			{ return @"QuantumSTEP"; }
-- (NSString *) operatingSystemVersionString;	{ return @"2.0"; }
+- (NSString *) operatingSystemName;			{ return @"QuantumSTEP"; }
+
+- (NSString *) operatingSystemVersionString;
+{
+	// auf dem Mac z.B. "Version 10.14.6 (Build 18G9323)"
+	// sollte melden "Stretch 9.13 (armhf 202109)
+	// evtl. auch Hostname oder IP-Adresse???
+	NSBundle *this=[NSBundle bundleForClass:[self class]];
+	NSDictionary *attribs=[[NSFileManager defaultManager] attributesOfItemAtPath:[this executablePath] error:NULL];
+	NSDate *date=[attribs objectForKey:NSFileModificationDate];
+	NSDateFormatter *dateFormatter = [[NSDateFormatter new] autorelease];
+	NSString *arch;
+	NSString *build;
+	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
+	[dateFormatter setDateFormat:@"yyyy.MM"];	// .dd?
+	build=[dateFormatter stringFromDate:date];	// warning: this takes the locale into account!
+	{
+		char line[130];
+		FILE *fp;
+		// FIXME: error handling
+		fp = popen("dpkg --print-architecture", "r");
+		fgets(line, sizeof(line), fp);
+		line[strlen(line)-1] = '\0';	// strip off \n
+		arch = [NSString stringWithCString:line encoding:NSASCIIStringEncoding];
+	}
+	return [NSString stringWithFormat:@"Version %@ (%@ %@)",
+			[[NSString stringWithContentsOfFile:@"/etc/debian_version"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]],
+			arch,
+			build];
+}
 
 - (NSString*) processName					{ return _processName; }
 - (int) processIdentifier;					{ return _pid; }
