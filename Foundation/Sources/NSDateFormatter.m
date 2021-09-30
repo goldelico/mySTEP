@@ -184,12 +184,27 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 
 - (NSString *) stringFromDate:(NSDate *) date;
 {
-	// TODO: do not use old style formatter! Format strings are different
 	NSString *fmt=[self dateFormat];
-	if([fmt isEqualToString:@"yyyy"]) fmt=@"%Y";
+	if([self formatterBehavior] == NSDateFormatterBehavior10_4)
+		{
+		// should conform to http://unicode.org/reports/tr35/tr35-4.html#Date_Format_Patterns
+		// or later e.g. http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns
+		// FIXME: automatically translate formats (maybe cached?)
+		// basic idea: scan format string
+		// take first character
+		// count letter repetitions
+		// then decide if there comes something else (incl. end of string)
+		// and write POSIX % format (translation could be done by some NSDictionary loaded from some NSBundle property
+		// All non-letter character represent themselves in a pattern, except for the single quote.
+		// It is used to 'escape' letters. Two single quotes in a row, whether inside or outside a quoted sequence,
+		// represent a 'real' single quote.
+		// FIXME: this is just a workaround for some simple cases...
+		if([fmt isEqualToString:@"yyyy"]) fmt=@"%Y";
+		else if([fmt isEqualToString:@"yyyy.MM"]) fmt=@"%Y.%m";
 #if 1
 	NSLog(@"stringFromDate: %@ format: %@ -> %@", date, [self dateFormat], fmt);
 #endif
+		}
 	if([date isKindOfClass: [NSCalendarDate class]])
 		return [(NSCalendarDate *) date descriptionWithCalendarFormat:fmt locale: nil /*[self locale]*/];
 	return [date descriptionWithCalendarFormat:fmt timeZone: [NSTimeZone defaultTimeZone] locale: nil /*[self locale]*/];
