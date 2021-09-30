@@ -306,6 +306,7 @@ static BOOL __userKeyEquivalents = YES;
 	if([coder allowsKeyedCoding])
 		{ // initialize, then submenus and finally supermenu
 		self=[self initWithTitle:[coder decodeObjectForKey:@"NSTitle"]
+			  // CHECKME: there may be no action calling NSSelectorFromString(nil)
 						  action:NSSelectorFromString([coder decodeObjectForKey:@"NSAction"])
 				   keyEquivalent:[coder decodeObjectForKey:@"NSKeyEquiv"]];
 		if([coder decodeBoolForKey:@"NSIsSeparator"])
