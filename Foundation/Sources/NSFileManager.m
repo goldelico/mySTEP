@@ -933,7 +933,15 @@ static NSFileManager *__fm = nil;
 
 - (NSDictionary *) attributesOfItemAtPath:(NSString *) path error:(NSError **) error;
 {
-	return NIMP;
+	// FIXME: base fileAttributesAtPath:error: on this...
+	NSDictionary *r=[self fileAttributesAtPath:path traverseLink:NO];;
+	if(!r)
+		{
+		if(error)
+			*error=[NSError errorWithDomain:@"NSFileManager" code:0 userInfo:[NSDictionary dictionaryWithObject:path forKey:@"path"]];
+		return nil;
+		}
+	return r;
 }
 
 - (NSArray *) contentsOfDirectoryAtPath:(NSString *) path error:(NSError **) error;
