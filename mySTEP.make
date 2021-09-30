@@ -197,8 +197,9 @@ SO := dylib
 else
 DEFINES += -D__mySTEP__
 # use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
-# and fall back to some default for e.g. "staging"
+# this is the default compiler/toolchain we use for "universal" apps/bundles
 TOOLCHAIN_FALLBACK = 8-Jessie
+DEBIAN_RELEASE_FALLBACK = jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( wheezy ) echo "7-Wheezy";; \
 	( jessie ) echo "8-Jessie";; \
@@ -320,7 +321,11 @@ ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 else
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+else	# release specific
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
+endif
 endif
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
@@ -504,7 +509,7 @@ ifeq ($(TRIPLE),MacOS)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
 ### FIXME: why do we need this? MacOS only...
 ### MacOS should use -F and the framework path!
-INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then :; \
@@ -520,7 +525,7 @@ INCLUDES += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	fi; done)
 
 ### FIXME: why do we need this? MacOS only...
-LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
+LIBS := $(LIBS) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then echo -framework $$FMWK; \
@@ -536,7 +541,7 @@ LIBS += $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	fi; done)
 else
 # look up headers and libs to link
-INCLUDES += $(shell for FMWK in $(FRAMEWORKS); \
+INCLUDES := $(INCLUDES) $(shell for FMWK in $(FRAMEWORKS); \
 	do \
 	if [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
 	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
@@ -551,13 +556,15 @@ INCLUDES += $(shell for FMWK in $(FRAMEWORKS); \
 
 ### hier fehlt vermutlich noch der rlink-path!
 
-FMWKS += $(shell for FMWK in $(FRAMEWORKS); \
+FMWKS := $(FMWKS) $(shell for FMWK in $(FRAMEWORKS); \
 	do \
 	for DIR in $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks; \
 		do \
 		if [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so ]; \
 		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so; \
-		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK ]; \
+		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so; \
+		elif [ -L $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK ]; \
 		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK; \
 		fi; \
 		done; \
@@ -566,13 +573,6 @@ FMWKS += $(shell for FMWK in $(FRAMEWORKS); \
 # FMWKS := $(addprefix -l ,$(FRAMEWORKS))
 endif
 endif
-
-#		-L$(TOOLCHAIN)/lib \
-
-# FIXME: use $(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))
-# and $(addprefix "-Wl,-rpath-link,",$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))
-
-#		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(TRIPLE))) \
 
 ifeq ($(TRIPLE),MacOS)
 LIBRARIES := \
@@ -586,16 +586,6 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(TOOLCHAIN)/lib \
 		-L$(QuantumSTEP)/usr/lib \
 		-L$(TOOLCHAIN)/lib
-
-### FIXME: this is really used when building for Debian
-### FIXME: make also dependent on Debian release incl. fallback, i.e. 2 entries!
-### FIXME: we may check which path exists to shorten command line
-### FIXME: the first path (w/o "Debian") is for old framework compatibility
-# Linux gcc has no -F option for framework paths
-#LIBRARIES += $(shell for FMWK in $(QuantumSTEP)/System/Library/*Frameworks/*.framework $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework echo $(QuantumSTEP)/Library/*Frameworks/*.framework; do \
-#		echo "-Wl,-rpath-link,$$FMWK/Versions/Current/$(TRIPLE)"; \
-#		echo "-L$$FMWK/Versions/Current/$(TRIPLE)"; \
-#		done)
 
 LIBRARIES += $(FMWKS) $(LIBS)
 
@@ -1159,11 +1149,11 @@ ifeq ($(DEPLOY),true)
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# download /tmp/$(TMP_DATA) to all devices
-	[ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
+	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
 				gzip | \
-				$(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -; cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE && if [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -r lib$(PRODUCT_NAME).so ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; fi; ls -l lib$(PRODUCT_NAME)*.so;" \
+				$(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -; cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE && if [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -r lib$(PRODUCT_NAME).so ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
 				&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
 	#done
@@ -1234,8 +1224,8 @@ endif
 #else
 #	$(QUIET)- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
 #endif
-endif
 	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link"; rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link/$(PRODUCT_NAME)" && ln -sf ../Headers "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers.link/$(PRODUCT_NAME)")	# link to Headers to find <Framework/File.h>
+endif
 ifeq ($(TRIPLE),MacOS)
 # always use system frameworks and make nested frameworks "flat"
 	$(QUIET)mkdir -p $(TTT)
