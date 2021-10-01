@@ -151,8 +151,8 @@ ROOT:=$(QuantumSTEP)
 ### FIXME: what is the right path???
 
 # FIXME: this does only work on the Mac! On embedded the qsrsh is in /usr/bin/$HOST_ARCH or $PATH
-DOWNLOAD := $(QuantumSTEP)/usr/bin/qsrsh
-
+DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
+XHOST_TOOL := /opt/X11/bin/xhost
 # tools
 ifeq ($(shell uname),Darwin)
 # use platform specific (cross-)compiler on Darwin host
@@ -265,11 +265,10 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	NAME_EXT=bin
 	# this keeps the binaries separated for installation/packaging
 	PKG=$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).bin
-ifeq ($(DEBIAN_RELEASE),none)
 	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
+ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
 else
-	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
 ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
 else	# release specific
@@ -293,15 +292,13 @@ endif
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
-ifeq ($(DEBIAN_RELEASE),none)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else
 ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else	# release specific
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
 endif
 endif
@@ -316,12 +313,11 @@ else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 ifeq ($(DEBIAN_RELEASE),none)
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 else
-	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+ifeq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 else	# release specific
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
@@ -738,6 +734,13 @@ endif
 
 make_bundle:
 	# make bundle
+	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
+	# DEBIAN_ARCH: $(DEBIAN_ARCH)
+	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
+	# TRIPLE: $(TRIPLE)
+	# EXEC: $(EXEC)
+	# BINARY: $(BINARY)
+	# PKG/NAME_EXT/CONTENTS: $(PKG)/$(NAME_EXT)/$(CONTENTS)
 
 make_exec: "$(EXEC)"
 	# make exec
@@ -928,6 +931,10 @@ ifneq ($(TRIPLE),)
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+ifeq ($(WRAPPER_EXTENSION),framework)
+	if [ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+endif
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
@@ -1148,12 +1155,12 @@ ifeq ($(DEPLOY),true)
 	# copy again to /tmp/$(TMP_DATA)
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
 	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
-	# download /tmp/$(TMP_DATA) to all devices
-	- [ -s "$(DOWNLOAD)" ] && $(DOWNLOAD) -n | while read DEVICE NAME; \
+	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
+	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
 				gzip | \
-				$(DOWNLOAD) $$DEVICE "cd; cd / && gunzip | tar xpvf -; cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE && if [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -r lib$(PRODUCT_NAME).so ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
+				$(DOWNLOAD_TOOL) $$DEVICE "cd; cd / && gunzip | tar xpvf -; cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE && if [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -f $(PRODUCT_NAME) ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
 				&& echo installed on $$NAME at $(TARGET_INSTALL_PATH) || echo installation failed on $$NAME; \
 		done
 	#done
@@ -1170,18 +1177,12 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# DEPLOY: $(DEPLOY)
 	# RUN: $(RUN)
 	# RUN_CMD: $(RUN_CMD)
-	# try to launch deployed Application using our local Xquartz as a remote display
-	# NOTE: if Xquartz is already running, nolisten_tcp will not be applied!
 	#
-	# FIXME: how do we know the $(TRIPLE) used to specify the EXECUTABLE_PATH?
-	#
-	defaults write org.macosforge.xquartz.X11 nolisten_tcp 0; \
-	@rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a Xquartz; sleep 5; \
-	@export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost + && \
-	RUN_DEVICE=$$($(DOWNLOAD) -r | head -n 1) && \
-	[ "$$RUN" ] && [ -x $(DOWNLOAD) ] && $(DOWNLOAD) "$$RUN_DEVICE" \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)" \
-		|| echo failed to run;
+	# try to launch deployed Application using local Xquartz as a remote display
+	@-rm -rf /tmp/.X0-lock /tmp/.X11-unix
+	@-[ "$$(pgrep Xquartz)" ] || ( defaults write org.macosforge.xquartz.X11 nolisten_tcp 0 && open -a Xquartz && sleep 5 && export DISPLAY=localhost:0.0 && $(XHOST_TOOL) + ) || true
+	"$(DOWNLOAD_TOOL)" "$(shell $(DOWNLOAD_TOOL) -r)" "cd; : set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; : set; qsx $(RUN_CMD) $(PRODUCT_NAME)" || echo failed to run
+# old...	"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)"
 	@echo launch_remote done
 endif
 endif
