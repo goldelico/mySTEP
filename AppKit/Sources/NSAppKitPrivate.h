@@ -67,7 +67,7 @@
 #define SEL_EQ(A,B) ((A)==(B))
 #endif
 
-#ifdef __APPLE__	// Apple Foundation does not provide these macros
+#ifndef NS_TIME_START
 #define NS_TIME_START(A)
 #define NS_TIME_END(A, ...)
 
