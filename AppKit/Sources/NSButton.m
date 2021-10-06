@@ -555,12 +555,14 @@ id __buttonCellClass = nil;
 			}
 		case NSRoundedBezelStyle:
 			{ // standard Push Button (half-circle at both ends)
+				CGFloat radius;
 				ctxt=[NSGraphicsContext currentContext];
 				if(_c.highlighted != ([_keyEquivalent isEqualToString:@"\r"] || [_keyEquivalent isEqualToString:@"\n"]) && [[controlView window] isKeyWindow])
 					backgroundColor=[NSColor selectedControlColor];	// selected or default button
 				else if(!backgroundColor)
 					backgroundColor=[NSColor controlColor];	// never transparent
-				bezel=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
+				radius=0.5*MIN(cellFrame.size.width, cellFrame.size.height);
+				bezel=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:radius yRadius:radius];
 				[ctxt saveGraphicsState];
 				[bezel addClip];	// clip to contour
 				[backgroundColor setFill];
