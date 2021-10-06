@@ -132,8 +132,9 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 	NIMP;
 }
 
-// this are private methods!
-// CHECKME: do we still need this?
+// this are old methods!
+// they come from https://www.nextop.de/NeXTstep_3.3_Developer_Documentation/Foundation/Classes/NSAutoreleasePool.htmld/index.html
+
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
 + (void) setPoolCountThreshhold:(unsigned)c	{ __poolCountThreshold = c; }
 + (void) enableDoubleReleaseCheck:(BOOL)en	{ }
@@ -146,7 +147,7 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 }
 #endif
 
-// FIXME: may be called only once! And fails if we drain and dealloc...
+// FIXME: may be called only once! And fails if we drain and then dealloc...
 // we should clean it up in a way that drain may be called multiple times
 // and can be refilled later on
 
@@ -155,8 +156,8 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 	struct autorelease_thread_vars *tv;
 	NSAutoreleasePool **cp;
 	struct autorelease_array_list *released;
-#if 1
-	fprintf(stderr, "arp drain %p - initial memory=%lu\n", self, NSRealMemoryAvailable());
+#if 0
+	fprintf(stderr, "ARP: drain %p - initial memory=%lu\n", self, NSRealMemoryAvailable());
 #endif
 	// If there are NSAutoreleasePools below us in the
 	// stack of NSAutoreleasePools, then deallocate
@@ -179,7 +180,7 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 				if((anObject=*p))
 					{
 					*p++=nil;	// take out of the list
-#if 1
+#if 0
 					fprintf(stderr, "ARP: release object %p\n", anObject);
 #endif
 					[anObject release];
@@ -217,8 +218,8 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 		}
 	else										// Don't deallocate self, just
 		push_pool_to_cache (tv, self);			// push to cache for later use
-#if 1
-	fprintf(stderr, "arp dealloc -    done memory=%lu\n", NSRealMemoryAvailable());
+#if 0
+	fprintf(stderr, "ARP: dealloc -    done memory=%lu\n", NSRealMemoryAvailable());
 #endif
 }
 
@@ -290,6 +291,7 @@ static NSAutoreleasePool *pop_pool_from_cache (struct autorelease_thread_vars *t
 #if 0
 	fprintf(stderr, "autorelease %p\n", anObj);
 #endif
+	// FIXME: NeXTstep __poolCountThreshold has a different purpose!
 	if (_released_count >= __poolCountThreshold)
 		[NSException raise: NSGenericException
 					 format: @"AutoreleasePool count threshold exceeded."];
