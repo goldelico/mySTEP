@@ -486,7 +486,7 @@ else ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),AppKit.framework)
 FRAMEWORKS := Foundation $(FRAMEWORKS)
 else
 # always add Foundation.framework and AppKit.framework
-FRAMEWORKS := Foundation AppKit $(FRAMEWORKS)
+FRAMEWORKS := Foundation AppKit CoreData Cocoa $(FRAMEWORKS)
 endif
 
 INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
@@ -932,8 +932,9 @@ ifneq ($(TRIPLE),)
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
-	if [ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
+	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+	# FIXME: remove lib$(PRODUCT_NAME)-*.so which does not match lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so
 endif
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
@@ -1179,9 +1180,9 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# RUN_CMD: $(RUN_CMD)
 	#
 	# try to launch deployed Application using local Xquartz as a remote display
-	@-rm -rf /tmp/.X0-lock /tmp/.X11-unix
+	@-rm -rf /tmp/.X0-lock /tmp/.X11-unix 2>/dev/null | true
 	@-[ "$$(pgrep Xquartz)" ] || ( defaults write org.macosforge.xquartz.X11 nolisten_tcp 0 && open -a Xquartz && sleep 5 && export DISPLAY=localhost:0.0 && $(XHOST_TOOL) + ) || true
-	"$(DOWNLOAD_TOOL)" "$(shell $(DOWNLOAD_TOOL) -r)" "cd; : set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; : set; qsx $(RUN_CMD) $(PRODUCT_NAME)" || echo failed to run
+	"$(DOWNLOAD_TOOL)" "$(shell $(DOWNLOAD_TOOL) -r)" "cd; : set; : export QuantumSTEP=$(EMBEDDED_ROOT); : export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; : export LOGNAME=$(LOGNAME); : export NSLog=yes; : export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); : export DISPLAY=\$$HOST:0.0; : set; qsx $(RUN_CMD) $(PRODUCT_NAME)" || echo failed to run
 # old...	"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(TRIPLE); cd '$(TARGET_INSTALL_PATH)' && $(RUN_CMD) '$(PRODUCT_NAME)' $(RUN_OPTIONS)"
 	@echo launch_remote done
 endif
