@@ -38,6 +38,7 @@ static NSLineJoinStyle __defaultLineJoinStyle = NSMiterLineJoinStyle;
 static NSLineCapStyle __defaultLineCapStyle = NSButtLineCapStyle;
 static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
+#if 0
 @interface _NSRectBezierPath : NSBezierPath
 {
 	NSRect _rect;
@@ -100,6 +101,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 @end
+#endif
 
 @implementation NSBezierPath
 
@@ -174,6 +176,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 {
 	NSBezierPath *p=[self new];
+#if 0
+	NSLog(@"bezierPathWithRoundedRect:%@ xRadius:%f yRadius:%f", NSStringFromRect(rect), xrad, yrad);
+#endif
 	[p appendBezierPathWithRoundedRect:rect xRadius:xrad yRadius:yrad];
 	return [p autorelease];
 }
@@ -1021,12 +1026,18 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithOvalInRect:(NSRect)aRect
 {
+	// isn't this [self appendBezierPathWithRoundedRect:aRect xRadius:aRect.size.width yRadius:aRect.size.height];
 	[self appendBezierPath: [[self class] bezierPathWithOvalInRect: aRect]];
 }
 
 - (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
 {
 	NSPoint p, c, s;
+#if 0
+	NSLog(@"appendBezierPathWithRoundedRect:%@ xRadius:%f yRadius:%f", NSStringFromRect(borderRect), xrad, yrad);
+#endif
+	borderRect.size.width-=1.0;
+	borderRect.size.height-=1.0;	// draw inside
 	if(xrad <= 0.0 || yrad <= 0.0)
 		xrad=yrad=0.0;	// results in rectangle
 	else
@@ -1034,8 +1045,6 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		xrad=MIN(xrad, 0.5*borderRect.size.width);
 		yrad=MIN(yrad, 0.5*borderRect.size.height);
 		}
-	borderRect.size.width-=1.0;
-	borderRect.size.height-=1.0;	// draw inside
 	/* start top left an go counter-clockwise */
 	s=p=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect)-yrad);	// top left w/o corner point
 	[self moveToPoint:p];
@@ -1043,7 +1052,6 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[self lineToPoint:p];
 	c=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect));	// bottom left corner
 	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// bottom left curve
-	// braucht 2 unterschiedliche Control-Points!!!
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
 	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect));	// bottom right
 	[self lineToPoint:p];
@@ -1061,6 +1069,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	p=s;
 	[self curveToPoint:p controlPoint1:c controlPoint2:c];
 	[self closePath];	// close to first point of segment (should be empty)
+
+#if 0
+	NSLog(@"  %@", self);
+#endif
 }
 
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center
