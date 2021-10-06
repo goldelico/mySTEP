@@ -573,6 +573,13 @@ if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defa
 			ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Application Support");
 			ADD_PATH(NSSystemDomainMask, @"/System/Library/Application Support");
 			break;
+		case NSPreferencePanesDirectory:
+			ADD_PATH(NSUserDomainMask, @"~/Library/PreferencePanes");
+			ADD_PATH(NSLocalDomainMask, @"/Library/PreferencePanes");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Library/PreferencePanes");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library/PreferencePanes");
+			break;
+
 #undef ADD_PATH
 #undef ADD_PLATFORM_PATH
 	}

@@ -39,6 +39,7 @@ typedef enum _NSSearchPathDirectory
 	NSCachesDirectory,
 	NSApplicationSupportDirectory,
 	NSDownloadsDirectory, 
+	NSPreferencePanesDirectory = 22,
 	NSAllApplicationsDirectory = 100,
 	NSAllLibrariesDirectory
 } NSSearchPathDirectory;
