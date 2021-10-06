@@ -188,9 +188,11 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 		arch = [NSString stringWithCString:line encoding:NSASCIIStringEncoding];
 	}
 	return [NSString stringWithFormat:@"Version %@ (%@ %@)",
-			[[NSString stringWithContentsOfFile:@"/etc/debian_version"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]],
+			build,
 			arch,
-			build];
+			[[NSString stringWithContentsOfFile:@"/etc/debian_version"]
+				stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
+			];
 }
 
 - (NSString*) processName					{ return _processName; }
