@@ -871,10 +871,11 @@ build_deb: make_bundle bundle make_binary build_debian_packages
 ifeq ($(DEBIAN_NOPACKAGE),)
 ifneq ($(DEBIAN_ARCH),none)
 ifneq ($(DEBIAN_ARCH),php)
+# sequence is important because packages get stripped down in each stage
 build_debian_packages: prepare_temp_files \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 else
 build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
@@ -902,18 +903,18 @@ prepare_temp_files:
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -) ; fi
+	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -) ; fi
 ifneq ($(FILES),)
 	# additional files relative to install location
 	echo FILES is obsolete
 	exit 1
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -)
 endif
 ifneq ($(DATA),)
 	# additional files relative to root $(DATA)
 	echo DATA is obsolete
 	exit 1
-	$(TAR) cf - --exclude .DS_Store --exclude .svn --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
 ifneq ($(DEBIAN_RAW_FILES),)
 	# additional raw files relative to root: $(DEBIAN_RAW_FILES) in: $(DEBIAN_RAW_SUBDIR) for: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)
@@ -926,15 +927,21 @@ endif
 endif
 	# unprotect
 	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
+
+prune_temp_files:
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
+	# process multirelease framework
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
-	# FIXME: remove lib$(PRODUCT_NAME)-*.so which does not match lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so
+	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
+	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
+	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
+	done; true )
 endif
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
@@ -975,15 +982,35 @@ F = filter_dependencies() \
 	# DEBIAN_CONFLICTS: $(DEBIAN_CONFLICTS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	# DEBIAN_PROVIDES: $(DEBIAN_PROVIDES)
-	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	# strip binaries
-	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
+	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
+ifneq ($(TRIPLE),)
+	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# remove headers
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers.link"
+	# process multirelease framework
+	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
+	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
+	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
+	done; true )
+endif
+endif
+ifeq ($(WRAPPER_EXTENSION),framework)
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
 	# create Receipts file
-	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
+	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	# write protect and pack data.tar.gz
-	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
-	ls -l "/tmp/$(TMP_DATA).tar.gz"
+	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)ls -l "/tmp/$(TMP_DATA).tar.gz"
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
@@ -1014,27 +1041,37 @@ ifeq ($(OPEN_DEBIAN),true)
 	open $@
 endif
 
+# should be the same as without -dev but include headers
+
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
+ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
-ifeq ($(WRAPPER_EXTENSION),framework)
-	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	# copy again including Headers
-	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
+ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
-	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
-	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	# process multirelease framework
+	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
+	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
+	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
+	done; true )
+endif
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
-	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
-	chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
-	ls -l /tmp/$(TMP_DATA).tar.gz
+	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
@@ -1066,25 +1103,35 @@ else
 	# no development version
 endif
 
+# should be the same as -dev except stripping
+
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
+ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
-ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	# copy again including Headers
-	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done)
+ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
-	$(QUIET)find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name $(TRIPLE) ")" -prune -print -exec rm -rf {} ";"
-	$(QUIET)find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
-	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
-	$(QUIET)rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	# process multirelease framework
+	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
+	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
+	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
+	done; true )
+endif
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 	# create Receipts file
+	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
-	ls -l /tmp/$(TMP_DATA).tar.gz
+	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dbg"; \
@@ -1128,9 +1175,6 @@ install_local: prepare_temp_files
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
-	# copy again to /tmp/$(TMP_DATA)
-	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
@@ -1153,9 +1197,6 @@ deploy_remote: prepare_temp_files
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
-	# copy again to /tmp/$(TMP_DATA)
-	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" || true
-	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf - && wait && echo done); fi
 	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
 	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) -n | while read DEVICE NAME; \
 		do \
