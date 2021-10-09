@@ -892,15 +892,17 @@ static id _nibOwner;
 {
 	NSString *path;
 	// if nil, should first look in the file owner's bundle (but how do we know it here?)
-	if(!referencingBundle) referencingBundle=[NSBundle mainBundle];
+	if(!referencingBundle)
+		referencingBundle=[NSBundle mainBundle];
 #if 0
 	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [referencingBundle bundlePath]);
 #endif
-	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
+	if([name hasSuffix:@".nib"])
+		name=[name stringByDeletingPathExtension];
 #if 0
 	NSLog(@"name: %@", name);
 #endif
-	if(!(path=[referencingBundle pathForResource:name ofType:@"nib" inDirectory:nil]))
+	if(!name || !(path=[referencingBundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{
 #if 0
 			NSLog(@"not found in referencing bundle: %@", name);
