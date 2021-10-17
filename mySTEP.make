@@ -201,11 +201,14 @@ DEFINES += -D__mySTEP__
 TOOLCHAIN_FALLBACK = 8-Jessie
 DEBIAN_RELEASE_FALLBACK = jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
+	( lenny ) echo "6-Lenny";; \
 	( wheezy ) echo "7-Wheezy";; \
 	( jessie ) echo "8-Jessie";; \
 	( stretch ) echo "9-Stretch";; \
 	( buster ) echo "10-Buster";; \
-	( bullseye ) echo "11-Stretch";; \
+	( bullseye ) echo "11-Bullseye";; \
+	( bookworm ) echo "12-Bookworm";; \
+	( trixie ) echo "12-Trixie";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
 # FIXME: should check if toolchain is installed...
@@ -1293,6 +1296,7 @@ ifneq ($(strip $(INFOPLISTS)),)
 	$(QUIET)- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 else
 # create a default Info.plist
+	echo "Error: missing Info.plist - creating a default"
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
 ifneq ($(strip $(RESOURCES)),)
