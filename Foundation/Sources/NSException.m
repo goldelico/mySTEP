@@ -201,6 +201,16 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 
 - (id) copyWithZone:(NSZone *) zone	{ return [self retain]; }		// NSCopying
 
+- (void) __compile_test__;
+{
+	// check if assert macros can be compiled
+	NSAssert(YES, @"message");
+	NSAssert(YES, @"message: %@", @"arg");
+	NSAssert1(YES, @"message: %@", @"arg");
+	NSAssert(YES, @"message: %@ %@", @"arg1", @"arg2");
+	NSAssert2(YES, @"message: %@ %@", @"arg1", @"arg2");
+}
+
 @end
 
 // we could make this partof the NS_DURING... macros or make it inline code
