@@ -14,6 +14,6 @@ NSString *NSOfficeOpenXMLTextDocumentType;	// ECMA Office Open XML text document
 @interface NSAttributedString (DOCX)
 
 - (id) initWithDocFormat:(NSData *) data documentAttributes:(NSDictionary **) dict;
-- (NSData *) dataFromRange:(NSRange) range documentAttributes:(NSDictionary *dict) error:**error;
+- (NSData *) dataFromRange:(NSRange) range documentAttributes:(NSDictionary *) dict error:(NSError **) error;
 
 @end
