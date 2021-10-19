@@ -43,7 +43,7 @@ typedef enum _NSTIFFCompression
 	NSTIFFCompressionCCITTFAX3 = 3,
 	NSTIFFCompressionCCITTFAX4 = 4,
 	NSTIFFCompressionLZW	   = 5,
-	NSTIFFCompressionJPEG	   = 6,
+	NSTIFFCompressionJPEG	   = 6,	// Cocoa does no longer support
 	NSTIFFCompressionNEXT	   = 32766,
 	NSTIFFCompressionPackBits  = 32773,
 	NSTIFFCompressionOldJPEG   = 32865
