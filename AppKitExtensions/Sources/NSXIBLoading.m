@@ -65,6 +65,7 @@
 	// dann braucht man nur die XIB lesen und als NIB schreiben bzw. umgekehrt
 	// => Konvertierungslogik zu Teil von AppKit(Extensions) machen!
 	// ibtool ist dann nur ein Command-Line-Wrapper
+	return self;
 }
 
 - (void) dealloc;
