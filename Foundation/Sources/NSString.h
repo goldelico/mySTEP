@@ -50,7 +50,8 @@ enum
 	NSNumericSearch					= 64,
 	NSDiacriticInsensitiveSearch	= 128,
 	NSWidthInsensitiveSearch		= 256,
-	NSForcedOrderingSearch			= 512
+	NSForcedOrderingSearch			= 512,
+	NSRegularExpressionSearch		= 1024
 }; 
 
 typedef NSUInteger NSStringCompareOptions;
