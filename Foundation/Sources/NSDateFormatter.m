@@ -199,8 +199,50 @@ static NSDateFormatterBehavior _defaultFormatterBehavior=NSDateFormatterBehavior
 		// It is used to 'escape' letters. Two single quotes in a row, whether inside or outside a quoted sequence,
 		// represent a 'real' single quote.
 		// FIXME: this is just a workaround for some simple cases...
-		if([fmt isEqualToString:@"yyyy"]) fmt=@"%Y";
-		else if([fmt isEqualToString:@"yyyy.MM"]) fmt=@"%Y.%m";
+		NSMutableString *transformed=[NSMutableString stringWithCapacity:50];
+		NSInteger i, len=[fmt length];
+		for(i=0; i<len; i++)
+			{
+			unichar c=[fmt characterAtIndex:i];
+			unsigned int repeat=1;
+			BOOL done=YES;
+			if(isalpha(c))
+				{ // scan repetitions
+				while(i+repeat < len && [fmt characterAtIndex:i+repeat] == c)
+					repeat++;
+				}
+#if 0
+			NSLog(@"%d: %C%d", i, c, repeat);
+#endif
+			switch(c) {
+				case 'y':
+					switch(repeat) {
+						case 4: [transformed appendString:@"%Y"]; break;
+						default: done=NO;
+					}
+					break;
+				case 'M':
+					switch(repeat) {
+						case 2: [transformed appendString:@"%m"]; break;
+						default: done=NO;
+					}
+					break;
+				case 'd':
+					switch(repeat) {
+						case 2: [transformed appendString:@"%d"]; break;
+						default: done=NO;
+					}
+					break;
+				default: done=NO;
+			}
+			if(!done)
+				[transformed appendString:[fmt substringWithRange:NSMakeRange(i, repeat)]];	// copy as is
+#if 0
+			NSLog(@"%@", transformed);
+#endif
+			i=i+repeat-1;
+			}
+		fmt=transformed;
 #if 1
 	NSLog(@"stringFromDate: %@ format: %@ -> %@", date, [self dateFormat], fmt);
 #endif
