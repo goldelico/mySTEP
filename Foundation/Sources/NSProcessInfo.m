@@ -176,7 +176,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 	NSString *arch;
 	NSString *build;
 	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
-	[dateFormatter setDateFormat:@"yyyy.MM"];	// .dd?
+	[dateFormatter setDateFormat:@"yyyy.MM.dd"];
 	build=[dateFormatter stringFromDate:date];	// warning: this takes the locale into account!
 	{
 		char line[130];
