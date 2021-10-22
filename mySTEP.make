@@ -1028,7 +1028,7 @@ endif
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" .
+	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" .
 	$(QUIET)ls -l "/tmp/$(TMP_DATA).tar.gz"
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1051,7 +1051,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cjvf /tmp/$(TMP_CONTROL).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
+	$(QUIET)$(TAR) czvf /tmp/$(TMP_CONTROL).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1089,7 +1089,7 @@ endif
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
+	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1110,7 +1110,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cjvf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
+	$(QUIET)$(TAR) czvf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1149,7 +1149,7 @@ endif
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
+	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1170,7 +1170,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cjf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
+	$(QUIET)$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	$(QUIET)ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
