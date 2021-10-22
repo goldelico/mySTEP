@@ -170,8 +170,10 @@ PRODUCT_BUNDLE_IDENTIFIER=org.quantumstep.$(PRODUCT_NAME)
 endif
 
 ifeq ($(TRIPLE),php)
-CC := : php -l
-LD := : cp
+# besser: php -l & copy
+CC := : php -l + copy
+# besser: makephar - (shell-funktion?)
+LD := : makephar
 AS := :
 NM := :
 STRIP := :
@@ -767,7 +769,18 @@ DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 build_doxy:	build/$(PRODUCT_NAME).docset
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifeq ($(BUILD_DOCUMENTATION),true)
-	$(QUIET)- [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && $(TAR) cf - $(PRODUCT_NAME).docset) | \
+	$(QUIET)- rsync -vaz ~/bk ~/test
+	$(QUIET)- true && [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && rsync -avz $(PRODUCT_NAME).docset $(DOXYDIST)/ && \
+		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
+		  echo "<ul>"; \
+	      for f in *.docset; \
+	      do BN=$$(basename $$f .docset); \
+		    echo "<li><a href=\"$$BN.docset/html/classes.html\">$$BN.framework</a></li>"; \
+	      done; \
+	      echo "<ul>" \
+	    ) >index.html )
+
+	$(QUIET)- false && [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && (cd build && $(TAR) cf - $(PRODUCT_NAME).docset) | \
 		(mkdir -p $(DOXYDIST) && cd $(DOXYDIST) && rm -rf $(DOXYDIST)/$(PRODUCT_NAME).docset && \
 		$(TAR) xf - && \
 		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
@@ -906,7 +919,8 @@ prepare_temp_files:
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
-	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -) ; fi
+#	if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && $(TAR) xvf -) ; fi
+	if [ -d "$(PKG)" ] ; then rsync -avz --exclude .DS_Store --exclude .svn "$(PKG)/$(NAME_EXT)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"; fi
 ifneq ($(FILES),)
 	# additional files relative to install location
 	echo FILES is obsolete
@@ -924,8 +938,10 @@ ifneq ($(DEBIAN_RAW_FILES),)
 	mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)"
 ifeq ($(findstring //,/$(DEBIAN_RAW_SUBDIR)),//)
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
+#	rsync -avz --exclude .DS_Store --exclude .svn $(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)"
 else
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
+#	rsync -avz --exclude .DS_Store --exclude .svn $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)")
 endif
 endif
 	# unprotect
@@ -1012,7 +1028,7 @@ endif
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" .
 	$(QUIET)ls -l "/tmp/$(TMP_DATA).tar.gz"
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1035,7 +1051,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cvf - --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) . | gzip >/tmp/$(TMP_CONTROL).tar.gz
+	$(TAR) cjvf /tmp/$(TMP_CONTROL).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1073,7 +1089,7 @@ endif
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1094,7 +1110,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cvf - $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) . | gzip >/tmp/$(TMP_CONTROL).tar.gz
+	$(TAR) cjvf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1133,7 +1149,7 @@ endif
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
-	$(QUIET)$(TAR) cf - --owner 0 --group 0 -C /tmp/$(TMP_DATA) . | gzip >/tmp/$(TMP_DATA).tar.gz
+	$(QUIET)$(TAR) cjf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -1154,7 +1170,7 @@ endif
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
-	$(TAR) cf - $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) . | gzip >/tmp/$(TMP_CONTROL).tar.gz
+	$(TAR) cjf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	$(QUIET)ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1181,10 +1197,13 @@ ifeq ($(INSTALL),true)
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
+	# FIXME: use rsync
 ifeq ($(NAME_EXT),bin)
-	- if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -)); fi
+	# - if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -)); fi
+	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" $(HOST_INSTALL_PATH) && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
 else
-	- if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink)); fi
+	# - if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink)); fi
+	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" $(HOST_INSTALL_PATH) && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
 endif
 	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
 	# installed on localhost at $(HOST_INSTALL_PATH)
@@ -1201,6 +1220,7 @@ ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
 	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
+	# FIXME: use rsync?
 	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) -n | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
