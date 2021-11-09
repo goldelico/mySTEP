@@ -203,14 +203,16 @@ DEFINES += -D__mySTEP__
 TOOLCHAIN_FALLBACK = 8-Jessie
 DEBIAN_RELEASE_FALLBACK = jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
-	( lenny ) echo "6-Lenny";; \
+	( etch ) echo "4-Etch";; \
+	( lenny ) echo "5-Lenny";; \
+	( squeeze ) echo "6-Squeeze";; \
 	( wheezy ) echo "7-Wheezy";; \
 	( jessie ) echo "8-Jessie";; \
 	( stretch ) echo "9-Stretch";; \
 	( buster ) echo "10-Buster";; \
 	( bullseye ) echo "11-Bullseye";; \
 	( bookworm ) echo "12-Bookworm";; \
-	( trixie ) echo "12-Trixie";; \
+	( trixie ) echo "13-Trixie";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
 # FIXME: should check if toolchain is installed...
