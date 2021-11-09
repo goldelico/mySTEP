@@ -1263,6 +1263,7 @@ endif
 
 bundle:
 	@echo bundle
+ifneq ($(TRIPLE),unknown-linux-gnu)
 	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
@@ -1274,10 +1275,12 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
 	@rm -f "$(PKG)/$(NAME_EXT)/Resources"; ln -sf "Versions/Current/Resources" "$(PKG)/$(NAME_EXT)/Resources"
 endif
+endif
 	@echo bundle done
 
 headers:
 	@echo headers
+ifneq ($(TRIPLE),unknown-linux-gnu)
 	# create headers $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
@@ -1301,10 +1304,12 @@ ifeq ($(TRIPLE),MacOS)
 		  ln -sf $$fwk/Versions/Current/Headers $(TTT)/$$(basename $$fwk) \
 	  ; done
 endif
+endif
 	@echo headers done
 
 resources: bundle
 	@echo resources
+ifneq ($(TRIPLE),unknown-linux-gnu)
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
@@ -1331,6 +1336,7 @@ ifneq ($(strip $(RESOURCES)),)
 endif
 endif
 	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
+endif
 	@echo resources done
 
 "$(BINARY)":: bundle headers $(OBJECTS)
@@ -1377,6 +1383,8 @@ endif
 endif
 
 "$(EXEC)":: bundle headers resources
+	@echo $(EXEC)
+ifneq ($(TRIPLE),unknown-linux-gnu)
 	# make directory for executable
 	# INCLUDES: $(INCLUDES)
 	# SOURCES: $(SOURCES)
@@ -1394,5 +1402,7 @@ endif
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
 	mkdir -p "$(EXEC)"
+endif
+	@echo resources done
 
 # EOF
