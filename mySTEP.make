@@ -385,9 +385,13 @@ RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # default is to build for all
 
-BASE_OS_LIST=MacOS Debian php
 ifeq ($(PHPONLY),true)
-BASE_OS_LIST=php
+BASE_OS_LIST=
+else
+BASE_OS_LIST=MacOS Debian
+endif
+ifneq ($(strip $(PHPSRCS)),)	# and any PHP source
+BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
