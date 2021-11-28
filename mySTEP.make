@@ -1353,7 +1353,7 @@ ifneq ($(strip $(PHPSRCS)),)
 	# PHPOBJECTS: $(PHPOBJECTS)
 
 	# can be removed later
-	#for PHP in $(PHPSRCS); \
+	for PHP in $(PHPSRCS); \
 	do \
 		if [ -r "$$PHP" ]; \
 		then \
