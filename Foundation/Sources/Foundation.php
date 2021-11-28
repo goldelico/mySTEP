@@ -1174,7 +1174,7 @@ class NSTimer extends NSObject
 		parent::__construct();
 		$trace=debug_backtrace();
 _NSLog($trace);
-		$trace=json_encode($trace);	// make a hopefully unique hash that only depends on code location where the timer is created
+		$trace=json_encode($trace);	// make a hopefully unique hash that only depends on code location (not creation sequence) where the timer is created
 _NSLog($trace);
 		$trace=md5($trace);
 _NSLog($trace);
@@ -1186,11 +1186,13 @@ _NSLog($trace);
 		$fireDate=NSDate::dateWithTimeIntervalSinceNow($interval);
 		$timer=new NSTimer();
 		$timer=$timer->initWithFireDate($fireDate, $interval, $target, $selector, $userInfo, $repeats);
+// this should make timer persistent...
+// and add to local list so that we can call NSRunLoop::currentRunLoop()->_fireExpiredTimers();
 		// NSRunLoop::currentRunLoop()->addTimer($timer, "");
 		return $timer;
 		}
 
-	public function initWithFireDate($fireDate, $interval, $target, $selector, $userInfo=null, $repeats=false)
+	public function initWithFireDate(NSDate $fireDate, $interval, $target, $selector, $userInfo=null, $repeats=false)
 		{
 		$this->fireDate=$fireDate;
 		$this->interval=$interval;
@@ -1223,7 +1225,7 @@ _NSLog($trace);
 
 	public function _fireIfExpired()
 		{
-		if($this->timeIntervalSinceNow() < 0)
+		if(!is_null($this->fireDate) && $this->fireDate->timeIntervalSinceNow() < 0)
 			$this->fire();
 		}
 
