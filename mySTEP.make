@@ -179,7 +179,7 @@ LD := : makephar
 AS := :
 NM := :
 STRIP := :
-SO :=
+SO := phar
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
@@ -365,6 +365,7 @@ OBJECTS := $(OBJECTS:%.c++=$(TTT)+%.o)
 
 # PHP and shell scripts
 PHPSRCS   := $(filter %.php,$(XSOURCES))
+PHPOBJECTS := $(PHPSRCS:%.php=$(TTT)+%.o)
 SHSRCS   := $(filter %.sh,$(XSOURCES))
 
 # INfo.plist
@@ -713,11 +714,9 @@ $(TTT)+%.o: %.cpp
 	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
-$(TTT)+%.php: %.php
+$(TTT)+%.o: %.php
 	@- mkdir -p $(TTT)+$(*D)
-	# compile $< -> $*.o
-	# if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	# php -l $< >$(TTT)+$*.o
+	php -l $< && php -w $< >$(TTT)+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -1347,11 +1346,14 @@ endif
 endif
 	@echo resources done
 
-"$(BINARY)":: bundle headers $(OBJECTS)
-	# PHPSRCS: $(PHPSRCS)
+"$(BINARY)":: bundle headers $(OBJECTS) $(PHPOBJECTS)
 ifeq ($(TRIPLE),php)
 ifneq ($(strip $(PHPSRCS)),)
-	for PHP in $(PHPSRCS); \
+	# PHPSRCS: $(PHPSRCS)
+	# PHPOBJECTS: $(PHPOBJECTS)
+
+	# can be removed later
+	#for PHP in $(PHPSRCS); \
 	do \
 		if [ -r "$$PHP" ]; \
 		then \
@@ -1364,9 +1366,26 @@ ifneq ($(strip $(PHPSRCS)),)
 		fi; \
 		done
 	# we need to fake a binary for the Makefile rule
-	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
-	echo "<?php ?>" >"$(BINARY)"; \
-	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/";
+	#chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+	#echo "<?php ?>" >"$(BINARY)"; \
+	#chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/";
+	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"
+
+	# compile PHPSRCS -> PHPOBJECTS by rule
+	@mkdir -p "$(EXEC)"
+	php -d phar.readonly=0 -r '$$pharFile=$$argv[1]; \
+	if(file_exists($$pharFile)) unlink($$pharFile); \
+	$$phar=new Phar($$pharFile); \
+	$$phar->startBuffering(); \
+	$$defaultStub=$$phar->createDefaultStub("AppKit.php"); \
+	for($$i=2;$$i<$$argc;$$i++) $$phar->addfile($$argv[$$i]); \
+	$$stub="#!/usr/bin/env php \n".$$defaultStub; \
+	$$phar->setStub($$stub); \
+	$$phar->stopBuffering(); \
+	// $$phar->compressFiles(Phar::GZ); \
+	chmod($$pharFile, 0555); \
+	' "$(BINARY)" $(PHPOBJECTS)
+
 endif
 endif
 ifneq ($(OBJECTS),)
@@ -1404,6 +1423,7 @@ ifneq ($(TRIPLE),unknown-linux-gnu)
 	# YACCSRCS: $(YACCSRCS)
 	# PHPSRCS: $(PHPSRCS)
 	# OBJECTS: $(OBJECTS)
+	# PHPOBJECTS: $(PHPOBJECTS)
 	# LIBS: $(LIBS)
 	# BINARY: $(BINARY)
 	# RESOURCES: $(RESOURCES)
