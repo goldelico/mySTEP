@@ -1988,10 +1988,13 @@ printing
 
 - (id) viewWithTag:(NSInteger)aTag
 {
-	NSInteger i, count = [_subviews count];
+	NSInteger i, count;
 	id v;
+	if([self tag] == aTag)
+		return self;	// found
+	count = [_subviews count];
 	for (i = 0; i < count; ++i)
-		if ([(v = [_subviews objectAtIndex:i]) tag] == aTag)
+		if ([(v = [_subviews objectAtIndex:i]) viewWithTag:aTag])
 			return v;
 	return nil;
 }
