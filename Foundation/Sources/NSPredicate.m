@@ -758,6 +758,8 @@
 		case NSNotEqualToPredicateOperatorType:
 			return [left compare:right] != NSOrderedSame;
 		case NSMatchesPredicateOperatorType:
+			// MATCHES is a full regex, LIKE is SQL style, i.e. "%string%"
+			return [left compare:right] == NSOrderedSame;
 		case NSLikePredicateOperatorType:
 			// FIXME: add SQL pattern matching (what is the difference between MATCHES and LIKE?)
 			// MATCHES is a full regex, LIKE is SQL style, i.e. "%string%"
