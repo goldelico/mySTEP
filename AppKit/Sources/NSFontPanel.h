@@ -73,8 +73,7 @@ enum {
 
 @end
 
-enum
-{
+typedef enum {
 	NSFontPanelFaceModeMask = 1 << 0,
 	NSFontPanelSizeModeMask = 1 << 1,
 	NSFontPanelCollectionModeMask = 1 << 2,
@@ -86,11 +85,11 @@ enum
 	NSFontPanelAllEffectsModeMask = 0xfff00,
 	NSFontPanelStandardModesMask = 0xffff,
 	NSFontPanelAllModesMask = 0xffffffff
-};
+} NSFontPanelModeMask;
 
 @protocol NSFontPanelValidation
 
-- (NSUInteger) validModesForFontPanel:(NSFontPanel *) fontPanel;
+- (NSFontPanelModeMask) validModesForFontPanel:(NSFontPanel *) fontPanel;
 
 @end
 
