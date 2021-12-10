@@ -106,7 +106,7 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[_undoManager release];
-	[_fileName release];
+	[_fileURL release];
 	[_fileType release];
 	[_windowControllers release];
 	//	[_window release];
@@ -118,26 +118,25 @@
 
 - (NSString *) fileName
 {
-	return _fileName;
+	return [_fileURL path];
 }
 
 - (NSURL *) fileURL
 {
-	return [NSURL fileURLWithPath:_fileName];
+	return _fileURL;
 }
 
 - (void) setFileName:(NSString *)fileName
 {
-	ASSIGN(_fileName, fileName);
-
-	[_windowControllers makeObjectsPerformSelector:
-		@selector(synchronizeWindowTitleWithDocumentName)];
+	[self setFileURL:[NSURL fileURLWithPath:fileName]];
 }
 
 - (void) setFileURL:(NSURL *) url
 {
-	// this should be the general version and setFileName the wrapper...
-	[self setFileName:[url path]];
+	ASSIGN(_fileURL, url);
+
+	[_windowControllers makeObjectsPerformSelector:
+	@selector(synchronizeWindowTitleWithDocumentName)];
 }
 
 - (NSString *) fileType

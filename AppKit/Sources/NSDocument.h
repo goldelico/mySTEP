@@ -88,11 +88,7 @@ typedef enum _NSSaveOperationType {
 @private
 	NSWindow		*_window;		// Outlet for the single window case - has a private setter setWindow
 	NSMutableArray 	*_windowControllers;	// WindowControllers for this document
-#if NEW
 	NSURL			*_fileURL;		// should also store fileURLs...
-#else
-	NSString		*_fileName;		// Save location
-#endif
 	NSString 		*_fileType;		// file/document type
 	NSPrintInfo 	*_printInfo;		// print info record
 	NSView			*savePanelAccessory;	// outlet for the accessory save-panel view
