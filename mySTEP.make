@@ -180,6 +180,7 @@ AS := :
 NM := :
 STRIP := :
 SO := phar
+PHAR := /usr/bin/phar
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
@@ -758,7 +759,7 @@ make_exec: "$(EXEC)"
 	# make exec
 
 make_binary: make_exec "$(BINARY)"
-	$(QUIET)- [ -x "$(BINARY)" ] && ls -l "$(BINARY)"
+	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
 
 make_sh: bundle
 	@echo make_sh
@@ -899,16 +900,19 @@ build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
-else
+else	# $(DEBIAN_ARCH),php
 build_debian_packages: prepare_temp_files \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
-endif
+endif	# $(DEBIAN_ARCH),php
 	# debian_packages
 	# DEBIAN_ARCH=$(DEBIAN_ARCH)
 	# TRIPLE=$(TRIPLE)
 	@echo build_debian_packages done
-endif
 else
+build_debian_packages:
+	@echo no architecture for debian packages
+endif	# $(DEBIAN_ARCH),none
+else	# DEBIAN_NOPACKAGE
 build_debian_packages:
 	@echo packing_debian_packages skipped
 endif
@@ -1370,21 +1374,21 @@ ifneq ($(strip $(PHPSRCS)),)
 	#echo "<?php ?>" >"$(BINARY)"; \
 	#chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/";
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"
-
-	# compile PHPSRCS -> PHPOBJECTS by rule
+	# assume we have compiled PHPSRCS -> PHPOBJECTS by rule
 	@mkdir -p "$(EXEC)"
+	rm -f "$(BINARY)"
 	php -d phar.readonly=0 -r '$$pharFile=$$argv[1]; \
 	if(file_exists($$pharFile)) unlink($$pharFile); \
 	$$phar=new Phar($$pharFile); \
 	$$phar->startBuffering(); \
-	$$defaultStub=$$phar->createDefaultStub("AppKit.php"); \
-	for($$i=2;$$i<$$argc;$$i++) $$phar->addfile($$argv[$$i]); \
+	$$defaultStub=$$phar->createDefaultStub("$(PRODUCT_NAME).php", "$(PRODUCT_NAME).php"); \
+	for($$i=2;$$i<$$argc;$$i++) $$phar->addfile($$argv[$$i], ltrim(basename($$argv[$$i], ".o").".php", "+")); \
 	$$stub="#!/usr/bin/env php \n".$$defaultStub; \
 	$$phar->setStub($$stub); \
 	$$phar->stopBuffering(); \
-	// $$phar->compressFiles(Phar::GZ); \
-	chmod($$pharFile, 0555); \
-	' "$(BINARY)" $(PHPOBJECTS)
+	$$phar->compressFiles(Phar::GZ); \
+	' "$(BINARY).phar" $(PHPOBJECTS) && chmod 0555 "$(BINARY).phar" && mv "$(BINARY).phar" "$(BINARY)"
+	phar list -f "$(BINARY)"
 
 endif
 endif
