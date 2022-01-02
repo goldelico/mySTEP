@@ -398,8 +398,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSDate *limitDate=[NSDate distantFuture];	// default
 
 	NSAssert(mode, NSInvalidArgumentException);
-#if 1
+#if 0
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
+#endif
+#if 0
+	{
+		extern void __NSPrintAllocationCount(void);
+		__NSPrintAllocationCount();
+	}
 #endif
 	arp=[NSAutoreleasePool new];
 #if 0
@@ -537,7 +543,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop has any idle notifications and timeout immediately
 		{
-#if 1
+#if 0
 			NSLog(@"_runLoopForMode:%@ beforeDate:%@ - has pending idle notifications", mode, before);
 #endif
 			timeout.tv_sec = 0;
@@ -549,13 +555,13 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			timeout.tv_sec = 0;											// wait if no limit date or it lies in the past. i.e.
 			timeout.tv_usec = 0;										// call select() once with 0 timeout effectively polling inputs
 			select_timeout = &timeout;
-#if 1
+#if 0
 			NSLog(@"_runLoopForMode:%@ beforeDate:%@ - don't wait", mode, before);
 #endif
 		}
 	else if (ti < LONG_MAX)
 		{ // Wait until the LIMIT_DATE.
-#if 1
+#if 0
 			NSLog(@"NSRunLoop accept input %g seconds from now %f", [before timeIntervalSinceReferenceDate], ti);
 #endif
 			timeout.tv_sec = ti;
@@ -564,7 +570,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	else
 		{ // Wait very long (beyond precision), i.e. forever
-#if 1
+#if 0
 			NSLog(@"NSRunLoop accept input waiting forever");
 #endif
 			select_timeout = NULL;
@@ -581,7 +587,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _readFileDescriptor];
-#if 1
+#if 0
 				NSLog(@"watch fd=%ld for input", (long)fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
@@ -600,7 +606,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 				{
 				NSObject *watcher = [watchers objectAtIndex:i];
 				NSInteger fd=[watcher _writeFileDescriptor];
-#if 1
+#if 0
 				NSLog(@"watch fd=%ld for output", (long)fd);
 #endif
 				if(fd >= 0 && fd < FD_SETSIZE)
@@ -614,12 +620,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if(num_inputs == 0)
 		{
-#if 1
+#if 0
 		NSLog(@"no inputs - run idle");
 #endif
 		_current_mode = saved_mode;
 		[arp release];
-#if 1
+#if 0
 		if(__NSAllocatedObjects > _prevAllocated)
 			fprintf(stderr, "_runLoopForMode: idle leaked objects per loop %lu\n", __NSAllocatedObjects - _prevAllocated);
 #endif
@@ -633,14 +639,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	// FIXME: we must only select until the next timer fires and loop until we have reached the before-date - or any input watcher has data to process
 
-#if 1
+#if 0
 	if(select_timeout)
 		NSLog(@"NSRunLoop select timeout %ld.%06u", select_timeout->tv_sec, select_timeout->tv_usec);
 	else
 		NSLog(@"NSRunLoop select timeout NULL");
 #endif
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
-#if 1
+#if
 	NSLog(@"NSRunLoop select returned %d", select_return);
 #endif
 	anyInput=NO;
@@ -657,16 +663,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 	if(select_return == 0)
 		{
-#if 1
+#if 0
 		NSLog(@"NSRunLoop run idle");
 #endif
 		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
-#if 1
-			{
-			extern void __NSPrintAllocationCount(void);
-			__NSPrintAllocationCount();
-			}
-#endif
 		}
 	else
 		{ // inspect all file descriptors where select() says they are ready, notify the respective object for each fd that is ready.
@@ -688,7 +688,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					NSObject *w = NSMapGet(rfd_2_object, (void*)fd_index);
 					// FIXME: is it possible that some other handler or _runLoopASAP has removed this watcher while we did wait/select?
 					NSAssert(w, NSInternalInconsistencyException);
-#if 1
+#if 0
 					NSLog(@"_readFileDescriptorReady: %@", w);
 #endif
 					[w _readFileDescriptorReady];	// notify
@@ -700,7 +700,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSResetMapTable (rfd_2_object);					// Clean up before return.
 	NSResetMapTable (wfd_2_object);
 	[NSNotificationQueue _runLoopASAP];	// run any new notifications created by handlers (similar to 'performSelector:withObject:afterDelay:0.0')
-#if 1
+#if 0
 	NSLog(@"_runLoopForMode: done");
 #endif
 	_current_mode = saved_mode;	// restore
@@ -713,7 +713,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	else
 		[arp release];
-#if 1
+#if 0
 	if(__NSAllocatedObjects > _prevAllocated)
 		fprintf(stderr, "_runLoopForMode: select_return %d leaked objects per loop %lu\n", select_return, __NSAllocatedObjects - _prevAllocated);
 #endif
@@ -740,7 +740,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	// should run once if we have any timers (?)
 	if([((NSArray *)NSMapGet(_mode_2_inputwatchers, mode)) count]+[((NSArray *)NSMapGet(_mode_2_outputwatchers, mode)) count] == 0)
 		{
-#if 1
+#if 0
 		NSLog(@"runMode:%@ beforeDate:%@ - no watchers for this mode!", mode, limit_date);
 #endif
 		return NO;	// we have no watchers for this mode
