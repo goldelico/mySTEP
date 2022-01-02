@@ -383,7 +383,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #endif
 	if(NSGetExtraRefCount(self) != -1)
 		{
-		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc] - extra refcount = %d", NSGetExtraRefCount(self));
+		NSLog(@"[0x%p dealloc] called instead of [obj release] or [super dealloc] - extra refcount = %d", self, NSGetExtraRefCount(self));
 		abort();	// this is a severe bug
 		}
 #if 0
@@ -394,6 +394,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (oneway void) release
 {
+	if(NSGetExtraRefCount(self)+1 == 0)
+		{
+		fprintf(stderr, "[0x%p release] called for deallocated object - extra refcount = %lu\n", self, NSGetExtraRefCount(self));
+		abort();	// this is a severe bug
+		}
 	if(NSZombieEnabled && NSGetExtraRefCount(self) == 0)				// if ref count becomes zero (was 1)
 		{ // enabling this keeps the object in memory and remembers the object description
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
