@@ -69,7 +69,7 @@ static inline void init_pool_cache(struct autorelease_thread_vars *tv)
 
 static inline void push_pool_to_cache(struct autorelease_thread_vars *tv, NSAutoreleasePool *p)
 {
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: push_pool_to_cache tv=%p cache=%d retainCount=%lu\n", p, tv, tv->pool_cache_count, (unsigned long)NSGetExtraRefCount(p));
 #endif
 	if (!tv->pool_cache)
@@ -88,7 +88,7 @@ static inline void push_pool_to_cache(struct autorelease_thread_vars *tv, NSAuto
 
 static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_vars *tv)
 {
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: pop_pool_from_cache tv=%p cache=%d retainCount=%lu\n", tv->pool_cache[tv->pool_cache_count-1],
 						tv, tv->pool_cache_count, (unsigned long)NSGetExtraRefCount(tv->pool_cache[tv->pool_cache_count-1]));
 #endif
@@ -99,7 +99,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 
 + (void) initialize
 {
-#if 1
+#if 0
 	fprintf(stderr, "ARP +%p: +initialize class=%s\n", self, class_getName(self));
 	fprintf(stderr, "ARP: +class=%p class=%s\n", [NSAutoreleasePool class], class_getName([NSAutoreleasePool class]));
 #endif
@@ -122,7 +122,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 {
 	id arp;
 	struct autorelease_thread_vars *tv = THREAD_VARS;
-#if 1
+#if 0
 	fprintf(stderr, "ARP +%p: +allocWithZone tv=%p\n", self, tv);
 	fprintf(stderr, "  threadvars %p\n", tv);
 	fprintf(stderr, "  cache count %d\n", tv->pool_cache_count);
@@ -135,7 +135,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 		return pop_pool_from_cache(tv);
 
 	arp=NSAllocateObject(self, 0, z?z:NSDefaultMallocZone());
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: new alloc tv=%p cache=%d retainCount=%lu\n", arp, tv, tv->pool_cache_count, (unsigned long)NSGetExtraRefCount(self));
 #endif
 	return arp;
@@ -184,7 +184,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 				}
 		  // we don't have to allocate new array list memory.
 			_released = _released_head;
-#if 1	// error check - but should never happen
+#if 0	// error check - but should never happen
 			if(_released->count > 0)
 				{ // should never happen...
 				fprintf(stderr, "ARP %p: -init - count=%u chain=%u size=%u\n", self, _released_count, _released->count, _released->size);
@@ -201,7 +201,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 	if((_parent = tv->current_pool))	// Install self as current pool
 		tv->current_pool->_child = self;	// make us a child of the current_pool
 	tv->current_pool = self;
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: init - retainCount=%lu\n", self, (unsigned long)NSGetExtraRefCount(self));
 #endif
 	return self;
@@ -242,7 +242,7 @@ NSAutoreleasePool *__currentAutoreleasePool(void) { return THREAD_VARS->current_
 	// do nothing if global, static variable __autoreleaseEnabled is not set
 	if (!__autoreleaseEnabled)
 		return;
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: -addObject:%p [%s autorelease]\n", self, anObj, class_getName(object_getClass(anObj)));
 #endif
 	// for debugging if setPoolCountThreshhold was lowered
@@ -288,7 +288,7 @@ NSAutoreleasePool *__currentAutoreleasePool(void) { return THREAD_VARS->current_
 
 	// Track total number of objects autoreleased in this pool
 	_released_count++;
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: -addObject - done count=%u chain=%u size=%u\n", self, _released_count, _released->count, _released->size);
 #endif
 }
@@ -296,7 +296,7 @@ NSAutoreleasePool *__currentAutoreleasePool(void) { return THREAD_VARS->current_
 static void drain(NSAutoreleasePool *self)
 {
 	struct autorelease_array_list *released;
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: drain() - initial memory=%lu count=%u retainCount=%lu\n", self, NSRealMemoryAvailable(), self->_released_count, (unsigned long)NSGetExtraRefCount(self));
 #endif
 	// If there are NSAutoreleasePools below us in the
@@ -308,7 +308,7 @@ static void drain(NSAutoreleasePool *self)
 	if (self->_child)
 		{
 		// CHECKME: release? If someone retained the ARP?
-#if 1
+#if 0
 		fprintf(stderr, "ARP %p: drain() - child dealloc %p retainCount=%lu\n", self, self->_child, (unsigned long)NSGetExtraRefCount(self));
 #endif
 		[self->_child dealloc];
@@ -320,12 +320,12 @@ static void drain(NSAutoreleasePool *self)
 			while(released->count > 0)
 				{
 				id anObject=*p;
-#if 1
+#if 0
 				// CHECKME: what is this check good for if we use released->count?
 				if(!anObject)
 					fprintf(stderr, "ARP %p: drain() - release nil?\n", self);
 #endif
-#if 1
+#if 0
 				fprintf(stderr, "ARP %p: drain() - release obj=%p\n", self, anObject);
 #endif
 				[anObject release];
@@ -334,7 +334,7 @@ static void drain(NSAutoreleasePool *self)
 				self->_released_count--;
 				}
 		}
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: drain() - final memory=%lu count=%u allocated=%u retainCount=%lu\n", self, NSRealMemoryAvailable(), self->_released_count, __NSAllocatedObjects, (unsigned long)NSGetExtraRefCount(self));
 #endif
 }
@@ -349,7 +349,7 @@ static void drain(NSAutoreleasePool *self)
 	struct autorelease_thread_vars *tv;
 	NSAutoreleasePool **cp;
 	struct autorelease_array_list *released;
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: -dealloc retainCount=%lu\n", self, (unsigned long)NSGetExtraRefCount(self));
 #endif
 	drain(self);	// drain the pool objects
@@ -386,7 +386,7 @@ static void drain(NSAutoreleasePool *self)
 		{
 		push_pool_to_cache (tv, self);	// Don't deallocate self, just push to cache for later use
 		}
-#if 1
+#if 0
 	fprintf(stderr, "ARP %p: dealloc - done memory=%lu retainCount=%lu\n", self, NSRealMemoryAvailable(), (unsigned long)NSGetExtraRefCount(self));
 #endif
 }
@@ -402,7 +402,7 @@ static void drain(NSAutoreleasePool *self)
 	return self;
 }
 
-#if 1	/* standard method should do dealloc */
+#if 0	/* standard method should do dealloc */
 - (oneway void) release
 {
 	fprintf(stderr, "ARP %p: -release retainCount=%lu\n", self, (unsigned long)[self retainCount]);
