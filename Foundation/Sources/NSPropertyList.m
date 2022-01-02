@@ -2172,7 +2172,7 @@ next:
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// creates any temporary objects
 	// could also/better check first handful characteres...
 	o=[self propertyListFromData:plist mutabilityOption:NSPropertyListImmutable format:&fmt errorDescription:&err];
-	[err autorelease];
+//CHECKME: that sppears to be a double release bug	[err autorelease];
 	[arp release];	// and release
 	if(!o)
 		return NO;  // no - does not load
