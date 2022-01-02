@@ -63,8 +63,8 @@ typedef struct _object_layout
 	// the bytes defined by NSObject follow here
 } *_object_layout;
 
-NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// object allocation
-{
+NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)
+{ // object allocation
 	id newobject=nil;
 #if 0
 	fprintf(stderr, "NSAllocateObject: aClass = %p %s\n", aClass, class_getName(aClass));
@@ -102,8 +102,8 @@ NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)		// obj
 	return newobject;
 }
 
-void NSDeallocateObject(NSObject *anObject)					// object deallocation
-{
+void NSDeallocateObject(NSObject *anObject)
+{ // object deallocation
 	extern Class __zombieClass;
 	if (anObject != nil)
 		{
@@ -196,7 +196,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 
 + (void) load
 {
-#if 1
+#if 0
 	struct timeval tp;
 	gettimeofday(&tp, NULL);
 	fprintf(stderr, "did +load NSObject: %.24s.%06lu\n", ctime(&tp.tv_sec), (unsigned long) tp.tv_usec);
@@ -394,43 +394,36 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (oneway void) release
 {
-	if (NSGetExtraRefCount(self) == 0)				// if ref count becomes zero (was 1)
-		{
-		if(NSZombieEnabled)
-			{ // enabling this keeps the object in memory and remembers the object description
-				NSAutoreleasePool *arp=[NSAutoreleasePool new];
-				NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
-				if(!__zombieMap)
-					__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
-												 NSObjectMapValueCallBacks, 200);
+	if(NSZombieEnabled && NSGetExtraRefCount(self) == 0)				// if ref count becomes zero (was 1)
+		{ // enabling this keeps the object in memory and remembers the object description
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
+			if(!__zombieMap)
+				__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+											 NSObjectMapValueCallBacks, 200);
 #if 0	// debugging some issue
-				if([self isKindOfClass:[NSTask class]])
-					NSLog(@"zombiing %p: %@", self, [self description]);
+			if([self isKindOfClass:[NSTask class]])
+				NSLog(@"zombiing %p: %@", self, [self description]);
 #endif
 #if 1
-				fprintf(stderr, "zombiing %p: %s\n", self, [[self description] UTF8String]);	// NSLog() would recursively call -[NSObject release]
+			fprintf(stderr, "zombiing %p: %s\n", self, [[self description] UTF8String]);	// NSLog() would recursively call -[NSObject release]
 #endif
 #if 1
-				NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
+			NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
 #else
-				NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
+			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
-				object_setClass(self, __zombieClass);	// make us a zombie object
-				[arp release];
-				NSZombieEnabled=YES;
-			}
-		else
-			{
-#if 0	// debugging some issue
-			if([self isKindOfClass:[NSData class]])
-				fprintf(stderr, "dealloc %p\n", self);	// NSLog() would recursively call -[NSObject release]
-#endif
-			NSDecrementExtraRefCountWasZero(self);
-			[self dealloc];		// go through the dealloc hierarchy
-			}
+			object_setClass(self, __zombieClass);	// make us a zombie object
+			[arp release];
+			NSZombieEnabled=YES;
+			return;
 		}
-	else
-		NSDecrementExtraRefCountWasZero(self);
+#if 0	// debugging some issue
+		//	if([self isKindOfClass:[NSData class]])
+	fprintf(stderr, "release %p\n", self);	// NSLog() would recursively call -[NSObject release]
+#endif
+	if(NSDecrementExtraRefCountWasZero(self))
+		[self dealloc];		// go through the dealloc hierarchy
 }
 
 - (void) finalize
@@ -440,6 +433,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (id) retain
 {
+#if 0	// debugging some issue
+	fprintf(stderr, "retain %p\n", self);	// NSLog() would recursively call -[NSObject release]
+#endif
 	NSAssert(NSGetExtraRefCount(self)+1 != 0, @"don't retain object that is already deallocated");
 	NSIncrementExtraRefCount(self);
 	return self;
@@ -594,20 +590,20 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	for(; protocols; protocols = protocols?protocols->next:protocols)
 		{ // loop through protocol lists to find if they define our selector with more details
 			unsigned int i = 0;
-#if 1
+#if 0
 			NSLog(@"trying protocol list %p (count=%d)", protocols, protocols->count);
 #endif
 			for(i=0; i < protocols->count; i++)
 				{ // loop through individual protocols
 					Protocol *p = protocols->list[i];
 					struct objc_method_description *desc= (c == (Class)self) ? [p descriptionForClassMethod: aSelector] : [p descriptionForInstanceMethod: aSelector];
-#if 1
+#if 0
 					NSLog(@"try protocol %s", [p name]);
 #endif
 					if(desc)
 						{ // found
 						  // NOTE: here we could also do duplication and contradiction checks
-#if 1
+#if 0
 							NSLog(@"found");
 							if(types)
 								NSLog(@"signature %s replaced by %s from protocol %s", types, desc->types, [p name]);
