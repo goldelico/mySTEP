@@ -646,7 +646,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		NSLog(@"NSRunLoop select timeout NULL");
 #endif
 	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
-#if
+#if 0
 	NSLog(@"NSRunLoop select returned %d", select_return);
 #endif
 	anyInput=NO;
