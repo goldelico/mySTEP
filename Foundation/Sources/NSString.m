@@ -412,6 +412,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 		[arp release];
 		}
+#if 0
+	fprintf(stderr, "NSString +initialize done\n");
+#endif
 }
 
 + (id) allocWithZone:(NSZone *) z
