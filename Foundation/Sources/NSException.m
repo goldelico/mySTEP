@@ -119,7 +119,8 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 
 - (NSArray *) callStackReturnAddresses;
 {
-	// FIXME:
+	// FIXME: https://stackoverflow.com/questions/220159/how-do-you-print-out-a-stack-trace-to-the-console-log-in-cocoa
+	NIMP;
 	return [NSArray array];
 }
 
