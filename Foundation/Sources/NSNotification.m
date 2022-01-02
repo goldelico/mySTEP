@@ -17,8 +17,18 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSAutoreleasePool.h>
 
 @implementation NSNotification
+
+#if 0
++ (id) allocWithZone:(NSZone *)z
+{
+	extern NSAutoreleasePool *__currentAutoreleasePool(void);
+	fprintf(stderr, "NSNotification alloc: current ARP %p\n", __currentAutoreleasePool());
+	return [super allocWithZone:z];
+}
+#endif
 
 + (NSNotification *) notificationWithName:(NSString*)name
 								   object:(id)object
