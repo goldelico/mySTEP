@@ -54,7 +54,7 @@
 	 */
 	root=[xml rootElement];	// <document>
 	// process <dependencies>
-	objects=[root elementsWithTag:@"objects"];
+	objects=[root elementsForLocalName:@"objects" URI:nil];
 	// loop over objects
 	//   <customObject>
 	//   <menu>
