@@ -1038,8 +1038,7 @@ void NSDeallocateMemoryPages (void *ptr, NSUInteger bytes)
 #endif
 }
 
-void
-NSCopyMemoryPages (const void *source, void *dest, NSUInteger bytes)
+void NSCopyMemoryPages (const void *source, void *dest, NSUInteger bytes)
 {
 #if __mach__
 	kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
@@ -1077,17 +1076,23 @@ void __NSCountAllocate(Class aClass)
 			__logMemory=log && strcasecmp(log, "memory") == 0;
 			__printLog=__logMemory || (log && strcasecmp(log, "yes") == 0);
 			initialized=YES;
+#if 0	// override for debugging
+	__logMemory=__printLog=YES;
+#endif
 		}
 	if(!__logMemory)
 		return;
 	if(!__NSAllocationCountTable)
 		{
+		char name[200];
 		fprintf(stderr, "!__NSAllocationCountTable\n");
 		fprintf(stderr, "  aClass = %p %s\n", aClass, class_getName(aClass));
 		fprintf(stderr, "  [NSMapTable class] = %p %s\n", [NSMapTable class], class_getName([NSMapTable class]));
 		if(aClass == [NSMapTable class])
 			return;		// avoid recursion for allocating the __NSAllocationCountTable
 		__NSAllocationCountTable = NSCreateMapTable (NSNonOwnedPointerMapKeyCallBacks, NSOwnedPointerMapValueCallBacks, 0);	// create table
+		sprintf(name, "/tmp/%u", getpid());
+		mkdir(name, 0744);
 		}
 	else
 		cnt=NSMapGet(__NSAllocationCountTable, aClass);
@@ -1109,7 +1114,7 @@ void __NSCountDeallocate(Class aClass)
 {
 	extern NSMapTable *__NSAllocationCountTable;
 	//	fprintf(stderr, "__NSCountDeallocate %s\n", aClass->name);
-	if(__logMemory && __NSAllocationCountTable)
+	if(__NSAllocationCountTable)
 		{
 		struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
 		if(cnt)
@@ -1125,10 +1130,14 @@ void __NSCountDeallocate(Class aClass)
 
 void __NSPrintAllocationCount(void)
 { // print current object allocation to stderr plus a trace in /tmp
-	if(__logMemory && __NSAllocationCountTable)
+	if(__NSAllocationCountTable)
 		{
 		int cntLevel=1;	// cnt-Level to print next
 		unsigned long total=0;
+		FILE *ftotal;
+		char name[200];
+		sprintf(name, "/tmp/%u/%s", getpid(), "total");
+		ftotal=fopen(name, "w");
 		fprintf(stderr, "\fCurrent Object Allocation\n");
 		while(YES)
 			{
@@ -1136,33 +1145,50 @@ void __NSPrintAllocationCount(void)
 			Class key;
 			struct __NSAllocationCount *cnt;
 			int nextLevel=99999999;
+
 			while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
 				{ // get all key/value pairs
 					FILE *file;
-					char name[200];
 					if(cnt->instances != cntLevel)
 						{	// don't print this level
 							if(cnt->instances > cntLevel)
 								nextLevel=MIN(nextLevel, cnt->instances);	// next level to print
 							continue;
 						}
-					if(cnt->instances > 0)	// this does not print alloc/peak but we don't want to see it on the screen - just in the files
-						fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_getName(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
-					total += cnt->instances;
+					if(cnt->instances > 0)
+						{ // only if there are any (left)
+						fprintf(stderr, "%c %9lu %s: peak %lu alloc %lu dealloc %lu\n",
+								((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances,	// show + or - for changes
+								class_getName(key),
+								cnt->peak, cnt->alloc, cnt->alloc-cnt->instances);
+						if(ftotal)
+							{
+							fprintf(ftotal, "%c %9lu %s: peak %lu alloc %lu dealloc %lu\n",
+									((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances,	// show + or - for changes
+									class_getName(key),
+									cnt->peak, cnt->alloc, cnt->alloc-cnt->instances);
+							}
+						}
 					sprintf(name, "/tmp/%u/%s", getpid(), class_getName(key));
 					file=fopen(name, "a");
 					if(file)
 						{
-						fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_getName(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+						fprintf(file, "%c %9lu %s: peak %lu alloc %lu dealloc %lu\n",
+								((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances,	// show + or - for changes
+								class_getName(key),
+								cnt->peak, cnt->alloc, cnt->alloc-cnt->instances);
 						fclose(file);
 						}
 					cnt->linstances=cnt->instances;	// to allow to compare to last print
+					total += cnt->instances;
 				}
 			if(nextLevel == cntLevel)
 				break;	// done (i.e. we did run with maximum level)
 			cntLevel=nextLevel;
 			}
 		fprintf(stderr, "total: %lu\n", total);
+		if(ftotal)
+			fclose(ftotal);
 		}
 }
 
