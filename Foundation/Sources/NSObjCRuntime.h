@@ -448,7 +448,7 @@ _classIsKindOfClass(Class c, Class aClass)
 		fprintf(stderr, "\n"); \
 	}
 
-#if 1
+#if 0
 
 #define LEAK(CALL) \
 	{ \
