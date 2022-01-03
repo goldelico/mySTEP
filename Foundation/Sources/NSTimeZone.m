@@ -168,7 +168,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 
 @interface GSTimeZoneDetail : NSTimeZone
 {
-	NSTimeZone *timeZone; 		// Time zone which created this object.
+	/* nonretained */ NSTimeZone *timeZone; 		// Time zone which created this object.
 	NSString *abbrev; 			// Abbreviation for time zone detail.
 	int offset; 				// Offset from UTC in seconds.
 	BOOL is_dst; 				// Is it daylight savings time?
@@ -192,7 +192,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 {
 	if((self=[super init]))
 		{
-		timeZone = [aZone retain];
+		timeZone = aZone;
 		abbrev = [anAbbrev retain];
 		offset = anOffset;
 		is_dst = isDST;
@@ -205,7 +205,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
   
 - (void) dealloc
 {
-	[timeZone release];
+	// nonretained [timeZone release];
 	[abbrev release];
 	[super dealloc];
 }
@@ -489,9 +489,10 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 			NSLog(@"Using time zone with absolute offset 0.");
 			__localTimeZone = [NSTimeZone timeZoneForSecondsFromGMT: 0];
 			}
+		[__localTimeZone retain];	// do not dealloc by autorelease
 		}
 	if (__defaultTimeZone == nil)
-		__defaultTimeZone = [__localTimeZone retain];
+		__defaultTimeZone = [__localTimeZone retain];	// use another copy
 
 	return __localTimeZone;
 }
