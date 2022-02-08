@@ -304,7 +304,7 @@ class NSArray extends NSObject
 
 	public function objectAtIndex($index)
 	{
-		$this->array[$index];
+		return $this->array[$index];
 	}
 
 	public function indexForObjectIdenticalTo(NSObject $object)
