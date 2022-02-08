@@ -607,6 +607,7 @@ _NSLog("null action ignored");
 		$this->_collectEvents();
 		while(true)
 			{
+			// NSRunLoop::currentRunLoop()->_fireExpiredTimers();
 			foreach($this->eventQueue as $event)
 				{
 				$this->currentEvent=$event;
@@ -1662,6 +1663,14 @@ class NSImage extends NSObject
 	protected $name;
 	protected $size=null;
 	public function _gd() { $this->size(); return $this->gd; }
+	public function TIFFRepresentation($compression="NSTIFFCompressionNone", $factor=1.0)
+		{
+		ob_start(); // start a new output buffer
+		$data=imagejpeg($this->_gd(), "", 100*$factor);
+		$data = ob_get_contents();
+		ob_end_clean(); // stop this output buffer
+		return $data;
+		}
 	public function size()
 		{
 		if(is_null($this->size) && !isset($this->gd))
