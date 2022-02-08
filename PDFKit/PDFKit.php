@@ -42,8 +42,11 @@ class PDFPage extends NSObject
 
 	public function init()
 	{
-		super::init();
+// _NSLog("init");
+//		parent::init();
 		$this->bounds=array();
+		// we can't set defaults here because we have no document
+		return $this;
 	}
 
 	public function initWithDocument(PDFDocument $document)
@@ -56,7 +59,7 @@ class PDFPage extends NSObject
 	public function initWithImage(NSImage $image)
 	{ // override to add background for all pages
 		$this->init();
-		// here we have neither a document() nor a pageRef()
+		// here we have neither a document() nor a pageRef()!
 		$this->drawImageInRect($image, $rect);
 		return $this;
 	}
@@ -67,20 +70,51 @@ class PDFPage extends NSObject
 	public function label() { return $this->label; }
 	public function setLabel($label) { $this->label=$label; }
 
-	const kPDFDisplayBoxMediaBox=0;
-	const kPDFDisplayBoxCropBox=1;
-	const kPDFDisplayBoxBleedBox=2;
-	const kPDFDisplayBoxTrimBox=3;
-	const kPDFDisplayBoxArtBox=4;
+	public const kPDFDisplayBoxMediaBox=0;
+	public const kPDFDisplayBoxCropBox=1;
+	public const kPDFDisplayBoxBleedBox=2;
+	public const kPDFDisplayBoxTrimBox=3;
+	public const kPDFDisplayBoxArtBox=4;
 
 	public function boundsForBox($box)
 	{
-		return $this->bounds[$box];
+// _NSLog("boundsForBox $box");
+		switch($box)
+			{
+			case PDFPage::kPDFDisplayBoxBleedBox:
+			case PDFPage::kPDFDisplayBoxTrimBox:
+			case PDFPage::kPDFDisplayBoxArtBox:
+				if(isset($this->bounds[$box]))
+					return $this->bounds[$box];	// FIXME: interset with MediaBox
+			case PDFPage::kPDFDisplayBoxCropBox:
+				if(isset($this->bounds[PDFPage::kPDFDisplayBoxCropBox]))
+					return $this->bounds[kPDFDisplayBoxCropBox];	// FIXME: intersect with MediaBox
+			case PDFPage::kPDFDisplayBoxMediaBox:
+				return $this->bounds[PDFPage::kPDFDisplayBoxMediaBox];
+			}
+		// raise exception;
+		return null;
 	}
 
 	public function setBoundsForBox($box, /*NSRect*/ $bounds)
 	{
+// _NSLog("setBoundsForBox $box");
 		$this->bounds[$box]=$bounds;
+		if($box == PDFPage::kPDFDisplayBoxMediaBox)
+			{ // now we can create an ezpdf backend
+// _NSLog("init 1");
+			$this->setFont();
+// _NSLog("init");
+			$this->setFontSize();
+// _NSLog("init");
+			$this->setLineStyle();
+// _NSLog("init");
+			$this->setJustification();
+// _NSLog("init");
+//			$this->setColor(NSColor::systemColorWithName("black"));
+// _NSLog("init");
+
+			}
 	}
 
 	public function dataRepresentation()
@@ -91,7 +125,9 @@ class PDFPage extends NSObject
 
 	public function pageRef()
 	{
-		return $this->document->_ezpdf();
+		if(!isset($this->document))
+			NSLog("no document set");
+		return $this->document()->pageRef();
 	}
 
 	/* non-standard drawing methods */
@@ -102,7 +138,7 @@ class PDFPage extends NSObject
 		$this->pageRef()->fontSize=$fontSize;
 	}
 
-	function setFont($fontName)
+	function setFont($fontName="Helvetica")
 	{ // try to handle UNICODE encoding
 		$b=NSBundle::bundleForClass('Cpdf');	// locate font description file in Ezpdf.framework bundle
 		$fpath=$b->pathForResourceOfType("fonts/$fontName", "afm");
@@ -121,6 +157,8 @@ class PDFPage extends NSObject
 	{
 		$this->pageRef()->setColor($color->r(), $color->g(), $color->b());
 	}
+
+	// setFillColor?
 
 	function setStrokeColor(NSColor $color)
 	{
@@ -234,7 +272,12 @@ class PDFPage extends NSObject
 		$y=NSMinY($rect);
 //		$py=NSHeight($this->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
 //		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
-		$this->pageRef()->addImage($data, $x, $y-$height, $width, $height);
+		// FIXME: use $image->TIFFRepresentation()
+		ob_start(); // start a new output buffer
+		$data=imagejpeg($image->_gd(), "", 90);
+		$data = ob_get_contents();
+		ob_end_clean(); // stop this output buffer
+//		$this->pageRef()->addImage($data, $x, $y-$height, $width, $height);
 	}
 
 	/* more ideas
@@ -264,8 +307,19 @@ class PDFDocument extends NSObject
 		parent::__destruct();
 	}
 
-	public function _ezpdf()
+	function pageRef()
 	{
+// _NSLog("create ezpdf");
+		if(!isset($this->ezpdf))
+			{ // first call - defines page size for all - limitation of class Cpdf
+// _NSLog($this->pages);
+			$first=$this->pages->objectAtIndex(0);
+// _NSLog($first);
+			$ps=$first->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
+// _NSLog($ps);
+			$this->ezpdf=new Cpdf(array(NSMinX($ps), NSMinY($ps), NSWidth($ps), NSHeight($ps)));
+			}
+// _NSLog($this->ezpdf);
 		return $this->ezpdf;
 	}
 
@@ -280,7 +334,7 @@ class PDFDocument extends NSObject
 
 	private function load()
 	{
-		if($this->data)
+		if(isset($this->data))
 			{
 			// parse PDFPpages from $this->data
 			}
@@ -325,11 +379,9 @@ class PDFDocument extends NSObject
 
 	public function dataRepresentationWithOptions($options)
 	{
-		if(isset($this->ezpdf))
-			{ // sould collect from pages
-			return $this->ezpdf->output();
-			}
-		return $this->data;
+		if(isset($this->data))
+			return $this->data;
+		return $this->pageRef()->output();
 	}
 
 	public function dataRepresentation()
@@ -357,19 +409,18 @@ class PDFDocument extends NSObject
 
 	public function insertPageAtIndex(PDFPage $page, $index)
 	{
+// _NSLog("insertPageAtIndex $index");
 		$this->load();
 		$this->pages->insertObjectAtIndex($page, $index);
 		$page->_setDocument($this);	// set backlink
-		if(!isset($this->ezpdf))
-			{ // first page - defines page size for all
-			$ps=$page->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
-			$this->ezpdf=new Cpdf(array(NSMinX($ps), NSMinY($ps), NSWidth($ps), NSHeight($ps)));
-			$page->setFont('Helvetica');
-			}
-		else
+		if($this->pages->count() > 1)
+			{ // second page
 			// there is an optional $insert=0,$id=0,$pos='after' parameter if we do not append
-			$this->ezpdf->newPage();
+// _NSLog("new page");
+			$this->pageRef()->newPage();	// add a page break
 			// can we change page size on the fly?
+			}
+// _NSLog($this->pages);
 	}
 
 	public function pageAtIndex($index)
