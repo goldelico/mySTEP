@@ -234,7 +234,7 @@ class PDFPage extends NSObject
 
 	// handle attributed strings to define line spacing, fonts etc.
 
-	function drawTextInRect($text, &$rect /* , $attributes */)
+	function drawTextInRect($text, &$rect, $attributes=null)
 	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
 // _NSLog("drawTextInRect: $text");
 // _NSLog($rect);
@@ -267,13 +267,13 @@ class PDFPage extends NSObject
 				}
 			}
 		if(NSHeight($rect) > 0)
-			$rect['height']-=$y-NSMinY($rect);	// reduce rect by amount we have printed
+			$rect['height']-=NSMaxY($rect)-$y;	// reduce $rect by amount we have printed (so that we can draw the next box below)
 		return implode("\n", array_slice($lines, $i));	// return any text that has not been processed fitting into the original rect
 	}
 
-	function drawTextAtPoint($text, $point)
+	function drawTextAtPoint($text, $point, $attributes=null)
 	{ // draw unlimited
-		$this->drawTextInRect($text, NSMakeRect($point['x'], $point['y'], -1, -1));
+		$this->drawTextInRect($text, NSMakeRect($point['x'], $point['y'], -1, -1), $attributes);
 	}
 
 	function drawImageInRect(NSImage $image, $rect)
