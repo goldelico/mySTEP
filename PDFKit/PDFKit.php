@@ -1,9 +1,14 @@
 <?php
-	/*
-	 * PDFKit.framework
-	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012
-	 * All rights reserved.
-	 */
+/*
+ * PDFKit.framework
+ * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2022
+ * All rights reserved.
+ *
+ * Notes:
+ *   (0, 0) is the bottom left corner
+ *   $rect for a text box defines the bottom left corner althogh text drawing starts at top
+ *   all coordinates are in pt (Point = 1/72 inch)
+ */
 
 global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/AppKit.framework/Versions/Current/php/AppKit.php";
@@ -25,6 +30,14 @@ const AE="\304";
 const OE="\326";
 const UE="\334";
 const eur="\200"; // there is no EUR symbol in ISO Latin-1
+
+// _NSLog(function_exists('set_magic_quotes_runtime')?"set_magic_quotes_runtime exists":"set_magic_quotes_runtime missing");
+if (!function_exists('set_magic_quotes_runtime')) {
+function set_magic_quotes_runtime($flag)
+{ // function has been deprecated in 5.3 removed in PHP 7.0
+//	_NSLog("deprecated set_magic_quotes_runtime() ".($flag?"true":"false"));
+}
+}
 
 function cm2pt($cm)
 {
@@ -60,6 +73,7 @@ class PDFPage extends NSObject
 	{ // override to add background for all pages
 		$this->init();
 		// here we have neither a document() nor a pageRef()!
+		// what is the $rect???
 		$this->drawImageInRect($image, $rect);
 		return $this;
 	}
@@ -70,11 +84,12 @@ class PDFPage extends NSObject
 	public function label() { return $this->label; }
 	public function setLabel($label) { $this->label=$label; }
 
-	public const kPDFDisplayBoxMediaBox=0;
-	public const kPDFDisplayBoxCropBox=1;
-	public const kPDFDisplayBoxBleedBox=2;
-	public const kPDFDisplayBoxTrimBox=3;
-	public const kPDFDisplayBoxArtBox=4;
+	/* access modifiers only for PHP 7.1ff
+	/*public*/ const kPDFDisplayBoxMediaBox=0;
+	/*public*/ const kPDFDisplayBoxCropBox=1;
+	/*public*/ const kPDFDisplayBoxBleedBox=2;
+	/*public*/ const kPDFDisplayBoxTrimBox=3;
+	/*public*/ const kPDFDisplayBoxArtBox=4;
 
 	public function boundsForBox($box)
 	{
@@ -221,7 +236,7 @@ class PDFPage extends NSObject
 
 	function drawTextInRect($text, &$rect /* , $attributes */)
 	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
-// _NSLog("drawTextAtPoint: $text");
+// _NSLog("drawTextInRect: $text");
 // _NSLog($rect);
 		// FIXME: EUR symbol?
 		$text=iconv("UTF-8", "CP1252", $text);
@@ -231,22 +246,20 @@ class PDFPage extends NSObject
 		if($height <= 0.0) $height=99999999.9;
 		$lines=explode("\n", $text);
 		$x=NSMinX($rect);
-		$y=NSMaxY($rect);	// start point
-//		$py=NSHeight($this->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
-//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
+		$y=NSMaxY($rect);	// starting point is at top of box
 		$ymin=$y-$height;
 		for($i=0; $i<count($lines); $i++)
 			{
 			$line=$lines[$i];
 			while(true)
 				{
-// _NSLog(($y-$this->pageRef()->fontSize)." ".($ymin-$height));
+// _NSLog(($y-$this->pageRef()->fontSize)." <=> ".$ymin);
 				if($y-$this->pageRef()->fontSize < $ymin)
 					{ // no room for another line
 					$lines[$i]=$line;	// what is not printed on this line
 					break;
 					}
-// _NSLog("addTextWrap x=$x y=$y w=$width s=$this->pageRef()->fontSize l=$line j=$this->justification a=$this->angle");
+// _NSLog("addTextWrap x=$x y=$y w=$width s=".($this->pageRef()->fontSize)." l=$line j=$this->justification a=$this->angle");
 				$line=$this->pageRef()->addTextWrap($x, $y-$this->pageRef()->fontSize, $width, $this->pageRef()->fontSize, $line, $this->justification, $this->angle);
 				$y -= $this->lineSpacing*$this->pageRef()->fontSize;
 				if($line == "")
@@ -255,29 +268,29 @@ class PDFPage extends NSObject
 			}
 		if(NSHeight($rect) > 0)
 			$rect['height']-=$y-NSMinY($rect);	// reduce rect by amount we have printed
-//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
-		$rect['y']=$y;	// where next line can start
-		return implode("\n", array_slice($lines, $i));	// return any text that has not been processed
+		return implode("\n", array_slice($lines, $i));	// return any text that has not been processed fitting into the original rect
+	}
+
+	function drawTextAtPoint($text, $point)
+	{ // draw unlimited
+		$this->drawTextInRect($text, NSMakeRect($point['x'], $point['y'], -1, -1));
 	}
 
 	function drawImageInRect(NSImage $image, $rect)
 	{
-		$data=$image->_gd();	// GD reference
+		$data=$image->_gd();	// GD reference i.e. "the image" loaded from file or whereever
+// print_r($data);
 		$size=$image->size();
 		$width=NSWidth($rect);
-		if($width <= 0.0) $width=NSWidth($image->size());
+		if($width <= 0.0) $width=NSWidth($size);
 		$height=NSHeight($rect);
-		if($height <= 0.0) $height=NSHeight($image->size());
+		if($height <= 0.0) $height=NSHeight($size);
 		$x=NSMinX($rect);
-		$y=NSMinY($rect);
-//		$py=NSHeight($this->boundsForBox(PDFPage::kPDFDisplayBoxMediaBox);
-//		$y=$py-$y;	// flip coordinates: take (0,0) as top left corner of paper
-		// FIXME: use $image->TIFFRepresentation()
-		ob_start(); // start a new output buffer
-		$data=imagejpeg($image->_gd(), "", 90);
-		$data = ob_get_contents();
-		ob_end_clean(); // stop this output buffer
-//		$this->pageRef()->addImage($data, $x, $y-$height, $width, $height);
+		$y=NSMaxY($rect);
+// _NSLog("image size ".strlen($jpeg));
+// _NSLog("x:$x y:".($y-$height)."w:$width h:$height");
+		// note: this calls set_magic_quotes_runtime() inside its implementation which was removed in PHP 7.0
+		$this->pageRef()->addImage($data, $x, $y-$height, $width, $height);	// ezpdf will convert to JPEG!
 	}
 
 	/* more ideas
