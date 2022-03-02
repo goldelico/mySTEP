@@ -1164,18 +1164,23 @@ class NSDate extends NSObject
 // should this go to CoreDataBase?
 
 	public static function dateWithSQLDateTime($string)
-		{ // YYYY-MM-DD [HH:MM:SS]
+		{ // YYYY-MM-DD [HH:MM:SS] [TZ]
 // $string="2013-13-41 12:13:14";
 // $string="2013-13-41";
 // _NSLog("dateWithSQLDateTime: '$string'");
 		if($string == "0000-00-00 00:00:00" || $string == "0000-00-00")
 			return NSDate::distantPast();
+		$dt=date_create_from_format("Y-m-d H:i:s O", $string);	// DATETIME (YYYY-MM-DD HH-MM-SS TZ)
+		$errs=date_get_last_errors();
+// _NSLog($errs);
+		if($errs['error_count'] + $errs['warning_count'] == 0)
+			return new NSDate(date_timestamp_get($dt));
 		$dt=date_create_from_format("Y-m-d H:i:s", $string);	// DATETIME (YYYY-MM-DD HH-MM-SS)
 		$errs=date_get_last_errors();
 // _NSLog($errs);
 		if($errs['error_count'] + $errs['warning_count'] == 0)
 			return new NSDate(date_timestamp_get($dt));
-		$dt=date_create_from_format("Y-m-d|", $string);	// try again as TIME (YYYY-MM-DD)
+		$dt=date_create_from_format("Y-m-d|", $string);	// try again as DATE (YYYY-MM-DD)
 		$errs=date_get_last_errors();
 		if($errs['error_count'] + $errs['warning_count'] == 0)
 			return new NSDate(date_timestamp_get($dt));
