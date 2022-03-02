@@ -44,6 +44,8 @@ function cm2pt($cm)
 	return $cm*72/2.54;
 }
 
+// this is effectively a mix of PDFPage and NSGraphicsContext...
+
 class PDFPage extends NSObject
 {
 	private $document;	// reference to owning document
@@ -144,6 +146,12 @@ class PDFPage extends NSObject
 			NSLog("no document set");
 		return $this->document()->pageRef();
 	}
+
+/*
+ * basically we should have a draw:withContext method
+ * that allows to format a single page by drawing into some NSGraphicsContext
+ * all the following functions belong there
+ */
 
 	/* non-standard drawing methods */
 	/* a page must be added to a PDFDocument right after init to use these functions */
@@ -298,6 +306,14 @@ class PDFPage extends NSObject
 		addInternalLink
 		setEncryption
 	*/
+
+	function saveGraphicsState()
+	{
+	}
+
+	function restoreGraphicsState()
+	{
+	}
 }
 
 class PDFDocument extends NSObject
