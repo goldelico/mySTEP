@@ -523,6 +523,7 @@ class NSBundle extends NSObject
 	protected $infoDictionary;
 	protected $loaded=false;
 	protected static $mainBundle;
+	protected $translations=array();
 	public function __construct()
 		{
 		parent::__construct();
@@ -631,18 +632,22 @@ class NSBundle extends NSObject
 // _NSLog("resourcePath for $p not found");
 		return null;
 		}
-	public function pathForResourceOfType($name, $type)
+	public function pathForResourceOfType($name, $type, $directory="", $localization="English.lproj")
 		{
 // _NSLog($this);
 		$fm=NSFileManager::defaultManager();
-		$rp=$this->resourcePath();
+		$rp=$this->resourcePath();	// already ends in /
 		if(is_null($rp)) return null;
-		$subdirs=array("English.lproj/", "");
+		$subdirs=array($localization, "");
 		foreach($subdirs as $dir)
 			{
-			$p=$rp.$dir.$name;	// $p or $dir already ends in / suffix!
+			// FIXME: add $directory
+			if($dir != "")
+				$p="$rp/$dir/$directory/$name";
+			else
+				$p="$rp/$directory/$name";
 			if($type != "")
-				$p.=".".$type;	// given suffix
+				$p.=".$type";	// add given suffix
 // _NSLog("try $p");
 			if($fm->fileExistsAtPath($p)) return $p;
 			}
@@ -675,13 +680,42 @@ class NSBundle extends NSObject
 		return $this->objectForInfoDictionaryKey('NSPrincipalClass');
 		}
 	public function load()
-	{ // dynamically load the bundle classes
+		{ // dynamically load the bundle classes
 		if(!$this->loaded)
 			$this->loaded=__load(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($this->executablePath()));
 		return $this->loaded;
-	}
+		}
+	public function localizedStringForKey($key, $default="", $table="Localizable", $language=null)
+		{ // lookup localization
+		if(is_null($language)) $language="English";
+		if(!isset($this->translations[$language][$table]))
+			{
+			$path=$this->pathForResourceOfType($table, "strings", "", $language);
+// _NSLog($path);
+			$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
+			if($filename)
+				{
+// _NSLog($filename);
+				foreach(file($filename) as $line)
+					{
+					// check for "key" = "value"; lines
+					$key="key";
+					$value="value";
+					$this->translations[$table][$key]=$value;
+					}
+				}
+			}
+		if(!isset($this->translations[$language][$table][$key]))
+			return $default?$default:$key;	// untranslated
+		return $this->translations[$language][$table][$key];	// translation
+		}
 }
-	
+
+function NSLocalizedString($key, $comment="")
+	{
+	return NSBundle::mainBundle()->localizedStringForKey($key);
+	}
+
 // FIXME: chmod("/einverzeichnis/einedatei", 0750);	auf /Users/<username>
 // Problem: wenn php drankommt, dann kommt auch der WebServer dran!?!
 
@@ -1429,7 +1463,22 @@ function NSIsEmptyRect($rect) { return NSWidth($rect) == 0 || NSHeight($rect) ==
 function NSSize($rect) { return NSMakeSize(NSWidth($rect), NSHeight($rect)); };
 function NSPoint($rect) { return NSMakePoint(NSMinX($rect), NSMinY($rect)); };
 
-// function NSStringFromRect($rect) { return "{ ".NSStringFromPoint($rect).", ".NSStringFromSize($rect)." }"; }
+function NSInsetRect($rect, $dx, $dy) { return NSMakeRect(NSMinX($rect)+$dx, NSMinY($rect)+$dy, NSWidth($rect)-2*$dx, NSHeight($rect)-2*$dy); };
+function NSOffsetRect($rect, $dx, $dy) { return NSMakeRect(NSMinX($rect)+$dx, NSMinY($rect)+$dy, NSWidth($rect), NSHeight($rect)); };
+// NSEqualRects
+// NSContainsRect
+// NSDivideRect
+// NSIntersectionRect
+// NSIntersectsRect
+// NSUnionRect
+
+function NSStringFromPoint($point) { return "{ ".NSMinX($point).", ".NSMinY($point)." }"; }
+function NSStringFromSize($size) { return "{ ".NSWidth($size).", ".NSHeight($size)." }"; }
+function NSStringFromRect($rect) { return "{ ".NSStringFromPoint($rect).", ".NSStringFromSize($rect)." }"; }
+
+// not in Cocoa
+function NSOriginOfRect($rect) { return NSMakePoint(NSMinX($rect), NSMinY($rect)); };
+function NSSizeOfRect($rect) { return NSMakeSize(NSWidth($rect), NSHeight($rect)); };
 
 // EOF
 ?>
