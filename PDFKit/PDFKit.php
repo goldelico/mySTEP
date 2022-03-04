@@ -161,6 +161,11 @@ class PDFPage extends NSObject
 		$this->pageRef()->fontSize=$fontSize;
 	}
 
+	function fontSize()
+	{
+		return $this->pageRef()->fontSize;
+	}
+
 	function setFont($fontName="Helvetica")
 	{ // try to handle UNICODE encoding
 		$b=NSBundle::bundleForClass('Cpdf');	// locate font description file in Ezpdf.framework bundle
@@ -174,6 +179,12 @@ class PDFPage extends NSObject
 		$fpath=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($fpath);	// use internal representation
 // _NSLog("fpath $fpath");
 		$this->pageRef()->selectFont($fpath, array(/*"encoding"=>"StandardEncoding",*/ "differences" => array((int)eur => "Euro")));
+		$this->font=$fontName;
+	}
+
+	function font()
+	{
+		return $this->font;
 	}
 
 	function setColor(NSColor $color)
@@ -233,6 +244,11 @@ class PDFPage extends NSObject
 	function setLineSpacing($lineSpacing=1.1)
 	{
 		$this->lineSpacing=$lineSpacing;
+	}
+
+	function lineSpacing()
+	{
+		return $this->lineSpacing;
 	}
 
 	function widthOfText($text)
