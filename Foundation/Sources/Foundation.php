@@ -632,13 +632,14 @@ class NSBundle extends NSObject
 // _NSLog("resourcePath for $p not found");
 		return null;
 		}
-	public function pathForResourceOfType($name, $type, $directory="", $localization="English.lproj")
+	public function pathForResourceOfType($name, $type, $directory="", $localization="English")
 		{
 // _NSLog($this);
+// _NSLog("pathForResourceOfType($name, $type, $directory, $localization)");
 		$fm=NSFileManager::defaultManager();
 		$rp=$this->resourcePath();	// already ends in /
 		if(is_null($rp)) return null;
-		$subdirs=array($localization, "");
+		$subdirs=array("$localization.lproj", "");
 		foreach($subdirs as $dir)
 			{
 			// FIXME: add $directory
@@ -685,29 +686,37 @@ class NSBundle extends NSObject
 			$this->loaded=__load(NSFileManager::defaultManager()->fileSystemRepresentationWithPath($this->executablePath()));
 		return $this->loaded;
 		}
-	public function localizedStringForKey($key, $default="", $table="Localizable", $language=null)
+	public function localizedStringForKey($key, $default="", $table="", $language)
 		{ // lookup localization
-		if(is_null($language)) $language="English";
+		if(!$language) $language="English";
+		if(!$table) $table="Localizable";
+// _NSLog("localizedStringForKey($key, $default, $table, $language)");
 		if(!isset($this->translations[$language][$table]))
 			{
+// _NSLog($this);
 			$path=$this->pathForResourceOfType($table, "strings", "", $language);
 // _NSLog($path);
 			$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 			if($filename)
-				{
-// _NSLog($filename);
+				{ //read .strings table
+// _NSLog("load and process $filename");
+				$this->translations[$language][$table]=array();
+				// test with https://www.phpliveregex.com
+				$pattern='/^\s*"([^"]*)"\s*=\s*"([^"]*)"\s*;/';	// check for "key" = "value" ; lines - skip all others
 				foreach(file($filename) as $line)
 					{
-					// check for "key" = "value"; lines
-					$key="key";
-					$value="value";
-					$this->translations[$table][$key]=$value;
+// _NSLog("$pattern -- $line");
+					if(preg_match($pattern, $line, $matches))
+						$this->translations[$language][$table][$matches[1]]=$matches[2];
 					}
+// _NSLog($this->translations[$language][$table]);
 				}
 			}
-		if(!isset($this->translations[$language][$table][$key]))
-			return $default?$default:$key;	// untranslated
-		return $this->translations[$language][$table][$key];	// translation
+// _NSLog($this->translations[$language][$table]);
+// _NSLog("$key -> ".$this->translations[$language][$table][$key]);
+		if(isset($this->translations[$language][$table][$key]))
+			return $this->translations[$language][$table][$key];	// translation
+		return $default?$default:$key;	// untranslated
 		}
 }
 
