@@ -34,10 +34,12 @@ const eur="\200"; // there is no EUR symbol in ISO Latin-1
 // _NSLog(function_exists('set_magic_quotes_runtime')?"set_magic_quotes_runtime exists":"set_magic_quotes_runtime missing");
 if (!function_exists('set_magic_quotes_runtime')) {
 function set_magic_quotes_runtime($flag)
-{ // function has been deprecated in 5.3 removed in PHP 7.0
+{ // function is used in Cpdf but has been deprecated in PHP 5.3 an removed in PHP 7.0
 //	_NSLog("deprecated set_magic_quotes_runtime() ".($flag?"true":"false"));
 }
 }
+$errorlevel=error_reporting();
+error_reporting($errorlevel & ~E_DEPRECATED);	// PHP 5.x would report a deprecated message for set_magic_quotes_runtime()
 
 function cm2pt($cm)
 {
@@ -241,6 +243,11 @@ class PDFPage extends NSObject
 		$this->justification=$justification;
 	}
 
+	function justification()
+	{
+		return $this->justification;
+	}
+
 	function setLineSpacing($lineSpacing=1.1)
 	{
 		$this->lineSpacing=$lineSpacing;
@@ -256,14 +263,27 @@ class PDFPage extends NSObject
 		return $this->pageRef()->getTextWidth($this->pageRef()->fontSize, $text);
 	}
 
+	function sizeOfText($text, $wlimit=999999.9)
+	{
+		// should try to format text and determine max width and height
+		// but limit lines to wlimit and make it higher if needed
+		$width=$this->pageRef()->getTextWidth($this->pageRef()->fontSize, $text);
+		if($width > $wlimit)
+			$width=$wlimit;
+			// FIXME: how do we know how much from text fits???
+		if($width > $wmax)
+			$wmax=$width;
+		return NSMakeSize($wmax, $hmax);
+	}
+
 	// handle attributed strings to define line spacing, fonts etc.
 
 	function drawTextInRect($text, &$rect, $attributes=null)
 	{ // draw limited to rect (which may specify <=0 width or height for 'unlimited') and return new $y position by reference
 // _NSLog("drawTextInRect: $text");
 // _NSLog($rect);
-		// FIXME: EUR symbol?
-		$text=iconv("UTF-8", "CP1252", $text);
+		// FIXME: how to handle EUR symbol?
+		$text=iconv("UTF-8", "CP1252//IGNORE", $text);
 		$width=NSWidth($rect);
 		$height=NSHeight($rect);
 		if($width <= 0.0) $width=99999999.9;	// no limitations
@@ -275,24 +295,28 @@ class PDFPage extends NSObject
 		for($i=0; $i<count($lines); $i++)
 			{
 			$line=$lines[$i];
-			while(true)
-				{
+			do
+				{ // print multiple visible lines for one logical if needed
 // _NSLog(($y-$this->pageRef()->fontSize)." <=> ".$ymin);
 				if($y-$this->pageRef()->fontSize < $ymin)
 					{ // no room for another line
-					$lines[$i]=$line;	// what is not printed on this line
-					break;
+// _NSLog("no room for $line");
+					$lines[$i]=$line;	// what keep what is not printed on this line
+					break 2;
 					}
 // _NSLog("addTextWrap x=$x y=$y w=$width s=".($this->pageRef()->fontSize)." l=$line j=$this->justification a=$this->angle");
 				$line=$this->pageRef()->addTextWrap($x, $y-$this->pageRef()->fontSize, $width, $this->pageRef()->fontSize, $line, $this->justification, $this->angle);
 				$y -= $this->lineSpacing*$this->pageRef()->fontSize;
-				if($line == "")
-					break;	// done with this line
-				}
+				} while($line !== "");
 			}
 		if(NSHeight($rect) > 0)
 			$rect['height']-=NSMaxY($rect)-$y;	// reduce $rect by amount we have printed (so that we can draw the next box below)
-		return implode("\n", array_slice($lines, $i));	// return any text that has not been processed fitting into the original rect
+// _NSLog($lines);
+// _NSLog($i);
+// _NSLog(array_slice($lines, $i));
+		$text=implode("\n", array_slice($lines, $i));
+		$text=iconv("CP1252", "UTF-8", $text);	// caller works with UTF-8
+		return $text;	// return any unprocessed text that has not been fitting into the original rect
 	}
 
 	function drawTextAtPoint($text, $point, $attributes=null)
@@ -325,10 +349,14 @@ class PDFPage extends NSObject
 
 	function saveGraphicsState()
 	{
+	// this needs a split into NSGraphicsContext
+	// where the real state is stored
+	// then we can simply push a new NSGraphicsContext on some stack
 	}
 
 	function restoreGraphicsState()
 	{
+	// and pop here
 	}
 }
 
