@@ -41,7 +41,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	NSLog(@"%@ _popUpItemAction: sender = %@ %@", self, NSStringFromClass([sender class]), sender);
 #endif
 	[self selectItem:sender];
-	[_controlView performClick:_controlView];	// and notify whomever wants to know
+	[(NSControl *) _controlView performClick:_controlView];	// and notify whomever wants to know
 }
 
 - (NSRect) drawingRectForBounds:(NSRect) cellFrame
@@ -417,7 +417,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 		[super setTitle:nil];	// nothing/invalid
 	else
 		[super setTitle:[[_menu itemAtIndex: i] title]]; 
-	[_controlView updateCell:self];
+	[(NSControl *) _controlView updateCell:self];
 }
 
 // this is quite similar to -[NSMenuView attachSubmenuForItemAtIndex:]
