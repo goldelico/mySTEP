@@ -65,7 +65,7 @@ typedef enum _NSTickMarkPosition
 - (void) drawKnob;
 - (void) drawKnob:(NSRect) knobRect;
 - (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
-- (NSInteger) isVertical;	// not official!
+- (BOOL) isVertical;
 - (NSRect) knobRectFlipped:(BOOL) flipped;
 - (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;

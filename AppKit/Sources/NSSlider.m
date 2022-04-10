@@ -202,7 +202,7 @@ static Class _sliderCellClass;
 {
 	BOOL flipped;
 	NSRect kr;
-	_controlView=(NSControlView *) controlView;	// remember
+	_controlView=controlView;	// remember
 	flipped=[_controlView isFlipped];
 	_slotRect=cellFrame;	// used inside knobRectFlipped
 	if(_sliderType == NSCircularSlider)
@@ -261,7 +261,7 @@ static Class _sliderCellClass;
 - (double) minValue						{ return _minValue; }
 - (double) maxValue						{ return _maxValue; }
 // FIXME: is vertical if height > width - but it is also initialized from initWithCoder!
-- (NSInteger) isVertical				{ return _isVertical; }
+- (BOOL) isVertical				{ return _isVertical; }
 - (double) altIncrementValue			{ return _altIncrementValue; }
 + (BOOL) prefersTrackingUntilMouseUp	{ return YES; }
 
@@ -446,8 +446,8 @@ static Class _sliderCellClass;
 }
 
 - (NSImage *) image							{ return [_cell image]; }
-- (NSInteger) isVertical							{ return [_cell isVertical]; }
-// NOT TESTED: - (BOOL) isFlipped							{ return YES; }
+- (BOOL) isVertical							{ return [_cell isVertical]; }
+// NOT TESTED: - (BOOL) isFlipped			{ return YES; }
 - (CGFloat) knobThickness					{ return [_cell knobThickness]; }
 - (void) setImage:(NSImage*)backgroundImg	{ [_cell setImage:backgroundImg]; }
 - (void) setKnobThickness:(CGFloat)aFloat	{ [_cell setKnobThickness:aFloat];}
@@ -465,7 +465,7 @@ static Class _sliderCellClass;
 - (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;	{ return [_cell indexOfTickMarkAtPoint:point]; }
 - (double) maxValue							{ return [_cell maxValue]; }
 - (double) minValue							{ return [_cell minValue]; }
-- (NSInteger) numberOfTickMarks;					{ return [_cell numberOfTickMarks]; }
+- (NSInteger) numberOfTickMarks;			{ return [_cell numberOfTickMarks]; }
 - (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;	{ return [_cell rectOfTickMarkAtIndex:index]; }
 - (void) setAllowsTickMarkValuesOnly:(BOOL)f	{ [_cell setAllowsTickMarkValuesOnly:f]; }
 - (void) setAltIncrementValue:(double)aDouble	{ [_cell setAltIncrementValue:aDouble]; }
