@@ -425,6 +425,8 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {
 	int i;
 	NSString *str=@"NSBezierPath:\n";
+	str=[str stringByAppendingFormat:@"bounds %@\n", NSStringFromRect([self bounds])];
+	str=[str stringByAppendingFormat:@"controls %@\n", NSStringFromRect([self controlPointBounds])];
 	for(i=0; i<_count; i++)
 		{
 		NSPoint points[3];
@@ -892,7 +894,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 						p = last_p = pts[0];
 						first = NO;
 						}
-					
+
 					if(pts[2].x > maxx) maxx = pts[2].x;
 					if(pts[2].x < minx) minx = pts[2].x;
 					if(pts[2].y > maxy) maxy = pts[2].y;
@@ -910,7 +912,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 					if(pts[2].x < cpminx) cpminx = pts[2].x;
 					if(pts[2].y > cpmaxy) cpmaxy = pts[2].y;
 					if(pts[2].y < cpminy) cpminy = pts[2].y;
-																				
+
 					for(t = k; t <= 1+k; t += k)
 						{
 						x = (p.x+t*(-p.x*3+t*(3*p.x-p.x*t)))+
@@ -925,10 +927,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 						if(y > cpmaxy) cpmaxy = y;
 						if(y < cpminy) cpminy = y;
 						}
-																					
+
 					p = pts[2];
 					break;
-					
+
 				case NSClosePathBezierPathElement:
 					p = last_p;							// Changes current point
 				default:
@@ -1030,45 +1032,55 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[self appendBezierPath: [[self class] bezierPathWithOvalInRect: aRect]];
 }
 
-- (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
+- (void) appendBezierPathWithRoundedRect:(NSRect) aRect xRadius:(CGFloat) xRadius yRadius:(CGFloat) yRadius;
 {
-	NSPoint p, c, s;
+	NSPoint startp, endp, controlp1, controlp2, topLeft, topRight, bottomRight;
 #if 0
-	NSLog(@"appendBezierPathWithRoundedRect:%@ xRadius:%f yRadius:%f", NSStringFromRect(borderRect), xrad, yrad);
+	NSLog(@"appendBezierPathWithRoundedRect:%@ xRadius:%f yRadius:%f", NSStringFromRect(aRect), xRadius, yRadius);
 #endif
-	borderRect.size.width-=1.0;
-	borderRect.size.height-=1.0;	// draw inside
-	if(xrad <= 0.0 || yrad <= 0.0)
-		xrad=yrad=0.0;	// results in rectangle
-	else
-		{ // clamp to half size
-		xrad=MIN(xrad, 0.5*borderRect.size.width);
-		yrad=MIN(yrad, 0.5*borderRect.size.height);
+
+	xRadius = MIN(xRadius, 0.5*aRect.size.width);
+	yRadius = MIN(yRadius, 0.5*aRect.size.height);
+
+	if (xRadius == 0.0 || yRadius == 0.0)
+		{
+		[self appendBezierPathWithRect: aRect];
+		return;
 		}
-	/* start top left an go counter-clockwise */
-	s=p=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect)-yrad);	// top left w/o corner point
-	[self moveToPoint:p];
-	p=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect)+yrad);	// bottom left w/o corner
-	[self lineToPoint:p];
-	c=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect));	// bottom left corner
-	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// bottom left curve
-	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect));	// bottom right
-	[self lineToPoint:p];
-	c=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect));	// bottom right corner
-	p=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect)+yrad);	// bottom right curve
-	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect)-yrad);	// top right
-	[self lineToPoint:p];
-	c=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect));	// top right corner
-	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect));	// top right curve
-	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect));	// top left
-	[self lineToPoint:p];
-	c=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect));	// top left corner
-	p=s;
-	[self curveToPoint:p controlPoint1:c controlPoint2:c];
-	[self closePath];	// close to first point of segment (should be empty)
+
+	topLeft = NSMakePoint(NSMinX(aRect), NSMaxY(aRect));
+	topRight = NSMakePoint(NSMaxX(aRect), NSMaxY(aRect));
+	bottomRight = NSMakePoint(NSMaxX(aRect), NSMinY(aRect));
+
+	startp = NSMakePoint(topLeft.x + xRadius, topLeft.y);
+	endp = NSMakePoint(topLeft.x, topLeft.y - yRadius);
+	controlp1 = NSMakePoint(startp.x - (KAPPA * xRadius), startp.y);
+	controlp2 = NSMakePoint(endp.x, endp.y + (KAPPA * yRadius));
+	[self moveToPoint: startp];
+	[self curveToPoint: endp controlPoint1: controlp1 controlPoint2: controlp2];
+
+	startp = NSMakePoint(aRect.origin.x, aRect.origin.y + yRadius);
+	endp = NSMakePoint(aRect.origin.x + xRadius, aRect.origin.y);
+	controlp1 = NSMakePoint(startp.x, startp.y - (KAPPA * yRadius));
+	controlp2 = NSMakePoint(endp.x - (KAPPA * xRadius), endp.y);
+	[self lineToPoint: startp];
+	[self curveToPoint: endp controlPoint1: controlp1 controlPoint2: controlp2];
+
+	startp = NSMakePoint(bottomRight.x - xRadius, bottomRight.y);
+	endp = NSMakePoint(bottomRight.x, bottomRight.y + yRadius);
+	controlp1 = NSMakePoint(startp.x + (KAPPA * xRadius), startp.y);
+	controlp2 = NSMakePoint(endp.x, endp.y - (KAPPA * yRadius));
+	[self lineToPoint: startp];
+	[self curveToPoint: endp controlPoint1: controlp1 controlPoint2: controlp2];
+
+	startp = NSMakePoint(topRight.x, topRight.y - yRadius);
+	endp = NSMakePoint(topRight.x - xRadius, topRight.y);
+	controlp1 = NSMakePoint(startp.x, startp.y + (KAPPA * yRadius));
+	controlp2 = NSMakePoint(endp.x + (KAPPA * xRadius), endp.y);
+	[self lineToPoint: startp];
+	[self curveToPoint: endp controlPoint1: controlp1 controlPoint2: controlp2];
+
+	[self closePath];
 
 #if 0
 	NSLog(@"  %@", self);
