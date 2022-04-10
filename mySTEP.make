@@ -400,6 +400,8 @@ endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
 DEBIAN_ARCHITECTURES=armel armhf arm64 i386 mipsel
+# ifeq ($(RUN),true)
+# take only the arch of the "run device"
 endif
 
 # this is the default/main target on the outer level
@@ -442,6 +444,8 @@ build_architectures:
 	@echo build_architectures
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
+# ifeq ($(RUN),true)
+# take only the release of the RUN device
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
 	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
 	[ "$$RELEASES" ] || RELEASES="staging"; \
@@ -1223,8 +1227,15 @@ else
 endif
 	@echo install_local done
 
+ifeq ($(RUN),true)
+# to run device only
+DEVICELIST:=-r
 # this one could strip off architectures different from the one to download
-# TRIPLE is undefined!
+else
+# to all devices
+DEVICELIST:=-n
+endif
+# TRIPLE is undefined here!
 deploy_remote: prepare_temp_files
 	@echo deploy_remote
 ifeq ($(DEPLOY),true)
@@ -1232,7 +1243,7 @@ ifeq ($(DEPLOY),true)
 	# deploy remote
 	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
 	# FIXME: use rsync?
-	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) -n | while read DEVICE NAME; \
+	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEVICE NAME; \
 		do \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
 				gzip | \
