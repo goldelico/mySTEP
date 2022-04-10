@@ -322,28 +322,26 @@
 		}
 }
 
-- (void) drawRect:(NSRect)rect		
+- (void) drawRect:(NSRect)rect
 {
 	NSArray *tableColumns = [_tableView tableColumns];
-	NSEnumerator *e=[tableColumns objectEnumerator];
-	NSTableColumn *col;
 	NSTableColumn *hlcol=[_tableView highlightedTableColumn];
 	int i=0;
-	NSRect h = [self bounds];
-	CGFloat max_X = NSMaxX(rect);
-	CGFloat intercellWidth = [_tableView intercellSpacing].width;
-	
+
 	[[_tableView backgroundColor] set];
 	NSRectFill(rect);
-	
-	while((col=[e nextObject]))
+
+	// could limit to rect
+	for(i=0; i<[tableColumns count]; i++)
 		{
-		h.size.width = col->_width + intercellWidth;
+		NSRect h=[self headerRectOfColumn:i];
+		// handle special case of _draggedDistance so that columns are virtually reordered while dragging them...
 		if(i != _draggedColumn)
 			{
 			if(NSIntersectsRect(h, rect))
 				{ // is visible in rect
 				NSImage *img;
+				NSTableColumn *col=[tableColumns objectAtIndex:i];
 				NSTableHeaderCell *cell=[col headerCell];
 				if(col == hlcol || i == [_tableView selectedColumn] || [[_tableView selectedColumnIndexes] containsIndex:i])
 					[[NSColor selectedControlColor] set];	// selected header cell
@@ -359,7 +357,7 @@
 				if(img)
 					;	// draw indicatorImage depending on cell alignment on left or right side
 				}
-			else if(NSMinX(h) > max_X)
+			else if(NSMinX(h) > NSMaxX(rect))
 				return;	// done
 			}
 		else
@@ -367,9 +365,6 @@
 				[[NSColor disabledControlTextColor] set];
 				NSRectFill(h);	// grey background
 			}
-		// handle special case of _draggedDistance so that columns are virtually reordered...
-		h.origin.x += h.size.width;
-		i++;
 		}
 }
 
