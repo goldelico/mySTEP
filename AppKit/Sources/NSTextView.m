@@ -492,7 +492,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) updateInsertionPointStateAndRestartTimer:(BOOL) restartFlag
 { // does nothing if we should draw insertion point but have no restart
   // FIXME: the cursor rect should be calculated here and then just used to redraw the cursor
-#if 1
+#if 0
 	NSLog(@"updateInsertionPointStateAndRestartTimer %@", self);
 	NSLog(@"  editable %d", _tx.editable);
 	NSLog(@"  selection %@", NSStringFromRange(_selectedRange));
@@ -535,7 +535,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		}
 	else
 		[__blinkingCursors removeObjectIdenticalTo:self];
-#if 1
+#if 0
 	NSLog(@"__caretBlinkTimer = %@", __caretBlinkTimer);
 #endif
 }
@@ -1133,7 +1133,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		  // FIXME: this may notify the wrong old-range during selection by the user!
 			// we must cache the last selectedRange until it is used next time
 			NSRange _old=_selectedRange;
-			if(_delegate) range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
+			if(_delegate)
+				range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
 			[super setSelectedRange:range];
 			[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
 			_stableCursorColumn=_caretRect.origin.x;
