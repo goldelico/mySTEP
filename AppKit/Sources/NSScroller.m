@@ -53,7 +53,12 @@ static NSActionCell *__knobCell = nil;
 {
 	NSBezierPath *p;
 	NSWindow *win;
-	CGFloat radius=0.5*MIN(cellFrame.size.height, cellFrame.size.width);
+	CGFloat radius;
+	cellFrame=NSInsetRect(cellFrame, 1, 1);	// inset
+	radius=0.5*MIN(cellFrame.size.height, cellFrame.size.width);
+#if 0
+	NSLog(@"drawWithFrame:%@ radius:%f", NSStringFromRect(cellFrame), radius);
+#endif
 	p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:radius yRadius:radius];
 	win=[controlView window];
 	if([win isKeyWindow] || [win isKindOfClass:[NSPanel class]])
@@ -581,6 +586,9 @@ static NSActionCell *__knobCell = nil;
 - (void) drawKnob
 {
 	NSRect rect=[self rectForPart: NSScrollerKnobSlot];
+#if 0
+	NSLog(@"drawKnob");
+#endif
 	[[NSColor scrollBarColor] set];
 	NSRectFill(rect);		// draw bar slot
 	rect=[self rectForPart:NSScrollerKnob];
