@@ -132,6 +132,9 @@ XCTAssertEqualObjects( \
 	[view setFlipped:YES];	// make document view being flipped
 	XCTAssertTrue([view isFlipped]);	// document view becomes flipped
 	XCTAssertFalse([clipView isFlipped]);	// ClipView remains unflipped!
+	XCTAssertTrue([view isFlipped]);	// document view becomes flipped
+	XCTAssertFalse([clipView isFlipped]);	// ClipView remains unflipped!
+
 	[view setFrameSize:NSMakeSize(50,50)];
 	XCTAssertEquals([view frame], NSMakeRect(0.0, 0.0, 50.0, 50.0));	// became smaller
 	XCTAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 50.0, 50.0));	// became smaller
@@ -154,6 +157,34 @@ XCTAssertEqualObjects( \
 	[sv setHasVerticalScroller:NO];
 	XCTAssertFalse([sv hasVerticalScroller]);
 	XCTAssertNotNil([sv verticalScroller]);	// is not removed
+}
+
+- (void) test301;	// embed clip view in scroll view
+{
+	NSScrollView *sv=[[NSScrollView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 200.0, 200.0)];
+	XCTAssertTrue([sv isFlipped]);
+	XCTAssertFalse([[sv contentView] isFlipped]);	// default content view
+	[[window contentView] addSubview:sv];
+	clipView=[[NSClipView alloc] initWithFrame:NSMakeRect(50.0, 50.0, 200.0, 200.0)];
+	view=[[DocumentView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 700.0, 1100.0)];
+	[clipView setDocumentView:view];
+	[sv setContentView:clipView];
+	XCTAssertFalse([[sv contentView] isFlipped]);
+	[sv setDocumentView:view];
+	XCTAssertFalse([[sv documentView] isFlipped]);
+	view=[[DocumentView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 700.0, 1100.0)];
+	[view setFlipped:YES];
+	[clipView setDocumentView:view];
+	[sv setContentView:clipView];
+	XCTAssertTrue([[sv contentView] isFlipped]);
+	[sv setDocumentView:view];
+	XCTAssertTrue([[sv documentView] isFlipped]);
+	// now change the flipped state...
+	[view setFlipped:NO];
+	XCTAssertTrue([[sv contentView] isFlipped]);	// just changing the isFlipped of the documentView is not enough
+	XCTAssertFalse([[sv documentView] isFlipped]);
+	[sv setDocumentView:view];	// this samples the isFlipped and copies it into the NSClipView!
+	XCTAssertFalse([[sv contentView] isFlipped]);
 }
 
 @end
