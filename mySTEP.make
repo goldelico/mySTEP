@@ -2,6 +2,8 @@
 #
 # FIXME: the current directory must be the one that contains the .qcodeproj
 #
+# easy call: DEPLOY=true RUN=true DEBIAN_RELEASES=stretch DEBIAN_ARCHITECTURES=armhf ./AppKit.qcodeproj
+#
 ifeq (nil,null)   ## this is to allow for the following text without special comment character considerations
 #
 # This file is part of mySTEP
@@ -56,9 +58,10 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: 0
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (*) DEBIAN_ARCHITECTURES - default:
+#   (+) DEBIAN_ARCHITECTURES - default: armel armhf arm64 i386 mipsel
 #   (-) DEBIAN_ARCH - used internally
-#   (+) DEBIAN_RELEASE - the release to build for (modifies compiler, libs and staging for result)- default: staging
+#	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
+#   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
 #  bundle definitions (output)
 #   * PROJECT_NAME
 #   (*) PRODUCT_NAME - the product name (if "All", then PROJECT_NAME is taken)
@@ -93,9 +96,9 @@ QUIET=@
 #   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP (or absolute if it starts with //) - default empty
 #   - INSTALL
 #   (+) EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
-#   (+) DEPLOY - default: no
-#   (+) RUN - default: no
-#   (+) RUN_CMD
+#   (+) DEPLOY - true/false default: false
+#   (+) RUN - true/false default: false
+#   (+) RUN_CMD - default: run
 #
 # targets
 #   build:		build everything (outer level)
@@ -404,6 +407,14 @@ DEBIAN_ARCHITECTURES=armel armhf arm64 i386 mipsel
 # take only the arch of the "run device"
 endif
 
+# recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
+ifeq ($(DEBIAN_RELEASES),)
+DEBIAN_RELEASES=$(shell echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u)
+endif
+ifeq ($(DEBIAN_RELEASES),)
+DEBIAN_RELEASES="staging"
+endif
+
 # this is the default/main target on the outer level
 
 ifeq ($(NOCOMPILE),true)
@@ -446,13 +457,10 @@ ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # ifeq ($(RUN),true)
 # take only the release of the RUN device
-# recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
-	RELEASES=$$(echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u); \
-	[ "$$RELEASES" ] || RELEASES="staging"; \
-	echo RELEASES: $$RELEASES; \
-for BASE_OS in $(BASE_OS_LIST); do \
+	echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
+	for BASE_OS in $(BASE_OS_LIST); do \
 	if [ "$$BASE_OS" = "Debian" ]; then \
-	for DEBIAN_RELEASE in $$RELEASES; do \
+	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			case "$$DEBIAN_ARCH" in \
@@ -1227,12 +1235,15 @@ else
 endif
 	@echo install_local done
 
+# can we have a mode where we don't run but deploy to the runnable device only?
+# maybe RUN=true DEPLOY=true RUN_CMD=:
 ifeq ($(RUN),true)
 # to run device only
 DEVICELIST:=-r
 # this one could strip off architectures different from the one to download
 else
 # to all devices
+# FIXME: to all reachable devices?
 DEVICELIST:=-n
 endif
 # TRIPLE is undefined here!
