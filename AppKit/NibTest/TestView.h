@@ -6,7 +6,8 @@
 //  Copyright 2012 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 
 
 @interface TestView : NSView
