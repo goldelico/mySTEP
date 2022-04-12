@@ -87,7 +87,7 @@ static NSActionCell *__knobCell = nil;
 		}
 }
 
-- (BOOL) isFlipped; { return YES; }	// compatibility - i.e. floatValue 0.0 is at top and 0.0 y coord.
+- (BOOL) isFlipped; { return YES; }	// compatibility - i.e. floatValue 1.0 is at top and 0.0 at bottom.
 
 - (id) initWithFrame:(NSRect)frameRect
 {
@@ -244,6 +244,9 @@ static NSActionCell *__knobCell = nil;
 
 - (void) setDoubleValue:(double)aFloat
 {
+#if 0
+	NSLog(@"NSScroller setDoubleValue = %lf", aFloat);
+#endif
 	aFloat = MIN(MAX(aFloat, 0), 1);
 	if(_floatValue == aFloat)
 		return;	// no change
@@ -262,6 +265,9 @@ static NSActionCell *__knobCell = nil;
 
 - (void) setKnobProportion:(CGFloat)ratio;
 {
+#if 0
+	NSLog(@"NSScroller setKnobProportion = %f", ratio);
+#endif
 	ratio=MIN(MAX(ratio, 0), 1);
 	if(_knobProportion != ratio)
 		{
@@ -422,7 +428,7 @@ static NSActionCell *__knobCell = nil;
 					if(_isHorizontal)
 						v=(p.x-knobRect.size.width/2.0-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
 					else
-						v=(p.y-knobRect.size.height/2.0-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height);
+						v=1.0-((p.y-knobRect.size.height/2.0-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height));
 					[self setFloatValue:v];
 					[self sendAction:_action to:_target];
 					[self trackKnob:event];
@@ -461,7 +467,7 @@ static NSActionCell *__knobCell = nil;
 			if(_isHorizontal)
 				v=(point.x-offset.width-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
 			else
-				v=(point.y-offset.height-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height);
+				v=1.0-((point.y-offset.height-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height));
 			[self setFloatValue:v];
 			[_target performSelector:_action withObject:self];	// _target should be the NSScrollView and _action should be @selector(_doScroller:)
 			}
@@ -634,7 +640,10 @@ static NSActionCell *__knobCell = nil;
 					knobHeight = width; 
 					_knobProportion = (CGFloat)(knobHeight / slotHeight);
 					}
-				knobPosition = _floatValue * (slotHeight - knobHeight);	// calc knob's position (left/top end)
+				if(_isHorizontal)
+					knobPosition = _floatValue * (slotHeight - knobHeight);	// calc knob's position (left/top end)
+				else
+					knobPosition = (1.0-_floatValue) * (slotHeight - knobHeight);	// calc knob's position (left/top end)
 //			knobPosition = (CGFloat)floor(knobPosition);	// avoid (why?) rounding error
 				
 				y += knobPosition;	// move knob
