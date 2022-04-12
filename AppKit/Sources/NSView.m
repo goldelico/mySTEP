@@ -1743,7 +1743,7 @@ printing
 		r=[self convertRect:rect toView:_superview];
 #if 1
 		if(NSIsEmptyRect(r))
-			NSLog(@"outside superview!");
+			NSLog(@"setNeedsDisplayInRect: outside superview!");
 #endif
 		[_superview setNeedsDisplayInRect:r];	// FIXME: we should better loop instead of doing a recursion
 		}
