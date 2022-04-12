@@ -91,7 +91,7 @@
 		EEFFFCDE20EF4C89002D7632 /* cttest.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = cttest.qcodeproj; sourceTree = "<group>"; };
 		EEFFFCDF20EF4D08002D7632 /* Info-test.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = "<group>"; };
 		EEFFFCE420EF4D2B002D7632 /* cttest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cttest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEFFFCE620EF4D2B002D7632 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EEFFFCE620EF4D2B002D7632 /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
