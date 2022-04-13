@@ -411,7 +411,6 @@
 		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE5B8C210E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
-		EE6C11BC2805D464008AAEFA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE6C11BB2805D464008AAEFA /* Foundation.framework */; };
 		EE93C7890B901DF500FBD885 /* 1bK.png in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37820ABD584F00C31F1E /* 1bK.png */; };
 		EE93C78A0B901DF500FBD885 /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37830ABD584F00C31F1E /* Default.tiff */; };
 		EE93C78B0B901DF500FBD885 /* Lion.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37840ABD584F00C31F1E /* Lion.jpg */; };
@@ -421,7 +420,6 @@
 		EE93C7940B901DF500FBD885 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE93C7A40B901E5700FBD885 /* MainMenu ViewTest.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE93C7A20B901E5700FBD885 /* MainMenu ViewTest.nib */; };
 		EE93C7C70B901FE200FBD885 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
-		EEA524C1212AF1FF002E3B27 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524C0212AF1FF002E3B27 /* Cocoa.framework */; };
 		EEA524C3212AF479002E3B27 /* addbk_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEA524C2212AF479002E3B27 /* addbk_32.png */; };
 		EEA524C4212AF479002E3B27 /* addbk_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEA524C2212AF479002E3B27 /* addbk_32.png */; };
 		EEA524C5212AF479002E3B27 /* addbk_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EEA524C2212AF479002E3B27 /* addbk_32.png */; };
@@ -446,7 +444,6 @@
 		EEA524EC212AFD7C002E3B27 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524E4212AFD7C002E3B27 /* CoreData.framework */; };
 		EEA524EE212AFD7C002E3B27 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524E5212AFD7C002E3B27 /* CoreFoundation.framework */; };
 		EEA524F0212AFD7C002E3B27 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524E6212AFD7C002E3B27 /* Foundation.framework */; };
-		EEA524F1212AFDDA002E3B27 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524E2212AFD7C002E3B27 /* AppKit.framework */; };
 		EEA524F8212B00D6002E3B27 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA524F6212B00D6002E3B27 /* Security.framework */; };
 		EEA69FA6174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
 		EEA69FA7174BAA3300F4FBFA /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA69FA5174BAA3300F4FBFA /* CircleView.m */; };
@@ -467,6 +464,12 @@
 		EEAC57C1225D20E000AC1881 /* Sosumi.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B6225D20E000AC1881 /* Sosumi.wav */; };
 		EEAC57C2225D20E000AC1881 /* Submarine.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B7225D20E000AC1881 /* Submarine.wav */; };
 		EEAC57C3225D20E000AC1881 /* Tink.wav in Resources */ = {isa = PBXBuildFile; fileRef = EEAC57B8225D20E000AC1881 /* Tink.wav */; };
+		EEB77EE9280753CC006C9B5D /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EDD28075370006C9B5D /* AppKit.framework */; };
+		EEB77EEA280753CF006C9B5D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EDE28075370006C9B5D /* Cocoa.framework */; };
+		EEB77EEB280753D2006C9B5D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EDF28075370006C9B5D /* CoreData.framework */; };
+		EEB77EEC280753D5006C9B5D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EE028075370006C9B5D /* CoreFoundation.framework */; };
+		EEB77EED280753D8006C9B5D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EE128075370006C9B5D /* Foundation.framework */; };
+		EEB77EEE280753DB006C9B5D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB77EE228075370006C9B5D /* Security.framework */; };
 		EEC8033D09AE4EB6006EEB03 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EEC8033F09AE4EB6006EEB03 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
 		EEC8034009AE4EB6006EEB03 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31970C09AB7E8B0089A9A2 /* main.m */; };
@@ -880,8 +883,6 @@
 		EEA3F88D0BEDD65400E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ColorPanel.nib; sourceTree = "<group>"; };
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
-		EEA524BE212AF1EB002E3B27 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		EEA524C0212AF1FF002E3B27 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		EEA524C2212AF479002E3B27 /* addbk_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addbk_32.png; sourceTree = "<group>"; };
 		EEA524C6212AF4A8002E3B27 /* dial_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dial_32.png; sourceTree = "<group>"; };
 		EEA524C7212AF4A8002E3B27 /* hangup_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hangup_32.png; sourceTree = "<group>"; };
@@ -915,6 +916,12 @@
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
+		EEB77EDD28075370006C9B5D /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AppKit.framework; sourceTree = "<group>"; };
+		EEB77EDE28075370006C9B5D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Cocoa.framework; sourceTree = "<group>"; };
+		EEB77EDF28075370006C9B5D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CoreData.framework; sourceTree = "<group>"; };
+		EEB77EE028075370006C9B5D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CoreFoundation.framework; sourceTree = "<group>"; };
+		EEB77EE128075370006C9B5D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Foundation.framework; sourceTree = "<group>"; };
+		EEB77EE228075370006C9B5D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Security.framework; sourceTree = "<group>"; };
 		EEC8034909AE4EB6006EEB03 /* AppKitNibTestX11.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTestX11.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* AppKitNibTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppKitNibTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
@@ -977,7 +984,6 @@
 			files = (
 				EE3197C209AB7FC00089A9A2 /* Foundation.framework in Frameworks */,
 				EEC803F609AE4EE1006EEB03 /* AppKit.framework in Frameworks */,
-				EEA524C1212AF1FF002E3B27 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -999,8 +1005,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEA524F1212AFDDA002E3B27 /* AppKit.framework in Frameworks */,
-				EE6C11BC2805D464008AAEFA /* Foundation.framework in Frameworks */,
+				EEB77EEE280753DB006C9B5D /* Security.framework in Frameworks */,
+				EEB77EE9280753CC006C9B5D /* AppKit.framework in Frameworks */,
+				EEB77EEA280753CF006C9B5D /* Cocoa.framework in Frameworks */,
+				EEB77EEB280753D2006C9B5D /* CoreData.framework in Frameworks */,
+				EEB77EEC280753D5006C9B5D /* CoreFoundation.framework in Frameworks */,
+				EEB77EED280753D8006C9B5D /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1033,6 +1043,7 @@
 				EEA524BD212AF1EB002E3B27 /* Xcode SDK Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
 				EEA524E1212AFD7B002E3B27 /* MixedFrameworks */,
+				EEB77EDC28075370006C9B5D /* MixedFrameworks2 */,
 				EE29D8D8058A38830035639B /* Products */,
 				EE6C11BA2805D464008AAEFA /* Frameworks */,
 			);
@@ -1630,8 +1641,6 @@
 		EEA524BD212AF1EB002E3B27 /* Xcode SDK Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EEA524C0212AF1FF002E3B27 /* Cocoa.framework */,
-				EEA524BE212AF1EB002E3B27 /* AppKit.framework */,
 			);
 			name = "Xcode SDK Frameworks";
 			sourceTree = "<group>";
@@ -1695,6 +1704,20 @@
 				EEAC57B8225D20E000AC1881 /* Tink.wav */,
 			);
 			path = Sounds;
+			sourceTree = "<group>";
+		};
+		EEB77EDC28075370006C9B5D /* MixedFrameworks2 */ = {
+			isa = PBXGroup;
+			children = (
+				EEB77EDD28075370006C9B5D /* AppKit.framework */,
+				EEB77EDE28075370006C9B5D /* Cocoa.framework */,
+				EEB77EDF28075370006C9B5D /* CoreData.framework */,
+				EEB77EE028075370006C9B5D /* CoreFoundation.framework */,
+				EEB77EE128075370006C9B5D /* Foundation.framework */,
+				EEB77EE228075370006C9B5D /* Security.framework */,
+			);
+			name = MixedFrameworks2;
+			path = NibTest/MixedFrameworks2;
 			sourceTree = "<group>";
 		};
 		EECD84030A089FA300EF3E30 /* Resources */ = {
@@ -2259,7 +2282,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./AppKit.qcodeproj\n";
+			shellScript = "# ./AppKit.qcodeproj\n";
 		};
 		EE5EBBEC0A19138A0045B88D /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2611,6 +2634,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 45.0.0;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 45.0.0;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2652,6 +2676,7 @@
 					"-lgif",
 					"-ltiff",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.AppKit";
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -2720,6 +2745,7 @@
 					"-lgif",
 					"-ltiff",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.AppKit";
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -2788,6 +2814,7 @@
 					"-lgif",
 					"-ltiff",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.AppKit";
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -3142,7 +3169,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3184,7 +3211,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -3223,7 +3250,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
