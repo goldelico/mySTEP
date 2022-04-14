@@ -200,11 +200,18 @@ NSString *flags(unsigned char *addr)
 }
 #endif
 
+- (NSWindow *) window;
+{
+	return [super window];
+}
+
 - (void) awakeFromNib;
 {
 	NSView *cv;
 	NSView *v;
 	NSRect r;
+	NSLog(@"%@", [NSBundle allFrameworks]);
+	NSLog(@"%@", [NSBundle bundleForClass:[NSWindow class]]);
 	NSLog(@"[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
 	NSLog(@"window frame %@", NSStringFromRect([[self window] frame]));
 	cv=[[self window] contentView];
