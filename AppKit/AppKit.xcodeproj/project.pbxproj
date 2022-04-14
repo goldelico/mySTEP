@@ -2081,8 +2081,8 @@
 			targets = (
 				EEA3715E095400C3001244CF /* AppKit */,
 				EE1399A91A14EF9B00546945 /* AppKit.framework */,
-				EE31971A09AB7EC60089A9A2 /* build NIB Test pure Cocoa */,
 				EEC8033909AE4EB6006EEB03 /* build NIB Test mySTEP for Cocoa Foundation + X11 */,
+				EE31971A09AB7EC60089A9A2 /* build NIB Test pure Cocoa */,
 				EE93C7830B901DF500FBD885 /* build View Test for Cocoa Foundation + X11 */,
 				EEC8035209AE4EBF006EEB03 /* build NIB Test for Linux */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
@@ -2621,7 +2621,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -2635,7 +2635,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 45.0.0;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 45.0.0;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2662,6 +2662,7 @@
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -2694,7 +2695,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -2708,7 +2709,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 45.0.0;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 45.0.0;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2733,6 +2734,7 @@
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -2764,7 +2766,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -2778,7 +2780,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 45.0.0;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = NO;
 				DYLIB_COMPATIBILITY_VERSION = 45.0.0;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2803,6 +2805,7 @@
 				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -3095,7 +3098,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -3133,7 +3136,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
@@ -3168,7 +3171,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3225,11 +3228,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = (
-					"-rpath",
-					/usr/local/QuantumSTEP/System/Library/Frameworks,
-					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
-				);
+				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTestX11";
 				PRODUCT_NAME = AppKitNibTestX11;
@@ -3265,11 +3264,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = (
-					"-rpath",
-					/usr/local/QuantumSTEP/System/Library/Frameworks,
-					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
-				);
+				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTestX11";
 				PRODUCT_NAME = AppKitNibTestX11;
@@ -3303,11 +3298,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = (
-					"-rpath",
-					/usr/local/QuantumSTEP/System/Library/Frameworks,
-					/usr/local/QuantumSTEP/System/Library/Frameworks/AppKit.framework/AppKit,
-				);
+				OTHER_LDFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTestX11";
 				PRODUCT_NAME = AppKitNibTestX11;
