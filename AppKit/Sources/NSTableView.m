@@ -562,6 +562,24 @@
 	return NIMP;
 }
 
+// should call by double click on separator
+- (void) _resizeToFitContents
+{ // resize column to content width
+    NSTableView *tv = [self tableView];
+    NSRect rect = NSMakeRect(0, 0, INFINITY, [tv rowHeight]);
+    NSInteger col = [[tv tableColumns] indexOfObject:self];
+	NSInteger row, count=[tv numberOfRows];
+	// FIXME: Überschrift berücksichtigen!
+    CGFloat maxWidth = 0;
+    for (row = 0; row < count; row++)
+		{
+        NSCell *cell = [tv preparedCellAtColumn:col row:row];
+        NSSize size = [cell cellSizeForBounds:rect];
+        maxWidth = MAX(maxWidth, size.width);
+		}
+	[self setWidth:ceil(maxWidth)];
+}
+
 // MISSING: isHidden setHidden headerToolTip setHeaderToolTip
 
 @end /* NSTableColumn */
