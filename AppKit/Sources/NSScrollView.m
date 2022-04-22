@@ -791,14 +791,33 @@ static Class __rulerViewClass = nil;
 - (void) setAllowsMagnification:(BOOL) flag; { _sv.allowMagnification=flag; }
 
 - (CGFloat) magnification; { return _magnification; }
-// CHECKME: limit to min/max here or on display?
-- (void) setMagnification:(CGFloat) factor; { _magnification=factor; }
-- (void) setMagnification:(CGFloat) magnification centeredAtPoint:(NSPoint) point;
+- (void) setMagnification:(CGFloat) factor;
+{
+    NSClipView *cv = [self contentView];
+    NSRect bounds = [cv bounds];
+	[self setMagnification:factor centeredAtPoint:NSMakePoint(NSMidX(bounds), NSMidY(bounds))];
+}
+
+- (void) setMagnification:(CGFloat) factor centeredAtPoint:(NSPoint) point;
 { // set magnification (clipped) and center
+    NSClipView *cv = [self contentView];
+    NSRect bounds = [cv bounds];
+    NSRect frame = [cv frame];
+	_magnification = MIN(MAX(factor, _minMagnification), _maxMagnification);
+
+    float xFraction = (point.x - NSMinX(bounds)) / NSWidth(bounds);
+    float yFraction = (point.y - NSMinY(bounds)) / NSHeight(bounds);
+
+    bounds.size.width = NSWidth(frame) / _magnification;
+    bounds.size.height = NSHeight(frame) / _magnification;;
+
+    bounds.origin.x = point.x - (xFraction * NSWidth(bounds));
+    bounds.origin.y = point.y - (yFraction * NSHeight(bounds));
+
+    [cv setBounds:bounds];	// scales and moves
 }
 
 - (CGFloat) maxMagnification; { return _minMagnification; }
-// CHECKME: limit to max >= min and adjust magnification?
 - (void) setMaxMagnification:(CGFloat) factor;
 {
 	if(factor < _minMagnification)
