@@ -103,6 +103,9 @@ static Class __rulerViewClass = nil;
 		_sv.borderType = NSBezelBorder;
 		_sv.scrollsDynamically = YES;
 		// FIXME: register for user defaults change notifications and tile if needed (e.g. the scroller position has changed)
+		_magnification=1.0;
+		_minMagnification=1/4.0;
+		_maxMagnification=4.0;
 		}
 	return self;
 }
@@ -116,7 +119,7 @@ static Class __rulerViewClass = nil;
 
 - (void) setContentView:(NSClipView *) aView
 {
-#if 0
+#if 1
 	NSLog(@"NSScrollView setContentView:%@", aView);
 #endif
 	if(_contentView == aView || aView == nil)
@@ -187,7 +190,6 @@ static Class __rulerViewClass = nil;
 		{
 		if (_vertScroller == nil)
 			{ // create one if not yet
-				NSView *dv=[_contentView documentView];
 				[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect] autorelease]];
 				[_vertScroller setControlSize:NSRegularControlSize];
 			}
@@ -211,6 +213,56 @@ static Class __rulerViewClass = nil;
 		[_contentView setCopiesOnScroll:NO];
 }
 
+- (void) scrollToBeginningOfDocument: (id)sender
+{
+	NSRect  clipViewBounds, documentRect;
+	NSPoint point;
+
+	if (_contentView == nil)
+		{
+		clipViewBounds = NSZeroRect;
+		documentRect = NSZeroRect;
+		}
+	else
+		{
+		clipViewBounds = [_contentView bounds];
+		documentRect = [_contentView documentRect];
+		}
+	point = documentRect.origin;
+	if (![_contentView isFlipped])
+		{
+		point.y = NSMaxY(documentRect) - NSHeight(clipViewBounds);
+		if (point.y < 0)
+			point.y = 0;
+		}
+	[_contentView scrollToPoint: point];
+}
+
+- (void) scrollToEndOfDocument: (id)sender
+{
+	NSRect  clipViewBounds, documentRect;
+	NSPoint point;
+
+	if (_contentView == nil)
+		{
+		clipViewBounds = NSZeroRect;
+		documentRect = NSZeroRect;
+		}
+	else
+		{
+		clipViewBounds = [_contentView bounds];
+		documentRect = [_contentView documentRect];
+		}
+	point = documentRect.origin;
+	if ([_contentView isFlipped])
+		{
+		point.y = NSMaxY(documentRect) - NSHeight(clipViewBounds);
+		if (point.y < 0)
+			point.y = 0;
+		}
+	[_contentView scrollToPoint: point];
+}
+
 - (void) scrollWheel:(NSEvent *)event
 {
 	if (_vertScroller)
@@ -227,8 +279,6 @@ static Class __rulerViewClass = nil;
 	NSScrollerPart hitPart = [scroller hitPart];
 	NSRect documentRect = [_contentView documentRect];
 	NSPoint p;
-
-	NSDebugLog (@"_doScroller: float value = %f", floatValue);
 
 	switch(hitPart) {
 		case NSScrollerIncrementLine:
@@ -249,14 +299,20 @@ static Class __rulerViewClass = nil;
 			_knobMoved = YES;	// still unknown
 	}
 
+#if 1
+	NSLog (@"NSScrollView: _doScroller: float value = %f hitPart = %d amount = %f moved = %d", [scroller floatValue], hitPart, amount, _knobMoved);
+#endif
+
 	if (!_knobMoved)
 		{ // button scrolling
 			if (scroller == _horizScroller)
 				p = (NSPoint){NSMinX(clipBounds) + amount, NSMinY(clipBounds)};
 			else if (scroller == _vertScroller)
 				{
+				if (![_contentView isFlipped])
+					amount = -amount;	/* If view is flipped reverse the scroll direction */
 				p.x = clipBounds.origin.x;
-				p.y = clipBounds.origin.y - amount;
+				p.y = clipBounds.origin.y + amount;
 				}
 			else
 				return;										// do nothing
@@ -271,15 +327,23 @@ static Class __rulerViewClass = nil;
 				}
 			else if (scroller == _vertScroller)
 				{
+				if ([_contentView isFlipped])
+					floatValue = 1.0 - floatValue;
 				p.x = clipBounds.origin.x;
-				p.y = (1.0 - floatValue) * (NSHeight(documentRect) - NSHeight(clipBounds));
+				p.y = floatValue * (NSHeight(documentRect) - NSHeight(clipBounds));
 				}
 			else
 				return;										// do nothing if unknown scroller
 		}
-
+#if 1
+	NSLog(@"NSScrollView contentview scrollToPoint: %@", NSStringFromPoint(p));
+#endif
 	[_contentView scrollToPoint:p];						// scroll clipview
+#if 1
 	if(_headerContentView)
+		NSLog(@"NSScrollView header scrollToPoint: %@", NSStringFromPoint((NSPoint){p.x, 0}));
+#endif
+		if(_headerContentView)
 		[_headerContentView scrollToPoint:(NSPoint){p.x, 0}];
 	if(!_knobMoved)
 		[self reflectScrolledClipView:_contentView];
@@ -297,13 +361,15 @@ static Class __rulerViewClass = nil;
 		return;	// recursive call
 	if(aClipView != _contentView)	// do nothing if aClipView is not our content view
 		return;
-#if 0
-	NSLog(@"reflectScrolledClipView: %@", self);
+#if 1
+	NSLog(@"NSScrollView: reflectScrolledClipView: %@", self);
 #endif
 	clipViewBounds = [_contentView bounds];
 	if((documentView = [_contentView documentView]))
 		documentFrame = [documentView frame];
-#if 0
+// FIXME: take care of [_contentView isFlipped]
+
+#if 1
 	NSLog(@"  clipView %@", aClipView);
 	NSLog(@"  documentView %@", documentView);
 #endif
@@ -320,12 +386,13 @@ static Class __rulerViewClass = nil;
 				[self tile];	// this may recurse!
 			}
 		if(!hide)
-			{ // update scroller size
+			{ // update scroller size and position
 				knobProportion = NSHeight(clipViewBounds) / NSHeight(documentFrame);
 				floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
-																												//	if (NO && dv && ![dv isFlipped])
-				[_vertScroller setFloatValue:1.0 - floatValue];
-				[_vertScroller setKnobProportion:knobProportion];
+				[_vertScroller setFloatValue:1.0 - floatValue knobProportion:knobProportion];
+#if 1
+				NSLog(@"vertScroller floatValue: %lf", [_vertScroller doubleValue]);
+#endif
 			}
 		}
 	if(_sv.hasHorizScroller)
@@ -341,11 +408,10 @@ static Class __rulerViewClass = nil;
 				[self tile];	// this may recurse!
 			}
 		if(!hide)
-			{ // update scroller size
+			{ // update scroller size and position
 				knobProportion = NSWidth(clipViewBounds) / NSWidth(documentFrame);
 				floatValue = clipViewBounds.origin.x / (NSWidth(documentFrame) - NSWidth(clipViewBounds));
-				[_horizScroller setFloatValue:floatValue];
-				[_horizScroller setKnobProportion:knobProportion];
+				[_horizScroller setFloatValue:floatValue knobProportion:knobProportion];
 			}
 		}
 	_sv.autohidingScrollers=NO;
@@ -477,7 +543,7 @@ static Class __rulerViewClass = nil;
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
 		}
-#if 0
+#if 1
 	NSLog(@"resizing contentView to frame %@", NSStringFromRect(contentRect));
 #endif
 	if(!NSEqualRects([_contentView frame], contentRect))
@@ -539,7 +605,7 @@ static Class __rulerViewClass = nil;
 
 - (void) setDocumentView:(NSView*)aView
 {
-#if 0
+#if 1
 	NSLog(@"NSScrollView setDocumentView:%@ _contentView=%@", aView, _contentView);
 #endif
 	if(aView && [aView respondsToSelector:@selector(headerView)])
@@ -720,6 +786,40 @@ static Class __rulerViewClass = nil;
 		[_window invalidateCursorRectsForView:[_headerContentView documentView]];
 }
 
+// allows user to magnify
+- (BOOL) allowsMagnification; { return _sv.allowMagnification; }
+- (void) setAllowsMagnification:(BOOL) flag; { _sv.allowMagnification=flag; }
+
+- (CGFloat) magnification; { return _magnification; }
+// CHECKME: limit to min/max here or on display?
+- (void) setMagnification:(CGFloat) factor; { _magnification=factor; }
+- (void) setMagnification:(CGFloat) magnification centeredAtPoint:(NSPoint) point;
+{ // set magnification (clipped) and center
+}
+
+- (CGFloat) maxMagnification; { return _minMagnification; }
+// CHECKME: limit to max >= min and adjust magnification?
+- (void) setMaxMagnification:(CGFloat) factor;
+{
+	if(factor < _minMagnification)
+		[NSException raise: NSInvalidArgumentException
+				format: @"trying to set max magnification < min magnification"];
+	_minMagnification=factor;
+}
+- (CGFloat) minMagnification; { return _maxMagnification; }
+- (void) setMinMagnification:(CGFloat) factor;
+{
+	factor=MAX(factor, 1e-4);	// can't make negative or smaller than 1e-4
+	if(factor > _maxMagnification)
+		[NSException raise: NSInvalidArgumentException
+				format: @"trying to set min magnification < max magnification"];
+	_maxMagnification=factor;
+}
+
+- (void) magnifyToFitRect:(NSRect) rect;
+{ // magnify proportionally so that it fits into scroll view
+}
+
 - (void) encodeWithCoder: (NSCoder *)aCoder			// NSCoding protocol
 {
 	[super encodeWithCoder:aCoder];
@@ -771,8 +871,11 @@ static Class __rulerViewClass = nil;
 		//		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view
 		if([aDecoder containsValueForKey:@"NSDrawsBackground"])
 			[self setDrawsBackground:[aDecoder decodeBoolForKey:@"NSDrawsBackground"]];	// CHECKME: is this a property of the scrollview or the content view?
-		[aDecoder decodeDoubleForKey:@"NSMaxMagnification"];
-		[aDecoder decodeDoubleForKey:@"NSMinMagnification"];
+//		[aDecoder decodeDoubleForKey:@"NSallowMagnification"]; ???
+		if([aDecoder containsValueForKey:@"NSMaxMagnification"])
+			[self setMaxMagnification:[aDecoder decodeDoubleForKey:@"NSMaxMagnification"]];
+		if([aDecoder containsValueForKey:@"NSMinMagnification"])
+			[self setMinMagnification:[aDecoder decodeDoubleForKey:@"NSMinMagnification"]];
 		[aDecoder decodeDoubleForKey:@"NSMagnification"];
 #if 0
 		NSLog(@"%@ initWithCoder:%@ sFlags=%08x", self, aDecoder, sFlags);
