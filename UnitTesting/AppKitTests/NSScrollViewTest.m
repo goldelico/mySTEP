@@ -147,9 +147,8 @@ XCTAssertEqualObjects( \
 	XCTAssertTrue([scrollView minMagnification] == 0.25);
 	XCTAssertTrue([scrollView maxMagnification] == 0.8);
 	XCTAssertTrue([scrollView magnification] == 1.0);	// NOT immediately changed
-	// raises an NSInvalidArgumentException
-	[scrollView setMinMagnification:1.2];	// > max
-	XCTAssertTrue([scrollView minMagnification] == 0.8);
+	XCTAssertThrowsSpecificNamed([scrollView setMinMagnification:1.2], NSException, NSInvalidArgumentException, @"");	// try min > max
+	XCTAssertTrue([scrollView minMagnification] == 0.25);	// was not changed
 	XCTAssertTrue([scrollView maxMagnification] == 0.8);
 	XCTAssertTrue([scrollView magnification] == 1.0);
 }

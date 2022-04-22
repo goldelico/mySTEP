@@ -64,7 +64,7 @@
 
 - (void) test02
 {
-	XCTAssertTrue([view needsDisplay], @"");	// has already been set by adding the view to a winodw
+	XCTAssertTrue([view needsDisplay], @"");	// has already been set by adding the view to a window
 	[view setNeedsDisplay:NO];	
 	XCTAssertFalse([view needsDisplay], @"");
 	[view setNeedsDisplay:YES];	
