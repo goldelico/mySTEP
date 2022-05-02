@@ -45,6 +45,7 @@
 - (BOOL) autoscroll:(NSEvent *) event;
 - (NSColor *) backgroundColor;
 - (NSPoint) constrainScrollPoint:(NSPoint) proposedNewOrigin;
+- (NSRect) constrainBoundsRect:(NSRect) proposedBounds;
 - (BOOL) copiesOnScroll;
 - (NSCursor *) documentCursor;
 - (NSRect) documentRect;

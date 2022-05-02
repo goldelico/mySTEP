@@ -115,6 +115,12 @@
 	return new;
 }
 
+- (NSRect) constrainBoundsRect:(NSRect) proposedBounds;
+{
+	NIMP;
+	return NSZeroRect;
+}
+
 - (NSRect) documentRect
 {
 	NSRect documentRect = _documentView?[_documentView frame]:NSZeroRect;;
