@@ -44,7 +44,8 @@
 	NSLog(@"%@ setDocumentView: %@", self, aView);
 #endif
 	if([_documentView window] != [self window])
-		NSLog(@"has different Window");
+		NSLog(@"NSClipView: documentView has different Window");
+	_clip.docIsFlipped=[aView isFlipped];	// put in cache (even if unchanged) - see unit test301
 	if(_documentView == aView)
 		return; // unchanged
 	dnc = [NSNotificationCenter defaultCenter];
@@ -63,7 +64,7 @@
 		{ // add new
 		if(![_documentView isDescendantOf:self])
 			[self addSubview:_documentView];	// add us first
-//		[self _invalidateCTM];		// our isFlipped state may change
+		[self _invalidateCTM];		// our isFlipped state may have changed
 		[_documentView setNeedsDisplay:YES];	// this should set ourselves dirty
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
@@ -186,7 +187,8 @@
 													// smaller than clip view 
 													// requires an org offset 
 #endif
-#if 0	// questionable if that happens on Cocoa as well - test cases do not confirm (at least for non-flipped document view)
+#if 1	// questionable if that happens on Cocoa as well - test cases do not confirm (at least for non-flipped document view)
+		// disable notifications to prevent an infinite loop
 	[_documentView setPostsFrameChangedNotifications:NO];	// disable notifications to prevent an infinite loop
 	if (mr.size.height < _bounds.size.height)		// in order to appear at
 		{											// top of the clip view.
@@ -197,14 +199,14 @@
 		{						// view. May occur when init docview is resized 		
 		mr.origin.y = 0;
 									// if document is not flipped adjust init
-		if(![[_documentView isFlipped]])		// scroll position to be top of clip view.
+		if(![self isFlipped])		// scroll position to be top of clip view.
 			bounds.origin.y = mr.size.height - bounds.size.height;
 		}
 							
 	if (mr.size.width < bounds.size.width)
 		bounds.origin.x = 0;
 
-	if(![[_documentView isFlipped]])			// if document is not flipped adjust init
+	if(![self isFlipped])			// if document is not flipped adjust init
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
@@ -284,12 +286,7 @@
 
 - (id) documentView								{ return _documentView; }
 - (BOOL) isOpaque								{ return YES; }
-- (BOOL) isFlipped								{ return NO; }
-
-#if OLD	// Cocoa does not seem to do it this way! This probably simplifies code
-- (BOOL) isFlipped								{ return [_documentView isFlipped]; }
-#endif
-
+- (BOOL) isFlipped								{ return _clip.docIsFlipped; }
 - (BOOL) copiesOnScroll							{ return _clip.copiesOnScroll; }
 - (BOOL) drawsBackground;						{ return _clip.drawsBackground; }
 - (void) setCopiesOnScroll:(BOOL)flag			{ _clip.copiesOnScroll = flag; }
@@ -325,10 +322,11 @@
 	point.y = floorf(point.y);
 	[self setBoundsOrigin:point];		// translate to new origin
 	[self resetCursorRects];
-#if 0
+#if 1
 	NSLog(@"scrollToPoint %@", NSStringFromPoint(point));
 #endif
-	if(_clip.copiesOnScroll)
+	// FIXME: what if we are flipped?
+	if(NO && _clip.copiesOnScroll)
 		{
 		extern BOOL _NSShowAllDrawing;		// defined in NSView
 		NSRect xSlice;						// left or right slice to redraw
@@ -450,41 +448,11 @@
 	[_documentView resetCursorRects];
 }
 
-#if OLD	// intersection with visibleRect is now done always
-- (void) setNeedsDisplayInRect:(NSRect) rect;
-{ // limit dirty area to our visible rect
-#if 0
-	NSLog(@"NSClipView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
-	NSLog(@"  frame:%@", NSStringFromRect(_frame));
-	NSLog(@"  bounds:%@", NSStringFromRect(_bounds));
-	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
-	NSLog(@"  docview:%@", [self documentView]);
-	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));
-	NSLog(@"  docvis:%@", NSStringFromRect([self documentVisibleRect]));
-#endif
-	rect=NSIntersectionRect(rect, [self visibleRect]);
-	[super setNeedsDisplayInRect:rect];
-}
-
-- (void) displayRectIgnoringOpacity:(NSRect) rect inContext:(NSGraphicsContext *) context;
-{ // never draw outside our frame rect
-#if 0
-	NSLog(@"NSClipView displayRectIgnoringOpacity:%@", NSStringFromRect(rect));
-	NSLog(@"  frame:%@", NSStringFromRect(_frame));
-	NSLog(@"  bounds:%@", NSStringFromRect(_bounds));
-	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
-	NSLog(@"  docview:%@", [self documentView]);
-	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));
-	NSLog(@"  docvis:%@", NSStringFromRect([self documentVisibleRect]));
-#endif	
-	rect=NSIntersectionRect(rect, [self visibleRect]);
-	[super displayRectIgnoringOpacity:rect inContext:context];
-}
-#endif
-
 - (void) drawRect:(NSRect)rect
 {
-	if(_clip.drawsBackground)
+	[[NSColor redColor] set];
+	NSRectFill([self visibleRect]);
+	if(NO && _clip.drawsBackground)
 		{
 		[[self backgroundColor] set];
 		NSRectFill([self visibleRect]);
@@ -504,10 +472,11 @@
 		return nil;	// ignore invisible (sub)views
 	if(_superview)
 		{
+		// or [self isFlipped]?
 		if(!NSMouseInRect(aPoint, _frame, [_superview isFlipped]))
 			{
 #if 1
-			NSLog(@"  not in rect");
+			NSLog(@"NSClipView hit test: not in rect");
 #endif
 			return nil;		// If not within our frame then immediately return
 			}
@@ -548,7 +517,7 @@
 		_documentView=[[aDecoder decodeObjectForKey:@"NSDocView"] retain];
 		[aDecoder decodeBoolForKey:@"NSAutomaticallyAdjustsContentInsets"];
 		if([_documentView window] != [self window])
-			NSLog(@"has different Window");
+			NSLog(@"NSClipView has different Window");
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
 		[_documentView setPostsBoundsChangedNotifications:YES];
