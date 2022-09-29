@@ -16,6 +16,8 @@
 	BOOL _isVerticallyFlipped;
 	BOOL _boundsAreFlipped;
 	BOOL _autoMagnifyOnResize;
+	NSPoint _center;
+	NSRect _prev;
 }
 
 - (NSView *) contentView;

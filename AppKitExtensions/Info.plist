@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>up_32.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.goldelico.NSScaleRotateFlipViewDemo</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

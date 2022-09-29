@@ -15,9 +15,24 @@
 	if((self = [super initWithFrame:frame]))
 		{
 		_scale=1.0;	// initialize
+//		_autoMagnifyOnResize=YES;
+//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(debug:) name:NSViewFrameDidChangeNotification object:nil];
+//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(debug:) name:NSViewBoundsDidChangeNotification object:nil];
 		}
 	return self;
 }
+
+#if 0
+- (void) debug:(NSNotification *) n
+{
+	NSLog(@"%@ bounds=%@", n, NSStringFromRect([[self superview] bounds]));
+//	if([n object] == self)	// don't care if we are triggered by e.g. NSScroller
+		if(!NSEqualRects([[self superview] bounds], _prev))
+			{
+			_prev=[[self superview] bounds];
+			}
+}
+#endif
 
 - (BOOL) wantsDefaultClipping; { return NO; }	// do not clip subview to our bounds
 
@@ -41,30 +56,57 @@
 	NSView *contentView;
 	if((contentView=[self contentView]))
 		{
+//		[self setPostsBoundsChangedNotifications:NO];
+//		[self setPostsFrameChangedNotifications:NO];
+		NSPoint center=[self center];	// will be restored/kept stable
 		NSRect frame=[contentView frame];
-		NSPoint center=[self center];
-		float angle;
-		//	[super setPostsFrameChangedNotifications:YES];	- ist schon gesetzt - bei NO gibt es keine Scroller mehr
-		//	[super setPostsBoundsChangedNotifications:NO];	- kein Einfluß
+		float angle=_rotationAngle, scale=_scale, factor;
+		//	[super setPostsFrameChangedNotifications:YES];	- already set; with NO there are no scrollers
+		//	[super setPostsBoundsChangedNotifications:NO];	- no influence
 		frame.origin=NSZeroPoint;
-		[super setFrameSize:NSMakeSize(_scale*frame.size.width, _scale*frame.size.height)];	// apply scaling
+		factor=M_SQRT2-((M_SQRT2-1.0)*cos(M_PI/45.0*_rotationAngle));
+		factor=1+(M_SQRT2/2)*fabs(sin(M_PI/45.0*_rotationAngle));
+		factor=1;
+		NSLog(@"factor=%lf", factor);
+		scale*=factor;	// scale up if rotated
+		// FIXME: we may have to move the origin
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+		[super setFrameSize:NSMakeSize(scale*frame.size.width, scale*frame.size.height)];	// apply scaling
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		[contentView setFrameOrigin:frame.origin];	// align with our (0, 0)
-		// we have to undo rotation and flipping before setBounds sind the result seems to depend on the current internal matrix
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+		// we have to undo rotation and flipping before setBounds since the result seems to depend on the current internal matrix
 		[super setBoundsRotation:0];	// unrotate before setting bounds
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		if(_boundsAreFlipped)
 			[super scaleUnitSquareToSize:NSMakeSize(1.0, -1.0)];	// undo flipping
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		[super setBounds:frame];	// make the same as contentView
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		[super translateOriginToPoint:NSMakePoint(NSMidX(frame), NSMidY(frame))];	// rotate around center
-		angle=_rotationAngle;
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		if((_boundsAreFlipped=[self isFlipped]))
 			{
 			angle= -angle;
 			[super scaleUnitSquareToSize:NSMakeSize(1.0, -1.0)];
 			}
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+//		BOOL bn=[self postsBoundsChangedNotifications];
+//		BOOL fn=[self postsFrameChangedNotifications];
 		[super setBoundsRotation:angle];
-		[super setFrameRotation:0];
+		[super setFrameRotation:0]; // this sometimes also resets clipview.bounds.origin to 0 removing any scrolling position
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+//		NSScrollView *scrollView=[self enclosingScrollView];
+//		NSClipView *clipView=[scrollView contentView];
+//		[clipView scrollToPoint:b.origin];	// restore
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		[super translateOriginToPoint:NSMakePoint(-NSMidX(frame), -NSMidY(frame))];	// rotate around center
-		[self setCenter:center];	// do all scaling and rotation around center of NSClipView
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+		[self setCenter:center];	// do all scaling and rotation around saved center of NSClipView
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+//		[self setPostsFrameChangedNotifications:fn];	// this alone posts the notification!
+//		[self setPostsBoundsChangedNotifications:bn];
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		}
 }
 
@@ -77,21 +119,82 @@
 }
 #endif
 
+// FIXME: resizing isn't working well
+- (void) repairClipViewBounds:(NSValue *) object
+{
+	NSScrollView *scrollView=[self enclosingScrollView];
+	NSClipView *clipView=[scrollView contentView];
+	NSLog(@"restore to %@", object);
+//	[clipView scrollToPoint:[object rectValue].origin];	// restore
+//	[self setCenter:[object pointValue]];	// restore
+	// does not take into account the current scroller position
+	// we need some [clipView reflectScrollers:scrollView]
+	// but that *is* [clipView scrollToPoint:pt]
+	// where pt is calculated from the scroller position, the document width/height and clip bounds width/height
+//	[self setCenter:_center];	// restore
+//	[self setNeedsDisplay:YES];
+	/* try to repair based on scroller positions */
+	CGFloat floatValue = [[scrollView horizontalScroller] floatValue];
+	NSRect documentRect = [clipView documentRect];
+	NSRect clipBounds = [clipView bounds];
+	NSPoint p;
+	p.x = floatValue * (NSWidth(documentRect) - NSWidth(clipBounds));
+	floatValue = [[scrollView verticalScroller] floatValue];
+	p.y = (1.0 - floatValue) * (NSHeight(documentRect) - NSHeight(clipBounds));
+	[clipView scrollToPoint:p];						// scroll clipview
+	[self setNeedsDisplay:YES];
+}
+
 - (void) resizeWithOldSuperviewSize:(NSSize) oldSize
 { // resizing the NSClipView must adjust scaling
-	NSRect newBounds=[[self superview] bounds];
+	NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+	NSScrollView *scrollView=[self enclosingScrollView];
+	NSClipView *clipView=[scrollView contentView];
+	NSRect newBounds=[clipView bounds];	// new superview size
+	NSPoint center=[self center];
 	NSSize newSize=newBounds.size;
-	// any change does not keep center stable and makes the supervierw bounds origin go to (0, 0)
+	NSLog(@"hscroller=%lf vscroller=%lf", [[scrollView horizontalScroller] floatValue], [[scrollView verticalScroller] floatValue]);
+	[super resizeWithOldSuperviewSize:oldSize];	// default behaviour first
+	NSLog(@"%@", NSStringFromRect([clipView bounds]));
+	// any change here does not keep center stable and makes the superview bounds origin go to (0, 0)
 	// but only on the second call!
-	[super resizeWithOldSuperviewSize:oldSize];	// default behaviour
+	// BTW: it happens in -updateDimension resp. -setFrameRotation:0 there
+	// and it happens only if we are "zoomed out" or "zoom to fit" so that there are no scrollers!
+	// if there are scrollers, everything is fine
+	// in detail: only the axis w/o scroller is reset - as if there is a [scroller floatValue] with scroller == nil
+	// BEI ECad passiert das aber auch bei ZoomFit aber nicht Zoom1:1
+	// Fällt bei Demo vielleicht nicht so auf weil contentFrame.origin == NSZerpoPoint
+	// Hinweis: die Scroller haben immer noch Werte zwischen 0 und 1 - sind nur nicht sichtbar
+	// d.h. das Problem besteht nur bei unsichtbaren scrollern
 	if(_autoMagnifyOnResize)
 		{ // keep contentView unscaled by resizing
+			// this is also broken because oldSize and newSize are not consistent
+			// this only reduces the image!?!
 			float scalex=newSize.width/oldSize.width;
 			float scaley=newSize.height/oldSize.height;
-			[self setScale:[self scale]*MIN(scalex, scaley)];	// or by max?
+			NSLog(@"scalex=%lf scaley=%lf", scalex, scaley);
+			// taking average scale factor is quite intuitive but not perfect...
+			// note: it does not keep the center constant
+			[self setScale:[self scale]*(0.5*(scalex+scaley))];
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 		}
 	else
-		[self updateDimensions];
+		{
+//		NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
+		/*
+		 * setFrameRotation:0 while resizing seems to reset [superview bounds].origin to NSZeroPoint
+		 * effectively removing any previous position
+		 * I could only find out that it is likely triggered by re-tiling the NSScrollView
+		 * but that happens far later than we know here
+		 * Hence we need a trick to do it after drawing
+		 */
+//		[self updateDimensions];
+		}
+	// a single coalescing notifier would suffice - but occurs only AFTER visual tracking feedback runloop
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repairClipViewBounds:) object:nil];
+	[self performSelector:@selector(repairClipViewBounds:) withObject:[NSValue valueWithPoint:center] afterDelay:0.0];
+
+NSLog(@"%@", NSStringFromRect([[self superview] bounds]));
 }
 
 - (BOOL) isHorizontallyFlipped;
@@ -163,6 +266,7 @@
 		[scrollView reflectScrolledClipView:clipView];
 		[self setNeedsDisplay:YES];
 		}
+	_center=center;
 }
 
 - (float) scale; { return _scale; }
@@ -174,12 +278,13 @@
 }
 
 - (void) setScaleForRect:(NSRect) area;
-{ // scale so that area fills the clip view
+{ // scale so that area fills the clip view - and center
 	NSClipView *clipView;
 	if(!NSIsEmptyRect(area) && (clipView=[[self enclosingScrollView] contentView]))
 		{
 		NSRect frame=[clipView frame];	// NSClipView frame
 		[self setScale:MIN(NSWidth(frame)/NSWidth(area), NSHeight(frame)/NSHeight(area))];
+		[self setCenter:NSMakePoint(NSMidX(area), NSMidY(area))];
 		}
 }
 
@@ -202,7 +307,7 @@
 - (IBAction) zoomFit:(id) sender;
 { // zoom content view to fit clip view
 	NSRect area=[self contentFrame];
-	[self setScaleForRect:area];
+	[self setScaleForRect:area];	// this also centers the area
 }
 
 - (IBAction) zoomUnity:(id) sender;

@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="15G22010" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="1070" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -23,9 +23,10 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="513" y="-96"/>
         </menu>
         <customObject id="419" customClass="NSFontManager"/>
-        <window title="ScrollScaleRotateFlip" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="AT0-Uv-cbg" userLabel="ScaleRotateFlipView-Test-Window">
+        <window title="ScrollScaleRotateFlip" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" frameAutosaveName="" animationBehavior="default" id="AT0-Uv-cbg" userLabel="ScaleRotateFlipView-Test-Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="109" y="131" width="480" height="270"/>
@@ -34,19 +35,19 @@
                 <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="zpZ-16-Fti">
+                    <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zpZ-16-Fti">
                         <rect key="frame" x="6" y="8" width="463" height="204"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <clipView key="contentView" id="drr-lj-aIa">
+                        <clipView key="contentView" ambiguous="YES" id="drr-lj-aIa">
                             <rect key="frame" x="1" y="1" width="446" height="187"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <customView misplaced="YES" id="SzT-ff-Jjg" customClass="NSScaleRotateFlipView">
+                                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SzT-ff-Jjg" customClass="NSScaleRotateFlipView">
                                     <rect key="frame" x="0.0" y="0.0" width="345" height="183"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="H2g-VJ-o7v">
-                                            <rect key="frame" x="62" y="38" width="198" height="114"/>
+                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H2g-VJ-o7v">
+                                            <rect key="frame" x="0.0" y="0.0" width="198" height="114"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="up_32" id="JBA-yD-nS6"/>
                                         </imageView>
@@ -64,7 +65,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="rZg-8N-Asw">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rZg-8N-Asw">
                         <rect key="frame" x="0.0" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="1:1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sP4-VU-ZnE">
@@ -75,7 +76,7 @@
                             <action selector="zoomUnity:" target="SzT-ff-Jjg" id="315-Nw-y1B"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="bRR-Ww-GHt">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bRR-Ww-GHt">
                         <rect key="frame" x="55" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Fit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CDB-Uf-NSf">
@@ -86,7 +87,7 @@
                             <action selector="zoomFit:" target="SzT-ff-Jjg" id="8Sn-G0-1gl"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="SeX-T2-JpT">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SeX-T2-JpT">
                         <rect key="frame" x="110" y="225" width="52" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Zi" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8tF-mp-20k">
@@ -97,7 +98,7 @@
                             <action selector="zoomIn:" target="SzT-ff-Jjg" id="Qfb-qU-tnG"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="155-cp-RIe">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="155-cp-RIe">
                         <rect key="frame" x="161" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Zo" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dN5-S7-kKO">
@@ -108,7 +109,7 @@
                             <action selector="zoomOut:" target="SzT-ff-Jjg" id="B73-Mn-VYG"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="dls-7d-lKm">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dls-7d-lKm">
                         <rect key="frame" x="216" y="225" width="41" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="RL" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7iw-3g-WwS">
@@ -119,7 +120,7 @@
                             <action selector="rotateImageLeft:" target="SzT-ff-Jjg" id="KJa-Mv-VNQ"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="dN5-dA-3Ho">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dN5-dA-3Ho">
                         <rect key="frame" x="255" y="225" width="44" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="RR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="11o-P3-xXa">
@@ -130,7 +131,7 @@
                             <action selector="rotateImageRight:" target="SzT-ff-Jjg" id="J9j-rL-V98"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="4Ic-u1-gX1">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Ic-u1-gX1">
                         <rect key="frame" x="296" y="225" width="69" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Hflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HC2-Fl-7pD">
@@ -141,7 +142,7 @@
                             <action selector="flipHorizontal:" target="SzT-ff-Jjg" id="a3G-cN-wS0"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="pfP-MQ-tsY">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pfP-MQ-tsY">
                         <rect key="frame" x="364" y="225" width="68" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Vflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rSm-9v-By0">
@@ -152,7 +153,7 @@
                             <action selector="flipVertical:" target="SzT-ff-Jjg" id="Umj-Cy-oth"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="bs2-hR-0nQ">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bs2-hR-0nQ">
                         <rect key="frame" x="431" y="225" width="50" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="C" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Otg-iR-YDL">
@@ -165,8 +166,157 @@
                     </button>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="139" y="-75"/>
         </window>
-        <window title="ScaleRotateFlip" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="mvU-ih-PCU" userLabel="ScaleRotateFlipView-Test-Window-Unscolled">
+        <window title="ScrollScaleRotateFlip" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" frameAutosaveName="" animationBehavior="default" id="ycP-9z-u79" userLabel="ScaleRotateFlipView-Demo-Window">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="737" y="259" width="480" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2048" height="1129"/>
+            <view key="contentView" id="hZZ-Xx-eja">
+                <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I8e-lX-dVz">
+                        <rect key="frame" x="6" y="8" width="463" height="204"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <clipView key="contentView" ambiguous="YES" id="eei-1z-YQA">
+                            <rect key="frame" x="1" y="1" width="446" height="187"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7fh-4b-tDg" customClass="NSScaleRotateFlipView">
+                                    <rect key="frame" x="0.0" y="0.0" width="345" height="183"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iDe-CC-2Bq" customClass="DemoView">
+                                            <rect key="frame" x="0.0" y="0.0" width="137" height="131"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <subviews>
+                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nAK-LN-ePx" customClass="DemoImageView">
+                                                    <rect key="frame" x="0.0" y="9" width="100" height="100"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="up_32" id="gps-9t-Hnx"/>
+                                                </imageView>
+                                            </subviews>
+                                        </customView>
+                                    </subviews>
+                                </customView>
+                            </subviews>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </clipView>
+                        <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="nMM-eM-Uxs">
+                            <rect key="frame" x="1" y="188" width="446" height="15"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qr1-cD-Afa">
+                            <rect key="frame" x="447" y="1" width="15" height="187"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GXb-DD-SzS">
+                        <rect key="frame" x="0.0" y="225" width="56" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="1:1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9lD-Pm-NOI">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="zoomUnity:" target="7fh-4b-tDg" id="NHd-HE-B9X"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="U5u-T3-a32">
+                        <rect key="frame" x="55" y="225" width="56" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Fit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krw-ys-1mg">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="zoomFit:" target="7fh-4b-tDg" id="gjd-8e-mUd"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cxU-1f-YVl">
+                        <rect key="frame" x="110" y="225" width="52" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Zi" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eVn-GD-lkF">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="zoomIn:" target="7fh-4b-tDg" id="V7m-ij-s5b"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RZn-f4-8YL">
+                        <rect key="frame" x="161" y="225" width="56" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Zo" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z3j-JZ-dqo">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="zoomOut:" target="7fh-4b-tDg" id="eSY-1A-mvp"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Bpl-4Q-A2X">
+                        <rect key="frame" x="216" y="225" width="41" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="RL" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4jQ-Rz-JQk">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="rotateImageLeft:" target="7fh-4b-tDg" id="VeM-jy-1i5"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m4F-h7-L3o">
+                        <rect key="frame" x="255" y="225" width="44" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="RR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8zS-cE-dQy">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="rotateImageRight:" target="7fh-4b-tDg" id="pAE-Gi-1RW"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ONs-Kf-2UH">
+                        <rect key="frame" x="296" y="225" width="69" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Hflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w6W-fz-9f2">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="flipHorizontal:" target="7fh-4b-tDg" id="zTY-sZ-zuO"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IZ9-Yr-xpk">
+                        <rect key="frame" x="364" y="225" width="68" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Vflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bfp-ff-vhd">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="flipVertical:" target="7fh-4b-tDg" id="Oz8-IW-u7V"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LuZ-tz-qye">
+                        <rect key="frame" x="431" y="225" width="50" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="C" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="80T-T3-EGO">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="center:" target="7fh-4b-tDg" id="UCn-tp-Nhq"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="139" y="307"/>
+        </window>
+        <window title="ScaleRotateFlip" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" frameAutosaveName="" animationBehavior="default" id="mvU-ih-PCU" userLabel="ScaleRotateFlipView-Test-Window-Unscolled">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="237" y="659" width="480" height="270"/>
@@ -175,7 +325,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" id="DZB-Cu-ECG">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DZB-Cu-ECG">
                         <rect key="frame" x="0.0" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="1:1" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gGE-bz-AEw">
@@ -186,7 +336,7 @@
                             <action selector="zoomUnity:" target="6uX-KI-xWH" id="iwo-0i-08Z"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="K7R-iB-4qz">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="K7R-iB-4qz">
                         <rect key="frame" x="55" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Fit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NjV-9L-wP5">
@@ -197,7 +347,7 @@
                             <action selector="zoomFit:" target="6uX-KI-xWH" id="ETr-xI-MKi"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="JjB-LE-BI4">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JjB-LE-BI4">
                         <rect key="frame" x="110" y="225" width="52" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Zi" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="UZ6-eb-saP">
@@ -208,7 +358,7 @@
                             <action selector="zoomIn:" target="6uX-KI-xWH" id="Nm4-ba-WXB"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="oiI-LW-DiS">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oiI-LW-DiS">
                         <rect key="frame" x="161" y="225" width="56" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Zo" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hpc-fl-dHB">
@@ -219,7 +369,7 @@
                             <action selector="zoomOut:" target="6uX-KI-xWH" id="DY6-2h-sfF"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="w6U-rs-yWz">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w6U-rs-yWz">
                         <rect key="frame" x="216" y="225" width="41" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="RL" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7pB-A7-uH2">
@@ -230,7 +380,7 @@
                             <action selector="rotateImageLeft:" target="6uX-KI-xWH" id="uRv-Zu-OcO"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="fGX-zv-b0R">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fGX-zv-b0R">
                         <rect key="frame" x="255" y="225" width="44" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="RR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="M3S-jJ-Yhw">
@@ -241,7 +391,7 @@
                             <action selector="rotateImageRight:" target="6uX-KI-xWH" id="IjI-ve-Scm"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="Svk-NR-Eyk">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Svk-NR-Eyk">
                         <rect key="frame" x="296" y="225" width="69" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Hflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fd6-Oj-UCr">
@@ -252,7 +402,7 @@
                             <action selector="flipHorizontal:" target="6uX-KI-xWH" id="vnP-KL-3tE"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="byU-Ij-5sy">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="byU-Ij-5sy">
                         <rect key="frame" x="364" y="225" width="68" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Vflip" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gjx-lx-P3D">
@@ -263,7 +413,7 @@
                             <action selector="flipVertical:" target="6uX-KI-xWH" id="JhK-iq-I5m"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="nRe-6K-LQ9">
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nRe-6K-LQ9">
                         <rect key="frame" x="431" y="225" width="50" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="C" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hab-yx-DMf">
@@ -274,11 +424,11 @@
                             <action selector="center:" target="6uX-KI-xWH" id="O7W-cL-U1E"/>
                         </connections>
                     </button>
-                    <customView misplaced="YES" id="6uX-KI-xWH" customClass="NSScaleRotateFlipView">
+                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6uX-KI-xWH" customClass="NSScaleRotateFlipView">
                         <rect key="frame" x="61" y="20" width="345" height="183"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="K0b-rs-G8w">
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="K0b-rs-G8w">
                                 <rect key="frame" x="62" y="38" width="198" height="114"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="up_32" id="N6V-41-DFh"/>
@@ -287,6 +437,7 @@
                     </customView>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="139" y="-453"/>
         </window>
     </objects>
     <resources>
