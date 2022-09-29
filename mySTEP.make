@@ -188,7 +188,7 @@ else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
 TOOLCHAIN=/usr/bin
-CC := MACOSX_DEPLOYMENT_TARGET=10.5 $(TOOLCHAIN)/gcc
+CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
