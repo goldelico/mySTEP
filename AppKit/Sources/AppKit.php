@@ -205,48 +205,6 @@ class NSGraphicsContext extends NSObject
 class NSHTMLGraphicsContext extends NSGraphicsContext
 	{
 	const encoding='UTF-8';
-	public function html($html)
-		{
-		echo $html;
-		}
-	public function _htmlentities($value)
-		{
-		return htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
-		}
-	public function parameter($name, $value)
-		{
-		$this->html(" $name=\"".$value."\"");
-		}
-	public function text($contents)
-		{
-		$this->html($this->_htmlentities($contents));
-		}
-	public function flushGraphics()
-		{
-		flush();
-		}
-
-// do we still need this?
-// at least partially: we use link() which uses _tag(), _linkval(), _value()
-// but all this is not good enough
-// we need to replace it by a better abstraction, especially to hide when we must use rawurlencode() and when htmlentities()
-	public function _value($name, $value)
-		{
-		return " $name=\"".$this->_htmlentities($value)."\"";
-		}
-	public function _linkval($name, $url)
-		{
-		return " $name=\"".$url."\"";
-		}
-	public function _tag($tag, $contents, $args="")
-		{
-		return "<$tag$args>".$contents."</$tag>";
-		}
-	// write output objects
-	public function link($url, $contents)
-		{ // create a clickable link
-		$this->html($this->_tag("a", $contents, $this->_linkval("href", $url)));
-		}
 	public function externalURLforPath($path)
 		{
 		$bundles=NSBundle::allBundles();
@@ -271,7 +229,49 @@ class NSHTMLGraphicsContext extends NSGraphicsContext
 _NSLog("can't publish $path");
 		return null;
 		}
-	
+	public function html($html)
+		{
+		echo $html;
+		}
+	public function _htmlentities($value)
+		{
+		return htmlentities($value, ENT_COMPAT | ENT_SUBSTITUTE, self::encoding);
+		}
+	public function parameter($name, $value)
+		{
+		// FIXME: use htmlentites($value) like for _value - or only optional???
+		// also for name?
+		$this->html(" $name=\"".$value."\"");
+		}
+	public function text($contents)
+		{
+		$this->html($this->_htmlentities($contents));
+		}
+	public function link($url, $html)
+		{ // create a clickable link around some html
+		$this->html($this->_tag("a", $html, $this->_linkval("href", $url)));
+		}
+	public function flushGraphics()
+		{
+		flush();
+		}
+
+// do we still need this?
+// at least partially: we use link() which uses _tag(), _linkval(), _value()
+// but all this is not good enough
+// we need to replace it by a better abstraction, especially to hide when we must use rawurlencode() and when htmlentities()
+	/*public*/ function _value($name, $value)
+		{
+		return " $name=\"".$this->_htmlentities($value)."\"";
+		}
+	/*public*/ function _linkval($name, $url)
+		{
+		return " $name=\"".$url."\"";
+		}
+	/*public*/ function _tag($tag, $contents, $args="")
+		{
+		return "<$tag$args>".$contents."</$tag>";
+		}
 	}
 
 class _NSHTMLGraphicsContextStore extends NSHTMLGraphicsContext
