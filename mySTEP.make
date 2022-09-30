@@ -1355,7 +1355,7 @@ ifneq ($(strip $(INFOPLISTS)),)
 else
 # create a default Info.plist
 	echo "Error: missing Info.plist - creating a default"
-	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);") >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);"; echo "NSPrincipalClass = NSApplication;"; ) >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
 ifneq ($(strip $(RESOURCES)),)
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
