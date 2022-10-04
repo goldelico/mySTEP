@@ -9,3 +9,4 @@
 #import <CoreDataBase/ManagedObject.h>
 #import <CoreDataBase/ManagedObjectContext.h>
 #import <CoreDataBase/ManagedObjectEntity.h>
+#import <CoreDataBase/SQL.h>
