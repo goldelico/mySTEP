@@ -27,16 +27,9 @@
 		if(err != SQLITE_OK)
 			NSLog(@"-dealloc: sqlite3_close() returns %d", err);
 		}
+	[type release];
 	[dbname release];
 	[super dealloc];
-}
-
-static int sql_progress(void *context)	// context should be self
-{
-	SQL *this = (SQL *) context;
-	NSLog(@"sql_progress");
-	[[this delegate] sql:this progress:0];
-	return 0;
 }
 
 - (void) setDatabase:(NSString *) name;	// choose one database from list of databases
@@ -55,31 +48,66 @@ static int sql_progress(void *context)	// context should be self
 	return delegate;
 }
 
+static int sql_progress(void *context)	// context should be self
+{ // callback for sqlite
+	SQL *this = (SQL *) context;
+	NSLog(@"sql_progress");
+	[[this delegate] sql:this progress:0];
+	return 0;
+}
+
 - (BOOL) open:(NSURL *) url error:(NSString **) error;
 {
+	if(type)
+		{
+		*error=@"already open";
+		return NO;	// already open
+		}
 	if([url isFileURL])
-		dbname=[[url path] retain];	// file:/path -> assume sqlite
-	else if([[url scheme] isEqualToString:@"mysql"])
+		{
+		type=[[url path] pathExtension];	// take suffix
+		// special rules for .sqlite3
+		}
+	else
+		type=[url scheme];
+	[type retain];
+	dbname=[[url path] retain];	// scheme:path
+	if([type isEqualToString:@"mysql"])
 		{
 		if(error)
 			*error=@"MySQL is not supported yet";
 			// open mysql://username:password@host/database
 		return NO;
 		}
-	if(sqlite3_open([dbname fileSystemRepresentation],	/* Database filename (UTF-8) */
-					 (sqlite3 **)&db					/* OUT: SQLite db handle */
-					 ) != SQLITE_OK)
+	if([type isEqualToString:@"sqlite"])
 		{
-		if(error)
-			*error=[NSString stringWithUTF8String:sqlite3_errmsg(((sqlite3 *)db))];
-		return NO;
+		if(sqlite3_open([dbname fileSystemRepresentation],	/* Database filename (UTF-8) */
+							(sqlite3 **)&db					/* OUT: SQLite db handle */
+							) != SQLITE_OK)
+			{
+			if(error)
+				*error=[NSString stringWithUTF8String:sqlite3_errmsg(((sqlite3 *)db))];
+			return NO;
+			}
+		sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
 		}
-	sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
 	return YES;
 }
 
-static int sql_callback(void *context, int columns, char **values, char **names)	// context=self
+- (BOOL) saveAs:(NSURL *) url error:(NSString **) error;
 {
+	if([type isEqualToString:@"mysql"])
+		{
+		if(error)
+			*error=@"Can't save MySQL at different path";
+		return NO;
+		}
+	// change path (and potentially type?) and save
+	return NO;
+}
+
+static int sql_callback(void *context, int columns, char **values, char **names)	// context=self
+{ // callback for sqlite
 	SQL *self = (SQL *) context;
 	NSMutableDictionary *record=[NSMutableDictionary dictionaryWithCapacity:columns];
 	int i;
@@ -96,17 +124,22 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) sql:(NSString *) cmd error:(NSString **) error;
 { // execute SQL command for current database
-	char *error_msg;
-	int result=sqlite3_exec(
-					 (sqlite3 *) db,           /* An open database */
-					 [cmd UTF8String],             /* SQL to be executed */
-					 sql_callback,                 /* Callback function */
-					 (void *) self,                /* 1st argument to callback function */
-					 &error_msg                    /* Error msg written here */
-					 );
-	if(error && result != SQLITE_OK)
-		*error=[NSString stringWithUTF8String:error_msg];
-	return result == SQLITE_OK;
+	if([type isEqualToString:@"sqlite"])
+		{
+		char *error_msg;
+		int result=sqlite3_exec(
+								(sqlite3 *) db,           /* An open database */
+								[cmd UTF8String],         /* SQL command to be executed */
+								sql_callback,                 /* Callback function */
+								(void *) self,                /* 1st argument to callback function */
+								&error_msg                    /* Error msg written here */
+								);
+		if(error && result != SQLITE_OK)
+			*error=[NSString stringWithUTF8String:error_msg];
+		return result == SQLITE_OK;
+		}
+	*error=@"not yet implemented";
+	return NO;
 }
 
 - (NSString *) quote:(NSString *) str;
@@ -129,21 +162,28 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (NSArray *) tables:(NSString **) error;
 { // return list of table names
-	id saved=delegate;
-	delegate=self;	// make us collect results in tables
-	tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
-	if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
+	if([type isEqualToString:@"sqlite"])
 		{
+		id saved=delegate;
+		delegate=self;	// make us collect results in tables
+		tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
+		if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
+			{
+			delegate=saved;
+			return nil;
+			}
 		delegate=saved;
-		return nil;
+		return tables;
 		}
-	delegate=saved;
-	return tables;
+	*error=@"not implemented";
+	return nil;
 }
 
 - (NSArray *) databases:(NSString **) error;
 { // return list of table names
-	return [NSArray arrayWithObject:dbname];
+	if([type isEqualToString:@"sqlite"])
+		return [NSArray arrayWithObject:dbname];
+	return nil;
 }
 
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;

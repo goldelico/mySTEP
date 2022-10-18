@@ -10,9 +10,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+// FIXME: add .tsv and .csv support like the PHP version
+// allow to run simple SQL commands on these
+
 @interface SQL : NSObject
 {
-	NSString *type;
+	NSString *type;		// url schema: file:path mysql:host sqlite:path or similar
 	void *db;					// SQLite access handle
 	NSString *dbname;
 	id delegate;
@@ -21,6 +24,7 @@
 
 - (id) init;
 - (BOOL) open:(NSURL *) url error:(NSString **) error;	// YES=ok
+- (BOOL) saveAs:(NSURL *) url error:(NSString **) error;
 
 - (void) setDatabase:(NSString *) name;	// choose one database from list of databases
 - (void) setDelegate:(id) d;
