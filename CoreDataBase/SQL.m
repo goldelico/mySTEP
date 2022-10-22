@@ -66,7 +66,8 @@ static int sql_progress(void *context)	// context should be self
 	if([url isFileURL])
 		{
 		type=[[url path] pathExtension];	// take suffix
-		// special rules for .sqlite3
+		if([type isEqualToString:@"sqlite3"])
+			type=@"sqlite";
 		}
 	else
 		type=[url scheme];
@@ -91,6 +92,28 @@ static int sql_progress(void *context)	// context should be self
 			}
 		sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
 		}
+	if([type isEqualToString:@"sql"])
+		{
+		// raw SQL statements
+		// create temporary sqlite database
+		// process SQL
+		}
+	if([type isEqualToString:@"csv"])
+		{
+		// comma separated file
+		}
+	if([type isEqualToString:@"tsv"])
+		{
+		// tab separated file
+		}
+	if([type isEqualToString:@"prolog"])
+		{
+		// prolog tuples
+		}
+	if([type isEqualToString:@"database"])
+		{
+		// .database bundle
+		}
 	return YES;
 }
 
@@ -103,6 +126,30 @@ static int sql_progress(void *context)	// context should be self
 		return NO;
 		}
 	// change path (and potentially type?) and save
+	if([type isEqualToString:@"sqlite"])
+		{
+		// ?
+		}
+	if([type isEqualToString:@"sql"])
+		{
+		// export as SQL statements
+		}
+	if([type isEqualToString:@"csv"])
+		{
+		// comma separated file
+		}
+	if([type isEqualToString:@"tsv"])
+		{
+		// tab separated file
+		}
+	if([type isEqualToString:@"prolog"])
+		{
+		// prolog tuples
+		}
+	if([type isEqualToString:@"database"])
+		{
+		// .database bundle
+		}
 	return NO;
 }
 
@@ -175,14 +222,28 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 		delegate=saved;
 		return tables;
 		}
+	if([type isEqualToString:@"csv"])
+		return [NSArray arrayWithObject:[dbname lastPathComponent]];
+	if([type isEqualToString:@"tsv"])
+		return [NSArray arrayWithObject:[dbname lastPathComponent]];
+	if([type isEqualToString:@"prolog"])
+		{
+		// prolog tuples
+		}
+	if([type isEqualToString:@"database"])
+		{
+		// .database bundle
+		// list of all embedded .tsv files
+		}
 	*error=@"not implemented";
 	return nil;
 }
 
 - (NSArray *) databases:(NSString **) error;
-{ // return list of table names
+{ // return list of databases on the server
 	if([type isEqualToString:@"sqlite"])
 		return [NSArray arrayWithObject:dbname];
+	// we do not search for databases, don't we?
 	return nil;
 }
 
