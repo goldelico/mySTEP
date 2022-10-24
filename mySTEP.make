@@ -518,11 +518,11 @@ endif
 
 INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
 
-ifeq ($(TRIPLE),MacOS)
-LNK :=
-else
+#ifeq ($(TRIPLE),MacOS)
+#LNK :=
+#else
 LNK := .link
-endif
+#endif
 
 # allow to use #import <framework/header.h> while building the framework
 INCLUDES := -I$(TTT) -I$(EXEC)/../Headers$(LNK) $(INCLUDES)
@@ -1221,14 +1221,7 @@ ifeq ($(INSTALL),true)
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
-	# FIXME: use rsync
-ifeq ($(NAME_EXT),bin)
-	# - if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf -)); fi
 	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" $(HOST_INSTALL_PATH) && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
-else
-	# - if [ -d "$(PKG)" ] ; then $(TAR) cf - --exclude .svn -C "$(PKG)" $(NAME_EXT) | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null; $(TAR) xpvf - -U --recursive-unlink)); fi
-	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" $(HOST_INSTALL_PATH) && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
-endif
 	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
