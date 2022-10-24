@@ -34,8 +34,13 @@
 
 - (void) setDatabase:(NSString *) name;	// choose one database from list of databases
 {
-	// not supported for sqlite
+	// only supported for mysql
 	// formally it is closing the curend file and opening a new one
+}
+
+- (NSString *) database;
+{
+	return nil;
 }
 
 - (void) setDelegate:(id) d
