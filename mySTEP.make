@@ -1071,7 +1071,7 @@ endif
 	  [ "$(DEBIAN_CONFLICTS)" ] && echo "$(DEBIAN_CONFLICTS)" | filter_dependencies "Conflicts:"; \
 	  [ "$(DEBIAN_REPLACES)" ] && echo "$(DEBIAN_REPLACES)" | filter_dependencies "Replaces:"; \
 	  [ "$(DEBIAN_PROVIDES)" ] && echo "$(DEBIAN_PROVIDES)" | filter_dependencies "Provides:"; \
-	  [ "$(DEBIAN_HEADERS)" ] && echo "$(DEBIAN_HEADERS)"; : FIXME: allow multiple entries \
+	  [ "$(DEBIAN_HEADERS)" ] && echo "$(DEBIAN_HEADERS)"; : "FIXME: allow multiple entries"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
