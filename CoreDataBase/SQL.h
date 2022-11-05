@@ -48,9 +48,6 @@
 - (NSString *) quote:(NSString *) str;	// quote parameter
 - (NSString *) quoteIdent:(NSString *) str;	// quote identifier (to distinguish from SQL keywords)
 
-- (BOOL) importSQLFromFile:(NSString *) path;
-- (BOOL) exportSQLToFile:(NSString *) path;
-
 // higher level commands
 - (BOOL) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 - (BOOL) deleteTable:(NSString *) name error:(NSString **) error;

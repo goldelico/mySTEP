@@ -61,6 +61,17 @@ static int sql_progress(void *context)	// context should be self
 	return 0;
 }
 
+- (NSString *) typeForURL:(NSURL *) url
+{
+	if([url isFileURL])
+		{
+		type=[[url path] pathExtension];	// take suffix
+		if([type isEqualToString:@"sqlite3"])
+			return @"sqlite";
+		}
+	return [url scheme];
+}
+
 - (BOOL) open:(NSURL *) url error:(NSString **) error;
 {
 	if(type)
@@ -68,15 +79,9 @@ static int sql_progress(void *context)	// context should be self
 		*error=@"already open";
 		return NO;	// already open
 		}
-	if([url isFileURL])
-		{
-		type=[[url path] pathExtension];	// take suffix
-		if([type isEqualToString:@"sqlite3"])
-			type=@"sqlite";
-		}
-	else
-		type=[url scheme];
-	[type retain];
+	type=[[self typeForURL:url] retain];
+	if(!type)
+		return NO;	// invalid
 	dbname=[[url path] retain];	// scheme:path
 	if([type isEqualToString:@"mysql"])
 		{
@@ -96,6 +101,7 @@ static int sql_progress(void *context)	// context should be self
 			return NO;
 			}
 		sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
+		return YES;
 		}
 	if([type isEqualToString:@"sql"])
 		{
@@ -104,26 +110,126 @@ static int sql_progress(void *context)	// context should be self
 		// process SQL
 		}
 	if([type isEqualToString:@"csv"])
-		{
-		// comma separated file
+		{ // process comma separated file
+		NSError *err;
+		NSString *db=[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
+		NSArray *lines;
+		NSEnumerator *e;
+		NSString *line;
+		NSString *tableName=[url lastPathComponent];	// mit oder ohne .tsv???
+		NSArray *data;
+		NSArray *headers=nil;
+	#if 0
+		NSLog(@"load");
+	#endif
+		if(!db)	// try again
+			db=[NSString stringWithContentsOfURL:url encoding:NSMacOSRomanStringEncoding error:&err];
+		if(!db)
+			{
+			if(error) *error=[err description];
+			return NO;
+			}
+	#if 0
+		NSLog(@"db = %@", db);
+	#endif
+		lines=[db componentsSeparatedByString:@"\n"];
+		e=[lines objectEnumerator];
+		data=[[NSMutableArray alloc] initWithCapacity:[lines count]];
+		[tableData setObject:data forKey:tableName];
+		[data release];
+		while((line=[e nextObject]))
+			{
+			// FIXME: was mit a,b,"c,d", etc. ?
+			// FIXME: delimiter , oder ; ?
+			NSArray *fields=[line componentsSeparatedByString:@","];
+			if([line length] == 0)
+				continue;	// ignore empty lines
+			if(!headers)
+				{ // first
+				headers=[fields mutableCopy];
+				[columns setObject:headers forKey:tableName];
+				[headers release];
+				}
+			else
+				{ // convert into Dict by using headers?
+					NSDictionary *record;
+					while([fields count] < [headers count])
+						fields=[fields arrayByAddingObject:@""];	// add empty records if needed
+					if([fields count] > [headers count])
+						fields=[fields subarrayWithRange:NSMakeRange(0, [headers count])];
+					record=[NSMutableDictionary dictionaryWithObjects:fields forKeys:headers];
+					[(NSMutableArray *) data addObject:record];
+				}
+			}
+		return YES;
 		}
 	if([type isEqualToString:@"tsv"])
-		{
-		// tab separated file
+		{ // process tab separated file
+		NSError *err;
+		NSString *db=[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
+		NSArray *lines;
+		NSEnumerator *e;
+		NSString *line;
+		NSString *tableName=[url lastPathComponent];	// mit oder ohne .tsv???
+		NSArray *data;
+		NSArray *headers=nil;
+	#if 0
+		NSLog(@"load");
+	#endif
+		if(!db)	// try again
+			db=[NSString stringWithContentsOfURL:url encoding:NSMacOSRomanStringEncoding error:&err];
+		if(!db)
+			{
+			if(error) *error=[err description];
+			return NO;
+			}
+	#if 0
+		NSLog(@"db = %@", db);
+	#endif
+		lines=[db componentsSeparatedByString:@"\n"];
+		e=[lines objectEnumerator];
+		data=[[NSMutableArray alloc] initWithCapacity:[lines count]];
+		[tableData setObject:data forKey:tableName];
+		[data release];
+		while((line=[e nextObject]))
+			{
+			NSArray *fields=[line componentsSeparatedByString:@"\t"];
+			if([line length] == 0)
+				continue;	// ignore empty lines
+			if(!headers)
+				{ // first
+				headers=[fields mutableCopy];
+				[columns setObject:headers forKey:tableName];
+				[headers release];
+				}
+			else
+				{ // convert into Dict by using headers?
+					NSDictionary *record;
+					while([fields count] < [headers count])
+						fields=[fields arrayByAddingObject:@""];	// add empty records if needed
+					if([fields count] > [headers count])
+						fields=[fields subarrayWithRange:NSMakeRange(0, [headers count])];
+					record=[NSMutableDictionary dictionaryWithObjects:fields forKeys:headers];
+					[(NSMutableArray *) data addObject:record];
+				}
+			}
+		return YES;
 		}
 	if([type isEqualToString:@"prolog"])
-		{
-		// prolog tuples
+		{ // read prolog tuples into database
 		}
 	if([type isEqualToString:@"database"])
-		{
-		// .database bundle
+		{ // .database bundle
+		// load all .tsv files in bundle
 		}
-	return YES;
+	return NO;
 }
 
 - (BOOL) saveAs:(NSURL *) url error:(NSString **) error;
 {
+	NSString *type=[self typeForURL:url];
+	if(!type)
+		return NO;	// invalid
 	if([type isEqualToString:@"mysql"])
 		{
 		if(error)
@@ -138,22 +244,113 @@ static int sql_progress(void *context)	// context should be self
 	if([type isEqualToString:@"sql"])
 		{
 		// export as SQL statements
-		}
-	if([type isEqualToString:@"csv"])
-		{
-		// comma separated file
+		// CREATE TABLE name DROP IF EXISTS;
+		// INSERT INTO ...
 		}
 	if([type isEqualToString:@"tsv"])
 		{
-		// tab separated file
+		NSMutableString *str;
+		NSArray *tableData=nil;
+		NSArray *headers=nil;
+		NSEnumerator *e=[tableData objectEnumerator];
+		NSDictionary *record;
+		NSError *err;
+		str=[NSMutableString stringWithFormat:@"%@\n", [headers componentsJoinedByString:@"\t"]];
+		while((record=[e nextObject]))
+			{
+			NSEnumerator *e=[headers objectEnumerator];
+			NSString *delim=@"";
+			NSString *line=@"";
+			NSString *column;
+			while((column=[e nextObject]))
+				{ // keep column order intact!
+					id val=[record objectForKey:column];
+					// FIXME: escape Tabs and newlines
+					line=[line stringByAppendingFormat:@"%@%@", delim, val];
+					delim=@"\t";
+				}
+			while([line hasSuffix:@"\t"])
+				line=[line substringToIndex:[line length]-1];	// remove empty (extra) fields at line end
+			[str appendFormat:@"%@\n", line];
+			}
+		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
+		}
+	if([type isEqualToString:@"csv"])
+		{
+		NSMutableString *str;
+		NSArray *tableData=nil;
+		NSArray *headers=nil;
+		NSEnumerator *e=[tableData objectEnumerator];
+		NSDictionary *record;
+		NSError *err;
+		NSString *delimiter=@";";	// oder , ???
+		str=[NSMutableString stringWithFormat:@"%@\n", [headers componentsJoinedByString:delimiter]];
+		while((record=[e nextObject]))
+			{
+			NSEnumerator *e=[headers objectEnumerator];
+			NSString *delim=@"";
+			NSString *line=@"";
+			NSString *column;
+			while((column=[e nextObject]))
+				{ // keep column order intact!
+					id val=[record objectForKey:column];
+					// FIXME: escape ; and newlines
+					line=[line stringByAppendingFormat:@"%@%@", delim, val];
+					delim=delimiter;
+				}
+			while([line hasSuffix:delimiter])
+				line=[line substringToIndex:[line length]-1];	// remove empty (extra) fields at line end
+			[str appendFormat:@"%@\n", line];
+			}
+		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
 	if([type isEqualToString:@"prolog"])
 		{
-		// prolog tuples
+		NSArray *tableData=nil;
+		NSArray *headers=nil;
+		// table_headers(col, col, col);
+		// table_properties(col, col, col);
+		// table(col, col, col);
+		NSMutableString *str=[NSMutableString string];
+		NSEnumerator *e=[tableData objectEnumerator];
+		NSError *err;
+		NSDictionary *record;
+		while((record=[e nextObject]))
+			{
+			NSEnumerator *e=[headers objectEnumerator];
+			NSString *delim=@"(";
+			NSString *line=@"record(";
+			NSString *column;
+			while((column=[e nextObject]))
+				{ // keep column order intact!
+					NSString *value=[record objectForKey:column];
+					// FIXME: escape quotes in value
+					line=[line stringByAppendingFormat:@"%@'%@'", delim, value];
+					delim=@", ";
+				}
+			[str appendFormat:@"%@)\n", line];
+			}
+		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
 	if([type isEqualToString:@"database"])
 		{
-		// .database bundle
+		NSMutableDictionary *info=[NSMutableDictionary dictionary];
+		NSEnumerator *e=[tableData keyEnumerator];
+		NSString *tableName;
+		NSURL *file;
+		NSError *err;
+		if(![[NSFileManager defaultManager] createDirectoryAtURL:url withIntermediateDirectories:YES attributes:NULL error:&err])
+		   return NO;
+		while((tableName=[e nextObject]))
+			{
+			file=[[url URLByAppendingPathComponent:tableName] URLByAppendingPathExtension:@"tsv"];
+			if(![self saveAs:file error:error])
+				return NO;
+			}
+		file=[url URLByAppendingPathComponent:@"Info.plist"];
+//		if(columnProperties)
+//			[info setObject:columnProperties forKey:@"Column Properties"];
+		return [info writeToURL:url atomically:YES];
 		}
 	return NO;
 }
@@ -258,36 +455,58 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return nil;
 }
 
-- (int) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
+- (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table
+{
+	return [tableData objectForKey:table];
+}
+
+- (id) valueAtRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
+{
+	NSArray *data=[self dataForTable:table error:error];
+	if(!data)
+		return nil;
+	return [[data objectAtIndex:row] objectForKey:column];
+}
+
+- (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
+{
+	NSArray *data=[self dataForTable:table error:error];
+	if(!data)
+		return NO;
+	[[data objectAtIndex:row] setObject:value forKey:column];
+	return YES;
+}
+
+- (BOOL) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 {
 	return [self sql:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
 }
 
-- (int) deleteTable:(NSString *) name error:(NSString **) error;
+- (BOOL) deleteTable:(NSString *) name error:(NSString **) error;
 {
 	// confirm and/or save table schema&dump in undo buffer
 	// DROP TABLE
 	return 0;
 }
 
-- (int) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
 {
 	// ALTER TABLE x CREATE COLUMN (x int);
 	return [self sql:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
 }
 
-- (int) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
+- (BOOL) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
 {
 	// confirm and/or save current data in undo buffer
 	return 0;
 }
 
-- (int) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
 {
 	return [self sql:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
 }
 
-- (int) deleteRow:(int) row error:(NSString **) error;
+- (BOOL) deleteRow:(int) row error:(NSString **) error;
 {
 	// confirm and/or save current row in undo buffer
 	// DELETE FROM x WHERE index=row;
