@@ -14,7 +14,11 @@
 
 - (id) init
 {
-    self = [super init];
+    if(self = [super init])
+		{
+		tableData=[[NSMutableDictionary alloc] initWithCapacity:1000];
+		tableColumns=[[NSMutableDictionary alloc] initWithCapacity:20];
+		}
     return self;
 }
 
@@ -27,8 +31,9 @@
 		if(err != SQLITE_OK)
 			NSLog(@"-dealloc: sqlite3_close() returns %d", err);
 		}
-	[type release];
-	[dbname release];
+	[dbName release];
+	[tableData release];
+	[tableColumns release];
 	[super dealloc];
 }
 
@@ -63,28 +68,26 @@ static int sql_progress(void *context)	// context should be self
 
 - (NSString *) typeForURL:(NSURL *) url
 {
+	NSString *type;
 	if([url isFileURL])
 		{
 		type=[[url path] pathExtension];	// take suffix
 		if([type isEqualToString:@"sqlite3"])
-			return @"sqlite";
+			type=@"sqlite";
 		}
-	return [url scheme];
+	else
+		type=[url scheme];
+	return type;
 }
 
 - (BOOL) open:(NSURL *) url error:(NSString **) error;
 {
-	if(type)
-		{
-		*error=@"already open";
-		return NO;	// already open
-		}
-	type=[[self typeForURL:url] retain];
+	NSString *type=[self typeForURL:url];
 	if(!type)
 		return NO;	// invalid
-	dbname=[[url path] retain];	// scheme:path
 	if([type isEqualToString:@"mysql"])
 		{
+		dbName=[[url path] retain];	// scheme:path
 		if(error)
 			*error=@"MySQL is not supported yet";
 			// open mysql://username:password@host/database
@@ -92,7 +95,8 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"sqlite"])
 		{
-		if(sqlite3_open([dbname fileSystemRepresentation],	/* Database filename (UTF-8) */
+		dbName=[[url path] retain];	// scheme:path
+		if(sqlite3_open([dbName fileSystemRepresentation],	/* Database filename (UTF-8) */
 							(sqlite3 **)&db					/* OUT: SQLite db handle */
 							) != SQLITE_OK)
 			{
@@ -113,10 +117,10 @@ static int sql_progress(void *context)	// context should be self
 		{ // process comma separated file
 		NSError *err;
 		NSString *db=[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
+		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSArray *lines;
 		NSEnumerator *e;
 		NSString *line;
-		NSString *tableName=[url lastPathComponent];	// mit oder ohne .tsv???
 		NSArray *data;
 		NSArray *headers=nil;
 	#if 0
@@ -147,7 +151,7 @@ static int sql_progress(void *context)	// context should be self
 			if(!headers)
 				{ // first
 				headers=[fields mutableCopy];
-				[columns setObject:headers forKey:tableName];
+				[tableColumns setObject:headers forKey:tableName];
 				[headers release];
 				}
 			else
@@ -167,10 +171,10 @@ static int sql_progress(void *context)	// context should be self
 		{ // process tab separated file
 		NSError *err;
 		NSString *db=[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
+		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSArray *lines;
 		NSEnumerator *e;
 		NSString *line;
-		NSString *tableName=[url lastPathComponent];	// mit oder ohne .tsv???
 		NSArray *data;
 		NSArray *headers=nil;
 	#if 0
@@ -199,11 +203,11 @@ static int sql_progress(void *context)	// context should be self
 			if(!headers)
 				{ // first
 				headers=[fields mutableCopy];
-				[columns setObject:headers forKey:tableName];
+				[tableColumns setObject:headers forKey:tableName];
 				[headers release];
 				}
 			else
-				{ // convert into Dict by using headers?
+				{ // convert into Dict by using headers
 					NSDictionary *record;
 					while([fields count] < [headers count])
 						fields=[fields arrayByAddingObject:@""];	// add empty records if needed
@@ -220,7 +224,23 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"database"])
 		{ // .database bundle
-		// load all .tsv files in bundle
+		NSURL *file;
+		// how do we properly handle this???
+		// should we read .plists as an "Info.plist" table???
+		file=[url URLByAppendingPathComponent:@"Info.plist"];
+		NSDictionary *columnProperties=[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy];
+		NSEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:[url path]];
+		NSString *filename;
+		while((filename=[e nextObject]))
+			{ // load all .tsv files in bundle
+			file=[url URLByAppendingPathComponent:filename];
+				// check for .tsv only?
+				// how can we know how to store this again if it is not a .tsv?
+			if(![self open:file error:error])
+				// ignore errors to load what we get
+				/*return NO*/;
+			}
+		return YES;
 		}
 	return NO;
 }
@@ -250,7 +270,6 @@ static int sql_progress(void *context)	// context should be self
 	if([type isEqualToString:@"tsv"])
 		{
 		NSMutableString *str;
-		NSArray *tableData=nil;
 		NSArray *headers=nil;
 		NSEnumerator *e=[tableData objectEnumerator];
 		NSDictionary *record;
@@ -278,7 +297,6 @@ static int sql_progress(void *context)	// context should be self
 	if([type isEqualToString:@"csv"])
 		{
 		NSMutableString *str;
-		NSArray *tableData=nil;
 		NSArray *headers=nil;
 		NSEnumerator *e=[tableData objectEnumerator];
 		NSDictionary *record;
@@ -306,7 +324,6 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"prolog"])
 		{
-		NSArray *tableData=nil;
 		NSArray *headers=nil;
 		// table_headers(col, col, col);
 		// table_properties(col, col, col);
@@ -373,7 +390,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) sql:(NSString *) cmd error:(NSString **) error;
 { // execute SQL command for current database
-	if([type isEqualToString:@"sqlite"])
+	if(db)
 		{
 		char *error_msg;
 		int result=sqlite3_exec(
@@ -411,7 +428,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (NSArray *) tables:(NSString **) error;
 { // return list of table names
-	if([type isEqualToString:@"sqlite"])
+	if(db)
 		{
 		id saved=delegate;
 		delegate=self;	// make us collect results in tables
@@ -424,27 +441,13 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 		delegate=saved;
 		return tables;
 		}
-	if([type isEqualToString:@"csv"])
-		return [NSArray arrayWithObject:[dbname lastPathComponent]];
-	if([type isEqualToString:@"tsv"])
-		return [NSArray arrayWithObject:[dbname lastPathComponent]];
-	if([type isEqualToString:@"prolog"])
-		{
-		// prolog tuples
-		}
-	if([type isEqualToString:@"database"])
-		{
-		// .database bundle
-		// list of all embedded .tsv files
-		}
-	*error=@"not implemented";
-	return nil;
+	return [tableColumns allKeys];
 }
 
 - (NSArray *) databases:(NSString **) error;
 { // return list of databases on the server
-	if([type isEqualToString:@"sqlite"])
-		return [NSArray arrayWithObject:dbname];
+	if(dbName)
+		return [NSArray arrayWithObject:dbName];
 	// we do not search for databases, don't we?
 	return nil;
 }

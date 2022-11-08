@@ -15,14 +15,13 @@
 
 @interface SQL : NSObject
 {
-	NSString *type;		// url schema: file:path mysql:host sqlite:path or similar
 	void *db;			// SQLite access handle
-	NSString *dbname;
+	NSString *dbName;
 	id delegate;
 	// FIXME: use columns/tableData?
 	NSMutableArray *tables;		// for collecting of internal query results
 	// for TSV, CSV, Prolog etc. stored locally
-	NSMutableDictionary *columns;	// NSDict of NSArray indexed by table name
+	NSMutableDictionary *tableColumns;	// NSDict of NSArray indexed by table name
 	NSMutableDictionary *tableData;	// NSDict of NSArray of NSDict indexed by table name, row, column
 }
 
