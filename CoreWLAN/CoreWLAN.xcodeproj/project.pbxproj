@@ -13,11 +13,16 @@
 		EE31114F125F68DB00DF3C91 /* CoreWLAN.h in Headers */ = {isa = PBXBuildFile; fileRef = EE311148125F68DB00DF3C91 /* CoreWLAN.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE311149125F68DB00DF3C91 /* CW8021XProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114A125F68DB00DF3C91 /* CWConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE311152125F68DB00DF3C91 /* CWGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114B125F68DB00DF3C91 /* CWGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311152125F68DB00DF3C91 /* CWWiFiClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114B125F68DB00DF3C91 /* CWWiFiClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114C125F68DB00DF3C91 /* CWInterface.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114D125F68DB00DF3C91 /* CWNetwork.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE311155125F68DB00DF3C91 /* CWWirelessProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311155125F68DB00DF3C91 /* CWNetworkProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114E125F68DB00DF3C91 /* CWNetworkProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311169125F69C100DF3C91 /* CoreWLAN.m in Sources */ = {isa = PBXBuildFile; fileRef = EE311168125F69C100DF3C91 /* CoreWLAN.m */; };
+		EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EBF291A3E10008865C6 /* CWChannel.h */; };
+		EE902EC2291A3EDE008865C6 /* CoreWLANConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC1291A3EDE008865C6 /* CoreWLANConstants.h */; };
+		EE902EC5291A3F26008865C6 /* CoreWLANUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC3291A3F26008865C6 /* CoreWLANUtil.h */; };
+		EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC4291A3F26008865C6 /* CoreWLANTypes.h */; };
+		EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC7291A48DA008865C6 /* CWEventDelegate.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,14 +38,19 @@
 		EE311148125F68DB00DF3C91 /* CoreWLAN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLAN.h; sourceTree = "<group>"; };
 		EE311149125F68DB00DF3C91 /* CW8021XProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CW8021XProfile.h; sourceTree = "<group>"; };
 		EE31114A125F68DB00DF3C91 /* CWConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWConfiguration.h; sourceTree = "<group>"; };
-		EE31114B125F68DB00DF3C91 /* CWGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWGlobals.h; sourceTree = "<group>"; };
+		EE31114B125F68DB00DF3C91 /* CWWiFiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWWiFiClient.h; sourceTree = "<group>"; };
 		EE31114C125F68DB00DF3C91 /* CWInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWInterface.h; sourceTree = "<group>"; };
 		EE31114D125F68DB00DF3C91 /* CWNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWNetwork.h; sourceTree = "<group>"; };
-		EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWWirelessProfile.h; sourceTree = "<group>"; };
+		EE31114E125F68DB00DF3C91 /* CWNetworkProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWNetworkProfile.h; sourceTree = "<group>"; };
 		EE311168125F69C100DF3C91 /* CoreWLAN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreWLAN.m; sourceTree = "<group>"; };
 		EE311181125F73FB00DF3C91 /* CoreWLAN_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLAN_Prefix.pch; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE7AAF6E17475FEC003133D9 /* CoreWLAN.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreWLAN.qcodeproj; sourceTree = "<group>"; };
+		EE902EBF291A3E10008865C6 /* CWChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWChannel.h; sourceTree = "<group>"; };
+		EE902EC1291A3EDE008865C6 /* CoreWLANConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLANConstants.h; sourceTree = "<group>"; };
+		EE902EC3291A3F26008865C6 /* CoreWLANUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLANUtil.h; sourceTree = "<group>"; };
+		EE902EC4291A3F26008865C6 /* CoreWLANTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLANTypes.h; sourceTree = "<group>"; };
+		EE902EC7291A48DA008865C6 /* CWEventDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWEventDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,12 +110,17 @@
 			isa = PBXGroup;
 			children = (
 				EE311148125F68DB00DF3C91 /* CoreWLAN.h */,
+				EE902EC1291A3EDE008865C6 /* CoreWLANConstants.h */,
+				EE902EC4291A3F26008865C6 /* CoreWLANTypes.h */,
+				EE902EC3291A3F26008865C6 /* CoreWLANUtil.h */,
 				EE311149125F68DB00DF3C91 /* CW8021XProfile.h */,
+				EE902EBF291A3E10008865C6 /* CWChannel.h */,
 				EE31114A125F68DB00DF3C91 /* CWConfiguration.h */,
-				EE31114B125F68DB00DF3C91 /* CWGlobals.h */,
+				EE902EC7291A48DA008865C6 /* CWEventDelegate.h */,
 				EE31114C125F68DB00DF3C91 /* CWInterface.h */,
 				EE31114D125F68DB00DF3C91 /* CWNetwork.h */,
-				EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */,
+				EE31114E125F68DB00DF3C91 /* CWNetworkProfile.h */,
+				EE31114B125F68DB00DF3C91 /* CWWiFiClient.h */,
 				EE311168125F69C100DF3C91 /* CoreWLAN.m */,
 			);
 			name = Classes;
@@ -148,11 +163,16 @@
 			files = (
 				EE31114F125F68DB00DF3C91 /* CoreWLAN.h in Headers */,
 				EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */,
+				EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */,
+				EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */,
 				EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */,
-				EE311152125F68DB00DF3C91 /* CWGlobals.h in Headers */,
+				EE311152125F68DB00DF3C91 /* CWWiFiClient.h in Headers */,
+				EE902EC2291A3EDE008865C6 /* CoreWLANConstants.h in Headers */,
+				EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */,
 				EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */,
+				EE902EC5291A3F26008865C6 /* CoreWLANUtil.h in Headers */,
 				EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */,
-				EE311155125F68DB00DF3C91 /* CWWirelessProfile.h in Headers */,
+				EE311155125F68DB00DF3C91 /* CWNetworkProfile.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

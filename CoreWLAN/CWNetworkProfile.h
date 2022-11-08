@@ -1,5 +1,5 @@
 //
-//  CWWirelessProfile.h
+//  CWNetworkProfile.h
 //  CoreWLAN
 //
 //  Created by H. Nikolaus Schaller on 03.10.10.
@@ -10,7 +10,7 @@
 
 @class CW8021XProfile;
 
-@interface CWWirelessProfile : NSObject <NSCopying, NSCoding>
+@interface CWNetworkProfile : NSObject <NSCopying, NSCoding>
 {
 	NSString *_passphrase;
 	NSNumber *_mode;
@@ -32,4 +32,7 @@
 - (CW8021XProfile *) user8021XProfile;
 - (void) setUser8021XProfile:(CW8021XProfile *) profile;
 
+@end
+
+@interface CWMutableNetworkProfile : CWNetworkProfile
 @end

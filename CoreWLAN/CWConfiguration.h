@@ -41,3 +41,6 @@
 - (void) setRememberedNetworks:(NSArray *) str;
 
 @end
+
+@interface CWMutableConfiguration : CWConfiguration
+@end
