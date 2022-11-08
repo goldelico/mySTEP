@@ -467,7 +467,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) playInputClick;
 {
 	// check system preferences if it is enabled/disabled
+#ifdef __linux__
 	AudioServicesStopSystemSound(kSystemSoundID_Vibrate);
+#endif
 	NSArray *pattern=
 	[NSArray arrayWithObjects:
 	 [NSNumber numberWithBool:YES],
@@ -479,7 +481,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[NSMutableDictionary dictionaryWithObjectsAndKeys:pattern, @"VibePattern",
 	 [NSNumber numberWithDouble:1.0],
 	 nil];
+#ifdef __linux__
 	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, dict);
+#endif
 	[[NSSound soundNamed:@"Click"] play];
 }
 
@@ -490,7 +494,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) playVibraCall;
 {
 	// check system preferences if it is enabled/disabled
+#ifdef __linux__
 	AudioServicesStopSystemSound(kSystemSoundID_Vibrate);
+#endif
 	NSArray *pattern=
 	[NSArray arrayWithObjects:
 	 [NSNumber numberWithBool:YES],
@@ -510,7 +516,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[NSMutableDictionary dictionaryWithObjectsAndKeys:pattern, @"VibePattern",
 	 [NSNumber numberWithDouble:1.0], @"Intensity",
 	 nil];
+#ifdef __linux__
 	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, dict);
+#endif
 }
 
 @end
