@@ -95,6 +95,9 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"sqlite"])
 		{
+		// FIXME: conceptually broken (do we read all tables by SELECT *, how do we write?
+		return NO;
+
 		dbName=[[url path] retain];	// scheme:path
 		if(sqlite3_open([dbName fileSystemRepresentation],	/* Database filename (UTF-8) */
 							(sqlite3 **)&db					/* OUT: SQLite db handle */
@@ -225,12 +228,13 @@ static int sql_progress(void *context)	// context should be self
 	if([type isEqualToString:@"database"])
 		{ // .database bundle
 		NSURL *file;
-		// how do we properly handle this???
-		// should we read .plists as an "Info.plist" table???
-		file=[url URLByAppendingPathComponent:@"Info.plist"];
-		NSDictionary *columnProperties=[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy];
 		NSEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:[url path]];
 		NSString *filename;
+		// how do we properly handle this???
+		// should we read .plists as an "Info.plist" table???
+		// how can we handle multiple tables with different properties?
+		file=[url URLByAppendingPathComponent:@"Info.plist"];
+		tableColumnProperties=[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy];
 		while((filename=[e nextObject]))
 			{ // load all .tsv files in bundle
 			file=[url URLByAppendingPathComponent:filename];
@@ -269,12 +273,20 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"tsv"])
 		{
+		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		NSArray *headers=nil;
-		NSEnumerator *e=[tableData objectEnumerator];
+		// FIXME: welche Tabelle speichern??? Vor allem bei SaveAs... ändert sich der Name!
+
+		if(![tableData objectForKey:tableName] && [tableData count] != 1)
+			{ // not unique
+				return NO;
+			}
+		NSEnumerator *e=[[tableData objectForKey:tableName] objectEnumerator];
 		NSDictionary *record;
 		NSError *err;
+		NSArray *headers=[tableColumns objectForKey:tableName];
 		str=[NSMutableString stringWithFormat:@"%@\n", [headers componentsJoinedByString:@"\t"]];
+		NSString *delimiter=@"\t";	// oder , ???
 		while((record=[e nextObject]))
 			{
 			NSEnumerator *e=[headers objectEnumerator];
@@ -286,21 +298,28 @@ static int sql_progress(void *context)	// context should be self
 					id val=[record objectForKey:column];
 					// FIXME: escape Tabs and newlines
 					line=[line stringByAppendingFormat:@"%@%@", delim, val];
-					delim=@"\t";
+					delim=delimiter;
 				}
-			while([line hasSuffix:@"\t"])
-				line=[line substringToIndex:[line length]-1];	// remove empty (extra) fields at line end
+			while([line hasSuffix:delimiter])
+				line=[line substringToIndex:[line length]-[delimiter length]];	// remove empty (extra) fields at line end
 			[str appendFormat:@"%@\n", line];
 			}
 		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
 	if([type isEqualToString:@"csv"])
 		{
+		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		NSArray *headers=nil;
-		NSEnumerator *e=[tableData objectEnumerator];
+		// FIXME: welche Tabelle speichern??? Vor allem bei SaveAs... ändert sich der Name!
+
+		if(![tableData objectForKey:tableName] && [tableData count] != 1)
+			{ // not unique
+				return NO;
+			}
+		NSEnumerator *e=[[tableData objectForKey:tableName] objectEnumerator];
 		NSDictionary *record;
 		NSError *err;
+		NSArray *headers=[tableColumns objectForKey:tableName];
 		NSString *delimiter=@";";	// oder , ???
 		str=[NSMutableString stringWithFormat:@"%@\n", [headers componentsJoinedByString:delimiter]];
 		while((record=[e nextObject]))
@@ -317,29 +336,31 @@ static int sql_progress(void *context)	// context should be self
 					delim=delimiter;
 				}
 			while([line hasSuffix:delimiter])
-				line=[line substringToIndex:[line length]-1];	// remove empty (extra) fields at line end
+				line=[line substringToIndex:[line length]-[delimiter length]];	// remove empty (extra) fields at line end
 			[str appendFormat:@"%@\n", line];
 			}
 		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
 	if([type isEqualToString:@"prolog"])
 		{
-		NSArray *headers=nil;
 		// table_headers(col, col, col);
 		// table_properties(col, col, col);
 		// table(col, col, col);
 		NSMutableString *str=[NSMutableString string];
 		NSEnumerator *e=[tableData objectEnumerator];
 		NSError *err;
-		NSDictionary *record;
-		while((record=[e nextObject]))
+		NSDictionary *tableName;
+		while((tableName=[e nextObject]))
 			{
-			NSEnumerator *e=[headers objectEnumerator];
+			NSEnumerator *e=[[tableColumns objectForKey:tableName] objectEnumerator];
+			// FIXME: loop over all rows
 			NSString *delim=@"(";
-			NSString *line=@"record(";
+			NSString *line=[NSString stringWithFormat:@"%@(", tableName];
 			NSString *column;
 			while((column=[e nextObject]))
 				{ // keep column order intact!
+					int row=0;
+					NSDictionary *record=[[tableData objectForKey:tableName] objectAtIndex:row];
 					NSString *value=[record objectForKey:column];
 					// FIXME: escape quotes in value
 					line=[line stringByAppendingFormat:@"%@'%@'", delim, value];
@@ -365,9 +386,9 @@ static int sql_progress(void *context)	// context should be self
 				return NO;
 			}
 		file=[url URLByAppendingPathComponent:@"Info.plist"];
-//		if(columnProperties)
-//			[info setObject:columnProperties forKey:@"Column Properties"];
-		return [info writeToURL:url atomically:YES];
+		if(tableColumnProperties)
+			[info setObject:tableColumnProperties forKey:@"Column Properties"];
+		return [info writeToURL:file atomically:YES];
 		}
 	return NO;
 }
@@ -422,6 +443,8 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) sql:(SQL *) this record:(NSDictionary *) record;
 { // we are (temporarily) our own delegate
+	// FIXME: store in tableData
+	NSMutableArray *tables=nil;		// for collecting of internal query results
 	[tables addObject:[record objectForKey:@"name"]];
 	return NO;	// don't abort
 }
@@ -430,6 +453,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 { // return list of table names
 	if(db)
 		{
+		NSMutableArray *tables;
 		id saved=delegate;
 		delegate=self;	// make us collect results in tables
 		tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
@@ -455,7 +479,13 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
 { // return list of columns names
   // "SELECT name,sql FROM sqlite_master WHERE type='table'"
-	return nil;
+	return [tableColumns objectForKey:table];
+}
+
+- (NSDictionary *) columnProperties:(NSString *) table error:(NSString **) error;
+{
+	// FIXME: this is not yet per table!!!
+	return tableColumnProperties;
 }
 
 - (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table

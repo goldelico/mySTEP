@@ -18,11 +18,10 @@
 	void *db;			// SQLite access handle
 	NSString *dbName;
 	id delegate;
-	// FIXME: use columns/tableData?
-	NSMutableArray *tables;		// for collecting of internal query results
 	// for TSV, CSV, Prolog etc. stored locally
-	NSMutableDictionary *tableColumns;	// NSDict of NSArray indexed by table name
-	NSMutableDictionary *tableData;	// NSDict of NSArray of NSDict indexed by table name, row, column
+	NSMutableDictionary *tableColumns;	// NSDict[tableName] of NSArray[column]
+	NSMutableDictionary *tableColumnProperties;	// NSDict[tableName] of NSDict[column]
+	NSMutableDictionary *tableData;	// NSDict[tableName] of NSArray[row] of NSDict[column]
 }
 
 - (id) init;
@@ -39,7 +38,8 @@
 // direct access
 - (NSArray *) tables:(NSString **) error;	// tables on selected database
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
-- (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table
+- (NSDictionary *) columnProperties:(NSString *) table error:(NSString **) error;
+- (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data array of one table
 
 // SQL commands
 - (BOOL) sql:(NSString *) cmd error:(NSString **) error;	// YES=ok
