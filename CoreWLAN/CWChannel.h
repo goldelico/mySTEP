@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreWLAN/CoreWLANConstants.h>
+#import <CoreWLAN/CoreWLANTypes.h>
 
 @interface CWChannel : NSObject <NSCopying, NSCoding>
 {

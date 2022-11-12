@@ -9,7 +9,10 @@
 /*
   Here is some API:
 		http://developer.apple.com/library/mac/#documentation/Networking/Reference/CoreWLANFrameworkRef/
- 
+
+  More up-to date is:
+	   https://developer.apple.com/documentation/corewlan?language=objc
+
   Examples how to use this API, see e.g.
 		http://dougt.org/wordpress/2009/09/usingcorewlan/
 		http://lists.apple.com/archives/macnetworkprog/2009/Sep/msg00007.html
@@ -716,8 +719,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 {
 	return [NSArray arrayWithObjects:
 			//[NSNumber numberWithInt:kCWPHYMode11A],
-			[NSNumber numberWithInt:kCWPHYMode11B],
-			[NSNumber numberWithInt:kCWPHYMode11G],
+			[NSNumber numberWithInt:kCWPHYMode11b],
+			[NSNumber numberWithInt:kCWPHYMode11g],
 			//[NSNumber numberWithInt:kCWPHYMode11N],
 			nil];
 }

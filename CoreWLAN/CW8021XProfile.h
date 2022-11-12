@@ -25,7 +25,7 @@
 
 - (BOOL) alwaysPromptForPassword;
 - (void) setAlwaysPromptForPassword:(BOOL) flag; 
-// all following setters are copy
+// all following setters are by copy
 - (NSString *) password;
 - (void) setPassword:(NSString *) str;
 - (NSString *) ssid;
