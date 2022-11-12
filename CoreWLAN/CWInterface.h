@@ -7,6 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreWLAN/CoreWLANConstants.h>
+#import <CoreWLAN/CoreWLANTypes.h>
+#import <CoreWLAN/CWInterface.h>
 
 @class CWConfiguration;
 @class CWNetwork;
@@ -24,17 +27,58 @@
 	NSMutableData *_dataCollector;
 }
 
-+ (NSArray *) supportedInterfaces;
-
-+ (CWInterface *) interface;
-+ (CWInterface *) interfaceWithName:(NSString *) name;
-
-- (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
-- (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
-- (void) disassociate;
-- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
+#if 1	// deprecated
 - (CWInterface *) init;
 - (CWInterface *) initWithInterfaceName:(NSString *) name;
++ (CWInterface *) interface;
++ (CWInterface *) interfaceWithName:(NSString *) name;
++ (NSArray *) interfaceNames;
+#endif
+
+- (BOOL) commitConfiguration:(CWConfiguration *) config authorization:(SFAuthorization *) auth error:(NSError **) err;
+- (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
+							 identity:(SecIdentityRef) identity
+							 username:(NSString *) username
+							 password:(NSString *) password
+								error:(out NSError **) error;
+- (BOOL) associateToNetwork:(CWNetwork *) network
+				   password:(NSString *) password
+					  error:(out NSError **) error;
+- (BOOL) deviceAttached;
+- (NSString *) interfaceName;
+- (CWPHYMode) activePHYMode;
+- (NSString *) bssid;
+- (NSSet *) cachedScanResults;
+- (CWConfiguration *) configuration;
+- (NSString *) countryCode;
+- (NSString *) hardwareAddress;
+- (CWInterfaceMode) interfaceMode;
+- (NSInteger) noiseMeasurement;	// dBm
+- (BOOL) powerOn;
+- (NSInteger) rssiValue;
+- (NSSet *) scanForNetworksWithName:(NSString *) networkName
+					  includeHidden:(BOOL) includeHidden
+							  error:(out NSError **) error;
+- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
+					  includeHidden:(BOOL) includeHidden
+							  error:(out NSError **) error;
+- (CWSecurity) security;
+- (BOOL) serviceActive;
+- (NSString *) ssid;
+- (NSData *) ssidData;
+- (NSSet *) supportedWLANChannels;
+- (NSInteger) transmitPower;	// mW
+- (double) transmitRate;	// Mbit/s
+- (CWChannel *) wlanChannel;
+
+@end
+
+#if 0	// OLD STUFF
+#if 0	// really old
+- (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
+#endif
+- (void) disassociate;
+- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 - (BOOL) isEqualToInterface:(CWInterface *) interface;
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary *) params error:(NSError **) err;
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
@@ -44,11 +88,8 @@
 - (SFAuthorization *) authorization;
 - (void) setAuthorization:(SFAuthorization *) auth;
 
-- (NSString *) bssid;
 - (NSData *) bssidData;
 - (NSNumber *) channel;
-- (CWConfiguration *) configuration;
-- (NSString *) countryCode;
 - (NSNumber *) interfaceState;
 - (NSString *) name;
 - (NSNumber *) noise;	// in dBm
@@ -58,7 +99,6 @@
 - (BOOL) powerSave;
 - (NSNumber *) rssi;	// in dBm
 - (NSNumber *) securityMode;
-- (NSString *) ssid;
 - (NSArray *) supportedChannels;
 - (NSArray *) supportedPHYModes;
 - (BOOL) supportsAES_CCM;
@@ -90,7 +130,7 @@ typedef void *SecIdentityRef;
 @interface CWInterface (NewerMethods)	// 10.6 and later
 
 - (BOOL) setPairwiseMasterKey:(NSData *) key
-					    error:(out NSError **) error;
+						error:(out NSError **) error;
 - (BOOL) setWEPKey:(NSData *) key
 			 flags:(CWCipherKeyFlags) flags
 			 index:(NSInteger) index
@@ -109,45 +149,5 @@ typedef void *SecIdentityRef;
 - (BOOL) commitConfiguration:(CWConfiguration *) configuration
 			   authorization:(SFAuthorization *) authorization
 					   error:(out NSError **) error;
-- (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
-							 identity:(SecIdentityRef) identity
-							 username:(NSString *) username
-							 password:(NSString *) password
-								error:(out NSError **) error;
-- (BOOL) associateToNetwork:(CWNetwork *) network
-				   password:(NSString *) password
-					  error:(out NSError **) error;
-- (BOOL) deviceAttached;
-- (NSString *) interfaceName;
-- (CWPHYMode) activePHYMode;
-- (NSSet *) cachedScanResults;
-- (NSString *) hardwareAddress;
-- (CWInterfaceMode) interfaceMode;
-- (NSInteger) noiseMeasurement;	// dBm
-- (BOOL) powerOn;
-- (NSInteger) rssiValue;
-- (NSSet *) scanForNetworksWithName:(NSString *) networkName
-					  includeHidden:(BOOL) includeHidden
-							  error:(out NSError **) error;
-- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
-					  includeHidden:(BOOL) includeHidden
-							  error:(out NSError **) error;
-- (BOOL) serviceActive;
-- (NSData *) ssidData;
-- (NSSet *) supportedWLANChannels;
-- (NSInteger) transmitPower;	// mW
-- (double) transmitRate;	// Mbit/s
-- (CWChannel *)wlanChannel;
 
-@end
-
-@interface CWWiFiClient : NSObject
-
-+ (CWWiFiClient *) sharedWiFiClient;
-+ (NSArray *) interfaceNames;
-
-- (CWInterface *) interface;
-- (CWInterface *) interfaceWithName:(NSString *) name;
-
-@end
-
+#endif

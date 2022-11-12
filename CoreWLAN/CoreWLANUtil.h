@@ -7,3 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
+
+extern OSStatus CWKeychainCopyEAPIdentityList(NSArray *list);
+extern NSSet *CWMergeNetworks(NSSet *networks);

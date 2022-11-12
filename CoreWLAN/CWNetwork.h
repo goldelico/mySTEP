@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class CWWirelessProfile;
-
 @interface CWNetwork : NSObject <NSCopying, NSCoding>
 {
 	NSString *_bssid;
@@ -25,19 +23,34 @@
 
 - (BOOL) isEqualToNetwork:(CWNetwork *) network;		// obnly checks same ssid, securityMode and isIBSS
 
-// Checkme: which ones are on Mac and which ones are our extensions?
-
+- (NSInteger) beaconInterval;	// in ms
 - (NSString *) bssid;	// this is the (unique!) MAC address of the base station
-- (NSData *) bssidData;
+- (NSString *) countryCode;
+- (BOOL) ibss;	// should this be isIbss by some getter?
+- (NSData *) informationElementData;
+- (NSInteger) noiseMeasurement;	// dBm
+- (NSInteger) rssiValue;	// dBm
+- (NSString *) ssid;	// this is the network name (may be built from different bssids)
+- (NSData *) ssidData;
+- (CWChannel *) wlanChannel;
+
+@end
+
+#if 0	// OLD
+
+@class CWWirelessProfile;
+
 - (NSNumber *) channel;
 - (NSData *) ieData;
 - (BOOL) isIBSS;
 - (NSNumber *) noise;
 - (NSNumber *) phyMode;
 - (NSNumber *) rssi;
-- (NSInteger) rssiValue;
 - (NSNumber *) securityMode;
-- (NSString *) ssid;	// this is the network name (may be built from different bssids)
 - (CWWirelessProfile *) wirelessProfile;
 
+- (NSData *) bssidData;
+
 @end
+#endif
+
