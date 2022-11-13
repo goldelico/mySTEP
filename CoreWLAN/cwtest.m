@@ -12,12 +12,12 @@
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
-	NSError *err=@"can't find interface";	// will be printed if cw == nil
-	CWInterface *cw=[CWWiFiClient interface];	// default interface
-	NSArray *nw;
+	NSError *err=[NSError errorWithDomain:@"can't find interface" code:0 userInfo:nil];	// will be printed if cw == nil
+	CWInterface *cw=[[CWWiFiClient sharedWiFiClient] interface];	// default interface
+	NSSet *nw;
 	NSEnumerator *e;
 	CWNetwork *network;
-	BOOL power=[cw power];	// save power state
+	BOOL power=[cw powerOn];	// save power state
 	if(![cw setPower:YES error:&err])
 		{
 		NSLog(@"WLAN power on error: %@", err);
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	NSLog(@"cwtest: run loop");
 	while(YES)
 		{
-		nw=[cw scanForNetworksWithParameters:nil error:&err];
+		nw=[cw scanForNetworksWithName:nil includeHidden:YES error:&err];
 		if(nw)
 			break;
 		[[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];	// run for another second
