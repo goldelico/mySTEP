@@ -7,10 +7,11 @@
 //
 
 #import <SecurityFoundation/SFAuthorization.h>
+#import <Security/Authorization.h>
 
 @implementation SFAuthorization
 
-+ (id) authorization; 
++ (id) authorization;
 {
 	return [self authorizationWithFlags:0 rights:NULL environment:NULL];
 }
