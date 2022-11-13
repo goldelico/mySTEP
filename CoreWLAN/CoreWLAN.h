@@ -6,6 +6,14 @@
 //  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#ifdef __linux
+// missing on our Foundation
+#define NSOrderedSet NSSet
+#define isEqualToOrderedSet isEqualToSet
+#define NSSecureCoding NSCoding
+#define SecIdentityRef void *
+#endif
+
 #import <CoreWLAN/CoreWLANConstants.h>
 #import <CoreWLAN/CoreWLANTypes.h>
 #import <CoreWLAN/CoreWLANUtil.h>

@@ -29,7 +29,7 @@
 
 #if 1	// deprecated
 /* - (CWInterface *) init; */
-- (CWInterface *) initWithInterfaceName:(NSString *) name;
+- (id) initWithInterfaceName:(NSString *) name;
 + (CWInterface *) interface;
 + (CWInterface *) interfaceWithName:(NSString *) name;
 + (NSArray *) interfaceNames;

@@ -568,6 +568,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		}
 }
 
+- (BOOL) deviceAttached; { return YES; }
+
 - (BOOL) startIBSSModeWithSSID:(NSData *) ssidData
 					  security:(CWIBSSModeSecurity) security
 					   channel:(NSUInteger) channel
@@ -601,6 +603,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 #endif
 
 - (NSString *) interfaceName; { return _name; }
+
+- (CWPHYMode) activePHYMode; { return kCWPHYMode11ac; }
 
 - (NSString *) bssid;
 {
@@ -1155,7 +1159,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (id) initWithNetworkProfile:(CWNetworkProfile *) other;
 {
-	// FIXME:
+	// FIXME: copy all
 	return self;
 }
 
@@ -1167,6 +1171,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 }
 
 + (CWNetworkProfile *) networkProfile; { return [[self new] autorelease]; }
++ (CWNetworkProfile *) networkProfileWithNetworkProfile:(CWNetworkProfile *) other; { return [[[self alloc] initWithNetworkProfile:other] autorelease]; }
 
 /*
 - (BOOL) isEqualToProfile:(CWWirelessProfile *) profile;
@@ -1179,6 +1184,10 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 - (NSData *) ssidData; { return _ssid; }
 
 - (id) copyWithZone:(NSZone *) zone {
+	return nil;
+}
+
+- (id) mutableCopyWithZone:(NSZone *) zone {
 	return nil;
 }
 

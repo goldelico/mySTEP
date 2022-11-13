@@ -14,7 +14,7 @@
 {
 //	NSString *_passphrase;
 	NSData *_ssid;
-	CWSecurity *_mode;
+	CWSecurity _mode;
 //	CW8021XProfile *_profile;
 }
 
