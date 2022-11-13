@@ -13,10 +13,11 @@
 {
 	id <CWEventDelegate> _delegate;
 }
+
 + (CWWiFiClient *) sharedWiFiClient;
 + (NSArray *) interfaceNames;
 
-- (id) init;
+/* - (id) init; */
 - (id) delegate;
 - (void) setDelegate:(id) delegate;
 - (CWInterface *) interface;

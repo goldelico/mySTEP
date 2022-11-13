@@ -10,20 +10,27 @@
 
 @interface CWConfiguration : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 {
+	NSOrderedSet *_networkProfiles;
+	BOOL _rememberJoinedNetworks;
+	BOOL _requireAdministratorForAssociation;
+	BOOL _requireAdministratorForIBSSMode;
+	BOOL _requireAdministratorForPower;
+#if 0	// OLD
 	NSArray *_preferredNetworks;
-	NSArray *_rememberedNetworks;	
+	NSArray *_rememberedNetworks;
 	BOOL _alwaysRememberNetworks;
 	BOOL _disconnectOnLogout;
 	BOOL _requireAdminForIBSSCreation;
 	BOOL _requireAdminForNetworkChange;
-	BOOL _requireAdminForPowerChange;	
+	BOOL _requireAdminForPowerChange;
+#endif
 }
 
 + (CWConfiguration *) configuration; 
 + (CWConfiguration *) configurationWithConfiguration:(CWConfiguration *) other;
 
-- (CWConfiguration *) init; 
-- (CWConfiguration *) initWithConfiguration:(CWConfiguration *) other;
+- (id) init;
+- (id) initWithConfiguration:(CWConfiguration *) other;
 
 - (BOOL) isEqualToConfiguration:(CWConfiguration *) config;
 

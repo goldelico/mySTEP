@@ -17,7 +17,7 @@
 
 @interface CWInterface : NSObject
 {
-	NSArray *_networks;	// networks found after last scanForNetworksWithParameters:
+	NSMutableSet *_networks;	// networks found after last scanForNetworksWithParameters:
 	NSString *_name;
 	SFAuthorization *_authorization;
 	id _scanner;	// internal type
@@ -28,22 +28,28 @@
 }
 
 #if 1	// deprecated
-- (CWInterface *) init;
+/* - (CWInterface *) init; */
 - (CWInterface *) initWithInterfaceName:(NSString *) name;
 + (CWInterface *) interface;
 + (CWInterface *) interfaceWithName:(NSString *) name;
 + (NSArray *) interfaceNames;
+- (BOOL) startIBSSModeWithSSID:(NSData *) ssidData
+					  security:(CWIBSSModeSecurity) security
+					   channel:(NSUInteger) channel
+					  password:(NSString *) password
+						 error:(NSError **) error;
+- (BOOL) isEqualToInterface:(CWInterface *) interface;
 #endif
 
-- (BOOL) commitConfiguration:(CWConfiguration *) config authorization:(SFAuthorization *) auth error:(NSError **) err;
 - (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
 							 identity:(SecIdentityRef) identity
 							 username:(NSString *) username
 							 password:(NSString *) password
-								error:(out NSError **) error;
+								error:(NSError **) error;
 - (BOOL) associateToNetwork:(CWNetwork *) network
 				   password:(NSString *) password
-					  error:(out NSError **) error;
+					  error:(NSError **) error;
+- (void) disassociate;
 - (BOOL) deviceAttached;
 - (NSString *) interfaceName;
 - (CWPHYMode) activePHYMode;
@@ -58,12 +64,21 @@
 - (NSInteger) rssiValue;
 - (NSSet *) scanForNetworksWithName:(NSString *) networkName
 					  includeHidden:(BOOL) includeHidden
-							  error:(out NSError **) error;
-- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
+							  error:(NSError **) error;
+- (NSSet *) scanForNetworksWithSSID:(NSData *) ssid
 					  includeHidden:(BOOL) includeHidden
-							  error:(out NSError **) error;
+							  error:(NSError **) error;
 - (CWSecurity) security;
 - (BOOL) serviceActive;
+- (BOOL) setPairwiseMasterKey:(NSData *) key
+						error:(NSError **) error;
+- (BOOL) setPower:(BOOL) power error:(NSError **) err;
+- (BOOL) setWEPKey:(NSData *) key
+			 flags:(CWCipherKeyFlags) flags
+			 index:(NSInteger) index
+			 error:(NSError **) error;
+- (BOOL) setWLANChannel:(CWChannel *) channel
+				  error:(NSError **)error;
 - (NSString *) ssid;
 - (NSData *) ssidData;
 - (NSSet *) supportedWLANChannels;
@@ -77,12 +92,14 @@
 #if 0	// really old
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 #endif
-- (void) disassociate;
-- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
-- (BOOL) isEqualToInterface:(CWInterface *) interface;
+- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err;
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary *) params error:(NSError **) err;
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
-- (BOOL) setPower:(BOOL) power error:(NSError **) err;
+- (NSSet *) scanForNetworksWithName:(NSString *) networkName
+							  error:(out NSError **) error;
+- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
+							  error:(out NSError **) error;
+
 
 // ... tons of properties
 - (SFAuthorization *) authorization;

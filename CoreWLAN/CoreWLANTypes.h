@@ -67,11 +67,11 @@ typedef enum _CWErr
 	kCWError						= -3931,
 } CWErr;
 
-typedef enum _CWIBSSModeSecurity {
+typedef enum CWIBSSModeSecurity {
 	kCWIBSSModeSecurityNone=0,
-	kCWIBSSModeSecurityWEP40=1,
-	kCWIBSSModeSecurityWEP104=2,
-} _CWIBSSModeSecurity;
+	kCWIBSSModeSecurityWEP40,
+	kCWIBSSModeSecurityWEP104,
+} CWIBSSModeSecurity;
 
 typedef enum _CWInterfaceState
 {

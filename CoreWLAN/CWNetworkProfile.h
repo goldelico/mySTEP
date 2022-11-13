@@ -12,13 +12,13 @@
 
 @interface CWNetworkProfile : NSObject <NSCopying, NSCoding>
 {
-	NSString *_passphrase;
-	NSNumber *_mode;
+//	NSString *_passphrase;
 	NSData *_ssid;
+	CWSecurity *_mode;
 //	CW8021XProfile *_profile;
 }
 
-- (id) init;
+/*- (id) init; */
 - (id) initWithNetworkProfile:(CWNetworkProfile *) other;
 
 + (CWNetworkProfile *) networkProfile;
@@ -44,8 +44,8 @@
 
 @interface CWMutableNetworkProfile : CWNetworkProfile
 
-- (void) setSsida:(NSString *) ssid;	//encode as UTF8 or WinLatin1, set to nil
-- (void) setSsidData:(NSData *) ssid;
 - (void) setSecurity:(CWSecurity) security;
+- (void) setSsid:(NSString *) ssid;	//encode as UTF8 or WinLatin1, set to nil
+- (void) setSsidData:(NSData *) ssid;
 
 @end
