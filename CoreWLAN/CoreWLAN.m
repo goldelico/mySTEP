@@ -348,6 +348,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	[_scanner release];
 	[_modes release];
 	[_dataCollector release];
+	[_lastScan release];
 	[super dealloc];
 }
 
@@ -603,7 +604,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 {
 	NSEnumerator *e;
 	NSString *line;
-	// rate limit?
+	if(_networks && _lastScan && [_lastScan timeIntervalSinceNow] > -5)
+		return _networks;	// rate limit
 	if(![self _runWPA:@"scan"])	// start scanning - if not yet?
 		/*
 		 Selected interface 'wlan1'
@@ -634,6 +636,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		[_networks addObject:n];
 		}
 	// wpa_cli add_network
+	[_lastScan release];
+	_lastScan=[[NSDate date] retain];
 	return _networks;
 }
 
