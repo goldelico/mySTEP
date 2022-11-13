@@ -18,11 +18,11 @@
 		EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114D125F68DB00DF3C91 /* CWNetwork.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311155125F68DB00DF3C91 /* CWNetworkProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114E125F68DB00DF3C91 /* CWNetworkProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE311169125F69C100DF3C91 /* CoreWLAN.m in Sources */ = {isa = PBXBuildFile; fileRef = EE311168125F69C100DF3C91 /* CoreWLAN.m */; };
-		EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EBF291A3E10008865C6 /* CWChannel.h */; };
-		EE902EC2291A3EDE008865C6 /* CoreWLANConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC1291A3EDE008865C6 /* CoreWLANConstants.h */; };
-		EE902EC5291A3F26008865C6 /* CoreWLANUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC3291A3F26008865C6 /* CoreWLANUtil.h */; };
-		EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC4291A3F26008865C6 /* CoreWLANTypes.h */; };
-		EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC7291A48DA008865C6 /* CWEventDelegate.h */; };
+		EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EBF291A3E10008865C6 /* CWChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE902EC2291A3EDE008865C6 /* CoreWLANConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC1291A3EDE008865C6 /* CoreWLANConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE902EC5291A3F26008865C6 /* CoreWLANUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC3291A3F26008865C6 /* CoreWLANUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC4291A3F26008865C6 /* CoreWLANTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE902EC7291A48DA008865C6 /* CWEventDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE902ED42920D04E008865C6 /* cwtest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE265AEB20148010001ABC17 /* cwtest.m */; };
 		EE902ED72920D05E008865C6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
 		EE902ED82920D060008865C6 /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE153EF1145071D80062FB2D /* SecurityFoundation.framework */; };
@@ -206,17 +206,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE31114F125F68DB00DF3C91 /* CoreWLAN.h in Headers */,
-				EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */,
-				EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */,
-				EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */,
-				EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */,
-				EE311152125F68DB00DF3C91 /* CWWiFiClient.h in Headers */,
 				EE902EC2291A3EDE008865C6 /* CoreWLANConstants.h in Headers */,
-				EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */,
-				EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */,
+				EE902EC6291A3F26008865C6 /* CoreWLANTypes.h in Headers */,
 				EE902EC5291A3F26008865C6 /* CoreWLANUtil.h in Headers */,
+				EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */,
+				EE902EC0291A3E10008865C6 /* CWChannel.h in Headers */,
+				EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */,
+				EE902EC8291A48DA008865C6 /* CWEventDelegate.h in Headers */,
+				EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */,
 				EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */,
 				EE311155125F68DB00DF3C91 /* CWNetworkProfile.h in Headers */,
+				EE311152125F68DB00DF3C91 /* CWWiFiClient.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,7 +478,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -519,7 +519,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "Info-test.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -535,7 +535,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -571,7 +571,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "Info-test.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
