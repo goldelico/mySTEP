@@ -30,16 +30,6 @@
 - (NSString *) ssid;
 - (NSData *) ssidData;
 
-#if 0	// OLD
-- (NSString *) passphrase;
-- (void) setPassphrase:(NSString *) str;	// copy
-- (NSNumber *) securityMode;
-- (void) setSecurityMode:(NSNumber *) mode;
-- (void) setSsid:(NSString *) ssid;
-- (CW8021XProfile *) user8021XProfile;
-- (void) setUser8021XProfile:(CW8021XProfile *) profile;
-#endif
-
 @end
 
 @interface CWMutableNetworkProfile : CWNetworkProfile

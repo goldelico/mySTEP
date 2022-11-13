@@ -15,15 +15,6 @@
 	BOOL _requireAdministratorForAssociation;
 	BOOL _requireAdministratorForIBSSMode;
 	BOOL _requireAdministratorForPower;
-#if 0	// OLD
-	NSArray *_preferredNetworks;
-	NSArray *_rememberedNetworks;
-	BOOL _alwaysRememberNetworks;
-	BOOL _disconnectOnLogout;
-	BOOL _requireAdminForIBSSCreation;
-	BOOL _requireAdminForNetworkChange;
-	BOOL _requireAdminForPowerChange;
-#endif
 }
 
 + (CWConfiguration *) configuration; 
@@ -39,24 +30,6 @@
 - (BOOL) requireAdministratorForAssociation;
 - (BOOL) requireAdministratorForIBSSMode;
 - (BOOL) requireAdministratorForPower;
-
-#if 0	// old
-- (BOOL) alwaysRememberNetworks;
-- (void) setAlwaysRememberNetworks:(BOOL) flag; 
-- (BOOL) disconnectOnLogout;
-- (void) setDiconnectOnLogout:(BOOL) flag; 
-- (BOOL) requireAdminForIBSSCreation;
-- (void) setRequireAdminForIBSSCreation:(BOOL) flag; 
-- (BOOL) requireAdminForNetworkChange;
-- (void) setRequireAdminForNetworkChange:(BOOL) flag; 
-- (BOOL) requireAdminForPowerChange;
-- (void) setRequireAdminForPowerChange:(BOOL) flag; 
-
-- (NSArray *) preferredNetworks;	// CWWirelessProfile
-- (void) setPreferredNetworks:(NSArray *) str;
-- (NSArray *) rememberedNetworks;	// CWWirelessProfile
-- (void) setRememberedNetworks:(NSArray *) str;
-#endif
 
 @end
 

@@ -41,6 +41,10 @@
 - (BOOL) isEqualToInterface:(CWInterface *) interface;
 #endif
 
+#ifdef __mySTEP__
+typedef void *SecIdentityRef;
+#endif
+
 - (BOOL) associateToEnterpriseNetwork:(CWNetwork *) network
 							 identity:(SecIdentityRef) identity
 							 username:(NSString *) username
@@ -87,84 +91,3 @@
 - (CWChannel *) wlanChannel;
 
 @end
-
-#if 0	// OLD STUFF
-#if 0	// really old
-- (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
-#endif
-- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err;
-- (NSArray *) scanForNetworksWithParameters:(NSDictionary *) params error:(NSError **) err;
-- (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
-- (NSSet *) scanForNetworksWithName:(NSString *) networkName
-							  error:(out NSError **) error;
-- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
-							  error:(out NSError **) error;
-
-
-// ... tons of properties
-- (SFAuthorization *) authorization;
-- (void) setAuthorization:(SFAuthorization *) auth;
-
-- (NSData *) bssidData;
-- (NSNumber *) channel;
-- (NSNumber *) interfaceState;
-- (NSString *) name;
-- (NSNumber *) noise;	// in dBm
-- (NSNumber *) opMode;
-- (NSNumber *) phyMode;
-- (BOOL) power;
-- (BOOL) powerSave;
-- (NSNumber *) rssi;	// in dBm
-- (NSNumber *) securityMode;
-- (NSArray *) supportedChannels;
-- (NSArray *) supportedPHYModes;
-- (BOOL) supportsAES_CCM;
-- (BOOL) supportsHostAP;
-- (BOOL) supportsIBSS;
-- (BOOL) supportsMonitorMode;
-- (BOOL) supportsPMGT;
-- (BOOL) supportsShortGI20MHz;
-- (BOOL) supportsShortGI40MHz;
-- (BOOL) supportsTKIP;
-- (BOOL) supportsTSN;
-- (BOOL) supportsWEP;
-- (BOOL) supportsWME;
-- (BOOL) supportsWoW;
-- (BOOL) supportsWPA;
-- (BOOL) supportsWPA2;
-- (NSNumber *) txPower;	// in mW
-- (NSNumber *) txRate;	// in Mbit/s
-@end
-
-@class CWChannel;
-typedef NSInteger CWCipherKeyFlags;
-typedef NSInteger CWIBSSModeSecurity;
-typedef NSInteger CWInterfaceMode;
-#ifdef __mySTEP__
-typedef void *SecIdentityRef;
-#endif
-
-@interface CWInterface (NewerMethods)	// 10.6 and later
-
-- (BOOL) setPairwiseMasterKey:(NSData *) key
-						error:(out NSError **) error;
-- (BOOL) setWEPKey:(NSData *) key
-			 flags:(CWCipherKeyFlags) flags
-			 index:(NSInteger) index
-			 error:(out NSError **) error;
-- (BOOL) setWLANChannel:(CWChannel *) channel
-				  error:(out NSError **)error;
-- (NSSet *) scanForNetworksWithName:(NSString *) networkName
-							  error:(out NSError **) error;
-- (NSSet *) scanForNetworksWithSSID:(NSData *)ssid
-							  error:(out NSError **) error;
-- (BOOL) startIBSSModeWithSSID:(NSData *) ssidData
-					  security:(CWIBSSModeSecurity) security
-					   channel:(NSUInteger) channel
-					  password:(NSString *) password
-						 error:(out NSError **) error;
-- (BOOL) commitConfiguration:(CWConfiguration *) configuration
-			   authorization:(SFAuthorization *) authorization
-					   error:(out NSError **) error;
-
-#endif

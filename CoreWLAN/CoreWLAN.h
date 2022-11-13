@@ -11,7 +11,6 @@
 #define NSOrderedSet NSSet
 #define isEqualToOrderedSet isEqualToSet
 #define NSSecureCoding NSCoding
-#define SecIdentityRef void *
 #endif
 
 #import <CoreWLAN/CoreWLANConstants.h>

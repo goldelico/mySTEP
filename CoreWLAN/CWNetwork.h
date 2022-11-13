@@ -35,22 +35,3 @@
 - (CWChannel *) wlanChannel;
 
 @end
-
-#if 0	// OLD
-
-@class CWWirelessProfile;
-
-- (NSNumber *) channel;
-- (NSData *) ieData;
-- (BOOL) isIBSS;
-- (NSNumber *) noise;
-- (NSNumber *) phyMode;
-- (NSNumber *) rssi;
-- (NSNumber *) securityMode;
-- (CWWirelessProfile *) wirelessProfile;
-
-- (NSData *) bssidData;
-
-@end
-#endif
-
