@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
 	NSError *err=@"can't find interface";	// will be printed if cw == nil
-	CWInterface *cw=[CWInterface interface];
+	CWInterface *cw=[CWWiFiClient interface];	// default interface
 	NSArray *nw;
 	NSEnumerator *e;
 	CWNetwork *network;
