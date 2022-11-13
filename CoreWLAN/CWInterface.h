@@ -23,7 +23,6 @@
 	id _scanner;	// internal type
 	CWNetwork *_associatedNetwork;
 	NSDate *_lastScan;
-	// add cached values and timestamps
 	NSArray *_modes;
 	NSMutableData *_dataCollector;
 }

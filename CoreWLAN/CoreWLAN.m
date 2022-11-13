@@ -205,6 +205,8 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	return [[CWMutableConfiguration alloc] initWithConfiguration:self];
 }
 
+- (BOOL) supportsSecureCoding; { return YES; }
+
 - (void) encodeWithCoder:(NSCoder *) coder
 {
 
@@ -611,10 +613,10 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		 Selected interface 'wlan1'
 		 OK
 		 */
-		return NO;
+		return nil;
 	e=[[self _runWPA:@"scan_result"] objectEnumerator];
 	if(!e)
-		return NO;
+		return nil;
 	/*
 	 Selected interface 'wlan1'
 	 bssid / frequency / signal level / flags / ssid
@@ -790,7 +792,10 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 			if([key isEqualToString:@"id"])
 				;
 			else if([key isEqualToString:@"bssid"])
-				[_bssid release], _bssid=[value retain];
+				{
+				[_bssid release];
+				_bssid=[value retain];
+				}
 			else if([key isEqualToString:@"freq"])
 				;	// convert to channel number
 			else if([key isEqualToString:@"qual"])
@@ -800,9 +805,15 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 			else if([key isEqualToString:@"level"])
 				;
 			else if([key isEqualToString:@"ie"])
-				[_ieData release], _ieData=[value retain];
+				{
+				[_ieData release];
+				_ieData=[value retain];
+				}
 			else if([key isEqualToString:@"ssid"])
-				[_ssid release], _ssid=[value retain];
+				{
+				[_ssid release];
+				_ssid=[value retain];
+				}
 			else
 				NSLog(@"unknown key %@ value %@", key, value);
 			}
@@ -880,13 +891,16 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (id) initWithNetworkProfile:(CWNetworkProfile *) other;
 {
-	// FIXME: copy all
+	if((self=[self init]))
+		{
+		_ssid=[[other ssid] copy];
+		_mode=[other security];
+		}
 	return self;
 }
 
 - (void) dealloc
 {
-//	[_passphrase release]
 	[_ssid release];
 	[super dealloc];
 }
@@ -894,22 +908,30 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 + (CWNetworkProfile *) networkProfile; { return [[self new] autorelease]; }
 + (CWNetworkProfile *) networkProfileWithNetworkProfile:(CWNetworkProfile *) other; { return [[[self alloc] initWithNetworkProfile:other] autorelease]; }
 
-/*
-- (BOOL) isEqualToProfile:(CWWirelessProfile *) profile;
-- (BOOL) isEqual:(id) other;
+- (BOOL) isEqualToProfile:(CWNetworkProfile *) other;
+{
+	return [[self ssid] isEqual:[other ssid]]
+	&& [self security] == [other security];
+}
+
+- (BOOL) isEqual:(id) other; { return [self isEqualToProfile:other]; }
+
 - (NSUInteger) hash;
-*/
+{
+	return [_ssid hash] + _mode;
+}
 
 - (CWSecurity) security; { return _mode; }
 - (NSString *) ssid; { return [[[NSString alloc] initWithData:_ssid encoding:NSUTF8StringEncoding] autorelease]; }	// convert _ssid to string
 - (NSData *) ssidData; { return _ssid; }
 
-- (id) copyWithZone:(NSZone *) zone {
-	return nil;
+- (id) copyWithZone:(NSZone *) zone
+{
+	return [[CWNetworkProfile allocWithZone:zone] initWithNetworkProfile:self];
 }
 
 - (id) mutableCopyWithZone:(NSZone *) zone {
-	return nil;
+	return [[CWMutableNetworkProfile allocWithZone:zone] initWithNetworkProfile:self];
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder {
