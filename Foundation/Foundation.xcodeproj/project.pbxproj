@@ -1673,6 +1673,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1687,7 +1688,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
@@ -1697,13 +1698,7 @@
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				OTHER_CFLAGS = (
-					"-isysroot",
-					/,
-					"-isystem",
-					Sources,
-					"-I/usr/include",
-				);
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
@@ -1733,6 +1728,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1744,7 +1740,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
@@ -1754,13 +1750,7 @@
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				OTHER_CFLAGS = (
-					"-isysroot",
-					/,
-					"-isystem",
-					Sources,
-					"-I/usr/include",
-				);
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
@@ -1790,6 +1780,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_MODULES_AUTOLINK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1800,7 +1791,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
@@ -1810,13 +1801,7 @@
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				OTHER_CFLAGS = (
-					"-isysroot",
-					/,
-					"-isystem",
-					Sources,
-					"-I/usr/include",
-				);
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
