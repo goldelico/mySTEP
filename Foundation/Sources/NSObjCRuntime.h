@@ -397,7 +397,7 @@ extern void NSLogv(NSString *format, va_list args);
 // extern unsigned NSLogPageSize(void);
 extern NSUInteger NSRoundDownToMultipleOfPageSize(NSUInteger bytes);
 extern NSUInteger NSRoundUpToMultipleOfPageSize(NSUInteger bytes);
-extern NSUInteger NSRealMemoryAvailable();
+extern NSUInteger NSRealMemoryAvailable(void);
 extern void *NSAllocateMemoryPages(NSUInteger bytes);
 extern void NSDeallocateMemoryPages(void *ptr, NSUInteger bytes);
 extern void NSCopyMemoryPages(const void *source, void *dest, NSUInteger bytes);

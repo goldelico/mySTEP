@@ -248,7 +248,7 @@
 	NSMethodSignature *sig=[self methodSignature];
 	unsigned char len=[sig methodReturnLength];	// this should be the length really allocated
 	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
-	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
+	NSUInteger cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
 	// if we move this to NSInvocation we don't even need the private methods
 	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
 	//	const char *type=[sig _methodTypes];	// would be a little faster

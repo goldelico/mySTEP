@@ -116,7 +116,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
 {
 	if (actions != nil)
 		{
-		unsigned	i = [actions count];
+		NSUInteger i = [actions count];
 
 		while (i-- > 0)
 			{
@@ -129,7 +129,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
 {
 	if (actions != nil)
 		{
-		unsigned	i = [actions count];
+		NSUInteger i = [actions count];
 
 		while (i-- > 0)
 			{
@@ -513,7 +513,7 @@ NSString *NSUndoManagerWillUndoChangeNotification =
 
 - (void) removeAllActionsWithTarget: (id)target
 {
-	unsigned 	i;
+	NSUInteger i;
 
 	i = [_redoStack count];
 	while (i-- > 0)

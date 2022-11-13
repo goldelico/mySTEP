@@ -188,8 +188,8 @@ static NSMutableDictionary *__hostCache = nil;
 
 - (BOOL) isEqualToHost:(NSHost *)aHost
 {
-NSArray *a;
-int i, count;
+	NSArray *a;
+	NSUInteger i, count;
 
 	if (aHost == self)
 		return YES;

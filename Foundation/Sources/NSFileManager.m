@@ -417,7 +417,8 @@ static NSFileManager *__fm = nil;
 				 contents:(NSData*)contents
 			   attributes:(NSDictionary*)attributes
 {
-	int fd, len, written;
+	int fd;
+	NSInteger len, written;
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
 	if(!cpath)
 		return NO;
@@ -765,7 +766,7 @@ static NSFileManager *__fm = nil;
 	if(cpath)
 		{
 		char *lpath=objc_malloc(PATH_MAX+1);
-		int llen = readlink(cpath, lpath, PATH_MAX);
+		long llen = readlink(cpath, lpath, PATH_MAX);
 		if(llen > 0)
 			str=[self stringWithFileSystemRepresentation:lpath length:llen];
 		objc_free(lpath);
@@ -781,7 +782,7 @@ static NSFileManager *__fm = nil;
 	while(YES)
 		{ // try to expand symlink
 			char *buffer=_autoFreedBufferWithLength(PATH_MAX+1);
-			int llen = readlink(cpath, buffer, PATH_MAX);
+			long llen = readlink(cpath, buffer, PATH_MAX);
 #if 0
 			NSLog(@"_traverseLink readlink %s -> %d", cpath, llen);
 #endif
@@ -800,7 +801,6 @@ static NSFileManager *__fm = nil;
 				{ // handle relative links
 				const char *dirname=strrchr(cpath, '/');
 				char *newpath=_autoFreedBufferWithLength(PATH_MAX+1);
-				int dlen;
 				if(!dirname) dirname=cpath-1;	// cpath itself is relative
 				strncpy(newpath, cpath, dirname-cpath+1);	// keep / intact
 				strcpy(newpath+(dirname-cpath+1), buffer);

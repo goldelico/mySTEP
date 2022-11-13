@@ -938,7 +938,7 @@ const char *NSGetSizeAndAlignment(const char *typePtr,
 #endif
 // Cache size of a memory page
 // to avoid repeated calls to
-static unsigned _pageSize = 0;					// getpagesize() system call
+static NSUInteger _pageSize = 0;					// getpagesize() system call
 
 NSUInteger										// Return the number of bytes
 NSPageSize (void)								// in a memory page.
@@ -949,8 +949,8 @@ NSPageSize (void)								// in a memory page.
 NSUInteger
 NSLogPageSize (void)							// Return log base 2 of the
 {												// number of bytes in a memory
-	unsigned tmp_page_size = NSPageSize();			// page.
-	unsigned log = 0;
+	NSUInteger tmp_page_size = NSPageSize();			// page.
+	NSUInteger log = 0;
 
 	while (tmp_page_size >>= 1)
 		log++;
@@ -961,7 +961,7 @@ NSLogPageSize (void)							// Return log base 2 of the
 NSUInteger
 NSRoundDownToMultipleOfPageSize (NSUInteger bytes)
 {												// Round BYTES down to the
-	unsigned a = NSPageSize();						// nearest multiple of the
+	NSUInteger a = NSPageSize();						// nearest multiple of the
 													// memory page size, and return
 	return (bytes / a) * a;						// it.
 }
@@ -969,11 +969,11 @@ NSRoundDownToMultipleOfPageSize (NSUInteger bytes)
 NSUInteger										// multiple of the memory page
 NSRoundUpToMultipleOfPageSize (NSUInteger bytes)	// size, and return it.
 {
-	unsigned a = NSPageSize();
+	NSUInteger a = NSPageSize();
 	return ((bytes % a) ? ((bytes / a + 1) * a) : bytes);
 }
 
-NSUInteger NSRealMemoryAvailable()
+NSUInteger NSRealMemoryAvailable(void)
 {
 #ifdef __linux__
 #if __TYPICALLY_SOMETHING_LIKE__

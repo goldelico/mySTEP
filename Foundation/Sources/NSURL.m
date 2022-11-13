@@ -631,7 +631,7 @@ static NSString *nounescape(const char *from)
 static NSString *unescape(const char *from, BOOL stripslash)
 {
 	NSString *result;
-	int len;
+	unsigned long len;
 	char *to, *bfr;
 	if(!from)
 		return nil;	// nothing to unescape...
@@ -1135,7 +1135,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
  * does not expand % escapes
  * does not standardize the path
  */
-- (NSString*) absoluteString
+- (NSString *) absoluteString
 {
 #if 0
 	NSLog(@"absoluteString: %@", self);

@@ -97,7 +97,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 
 - (id) initWithString:(NSString*)string range:(NSRange)aRange
 {
-	int stringLength = [string length];
+	NSUInteger stringLength = [string length];
 	if(aRange.location > stringLength)
 		[NSException raise: NSRangeException format:@"Invalid location."];
 	_count = aRange.length;
@@ -329,7 +329,7 @@ static Class _mutableStringClass;
 static Class _cStringClass;								// For cString's
 static NSStringEncoding __cStringEncoding=NSASCIIStringEncoding;	// default encoding
 
-static unsigned (*_strHashImp)();
+static unsigned (*_strHashImp)(id, SEL);
 static SEL csInitSel;
 static SEL msInitSel;
 static IMP csInitImp;					// designated initialiser for cString
@@ -368,7 +368,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		_mutableStringClass = [GSMutableString class];
 
 		// Cache some method implementations for quick access later.
-		_strHashImp = (unsigned (*)()) [_nsStringClass instanceMethodForSelector: @selector(hash)];
+		_strHashImp = (unsigned (*)(id, SEL)) [_nsStringClass instanceMethodForSelector: @selector(hash)];
 		if(!_strHashImp)
 			NSLog(@"_strHashImp not defined");
 		csInitSel = @selector(initWithCStringNoCopy:length:freeWhenDone:);
@@ -2304,7 +2304,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		base_path = @".";
 
 	e = [[NSFileManager defaultManager] enumeratorAtPath: base_path];
-	while (tmp_path = [e nextObject], tmp_path)
+	while ((tmp_path = [e nextObject]))
 		{													// Prefix matching
 			if (flag)
 				{ 												// Case sensitive
@@ -2480,7 +2480,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) stringByDeletingLastPathComponent
 {
 	NSMutableArray *components=[self _mutablePathComponents];
-	unsigned int cnt=[components count];
+	NSUInteger cnt=[components count];
 	//	NSLog(@"c=%@", components);
 	if(cnt > 0)
 		{
@@ -2550,7 +2550,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString *) stringByExpandingTildeInPath
 {
 	NSMutableArray *path=[self _mutablePathComponents];
-	unsigned int cnt=[path count];
+	NSUInteger cnt=[path count];
 	NSString *first=cnt > 0 ? [path objectAtIndex:0] : nil; // exists even for "/" - except vor ""
 	if([first hasPrefix:@"~"])
 		{
@@ -2655,8 +2655,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) stringByStandardizingPath
 {
 	NSMutableArray *c=[[self stringByExpandingTildeInPath] _mutablePathComponents];
-	unsigned int cnt=[c count];
-	unsigned int i;
+	NSUInteger cnt=[c count];
+	NSUInteger i;
 	//	NSLog(@"a=%@", c);
 	BOOL isAbsolute=cnt > 0 && [[c objectAtIndex:0] isEqualToString:pathSepString];
 	for(i=(isAbsolute?1:0); i < cnt; i++)
@@ -2679,7 +2679,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set
 { // not at all optimized for speed!
-	unsigned from=0, to=[self length];
+	NSUInteger from=0, to=[self length];
 	while(from < to)
 		{
 		if(![set characterIsMember:[self characterAtIndex:from]])
@@ -2747,7 +2747,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSMutableArray*) _mutablePathComponents
 {
 	NSMutableArray *a = [[self componentsSeparatedByCharactersInSet: pathSeps] mutableCopy];
-	int	i = [a count];
+	NSUInteger	i = [a count];
 
 	if (i > 0)
 		{
@@ -2911,7 +2911,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	pcount=[pad length];
 	while(count < len)
 		{
-		unsigned n;
+		NSUInteger n;
 		if(count+pcount <= len && index == 0)
 			{ // append a full padding block
 			  //			NSLog(@"pad with *%@*", pad);
@@ -2936,7 +2936,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 { // convert to given encoding (should be UTF8) http://www.w3.org/International/O-URL-code.html
 	NSMutableString *s;
 	NSData *data=[self dataUsingEncoding:encoding];
-	int i, count;
+	NSUInteger i, count;
 	const char *p;
 	if(!data)
 		return nil;	// can't encode
@@ -2956,7 +2956,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 {
 	NSMutableData *data=[NSMutableData dataWithCapacity:[self length]];
-	int i, count=[self length];
+	NSUInteger i, count=[self length];
 	for(i=0; i<count; i++)
 		{
 		unichar c=[self characterAtIndex:i];
@@ -3026,7 +3026,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 												  length:length] autorelease];
 }
 
-- (void) insertString:(NSString*)aString atIndex:(unsigned)loc
+- (void) insertString:(NSString*)aString atIndex:(NSUInteger)loc
 {
 	[self replaceCharactersInRange:(NSRange){loc, 0} withString:aString];
 }
@@ -3290,8 +3290,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 { // convert to a C-String and cache in _cString
 	uniencoder e=encodeuni(__cStringEncoding);		// get appropriate encoder function
 	unsigned char *bp;
-	int len;
-	int i;
+	NSUInteger len;
+	NSUInteger i;
 	if(!e)
 		return NULL;
 	len=[self maximumLengthOfBytesUsingEncoding:__cStringEncoding]+1;
@@ -3438,7 +3438,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (void) setString:(NSString*)aString
 {
-	int len = [aString length];
+	NSUInteger len = [aString length];
 	if (_capacity < len)
 		{
 		_capacity = (len < 2) ? 2 : len;
@@ -3470,8 +3470,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (void) replaceCharactersInRange:(NSRange)aRange withString:(NSString*)aString
 {
-	int offset;
-	unsigned stringLength, maxRange = NSMaxRange(aRange);
+	NSInteger offset;
+	NSUInteger stringLength, maxRange = NSMaxRange(aRange);
 #if 0	// this seems to be recursive!
 	NSLog(@"%@ replaceCharactersInRange:%@ withString:\"%@\" (len=%d)", self, NSStringFromRange(aRange), aString, [aString length]);
 #endif
@@ -3538,7 +3538,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 	if (range.length > 0)
 		{
-		unsigned	byLen = [by length];
+		NSUInteger byLen = [by length];
 
 		do
 			{
@@ -3625,7 +3625,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			  range:(NSRange)aRange
 	 remainingRange:(NSRange*)leftoverRange
 {
-	int len;
+	NSUInteger len;
 
 	if (NSMaxRange(aRange) > _count)
 		[NSException raise:NSRangeException format:@"Invalid location+length"];
@@ -3685,7 +3685,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (void) getCharacters:(unichar*)buffer range:(NSRange)aRange
 {
-	int e, i;
+	NSUInteger e, i;
 	unidecoder d=decodeuni(__cStringEncoding);		// get appropriate encoder function
 	unsigned char *p;
 	if(!d)
@@ -3949,7 +3949,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 /* this allows us to compile on MacOS X - but it does not work */
 /* described by http://jens.ayton.se/blag/objc-constant-objects/#objc-constant-objects-footnote-1 */
-int __CFConstantStringClassReference [];
+int __CFConstantStringClassReference [0];
 
 #else
 

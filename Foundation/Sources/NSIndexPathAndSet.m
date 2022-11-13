@@ -51,8 +51,8 @@ static NSIndexPath *_root;
 		return NSOrderedSame;	// must be the same
 	for(i=0; i<_length && i < objLength; i++)
 		{
-		unsigned my=[self indexAtPosition:i];
-		unsigned other=[obj indexAtPosition:i];
+		NSUInteger my=[self indexAtPosition:i];
+		NSUInteger other=[obj indexAtPosition:i];
 		if(my < other)
 			return NSOrderedAscending;
 		if(my > other)

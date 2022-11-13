@@ -208,7 +208,7 @@ NSDictionary *dict = [string propertyList];
 - (id) initWithBytes:(const void *)value
 			objCType:(const char *)type
 { /* store a copy of type and data */
-	int tsize = strlen(type);
+	unsigned long tsize = strlen(type);
 	dataType = objc_malloc(tsize+1);
 	strcpy(dataType, type);
 	dataSize = objc_sizeof_type(dataType);

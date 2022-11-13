@@ -37,7 +37,9 @@ typedef enum _NSThreadPriority
 
 - (void) _gsThreadDetach:(id)anArgument
 {
+#ifndef __APPLE__
 	id (*imp)(id,SEL,id);
+	#endif
 
 	objc_thread_set_data(self);
 	_autorelease_vars.current_pool = [NSAutoreleasePool new];

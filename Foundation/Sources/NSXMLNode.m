@@ -96,7 +96,7 @@
 - (NSArray *) children; { return _children; }
 - (NSString *) URI; { return _URI; }
 
-- (NSUInteger) level; { NSUInteger level=0; while(_parent) level++, self=_parent; return level; }
+- (NSUInteger) level; { NSUInteger level=0; while(_parent) { level++; self=_parent; } return level; }
 - (NSUInteger) index; { return [[_parent children] indexOfObjectIdenticalTo:self]; }
 - (NSXMLNode *) childAtIndex:(NSUInteger) idx; { return [_children objectAtIndex:idx]; }
 - (NSXMLNode *) previousSibling; { NSUInteger idx=[self index]; return idx > 0?[_parent childAtIndex:idx-1]:(NSXMLNode *)nil; }
@@ -132,7 +132,7 @@
 			[str appendFormat:@"xmlns:%@", _objectValue];
 			break;
 		case NSXMLProcessingInstructionKind: {
-			int documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
+			unsigned long documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
 			if(documentKind != NSXMLDocumentTextKind)
 				{
 				[str appendFormat:@"<?%@", _name];
@@ -145,7 +145,7 @@
 			break;
 		}
 		case NSXMLCommentKind: {
-			int documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
+			unsigned long documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
 		// FIXME: escape -- in comments
 			if(documentKind != NSXMLDocumentTextKind)
 				//what if there is --> part of the string???

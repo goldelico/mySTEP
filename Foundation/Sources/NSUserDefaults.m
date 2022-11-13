@@ -373,7 +373,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 
 - (void) addSuiteNamed:(NSString *) domain;
 { // add to search path behind application identifier (if present)
-	unsigned i=[_searchList count];
+	NSUInteger i=[_searchList count];
 	if(i > 2)
 		i=2;	// limit
 	[_searchList insertObject:domain atIndex:i];	// add to search path behind Application domain (assuming its existence!)

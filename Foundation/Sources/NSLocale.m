@@ -56,7 +56,7 @@ NSString *NSLocaleCurrencyCode=@"NSLocaleCurrencyCode";
 		}
 	if (!langs || ![langs containsObject:@"English"])
 		{
-		int s = [langs count] + 1;
+		unsigned long s = [langs count] + 1;
 		NSMutableArray *u = [NSMutableArray arrayWithCapacity:s];
 		
 		if(langs)

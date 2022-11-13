@@ -68,7 +68,7 @@ __NSCheckHashTableFull(NSHashTable* table)					// Check if node
 {															// table is full.
 	if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
 		{
-		unsigned newSize = nextPrime((table->hashSize * 4) / 3);
+		NSUInteger newSize = nextPrime((table->hashSize * 4) / 3);
 		if(newSize != table->hashSize)
 			__NSHashGrow(table, newSize);
 		}
@@ -79,7 +79,7 @@ __NSCheckMapTableFull(NSMapTable* table)
 {
 	if( ++(table->itemsCount) >= ((table->hashSize * 3) / 4))
 		{
-		unsigned newSize = nextPrime((table->hashSize * 4) / 3);
+		NSUInteger newSize = nextPrime((table->hashSize * 4) / 3);
 		if(newSize != table->hashSize)
 			__NSMapGrow(table, newSize);
 		}

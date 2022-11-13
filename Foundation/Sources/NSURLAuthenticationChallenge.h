@@ -31,7 +31,7 @@
 	NSURLCredential *_proposedCredential;
 	NSURLProtectionSpace *_protectionSpace;
 	id <NSURLAuthenticationChallengeSender> _sender;
-	int _previousFailureCount;
+	NSInteger _previousFailureCount;
 }
 
 - (NSError *) error;

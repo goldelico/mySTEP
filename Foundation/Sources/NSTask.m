@@ -302,10 +302,10 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	const char *executable;
 	const char *path;
 	NSArray *a = [self arguments];
-	int argCount = [a count];
+	NSUInteger argCount = [a count];
 	const char *args[argCount+2];
 	NSDictionary *e = [self environment];
-	int envCount = [e count];
+	NSUInteger envCount = [e count];
 	const char *envl[envCount+1];
 	NSArray *k = [e allKeys];
 	struct passwd *p=NULL;

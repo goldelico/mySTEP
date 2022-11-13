@@ -27,7 +27,7 @@ extern NSString *NSURLAuthenticationMethodHTMLForm;
 	NSString *_protocol;
 	NSString *_proxyType;
 	NSString *_realm;
-	int _port;
+	NSInteger _port;
 	BOOL _receivesCredentialSecurely;
 }
 

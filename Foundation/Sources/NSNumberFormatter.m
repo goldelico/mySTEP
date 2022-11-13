@@ -555,7 +555,7 @@ NSNumberFormatter class
 	NSDecimalNumber	*roundedNumber;
 	NSDecimalNumber	*intPart;
 	NSDecimalNumber	*fracPart;
-	int			decimalPlaces = 0;
+	long			decimalPlaces = 0;
 	BOOL			displayThousandsSeparators = NO;
 	BOOL			displayFractionalPart = NO;
 	BOOL			negativeNumber = NO;
@@ -696,7 +696,7 @@ NSNumberFormatter class
 	// fix the thousands separators up
 	if (displayThousandsSeparators && [intPartString length] > 3)
 		{
-		int index = [intPartString length];
+		NSUInteger index = [intPartString length];
 		
 		while (0 < (index -= 3))
 			{
