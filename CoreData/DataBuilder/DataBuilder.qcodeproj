@@ -18,7 +18,7 @@ export SOURCES+=" ModelView.m"
 export SOURCES+=" NSFontAdditions.m"
 export SOURCES+=" NSViewAdditions.m"
 export SOURCES+=" RelationshipEditor.m"
-export SOURCES+=" main.m"
+export SOURCES+=" main.m Info.plist"
 export WRAPPER_EXTENSION="app"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
