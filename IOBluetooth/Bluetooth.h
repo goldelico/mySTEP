@@ -7,6 +7,8 @@
 //
 
 #import <IOBluetooth/BluetoothAssignedNumbers.h>
+
+#if 0	// use IOBluetooth.h to get these
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
 #import <IOBluetooth/objc/IOBluetoothL2CAPChannel.h>
 #import <IOBluetooth/objc/IOBluetoothRFCOMMChannel.h>
@@ -18,3 +20,4 @@
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
 #import <IOBluetooth/objc/OBEXFileTransferServices.h>
 #import <IOBluetooth/objc/OBEXSession.h>
+#endif
