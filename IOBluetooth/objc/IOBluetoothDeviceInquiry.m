@@ -196,7 +196,7 @@
 	for(i=0; i<cnt; i++)
 		{ // count remaining devices still without name
 		d=[_devices objectAtIndex:i];
-		if(d != dev && [d getName] == nil)
+		if(d != dev && [d name] == nil)
 			remaining++;	// don't count
 		}
 	if(dev)
@@ -212,7 +212,7 @@
 		for(i=0; i<cnt; i++)
 			{ // find first and request name
 			d=[_devices objectAtIndex:i];
-			if([d getName] == nil)
+			if([d name] == nil)
 				{
 				[d remoteNameRequest:self];	// request to asynchronously update the device name once
 				break;

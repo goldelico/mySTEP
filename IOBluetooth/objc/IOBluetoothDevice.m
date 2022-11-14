@@ -152,7 +152,7 @@ static NSMutableArray *_paired;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%ld clockoff:%f", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
+	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%ld clockoff:%f", [self getAddressString], [self name], [self getClassOfDevice], [self getClockOffset]];
 }
 
 - (const BluetoothDeviceAddress *) getAddress; { return &_addr; }
@@ -174,8 +174,8 @@ static NSMutableArray *_paired;
 - (NSDate *) getLastNameUpdate; { return _lastNameUpdate; }
 - (NSDate *) getLastServicesUpdate; { return NIMP; }
 - (BluetoothLinkType) getLinkType; { NIMP; return 0; }
-- (NSString *) getName; { return _name; }
-- (NSString *) getNameOrAddress; { return _name?_name:[self getAddressString]; }
+- (NSString *) name; { return _name; }
+- (NSString *) nameOrAddress; { return _name?_name:[self getAddressString]; }
 - (BluetoothPageScanMode) getPageScanMode; { NIMP; return 0; }
 - (BluetoothPageScanPeriodMode) getPageScanPeriodMode; { NIMP; return 0; }
 - (BluetoothPageScanRepetitionMode) getPageScanRepetitionMode; { NIMP; return 0; }
@@ -320,7 +320,7 @@ static NSMutableArray *_paired;
 {
 	if((self=[self _initWithAddress:[ref getAddress]]))
 		{
-		[self _setName:[ref getName]];
+		[self _setName:[ref name]];
 		}
 	return self;
 }
