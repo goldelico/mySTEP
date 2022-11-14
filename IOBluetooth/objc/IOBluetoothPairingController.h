@@ -12,7 +12,7 @@
 @class IOBluetoothPairingController;
 typedef IOBluetoothPairingController *IOBluetoothPairingControllerRef;
 
-typedef NSObject IOBluetoothDeviceSearchAttributes;
+// typedef NSObject IOBluetoothDeviceSearchAttributes;
 
 @interface IOBluetoothPairingController : NSWindowController
 {

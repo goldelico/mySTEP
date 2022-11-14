@@ -22,7 +22,7 @@ typedef IOBluetoothServiceBrowserController *IOBluetoothServiceBrowserController
 }
 
 + (IOReturn) browseDevices:(IOBluetoothSDPServiceRecord **) result options:(IOBluetoothServiceBrowserControllerOptions) options;
-+ (IOReturn) browseDevicesAsSheetForWindow:(NSWindow *) sheet options: window:(NSWindow *) window;
++ (IOReturn) browseDevicesAsSheetForWindow:(NSWindow *) sheet options:(IOBluetoothServiceBrowserControllerOptions) options window:(NSWindow *) window;
 + (IOBluetoothServiceBrowserController *) withServiceBrowserControllerRef:(IOBluetoothServiceBrowserControllerRef) ref;
 + (IOBluetoothServiceBrowserController *) serviceBrowserController:(IOBluetoothServiceBrowserControllerOptions) options;
 

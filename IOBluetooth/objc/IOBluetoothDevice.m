@@ -56,7 +56,7 @@ static NSMutableArray *_paired;
 	int status=[task terminationStatus];
 	NSData *result=[[[task standardOutput] fileHandleForReading] readDataToEndOfFile];
 	NSString *name=[[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];	// contains a terminating \n
-	int len=[name length];
+	NSInteger len=[name length];
 	if(len > 0)
 		{
 		name=[name substringToIndex:len-1];
@@ -152,7 +152,7 @@ static NSMutableArray *_paired;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%d clockoff:%d", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
+	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%f clockoff:%f", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
 }
 
 - (const BluetoothDeviceAddress *) getAddress; { return &_addr; }

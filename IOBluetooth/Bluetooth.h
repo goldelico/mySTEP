@@ -6,8 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CHECKME: is this not called IOBluetooth.h?
-
 #import <IOBluetooth/BluetoothAssignedNumbers.h>
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
 #import <IOBluetooth/objc/IOBluetoothL2CAPChannel.h>

@@ -190,8 +190,8 @@
 
 - (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
 { // device name received
-	int i, cnt=[_devices count];
-	int remaining=0;
+	NSInteger i, cnt=[_devices count];
+	NSInteger remaining=0;
 	IOBluetoothDevice *d;
 	for(i=0; i<cnt; i++)
 		{ // count remaining devices still without name

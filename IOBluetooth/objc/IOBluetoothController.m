@@ -212,6 +212,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NS_ENDHANDLER
 }
 
+- (void) terminateNotification:(NSNotification *) n;
+{
+
+}
+
 - (int) runCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
