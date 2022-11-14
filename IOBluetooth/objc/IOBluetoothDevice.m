@@ -96,7 +96,7 @@ static NSMutableArray *_paired;
 	NSMutableArray *result=[NSMutableArray arrayWithCapacity:10];
 	while((addr=[e nextObject]))
 		{
-		BluetoothDeviceAddress *addr;
+		BluetoothDeviceAddress *addr=nil;
 		// translate addr string into BluetoothDeviceAddress descriptor
 		[result addObject:[self withAddress:addr]];
 		}
@@ -117,7 +117,7 @@ static NSMutableArray *_paired;
 	// sort keys by object value (NSDate) descending
 	while(limit-- > 0 && (addr=[e nextObject]))
 		{ // copy first limit records to result
-		BluetoothDeviceAddress *addr;
+		BluetoothDeviceAddress *addr=nil;
 		// translate addr string into BluetoothDeviceAddress descriptor
 		[result addObject:[self withAddress:addr]];
 		}
@@ -152,7 +152,7 @@ static NSMutableArray *_paired;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%f clockoff:%f", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
+	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%ld clockoff:%f", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
 }
 
 - (const BluetoothDeviceAddress *) getAddress; { return &_addr; }
