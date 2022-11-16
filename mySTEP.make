@@ -534,15 +534,15 @@ ifeq ($(TRIPLE),MacOS)
 ### MacOS should use -F and the framework path!
 INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
-	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
+	if [ -d "/System/Library/Frameworks/$${FMWK}.framework" ]; \
 	then :; \
-	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
+	elif [ -d "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework" ]; \
 	then echo "-I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
-	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
+	elif [ -d "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework" ]; \
 	then echo "-I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
-	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
+	elif [ -d "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework" ]; \
 	then echo "-I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
-	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
+	elif [ -d "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework" ]; \
 	then echo "-I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
 	else echo "-I$$FMWK.headers$(LNK)"; \
 	fi; done)
@@ -550,31 +550,31 @@ INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 ### FIXME: why do we need this? MacOS only...
 LIBS := $(LIBS) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
-	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
-	then echo -framework $$FMWK; \
-	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
-	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
-	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
-	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib; \
-	else echo lib$$FMWK.dylib; \
+	if [ -d "/System/Library/Frameworks/$${FMWK}.framework" ]; \
+	then echo -framework "$$FMWK"; \
+	elif [ -d "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	elif [ -d "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	elif [ -d "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework" ]; \
+	then echo "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	elif [ -d "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	else echo "lib$$FMWK.dylib"; \
 	fi; done)
 else
 # look up headers and libs to link
 INCLUDES := $(INCLUDES) $(shell for FMWK in $(FRAMEWORKS); \
 	do \
-	if [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
-	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
-	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
-	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK); \
-	else echo -I$$FMWK$(LNK); \
+	if [ -d "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "-I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
+	elif [ -d "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "-I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
+	elif [ -d "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework" ]; \
+	then echo "-I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
+	elif [ -d "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework" ]; \
+	then echo "-I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
+	else echo "-I$$FMWK$(LNK)"; \
 	fi; done)
 
 ### hier fehlt vermutlich noch der rlink-path!
@@ -1221,7 +1221,7 @@ ifeq ($(INSTALL),true)
 	# should we better untar the .deb?
 	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
-	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" $(HOST_INSTALL_PATH) && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
+	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
 	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
 	# installed on localhost at $(HOST_INSTALL_PATH)
 else
