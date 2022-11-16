@@ -537,14 +537,14 @@ INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	if [ -d /System/Library/Frameworks/$${FMWK}.framework ]; \
 	then :; \
 	elif [ -d $(QuantumSTEP)/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
+	then echo "-I$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
 	elif [ -d $(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
+	then echo "-I$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
 	elif [ -d $(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers; \
+	then echo "-I$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
 	elif [ -d $(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework ]; \
-	then echo -I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers; \
-	else echo -I$$FMWK.headers; \
+	then echo "-I$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/Headers$(LNK)"; \
+	else echo "-I$$FMWK.headers$(LNK)"; \
 	fi; done)
 
 ### FIXME: why do we need this? MacOS only...
