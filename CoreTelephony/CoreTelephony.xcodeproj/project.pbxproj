@@ -24,7 +24,6 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE02A43413C1E20A00D5E67E /* CoreTelephony.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A42E13C1E20A00D5E67E /* CoreTelephony.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43513C1E20A00D5E67E /* CoreTelephony.m in Sources */ = {isa = PBXBuildFile; fileRef = EE02A42F13C1E20A00D5E67E /* CoreTelephony.m */; };
 		EE02A43613C1E20A00D5E67E /* CTCall.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43013C1E20A00D5E67E /* CTCall.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43713C1E20A00D5E67E /* CTCallCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43113C1E20A00D5E67E /* CTCallCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -74,7 +73,6 @@
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CoreTelephony.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreTelephony.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE02A41713C1E1BA00D5E67E /* CoreTelephony_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreTelephony_Prefix.pch; sourceTree = "<group>"; };
-		EE02A42E13C1E20A00D5E67E /* CoreTelephony.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreTelephony.h; sourceTree = "<group>"; };
 		EE02A42F13C1E20A00D5E67E /* CoreTelephony.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreTelephony.m; sourceTree = "<group>"; };
 		EE02A43013C1E20A00D5E67E /* CTCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCall.h; sourceTree = "<group>"; };
 		EE02A43113C1E20A00D5E67E /* CTCallCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCallCenter.h; sourceTree = "<group>"; };
@@ -189,7 +187,6 @@
 		EE02A43B13C1E21600D5E67E /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				EE02A42E13C1E20A00D5E67E /* CoreTelephony.h */,
 				EE02A42F13C1E20A00D5E67E /* CoreTelephony.m */,
 				EE02A43013C1E20A00D5E67E /* CTCall.h */,
 				EE02A43113C1E20A00D5E67E /* CTCallCenter.h */,
@@ -217,7 +214,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE02A43413C1E20A00D5E67E /* CoreTelephony.h in Headers */,
 				EE02A43613C1E20A00D5E67E /* CTCall.h in Headers */,
 				EE02A43713C1E20A00D5E67E /* CTCallCenter.h in Headers */,
 				EE02A43813C1E20A00D5E67E /* CTCarrier.h in Headers */,

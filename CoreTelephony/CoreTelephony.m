@@ -103,11 +103,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	CTModemManager *mm=[CTModemManager modemManager];
 	NSString *err;
 	NSString *cmd;
-	static *invalidChars=nil;
+	static NSCharacterSet *invalidChars=nil;
 	if(!invalidChars)
 		{
-		invalidChars=[[NSCharacterSet characterSetWithCharactersInString:@"0123456789+*GgIi "] retain];
-		[invalidChars invert];
+		invalidChars=[NSCharacterSet characterSetWithCharactersInString:@"0123456789+*GgIi "];
+		invalidChars=[invalidChars invertedSet];
+		[invalidChars retain];
 		}
 	if([number rangeOfCharacterFromSet:invalidChars].location != NSNotFound)
 		return nil;	// contains invalid characher

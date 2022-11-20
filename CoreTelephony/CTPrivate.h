@@ -6,7 +6,10 @@
 //  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <CoreTelephony/CoreTelephony.h>
+#import <CoreTelephony/CTCall.h>
+#import <CoreTelephony/CTCallCenter.h>
+#import <CoreTelephony/CTCarrier.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import "CTModemManager.h"
 
 @interface CTCall (Private)
@@ -27,3 +30,10 @@
 - (void) _processUnsolicitedInfo:(NSString *) line;
 @end
 
+@interface CTCallCenter (QStepPrivate)
+// forward to modem manager
++ (void) _closeModem;
++ (void) orderFrontPinPanel;
++ (BOOL) setAirplaneMode:(BOOL) flag;
++ (int) pinStatus;
+@end
