@@ -3726,6 +3726,8 @@ class NSNib extends NSObject
 	{
 // _NSLog($name);
 		$nibfile=$bundle->pathForResourceOfType($name, "pnib");
+		if(is_null($nibfile))
+			return null;	// not found
 // _NSLog($nibfile);
 		$plist=NSPropertyListSerialization::propertyListFromPath($nibfile);
 // _NSLog($this->plist);
