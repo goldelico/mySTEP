@@ -1750,9 +1750,9 @@ class NSImage extends NSObject
 		$size=$this->size();
 		$s="";
 		if(NSWidth($size) != 0.0)
-			$s.="width:".NSWidth($size)."px";
+			$s.="width:".NSWidth($size)."px;";
 		if(NSHeight($size) != 0.0)
-			$s.="height:".NSHeight($size)."px;";	// how can we specify %?
+			$s.=($s?" ":"")."height:".NSHeight($size)."px;";	// how can we specify %?
 		if($s)
 			parameter("style", $s);
 		html(">\n");
