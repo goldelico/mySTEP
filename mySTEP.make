@@ -143,8 +143,6 @@ TARGET_INSTALL_PATH := $(INSTALL_PATH)
 INSTALL=false
 endif
 
-include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
-
 .PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
 
 # configure Embedded System if undefined
