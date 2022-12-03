@@ -1,9 +1,0 @@
-#
-# for inclusion into main Makefile
-#
-
-# entries must be separated by a blank so that we can do a 'read CMD EQ VALUE'
-
-MAJOR_VERSION = 3
-MINOR_VERSION = 0
-BUILD_NUMBER = 3320

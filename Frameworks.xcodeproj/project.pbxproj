@@ -65,12 +65,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXFileReference section */
-		EE03AFBA0673B814001FB59D /* Frameworks */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Frameworks; sourceTree = "<group>"; };
 		EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "LGPL LICENCE.txt"; sourceTree = "<group>"; };
 		EE0E3D460954703200CCA75A /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		EE0E3D470954703200CCA75A /* Version.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Version.def; sourceTree = "<group>"; };
 		EE408DF00F127C9E0085AA9F /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mySTEP.make; sourceTree = "<group>"; };
-		EE40FB18066904FC00A63BAF /* Versions.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = Versions.def; path = ../Versions.def; sourceTree = SOURCE_ROOT; };
 		EE7AAD20174758F1003133D9 /* Frameworks.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = Frameworks.qcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,9 +79,6 @@
 				EE7AAD20174758F1003133D9 /* Frameworks.qcodeproj */,
 				EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */,
 				EE0E3D460954703200CCA75A /* README */,
-				EE0E3D470954703200CCA75A /* Version.def */,
-				EE03AFBA0673B814001FB59D /* Frameworks */,
-				EE40FB18066904FC00A63BAF /* Versions.def */,
 			);
 			sourceTree = "<group>";
 		};
@@ -93,6 +87,8 @@
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = EE2F83150983F176003EA8A2 /* Build configuration list for PBXProject "Frameworks" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
@@ -181,7 +177,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\necho \"## Frameworks ##\"\nfor i in Foundation AppKit CoreData CoreDevice CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SecurityFoundation SecurityInterface IOBluetooth ImageKit PDFKit QTKit ScreenSaver\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n\necho \"## Frameworks done. ##\"\n\necho \"## Extended Frameworks and binary tools ##\"\n# CoreWLAN depends on SecurityFoundation\nfor i in SystemConfiguration SystemStatus CoreLocation CoreMotion CoreTelephony CoreWLAN CoreRFID MapKit SimpleWebKit Tools CoreDataBase\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -project \"$i.xcodeproj\" -target $(basename \"$i\") )\n\tdone\n( cd ObjC && xcodebuild -configuration 'Development' -target 'ObjC' )\necho \"## Extended Frameworks and binary tools done. ##\"\n\necho \"## Special Frameworks ##\"\nfalse && for i in UIKit\n\tdo \n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\necho \"## Special Frameworks done. ##\"\n\necho \"## Tools and Tests ##\"\n\n( cd CoreData/DataBuilder && xcodebuild -configuration 'Release' -target 'DataBuilder' )\n( cd CoreRFID/RFIDProbe && xcodebuild -configuration 'Release' -target 'RFIDProbe' )\n( cd SimpleWebKit && xcodebuild -project 'SimpleWebKit.xcodeproj' -configuration 'Development' -target 'SWK Browser' )\n\necho \"## Tools and Tests done. ##\"\n\necho \"## UnitTesting ##\"\n## FIXME: should also build the SenTestingKit_UnitTests target\nfor i in SenTestingKit otest\n\tdo\n\techo \"## $i ##\"\n\t(cd \"OCUnit/SourceCode/$i\"; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\nfor i in UnitTesting\n\tdo\n\techo \"## $i ##\"\n\t(cd $i; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\necho \"## TestApps ##\"\nfor i in TestApplications/NSImageRep TestApplications/NSTextTable TestApplications/NSURLConnection TestApplications/ZeroConfDistributedObjects \\\n\tTestApplications/FloatSpeed TestApplications/NSViewBounds \n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n( cd AppKit && xcodebuild -configuration 'Development' -target 'NIB Test mySTEP' )\n( cd CoreLocation && xcodebuild -configuration 'Development' -target 'cltest' )\n( cd MapKit && xcodebuild -configuration 'Development' -target 'MapKitTest' )\n\necho \"## done. ##\"\n\n./Frameworks.qcodeproj";
+			shellScript = "# shell script goes here\n\necho \"## Frameworks ##\"\nfor i in Foundation AppKit CoreData CoreDevice CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SecurityFoundation SecurityInterface IOBluetooth ImageKit PDFKit QTKit ScreenSaver\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n\necho \"## Frameworks done. ##\"\n\necho \"## Extended Frameworks and binary tools ##\"\n# CoreWLAN depends on SecurityFoundation\nfor i in SystemConfiguration SystemStatus CoreLocation CoreMotion CoreTelephony CoreWLAN CoreRFID MapKit SimpleWebKit Tools CoreDataBase\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -project \"$i.xcodeproj\" -target $(basename \"$i\") )\n\tdone\n( cd ObjC && xcodebuild -configuration 'Development' -target 'ObjC' )\necho \"## Extended Frameworks and binary tools done. ##\"\n\necho \"## Special Frameworks ##\"\nfalse && for i in UIKit\n\tdo \n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\necho \"## Special Frameworks done. ##\"\n\necho \"## Tools and Tests ##\"\n\n( cd CoreData/DataBuilder && xcodebuild -configuration 'Release' -target 'DataBuilder' )\n( cd CoreRFID/RFIDProbe && xcodebuild -configuration 'Release' -target 'RFIDProbe' )\n( cd SimpleWebKit && xcodebuild -project 'SimpleWebKit.xcodeproj' -configuration 'Development' -target 'SWK Browser' )\n\necho \"## Tools and Tests done. ##\"\n\necho \"## UnitTesting ##\"\n## FIXME: should also build the SenTestingKit_UnitTests target\nfor i in SenTestingKit otest\n\tdo\n\techo \"## $i ##\"\n\t(cd \"OCUnit/SourceCode/$i\"; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\nfor i in UnitTesting\n\tdo\n\techo \"## $i ##\"\n\t(cd $i; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\necho \"## TestApps ##\"\nfor i in TestApplications/NSImageRep TestApplications/NSTextTable TestApplications/NSURLConnection TestApplications/ZeroConfDistributedObjects \\\n\tTestApplications/FloatSpeed TestApplications/NSViewBounds \n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n( cd AppKit && xcodebuild -configuration 'Development' -target 'NIB Test mySTEP' )\n( cd CoreLocation && xcodebuild -configuration 'Development' -target 'cltest' )\n( cd MapKit && xcodebuild -configuration 'Development' -target 'MapKitTest' )\n\necho \"## done. ##\"\n\n./Frameworks.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
