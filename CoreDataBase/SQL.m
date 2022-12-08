@@ -71,7 +71,7 @@ static int sql_progress(void *context)	// context should be self
 	NSString *type;
 	if([url isFileURL])
 		{
-		type=[[url path] pathExtension];	// take suffix
+		type=[[url path] pathExtension];	// take simple suffix
 		if([type isEqualToString:@"sqlite3"])
 			type=@"sqlite";
 		}
@@ -252,8 +252,10 @@ static int sql_progress(void *context)	// context should be self
 - (BOOL) saveAs:(NSURL *) url error:(NSString **) error;
 {
 	NSString *type=[self typeForURL:url];
+	NSURL *tryURL=url;
 	if(!type)
 		return NO;	// invalid
+retry:
 	if([type isEqualToString:@"mysql"])
 		{
 		if(error)
@@ -390,6 +392,13 @@ static int sql_progress(void *context)	// context should be self
 			[info setObject:tableColumnProperties forKey:@"Column Properties"];
 		return [info writeToURL:file atomically:YES];
 		}
+	// there may be a double extension!!!
+	// e.g. BOMTool.database.sb-600232e0-0LqHVV
+	tryURL=[tryURL URLByDeletingPathExtension];	// reduce by last component(s)
+	type=[self typeForURL:tryURL];
+	if([type length] > 0)
+		goto retry;	// try again
+	NSLog(@"unknown file type %@", [self typeForURL:url]);
 	return NO;
 }
 
