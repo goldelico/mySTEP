@@ -234,7 +234,7 @@ static int sql_progress(void *context)	// context should be self
 		// should we read .plists as an "Info.plist" table???
 		// how can we handle multiple tables with different properties?
 		file=[url URLByAppendingPathComponent:@"Info.plist"];
-		tableColumnProperties=[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy];
+		[tableColumnProperties setObject:[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy] forKey:@"generic"];
 		while((filename=[e nextObject]))
 			{ // load all .tsv files in bundle
 			file=[url URLByAppendingPathComponent:filename];
@@ -262,23 +262,58 @@ retry:
 			*error=@"Can't save MySQL at different path";
 		return NO;
 		}
-	// change path (and potentially type?) and save
 	if([type isEqualToString:@"sqlite"])
 		{
-		// ?
+		return NO;
+		// create a new sqlite3 database file
+		// attach as self->db
+		// emit SQL statments to copy tableData, tableColumns etc,
+		dbName=[[url path] retain];	// scheme:path
+		if(sqlite3_open([dbName fileSystemRepresentation],	/* Database filename (UTF-8) */
+							(sqlite3 **)&db					/* OUT: SQLite db handle */
+							) != SQLITE_OK)
+			{
+			if(error)
+				*error=[NSString stringWithUTF8String:sqlite3_errmsg(((sqlite3 *)db))];
+			return NO;
+			}
+		sqlite3_progress_handler((sqlite3 *)db, 20, sql_progress, (void *) self);
+		return YES;
 		}
 	if([type isEqualToString:@"sql"])
 		{
-		// export as SQL statements
+		// export as a sequence of SQL statements
 		// CREATE TABLE name DROP IF EXISTS;
 		// INSERT INTO ...
+		NSMutableString *str=[NSMutableString string];
+		NSEnumerator *e=[tableData objectEnumerator];
+		NSError *err;
+		NSDictionary *tableName;
+		while((tableName=[e nextObject]))
+			{
+			[str appendFormat:@"CREATE TABLE '%@' DROP IF EXISTS;\n", tableName];
+			NSEnumerator *e=[[tableColumns objectForKey:tableName] objectEnumerator];
+			// FIXME: loop over all rows
+			NSString *delim=@"(";
+			NSString *line=[NSString stringWithFormat:@"INSERT INTO '%@' VALUES", tableName];
+			NSString *column;
+			while((column=[e nextObject]))
+				{ // keep column order intact!
+					int row=0;
+					NSDictionary *record=[[tableData objectForKey:tableName] objectAtIndex:row];
+					NSString *value=[record objectForKey:column];
+					// FIXME: escape quotes in value
+					line=[line stringByAppendingFormat:@"%@'%@'", delim, value];
+					delim=@", ";
+				}
+			[str appendFormat:@"%@);\n", line];
+			}
+		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
 	if([type isEqualToString:@"tsv"])
 		{
 		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		// FIXME: welche Tabelle speichern??? Vor allem bei SaveAs... ändert sich der Name!
-
 		if(![tableData objectForKey:tableName] && [tableData count] != 1)
 			{ // not unique
 				return NO;
@@ -312,8 +347,6 @@ retry:
 		{
 		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		// FIXME: welche Tabelle speichern??? Vor allem bei SaveAs... ändert sich der Name!
-
 		if(![tableData objectForKey:tableName] && [tableData count] != 1)
 			{ // not unique
 				return NO;
@@ -388,8 +421,8 @@ retry:
 				return NO;
 			}
 		file=[url URLByAppendingPathComponent:@"Info.plist"];
-		if(tableColumnProperties)
-			[info setObject:tableColumnProperties forKey:@"Column Properties"];
+		if([tableColumnProperties objectForKey:@"generic"])
+			[info setObject:[tableColumnProperties objectForKey:@"generic"] forKey:@"Column Properties"];
 		return [info writeToURL:file atomically:YES];
 		}
 	// there may be a double extension!!!
@@ -493,17 +526,21 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (NSDictionary *) columnProperties:(NSString *) table error:(NSString **) error;
 {
-	// FIXME: this is not yet per table!!!
-	return tableColumnProperties;
+	// FIXME: this is not yet available per table!!!
+	return [tableColumnProperties objectForKey:@"generic"];
 }
 
 - (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table
 {
+	if(db)
+		;
 	return [tableData objectForKey:table];
 }
 
 - (id) valueAtRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
 {
+	if(db)
+		;
 	NSArray *data=[self dataForTable:table error:error];
 	if(!data)
 		return nil;
@@ -512,6 +549,8 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
 {
+	if(db)
+		;
 	NSArray *data=[self dataForTable:table error:error];
 	if(!data)
 		return NO;
@@ -521,38 +560,54 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
 {
-	return [self sql:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
+	if(db)
+		return [self sql:[NSString stringWithFormat:@"CREATE TABLE `%@` (`%@` INTEGER)", name, @"column1"] error:error];
+	[tableData setObject:[NSMutableArray arrayWithCapacity:10] forKey:name];
+	[tableColumns setObject:[nameAndType allKeys] forKey:name];
+	[tableColumnProperties setObject:nameAndType forKey:name];
+	return YES;
 }
+
+// we need a mechanism to insert a table at a specific position
+// we need a mechanism to rename a table
 
 - (BOOL) deleteTable:(NSString *) name error:(NSString **) error;
 {
-	// confirm and/or save table schema&dump in undo buffer
-	// DROP TABLE
-	return 0;
+	if(db)
+		; // DROP TABLE
+	return NO;
 }
 
 - (BOOL) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
 {
+	if(db)
 	// ALTER TABLE x CREATE COLUMN (x int);
-	return [self sql:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
+		return [self sql:[NSString stringWithFormat:@"ALTER TABLE `%@` CREATE COLUMN (`%@` %@)", table, column, type] error:error];
+	return NO;
 }
+
+// we need a mechanism to insert a column at a specific position
+// we need a mechanism to rename a column
 
 - (BOOL) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
 {
-	// confirm and/or save current data in undo buffer
-	return 0;
+	if(db)
+		;
+	return NO;
 }
 
 - (BOOL) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
 {
-	return [self sql:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
+	if(db)
+		return [self sql:[NSString stringWithFormat:@"INSERT INTO `%@` WALUES (`%@`)", table, @""] error:error];
+	return NO;
 }
 
-- (BOOL) deleteRow:(int) row error:(NSString **) error;
+- (BOOL) deleteRow:(int) row forTable:(NSString *) table error:(NSString **) error;
 {
-	// confirm and/or save current row in undo buffer
-	// DELETE FROM x WHERE index=row;
-	return 0;
+	if(db)
+		; // DELETE FROM x WHERE index=row;
+	return NO;
 }
 
 @end
