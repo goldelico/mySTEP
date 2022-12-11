@@ -49,13 +49,15 @@
 
 // higher level commands
 - (BOOL) newTable:(NSString *) name columns:(NSDictionary *) nameAndType error:(NSString **) error;
+- (BOOL) renameTable:(NSString *) from to:(NSString *) to error:(NSString **) error;
 - (BOOL) deleteTable:(NSString *) name error:(NSString **) error;
 - (BOOL) newColumn:(NSString *) column type:(NSString *) type forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) renameColumn:(NSString *) from to:(NSString *) to ofTable:(NSString *) table error:(NSString **) error;
 - (BOOL) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
 - (BOOL) newRow:(NSArray *) values forTable:(NSString *) table error:(NSString **) error;
-- (BOOL) deleteRow:(int) row error:(NSString **) error;
-- (id) valueAtRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
-- (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) deleteRow:(int) row fromTable:(NSString *) table error:(NSString **) error;
+- (id) valueAtRow:(NSUInteger) row column:(NSString *) column ofTable:(NSString *) table error:(NSString **) error;
+- (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column ofTable:(NSString *) table error:(NSString **) error;
 
 @end
 

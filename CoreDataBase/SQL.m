@@ -291,11 +291,11 @@ retry:
 		NSDictionary *tableName;
 		while((tableName=[e nextObject]))
 			{
-			[str appendFormat:@"CREATE TABLE '%@' DROP IF EXISTS;\n", tableName];
+			[str appendFormat:@"CREATE TABLE `%@` DROP IF EXISTS;\n", tableName];
 			NSEnumerator *e=[[tableColumns objectForKey:tableName] objectEnumerator];
 			// FIXME: loop over all rows
 			NSString *delim=@"(";
-			NSString *line=[NSString stringWithFormat:@"INSERT INTO '%@' VALUES", tableName];
+			NSString *line=[NSString stringWithFormat:@"INSERT INTO `%@` VALUES", tableName];
 			NSString *column;
 			while((column=[e nextObject]))
 				{ // keep column order intact!
@@ -314,8 +314,15 @@ retry:
 		{
 		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		if(![tableData objectForKey:tableName] && [tableData count] != 1)
-			{ // not unique
+		if(![tableData objectForKey:tableName])
+			{ // new name does not exist
+			NSString *oldName;
+			if([tableData count] != 1)
+				return NO;	// can't save if we have multiple names
+			oldName=[[self tables:error] lastObject];
+			if(!oldName)
+				return NO;
+			if(![self renameTable:oldName to:tableName error:error])	// rename internal table name
 				return NO;
 			}
 		NSEnumerator *e=[[tableData objectForKey:tableName] objectEnumerator];
@@ -347,8 +354,15 @@ retry:
 		{
 		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
 		NSMutableString *str;
-		if(![tableData objectForKey:tableName] && [tableData count] != 1)
-			{ // not unique
+		if(![tableData objectForKey:tableName])
+			{ // new name does not exist
+			NSString *oldName;
+			if([tableData count] != 1)
+				return NO;	// can't save if we have multiple names
+			oldName=[[self tables:error] lastObject];
+			if(!oldName)
+				return NO;
+			if(![self renameTable:oldName to:tableName error:error])	// rename internal table name
 				return NO;
 			}
 		NSEnumerator *e=[[tableData objectForKey:tableName] objectEnumerator];
@@ -537,7 +551,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return [tableData objectForKey:table];
 }
 
-- (id) valueAtRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
+- (id) valueAtRow:(NSUInteger) row column:(NSString *) column ofTable:(NSString *) table error:(NSString **) error;
 {
 	if(db)
 		;
@@ -547,7 +561,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return [[data objectAtIndex:row] objectForKey:column];
 }
 
-- (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column ofTable:(NSString *) table error:(NSString **) error;
 {
 	if(db)
 		;
@@ -565,6 +579,21 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	[tableData setObject:[NSMutableArray arrayWithCapacity:10] forKey:name];
 	[tableColumns setObject:[nameAndType allKeys] forKey:name];
 	[tableColumnProperties setObject:nameAndType forKey:name];
+	return YES;
+}
+
+- (BOOL) renameTable:(NSString *) from to:(NSString *) to error:(NSString **) error;
+{
+	if([from isEqualToString:to])
+		return YES;
+	if(db)
+		return [self sql:[NSString stringWithFormat:@"ALTER TABLE RENAME TABLE `%@` TO `%@`", from, to] error:error];
+	[tableData setObject:[tableData objectForKey:from] forKey:to];
+	[tableData removeObjectForKey:from];
+	[tableColumns setObject:[tableColumns objectForKey:from] forKey:to];
+	[tableColumns removeObjectForKey:from];
+	[tableColumnProperties setObject:[tableColumnProperties objectForKey:from] forKey:to];
+	[tableColumnProperties removeObjectForKey:from];
 	return YES;
 }
 
@@ -586,6 +615,12 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return NO;
 }
 
+- (BOOL) renameColumn:(NSString *) from to:(NSString *) to ofTable:(NSString *) table error:(NSString **) error;
+{
+	if([from isEqualToString:to])
+		return YES;
+	return NO;
+}
 // we need a mechanism to insert a column at a specific position
 // we need a mechanism to rename a column
 
@@ -603,7 +638,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	return NO;
 }
 
-- (BOOL) deleteRow:(int) row forTable:(NSString *) table error:(NSString **) error;
+- (BOOL) deleteRow:(int) row fromTable:(NSString *) table error:(NSString **) error;
 {
 	if(db)
 		; // DELETE FROM x WHERE index=row;
