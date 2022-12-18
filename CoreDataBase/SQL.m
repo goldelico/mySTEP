@@ -18,6 +18,7 @@
 		{
 		tableData=[[NSMutableDictionary alloc] initWithCapacity:1000];
 		tableColumns=[[NSMutableDictionary alloc] initWithCapacity:20];
+		tableColumnProperties=[[NSMutableDictionary alloc] initWithCapacity:20];
 		}
     return self;
 }
@@ -34,6 +35,7 @@
 	[dbName release];
 	[tableData release];
 	[tableColumns release];
+	[tableColumnProperties release];
 	[super dealloc];
 }
 
@@ -230,11 +232,15 @@ static int sql_progress(void *context)	// context should be self
 		NSURL *file;
 		NSEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:[url path]];
 		NSString *filename;
+		NSDictionary *info;
 		// how do we properly handle this???
 		// should we read .plists as an "Info.plist" table???
 		// how can we handle multiple tables with different properties?
 		file=[url URLByAppendingPathComponent:@"Info.plist"];
-		[tableColumnProperties setObject:[[[NSDictionary dictionaryWithContentsOfURL:file] objectForKey:@"Column Properties"] mutableCopy] forKey:@"generic"];
+		info=[NSDictionary dictionaryWithContentsOfURL:file];
+		info=[info objectForKey:@"Column Properties"];
+		if(info)
+			[tableColumnProperties setObject:[[info mutableCopy] autorelease] forKey:@"generic"];
 		while((filename=[e nextObject]))
 			{ // load all .tsv files in bundle
 			file=[url URLByAppendingPathComponent:filename];
@@ -435,7 +441,7 @@ retry:
 				return NO;
 			}
 		file=[url URLByAppendingPathComponent:@"Info.plist"];
-		if([tableColumnProperties objectForKey:@"generic"])
+		if(tableColumnProperties)
 			[info setObject:[tableColumnProperties objectForKey:@"generic"] forKey:@"Column Properties"];
 		return [info writeToURL:file atomically:YES];
 		}
@@ -541,7 +547,8 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (NSDictionary *) columnProperties:(NSString *) table error:(NSString **) error;
 {
 	// FIXME: this is not yet available per table!!!
-	return [tableColumnProperties objectForKey:@"generic"];
+	table=@"generic";
+	return [tableColumnProperties objectForKey:table];
 }
 
 - (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table
