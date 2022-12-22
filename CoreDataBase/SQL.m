@@ -599,13 +599,13 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	[tableData removeObjectForKey:from];
 	[tableColumns setObject:[tableColumns objectForKey:from] forKey:to];
 	[tableColumns removeObjectForKey:from];
-	[tableColumnProperties setObject:[tableColumnProperties objectForKey:from] forKey:to];
+	if([tableColumnProperties objectForKey:from])
+		[tableColumnProperties setObject:[tableColumnProperties objectForKey:from] forKey:to];
 	[tableColumnProperties removeObjectForKey:from];
 	return YES;
 }
 
 // we need a mechanism to insert a table at a specific position
-// we need a mechanism to rename a table
 
 - (BOOL) deleteTable:(NSString *) name error:(NSString **) error;
 {
@@ -626,10 +626,10 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 {
 	if([from isEqualToString:to])
 		return YES;
+	// we need a mechanism to rename a column
 	return NO;
 }
 // we need a mechanism to insert a column at a specific position
-// we need a mechanism to rename a column
 
 - (BOOL) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
 {
