@@ -14,13 +14,13 @@
 
 - (id) init
 {
-    if(self = [super init])
+	if(self = [super init])
 		{
 		tableData=[[NSMutableDictionary alloc] initWithCapacity:1000];
 		tableColumns=[[NSMutableDictionary alloc] initWithCapacity:20];
 		tableColumnProperties=[[NSMutableDictionary alloc] initWithCapacity:20];
 		}
-    return self;
+	return self;
 }
 
 - (void) dealloc;
@@ -182,9 +182,9 @@ static int sql_progress(void *context)	// context should be self
 		NSString *line;
 		NSArray *data;
 		NSArray *headers=nil;
-	#if 0
+#if 0
 		NSLog(@"load");
-	#endif
+#endif
 		if(!db)	// try again
 			db=[NSString stringWithContentsOfURL:url encoding:NSMacOSRomanStringEncoding error:&err];
 		if(!db)
@@ -192,9 +192,9 @@ static int sql_progress(void *context)	// context should be self
 			if(error) *error=[err description];
 			return NO;
 			}
-	#if 0
+#if 0
 		NSLog(@"db = %@", db);
-	#endif
+#endif
 		lines=[db componentsSeparatedByString:@"\n"];
 		e=[lines objectEnumerator];
 		data=[[NSMutableArray alloc] initWithCapacity:[lines count]];
