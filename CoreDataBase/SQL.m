@@ -425,6 +425,44 @@ retry:
 			}
 		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
 		}
+	if([type isEqualToString:@"html"])
+		{
+		NSString *tableName=[[url lastPathComponent] stringByDeletingPathExtension];
+		NSMutableString *str;
+		if(![tableData objectForKey:tableName])
+			{ // new name does not exist
+			NSString *oldName;
+			if([tableData count] != 1)
+				return NO;	// can't save if we have multiple names
+			oldName=[[self tables:error] lastObject];
+			if(!oldName)
+				return NO;
+			if(![self renameTable:oldName to:tableName error:error])	// rename internal table name
+				return NO;
+			}
+		NSEnumerator *e=[[tableData objectForKey:tableName] objectEnumerator];
+		NSDictionary *record;
+		NSError *err;
+		NSArray *headers=[tableColumns objectForKey:tableName];
+		str=[NSMutableString stringWithFormat:@"<table name=\"%@\" border=\"1\">\n<tr><th>%@</th></tr>\n",
+			 [tableName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+			 [headers componentsJoinedByString:@"</th><th>"]];
+		while((record=[e nextObject]))
+			{
+			NSEnumerator *e=[headers objectEnumerator];
+			NSString *line=@"";
+			NSString *column;
+			while((column=[e nextObject]))
+				{ // keep column order intact!
+					id val=[record objectForKey:column];
+					// FIXME: html-encode
+					line=[line stringByAppendingFormat:@"<td>%@</td>", val];
+				}
+			[str appendFormat:@"<tr>%@</tr>\n", line];
+			}
+		[str appendFormat:@"</table>\n"];
+		return [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&err];
+		}
 	if([type isEqualToString:@"database"])
 		{
 		NSMutableDictionary *info=[NSMutableDictionary dictionary];
