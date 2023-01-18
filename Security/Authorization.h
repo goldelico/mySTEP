@@ -8,14 +8,9 @@
 
 typedef const struct AuthorizationOpaqueRef *AuthorizationRef;	// define before we import Foundation
 
-#import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 // FIXME: split to AuthorizationDB.h and AuthorizationTags.h
-
-#ifndef __APPLE__
-typedef int OSStatus;
-typedef uint32_t UInt32;
-#endif
 
 enum 
 {
