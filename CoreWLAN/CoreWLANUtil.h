@@ -8,9 +8,5 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef __linux__
-typedef NSInteger OSStatus;
-#endif
-
 extern OSStatus CWKeychainCopyEAPIdentityList(NSArray *list);
 extern NSSet *CWMergeNetworks(NSSet *networks);

@@ -8,6 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+#ifdef __mySTEP__
+// FIXME: this is not yet available in mySTEP's Foundation
+@protocol NSSecureCoding;
+typedef NSSet NSOrderedSet;
+#endif
+
 @interface CWConfiguration : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 {
 	NSOrderedSet *_networkProfiles;
