@@ -1217,11 +1217,16 @@ install_local: prepare_temp_files
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
 	# should we better untar the .deb?
-	- : ls -l "$(BINARY)" # fails for tools because we are on the outer level and have included an empty DEBIAN_ARCH in $(BINARY) and $(PKG)
+	- ls -l "$(BINARY)"
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
 	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
 	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
-	# installed on localhost at $(HOST_INSTALL_PATH)
+ifeq ($(WRAPPER_EXTENSION),)	# command line tool
+	- mkdir -p "$(HOST_INSTALL_PATH)/bin/"
+	# FIXME: make host architecture dependent
+	- ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"
+endif
+	# installed on localhost at $(HOST_INSTALL_PATH)/bin
 else
 	# don't install locally
 endif
