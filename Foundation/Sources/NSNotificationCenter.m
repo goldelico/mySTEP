@@ -39,7 +39,7 @@ static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 }
 
 - (BOOL) isEqual:other;
-- (unsigned) hash;
+- (NSUInteger) hash;
 - (void) postNotification:(NSNotification*)notification;
 
 @end
