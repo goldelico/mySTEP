@@ -2725,18 +2725,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(isAbsolute)
 		c=[pathSepString stringByAppendingString:c];	// prefix with absolute path (unless it was already embedded in components)
 	return c;
-#if OLD
-	unsigned int cnt=[components count];
-	if(cnt > 0)
-		{
-		NSString *s = [components objectAtIndex: 0];
-		int i;
-		for (i = 1; i < cnt; i++)
-			s = [s stringByAppendingPathComponent: [components objectAtIndex: i]];
-		return s;
-		}
-	return @"";	// what happens if we call this on NSMutableString???
-#endif
 }
 
 - (BOOL) isAbsolutePath
@@ -2747,7 +2735,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSMutableArray*) _mutablePathComponents
 {
 	NSMutableArray *a = [[self componentsSeparatedByCharactersInSet: pathSeps] mutableCopy];
-	NSUInteger	i = [a count];
+	NSInteger	i = [a count];
 
 	if (i > 0)
 		{
