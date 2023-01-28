@@ -223,7 +223,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
-LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib
+LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib64
 AS := $(TOOLCHAIN)/bin/$(TRIPLE)-as
 NM := $(TOOLCHAIN)/bin/$(TRIPLE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(TRIPLE)-strip
@@ -390,12 +390,13 @@ RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # default is to build for all
 
-ifeq ($(PHPONLY),true)
-BASE_OS_LIST=
-else
+ifeq ($(BASE_OS_LIST),)
 BASE_OS_LIST=MacOS Debian
 endif
-ifneq ($(strip $(PHPSRCS)),)	# and any PHP source
+ifeq ($(PHPONLY),true)
+BASE_OS_LIST=
+endif
+ifneq ($(strip $(PHPSRCS)),)	# if any PHP source defined
 BASE_OS_LIST+=php
 endif
 
@@ -575,7 +576,7 @@ INCLUDES := $(INCLUDES) $(shell for FMWK in $(FRAMEWORKS); \
 	else echo "-I$$FMWK$(LNK)"; \
 	fi; done)
 
-### hier fehlt vermutlich noch der rlink-path!
+### hier fehlt vermutlich noch der -rpath-link!
 
 FMWKS := $(FMWKS) $(shell for FMWK in $(FRAMEWORKS); \
 	do \
