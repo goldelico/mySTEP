@@ -42,6 +42,7 @@ export SOURCES+=" NSPersistentCloudKitContainer.h"
 export SOURCES+=" NSPersistentCloudKitContainer.m"
 export SOURCES+=" NSPersistentContainer.h"
 export SOURCES+=" NSPersistentContainer.m"
+export SOURCES+=" Info.plist"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
