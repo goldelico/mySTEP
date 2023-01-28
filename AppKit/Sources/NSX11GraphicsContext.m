@@ -3554,6 +3554,7 @@ static NSFileHandle *fh;
 			int first_event_return;
 			int first_error_return;
 			id val;
+			int rot;
 			float xdpp=(25.4*WidthOfScreen(_screen))/(72.0*WidthMMOfScreen(_screen));	// dpp: dots per point
 			float ydpp=(25.4*HeightOfScreen(_screen))/(72.0*HeightMMOfScreen(_screen));
 			float avg=(xdpp+ydpp)*0.5;	// take average for 72dpi
@@ -3588,7 +3589,22 @@ static NSFileHandle *fh;
 			_screen2X11=[[NSAffineTransform alloc] init];
 			[(NSAffineTransform *) _screen2X11 translateXBy:0.5 yBy:0.5+_xRect.height];		// adjust for real screen height and proper rounding
 			[(NSAffineTransform *) _screen2X11 scaleXBy:_screenScale yBy:-_screenScale];	// flip Y axis and scale
-#if 0
+			rot=[[_x11settings objectForKey:@"systemSpaceRotation"] intValue];
+			rot=0;	// broken! Text and some Rects are not properly rotated by backend
+			if(rot)
+				{ // modify for screen rotation by n*90 degrees around center
+					NSLog(@"before: %@", _screen2X11);
+				[(NSAffineTransform *) _screen2X11 translateXBy:0.5*size.width yBy:0.5*size.height];
+				[(NSAffineTransform *) _screen2X11 rotateByDegrees:45.0 /*90.0*rot*/];
+				if(rot%2 == 1)
+					;;
+				[(NSAffineTransform *) _screen2X11 translateXBy:-0.5*size.height yBy:-0.5*size.width];
+				#if 1
+					NSLog(@" ascreen rotation by=%lf", 90.0l*rot);
+				#endif
+					// Achtung: Cursors und Touch sind ggf. gedreht?
+				}
+#if 1
 			NSLog(@"_screen2X11=%@", (NSAffineTransform *) _screen2X11);
 #endif
 #if 0
@@ -4913,7 +4929,7 @@ static NSFileHandle *fh;
 @implementation NSBezierPath (NSBackendOverride)
 
 + (id) allocWithZone:(NSZone *) z;
-{
+{ // substitute by backend class
 	return NSAllocateObject([_NSX11BezierPath class], 0, z?z:NSDefaultMallocZone());
 }
 
@@ -5177,7 +5193,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 		int i;
 		BOOL first = NO;
 		NSLog(@"create stroke path");
-		_strokedPath=(_NSX11BezierPath *)[[NSBezierPath alloc] init];
+		_strokedPath=(_NSX11BezierPath *)[NSBezierPath new];
 		for(i = 0; i < _count; i++)
 			{
 			NSBezierPathElement type=[self elementAtIndex: i associatedPoints: pts];
