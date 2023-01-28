@@ -10,6 +10,7 @@ export SOURCES="ABAddressBookTest.m"
 export SOURCES+=" ABGroupTest.m"
 export SOURCES+=" ABPersonTest.m"
 export SOURCES+=" ABSearchTest.m"
+export SOURCES+=" Info.plist"
 export WRAPPER_EXTENSION="xctest"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
