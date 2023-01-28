@@ -15,7 +15,6 @@
 		EE51D70C0CEDA8AC00BC61D5 /* IKImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */; };
 		EEC4A68B08633B7A00309A0C /* ImageKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* ImageKit.framework */; };
 		EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		EEE303B12586AD5C0009590F /* AppKitExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE303B02586AD5C0009590F /* AppKitExtensions.framework */; };
 		EEE303B42586ADE70009590F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
 		EEE303B52586ADEA0009590F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -23,13 +22,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		EEC4A68108633B1200309A0C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			dstPath = /Library/Frameworks;
 			dstSubfolderSpec = 0;
 			files = (
 				EEC4A68B08633B7A00309A0C /* ImageKit.framework in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -59,7 +58,6 @@
 				EEE303AF25856F2E0009590F /* Cocoa.framework in Frameworks */,
 				EEE303B42586ADE70009590F /* AppKit.framework in Frameworks */,
 				EEE303B52586ADEA0009590F /* Foundation.framework in Frameworks */,
-				EEE303B12586AD5C0009590F /* AppKitExtensions.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,7 +187,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = ./ImageKit.qcodeproj;
+			shellScript = "./ImageKit.qcodeproj\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -211,6 +209,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -229,6 +228,7 @@
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				LD_RUNPATH_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -240,6 +240,7 @@
 					"-lz",
 				);
 				OTHER_REZFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Quantum-STEP.Frameworks.ImageKit";
 				PRODUCT_NAME = ImageKit;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -256,6 +257,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -271,6 +273,7 @@
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				LD_RUNPATH_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -282,6 +285,7 @@
 					"-lz",
 				);
 				OTHER_REZFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Quantum-STEP.Frameworks.ImageKit";
 				PRODUCT_NAME = ImageKit;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
@@ -298,6 +302,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -311,6 +316,7 @@
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				LD_RUNPATH_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -322,6 +328,7 @@
 					"-lz",
 				);
 				OTHER_REZFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Quantum-STEP.Frameworks.ImageKit";
 				PRODUCT_NAME = ImageKit;
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";

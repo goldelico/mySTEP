@@ -7,13 +7,50 @@
 //
 
 #import "IKImageView.h"
-#import <AppKitExtensions/NSScaleRotateFlipView.h>
 
 NSString *IKToolModeMove=@"IKToolModeMove";
 NSString *IKToolModeSelect=@"IKToolModeSelect";
 NSString *IKToolModeCrop=@"IKToolModeCrop";
 NSString *IKToolModeRotate=@"IKToolModeRotate";
 NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
+
+#define NIMP
+
+@interface _RotateFlipView : NSView
+- (void) setContentView:(NSView *) view;
+- (CGFloat) angle;
+- (void) setAngle:(CGFloat) angle;
+- (NSPoint) center;
+- (void) setCenter:(NSPoint) center;
+
+- (BOOL) isVerticallyFlipped;
+- (BOOL) isHorizontallyFlipped;
+- (void) setFlipVertical:(BOOL) flip;
+- (void) setFlipHorizontal:(BOOL) flip;
+
+- (float) scale;	// scale of superview
+- (void) zoomToRect:(NSRect) rect;	// object coordinates
+
+- (IBAction) zoomFit:(id) sender;
+- (IBAction) zoomUnity:(id) sender;
+- (IBAction) zoomIn:(id) sender;
+- (IBAction) zoomOut:(id) sender;
+- (IBAction) center:(id) sender;
+
+- (IBAction) rotateImageLeft:(id) sender;
+- (IBAction) rotateImageRight:(id) sender;
+- (IBAction) rotateImageLeft90:(id) sender;
+- (IBAction) rotateImageRight90:(id) sender;
+- (IBAction) rotateImageUpright:(id) sender;
+
+- (IBAction) flipHorizontal:(id) sender;
+- (IBAction) flipVertical:(id) sender;
+- (IBAction) unflip:(id) sender;
+
+@end
+
+@implementation _RotateFlipView
+@end
 
 @implementation IKImageView
 
@@ -22,12 +59,12 @@ NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
 	if((self = [super initWithFrame:frame]))
 		{
 		NSClipView *cv=[[[NSClipView alloc] initWithFrame:frame] autorelease];
-		_rotationView=[[[NSScaleRotateFlipView alloc] initWithFrame:frame] autorelease];
+		_rotationView=[[[_RotateFlipView alloc] initWithFrame:frame] autorelease];
 		_imageView=[[[NSImageView alloc] initWithFrame:frame] autorelease];	// can also handle scaling! */
 		_scrollView=[[NSScrollView alloc] initWithFrame:frame];
 		[_scrollView setContentView:cv];
 		[_scrollView setDocumentView:_rotationView];
-		[(NSScaleRotateFlipView *) _rotationView setContentView:_imageView];
+		[(_RotateFlipView *) _rotationView setContentView:_imageView];
 		}
 	return self;
 }
@@ -52,9 +89,9 @@ NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
 - (BOOL) hasHorizontalScroller; { return [_scrollView hasHorizontalScroller]; }
 - (BOOL) hasVerticalScroller; { return [_scrollView hasVerticalScroller]; }
 - (CIFilter *) imageCorrection; { return nil; }
-- (CGFloat) rotationAngle; { return [(NSScaleRotateFlipView *) _rotationView rotationAngle]; }
+- (CGFloat) rotationAngle; { return [(_RotateFlipView *) _rotationView angle]; }
 - (BOOL) supportsDragAndDrop; { return _supportsDragAndDrop; }
-- (CGFloat) zoomFactor; { return [(NSScaleRotateFlipView *) _rotationView scale]; }
+- (CGFloat) zoomFactor; { return [(_RotateFlipView *) _rotationView scale]; }
 
 - (void) setAutohidesScrollers:(BOOL) flag; { [_scrollView setAutohidesScrollers:flag]; }
 - (void) setAutoresizes:(BOOL) flag; { _autoresizes=flag; }
@@ -66,17 +103,17 @@ NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
 - (void) setHasHorizontalScroller:(BOOL) flag; { [_scrollView setHasHorizontalScroller:flag]; }
 - (void) setHasVerticalScroller:(BOOL) flag; { [_scrollView setHasVerticalScroller:flag]; }
 - (void) setImageCorrection:(CIFilter *) filter; { NIMP; }
-- (void) setRotationAngle:(CGFloat) angle; { [(NSScaleRotateFlipView *) _rotationView setRotationAngle:angle]; }
+- (void) setRotationAngle:(CGFloat) angle; { [(_RotateFlipView *) _rotationView setAngle:angle]; }
 - (void) setSupportsDragAndDrop:(BOOL) flag; { _supportsDragAndDrop=flag; }
-- (void) setZoomFactor:(CGFloat) zoom; { [(NSScaleRotateFlipView *) _rotationView setScale:zoom]; }
+- (void) setZoomFactor:(CGFloat) zoom; { [_scrollView setMagnification:zoom]; }
 
 - (NSPoint) convertImagePointToViewPoint:(NSPoint) pnt; { return [_imageView convertPoint:pnt toView:self]; }
 - (NSRect) convertImageRectToViewRect:(NSRect) rect; { return [_imageView convertRect:rect toView:self]; }
 - (NSPoint) convertViewPointToImagePoint:(NSPoint) pnt; { return [_imageView convertPoint:pnt fromView:self]; }
 - (NSRect) convertViewRectToImageRect:(NSRect) rect; { return [_imageView convertRect:rect fromView:self]; }
 
-- (void) flipImageHorizontal:(id) sender; { [(NSScaleRotateFlipView *) _rotationView flipHorizontal:sender]; }
-- (void) flipImageVertical:(id) sender; { [(NSScaleRotateFlipView *) _rotationView flipVertical:sender]; }
+- (void) flipImageHorizontal:(id) sender; { [(_RotateFlipView *) _rotationView flipHorizontal:sender]; }
+- (void) flipImageVertical:(id) sender; { [(_RotateFlipView *) _rotationView flipVertical:sender]; }
 - (CGImageRef) image; { return (CGImageRef)[_imageView image]; }
 - (NSDictionary *) imageProperties; { return NIMP; }
 - (NSSize) imageSize; { return [(NSImage *)[self image] size]; }
@@ -108,21 +145,21 @@ NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
 
 - (void) setImageZoomFactor:(CGFloat) zoom centerPoint:(NSPoint) center;
 {
-	[(NSScaleRotateFlipView *) _rotationView setCenter:center];
-	[(NSScaleRotateFlipView *) _rotationView setScale:zoom];
+	[self setCenter:center];
+	[self setScale:zoom];
 }
 
 - (void) setOverlay:(LKLayer *) layer forType:(NSString *) type; { NIMP; }
 
 - (void) setRotationAngle:(CGFloat) angle centerPoint:(NSPoint) center;
 {
-	[(NSScaleRotateFlipView *) _rotationView setCenter:center];
-	[(NSScaleRotateFlipView *) _rotationView setRotationAngle:angle];
+	[self setCenter:center];
+	[self setRotationAngle:angle];
 }
 
-- (void) zoomImageToActualSize:(id) sender; { [(NSScaleRotateFlipView *) _rotationView zoomUnity:sender]; }
-- (void) zoomImageToFit:(id) sender; { [(NSScaleRotateFlipView *) _rotationView zoomFit:sender]; }
-- (void) zoomImageToRect:(NSRect) rect; { [(NSScaleRotateFlipView *) _rotationView setScaleForRect:rect]; }
+- (void) zoomImageToActualSize:(id) sender; { [(_RotateFlipView *) _rotationView zoomUnity:sender]; }
+- (void) zoomImageToFit:(id) sender; { [(_RotateFlipView *) _rotationView zoomFit:sender]; }
+- (void) zoomImageToRect:(NSRect) rect; { [(_RotateFlipView *) _rotationView setScaleForRect:rect]; }
 
 @end
 
