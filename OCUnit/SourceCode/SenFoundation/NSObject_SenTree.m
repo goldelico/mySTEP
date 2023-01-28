@@ -10,7 +10,7 @@
 #import "NSObject_SenTree.h"
 #import "SenTreeEnumerator.h"
 #import <Foundation/NSArray.h>
-#import <Foundation/NSNumber.h>
+#import <Foundation/NSValue.h>
 
 
 @implementation NSObject(SenTree)
