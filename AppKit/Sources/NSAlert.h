@@ -38,6 +38,8 @@ enum
 	NSAlertThirdButtonReturn
 };
 
+typedef NSInteger NSModalResponse;
+
 @interface NSAlert : NSObject
 {
 	IBOutlet NSTextField *_title;
@@ -73,7 +75,7 @@ enum
 - (NSString *) informativeText;
 - (void) layout;
 - (NSString *) messageText;
-- (NSInteger) runModal;
+- (NSModalResponse) runModal;
 - (void) setAccessoryView:(NSView *) view;
 - (void) setAlertStyle:(NSAlertStyle) alertStyle;
 - (void) setDelegate:(id) delegate;
