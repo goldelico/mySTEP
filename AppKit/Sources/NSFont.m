@@ -37,8 +37,6 @@
 NSString *NSAntialiasThresholdChangedNotification=@"NSAntialiasThresholdChangedNotification";
 NSString *NSFontSetChangedNotification=@"NSFontSetChangedNotification";
 
-#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.AppKit.NSFonts.plist"]
-
 static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, CGFloat size, CGFloat deflt)
 { // get system font (cached)
 	NSUserDefaults *u = [NSUserDefaults standardUserDefaults];
@@ -631,6 +629,8 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 }
 
 #if 1	// default implementation using a Property List
+
+#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.AppKit.NSFonts.plist"]
 
 static NSMutableDictionary *cache;	// we simply index by fontName (only): cache.fontName.index -> attribute dictionary
 static BOOL changed;
