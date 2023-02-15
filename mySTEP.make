@@ -185,6 +185,7 @@ PHAR := /usr/bin/phar
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
+LIBS += -L/opt/local/lib
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
 LD := $(CC)
@@ -203,7 +204,7 @@ SO := dylib
 else
 DEFINES += -D__mySTEP__
 # use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
-# this is the default compiler/toolchain we use for "universal" apps/bundles
+# otherwise take a default compiler/toolchain we use for "universal" apps/bundles
 TOOLCHAIN_FALLBACK = 8-Jessie
 DEBIAN_RELEASE_FALLBACK = jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \

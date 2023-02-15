@@ -793,16 +793,14 @@ static Class __rulerViewClass = nil;
 - (CGFloat) magnification; { return _magnification; }
 - (void) setMagnification:(CGFloat) factor;
 {
-    NSClipView *cv = [self contentView];
-    NSRect bounds = [cv bounds];
+    NSRect bounds = [_contentView bounds];
 	[self setMagnification:factor centeredAtPoint:NSMakePoint(NSMidX(bounds), NSMidY(bounds))];
 }
 
 - (void) setMagnification:(CGFloat) factor centeredAtPoint:(NSPoint) point;
 { // set magnification (clipped) and center
-    NSClipView *cv = [self contentView];
-    NSRect bounds = [cv bounds];
-    NSRect frame = [cv frame];
+    NSRect bounds = [_contentView bounds];
+    NSRect frame = [_contentView frame];
 	_magnification = MIN(MAX(factor, _minMagnification), _maxMagnification);
 
     float xFraction = (point.x - NSMinX(bounds)) / NSWidth(bounds);
@@ -814,7 +812,9 @@ static Class __rulerViewClass = nil;
     bounds.origin.x = point.x - (xFraction * NSWidth(bounds));
     bounds.origin.y = point.y - (yFraction * NSHeight(bounds));
 
-    [cv setBounds:bounds];	// scales and moves
+	// FIXME: who is applying magnification? The scroll-view or the clip view?
+    [_contentView setBounds:bounds];	// scales and moves
+	// 	[_contentView scrollToPoint:p];						// scroll clipview
 }
 
 - (CGFloat) maxMagnification; { return _minMagnification; }

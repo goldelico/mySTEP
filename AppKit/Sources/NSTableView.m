@@ -1785,6 +1785,16 @@
 #endif
 }
 
+- (void) setNeedsDisplay:(BOOL) flag
+{
+	[super setNeedsDisplay:flag];
+}
+
+- (void) setNeedsDisplayInRect:(NSRect) rect
+{
+	[super setNeedsDisplayInRect:rect];
+}
+
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {
 	NSRange rowRange = [self rowsInRect:rect];

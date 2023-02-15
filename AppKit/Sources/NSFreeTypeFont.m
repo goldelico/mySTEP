@@ -254,6 +254,7 @@ FT_Library _ftLibrary(void)
 					return _faceStruct;
 				}
 			NSLog(@"*** Internal font loading error: %@", fontFile);
+			// maybe should delete the font cache because FilePath may be stale
 			}
 		}
 	return _faceStruct;
