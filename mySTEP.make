@@ -739,6 +739,7 @@ $(TTT)+%.o: %.php
 # FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
 build_subprojects:
+	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
 	# DEBIAN_ARCHITECTURES: $(DEBIAN_ARCHITECTURES)
 	# DEBIAN_ARCH: $(DEBIAN_ARCH)
 	# PROJECT_NAME: $(PROJECT_NAME)
