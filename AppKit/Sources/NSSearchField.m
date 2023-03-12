@@ -80,10 +80,11 @@
 {
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSBezierPath *p;
+	CGFloat radius=0.5*MIN(cellFrame.size.width, cellFrame.size.height);
 #if 0
 	NSLog(@"%@ drawWithFrame:%@", self, NSStringFromRect(cellFrame));
 #endif
-	p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:0.5*cellFrame.size.width yRadius:0.5*cellFrame.size.width];
+	p=[NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:radius yRadius:radius];
 	[ctxt saveGraphicsState];
 	[[NSColor whiteColor] set];
 	[p fill];		// fill with background color
