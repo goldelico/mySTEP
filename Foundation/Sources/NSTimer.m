@@ -28,7 +28,7 @@
 	NSTimer *t = [self alloc];
 	if(t)
 		{
-		t->_interval = (seconds <= 0.0) ? 0.01 : seconds;
+		t->_interval = (seconds <= 0.0) ? 0.0001 : seconds;
 		t->_fireDate = [[NSDate alloc] initWithTimeIntervalSinceNow: seconds];
 		t->_is_valid = YES;
 		t->_target = [invocation retain];
@@ -89,8 +89,8 @@
 		NSLog(@"NSTimer initWithFireDate:%@ selector:%@", date, NSStringFromSelector(selector));
 #endif
 	if((self=[super init]))
-		{		
-		_interval = (seconds <= 0.0) ? 0.01 : seconds;
+		{
+		_interval = (seconds <= 0.0) ? 0.0001 : seconds;
 		_fireDate = [date retain];
 		_is_valid = YES;
 		_selector = selector;
@@ -138,6 +138,7 @@
 		{ // is repeating
 		NSTimeInterval ti = [_fireDate timeIntervalSinceReferenceDate];
 		NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+			// CHECKME: what happens if _interval is FLT_MAX?
 		while(ti < now)		// we have lost one or more intervals
 			ti += _interval;	// forward until next multiple of timeslot
 #if 0
