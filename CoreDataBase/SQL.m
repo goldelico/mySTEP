@@ -667,7 +667,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	// we need a mechanism to rename a column
 	return NO;
 }
-// we need a mechanism to insert a column at a specific position
+// we need a mechanism to delete a column at a specific position
 
 - (BOOL) deleteColumn:(NSString *) column fromTable:(NSString *) table error:(NSString **) error;
 {
