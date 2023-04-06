@@ -97,9 +97,6 @@ static int sql_progress(void *context)	// context should be self
 		}
 	if([type isEqualToString:@"sqlite"])
 		{
-		// FIXME: conceptually broken (do we read all tables by SELECT *, how do we write?
-		return NO;
-
 		dbName=[[url path] retain];	// scheme:path
 		if(sqlite3_open([dbName fileSystemRepresentation],	/* Database filename (UTF-8) */
 							(sqlite3 **)&db					/* OUT: SQLite db handle */
@@ -543,9 +540,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) sql:(SQL *) this record:(NSDictionary *) record;
 { // we are (temporarily) our own delegate
-	// FIXME: store in tableData
-	NSMutableArray *tables=nil;		// for collecting of internal query results
-	[tables addObject:[record objectForKey:@"name"]];
+	[_rows addObject:[record objectForKey:@"name"]];
 	return NO;	// don't abort
 }
 
@@ -553,17 +548,16 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 { // return list of table names
 	if(db)
 		{
-		NSMutableArray *tables;
 		id saved=delegate;
 		delegate=self;	// make us collect results in tables
-		tables=[NSMutableArray arrayWithCapacity:10];	// we collect here
+		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
 		if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
 			{
 			delegate=saved;
 			return nil;
 			}
 		delegate=saved;
-		return tables;
+		return _rows;
 		}
 	return [tableColumns allKeys];
 }
@@ -579,6 +573,20 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
 { // return list of columns names
   // "SELECT name,sql FROM sqlite_master WHERE type='table'"
+	if(db)
+		{
+		id saved=delegate;
+		delegate=self;	// make us collect results in tables array
+		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
+		if(![self sql:@"SELECT sql FROM sqlite_master WHERE type='table' and name='$table'" error:error])
+			{
+			delegate=saved;
+			return nil;
+			}
+		delegate=saved;
+		// extract column names from single row
+		return _rows;
+		}
 	return [tableColumns objectForKey:table];
 }
 
@@ -592,7 +600,18 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (NSArray *) dataForTable:(NSString *) table error:(NSString **) error;	// data of one table
 {
 	if(db)
-		;
+		{
+		id saved=delegate;
+		delegate=self;	// make us collect results in tables array
+		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
+		if(![self sql:@"SELECT * FROM 'table'" error:error])
+			{
+			delegate=saved;
+			return nil;
+			}
+		delegate=saved;
+		return _rows;
+		}
 	return [tableData objectForKey:table];
 }
 

@@ -16,6 +16,7 @@
 @interface SQL : NSObject
 {
 	void *db;			// SQLite access handle
+	NSMutableArray *_rows;	// SQLite rows
 	NSString *dbName;
 	id delegate;
 	// for TSV, CSV, Prolog etc. stored locally
