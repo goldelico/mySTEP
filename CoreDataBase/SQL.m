@@ -60,14 +60,6 @@
 	return delegate;
 }
 
-static int sql_progress(void *context)	// context should be self
-{ // callback for sqlite
-	SQL *this = (SQL *) context;
-	NSLog(@"sql_progress");
-	[[this delegate] sql:this progress:0];
-	return 0;
-}
-
 - (NSString *) typeForURL:(NSURL *) url
 {
 	NSString *type;
@@ -490,6 +482,16 @@ retry:
 	return NO;
 }
 
+static int sql_progress(void *context)	// context should be self
+{ // callback for sqlite
+	SQL *this = (SQL *) context;
+#if 0
+	NSLog(@"sql_progress");
+#endif
+	[[this delegate] sql:this progress:0];
+	return 0;
+}
+
 static int sql_callback(void *context, int columns, char **values, char **names)	// context=self
 { // callback for sqlite
 	SQL *self = (SQL *) context;
@@ -539,8 +541,11 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 // higher level functions
 
 - (BOOL) sql:(SQL *) this record:(NSDictionary *) record;
-{ // we are (temporarily) our own delegate
-	[_rows addObject:[record objectForKey:@"name"]];
+{ // if we are (temporarily) our own delegate and optionally filter values of given column
+	if(!_column)
+		[_rows addObject:record];
+	else
+		[_rows addObject:[record objectForKey:_column]];
 	return NO;	// don't abort
 }
 
@@ -551,6 +556,7 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 		id saved=delegate;
 		delegate=self;	// make us collect results in tables
 		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
+		_column=@"name";
 		if(![self sql:@"SELECT name,sql FROM sqlite_master WHERE type='table'" error:error])
 			{
 			delegate=saved;
@@ -573,18 +579,37 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 - (NSArray *) columnsForTable:(NSString *) table error:(NSString **) error;
 { // return list of columns names
   // "SELECT name,sql FROM sqlite_master WHERE type='table'"
-	if(db)
-		{
+	if(!table)
+		return nil;
+	if(db && ![tableColumns objectForKey:table])
+		{ // first fetch
 		id saved=delegate;
+		NSString *query=[NSString stringWithFormat:@"SELECT sql FROM sqlite_master WHERE type='table' and name='%@'", table];
 		delegate=self;	// make us collect results in tables array
 		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
-		if(![self sql:@"SELECT sql FROM sqlite_master WHERE type='table' and name='$table'" error:error])
+		_column=@"sql";
+		if(![self sql:query error:error])
 			{
 			delegate=saved;
 			return nil;
 			}
 		delegate=saved;
-		// extract column names from single row
+		/*
+		 * decode CREATE TABLE $table ($col1 STRING, $col2 STRING, ...)
+		 */
+		NSScanner *sc=[NSScanner scannerWithString:[_rows objectAtIndex:0]];
+		_rows=[NSMutableArray arrayWithCapacity:10];
+		/* primitive and not fail-safe scanner for column names */
+		[sc scanUpToString:@"(" intoString:NULL];
+		[sc scanString:@"(" intoString:NULL];
+		while(![sc isAtEnd] && ![sc scanString:@")" intoString:NULL])
+			{
+			NSString *col;
+			if([sc scanCharactersFromSet:[NSCharacterSet alphanumericCharacterSet] intoString:&col])
+				[_rows addObject:col];
+			[sc scanUpToString:@"," intoString:NULL];
+			[sc scanString:@"," intoString:NULL];
+			}
 		return _rows;
 		}
 	return [tableColumns objectForKey:table];
@@ -602,9 +627,12 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 	if(db)
 		{
 		id saved=delegate;
+		NSString *query=[NSString stringWithFormat:@"SELECT * FROM '%@'", table];
 		delegate=self;	// make us collect results in tables array
-		_rows=[NSMutableArray arrayWithCapacity:10];	// we collect here
-		if(![self sql:@"SELECT * FROM 'table'" error:error])
+		_rows=[NSMutableArray arrayWithCapacity:10];
+		_column=nil;	// collect full rows
+		[tableData setObject:_rows forKey:table];	// collect here
+		if(![self sql:query error:error])
 			{
 			delegate=saved;
 			return nil;
