@@ -532,6 +532,9 @@ ifeq ($(TRIPLE),MacOS)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
 ### FIXME: why do we need this? MacOS only...
 ### MacOS should use -F and the framework path!
+### FIXME: los of locations should be a default list which can be extended by project settings!
+FMWK_PATHS := /System/Library/Frameworks $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks
+
 INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d "/System/Library/Frameworks/$${FMWK}.framework" ]; \
