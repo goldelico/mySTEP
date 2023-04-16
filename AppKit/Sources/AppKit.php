@@ -12,6 +12,8 @@
 
 global $ROOT;	// must be set by some .app
 
+ob_start();	// enable output buffering so that we can sent cookies and headers later than starting to write html
+
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
 
 $redirect=false;		// we can eliminate/rearrange the mapping.plist
