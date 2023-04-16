@@ -23,8 +23,6 @@
 // global $ROOT must be set by some application
 // global $debug can be set to enable/disable debugging messages
 
-ob_start();	// enable output buffering so that we can sent cookies and headers later than starting to write html
-
 error_reporting(-1);	// report all PHP errors to avoid delayed issues when running on different servers
 
 const NO=false;
