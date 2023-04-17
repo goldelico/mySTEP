@@ -3661,6 +3661,14 @@ if(true)
 			{
 // _NSLog("open: ".$bundle->description());
 			$exec=$bundle->executablePath();
+			if(!$exec)
+				{
+				$path=$bundle->objectForInfoDictionaryKey('CFBundleExecutable');
+				if(is_null($path))
+					_NSLog("missing executable path or Info.plist for bundle ".$bundle->bundlePath());
+				else
+					_NSLog("bad executable '$path' for bundle ".$bundle->bundlePath());
+				}
 // _NSLog("open: ".$exec);
 			$url=$this->_externalURLForPath($exec);
 			if(!is_null($url))
