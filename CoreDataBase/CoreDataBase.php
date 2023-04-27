@@ -746,7 +746,15 @@ NSLog("sql: $ident");
 	NSLog("SQL: ".$sql);
 	if($this->type == "mysql")
 		{
-		$result=mysqli_query($this->db, $sql);
+		try
+		{
+			$result=mysqli_query($this->db, $sql);
+		} catch(Excetion $e)
+		{
+			NSLog("query $sql raised exception");
+			$error="MySQL query failed: ".mysqli_error($this->db);
+			return false;
+		}
 		if($result === FALSE)
 			{ // failed
 			NSLog("query $sql failed");
