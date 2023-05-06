@@ -1314,9 +1314,17 @@ endif
 endif
 	@echo bundle done
 
-# paths may not contain any spaces
-HFILES=$(shell echo $(HEADERSRC) | tr ' ' '\n' | while read FILE; do dirname $$FILE; done | sort -u )
-HPREFIX=Source/
+# find common header prefix (if any)
+HPREFIX=$(shell for FILE in $(HEADERSRC); \
+do DIR="$$(dirname "$$FILE")/"; \
+	if [ "$$first" != "no" ]; \
+	then PREFIX="$${DIR\#./}"; \
+	else while [ "$$PREFIX" -a "$${DIR\#$$PREFIX}" == "$$DIR" ]; \
+		do PREFIX="$$(dirname "$$PREFIX")/"; PREFIX="$${PREFIX\#./}"; \
+		done ; \
+	fi ; \
+	first=no; \
+done ; echo "$$PREFIX")
 
 headers:
 	@echo headers
@@ -1324,11 +1332,7 @@ ifneq ($(TRIPLE),unknown-linux-gnu)
 	# create headers $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(strip $(HEADERSRC)),)
-	# included header files $(HEADERSRC)
-#	$(TAR) -cf /dev/null --transform='s|Source/||;s|Sources/||;s|src/||' --verbose --show-transformed-names $(HEADERSRC)
-	# prefixes: $(HFILES)
-	# prefix stripped: $(HPREFIX)
-	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) -cf - --transform='s|$(HPREFIX)||;s|Source/||;s|Sources/||;s|src/||' $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) xf -) )	# copy headers keeping subdirectory structure
+	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) -cf - --transform='s|$(HPREFIX)||' $(HEADERSRC) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && $(TAR) xf -) )	# copy headers keeping subdirectory structure
 endif
 #ifeq ($(DEBIAN_RELEASE),none)
 #	$(QUIET)- (mkdir -p "$(EXEC)/Headers" && rm -f $(HEADERS) && ln -sf ../../Headers "$(HEADERS)")	# link to Headers to find <Framework/File.h>
