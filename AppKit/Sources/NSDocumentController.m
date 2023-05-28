@@ -140,6 +140,9 @@ should always use this method to get the NSDocumentController. */
 	return sharedController;
 }
 
+// FIXME: do we really need this?
+// FIXME: replace all calls to this by a mechanism based on [NSApp delegate] != nil
+
 - (BOOL) _isDocumentBased;
 { // application is document based if there is at least one type
 	return [_types count] > 0;
@@ -150,6 +153,7 @@ should always use this method to get the NSDocumentController. */
 	NSLog(@"should _setOpenRecentMenu from NIB file: %@", menu);
 }
 
+#if OLD
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
 { // process application open requests
 	NSEnumerator *e=[urls objectEnumerator];
@@ -191,8 +195,53 @@ should always use this method to get the NSDocumentController. */
 		if(opts&NSWorkspaceLaunchAndPrint)
 			[doc printDocument:nil];	// trigger printing
 		}
-	return any;
 }
+#endif
+
+// FIXME: add more such delegate methods if needed
+// simplify
+
+- (void) application:(NSApplication *) app openURLs:(NSArray *) urls;	// handle open
+{
+	NSEnumerator *e=[urls objectEnumerator];
+	NSURL *url;
+#if 1
+	NSLog(@"%@ openURLs: %@", self, urls);
+#endif
+	while((url=[e nextObject]))
+		{
+		if([url isFileURL])
+			[self openDocumentWithContentsOfFile:[url path] display:YES];
+		else
+			[self openDocumentWithContentsOfURL:url display:YES];
+		}
+}
+
+- (BOOL) applicationOpenUntitledFile:(NSApplication *) app;
+{
+	NSString *type=[self defaultType];
+#if 1
+	NSLog(@"%@ applicationOpenUntitledFile: type=%@", self, type);
+#endif
+	if(type)
+		return [self openUntitledDocumentOfType:type display:YES] != nil;
+	return NO;
+}
+
+- (BOOL) application:(NSApplication *) app printFile:(NSString *) path;
+{
+#if 1
+	NSLog(@"%@ printFile: %@", self, path);
+#endif
+	NSDocument *doc=[self openDocumentWithContentsOfFile:path display:NO];
+	if(!doc)
+		return NO;
+	[doc printDocument:nil];
+	[doc close];
+	return YES;
+}
+
+// FIXME: make this called in NSApplication if [NSApp delegate] == nil
 
 - (BOOL) _applicationShouldTerminate: (NSApplication *)sender
 {
@@ -210,7 +259,8 @@ should always use this method to get the NSDocumentController. */
 	NSMenu *fileMenu;
 	NSInteger openMenu;
 	NSInteger i;
-	if(![self _isDocumentBased])
+	// FIXME: we should keep this short in non-DBA but have a different rule
+	if([_recentDocuments count] == 0)
 		return;	// no menu to update
 	if([[NSApp mainMenu] numberOfItems] < 2)
 		{ // this may be called if the menu has not yet been connected
