@@ -1932,76 +1932,115 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
 { // generic application open handler
-	NSUInteger i, uc=[urls count];
-	NSDocumentController *d=[NSDocumentController sharedDocumentController];
-	NSMutableArray *files;
-	NSEnumerator *e;
-	NSURL *url;
-#if 1
-	NSLog(@"_application: %@ openURLs: %@ opts: %lu", app, urls, (unsigned long)opts);
+	NSUInteger uc=[urls count];
+	id delegate=_delegate;
+	// CHECKME: is this the right priority?
+	// CHECKME: is an App without app-delegate automatically a DBA?
+	// CHECKME: or if it defines any type?
+	// CHECKME: do we fallback for each not implemented method?
+	if(!delegate)
+		delegate=[NSDocumentController sharedDocumentController];
+#if 0
+	NSLog(@"_application: %@ openURLs: %@ opts: %lu delegate: %@", app, urls, (unsigned long)opts, delegate);
 #endif
-	if(_delegate && [_delegate respondsToSelector:_cmd] && [_delegate _application:app openURLs:urls withOptions:opts])
-		return YES;	// allow to implement in delegate
-	else if(d && [d _application:app openURLs:urls withOptions:opts])
-		return YES;	// catched in document controller
-	if([urls count] == 0)
-		return YES;	// nothing to open...
-	files=[NSMutableArray arrayWithCapacity:uc];
-	e=[urls objectEnumerator];
-	while((url=[e nextObject]))
-		{ // accept file names only
-			if(![url isFileURL])
-				{
-				NSLog(@"can't open %@ as file", url);
-				return NO;
-				}
-			[files addObject:[url path]];
-		}
-	if(_delegate)
-		{
-		if(opts&NSWorkspaceLaunchAndPrint)
-			{ // print
-#if 1
-				NSLog(@"  print by delegate");
+	if(!delegate)
+		return NO;	// no delegates
+	if([delegate respondsToSelector:_cmd])
+		return [delegate _application:app openURLs:urls withOptions:opts];	// allow to implement this in delegate
+	if(opts&NSWorkspaceLaunchAndPrint)
+		{ // print
+#if 0
+			NSLog(@"  print by delegate");
 #endif
-				if([_delegate respondsToSelector:@selector(application:printFiles:withSettings:showPrintPanels:)])
-					[_delegate application:app printFiles:files withSettings:nil showPrintPanels:NO];
-				else if((uc > 1 || ![_delegate respondsToSelector:@selector(application:printFile:)]) && [_delegate respondsToSelector:@selector(application:printFiles:)])
-					[_delegate application:app printFiles:files];
-				else if([_delegate respondsToSelector:@selector(application:printFile:)])
-					{ // print them individually
-						for(i=0; i<uc; i++)
-							[_delegate application:app printFile:[files objectAtIndex:i]];
+			NSMutableArray *files=[NSMutableArray arrayWithCapacity:uc];
+			NSEnumerator *e;
+			NSURL *url;
+			e=[urls objectEnumerator];
+			while((url=[e nextObject]))
+				{ // accept file names only
+				if(![url isFileURL])
+					{
+					NSLog(@"can't open %@ as file", url);
+					return NO;
 					}
-				else
-					return NO;	// can't print
-#if 1
-				NSLog(@"  has been printed by delegate");
-#endif
+				[files addObject:[url path]];
+				}
+			if([delegate respondsToSelector:@selector(application:printFiles:withSettings:showPrintPanels:)])
+				{
+				[delegate application:app printFiles:files withSettings:nil showPrintPanels:NO];
 				return YES;
+				}
+			if((uc > 1 || ![delegate respondsToSelector:@selector(application:printFile:)]) && [delegate respondsToSelector:@selector(application:printFiles:)])
+				{
+				[delegate application:app printFiles:files];
+				return YES;
+				}
+			if([delegate respondsToSelector:@selector(application:printFile:)])
+				{ // print them individually
+				e=[urls objectEnumerator];
+				while((url=[e nextObject]))
+					[delegate application:app printFile:[url path]];
+				return YES;
+				}
+			return NO;	// can't print
 			}
-		if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && !(opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(application:openFileWithoutUI:)])
-			[_delegate application:app openFileWithoutUI:[files objectAtIndex:0]];
-		else if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && (opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(application:openTempFile:)])
-			[_delegate application:app openTempFile:[files objectAtIndex:0]];
-		else if(uc == 0 && (opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(applicationOpenUntitledFile:)])
-			{ // new file
-				if([_delegate respondsToSelector:@selector(applicationShouldOpenUntitledFile:)] && ![_delegate applicationShouldOpenUntitledFile:app])
-					return NO;	// denied
-				[_delegate applicationOpenUntitledFile:app];	// open untitled
+	// FIXME: check for isFileURL
+	if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && [delegate respondsToSelector:@selector(application:openFileWithoutUI:)])
+		{
+		[delegate application:app openFileWithoutUI:[[urls objectAtIndex:0] path]];
+		return YES;
+		}
+	if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && [delegate respondsToSelector:@selector(application:openTempFile:)])
+		{
+		[delegate application:app openTempFile:[[urls objectAtIndex:0] path]];
+		return YES;
+		}
+	if(uc == 0 && [delegate respondsToSelector:@selector(applicationOpenUntitledFile:)])
+		{ // no files given so open a new file
+			if([delegate respondsToSelector:@selector(applicationShouldOpenUntitledFile:)] && ![delegate applicationShouldOpenUntitledFile:app])
+				return NO;	// denied by delegate
+			[delegate applicationOpenUntitledFile:app];	// open untitled
+			return YES;
+		}
+	if([delegate respondsToSelector:@selector(application:openURLs:)])
+		{
+		[delegate application:app openURLs:urls]; // open by URLs
+		return YES;
+		}
+	if(uc > 1 && [delegate respondsToSelector:@selector(application:openFiles:)])
+		{ // open multiple files - but only if they all are local files
+		NSMutableArray *files=[NSMutableArray arrayWithCapacity:uc];
+		NSEnumerator *e;
+		NSURL *url;
+		e=[urls objectEnumerator];
+		while((url=[e nextObject]))
+			{ // accept file names only
+				if(![url isFileURL])
+					{
+					NSLog(@"can't open %@ as file", url);
+					return NO;
+					}
+				[files addObject:[url path]];
 			}
-		else if((uc > 1 || ![_delegate respondsToSelector:@selector(application:openFile:)]) && [_delegate respondsToSelector:@selector(application:openFiles:)])
-			[_delegate application:app openFiles:files];
-		else if([_delegate respondsToSelector:@selector(application:openFile:)])
-			{ // open files individually
-				for(i=0; i<uc; i++)
-					[_delegate application:app openFile:[files objectAtIndex:i]];
-			}
-		else
-			return NO;
-#if 1
-		NSLog(@"  opened by delegate");
-#endif
+		[delegate application:app openFiles:files];
+		return YES;
+		}
+	if([delegate respondsToSelector:@selector(application:openFile:)])
+		{ // open files individually
+		NSEnumerator *e;
+		NSURL *url;
+		e=[urls objectEnumerator];
+		while((url=[e nextObject]))
+			{ // accept file names only
+				if(![url isFileURL])
+					{
+					NSLog(@"can't open %@ as file", url);
+					return NO;
+					}
+				}
+		e=[urls objectEnumerator];
+		while((url=[e nextObject]))
+			[delegate application:app openFile:[url path]];
 		return YES;
 		}
 	return NO;

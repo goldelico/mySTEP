@@ -257,6 +257,7 @@ extern id NSApp;					// NSApp global var
 															// the delegate
 
 - (BOOL) application:(NSApplication *) sender delegateHandlesKey:(NSString *) value;
+- (void) application:(NSApplication *) app openURLs:(NSArray *) urls;
 - (BOOL) application:(NSApplication *) app openFile:(NSString *) file;
 - (void) application:(NSApplication *) app openFiles:(NSArray *) files;
 - (BOOL) application:(NSApplication *) app openFileWithoutUI:(NSString *) file;
