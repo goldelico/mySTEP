@@ -589,20 +589,12 @@
 	[self printShowingPrintPanel:YES];
 }
 
-- (BOOL) validateMenuItem:(NSMenuItem *)anItem
-{
-	if ([anItem action] == @selector(revertDocumentToSaved:))
-		return ([self fileName] != nil && [self isDocumentEdited]);
-
-	// FIXME should validate spa popup items; return YES if it's a native type.
-
-	return YES;
-}
-
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
 	if ([anItem action] == @selector(revertDocumentToSaved:))
 		return ([self fileName] != nil);
+	if ([anItem action] == @selector(saveDocument:))
+		return [self isDocumentEdited];
 
 	return YES;
 }
