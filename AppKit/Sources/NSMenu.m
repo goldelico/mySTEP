@@ -741,10 +741,17 @@ static BOOL __userKeyEquivalents = YES;
 #endif
 					shouldBeEnabled = [validator validateMenuItem:item];
 					}
+				else if([validator respondsToSelector:@selector(validateMenuItem:)])
+					{
+#if 0
+					NSLog(@"%@ supports @protocol(validateUserInterfaceItem)", validator);
+#endif
+					shouldBeEnabled = [(id <NSUserInterfaceValidations>) validator validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) item];
+					}
 				else
 					{
 #if 0
-					NSLog(@"%@ does not support @protocol(validateMenuItem)", validator);
+					NSLog(@"%@ does not support validation", validator);
 #endif
 					shouldBeEnabled = YES;  // default
 					}
