@@ -290,6 +290,37 @@ static Class __stringClass = Nil;
 	return [self initWithObjects:array->_contents count:array->_count];
 }
 
+- (id) initWithArray:(NSArray*)array copyItems:(BOOL) flag;
+{ // items must conform to the copying protocol!
+	if(!flag)
+		return [self initWithObjects:array->_contents count:array->_count];
+	NIMP;
+	// FIXME: placing this on the stack is dangerous...
+	id newObjects[_count];
+	NSArray *newArray;
+	BOOL needCopy = NO;
+	NSUInteger i;
+
+	for (i = 0; i < _count; i++)
+		{
+		newObjects[i] = [_contents[i] copy];
+		if (newObjects[i] != _contents[i])
+			needCopy = YES;	// was really copied
+		}
+	if (needCopy || [self isKindOfClass: __mutableArrayClass])
+		{ // a deep copy is required
+			newArray = [[self class] alloc];
+			newArray = [newArray initWithObjects:newObjects count:_count];
+		}
+	else
+		newArray = [self retain];
+
+	for (i = 0; i < _count; i++)
+		[newObjects[i] release];
+	[self release];
+	return newArray;
+}
+
 - (id) init { return [self initWithObjects: NULL count: 0]; }
 
 - (id) initWithObjects:(id*)objects count:(NSUInteger)count
@@ -390,37 +421,14 @@ static Class __stringClass = Nil;
 	return self;
 }
 
-// FIXME: is this correct? And how big is the stack???
-
-- (id) copyWithZone:(NSZone *) zone														// NSCopying
-{
-	id oldObjects[_count], newObjects[_count];
-	NSArray *newArray;
-	BOOL needCopy = NO;
-	NSUInteger i;
-
-	[self getObjects: oldObjects];
-	for (i = 0; i < _count; i++)
-		{
-		newObjects[i] = [oldObjects[i] copy];
-		if (newObjects[i] != oldObjects[i])
-			needCopy = YES;
-		}
-	if (needCopy || [self isKindOfClass: __mutableArrayClass])
-		{													// a deep copy is
-			newArray = [[self class] alloc];					// required
-			if(_count > 0)
-				newArray = [newArray initWithObjects:newObjects count:_count];
-			else
-				newArray = [newArray init];
-		}
-	else
-		newArray = [self retain];
-
-	for (i = 0; i < _count; i++)
-		[newObjects[i] release];
-
-	return newArray;
+- (id) copyWithZone:(NSZone *) zone
+{ // NSCopying
+#if OLD	// pre-10.5: https://developer.apple.com/library/archive/releasenotes/Foundation/RN-FoundationOlderNotes/#NSFileManager
+	// scroll to "Immutable collections and copy behavior"
+	return [[[self class] alloc] initWithArray:self copyItems:YES];
+#else
+	return [[[self class] alloc] initWithArray:self copyItems:NO];
+#endif
 }
 
 - (id) mutableCopyWithZone:(NSZone *) zone
