@@ -15,32 +15,6 @@ global $ROOT;	// must be set by some .app
 ob_start();	// enable output buffering so that we can sent cookies and headers later than starting to write html
 
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/Foundation.php";
-
-$redirect=false;		// we can eliminate/rearrange the mapping.plist
-if($redirect && isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 443)
-{ // reload page as https
-	$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
-// _NSLog($plist);
-	if($plist)
-		{
-		$servers=$plist['server-setup'];	// get mapping pairs
-		$https="https://".$_SERVER['HTTP_HOST'];	// how it would look like with https
-		foreach($servers as $server)
-			{
-// _NSLog($server);
-			if($server['web'] === $https)	// external root URL
-				{
-//				_NSLog("$https found"); // https found
-				if($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
-					header("location: https://".$_SERVER['HTTP_HOST']."/");
-				else
-					header("location: https://".$_SERVER['HTTP_HOST']."/".$_SERVER['REQUEST_URI']);
-				exit;
-				}
-			}
-		}
-}
-
 require_once "$ROOT/Internal/Frameworks/UserManager.framework/Versions/Current/php/UserManager.php";
 
 const NSOnState=1;
@@ -68,7 +42,7 @@ define('NSVerticalTextAlignmentBottom', 2);
 
 if($GLOBALS['debug'])	echo "<h1>AppKit.framework</h1>";
 
-$_mappinglist="$ROOT/Library/WebServer/mapping.list";
+$_mappinglist="$ROOT/Library/WebServer/mapping.list";	// JSON
 global $_mappinglist;
 
 // these functions should be used internally only!
@@ -3569,56 +3543,19 @@ _NSLog($exts);
 		}
 	public function _externalURLForPath($path)
 		{ // translate executable path into external URL
-if(true)
-	{ // new version
-			global $_mappinglist;	// should be a property of this class
-			$path=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
-			$url=null;
-			// and updating the mapping should be a method...
-			if(file_exists($_mappinglist))
-				{
-				$string=file_get_contents($_mappinglist);
-				$json=json_decode($string, true);
-				if(isset($json[$path]))
-					$url=$json[$path];
-				// else scan the tree or try some other method
-				}
-			return $url;
-	}
-		$fm=NSFileManager::defaultManager();
-		$exec=$fm->fileSystemRepresentationWithPath($path);
-		$exec=realpath($exec);	// expand symlinks
-		$plist=NSPropertyListSerialization::propertyListFromPath('/Library/WebServer/mapping.plist');
-// _NSLog($plist);
-		if($plist)
+		global $_mappinglist;	// should be a property of this class
+		$path=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
+		$url=null;
+		// and updating the mapping should be a method...
+		if(file_exists($_mappinglist))
 			{
-			$servers=$plist['server-setup'];	// get mapping pairs
-			$shortest="";
-			foreach($servers as $server)
-				{
-// _NSLog($server);
-				$external=$server['web'];	// external root URL
-				$internal=$server['directory'];	// internal root
-				$internal=realpath($internal);	// expand symlinks
-// _NSLog("$exec vs. $internal -> $external");
-				$paths=$this->_scanDirectoryForExecutable($internal, $external, $exec, array("index.html", "index.php"));
-// _NSLog($paths);
-				foreach($paths as $path)
-					{
-// _NSLog("path: $path");
-// FIXME: prefer https over http!
-					if(!$shortest || strlen($path) < strlen($shortest))
-						$shortest=$path;
-					}
-				}
-// _NSLog("shortest: $shortest");
-			if($shortest)
-				return $shortest;
+			$string=file_get_contents($_mappinglist);
+			$json=json_decode($string, true);
+			if(isset($json[$path]))
+				$url=$json[$path];
+			// else scan the tree or try some other method
 			}
-		else
-			NSLog("no /Library/WebServer/mapping.plist available");
-// _NSLog("not found: file://localhost$exec");
-		return null;	// can't translate
+		return $url;
 		}
 	public function openFile($file)
 		{ // locate application and open with passing the $file
