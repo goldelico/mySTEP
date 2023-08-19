@@ -174,7 +174,8 @@ endif
 
 ifeq ($(TRIPLE),php)
 # besser: php -l & copy
-CC := : php -l + copy
+PHP := /opt/local/bin/php
+CC := : $(PHP) -l + copy
 # besser: makephar - (shell-funktion?)
 LD := : makephar
 AS := :
@@ -732,7 +733,7 @@ $(TTT)+%.o: %.cpp
 
 $(TTT)+%.o: %.php
 	@- mkdir -p $(TTT)+$(*D)
-	php -l $< && php -w $< >$(TTT)+$*.o
+	$(PHP) -l $< && $(PHP) -w $< >$(TTT)+$*.o
 
 # FIXME: handle .lm .ym
 
@@ -1392,15 +1393,15 @@ ifneq ($(strip $(PHPSRCS)),)
 	# PHPOBJECTS: $(PHPOBJECTS)
 
 	# can be removed later
-	for PHP in $(PHPSRCS); \
+	for PHPSRC in $(PHPSRCS); \
 	do \
-		if [ -r "$$PHP" ]; \
+		if [ -r "$$PHPSRC" ]; \
 		then \
 			mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && \
-			php -l "$$PHP" && \
+			$(PHP) -l "$$PHPSRC" && \
 			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
-			cp -pf "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
-			: cp -pf "$$PHP" "$(BINARY)" && \
+			cp -pf "$$PHPSRC" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
+			: cp -pf "$$PHPSRC" "$(BINARY)" && \
 			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
 		done
@@ -1412,7 +1413,7 @@ ifneq ($(strip $(PHPSRCS)),)
 	# assume we have compiled PHPSRCS -> PHPOBJECTS by rule
 	@mkdir -p "$(EXEC)"
 	rm -f "$(BINARY)"
-	php -d phar.readonly=0 -r '$$pharFile=$$argv[1]; \
+	$(PHP) -d phar.readonly=0 -r '$$pharFile=$$argv[1]; \
 	if(file_exists($$pharFile)) unlink($$pharFile); \
 	$$phar=new Phar($$pharFile); \
 	$$phar->startBuffering(); \
