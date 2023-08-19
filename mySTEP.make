@@ -1243,6 +1243,7 @@ endif
 ifeq ($(RUN),true)
 # to run device only
 DEVICELIST:=-r
+DEPLOY := true
 # this one could strip off architectures different from the one to download
 else
 # to all devices
