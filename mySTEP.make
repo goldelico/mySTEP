@@ -58,7 +58,7 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: 0
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (+) DEBIAN_ARCHITECTURES - default: armel armhf arm64 i386 mipsel
+#   (+) DEBIAN_ARCHITECTURES - default: armel armhf arm64 i386 mipsel - MacOS must be explicitly stated
 #   (-) DEBIAN_ARCH - used internally
 #	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
@@ -419,7 +419,7 @@ endif
 # this is the default/main target on the outer level
 
 ifeq ($(NOCOMPILE),true)
-build:	build_subprojects build_doxy install_local
+build:	build_subprojects build_doxy build_architectures install_local
 else
 build:	build_subprojects build_doxy build_architectures deploy_remote launch_remote
 endif
@@ -453,6 +453,7 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
 build_architectures:
+	# build_architectures
 	@echo build_architectures
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
@@ -744,9 +745,9 @@ $(TTT)+%.o: %.php
 # FIXME: we can't easily specify the build order (e.g. Foundation first, then AppKit and finally Cocoa)
 
 build_subprojects:
+	# build_subprojects
 	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
 	# DEBIAN_ARCHITECTURES: $(DEBIAN_ARCHITECTURES)
-	# DEBIAN_ARCH: $(DEBIAN_ARCH)
 	# PROJECT_NAME: $(PROJECT_NAME)
 	# PRODUCT_NAME: $(PRODUCT_NAME)
 	# FRAMEWORK_VERSION: $(FRAMEWORK_VERSION)
@@ -792,6 +793,7 @@ make_sh: bundle
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
 build_doxy:	build/$(PRODUCT_NAME).docset
+	# build_doxy
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifeq ($(BUILD_DOCUMENTATION),true)
 	$(QUIET)- rsync -vaz ~/bk ~/test
@@ -1219,7 +1221,7 @@ endif
 
 # strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
 install_local: prepare_temp_files
-	@echo install_local
+	# install_local
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
 ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
@@ -1237,7 +1239,7 @@ endif
 else
 	# don't install locally
 endif
-	@echo install_local done
+	# install_local done
 
 # can we have a mode where we don't run but deploy to the runnable device only?
 # maybe RUN=true DEPLOY=true RUN_CMD=:
@@ -1301,13 +1303,17 @@ endif
 
 bundle:
 	@echo bundle
+	# TRIPLE: $(TRIPLE)
+	# SO: $(SO)
 ifneq ($(TRIPLE),unknown-linux-gnu)
 	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	@rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
 	@(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
-	@rm -f "$(PKG)/$(NAME_EXT)/Versions/Current/$(EXECUTABLE_NAME)"; ln -sf "MacOS/lib$(EXECUTABLE_NAME).dylib" "$(PKG)/$(NAME_EXT)/Versions/Current/$(EXECUTABLE_NAME)"
+ifeq ($(TRIPLE),MacOS)
+	@rm -rf "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"; mkdir -p "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"; ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/$(EXECUTABLE_NAME)"; ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)"
+endif
 	@rm -f "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; ln -sf "Versions/Current/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"
 	@rm -f "$(PKG)/$(NAME_EXT)/Headers"; ln -sf "Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/Headers"
 	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
@@ -1361,6 +1367,7 @@ ifneq ($(TRIPLE),unknown-linux-gnu)
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
+ifneq ($(WRAPPER_EXTENSION),framework)
 # included resources $(INFOPLISTS) $(RESOURCES)
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
 ifneq ($(strip $(INFOPLISTS)),)
@@ -1371,6 +1378,19 @@ else
 # create a default Info.plist
 	echo "Error: missing Info.plist - creating a default"
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);"; echo "NSPrincipalClass = NSApplication;"; ) >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
+endif
+else
+# included resources $(INFOPLISTS) $(RESOURCES)
+	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
+ifneq ($(strip $(INFOPLISTS)),)
+# should reject multiple Info.plists
+# should expand ${EXECUTABLE_NAME} and other macros!
+	$(QUIET)- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/Info.plist"
+else
+# create a default Info.plist
+	echo "Error: missing Info.plist - creating a default"
+	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);"; echo "NSPrincipalClass = NSApplication;"; ) >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/Info.plist"
+endif
 endif
 ifneq ($(strip $(RESOURCES)),)
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
@@ -1383,16 +1403,16 @@ ifneq ($(strip $(RESOURCES)),)
 	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'ibtool --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
-	chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources
+# chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources - should exclude Info.plist...
 endif
 	@echo resources done
 
 "$(BINARY)":: bundle headers $(OBJECTS) $(PHPOBJECTS)
+	# rule BINARY: "$(BINARY)"
 ifeq ($(TRIPLE),php)
 ifneq ($(strip $(PHPSRCS)),)
 	# PHPSRCS: $(PHPSRCS)
 	# PHPOBJECTS: $(PHPOBJECTS)
-
 	# can be removed later
 	for PHPSRC in $(PHPSRCS); \
 	do \
@@ -1426,7 +1446,6 @@ ifneq ($(strip $(PHPSRCS)),)
 	$$phar->compressFiles(Phar::GZ); \
 	' "$(BINARY).phar" $(PHPOBJECTS) && chmod 0555 "$(BINARY).phar" && mv "$(BINARY).phar" "$(BINARY)"
 	phar list -f "$(BINARY)"
-
 endif
 endif
 ifneq ($(OBJECTS),)
@@ -1442,8 +1461,10 @@ ifeq ($(WRAPPER_EXTENSION),)
 else ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"
+# FIXME: this could/should already have been done in "bundle:"
 ifeq ($(TRIPLE),MacOS)
-	- ln -sf "$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	- ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	- ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
 else
 	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
 endif
