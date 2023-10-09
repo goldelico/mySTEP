@@ -391,10 +391,14 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
 # default is to build for all
-
 ifeq ($(BASE_OS_LIST),)
+ifneq ($(XCODE_VERSION_ACTUAL),)
+BASE_OS_LIST=Debian
+else
 BASE_OS_LIST=MacOS Debian
 endif
+endif
+#unless PHPONLY
 ifeq ($(PHPONLY),true)
 BASE_OS_LIST=
 endif
