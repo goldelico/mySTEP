@@ -1237,7 +1237,7 @@ ifeq ($(INSTALL),true)
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	- mkdir -p "$(HOST_INSTALL_PATH)/bin/"
 	# FIXME: make host architecture dependent
-	- ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"
+	#- ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"
 endif
 	# installed on localhost at $(HOST_INSTALL_PATH)/bin
 else
