@@ -74,6 +74,16 @@
 	return type;
 }
 
+static int sql_progress(void *context)	// context should be self
+{ // callback for sqlite
+	SQL *this = (SQL *) context;
+#if 0
+	NSLog(@"sql_progress");
+#endif
+	[[this delegate] sql:this progress:0];
+	return 0;
+}
+
 - (BOOL) open:(NSURL *) url error:(NSString **) error;
 {
 	NSString *type=[self typeForURL:url];
@@ -480,16 +490,6 @@ retry:
 		goto retry;	// try again
 	NSLog(@"unknown file type %@", [self typeForURL:url]);
 	return NO;
-}
-
-static int sql_progress(void *context)	// context should be self
-{ // callback for sqlite
-	SQL *this = (SQL *) context;
-#if 0
-	NSLog(@"sql_progress");
-#endif
-	[[this delegate] sql:this progress:0];
-	return 0;
 }
 
 static int sql_callback(void *context, int columns, char **values, char **names)	// context=self
