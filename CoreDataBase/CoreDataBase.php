@@ -410,6 +410,12 @@ class SQLRowEnumerator extends	/* NSEnumerator */ NSObject
 		return mysqli_fetch_array($this->result);
 	}
 
+	public function fetchDict()	// alternate method name
+	{ // fetch next row
+		return mysqli_fetch_array($this->result);
+	}
+
+// FIXME: this is a wrongly named function
 	public function fetchArray()	// alternate method name
 	{ // fetch next row
 		return mysqli_fetch_array($this->result);
