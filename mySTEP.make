@@ -372,8 +372,14 @@ PHPSRCS   := $(filter %.php,$(XSOURCES))
 PHPOBJECTS := $(PHPSRCS:%.php=$(TTT)+%.o)
 SHSRCS   := $(filter %.sh,$(XSOURCES))
 
-# INfo.plist
+# Info.plist
 INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
+
+# Entitlements
+ENTITLEMENTS   := $(filter %.entitlements,$(XSOURCES))
+
+# Assets
+ASSETS   := $(filter %.xcassets,$(XSOURCES))
 
 # subprojects
 SUBPROJECTS := $(filter %.qcodeproj,$(XSOURCES))
@@ -385,7 +391,7 @@ HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
 DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm %.conffiles,$(XSOURCES))
 
 # all sources that are processed specially
-PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS)
+PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS) $(ENTITLEMENTS) $(ASSETS)
 
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
@@ -741,6 +747,8 @@ $(TTT)+%.o: %.php
 	$(PHP) -l $< && $(PHP) -w $< >$(TTT)+$*.o
 
 # FIXME: handle .lm .ym
+# FIXME: handle .xib
+# FIXME: handle.xcassets
 
 #
 # makefile targets
@@ -782,6 +790,9 @@ make_exec: "$(EXEC)"
 
 make_binary: make_exec "$(BINARY)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
+ifneq ($(strip $(ENTITLEMENTS)),)
+	[ -x /usr/bin/codesign ] && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
+endif
 
 make_sh: bundle
 	@echo make_sh
