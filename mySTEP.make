@@ -377,6 +377,9 @@ INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
 
 # Entitlements
 ENTITLEMENTS   := $(filter %.entitlements,$(XSOURCES))
+ifeq ($(strip $(ENTITLEMENTS)),)
+	ENTITLEMENTS := /tmp/mySTEP-default.entitlements
+endif
 
 # Assets
 ASSETS   := $(filter %.xcassets,$(XSOURCES))
@@ -790,9 +793,17 @@ make_exec: "$(EXEC)"
 
 make_binary: make_exec "$(BINARY)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
-ifneq ($(strip $(ENTITLEMENTS)),)
+	expr "$(ENTITLEMENTS)" : "/tmp/*" >/dev/null && echo >$(ENTITLEMENTS) '<?xml version="1.0" encoding="UTF-8"?> \
+	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"> \
+	<plist version="1.0"> \
+	<dict> \
+    <key>com.apple.security.app-sandbox</key> \
+    <false/> \
+    <key>com.apple.security.files.user-selected.read-write</key> \
+    <false/> \
+	</dict> \
+	</plist>' || true
 	[ -x /usr/bin/codesign ] && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
-endif
 
 make_sh: bundle
 	@echo make_sh
