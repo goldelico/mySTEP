@@ -436,6 +436,7 @@ build:	build_subprojects build_doxy build_architectures install_local
 else
 build:	build_subprojects build_doxy build_architectures deploy_remote launch_remote
 endif
+	@echo build done
 	@date
 
 clean:
@@ -746,8 +747,10 @@ $(TTT)+%.o: %.cpp
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.php
+ifneq ($(PHP),)
 	@- mkdir -p $(TTT)+$(*D)
 	$(PHP) -l $< && $(PHP) -w $< >$(TTT)+$*.o
+endif
 
 # FIXME: handle .lm .ym
 # FIXME: handle .xib
