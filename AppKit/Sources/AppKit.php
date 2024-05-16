@@ -478,7 +478,7 @@ class NSApplication extends NSResponder
 	public function sendActionToTarget(NSResponder $from, $action, $target)
 		{
 		if(!$action)
-			{ // no specific action defined - find out if we should foward to a matrix action superview
+			{ // no specific action defined - find out if we should forward to a matrix action superview
 // _NSLog("action is_null");
 			$super=$from->superview();
 			while(!is_null($super))
@@ -492,7 +492,10 @@ class NSApplication extends NSResponder
 					}
 				$super=$super->superview();
 				}
-_NSLog("null action ignored");
+NSLog("null action ignored");
+debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+// _NSLog($from);
+// _NSLog($target);
 			return;	// ignore
 			}
 		if(!isset($target))
