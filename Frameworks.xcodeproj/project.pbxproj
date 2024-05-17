@@ -90,7 +90,7 @@
 			attributes = {
 			};
 			buildConfigurationList = EE2F83150983F176003EA8A2 /* Build configuration list for PBXProject "Frameworks" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
