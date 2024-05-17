@@ -157,15 +157,15 @@ extern NSString *NSParseErrorException;
 - (NSComparisonResult) caseInsensitiveCompare:(NSString *) aString;
 - (unichar) characterAtIndex:(NSUInteger) index;
 - (NSString *) commonPrefixWithString:(NSString *) aString
-							  options:(unsigned int) mask;
+							  options:(NSStringCompareOptions) mask;
 - (NSComparisonResult) compare:(NSString *) aString;		// Comparing Strings
 - (NSComparisonResult) compare:(NSString *) aString	
-					   options:(unsigned int) mask;
+					   options:(NSStringCompareOptions) mask;
 - (NSComparisonResult) compare:(NSString *) aString
-					   options:(unsigned int) mask
+					   options:(NSStringCompareOptions) mask
 						 range:(NSRange) aRange;
 - (NSComparisonResult) compare:(NSString *) aString
-					   options:(unsigned int) mask
+					   options:(NSStringCompareOptions) mask
 						 range:(NSRange) aRange
 						locale:(NSDictionary *) locale;
 - (NSArray *) componentsSeparatedByCharactersInSet:(NSCharacterSet *) set;
@@ -275,31 +275,31 @@ extern NSString *NSParseErrorException;
 - (NSDictionary *) propertyListFromStringsFileFormat;
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet *) aSet;
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet *) aSet
-							options:(unsigned int) mask;
+							options:(NSStringCompareOptions) mask;
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet *) aSet
-							options:(unsigned int) mask
+							options:(NSStringCompareOptions) mask
 							  range:(NSRange) aRange;
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger) anIndex;
 - (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange) range;
 - (NSRange) rangeOfString:(NSString *) string;
-- (NSRange) rangeOfString:(NSString *)string options:(unsigned int) mask;
+- (NSRange) rangeOfString:(NSString *)string options:(NSStringCompareOptions) mask;
 - (NSRange) rangeOfString:(NSString *) aString
-				  options:(unsigned int) mask
+				  options:(NSStringCompareOptions) mask
 					range:(NSRange) aRange;
 - (NSRange) rangeOfString:(NSString *) aString
-				  options:(NSUInteger) mask
+				  options:(NSStringCompareOptions) mask
 					range:(NSRange) searchRange
 				   locale:(NSLocale *) locale;
 - (NSStringEncoding) smallestEncoding;
 - (NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 - (NSString *) stringByAppendingFormat:(NSString *) format,...;
 - (NSString *) stringByAppendingString:(NSString *) aString;
-- (NSString *) stringByFoldingWithOptions:(NSUInteger) options locale:(NSLocale *) locale;
+- (NSString *) stringByFoldingWithOptions:(NSStringCompareOptions) options locale:(NSLocale *) locale;
 - (NSString *) stringByPaddingToLength:(NSUInteger) len withString:(NSString *) pad startingAtIndex:(NSUInteger) index;
 - (NSString *) stringByReplacingCharactersInRange:(NSRange) range withString:(NSString *) replacement;
 - (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
 										 withString:(NSString *) replacement
-											options:(NSUInteger) mask
+											options:(NSStringCompareOptions) mask
 											  range:(NSRange) search;
 - (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
 										 withString:(NSString *) replacement;

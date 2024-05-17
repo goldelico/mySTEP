@@ -1715,8 +1715,8 @@ static NSButtonCell *sharedCell;
 		  relativeTo:(NSInteger) otherWin
 { // main interface call
 #if 1
-	NSString *str[]={ @"Below", @"Out", @"Above" };
-	NSLog(@"orderWindow:NSWindow%@ relativeTo:%ld - %@", str[place+1], (long)otherWin, self);
+	NSString *str[]={ @"NSWindowBelow", @"NSWindowOut", @"NSWindowAbove" };
+	NSLog(@"orderWindow:%@ relativeTo:%ld - %@", str[place+1], (long)otherWin, self);
 #endif
 	if(place == NSWindowOut)
 		{ // close window
@@ -1725,10 +1725,15 @@ static NSButtonCell *sharedCell;
 		}
 	else
 		{
+NSLog(@"1 _w.visible=%d", _w.visible);
 		[self _allocateGraphicsContext];
+NSLog(@"2");
 		[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame and (re)draw if already visible
+NSLog(@"3");
+if(!_w.visible) NSLog(@"will draw initial contents");
 		if(!_w.visible)
 			[self display];	// draw initial contents
+NSLog(@"4");
 
 		// FIXME: don't move a window in front of the key window unless both are in the same application
 		// => make dependent on [self isKeyWindodow];
@@ -1740,6 +1745,7 @@ static NSButtonCell *sharedCell;
 				NSInteger n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
 				NSInteger *list=(NSInteger *) objc_malloc(n*sizeof(*list));	// allocate buffer
 				[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order, i.e. highest to lowest levels)
+NSLog(@"windows found: %d", n);
 #if 0
 				{
 				int prevlevel=999999;
@@ -1813,6 +1819,7 @@ static NSButtonCell *sharedCell;
 			_context=nil;
 			_gState=0;
 		}
+	NSLog(@"window ordered");
 }
 
 // convenience calls
@@ -1995,7 +2002,7 @@ static NSButtonCell *sharedCell;
 
 - (void) _setFrame:(NSRect) rect
 { // this is also used as a callback from window manager
-#if 0
+#if 1
 	NSLog(@"_setFrame:%@", NSStringFromRect(rect));
 #endif
 	if(NSEqualRects(rect, _frame))
@@ -2003,8 +2010,11 @@ static NSButtonCell *sharedCell;
 	if(!NSEqualSizes(rect.size, _frame.size))
 		{ // needs to resize content view
 			_frame=rect;
+			NSLog(@"a");
 			[(NSThemeFrame *) _themeFrame setFrameSize:rect.size];	// adjust theme frame subviews and content View
+			NSLog(@"b");
 			[(NSThemeFrame *) _themeFrame layout];
+			NSLog(@"c");
 		}
 	else
 		{
@@ -2081,7 +2091,7 @@ static NSButtonCell *sharedCell;
 
 - (void) displayIfNeeded
 {
-#if 0
+#if 1
 	NSLog(@"displayIfNeeded needed=%d visible=%d", _w.viewsNeedDisplay, _w.visible);
 #endif
 	if(_w.visible)
@@ -2093,6 +2103,7 @@ static NSButtonCell *sharedCell;
 		[self enableFlushWindow];						// Reenable displaying
 		[self flushWindowIfNeeded];						// and flush in one step
 		[arp release];
+		NSLog(@"displayIfNeeded done needed=%d visible=%d", _w.viewsNeedDisplay, _w.visible);
 		}
 }
 

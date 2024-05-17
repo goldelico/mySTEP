@@ -138,7 +138,7 @@
 			attributes = {
 			};
 			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityFoundation" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -218,7 +218,7 @@
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -259,7 +259,7 @@
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -295,7 +295,7 @@
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -318,7 +318,7 @@
 		EEEB9CF809A7542900626AB7 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				SDKROOT = macosx;
 			};
 			name = Development;
@@ -326,7 +326,7 @@
 		EEEB9CF909A7542900626AB7 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				SDKROOT = macosx;
 			};
 			name = Deployment;
@@ -334,7 +334,7 @@
 		EEEB9CFA09A7542900626AB7 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				SDKROOT = macosx;
 			};
 			name = Default;

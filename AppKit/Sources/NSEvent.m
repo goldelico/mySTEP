@@ -688,7 +688,7 @@ static NSString	*__timers = @"NSEventTimersKey";
 	return [NSString stringWithFormat:@"NSEvent: unknown event type = %d", event_type];
 }
 
-+ (NSEvent *) eventWithCGEvent:(CGEventRef) ref; { return NIMP; }
+// + (NSEvent *) eventWithCGEvent:(CGEventRef) ref; { return NIMP; }
 + (NSEvent *) eventWithEventRef:(const void *) ref; { return NIMP; }
 
 @end

@@ -136,7 +136,7 @@
 				LastUpgradeCheck = 0820;
 			};
 			buildConfigurationList = EEEB9C9C09A752D400626AB7 /* Build configuration list for PBXProject "XCTest" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (

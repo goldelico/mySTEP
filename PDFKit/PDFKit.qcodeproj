@@ -3,7 +3,7 @@
 export INSTALL_PATH="/System/Library/Frameworks"
 export LIBS="-lz"
 export PRODUCT_NAME="PDFKit"
-export SOURCES="PDFAnnotation.m"
+export SOURCES="PDFKit.entitlements PDFAnnotation.m"
 export SOURCES+=" PDFDestination.m"
 export SOURCES+=" PDFDocument.m"
 export SOURCES+=" PDFObject.m"

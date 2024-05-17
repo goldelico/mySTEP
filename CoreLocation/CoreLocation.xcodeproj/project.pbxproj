@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -434,7 +434,7 @@
 			attributes = {
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreLocation" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -510,7 +510,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "(cd $BUILT_PRODUCTS_DIR; tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd $INSTALL_PATH; tar xvzf -) \nexit 0";
+			shellScript = "(cd $BUILT_PRODUCTS_DIR; tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd $INSTALL_PATH; tar xvzf -) \nexit 0\n";
 		};
 		EE69CFE7108DD93100486DB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -523,7 +523,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\t# project root\n./CoreLocation.qcodeproj";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\t# project root\n./CoreLocation.qcodeproj\n";
 		};
 		EE6FE9AE147521FF000BC485 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -690,7 +690,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx;
@@ -704,7 +704,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx;

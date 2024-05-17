@@ -4,7 +4,7 @@ export DEBIAN_DEPENDS="quantumstep-corelocation-framework"
 export FRAMEWORKS="CoreLocation"
 export INSTALL_PATH="/usr"
 export PRODUCT_NAME="cltest"
-export SOURCES="cltest.m"
+export SOURCES="CoreLocation.entitlements cltest.m"
 export SOURCES+=" Info-test.plist"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"

@@ -3,7 +3,7 @@
 export DEBIAN_DEPENDS="quantumstep-appkit-framework"
 export INSTALL_PATH="/System/Library/Frameworks"
 export PRODUCT_NAME="AppKitExtensions"
-export SOURCES="Sources/AppKitExtensions-Info.plist"
+export SOURCES="AppKitExtensions.entitlements Sources/AppKitExtensions-Info.plist"
 export SOURCES+=" Sources/AppKitExtensions.h"
 export SOURCES+=" Sources/NSScaleRotateFlipView.h"
 export SOURCES+=" Sources/NSScaleRotateFlipView.m"

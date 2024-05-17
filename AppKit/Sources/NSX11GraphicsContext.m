@@ -3790,7 +3790,8 @@ static NSFileHandle *fh;
 					}
 				lastXWin=thisXWin;
 			}
-		// we could post the raw X-event as a NSNotification so that we could build a window managerin Obj-C...
+		// we could post the raw X-event as a NSNotification so that we could build a window manager in Obj-C...
+		NSLog(@"X event: %d window = %d", xe.type, (int) thisXWin);
 		switch(xe.type) {
 			case ButtonPress: { // mouse button events
 				float pressure=0.0;
@@ -4225,7 +4226,7 @@ static NSFileHandle *fh;
 		} // end of event type switch
 		if(e != nil)
 			{
-#if 0
+#if 1
 			NSLog(@"post %@", e);
 			NSLog(@"to NSApp=%@", NSApp);
 #endif
@@ -4234,7 +4235,7 @@ static NSFileHandle *fh;
 			}
 		}
 #if 0
-	NSLog(@"expose count = %u",[contextsNeedingFlush count]);
+	NSLog(@"expose count = %u", [contextsNeedingFlush count]);
 #endif
 	[contextsNeedingFlush makeObjectsPerformSelector:@selector(flushGraphics)];	// flush all expose events
 }

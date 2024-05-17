@@ -599,7 +599,7 @@
 				LastUpgradeCheck = 0730;
 			};
 			buildConfigurationList = EE416B90168EE0BA00869F75 /* Build configuration list for PBXProject "SenTestingKit" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (

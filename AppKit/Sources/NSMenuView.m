@@ -773,6 +773,7 @@
 	NSInteger nc=[_cells count];
 	BOOL any=NO;
 	NSRect bounds=[self bounds];
+	NSLog(@"NSMenuView draw 1");
 	if(nc > 50)
 		NSLog(@"drawing large menu with %ld entries", (long)nc);
 	if(_needsSizing)
@@ -795,8 +796,10 @@
 #if 0
 	NSLog(@"background filled");
 #endif
+	NSLog(@"NSMenuView draw 2 %d cells", nc);
 	for(i=0; i<nc; i++)
 		{ // go through cells and draw them at their calculated position - if needed (needsDisplay of cell)
+		NSLog(@"NSMenuView draw 2a");
 		NSRect cRect=[self rectOfItemAtIndex:i];	// get cell rectangle
 #if 0
 		NSLog(@"menu=%@", _menumenu);
@@ -805,18 +808,25 @@
 		NSLog(@"%@ cell:%@%@", [[_menumenu itemAtIndex:0] title], NSStringFromRect(cRect), NSIntersectsRect(rect, cRect)?@" intersects":@"");
 #endif
 		// FIXME: check needsDisplay - the following code enforces all cells to display!
+		NSLog(@"NSMenuView draw 2b");
 		if(NSIntersectsRect(cRect, rect))
 			{ // clip to rect
+			NSLog(@"NSMenuView draw 2c");
 			NSMenuItemCell *cell=[_cells objectAtIndex:i];
 			// FIXME - this is to avoid the grey rects
+			NSLog(@"NSMenuView draw 2d");
 			[cell setNeedsDisplay:YES];	// so that we really (re)draw...
+			NSLog(@"NSMenuView draw 2e");
 			[cell drawInteriorWithFrame:cRect inView:self];
+			NSLog(@"NSMenuView draw 2f");
 			any=YES;
 			}
 		else if(any)
 			break;	// we did leave the rect
+		NSLog(@"NSMenuView draw 2g");
 		}
 	// FIXME: we could draw the arrows first and set a clipping rect to avoid drawing over the arrows
+	NSLog(@"NSMenuView draw 3");
 	if(_needsScrolling)
 		{ // draw arrows
 			[[NSColor blackColor] set];
@@ -861,6 +871,7 @@
 						}
 				}
 		}
+NSLog(@"NSMenuView draw 4");
 }
 
 - (NSString *) description;

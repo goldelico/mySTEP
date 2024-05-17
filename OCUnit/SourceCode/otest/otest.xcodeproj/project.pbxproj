@@ -142,7 +142,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEDCBB2816931534000BB560 /* Build configuration list for PBXProject "otest" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
