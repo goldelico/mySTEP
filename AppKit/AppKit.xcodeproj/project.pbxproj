@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -11,22 +11,21 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE8D721D0EF6C72F00A9C09B /* Build configuration list for PBXAggregateTarget "UpdateLocalizedNIBs" */;
 			buildPhases = (
-				EE8D72140EF6C71000A9C09B /* ShellScript */,
 			);
 			dependencies = (
 			);
 			name = UpdateLocalizedNIBs;
 			productName = UpdateLocalizedNIBs;
 		};
-		EEA3715E095400C3001244CF /* AppKit */ = {
+		EEA3715E095400C3001244CF /* All */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "AppKit" */;
+			buildConfigurationList = EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "All" */;
 			buildPhases = (
 			);
 			dependencies = (
 				EE139AB71A15276B00546945 /* PBXTargetDependency */,
 			);
-			name = AppKit;
+			name = All;
 			productName = AppKit;
 		};
 /* End PBXAggregateTarget section */
@@ -529,6 +528,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C963700A13C5452396430305 /* AppKit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppKit.entitlements; sourceTree = SOURCE_ROOT; };
 		EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKit.qcodeproj; sourceTree = "<group>"; };
 		EE03CDAC0BCD431C0031DB7C /* NSTextTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextTable.m; sourceTree = "<group>"; };
 		EE05053B096EDABE004D1F47 /* NSAppKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAppKitPrivate.h; sourceTree = "<group>"; };
@@ -1030,22 +1030,23 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
+				C963700A13C5452396430305 /* AppKit.entitlements */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */,
-				EE59BFFE15624FD900754103 /* Web */,
-				EEA3717B09540271001244CF /* Classes */,
-				EEA3306C09537DB5001244CF /* Private */,
 				EEA372FB09540275001244CF /* Backend */,
-				EEA3309609537E48001244CF /* Resources */,
-				EE3196E109AB7E8A0089A9A2 /* NibTest */,
+				EEA3717B09540271001244CF /* Classes */,
+				EE6C11BA2805D464008AAEFA /* Frameworks */,
 				EE4CA9E30D3D080100B1513B /* GNUstep GUI */,
-				EEA370FA09540051001244CF /* mySTEP Frameworks */,
-				EEA524BD212AF1EB002E3B27 /* Xcode SDK Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
 				EEA524E1212AFD7B002E3B27 /* MixedFrameworks */,
 				EEB77EDC28075370006C9B5D /* MixedFrameworks2 */,
+				EEA370FA09540051001244CF /* mySTEP Frameworks */,
+				EE3196E109AB7E8A0089A9A2 /* NibTest */,
+				EEA3306C09537DB5001244CF /* Private */,
 				EE29D8D8058A38830035639B /* Products */,
-				EE6C11BA2805D464008AAEFA /* Frameworks */,
+				EEA3309609537E48001244CF /* Resources */,
+				EE59BFFE15624FD900754103 /* Web */,
+				EEA524BD212AF1EB002E3B27 /* Xcode SDK Frameworks */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
@@ -1955,21 +1956,20 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		EE1399A91A14EF9B00546945 /* AppKit.framework */ = {
+		EE1399A91A14EF9B00546945 /* AppKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE1399BD1A14EF9C00546945 /* Build configuration list for PBXNativeTarget "AppKit.framework" */;
+			buildConfigurationList = EE1399BD1A14EF9C00546945 /* Build configuration list for PBXNativeTarget "AppKit" */;
 			buildPhases = (
 				EE1399A51A14EF9B00546945 /* Sources */,
 				EE1399A61A14EF9B00546945 /* Frameworks */,
 				EE1399A71A14EF9B00546945 /* Headers */,
 				EE1399A81A14EF9B00546945 /* Resources */,
-				EE139AB51A15263800546945 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = AppKit.framework;
+			name = AppKit;
 			productName = "AppKit mixed";
 			productReference = EE1399AA1A14EF9B00546945 /* AppKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1995,7 +1995,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EE93C7960B901DF500FBD885 /* Build configuration list for PBXNativeTarget "build View Test for Cocoa Foundation + X11" */;
 			buildPhases = (
-				EE93C7860B901DF500FBD885 /* ShellScript */,
 				EE93C7870B901DF500FBD885 /* Resources */,
 				EE93C78E0B901DF500FBD885 /* Sources */,
 				EE93C7930B901DF500FBD885 /* Frameworks */,
@@ -2014,7 +2013,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EEC8034509AE4EB6006EEB03 /* Build configuration list for PBXNativeTarget "build NIB Test mySTEP for Cocoa Foundation + X11" */;
 			buildPhases = (
-				EE5EBBEC0A19138A0045B88D /* Run Script */,
 				EEC8033C09AE4EB6006EEB03 /* Resources */,
 				EEC8033E09AE4EB6006EEB03 /* Sources */,
 				EEC8034209AE4EB6006EEB03 /* Frameworks */,
@@ -2036,7 +2034,6 @@
 				EEC8035509AE4EBF006EEB03 /* Resources */,
 				EEC8035709AE4EBF006EEB03 /* Sources */,
 				EEC8035B09AE4EBF006EEB03 /* Frameworks */,
-				EEC8058009AE4F3F006EEB03 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2079,8 +2076,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EEA3715E095400C3001244CF /* AppKit */,
-				EE1399A91A14EF9B00546945 /* AppKit.framework */,
+				EEA3715E095400C3001244CF /* All */,
+				EE1399A91A14EF9B00546945 /* AppKit */,
 				EEC8033909AE4EB6006EEB03 /* build NIB Test mySTEP for Cocoa Foundation + X11 */,
 				EE31971A09AB7EC60089A9A2 /* build NIB Test pure Cocoa */,
 				EE93C7830B901DF500FBD885 /* build View Test for Cocoa Foundation + X11 */,
@@ -2270,76 +2267,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		EE139AB51A15263800546945 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./AppKit.qcodeproj\n";
-		};
-		EE5EBBEC0A19138A0045B88D /* Run Script */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "open /Applications/Utilities/XQuartz.app\nrm -f ~/Library/Caches/com.quantum-step.mySTEP.NSFonts.plist\n# NibTest/AppKitNibTestX11.qcodeproj\n";
-		};
-		EE8D72140EF6C71000A9C09B /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n# to use it please install Xcode 2.5 (in parallel to Xcode 3.x)\n\ncd Panels\n\nNIBTOOL=/Xcode2.5/usr/bin/nibtool\n\nNIBS=$(cd English.lproj; echo *.nib)\n\nfor NIB in $NIBS\n\tdo\n\techo \"Processing $NIB\"\n\tfor i in *.lproj\n\t\tdo\n\t\techo \"Language $i\"\n\t\tif [ ! \"$i\" = \"English.lproj\" ]\n\t\t\tthen\n\t\t\tif [ ! -x \"$i/$NIB\" ]\n\t\t\t\tthen\n\t\t\t\techo \"Creating $i/$NIB\"\n\t\t\t\tcp -R \"English.lproj/$NIB\" \"$i/\"\n\t\t\tfi\n\t\t\tif [ ! -r \"$i/$NIB.strings\" ]\n\t\t\t\tthen\n\t\t\t\techo \"Creating $i/$NIB.strings\"\n\t\t\t\techo \"/* Please keep the left side completely unchanged!!! Just translate the right side of the equations.*/\" >\"$i/$NIB.strings\"\n\t\t\t\t$NIBTOOL --utf8 -I \"$i/$NIB\" -L \"English.lproj/$NIB\" >>\"$i/$NIB.strings\"\n\t\t\tfi\n\t\t\techo \"Updating $i/$NIB\"\n\t\t\t$NIBTOOL --utf8 -I \"English.lproj/$NIB\" -W \"$i/$NIB.tmp\" -d \"$i/$NIB.strings\" \"English.lproj/$NIB\"\n\t\t\tcp \"$i/$NIB.tmp\"/* \"$i/$NIB\"\t\t# keep .svn intact\n\t\t\ttouch \"$i/$NIB\"\t\t# make changes known to Xcode\n\t\t\trm -rf \"$i/$NIB.tmp\"\n\t\telse\n\t\t\techo not touched\n\t\tfi\n\t\techo\n\tdone\n\techo\ndone\n";
-			showEnvVarsInLog = 0;
-		};
-		EE93C7860B901DF500FBD885 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "open /Applications/Utilities/XQuartz.app\nrm -f ~/Library/Caches/com.quantum-step.mySTEP.NSFonts.plist\n";
-		};
-		EEC8058009AE4F3F006EEB03 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "NibTest/AppKitNibTest.qcodeproj\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		EE1399A51A14EF9B00546945 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -2509,22 +2436,22 @@
 /* Begin PBXTargetDependency section */
 		EE139AB71A15276B00546945 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			target = EE1399A91A14EF9B00546945 /* AppKit */;
 			targetProxy = EE139AB61A15276B00546945 /* PBXContainerItemProxy */;
 		};
 		EE3C1BD21A21FED40027A064 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			target = EE1399A91A14EF9B00546945 /* AppKit */;
 			targetProxy = EE3C1BD11A21FED40027A064 /* PBXContainerItemProxy */;
 		};
 		EE3C1BD41A21FEE10027A064 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			target = EE1399A91A14EF9B00546945 /* AppKit */;
 			targetProxy = EE3C1BD31A21FEE10027A064 /* PBXContainerItemProxy */;
 		};
 		EEA524FE212B3A34002E3B27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EE1399A91A14EF9B00546945 /* AppKit.framework */;
+			target = EE1399A91A14EF9B00546945 /* AppKit */;
 			targetProxy = EEA524FD212B3A34002E3B27 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -2664,8 +2591,12 @@
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2683,6 +2614,7 @@
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				USE_HEADERMAP = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2737,8 +2669,12 @@
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -2755,6 +2691,7 @@
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				USE_HEADERMAP = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2809,8 +2746,12 @@
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build/Development/AppKit.framework/Versions/Current/AppKit;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -2827,6 +2768,7 @@
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				USE_HEADERMAP = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2840,6 +2782,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -2860,6 +2803,7 @@
 				SECTORDER_FLAGS = "";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SYMROOT = build/NibTest;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -2872,6 +2816,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2889,6 +2834,7 @@
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/NibTest;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -2900,6 +2846,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -2916,6 +2863,7 @@
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/NibTest;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Default;
@@ -2924,7 +2872,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = "AppKit.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AppKit.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2938,7 +2886,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = "AppKit.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AppKit.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -2952,7 +2900,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = "AppKit.entitlements";
+				CODE_SIGN_ENTITLEMENTS = AppKit.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				OTHER_LDFLAGS = "";
@@ -3108,6 +3056,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/NibTest/MixedFrameworks",
@@ -3118,7 +3067,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/NibTest/ViewTest-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				KEEP_PRIVATE_EXTERNS = NO;
@@ -3134,6 +3083,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitViewTestX11";
 				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -3146,6 +3096,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/NibTest/MixedFrameworks",
@@ -3154,7 +3105,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/NibTest/ViewTest-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -3169,6 +3120,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitViewTestX11";
 				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -3180,6 +3132,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/NibTest/MixedFrameworks",
@@ -3187,7 +3140,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/NibTest/ViewTest-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -3202,6 +3155,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitViewTestX11";
 				PRODUCT_NAME = AppKitViewTestX11;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Default;
@@ -3215,6 +3169,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3223,7 +3178,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -3240,6 +3195,7 @@
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -3253,13 +3209,14 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -3276,6 +3233,7 @@
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -3288,12 +3246,13 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/NibTest/MixedFrameworks2";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "NibTest/AppKitNibTestX11-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -3310,6 +3269,7 @@
 				PRODUCT_NAME = AppKitNibTestX11;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Default;
@@ -3322,6 +3282,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3340,6 +3301,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTest";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -3352,6 +3314,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -3367,6 +3330,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTest";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -3378,6 +3342,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -3392,6 +3357,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.AppKitNibTest";
 				PRODUCT_NAME = AppKitNibTest;
 				SDKROOT = macosx;
+				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Default;
@@ -3399,7 +3365,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EE1399BD1A14EF9C00546945 /* Build configuration list for PBXNativeTarget "AppKit.framework" */ = {
+		EE1399BD1A14EF9C00546945 /* Build configuration list for PBXNativeTarget "AppKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE1399BE1A14EF9C00546945 /* Development */,
@@ -3419,7 +3385,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "AppKit" */ = {
+		EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE5B0DE9098C08400017AC60 /* Development */,

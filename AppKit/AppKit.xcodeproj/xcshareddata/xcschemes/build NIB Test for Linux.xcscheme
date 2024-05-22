@@ -11,13 +11,13 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;cd $PROJECT_DIR&#10;./UpdateLocalizedNIBs.qcodeproj&#10;">
+               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;cd $PROJECT_DIR&#10;./build NIB Test for Linux.qcodeproj&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "EE8D72150EF6C71000A9C09B"
-                     BuildableName = "UpdateLocalizedNIBs"
-                     BlueprintName = "UpdateLocalizedNIBs"
+                     BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+                     BuildableName = "AppKitNibTest.app"
+                     BlueprintName = "build NIB Test for Linux"
                      ReferencedContainer = "container:AppKit.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
@@ -33,9 +33,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE8D72150EF6C71000A9C09B"
-               BuildableName = "UpdateLocalizedNIBs"
-               BlueprintName = "UpdateLocalizedNIBs"
+               BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+               BuildableName = "AppKitNibTest.app"
+               BlueprintName = "build NIB Test for Linux"
                ReferencedContainer = "container:AppKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -59,6 +59,16 @@
       debugServiceExtension = "internal"
       enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+            BuildableName = "AppKitNibTest.app"
+            BlueprintName = "build NIB Test for Linux"
+            ReferencedContainer = "container:AppKit.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Deployment"
@@ -66,15 +76,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EE8D72150EF6C71000A9C09B"
-            BuildableName = "UpdateLocalizedNIBs"
-            BlueprintName = "UpdateLocalizedNIBs"
+            BlueprintIdentifier = "EEC8035209AE4EBF006EEB03"
+            BuildableName = "AppKitNibTest.app"
+            BlueprintName = "build NIB Test for Linux"
             ReferencedContainer = "container:AppKit.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Development">
