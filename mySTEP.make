@@ -521,6 +521,7 @@ ifeq ($(RUN_CMD),)
 RUN_CMD := run
 endif
 
+# FIXME: does this happen twice (in outer and inner make?)
 # add default frameworks
 ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
 # none to add if we build Foundation.framework
@@ -548,9 +549,10 @@ ifeq ($(TRIPLE),MacOS)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
 ### FIXME: why do we need this? MacOS only...
 ### MacOS should use -F and the framework path!
-### FIXME: los of locations should be a default list which can be extended by project settings!
+### FIXME: list of locations should be a default list which can be extended by project settings!
 FMWK_PATHS := /System/Library/Frameworks $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks
 
+### FIXME: generate automatically from FMWK_PATHS
 INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d "/System/Library/Frameworks/$${FMWK}.framework" ]; \
