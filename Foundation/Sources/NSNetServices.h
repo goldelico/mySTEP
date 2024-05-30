@@ -16,8 +16,8 @@
 #ifndef mySTEP_NSNETSERVICES_H
 #define mySTEP_NSNETSERVICES_H
 
-#import "Foundation/NSObject.h"
-#import "Foundation/NSTimer.h"
+#import <Foundation/NSObject.h>
+#import <Foundation/NSTimer.h>
 
 @class NSString, NSArray, NSMutableArray, NSDictionary, NSData;
 @class NSRunLoop;

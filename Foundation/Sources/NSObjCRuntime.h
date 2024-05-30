@@ -47,6 +47,8 @@
 
 // libobjc interface
 
+#define _OBJC_NSOBJECT_H_	// avoid loading objc/NSObject.h
+
 #include <objc/objc.h>
 
 // new objc API available since gcc 4.6

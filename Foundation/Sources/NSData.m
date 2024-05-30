@@ -648,10 +648,12 @@ static IMP appendImp;
 			[self deserializeBytes:types length:t atCursor:cursor];
 			types[t] = '\0';
 
+#ifndef __APPLE__
 			if (t)
 				// FIXME:
 				sel = sel_getTypedSelector(name);
 			else
+#endif
 				sel = sel_registerName(name);
 			if (sel == 0)
 				[NSException raise: NSInternalInconsistencyException
@@ -1314,9 +1316,11 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 			getBytes((void*)types, bytes, lt, length, cursor);
 			types[lt] = '\0';
 
+#ifndef __APPLE__
 			if (lt)
 				sel = sel_getTypedSelector(name);
 			else
+#endif
 				sel = sel_registerName(name);
 			if (sel == 0)
 				[NSException raise: NSInternalInconsistencyException
@@ -2225,9 +2229,13 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		{
 		const char *name = *(SEL*)data ? sel_getName(*(SEL*)data) : "";
 		unsigned ln = strlen(name);
+#ifndef __APPLE__
 		const char *types = *(SEL*)data ?
 		// FIXME:
 		(const char*) sel_getTypeEncoding(*(SEL*)data) : "";
+#else
+		const char *types="?";
+#endif
 		unsigned lt = strlen(types);
 		unsigned minimum = length + ln + lt + 2*sizeof(unsigned);
 		unsigned ni;

@@ -16,7 +16,7 @@
 #ifndef mySTEP_NSIndexSet_H
 #define mySTEP_NSIndexSet_H
 
-#import "Foundation/Foundation.h"
+#import <Foundation/Foundation.h>
 
 @interface NSIndexSet : NSObject <NSCopying, NSMutableCopying, NSCoding>
 {

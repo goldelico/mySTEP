@@ -316,7 +316,7 @@ static NSDictionary *entitiesTable;
 		}
 	else if([d length] > 0)
 		{ // append to new buffer
-			unsigned cpoff=cp-(char *)[buffer bytes];	// get current offset
+			long cpoff=cp-(char *)[buffer bytes];	// get current offset
 			if(![buffer isKindOfClass:[NSMutableData class]])
 				{ // make a mutable copy
 					NSData *b=buffer;				// remember

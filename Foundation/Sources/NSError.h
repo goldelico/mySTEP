@@ -19,7 +19,7 @@
 #ifndef mySTEP_NSERROR_H
 #define mySTEP_NSERROR_H
 
-#import "Foundation/NSObject.h"
+#import <Foundation/NSObject.h>
 
 @class NSArray;
 @class NSCoder;

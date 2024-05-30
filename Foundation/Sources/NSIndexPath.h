@@ -16,7 +16,7 @@
 #ifndef mySTEP_NSIndexPath_H
 #define mySTEP_NSIndexPath_H
 
-#import "Foundation/Foundation.h"
+#import <Foundation/Foundation.h>
 
 @interface NSIndexPath : NSObject <NSCopying, NSCoding>
 {

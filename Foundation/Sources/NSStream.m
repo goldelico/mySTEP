@@ -748,16 +748,22 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 				sslInitialized=YES;
 			}
 		// unlock
-		if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv2])
+		if(NO);	// hack to allow to start over with else if()
+#ifndef __APPLE__
+		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv2])
 			method=SSLv2_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv3])
 			method=SSLv3_client_method();
+#endif
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelTLSv1])
 			method=TLSv1_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelNegotiatedSSL])
 			method=SSLv23_client_method();
 		else
+			{
+			NSLog(@"unimplemented security level %@", _securityLevel);
 			return;	// error
+			}
 		ctx = SSL_CTX_new(method);
 		ssl = SSL_new(ctx);
 		if(SSL_set_fd(ssl, _fd))

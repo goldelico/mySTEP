@@ -16,9 +16,9 @@
 #ifndef mySTEP_NSPREDICATE_H
 #define mySTEP_NSPREDICATE_H
 
-#import "Foundation/NSObject.h"
-#import "Foundation/NSArray.h"
-#import "Foundation/NSSet.h"
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
+#import <Foundation/NSSet.h>
 
 @interface NSPredicate : NSObject <NSCoding, NSCopying>
 

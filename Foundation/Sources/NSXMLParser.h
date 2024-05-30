@@ -24,7 +24,7 @@
 #ifndef mySTEP_NSXMLPARSER_H
 #define mySTEP_NSXMLPARSER_H
 
-#import "Foundation/Foundation.h"
+#import <Foundation/Foundation.h>
 
 #ifndef __WebKit__	// may be #included in WebKit sources where this is already declared
 

@@ -17,8 +17,8 @@
 #ifndef _mySTEP_H_NSSortDescriptor
 #define _mySTEP_H_NSSortDescriptor
 
-#import "Foundation/NSObject.h"
-#import "Foundation/NSArray.h"
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
 
 @class NSString;
 @class NSCoder;

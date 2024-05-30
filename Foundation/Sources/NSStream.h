@@ -16,7 +16,7 @@
 #ifndef mySTEP_NSSTREAM_H
 #define mySTEP_NSSTREAM_H
 
-#import "Foundation/NSObject.h"
+#import <Foundation/NSObject.h>
 
 @class NSString;
 @class NSData;

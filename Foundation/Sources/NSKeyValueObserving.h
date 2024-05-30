@@ -17,8 +17,8 @@
 #ifndef mySTEP_NSKEYVALUEObserving_H
 #define mySTEP_NSKEYVALUEObserving_H
 
-#import "Foundation/NSObject.h"
-#import "Foundation/NSArray.h"
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
 
 @class NSDictionary;
 @class NSSet;
