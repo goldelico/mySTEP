@@ -1692,7 +1692,6 @@
 					_objc_main,
 					"-seg1addr",
 					0x20100000,
-					"-lobjc",
 					"-lc",
 				);
 				OTHER_REZFLAGS = "";
@@ -1745,7 +1744,6 @@
 					_objc_main,
 					"-seg1addr",
 					0x20100000,
-					"-lobjc",
 					"-lc",
 				);
 				OTHER_REZFLAGS = "";
@@ -1797,7 +1795,6 @@
 					_objc_main,
 					"-seg1addr",
 					0x20100000,
-					"-lobjc",
 					"-lc",
 				);
 				OTHER_REZFLAGS = "";
