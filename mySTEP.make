@@ -174,7 +174,7 @@ endif
 
 ifeq ($(TRIPLE),php)
 # besser: php -l & copy
-PHP := /opt/local/bin/php
+PHP := $(shell which php)
 CC := : $(PHP) -l + copy
 # besser: makephar - (shell-funktion?)
 LD := : makephar
@@ -486,6 +486,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			i386 ) export TRIPLE=i486-linux-gnu;; \
 			amd64 ) export TRIPLE=x86_64-linux-gnu;; \
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
+			macos ) export TRIPLE=MacOS;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
