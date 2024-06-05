@@ -416,7 +416,7 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=armel armhf arm64 i386 mipsel
+DEBIAN_ARCHITECTURES=armel armhf arm64 i386 mipsel macos
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
