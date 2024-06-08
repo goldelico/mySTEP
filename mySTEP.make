@@ -1090,8 +1090,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 endif
 	# create Receipts file
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
-	# write protect and pack data.tar.gz
-	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	# write protect ordinary files
+	$(QUIET)find "/tmp/$(TMP_DATA)" -type f -exec chmod -Rf a-w {} ';' || true
+	# pack data.tar.gz
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C "/tmp/$(TMP_DATA)" .
 	$(QUIET)ls -l "/tmp/$(TMP_DATA).tar.gz"
 	# create control.tar.gz
