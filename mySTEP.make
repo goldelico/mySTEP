@@ -998,12 +998,13 @@ ifneq ($(DATA),)
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && $(TAR) xvf -)
 endif
 ifneq ($(DEBIAN_RAW_FILES),)
-	# additional raw files relative to root: $(DEBIAN_RAW_FILES) in: $(DEBIAN_RAW_SUBDIR) for: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)
 	mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)"
 ifeq ($(findstring //,/$(DEBIAN_RAW_SUBDIR)),//)
+	# additional raw files relative to root: $(DEBIAN_RAW_SUBDIR)/$(DEBIAN_RAW_FILES) -> /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
 #	rsync -avz --exclude .DS_Store --exclude .svn $(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)"
 else
+	# additional raw files relative to root: $(PWD)/$(DEBIAN_RAW_SUBDIR)/$(DEBIAN_RAW_FILES) -> /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)
 	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
 #	rsync -avz --exclude .DS_Store --exclude .svn $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)")
 endif
