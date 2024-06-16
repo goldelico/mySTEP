@@ -58,7 +58,7 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: 0
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (+) DEBIAN_ARCHITECTURES - default: armel armhf arm64 i386 mipsel - MacOS must be explicitly stated
+#   (+) DEBIAN_ARCHITECTURES - default: macos armel armhf arm64 i386 mipsel
 #   (-) DEBIAN_ARCH - used internally
 #	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
@@ -72,7 +72,7 @@ QUIET=@
 #   - EXECUTABLE_NAME - (if "All", then PRODUCT_NAME is taken)
 #   - TRIPLE - the architecture triple to use
 #  Debian packaging (postprocess 1)
-#   * DEBIAN_PACKAGE_NAME - default: quantumstep-$PRODUCT_NAME-$WRAPPER-extension
+#   * DEBIAN_PACKAGE_NAME - default: quantumstep-$PRODUCT_NAME-$WRAPPER-extension (note: _ are converted to -)
 #   - DEBIAN_PACKAGE_VERSION - defult: current date/time
 #   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
 #   (*) DEBIAN_DEPENDS - e.g. quantumstep-cocoa-framework
@@ -404,7 +404,8 @@ ifeq ($(BASE_OS_LIST),)
 ifneq ($(XCODE_VERSION_ACTUAL),)
 BASE_OS_LIST=Debian
 else
-BASE_OS_LIST=MacOS Debian
+# BASE_OS_LIST=MacOS Debian
+BASE_OS_LIST=Debian
 endif
 endif
 #unless PHPONLY
@@ -416,7 +417,7 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=armel armhf arm64 i386 mipsel macos
+DEBIAN_ARCHITECTURES=macos armel armhf arm64 i386 mipsel
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
@@ -783,6 +784,8 @@ ifneq "$(strip $(SUBPROJECTS))" ""
 	done
 endif
 endif
+
+DEBIAN_PACKAGE_NAME:=$(shell echo $(DEBIAN_PACKAGE_NAME) | tr '_' '-')
 
 make_bundle:
 	# make bundle
