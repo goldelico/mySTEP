@@ -369,6 +369,7 @@ OBJECTS := $(OBJECTS:%.c++=$(TTT)+%.o)
 
 # PHP and shell scripts
 PHPSRCS   := $(filter %.php,$(XSOURCES))
+# could use OBJECTS and ifeq ($(TRIPLE),php)
 PHPOBJECTS := $(PHPSRCS:%.php=$(TTT)+%.o)
 SHSRCS   := $(filter %.sh,$(XSOURCES))
 
@@ -1446,9 +1447,9 @@ endif
 endif
 	@echo resources done
 
-"$(BINARY)":: bundle headers $(OBJECTS) $(PHPOBJECTS)
-	# rule BINARY: "$(BINARY)"
 ifeq ($(TRIPLE),php)
+"$(BINARY)":: bundle headers $(PHPOBJECTS)
+	# rule BINARY: "$(BINARY)"
 ifneq ($(strip $(PHPSRCS)),)
 	# PHPSRCS: $(PHPSRCS)
 	# PHPOBJECTS: $(PHPOBJECTS)
@@ -1485,8 +1486,12 @@ ifneq ($(strip $(PHPSRCS)),)
 	$$phar->compressFiles(Phar::GZ); \
 	' "$(BINARY).phar" $(PHPOBJECTS) && chmod 0555 "$(BINARY).phar" && mv "$(BINARY).phar" "$(BINARY)"
 	phar list -f "$(BINARY)"
-endif
-endif
+endif	# ($(strip $(PHPSRCS)),)
+endif	# ($(TRIPLE),php)
+
+ifneq ($(TRIPLE),php)
+"$(BINARY)":: bundle headers $(OBJECTS)
+	# rule BINARY: "$(BINARY)"
 ifneq ($(OBJECTS),)
 	# link for $(ARCH): $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
@@ -1506,9 +1511,10 @@ ifeq ($(TRIPLE),MacOS)
 	- ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
 else
 	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
-endif
-endif
-endif
+endif	# ($(TRIPLE),MacOS)
+endif	# ($(WRAPPER_EXTENSION),)
+endif	# ($(OBJECTS),)
+endif	# ($(TRIPLE),php)
 
 "$(EXEC)":: bundle headers resources
 	@echo $(EXEC)
