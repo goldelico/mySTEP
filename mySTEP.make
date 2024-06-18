@@ -133,7 +133,7 @@ ifeq ($(INSTALL),)
 INSTALL:=true
 endif
 
-HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
+HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH))
 # prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
 ifneq ($(findstring //,$(INSTALL_PATH)),//)
 TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
@@ -185,24 +185,16 @@ SO := phar
 PHAR := /usr/bin/phar
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/opt/local/lib/libffi-3.2.1/include
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app//Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
 LIBS += -L/opt/local/lib
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
-STRIP := $(TOOLCHAIN)/strip
+STRIP := $(TOOLCHAIN)/strip -u
 SO := dylib
-else ifeq ($(TRIPLE),arm-iPhone-darwin)
-TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
-CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
-LD := $(CC)
-AS := $(TOOLCHAIN)/as
-NM := $(TOOLCHAIN)/nm
-STRIP := $(TOOLCHAIN)/strip
-SO := dylib
-else
+else	# Linux
 DEFINES += -D__mySTEP__
 # use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
 # otherwise take a default compiler/toolchain we use for "universal" apps/bundles
@@ -536,7 +528,9 @@ else
 FRAMEWORKS := Foundation AppKit CoreData Cocoa $(FRAMEWORKS)
 endif
 
+ifneq ($(TRIPLE),MacOS)
 INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
+endif
 
 #ifeq ($(TRIPLE),MacOS)
 #LNK :=
@@ -644,7 +638,12 @@ endif
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
-LIBRARIES += -lobjc -lm
+ifeq ($(findstring ,$(LIBRARIES)),-lobjc)
+LIBRARIES += -lobjc
+endif
+ifeq ($(findstring ,$(LIBRARIES)),-lm)
+LIBRARIES += -lm
+endif
 endif
 
 # setup gcc
