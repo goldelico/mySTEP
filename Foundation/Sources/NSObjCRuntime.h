@@ -48,7 +48,8 @@
 // libobjc interface
 
 #define _OBJC_NSOBJECT_H_	// avoid loading objc/NSObject.h
-
+#undef OBJC_OLD_DISPATCH_PROTOTYPES
+#define OBJC_OLD_DISPATCH_PROTOTYPES 1	// define IMP with variable arguments in modern Xcode SDK
 #include <objc/objc.h>
 
 // new objc API available since gcc 4.6
