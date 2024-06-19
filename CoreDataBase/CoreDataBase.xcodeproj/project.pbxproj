@@ -11,7 +11,6 @@
 		EE19360C1A3447A500E4D4BA /* CoreDataBase.h in Headers */ = {isa = PBXBuildFile; fileRef = EE19360B1A3447A500E4D4BA /* CoreDataBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE19360F1A34494300E4D4BA /* SQL.h in Headers */ = {isa = PBXBuildFile; fileRef = EE19360D1A34494300E4D4BA /* SQL.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE1936101A34494300E4D4BA /* SQL.m in Sources */ = {isa = PBXBuildFile; fileRef = EE19360E1A34494300E4D4BA /* SQL.m */; };
-		EEBBBA0317341EF5009A2072 /* CoreDataBase.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEBBBA0217341EF5009A2072 /* CoreDataBase.qcodeproj */; };
 		EEBBBA2D17341F46009A2072 /* ManagedObjectContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBBBA2B17341F46009A2072 /* ManagedObjectContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEBBBA2E17341F46009A2072 /* ManagedObjectContext.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBBA2C17341F46009A2072 /* ManagedObjectContext.m */; };
 		EEBBBA3217341F56009A2072 /* ManagedObjectEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = EEBBBA3017341F56009A2072 /* ManagedObjectEntity.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -205,7 +204,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEBBBA0317341EF5009A2072 /* CoreDataBase.qcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,6 +229,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
@@ -255,7 +254,6 @@
 				SECTORDER_FLAGS = "";
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = framework;
-				ZERO_LINK = NO;
 			};
 			name = Debug;
 		};
@@ -264,6 +262,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -286,7 +285,6 @@
 				SECTORDER_FLAGS = "";
 				USE_HEADERMAP = NO;
 				WRAPPER_EXTENSION = framework;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -332,7 +330,6 @@
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				USE_HEADERMAP = NO;
-				ZERO_LINK = NO;
 			};
 			name = Debug;
 		};
@@ -376,7 +373,6 @@
 				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				USE_HEADERMAP = NO;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
