@@ -538,8 +538,8 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
-				EED9CA041C0DF431003E0719 /* objc */,
 				EE628C4C1D759AE8007A6462 /* libobjc */,
+				EED9CA041C0DF431003E0719 /* objc */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE8B85B512A2649E00224CBA /* Foundation.qcodeproj */,
 				EEA3309A09537E58001244CF /* Classes */,
@@ -1534,10 +1534,16 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/include,
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited),",
+					/opt/local/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -1582,10 +1588,16 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/include,
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited),",
+					/opt/local/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -1629,10 +1641,16 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/include,
+				);
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /usr/local/QuantumSTEP/Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited),",
+					/opt/local/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
