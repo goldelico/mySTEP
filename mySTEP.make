@@ -284,7 +284,7 @@ endif
 ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(TRIPLE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(TRIPLE)$(INSTALL_PATH)
 endif
-else
+else	# not a command line tool
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 ifeq ($(FRAMEWORK_VERSION),)	# empty
 	# default
@@ -298,15 +298,15 @@ endif
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-ifeq ($(DEBIAN_RELEASE),none)
+ifeq ($(TRIPLE),MacOS)	# directly on CONTENTS level
+	BINARY=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)
+else ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
-else
-ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else	# release specific
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
-endif
-endif
+endif	# command line tool
 #	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/../Headers/ $(STDCFLAGS)
 ifeq ($(TRIPLE),MacOS)
@@ -366,7 +366,7 @@ PHPOBJECTS := $(PHPSRCS:%.php=$(TTT)+%.o)
 SHSRCS   := $(filter %.sh,$(XSOURCES))
 
 # Info.plist
-INFOPLISTS   := $(filter Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
+INFOPLISTS   := $(filter Info.plist Info%.plist %Info.plist %Info%.plist,$(XSOURCES))
 
 # Entitlements
 ENTITLEMENTS   := $(filter %.entitlements,$(XSOURCES))
@@ -1344,20 +1344,16 @@ bundle:
 	@echo bundle
 	# TRIPLE: $(TRIPLE)
 	# SO: $(SO)
-ifneq ($(TRIPLE),unknown-linux-gnu)
-	# create bundle $(PKG)/$(NAME_EXT)
 ifeq ($(WRAPPER_EXTENSION),framework)
+	# create bundle $(PKG)/$(NAME_EXT)
 	@[ ! -L "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -a -d "$(PKG)/$(NAME_EXT)/$(CONTENTS)" ] && rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)" || echo nothing to remove # remove directory
 	@rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)" # remove symlink
 	@(mkdir -p "$(PKG)/$(NAME_EXT)/Versions/$(FRAMEWORK_VERSION)" && ln -sf $(FRAMEWORK_VERSION) "$(PKG)/$(NAME_EXT)/$(CONTENTS)")	# link Current to -> $(FRAMEWORK_VERSION)
-ifeq ($(TRIPLE),MacOS)
-	@rm -rf "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"; mkdir -p "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"; ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/$(EXECUTABLE_NAME)"; ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)/lib$(EXECUTABLE_NAME).$(SO)"
-endif
+	# symlink $(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)
 	@rm -f "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; ln -sf "Versions/Current/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"
 	@rm -f "$(PKG)/$(NAME_EXT)/Headers"; ln -sf "Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/Headers"
 	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
 	@rm -f "$(PKG)/$(NAME_EXT)/Resources"; ln -sf "Versions/Current/Resources" "$(PKG)/$(NAME_EXT)/Resources"
-endif
 endif
 	@echo bundle done
 
@@ -1497,21 +1493,23 @@ ifneq ($(OBJECTS),)
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	$(NM) -u "$(BINARY)"
 	# linked.
-ifeq ($(WRAPPER_EXTENSION),)
+ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"
 	# link is no longer needed since we assume /usr/bin/$(TRIPLE) to come in the $PATH before /usr/bin
 	# - ln -sf "$(TRIPLE)/$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)"	# create link to current architecture
-else ifeq ($(WRAPPER_EXTENSION),framework)
+else ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"
-# FIXME: this could/should already have been done in "bundle:"
-ifeq ($(TRIPLE),MacOS)
-	- ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create link to MacOS version
-	- ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
-else
-	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+ifeq ($(TRIPLE),MacOS)	# framework has no real MacOS subdirectory but we symlink into it
+	# fix $(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE) /$(EXECUTABLE_NAME)
+	rm -rf "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"
+	mkdir -p "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"
+	ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
 endif	# ($(TRIPLE),MacOS)
-endif	# ($(WRAPPER_EXTENSION),)
+else # other wrapper extensions
+	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+endif	# ($(WRAPPER_EXTENSION),) / ($(WRAPPER_EXTENSION),framework)
 endif	# ($(OBJECTS),)
 endif	# ($(TRIPLE),php)
 
