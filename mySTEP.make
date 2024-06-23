@@ -264,7 +264,7 @@ endif
 
 STDCFLAGS := $(CFLAGS) -std=gnu99
 
-BINARY=""
+BINARY=
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
