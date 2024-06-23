@@ -275,13 +275,11 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	EXEC=$(PKG)/$(NAME_EXT)/$(TRIPLE)
 ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
-else
-ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
+else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
 	BINARY=$(EXEC)/$(PRODUCT_NAME)
 else	# release specific
 	BINARY=$(EXEC)/$(PRODUCT_NAME)-$(DEBIAN_RELEASE)
-endif
-endif
+endif # ($(DEBIAN_RELEASE),none)
 	# architecture specific version (only if it does not yet have the prefix)
 ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(TRIPLE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(TRIPLE)$(INSTALL_PATH)
@@ -297,10 +295,12 @@ ifeq ($(CURRENT_PROJECT_VERSION),)	# empty
 	# default to 1.0.0
 	CURRENT_PROJECT_VERSION=1.0.0
 endif
+
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
+
 ifeq ($(TRIPLE),MacOS)	# directly on CONTENTS level
 	BINARY=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)
 else ifeq ($(DEBIAN_RELEASE),none)
@@ -310,13 +310,15 @@ else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
 else	# release specific
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
 endif	# setting BINARY
+
 #	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/../Headers/ $(STDCFLAGS)
+
 ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
-endif
+endif	# ($(TRIPLE),MacOS)
 endif	# ($(WRAPPER_EXTENSION),framework)	# framework
 
 ifeq ($(BINARY),)	# not yet defined
@@ -324,9 +326,14 @@ ifeq ($(BINARY),)	# not yet defined
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-ifneq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
+ifeq ($(TRIPLE),MacOS)
+	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+else ifeq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
+	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+else	# release specific
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
-endif # release specific
+endif	# ($(TRIPLE),MacOS)
+
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else # not an app
@@ -1017,25 +1024,31 @@ endif
 	# unprotect
 	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
 
-prune_temp_files:
+prune_temp_files:	# never called!!!
+	# TRIPLE: $(TRIPLE)
+	# WRAPPER_EXTENSION: $(WRAPPER_EXTENSION)
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA) except $(TRIPLE)
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# process multirelease framework
+ifneq ($(TRIPLE),MacOS)
+	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif
-endif
+endif # ($(TRIPLE),MacOS)
+endif # ($(WRAPPER_EXTENSION),framework)
+endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
+ifneq ($(TRIPLE),MacOS)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
 endif
 
 # filter "release:package" and "package [architecture..]"
@@ -1081,18 +1094,22 @@ ifneq ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# remove headers
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)"
-	# process multirelease framework
+ifneq ($(TRIPLE),MacOS)
+	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif
-endif
+endif # ($(TRIPLE),MacOS)
+endif # ($(WRAPPER_EXTENSION),framework)
+endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
+ifneq ($(TRIPLE),MacOS)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
 endif
 	# create Receipts file
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
@@ -1145,16 +1162,20 @@ ifneq ($(TRIPLE),)
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	# process multirelease framework
+ifneq ($(TRIPLE),MacOS)
+	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif
+endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),)
+ifneq ($(TRIPLE),MacOS)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
@@ -1192,7 +1213,7 @@ ifeq ($(OPEN_DEBIAN),true)
 endif
 else
 	# no development version
-endif
+endif # ($(WRAPPER_EXTENSION),framework)
 
 # should be the same as -dev except stripping
 
@@ -1206,16 +1227,20 @@ ifneq ($(TRIPLE),)
 	find "/tmp/$(TMP_DATA)" "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)" "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	# process multirelease framework
+ifneq ($(TRIPLE),MacOS)
+	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif
+endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),)
+ifneq ($(TRIPLE),MacOS)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+endif
 	# create Receipts file
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
@@ -1252,7 +1277,7 @@ ifeq ($(OPEN_DEBIAN),true)
 endif
 else
 	# no debug version
-endif
+endif # ($(WRAPPER_EXTENSION),framework)
 
 # this runs in outer Makefile, i.e. DEBIAN_ARCH and TRIPLE are not well defined
 
@@ -1510,7 +1535,8 @@ ifeq ($(TRIPLE),MacOS)	# framework has no real MacOS subdirectory but we symlink
 	ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
 endif	# ($(TRIPLE),MacOS)
 else # other wrapper extensions
-	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
+# .app does not need this but what about generic (non-framework) bundles?
+#	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
 endif	# ($(WRAPPER_EXTENSION),) / ($(WRAPPER_EXTENSION),framework)
 endif	# ($(OBJECTS),)
 endif	# ($(TRIPLE),php)
