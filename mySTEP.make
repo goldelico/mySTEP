@@ -264,6 +264,8 @@ endif
 
 STDCFLAGS := $(CFLAGS) -std=gnu99
 
+BINARY=""
+
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
 	# shared between all binary tools
@@ -284,15 +286,16 @@ endif
 ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(TRIPLE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(TRIPLE)$(INSTALL_PATH)
 endif
-else	# not a command line tool
+endif	# ($(WRAPPER_EXTENSION),)	# command line tool
+
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 ifeq ($(FRAMEWORK_VERSION),)	# empty
-	# default
+	# default to A
 	FRAMEWORK_VERSION=A
 endif
 ifeq ($(CURRENT_PROJECT_VERSION),)	# empty
-# default
-CURRENT_PROJECT_VERSION=1.0.0
+	# default to 1.0.0
+	CURRENT_PROJECT_VERSION=1.0.0
 endif
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
@@ -306,7 +309,7 @@ else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else	# release specific
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
-endif	# command line tool
+endif	# setting BINARY
 #	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/../Headers/ $(STDCFLAGS)
 ifeq ($(TRIPLE),MacOS)
@@ -314,30 +317,29 @@ ifeq ($(TRIPLE),MacOS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 endif
-else
+endif	# ($(WRAPPER_EXTENSION),framework)	# framework
+
+ifeq ($(BINARY),)	# not yet defined
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-ifeq ($(DEBIAN_RELEASE),none)
-	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
-else
-ifeq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
-	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
-else	# release specific
+ifneq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
-endif
-endif
+endif # release specific
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
-else
+else # not an app
 ifeq ($(TRIPLE),MacOS)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
-endif
-endif
-endif
+endif	# LDFLAGS
+endif	# not an app
+endif	# ($(BINARY),)	# not yet defined
+
+ifeq ($(BINARY),)	# still not defined - use default
+	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 endif
 
 # expand patterns in SOURCES (feature is not used by QuantumCode)
