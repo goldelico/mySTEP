@@ -1,1233 +1,3250 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 45;
-	objects = {
-
-/* Begin PBXAggregateTarget section */
-		EEE1771E0CDB214300A85BD3 /* IOBluetooth */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EEE177280CDB215A00A85BD3 /* Build configuration list for PBXAggregateTarget "IOBluetooth" */;
-			buildPhases = (
-			);
-			dependencies = (
-				EEE177230CDB214900A85BD3 /* PBXTargetDependency */,
-				EEE177250CDB214C00A85BD3 /* PBXTargetDependency */,
-				EE82D3C32183AE5F005229C2 /* PBXTargetDependency */,
-			);
-			name = IOBluetooth;
-			productName = IOBluetooth;
-		};
-/* End PBXAggregateTarget section */
-
-/* Begin PBXBuildFile section */
-		EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */; };
-		EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE82D3BF218384F1005229C2 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3AF21838423005229C2 /* IOBluetooth.framework */; };
-		EE82D3C42183AF43005229C2 /* IOBluetoothDevice.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */; };
-		EE82D3C52183AF4E005229C2 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */; };
-		EE82D3C62183AF70005229C2 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */; };
-		EE82D3C82183AF77005229C2 /* IOBluetoothObject.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADD21558A60005D4653 /* IOBluetoothObject.h */; };
-		EE82D3C92183AF7A005229C2 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADE21558A60005D4653 /* IOBluetoothRFCOMMChannel.h */; };
-		EE82D3CB2183AFAB005229C2 /* IOBluetoothOBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADC21558A60005D4653 /* IOBluetoothOBEXSession.h */; };
-		EE82D3CC2183AFAF005229C2 /* IOBluetoothSDPDataElement.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABADF21558A60005D4653 /* IOBluetoothSDPDataElement.h */; };
-		EE82D3CD2183AFB1005229C2 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE021558A60005D4653 /* IOBluetoothSDPServiceAttribute.h */; };
-		EE82D3CE2183AFB7005229C2 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE121558A60005D4653 /* IOBluetoothSDPServiceRecord.h */; };
-		EE82D3CF2183AFBA005229C2 /* IOBluetoothSDPUUID.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE221558A60005D4653 /* IOBluetoothSDPUUID.h */; };
-		EE82D3D02183AFBC005229C2 /* IOBluetoothUserNotification.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */; };
-		EE82D3D12183AFBF005229C2 /* OBEXFileTransferServices.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */; };
-		EE82D3D22183AFCA005229C2 /* OBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1521560E2E005D4653 /* OBEXSession.h */; };
-		EE82D3D32183B04F005229C2 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1921560E9B005D4653 /* IOBluetoothDeviceSelectorController.h */; };
-		EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */; };
-		EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */; };
-		EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */; };
-		EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3B021838440005229C2 /* Foundation.framework */; };
-		EE9EF397218C397D00618E25 /* DeviceSelector.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF38F218C397D00618E25 /* DeviceSelector.nib */; };
-		EE9EF398218C397D00618E25 /* ObjectPushUI.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF391218C397D00618E25 /* ObjectPushUI.nib */; };
-		EE9EF399218C397D00618E25 /* Pairing.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF393218C397D00618E25 /* Pairing.nib */; };
-		EE9EF39A218C397D00618E25 /* ServiceBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE9EF395218C397D00618E25 /* ServiceBrowser.nib */; };
-		EE9EF3A5218C4D7700618E25 /* IOBluetoothUI.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE9EF3A6218C4D7700618E25 /* IOBluetoothUIUserLib.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE9EF3A8218C4D8300618E25 /* IOBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE9EF3A9218CF8E100618E25 /* IOBluetoothDeviceSelectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF321560E03005D4653 /* IOBluetoothDeviceSelectorController.m */; };
-		EE9EF3AA218CF8E300618E25 /* IOBluetoothObjectPushUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */; };
-		EE9EF3AB218CF8E500618E25 /* IOBluetoothPairingController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */; };
-		EE9EF3AC218CF8E800618E25 /* IOBluetoothServiceBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */; };
-		EE9EF3AD218CF9E700618E25 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE82D3AF21838423005229C2 /* IOBluetooth.framework */; };
-		EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */; };
-		EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */; };
-		EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF521560E03005D4653 /* IOBluetoothOBEXSession.m */; };
-		EEBABB0821560E03005D4653 /* IOBluetoothObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF621560E03005D4653 /* IOBluetoothObject.m */; };
-		EEBABB0B21560E03005D4653 /* IOBluetoothRFCOMMChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAF921560E03005D4653 /* IOBluetoothRFCOMMChannel.m */; };
-		EEBABB0C21560E03005D4653 /* IOBluetoothSDPDataElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFA21560E03005D4653 /* IOBluetoothSDPDataElement.m */; };
-		EEBABB0D21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFB21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m */; };
-		EEBABB0E21560E03005D4653 /* IOBluetoothSDPServiceRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFC21560E03005D4653 /* IOBluetoothSDPServiceRecord.m */; };
-		EEBABB0F21560E03005D4653 /* IOBluetoothSDPUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABAFD21560E03005D4653 /* IOBluetoothSDPUUID.m */; };
-		EEBABB1221560E03005D4653 /* IOBluetoothUserNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0021560E03005D4653 /* IOBluetoothUserNotification.m */; };
-		EEBABB1321560E03005D4653 /* OBEXFileTransferServices.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0121560E03005D4653 /* OBEXFileTransferServices.m */; };
-		EEBABB1421560E03005D4653 /* OBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB0221560E03005D4653 /* OBEXSession.m */; };
-		EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */; };
-		EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEFF2EBE218F119A0099BF3C /* iobttest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFF2EBD218F119A0099BF3C /* iobttest.m */; };
-		EEFF2EC021943F7A0099BF3C /* IOBluetoothController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */; };
-		EEFF2EC2219456770099BF3C /* IOBluetoothController.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFF2EC1219456770099BF3C /* IOBluetoothController.h */; };
-		EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEFF2EC4219459060099BF3C /* IOBluetoothController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEFF2EC1219456770099BF3C /* IOBluetoothController.h */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		EE82D3C22183AE5F005229C2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE82D3B5218384D4005229C2;
-			remoteInfo = iobttest;
-		};
-		EEE177220CDB214900A85BD3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE6FE351076F05AF009CC969;
-			remoteInfo = IOBluetoothCore;
-		};
-		EEE177240CDB214C00A85BD3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EEE16DE60CDA36E100A85BD3;
-			remoteInfo = IOBluetoothUI;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		EE82D3B4218384D4005229C2 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Headers/objc;
-			dstSubfolderSpec = 1;
-			files = (
-				EE82D3C82183AF77005229C2 /* IOBluetoothObject.h in Copy objc Headers */,
-				EE82D3C42183AF43005229C2 /* IOBluetoothDevice.h in Copy objc Headers */,
-				EE82D3C52183AF4E005229C2 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */,
-				EE82D3C62183AF70005229C2 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */,
-				EE82D3C92183AF7A005229C2 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */,
-				EE82D3CB2183AFAB005229C2 /* IOBluetoothOBEXSession.h in Copy objc Headers */,
-				EE82D3CC2183AFAF005229C2 /* IOBluetoothSDPDataElement.h in Copy objc Headers */,
-				EE82D3CD2183AFB1005229C2 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */,
-				EE82D3CE2183AFB7005229C2 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */,
-				EE82D3CF2183AFBA005229C2 /* IOBluetoothSDPUUID.h in Copy objc Headers */,
-				EE82D3D02183AFBC005229C2 /* IOBluetoothUserNotification.h in Copy objc Headers */,
-				EE82D3D12183AFBF005229C2 /* OBEXFileTransferServices.h in Copy objc Headers */,
-				EE82D3D22183AFCA005229C2 /* OBEXSession.h in Copy objc Headers */,
-				EEFF2EC4219459060099BF3C /* IOBluetoothController.h in Copy objc Headers */,
-			);
-			name = "Copy objc Headers";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEE16DE80CDA36E100A85BD3 /* Copy objc Headers */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Headers/objc;
-			dstSubfolderSpec = 1;
-			files = (
-				EE82D3D32183B04F005229C2 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */,
-				EE82D3D42183B052005229C2 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */,
-				EE82D3D52183B054005229C2 /* IOBluetoothPairingController.h in Copy objc Headers */,
-				EE82D3D62183B059005229C2 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */,
-			);
-			name = "Copy objc Headers";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
-/* Begin PBXFileReference section */
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluetoothPrivate.h; sourceTree = "<group>"; };
-		EE27BEF60FC17A7A00A48A1E /* net */ = {isa = PBXFileReference; lastKnownFileType = folder; path = net; sourceTree = "<group>"; };
-		EE4544D72922DF8E00164F9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Base; path = Panels/Base.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
-		EE4544D82922DF8E00164F9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Base; path = Panels/Base.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
-		EE4544D92922DF8E00164F9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Base; path = Panels/Base.lproj/Pairing.nib; sourceTree = "<group>"; };
-		EE4544DA2922DF8E00164F9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Base; path = Panels/Base.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
-		EE5D9CBC0A556B47000AE53D /* Bluetooth.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Bluetooth.h; sourceTree = "<group>"; };
-		EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = BluetoothAssignedNumbers.h; sourceTree = "<group>"; };
-		EE6FE352076F05AF009CC969 /* IOBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE7AAFEA17476133003133D9 /* IOBluetoothCore.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = IOBluetoothCore.qcodeproj; sourceTree = "<group>"; };
-		EE7AAFEE1747613E003133D9 /* IOBluetoothUI.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = IOBluetoothUI.qcodeproj; sourceTree = "<group>"; };
-		EE82D3AC21832EC3005229C2 /* iobttest.qcodeproj */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = iobttest.qcodeproj; sourceTree = "<group>"; };
-		EE82D3AE21833B42005229C2 /* BluetoothPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothPrivate.h; sourceTree = "<group>"; };
-		EE82D3AF21838423005229C2 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = ../../../../../../../../../System/Library/Frameworks/IOBluetooth.framework; sourceTree = "<group>"; };
-		EE82D3B021838440005229C2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
-		EE82D3B121838458005229C2 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetoothUI.framework; path = ../../../../../../../../../System/Library/Frameworks/IOBluetoothUI.framework; sourceTree = "<group>"; };
-		EE82D3B6218384D4005229C2 /* iobttest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = iobttest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE9EF39B218C399F00618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
-		EE9EF39C218C39A400618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/DeviceSelector.nib; sourceTree = "<group>"; };
-		EE9EF39D218C39A800618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
-		EE9EF39E218C39AB00618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/ObjectPushUI.nib; sourceTree = "<group>"; };
-		EE9EF39F218C39B000618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/Pairing.nib; sourceTree = "<group>"; };
-		EE9EF3A0218C39B200618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/Pairing.nib; sourceTree = "<group>"; };
-		EE9EF3A1218C39B600618E25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = fr; path = Panels/fr.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
-		EE9EF3A2218C39B700618E25 /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = Panels/de.lproj/ServiceBrowser.nib; sourceTree = "<group>"; };
-		EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUI.h; sourceTree = "<group>"; };
-		EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUIUserLib.h; sourceTree = "<group>"; };
-		EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetooth.h; sourceTree = "<group>"; };
-		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
-		EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothDevice.h; path = objc/IOBluetoothDevice.h; sourceTree = "<group>"; };
-		EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothDeviceInquiry.h; path = objc/IOBluetoothDeviceInquiry.h; sourceTree = "<group>"; };
-		EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothL2CAPChannel.h; path = objc/IOBluetoothL2CAPChannel.h; sourceTree = "<group>"; };
-		EEBABADC21558A60005D4653 /* IOBluetoothOBEXSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothOBEXSession.h; path = objc/IOBluetoothOBEXSession.h; sourceTree = "<group>"; };
-		EEBABADD21558A60005D4653 /* IOBluetoothObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothObject.h; path = objc/IOBluetoothObject.h; sourceTree = "<group>"; };
-		EEBABADE21558A60005D4653 /* IOBluetoothRFCOMMChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothRFCOMMChannel.h; path = objc/IOBluetoothRFCOMMChannel.h; sourceTree = "<group>"; };
-		EEBABADF21558A60005D4653 /* IOBluetoothSDPDataElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothSDPDataElement.h; path = objc/IOBluetoothSDPDataElement.h; sourceTree = "<group>"; };
-		EEBABAE021558A60005D4653 /* IOBluetoothSDPServiceAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothSDPServiceAttribute.h; path = objc/IOBluetoothSDPServiceAttribute.h; sourceTree = "<group>"; };
-		EEBABAE121558A60005D4653 /* IOBluetoothSDPServiceRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothSDPServiceRecord.h; path = objc/IOBluetoothSDPServiceRecord.h; sourceTree = "<group>"; };
-		EEBABAE221558A60005D4653 /* IOBluetoothSDPUUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothSDPUUID.h; path = objc/IOBluetoothSDPUUID.h; sourceTree = "<group>"; };
-		EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothUserNotification.h; path = objc/IOBluetoothUserNotification.h; sourceTree = "<group>"; };
-		EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OBEXFileTransferServices.h; path = objc/OBEXFileTransferServices.h; sourceTree = "<group>"; };
-		EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothDeviceInquiry.m; path = objc/IOBluetoothDeviceInquiry.m; sourceTree = "<group>"; };
-		EEBABAF321560E03005D4653 /* IOBluetoothDeviceSelectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothDeviceSelectorController.m; path = objc/IOBluetoothDeviceSelectorController.m; sourceTree = "<group>"; };
-		EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothL2CAPChannel.m; path = objc/IOBluetoothL2CAPChannel.m; sourceTree = "<group>"; };
-		EEBABAF521560E03005D4653 /* IOBluetoothOBEXSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothOBEXSession.m; path = objc/IOBluetoothOBEXSession.m; sourceTree = "<group>"; };
-		EEBABAF621560E03005D4653 /* IOBluetoothObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothObject.m; path = objc/IOBluetoothObject.m; sourceTree = "<group>"; };
-		EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothObjectPushUIController.m; path = objc/IOBluetoothObjectPushUIController.m; sourceTree = "<group>"; };
-		EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothPairingController.m; path = objc/IOBluetoothPairingController.m; sourceTree = "<group>"; };
-		EEBABAF921560E03005D4653 /* IOBluetoothRFCOMMChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothRFCOMMChannel.m; path = objc/IOBluetoothRFCOMMChannel.m; sourceTree = "<group>"; };
-		EEBABAFA21560E03005D4653 /* IOBluetoothSDPDataElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPDataElement.m; path = objc/IOBluetoothSDPDataElement.m; sourceTree = "<group>"; };
-		EEBABAFB21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPServiceAttribute.m; path = objc/IOBluetoothSDPServiceAttribute.m; sourceTree = "<group>"; };
-		EEBABAFC21560E03005D4653 /* IOBluetoothSDPServiceRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPServiceRecord.m; path = objc/IOBluetoothSDPServiceRecord.m; sourceTree = "<group>"; };
-		EEBABAFD21560E03005D4653 /* IOBluetoothSDPUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothSDPUUID.m; path = objc/IOBluetoothSDPUUID.m; sourceTree = "<group>"; };
-		EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothServiceBrowserController.m; path = objc/IOBluetoothServiceBrowserController.m; sourceTree = "<group>"; };
-		EEBABB0021560E03005D4653 /* IOBluetoothUserNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothUserNotification.m; path = objc/IOBluetoothUserNotification.m; sourceTree = "<group>"; };
-		EEBABB0121560E03005D4653 /* OBEXFileTransferServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OBEXFileTransferServices.m; path = objc/OBEXFileTransferServices.m; sourceTree = "<group>"; };
-		EEBABB0221560E03005D4653 /* OBEXSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OBEXSession.m; path = objc/OBEXSession.m; sourceTree = "<group>"; };
-		EEBABB1521560E2E005D4653 /* OBEXSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OBEXSession.h; path = objc/OBEXSession.h; sourceTree = "<group>"; };
-		EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothDevice.m; path = objc/IOBluetoothDevice.m; sourceTree = "<group>"; };
-		EEBABB1921560E9B005D4653 /* IOBluetoothDeviceSelectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothDeviceSelectorController.h; path = objc/IOBluetoothDeviceSelectorController.h; sourceTree = "<group>"; };
-		EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothObjectPushUIController.h; path = objc/IOBluetoothObjectPushUIController.h; sourceTree = "<group>"; };
-		EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothPairingController.h; path = objc/IOBluetoothPairingController.h; sourceTree = "<group>"; };
-		EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothServiceBrowserController.h; path = objc/IOBluetoothServiceBrowserController.h; sourceTree = "<group>"; };
-		EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetoothUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "IOBluetoothUI-Info.plist"; sourceTree = "<group>"; };
-		EEE1772F0CDB792500A85BD3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "IOBluetooth-Info.plist"; sourceTree = "<group>"; };
-		EEFF2EBC218F119A0099BF3C /* Info-test.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = SOURCE_ROOT; };
-		EEFF2EBD218F119A0099BF3C /* iobttest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iobttest.m; sourceTree = SOURCE_ROOT; };
-		EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IOBluetoothController.m; path = objc/IOBluetoothController.m; sourceTree = "<group>"; };
-		EEFF2EC1219456770099BF3C /* IOBluetoothController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBluetoothController.h; path = objc/IOBluetoothController.h; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		EE6FE350076F05AF009CC969 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE82D3D821843BB8005229C2 /* Foundation.framework in Frameworks */,
-				EEFF2EC3219458CE0099BF3C /* AppKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE82D3B3218384D4005229C2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE82D3BF218384F1005229C2 /* IOBluetooth.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEE16E120CDA36E100A85BD3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9EF3AD218CF9E700618E25 /* IOBluetooth.framework in Frameworks */,
-				EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
-			isa = PBXGroup;
-			children = (
-				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE7AAFEA17476133003133D9 /* IOBluetoothCore.qcodeproj */,
-				EE7AAFEE1747613E003133D9 /* IOBluetoothUI.qcodeproj */,
-				EE82D3AC21832EC3005229C2 /* iobttest.qcodeproj */,
-				EE5D9CBC0A556B47000AE53D /* Bluetooth.h */,
-				EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */,
-				EE82D3AE21833B42005229C2 /* BluetoothPrivate.h */,
-				EE9EF3A7218C4D8300618E25 /* IOBluetooth.h */,
-				EE9EF3A3218C4D7700618E25 /* IOBluetoothUI.h */,
-				EE9EF3A4218C4D7700618E25 /* IOBluetoothUIUserLib.h */,
-				EEBABAD821558A60005D4653 /* objc */,
-				EE82D3B7218384D4005229C2 /* iobttest */,
-				EEA3306C09537DB5001244CF /* Private */,
-				EEA3309609537E48001244CF /* Resources */,
-				EEA370EA0953FFFB001244CF /* Frameworks */,
-				EE29D8D8058A38830035639B /* Products */,
-			);
-			name = BrowserTester;
-			sourceTree = "<group>";
-		};
-		EE29D8D8058A38830035639B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				EE6FE352076F05AF009CC969 /* IOBluetooth.framework */,
-				EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */,
-				EE82D3B6218384D4005229C2 /* iobttest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		EE82D3B7218384D4005229C2 /* iobttest */ = {
-			isa = PBXGroup;
-			children = (
-				EEFF2EBC218F119A0099BF3C /* Info-test.plist */,
-				EEFF2EBD218F119A0099BF3C /* iobttest.m */,
-			);
-			path = iobttest;
-			sourceTree = SOURCE_ROOT;
-		};
-		EEA3306C09537DB5001244CF /* Private */ = {
-			isa = PBXGroup;
-			children = (
-				EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */,
-				EE27BEF60FC17A7A00A48A1E /* net */,
-			);
-			name = Private;
-			sourceTree = "<group>";
-		};
-		EEA3309609537E48001244CF /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */,
-				EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */,
-				EE9EF38F218C397D00618E25 /* DeviceSelector.nib */,
-				EE9EF391218C397D00618E25 /* ObjectPushUI.nib */,
-				EE9EF393218C397D00618E25 /* Pairing.nib */,
-				EE9EF395218C397D00618E25 /* ServiceBrowser.nib */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		EEA370EA0953FFFB001244CF /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EE82D3B021838440005229C2 /* Foundation.framework */,
-				EE82D3B121838458005229C2 /* IOBluetoothUI.framework */,
-				EE82D3AF21838423005229C2 /* IOBluetooth.framework */,
-				EEE1772F0CDB792500A85BD3 /* Cocoa.framework */,
-				EEA3716A095400F2001244CF /* AppKit.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EEBABAD821558A60005D4653 /* objc */ = {
-			isa = PBXGroup;
-			children = (
-				EEE16B6E0CD7B19400A85BD3 /* IOBluetooth */,
-				EEE16DE50CDA36AF00A85BD3 /* IOBluetoothUI */,
-			);
-			path = objc;
-			sourceTree = "<group>";
-		};
-		EEE16B6E0CD7B19400A85BD3 /* IOBluetooth */ = {
-			isa = PBXGroup;
-			children = (
-				EEFF2EC1219456770099BF3C /* IOBluetoothController.h */,
-				EEBABAD921558A60005D4653 /* IOBluetoothDevice.h */,
-				EEBABADA21558A60005D4653 /* IOBluetoothDeviceInquiry.h */,
-				EEBABADB21558A60005D4653 /* IOBluetoothL2CAPChannel.h */,
-				EEBABADC21558A60005D4653 /* IOBluetoothOBEXSession.h */,
-				EEBABADD21558A60005D4653 /* IOBluetoothObject.h */,
-				EEBABADE21558A60005D4653 /* IOBluetoothRFCOMMChannel.h */,
-				EEBABADF21558A60005D4653 /* IOBluetoothSDPDataElement.h */,
-				EEBABAE021558A60005D4653 /* IOBluetoothSDPServiceAttribute.h */,
-				EEBABAE121558A60005D4653 /* IOBluetoothSDPServiceRecord.h */,
-				EEBABAE221558A60005D4653 /* IOBluetoothSDPUUID.h */,
-				EEBABAE321558A60005D4653 /* IOBluetoothUserNotification.h */,
-				EEBABAE421558A60005D4653 /* OBEXFileTransferServices.h */,
-				EEBABB1521560E2E005D4653 /* OBEXSession.h */,
-				EEFF2EBF21943F7A0099BF3C /* IOBluetoothController.m */,
-				EEBABB1721560E3D005D4653 /* IOBluetoothDevice.m */,
-				EEBABAF221560E03005D4653 /* IOBluetoothDeviceInquiry.m */,
-				EEBABAF421560E03005D4653 /* IOBluetoothL2CAPChannel.m */,
-				EEBABAF521560E03005D4653 /* IOBluetoothOBEXSession.m */,
-				EEBABAF621560E03005D4653 /* IOBluetoothObject.m */,
-				EEBABAF921560E03005D4653 /* IOBluetoothRFCOMMChannel.m */,
-				EEBABAFA21560E03005D4653 /* IOBluetoothSDPDataElement.m */,
-				EEBABAFB21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m */,
-				EEBABAFC21560E03005D4653 /* IOBluetoothSDPServiceRecord.m */,
-				EEBABAFD21560E03005D4653 /* IOBluetoothSDPUUID.m */,
-				EEBABB0021560E03005D4653 /* IOBluetoothUserNotification.m */,
-				EEBABB0121560E03005D4653 /* OBEXFileTransferServices.m */,
-				EEBABB0221560E03005D4653 /* OBEXSession.m */,
-			);
-			name = IOBluetooth;
-			path = ..;
-			sourceTree = "<group>";
-		};
-		EEE16DE50CDA36AF00A85BD3 /* IOBluetoothUI */ = {
-			isa = PBXGroup;
-			children = (
-				EEBABB1921560E9B005D4653 /* IOBluetoothDeviceSelectorController.h */,
-				EEBABB1A21560E9B005D4653 /* IOBluetoothObjectPushUIController.h */,
-				EEBABB1B21560E9B005D4653 /* IOBluetoothPairingController.h */,
-				EEBABB1C21560E9B005D4653 /* IOBluetoothServiceBrowserController.h */,
-				EEBABAF321560E03005D4653 /* IOBluetoothDeviceSelectorController.m */,
-				EEBABAF721560E03005D4653 /* IOBluetoothObjectPushUIController.m */,
-				EEBABAF821560E03005D4653 /* IOBluetoothPairingController.m */,
-				EEBABAFE21560E03005D4653 /* IOBluetoothServiceBrowserController.m */,
-			);
-			name = IOBluetoothUI;
-			path = ..;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		EE6FE34D076F05AF009CC969 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9EF3A8218C4D8300618E25 /* IOBluetooth.h in Headers */,
-				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
-				EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */,
-				EEFF2EC2219456770099BF3C /* IOBluetoothController.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEE16DF80CDA36E100A85BD3 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9EF3A6218C4D7700618E25 /* IOBluetoothUIUserLib.h in Headers */,
-				EE9EF3A5218C4D7700618E25 /* IOBluetoothUI.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* IOBluetoothCore */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetoothCore" */;
-			buildPhases = (
-				EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */,
-				EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */,
-				EE6FE34D076F05AF009CC969 /* Headers */,
-				EE6FE34E076F05AF009CC969 /* Resources */,
-				EE6FE34F076F05AF009CC969 /* Sources */,
-				EE6FE350076F05AF009CC969 /* Frameworks */,
-				EE6FE354076F05C9009CC969 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			comments = "
-";
-			dependencies = (
-			);
-			name = IOBluetoothCore;
-			productName = Calendar;
-			productReference = EE6FE352076F05AF009CC969 /* IOBluetooth.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-		EE82D3B5218384D4005229C2 /* iobttest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE82D3BA218384D4005229C2 /* Build configuration list for PBXNativeTarget "iobttest" */;
-			buildPhases = (
-				EE82D3B2218384D4005229C2 /* Sources */,
-				EE82D3B3218384D4005229C2 /* Frameworks */,
-				EE82D3B4218384D4005229C2 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = iobttest;
-			productName = iobttest;
-			productReference = EE82D3B6218384D4005229C2 /* iobttest */;
-			productType = "com.apple.product-type.tool";
-		};
-		EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEE16E160CDA36E100A85BD3 /* Build configuration list for PBXNativeTarget "IOBluetoothUI" */;
-			buildPhases = (
-				EEE16DE70CDA36E100A85BD3 /* Create Headers-objc */,
-				EEE16DE80CDA36E100A85BD3 /* Copy objc Headers */,
-				EEE16DFE0CDA36E100A85BD3 /* Resources */,
-				EEE16DF80CDA36E100A85BD3 /* Headers */,
-				EEE16DFF0CDA36E100A85BD3 /* Sources */,
-				EEE16E120CDA36E100A85BD3 /* Frameworks */,
-				EEE16E150CDA36E100A85BD3 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			comments = "
-";
-			dependencies = (
-			);
-			name = IOBluetoothUI;
-			productName = Calendar;
-			productReference = EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		29B97313FDCFA39411CA2CEA /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-				LastUpgradeCheck = 1130;
-				TargetAttributes = {
-					EE82D3B5218384D4005229C2 = {
-						CreatedOnToolsVersion = 8.2.1;
-						ProvisioningStyle = Automatic;
-					};
-				};
-			};
-			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "IOBluetooth" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = en;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				de,
-				fr,
-				en,
-				ja,
-				Base,
-			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
-			productRefGroup = EE29D8D8058A38830035639B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EEE1771E0CDB214300A85BD3 /* IOBluetooth */,
-				EE6FE351076F05AF009CC969 /* IOBluetoothCore */,
-				EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */,
-				EE82D3B5218384D4005229C2 /* iobttest */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		EE6FE34E076F05AF009CC969 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEE16DFE0CDA36E100A85BD3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9EF398218C397D00618E25 /* ObjectPushUI.nib in Resources */,
-				EE9EF397218C397D00618E25 /* DeviceSelector.nib in Resources */,
-				EE9EF39A218C397D00618E25 /* ServiceBrowser.nib in Resources */,
-				EE9EF399218C397D00618E25 /* Pairing.nib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE6FE354076F05C9009CC969 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./IOBlueToothCore.qcodeproj";
-		};
-		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Create Headers-objc";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${CONFIGURATION_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Headers/objc";
-		};
-		EEE16DE70CDA36E100A85BD3 /* Create Headers-objc */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Create Headers-objc";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${CONFIGURATION_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Headers/objc";
-		};
-		EEE16E150CDA36E100A85BD3 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./IOBlueToothUI.qcodeproj";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		EE6FE34F076F05AF009CC969 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEFF2EC021943F7A0099BF3C /* IOBluetoothController.m in Sources */,
-				EEBABB1821560E3D005D4653 /* IOBluetoothDevice.m in Sources */,
-				EEBABB0421560E03005D4653 /* IOBluetoothDeviceInquiry.m in Sources */,
-				EEBABB0621560E03005D4653 /* IOBluetoothL2CAPChannel.m in Sources */,
-				EEBABB0721560E03005D4653 /* IOBluetoothOBEXSession.m in Sources */,
-				EEBABB0821560E03005D4653 /* IOBluetoothObject.m in Sources */,
-				EEBABB0B21560E03005D4653 /* IOBluetoothRFCOMMChannel.m in Sources */,
-				EEBABB0C21560E03005D4653 /* IOBluetoothSDPDataElement.m in Sources */,
-				EEBABB0D21560E03005D4653 /* IOBluetoothSDPServiceAttribute.m in Sources */,
-				EEBABB0E21560E03005D4653 /* IOBluetoothSDPServiceRecord.m in Sources */,
-				EEBABB0F21560E03005D4653 /* IOBluetoothSDPUUID.m in Sources */,
-				EEBABB1221560E03005D4653 /* IOBluetoothUserNotification.m in Sources */,
-				EEBABB1321560E03005D4653 /* OBEXFileTransferServices.m in Sources */,
-				EEBABB1421560E03005D4653 /* OBEXSession.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE82D3B2218384D4005229C2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEFF2EBE218F119A0099BF3C /* iobttest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEE16DFF0CDA36E100A85BD3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9EF3A9218CF8E100618E25 /* IOBluetoothDeviceSelectorController.m in Sources */,
-				EE9EF3AA218CF8E300618E25 /* IOBluetoothObjectPushUIController.m in Sources */,
-				EE9EF3AB218CF8E500618E25 /* IOBluetoothPairingController.m in Sources */,
-				EE9EF3AC218CF8E800618E25 /* IOBluetoothServiceBrowserController.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		EE82D3C32183AE5F005229C2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE82D3B5218384D4005229C2 /* iobttest */;
-			targetProxy = EE82D3C22183AE5F005229C2 /* PBXContainerItemProxy */;
-		};
-		EEE177230CDB214900A85BD3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE6FE351076F05AF009CC969 /* IOBluetoothCore */;
-			targetProxy = EEE177220CDB214900A85BD3 /* PBXContainerItemProxy */;
-		};
-		EEE177250CDB214C00A85BD3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */;
-			targetProxy = EEE177240CDB214C00A85BD3 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		EE9EF38F218C397D00618E25 /* DeviceSelector.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE9EF39B218C399F00618E25 /* de */,
-				EE9EF39C218C39A400618E25 /* fr */,
-				EE4544D72922DF8E00164F9A /* Base */,
-			);
-			name = DeviceSelector.nib;
-			sourceTree = "<group>";
-		};
-		EE9EF391218C397D00618E25 /* ObjectPushUI.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE9EF39D218C39A800618E25 /* fr */,
-				EE9EF39E218C39AB00618E25 /* de */,
-				EE4544D82922DF8E00164F9A /* Base */,
-			);
-			name = ObjectPushUI.nib;
-			sourceTree = "<group>";
-		};
-		EE9EF393218C397D00618E25 /* Pairing.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE9EF39F218C39B000618E25 /* fr */,
-				EE9EF3A0218C39B200618E25 /* de */,
-				EE4544D92922DF8E00164F9A /* Base */,
-			);
-			name = Pairing.nib;
-			sourceTree = "<group>";
-		};
-		EE9EF395218C397D00618E25 /* ServiceBrowser.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE9EF3A1218C39B600618E25 /* fr */,
-				EE9EF3A2218C39B700618E25 /* de */,
-				EE4544DA2922DF8E00164F9A /* Base */,
-			);
-			name = ServiceBrowser.nib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
-/* Begin XCBuildConfiguration section */
-		EE82D3BB218384D4005229C2 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Development;
-		};
-		EE82D3BC218384D4005229C2 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Deployment;
-		};
-		EE82D3BD218384D4005229C2 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Default;
-		};
-		EEE16E170CDA36E100A85BD3 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
-				PRODUCT_NAME = IOBluetoothUI;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EEE16E180CDA36E100A85BD3 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COPY_PHASE_STRIP = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
-				PRODUCT_NAME = IOBluetoothUI;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEE16E190CDA36E100A85BD3 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetoothUI";
-				PRODUCT_NAME = IOBluetoothUI;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EEE177290CDB215A00A85BD3 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = IOBluetooth;
-			};
-			name = Development;
-		};
-		EEE1772A0CDB215A00A85BD3 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				COPY_PHASE_STRIP = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = IOBluetooth;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEE1772B0CDB215A00A85BD3 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				PRODUCT_NAME = IOBluetooth;
-			};
-			name = Default;
-		};
-		EEEB9CF409A7542900626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetooth-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
-				PRODUCT_NAME = IOBluetooth;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EEEB9CF509A7542900626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COPY_PHASE_STRIP = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetooth-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
-				PRODUCT_NAME = IOBluetooth;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEEB9CF609A7542900626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "IOBluetooth-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.quantum-step.mySTEP.IOBluetooth";
-				PRODUCT_NAME = IOBluetooth;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EEEB9CF809A7542900626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				ONLY_ACTIVE_ARCH = YES;
-			};
-			name = Development;
-		};
-		EEEB9CF909A7542900626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-			};
-			name = Deployment;
-		};
-		EEEB9CFA09A7542900626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-			};
-			name = Default;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EE82D3BA218384D4005229C2 /* Build configuration list for PBXNativeTarget "iobttest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE82D3BB218384D4005229C2 /* Development */,
-				EE82D3BC218384D4005229C2 /* Deployment */,
-				EE82D3BD218384D4005229C2 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEE16E160CDA36E100A85BD3 /* Build configuration list for PBXNativeTarget "IOBluetoothUI" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEE16E170CDA36E100A85BD3 /* Development */,
-				EEE16E180CDA36E100A85BD3 /* Deployment */,
-				EEE16E190CDA36E100A85BD3 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEE177280CDB215A00A85BD3 /* Build configuration list for PBXAggregateTarget "IOBluetooth" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEE177290CDB215A00A85BD3 /* Development */,
-				EEE1772A0CDB215A00A85BD3 /* Deployment */,
-				EEE1772B0CDB215A00A85BD3 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetoothCore" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9CF409A7542900626AB7 /* Development */,
-				EEEB9CF509A7542900626AB7 /* Deployment */,
-				EEEB9CF609A7542900626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "IOBluetooth" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9CF809A7542900626AB7 /* Development */,
-				EEEB9CF909A7542900626AB7 /* Deployment */,
-				EEEB9CFA09A7542900626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>54</string>
+	<key>objects</key>
+	<dict>
+		<key>29B97313FDCFA39411CA2CEA</key>
+		<dict>
+			<key>attributes</key>
+			<dict>
+				<key>LastUpgradeCheck</key>
+				<string>1130</string>
+				<key>TargetAttributes</key>
+				<dict>
+					<key>EE82D3B5218384D4005229C2</key>
+					<dict>
+						<key>CreatedOnToolsVersion</key>
+						<string>8.2.1</string>
+						<key>ProvisioningStyle</key>
+						<string>Automatic</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9CF709A7542900626AB7</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>en</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>de</string>
+				<string>fr</string>
+				<string>en</string>
+				<string>ja</string>
+				<string>Base</string>
+			</array>
+			<key>mainGroup</key>
+			<string>29B97314FDCFA39411CA2CEA</string>
+			<key>productRefGroup</key>
+			<string>EE29D8D8058A38830035639B</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EEE1771E0CDB214300A85BD3</string>
+				<string>EE6FE351076F05AF009CC969</string>
+				<string>EEE16DE60CDA36E100A85BD3</string>
+				<string>EE82D3B5218384D4005229C2</string>
+			</array>
+		</dict>
+		<key>29B97314FDCFA39411CA2CEA</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE27270005426A7F0000013C</string>
+				<string>EE7AAFEA17476133003133D9</string>
+				<string>EE7AAFEE1747613E003133D9</string>
+				<string>EE82D3AC21832EC3005229C2</string>
+				<string>EE5D9CBC0A556B47000AE53D</string>
+				<string>EE5D9CE00A556C5E000AE53D</string>
+				<string>EE82D3AE21833B42005229C2</string>
+				<string>EE9EF3A7218C4D8300618E25</string>
+				<string>EE9EF3A3218C4D7700618E25</string>
+				<string>EE9EF3A4218C4D7700618E25</string>
+				<string>EEBABAD821558A60005D4653</string>
+				<string>EE82D3B7218384D4005229C2</string>
+				<string>EEA3306C09537DB5001244CF</string>
+				<string>EEA3309609537E48001244CF</string>
+				<string>EEA370EA0953FFFB001244CF</string>
+				<string>EE29D8D8058A38830035639B</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>BrowserTester</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE27270005426A7F0000013C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>mySTEP.make</string>
+			<key>path</key>
+			<string>../mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE27BEED0FC17A1300A48A1E</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>BluetoothPrivate.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE27BEEE0FC17A1300A48A1E</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE27BEED0FC17A1300A48A1E</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE27BEF60FC17A7A00A48A1E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>folder</string>
+			<key>path</key>
+			<string>net</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE29D8D8058A38830035639B</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE6FE352076F05AF009CC969</string>
+				<string>EEE16E1A0CDA36E100A85BD3</string>
+				<string>EE82D3B6218384D4005229C2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE4544D72922DF8E00164F9A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>Base</string>
+			<key>path</key>
+			<string>Panels/Base.lproj/DeviceSelector.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE4544D82922DF8E00164F9A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>Base</string>
+			<key>path</key>
+			<string>Panels/Base.lproj/ObjectPushUI.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE4544D92922DF8E00164F9A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>Base</string>
+			<key>path</key>
+			<string>Panels/Base.lproj/Pairing.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE4544DA2922DF8E00164F9A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>Base</string>
+			<key>path</key>
+			<string>Panels/Base.lproj/ServiceBrowser.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE5D9CBC0A556B47000AE53D</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>Bluetooth.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE5D9CE00A556C5E000AE53D</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>BluetoothAssignedNumbers.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE5D9CE10A556C5E000AE53D</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE5D9CE00A556C5E000AE53D</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE6FE34D076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9EF3A8218C4D8300618E25</string>
+				<string>EE5D9CE10A556C5E000AE53D</string>
+				<string>EE27BEEE0FC17A1300A48A1E</string>
+				<string>EEFF2EC2219456770099BF3C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34E076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34F076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEFF2EC021943F7A0099BF3C</string>
+				<string>EEBABB1821560E3D005D4653</string>
+				<string>EEBABB0421560E03005D4653</string>
+				<string>EEBABB0621560E03005D4653</string>
+				<string>EEBABB0721560E03005D4653</string>
+				<string>EEBABB0821560E03005D4653</string>
+				<string>EEBABB0B21560E03005D4653</string>
+				<string>EEBABB0C21560E03005D4653</string>
+				<string>EEBABB0D21560E03005D4653</string>
+				<string>EEBABB0E21560E03005D4653</string>
+				<string>EEBABB0F21560E03005D4653</string>
+				<string>EEBABB1221560E03005D4653</string>
+				<string>EEBABB1321560E03005D4653</string>
+				<string>EEBABB1421560E03005D4653</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE350076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE82D3D821843BB8005229C2</string>
+				<string>EEFF2EC3219458CE0099BF3C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE351076F05AF009CC969</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9CF309A7542900626AB7</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EEE16AF90CD73D3400A85BD3</string>
+				<string>EE6FE34D076F05AF009CC969</string>
+				<string>EE6FE34E076F05AF009CC969</string>
+				<string>EE6FE34F076F05AF009CC969</string>
+				<string>EE6FE350076F05AF009CC969</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>comments</key>
+			<string>
+</string>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>IOBluetoothCore</string>
+			<key>productName</key>
+			<string>Calendar</string>
+			<key>productReference</key>
+			<string>EE6FE352076F05AF009CC969</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EE6FE352076F05AF009CC969</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>IOBluetooth.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE7AAFEA17476133003133D9</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>IOBluetoothCore.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE7AAFEE1747613E003133D9</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>IOBluetoothUI.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3AC21832EC3005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>iobttest.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3AE21833B42005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>BluetoothPrivate.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3AF21838423005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>IOBluetooth.framework</string>
+			<key>path</key>
+			<string>../../../../../../../../../System/Library/Frameworks/IOBluetooth.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3B021838440005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Foundation.framework</string>
+			<key>path</key>
+			<string>../../../../../../../../../System/Library/Frameworks/Foundation.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3B121838458005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>IOBluetoothUI.framework</string>
+			<key>path</key>
+			<string>../../../../../../../../../System/Library/Frameworks/IOBluetoothUI.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE82D3B2218384D4005229C2</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEFF2EBE218F119A0099BF3C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE82D3B3218384D4005229C2</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE82D3BF218384F1005229C2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE82D3B4218384D4005229C2</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>dstPath</key>
+			<string>/usr/share/man/man1/</string>
+			<key>dstSubfolderSpec</key>
+			<string>0</string>
+			<key>files</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXCopyFilesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>1</string>
+		</dict>
+		<key>EE82D3B5218384D4005229C2</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE82D3BA218384D4005229C2</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE82D3B2218384D4005229C2</string>
+				<string>EE82D3B3218384D4005229C2</string>
+				<string>EE82D3B4218384D4005229C2</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>iobttest</string>
+			<key>productName</key>
+			<string>iobttest</string>
+			<key>productReference</key>
+			<string>EE82D3B6218384D4005229C2</string>
+			<key>productType</key>
+			<string>com.apple.product-type.tool</string>
+		</dict>
+		<key>EE82D3B6218384D4005229C2</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>compiled.mach-o.executable</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>iobttest</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE82D3B7218384D4005229C2</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEFF2EBC218F119A0099BF3C</string>
+				<string>EEFF2EBD218F119A0099BF3C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>path</key>
+			<string>iobttest</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE82D3BA218384D4005229C2</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE82D3BB218384D4005229C2</string>
+				<string>EE82D3BC218384D4005229C2</string>
+				<string>EE82D3BD218384D4005229C2</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE82D3BB218384D4005229C2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ANALYZER_NONNULL</key>
+				<string>YES</string>
+				<key>CLANG_CXX_LANGUAGE_STANDARD</key>
+				<string>gnu++0x</string>
+				<key>CLANG_CXX_LIBRARY</key>
+				<string>libc++</string>
+				<key>CLANG_ENABLE_MODULES</key>
+				<string>YES</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DIRECT_OBJC_ISA_USAGE</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_DOCUMENTATION_COMMENTS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_ROOT_CLASS</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_TESTABILITY</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>gnu99</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>DEBUG=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES_ERROR</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES_AGGRESSIVE</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>MTL_ENABLE_DEBUG_INFO</key>
+				<string>YES</string>
+				<key>ONLY_ACTIVE_ARCH</key>
+				<string>YES</string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE82D3BC218384D4005229C2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ANALYZER_NONNULL</key>
+				<string>YES</string>
+				<key>CLANG_CXX_LANGUAGE_STANDARD</key>
+				<string>gnu++0x</string>
+				<key>CLANG_CXX_LIBRARY</key>
+				<string>libc++</string>
+				<key>CLANG_ENABLE_MODULES</key>
+				<string>YES</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DIRECT_OBJC_ISA_USAGE</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_DOCUMENTATION_COMMENTS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_ROOT_CLASS</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>ENABLE_NS_ASSERTIONS</key>
+				<string>NO</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>gnu99</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES_ERROR</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES_AGGRESSIVE</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>MTL_ENABLE_DEBUG_INFO</key>
+				<string>NO</string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE82D3BD218384D4005229C2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ANALYZER_NONNULL</key>
+				<string>YES</string>
+				<key>CLANG_CXX_LANGUAGE_STANDARD</key>
+				<string>gnu++0x</string>
+				<key>CLANG_CXX_LIBRARY</key>
+				<string>libc++</string>
+				<key>CLANG_ENABLE_MODULES</key>
+				<string>YES</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DIRECT_OBJC_ISA_USAGE</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_DOCUMENTATION_COMMENTS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_ROOT_CLASS</key>
+				<string>YES_ERROR</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>ENABLE_NS_ASSERTIONS</key>
+				<string>NO</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>gnu99</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES_ERROR</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES_AGGRESSIVE</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>MTL_ENABLE_DEBUG_INFO</key>
+				<string>NO</string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EE82D3BF218384F1005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE82D3AF21838423005229C2</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3C22183AE5F005229C2</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>29B97313FDCFA39411CA2CEA</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>EE82D3B5218384D4005229C2</string>
+			<key>remoteInfo</key>
+			<string>iobttest</string>
+		</dict>
+		<key>EE82D3C32183AE5F005229C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>EE82D3B5218384D4005229C2</string>
+			<key>targetProxy</key>
+			<string>EE82D3C22183AE5F005229C2</string>
+		</dict>
+		<key>EE82D3C42183AF43005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAD921558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3C52183AF4E005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADA21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3C62183AF70005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADB21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3C82183AF77005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADD21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3C92183AF7A005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADE21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3CB2183AFAB005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADC21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3CC2183AFAF005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABADF21558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3CD2183AFB1005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAE021558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3CE2183AFB7005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAE121558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3CF2183AFBA005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAE221558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D02183AFBC005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAE321558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D12183AFBF005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAE421558A60005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D22183AFCA005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1521560E2E005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D32183B04F005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1921560E9B005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D42183B052005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1A21560E9B005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D52183B054005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1B21560E9B005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D62183B059005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1C21560E9B005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE82D3D821843BB8005229C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE82D3B021838440005229C2</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF38F218C397D00618E25</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE9EF39B218C399F00618E25</string>
+				<string>EE9EF39C218C39A400618E25</string>
+				<string>EE4544D72922DF8E00164F9A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>DeviceSelector.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF391218C397D00618E25</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE9EF39D218C39A800618E25</string>
+				<string>EE9EF39E218C39AB00618E25</string>
+				<string>EE4544D82922DF8E00164F9A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>ObjectPushUI.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF393218C397D00618E25</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE9EF39F218C39B000618E25</string>
+				<string>EE9EF3A0218C39B200618E25</string>
+				<string>EE4544D92922DF8E00164F9A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>Pairing.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF395218C397D00618E25</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE9EF3A1218C39B600618E25</string>
+				<string>EE9EF3A2218C39B700618E25</string>
+				<string>EE4544DA2922DF8E00164F9A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>ServiceBrowser.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF397218C397D00618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF38F218C397D00618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF398218C397D00618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF391218C397D00618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF399218C397D00618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF393218C397D00618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF39A218C397D00618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF395218C397D00618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF39B218C399F00618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>de</string>
+			<key>path</key>
+			<string>Panels/de.lproj/DeviceSelector.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF39C218C39A400618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>fr</string>
+			<key>path</key>
+			<string>Panels/fr.lproj/DeviceSelector.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF39D218C39A800618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>fr</string>
+			<key>path</key>
+			<string>Panels/fr.lproj/ObjectPushUI.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF39E218C39AB00618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>de</string>
+			<key>path</key>
+			<string>Panels/de.lproj/ObjectPushUI.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF39F218C39B000618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>fr</string>
+			<key>path</key>
+			<string>Panels/fr.lproj/Pairing.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A0218C39B200618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>de</string>
+			<key>path</key>
+			<string>Panels/de.lproj/Pairing.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A1218C39B600618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>fr</string>
+			<key>path</key>
+			<string>Panels/fr.lproj/ServiceBrowser.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A2218C39B700618E25</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>de</string>
+			<key>path</key>
+			<string>Panels/de.lproj/ServiceBrowser.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A3218C4D7700618E25</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>IOBluetoothUI.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A4218C4D7700618E25</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>IOBluetoothUIUserLib.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A5218C4D7700618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF3A3218C4D7700618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE9EF3A6218C4D7700618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF3A4218C4D7700618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE9EF3A7218C4D8300618E25</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>IOBluetooth.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9EF3A8218C4D8300618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9EF3A7218C4D8300618E25</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE9EF3A9218CF8E100618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF321560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF3AA218CF8E300618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF721560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF3AB218CF8E500618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF821560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF3AC218CF8E800618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAFE21560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9EF3AD218CF9E700618E25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE82D3AF21838423005229C2</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3306C09537DB5001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE27BEED0FC17A1300A48A1E</string>
+				<string>EE27BEF60FC17A7A00A48A1E</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Private</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3309609537E48001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEE74627095D6CD800178065</string>
+				<string>EEE16E290CDA381400A85BD3</string>
+				<string>EE9EF38F218C397D00618E25</string>
+				<string>EE9EF391218C397D00618E25</string>
+				<string>EE9EF393218C397D00618E25</string>
+				<string>EE9EF395218C397D00618E25</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Resources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA370EA0953FFFB001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE82D3B021838440005229C2</string>
+				<string>EE82D3B121838458005229C2</string>
+				<string>EE82D3AF21838423005229C2</string>
+				<string>EEE1772F0CDB792500A85BD3</string>
+				<string>EEA3716A095400F2001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3716A095400F2001244CF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>AppKit.framework</string>
+			<key>path</key>
+			<string>../AppKit/build/Development/AppKit.framework</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEBABAD821558A60005D4653</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEE16B6E0CD7B19400A85BD3</string>
+				<string>EEE16DE50CDA36AF00A85BD3</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>path</key>
+			<string>objc</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAD921558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothDevice.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDevice.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADA21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothDeviceInquiry.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDeviceInquiry.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADB21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothL2CAPChannel.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothL2CAPChannel.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADC21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothOBEXSession.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothOBEXSession.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADD21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothObject.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothObject.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADE21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothRFCOMMChannel.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothRFCOMMChannel.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABADF21558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothSDPDataElement.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPDataElement.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAE021558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothSDPServiceAttribute.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPServiceAttribute.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAE121558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothSDPServiceRecord.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPServiceRecord.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAE221558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothSDPUUID.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPUUID.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAE321558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothUserNotification.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothUserNotification.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAE421558A60005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>OBEXFileTransferServices.h</string>
+			<key>path</key>
+			<string>objc/OBEXFileTransferServices.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF221560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothDeviceInquiry.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDeviceInquiry.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF321560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothDeviceSelectorController.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDeviceSelectorController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF421560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothL2CAPChannel.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothL2CAPChannel.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF521560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothOBEXSession.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothOBEXSession.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF621560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothObject.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothObject.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF721560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothObjectPushUIController.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothObjectPushUIController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF821560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothPairingController.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothPairingController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAF921560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothRFCOMMChannel.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothRFCOMMChannel.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAFA21560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothSDPDataElement.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPDataElement.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAFB21560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothSDPServiceAttribute.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPServiceAttribute.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAFC21560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothSDPServiceRecord.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPServiceRecord.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAFD21560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothSDPUUID.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothSDPUUID.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABAFE21560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothServiceBrowserController.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothServiceBrowserController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB0021560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothUserNotification.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothUserNotification.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB0121560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>OBEXFileTransferServices.m</string>
+			<key>path</key>
+			<string>objc/OBEXFileTransferServices.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB0221560E03005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>OBEXSession.m</string>
+			<key>path</key>
+			<string>objc/OBEXSession.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB0421560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF221560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0621560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF421560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0721560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF521560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0821560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF621560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0B21560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAF921560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0C21560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAFA21560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0D21560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAFB21560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0E21560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAFC21560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB0F21560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABAFD21560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB1221560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB0021560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB1321560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB0121560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB1421560E03005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB0221560E03005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB1521560E2E005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>OBEXSession.h</string>
+			<key>path</key>
+			<string>objc/OBEXSession.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB1721560E3D005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothDevice.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDevice.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB1821560E3D005D4653</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEBABB1721560E3D005D4653</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEBABB1921560E9B005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothDeviceSelectorController.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothDeviceSelectorController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB1A21560E9B005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothObjectPushUIController.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothObjectPushUIController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB1B21560E9B005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothPairingController.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothPairingController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEBABB1C21560E9B005D4653</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothServiceBrowserController.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothServiceBrowserController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE16AF90CD73D3400A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>dstPath</key>
+			<string>Headers/objc</string>
+			<key>dstSubfolderSpec</key>
+			<string>1</string>
+			<key>files</key>
+			<array>
+				<string>EE82D3C82183AF77005229C2</string>
+				<string>EE82D3C42183AF43005229C2</string>
+				<string>EE82D3C52183AF4E005229C2</string>
+				<string>EE82D3C62183AF70005229C2</string>
+				<string>EE82D3C92183AF7A005229C2</string>
+				<string>EE82D3CB2183AFAB005229C2</string>
+				<string>EE82D3CC2183AFAF005229C2</string>
+				<string>EE82D3CD2183AFB1005229C2</string>
+				<string>EE82D3CE2183AFB7005229C2</string>
+				<string>EE82D3CF2183AFBA005229C2</string>
+				<string>EE82D3D02183AFBC005229C2</string>
+				<string>EE82D3D12183AFBF005229C2</string>
+				<string>EE82D3D22183AFCA005229C2</string>
+				<string>EEFF2EC4219459060099BF3C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXCopyFilesBuildPhase</string>
+			<key>name</key>
+			<string>Copy objc Headers</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16B6E0CD7B19400A85BD3</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEFF2EC1219456770099BF3C</string>
+				<string>EEBABAD921558A60005D4653</string>
+				<string>EEBABADA21558A60005D4653</string>
+				<string>EEBABADB21558A60005D4653</string>
+				<string>EEBABADC21558A60005D4653</string>
+				<string>EEBABADD21558A60005D4653</string>
+				<string>EEBABADE21558A60005D4653</string>
+				<string>EEBABADF21558A60005D4653</string>
+				<string>EEBABAE021558A60005D4653</string>
+				<string>EEBABAE121558A60005D4653</string>
+				<string>EEBABAE221558A60005D4653</string>
+				<string>EEBABAE321558A60005D4653</string>
+				<string>EEBABAE421558A60005D4653</string>
+				<string>EEBABB1521560E2E005D4653</string>
+				<string>EEFF2EBF21943F7A0099BF3C</string>
+				<string>EEBABB1721560E3D005D4653</string>
+				<string>EEBABAF221560E03005D4653</string>
+				<string>EEBABAF421560E03005D4653</string>
+				<string>EEBABAF521560E03005D4653</string>
+				<string>EEBABAF621560E03005D4653</string>
+				<string>EEBABAF921560E03005D4653</string>
+				<string>EEBABAFA21560E03005D4653</string>
+				<string>EEBABAFB21560E03005D4653</string>
+				<string>EEBABAFC21560E03005D4653</string>
+				<string>EEBABAFD21560E03005D4653</string>
+				<string>EEBABB0021560E03005D4653</string>
+				<string>EEBABB0121560E03005D4653</string>
+				<string>EEBABB0221560E03005D4653</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>IOBluetooth</string>
+			<key>path</key>
+			<string>..</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE16DE50CDA36AF00A85BD3</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEBABB1921560E9B005D4653</string>
+				<string>EEBABB1A21560E9B005D4653</string>
+				<string>EEBABB1B21560E9B005D4653</string>
+				<string>EEBABB1C21560E9B005D4653</string>
+				<string>EEBABAF321560E03005D4653</string>
+				<string>EEBABAF721560E03005D4653</string>
+				<string>EEBABAF821560E03005D4653</string>
+				<string>EEBABAFE21560E03005D4653</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>IOBluetoothUI</string>
+			<key>path</key>
+			<string>..</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE16DE60CDA36E100A85BD3</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEE16E160CDA36E100A85BD3</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EEE16DE80CDA36E100A85BD3</string>
+				<string>EEE16DFE0CDA36E100A85BD3</string>
+				<string>EEE16DF80CDA36E100A85BD3</string>
+				<string>EEE16DFF0CDA36E100A85BD3</string>
+				<string>EEE16E120CDA36E100A85BD3</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>comments</key>
+			<string>
+</string>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>IOBluetoothUI</string>
+			<key>productName</key>
+			<string>Calendar</string>
+			<key>productReference</key>
+			<string>EEE16E1A0CDA36E100A85BD3</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EEE16DE80CDA36E100A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>dstPath</key>
+			<string>Headers/objc</string>
+			<key>dstSubfolderSpec</key>
+			<string>1</string>
+			<key>files</key>
+			<array>
+				<string>EE82D3D32183B04F005229C2</string>
+				<string>EE82D3D42183B052005229C2</string>
+				<string>EE82D3D52183B054005229C2</string>
+				<string>EE82D3D62183B059005229C2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXCopyFilesBuildPhase</string>
+			<key>name</key>
+			<string>Copy objc Headers</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16DF80CDA36E100A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9EF3A6218C4D7700618E25</string>
+				<string>EE9EF3A5218C4D7700618E25</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16DFE0CDA36E100A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9EF398218C397D00618E25</string>
+				<string>EE9EF397218C397D00618E25</string>
+				<string>EE9EF39A218C397D00618E25</string>
+				<string>EE9EF399218C397D00618E25</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16DFF0CDA36E100A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9EF3A9218CF8E100618E25</string>
+				<string>EE9EF3AA218CF8E300618E25</string>
+				<string>EE9EF3AB218CF8E500618E25</string>
+				<string>EE9EF3AC218CF8E800618E25</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16E120CDA36E100A85BD3</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9EF3AD218CF9E700618E25</string>
+				<string>EEE16E140CDA36E100A85BD3</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EEE16E140CDA36E100A85BD3</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3716A095400F2001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEE16E160CDA36E100A85BD3</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEE16E170CDA36E100A85BD3</string>
+				<string>EEE16E180CDA36E100A85BD3</string>
+				<string>EEE16E190CDA36E100A85BD3</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEE16E170CDA36E100A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetoothUI-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetoothUI</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetoothUI</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEE16E180CDA36E100A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetoothUI-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetoothUI</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetoothUI</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEE16E190CDA36E100A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetoothUI-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetoothUI</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetoothUI</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEE16E1A0CDA36E100A85BD3</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>IOBluetoothUI.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EEE16E290CDA381400A85BD3</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>IOBluetoothUI-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE1771E0CDB214300A85BD3</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEE177280CDB215A00A85BD3</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array>
+				<string>EEE177230CDB214900A85BD3</string>
+				<string>EEE177250CDB214C00A85BD3</string>
+				<string>EE82D3C32183AE5F005229C2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>All</string>
+			<key>productName</key>
+			<string>IOBluetooth</string>
+		</dict>
+		<key>EEE177220CDB214900A85BD3</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>29B97313FDCFA39411CA2CEA</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>EE6FE351076F05AF009CC969</string>
+			<key>remoteInfo</key>
+			<string>IOBluetoothCore</string>
+		</dict>
+		<key>EEE177230CDB214900A85BD3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>EE6FE351076F05AF009CC969</string>
+			<key>targetProxy</key>
+			<string>EEE177220CDB214900A85BD3</string>
+		</dict>
+		<key>EEE177240CDB214C00A85BD3</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>29B97313FDCFA39411CA2CEA</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>EEE16DE60CDA36E100A85BD3</string>
+			<key>remoteInfo</key>
+			<string>IOBluetoothUI</string>
+		</dict>
+		<key>EEE177250CDB214C00A85BD3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>EEE16DE60CDA36E100A85BD3</string>
+			<key>targetProxy</key>
+			<string>EEE177240CDB214C00A85BD3</string>
+		</dict>
+		<key>EEE177280CDB215A00A85BD3</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEE177290CDB215A00A85BD3</string>
+				<string>EEE1772A0CDB215A00A85BD3</string>
+				<string>EEE1772B0CDB215A00A85BD3</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEE177290CDB215A00A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEE1772A0CDB215A00A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>NO</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEE1772B0CDB215A00A85BD3</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>YES</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEE1772F0CDB792500A85BD3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Cocoa.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Cocoa.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EEE74627095D6CD800178065</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>IOBluetooth-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEEB9CF309A7542900626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9CF409A7542900626AB7</string>
+				<string>EEEB9CF509A7542900626AB7</string>
+				<string>EEEB9CF609A7542900626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9CF409A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetooth-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetooth</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9CF509A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetooth-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetooth</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9CF609A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_WEAK</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>IOBluetooth-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
+				<string>com.quantum-step.mySTEP.IOBluetooth</string>
+				<key>PRODUCT_NAME</key>
+				<string>IOBluetooth</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEEB9CF709A7542900626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9CF809A7542900626AB7</string>
+				<string>EEEB9CF909A7542900626AB7</string>
+				<string>EEEB9CFA09A7542900626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9CF809A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_COMMA</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_NON_LITERAL_NULL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_LITERAL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_RANGE_LOOP_ANALYSIS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_STRICT_PROTOTYPES</key>
+				<string>YES</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_TESTABILITY</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>ONLY_ACTIVE_ARCH</key>
+				<string>YES</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9CF909A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_COMMA</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_NON_LITERAL_NULL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_LITERAL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_RANGE_LOOP_ANALYSIS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_STRICT_PROTOTYPES</key>
+				<string>YES</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9CFA09A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_COMMA</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INFINITE_RECURSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_NON_LITERAL_NULL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_LITERAL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_RANGE_LOOP_ANALYSIS</key>
+				<string>YES</string>
+				<key>CLANG_WARN_STRICT_PROTOTYPES</key>
+				<string>YES</string>
+				<key>CLANG_WARN_SUSPICIOUS_MOVE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_UNREACHABLE_CODE</key>
+				<string>YES</string>
+				<key>CLANG_WARN__DUPLICATE_METHOD_MATCH</key>
+				<string>YES</string>
+				<key>ENABLE_STRICT_OBJC_MSGSEND</key>
+				<string>YES</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_NO_COMMON_BLOCKS</key>
+				<string>YES</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEFF2EBC218F119A0099BF3C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>Info-test.plist</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEFF2EBD218F119A0099BF3C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>iobttest.m</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEFF2EBE218F119A0099BF3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEFF2EBD218F119A0099BF3C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEFF2EBF21943F7A0099BF3C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>IOBluetoothController.m</string>
+			<key>path</key>
+			<string>objc/IOBluetoothController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEFF2EC021943F7A0099BF3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEFF2EBF21943F7A0099BF3C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEFF2EC1219456770099BF3C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>IOBluetoothController.h</string>
+			<key>path</key>
+			<string>objc/IOBluetoothController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEFF2EC2219456770099BF3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEFF2EC1219456770099BF3C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEFF2EC3219458CE0099BF3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3716A095400F2001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEFF2EC4219459060099BF3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEFF2EC1219456770099BF3C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>29B97313FDCFA39411CA2CEA</string>
+</dict>
+</plist>

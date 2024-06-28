@@ -3,6 +3,7 @@
 export DEBIAN_DEPENDS="quantumstep-cocoa-framework"
 export DEBIAN_DEPENDS+=", quantumstep-iobluetooth-framework"
 export FRAMEWORKS="IOBluetooth"
+export FRAMEWORKS+=" CoreFoundation"
 export FRAMEWORKS+=" Cocoa"
 export INSTALL_PATH="/System/Library/Frameworks"
 export PRODUCT_NAME="IOBluetoothUI"
