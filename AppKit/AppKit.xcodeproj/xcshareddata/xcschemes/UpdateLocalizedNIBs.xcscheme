@@ -1,68 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Scheme
-   LastUpgradeVersion = "1530"
-   version = "1.7">
-   <BuildAction
-      parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+<Scheme LastUpgradeVersion="1530" version="1.7">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES" buildArchitectures="Automatic">
       <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE8D72150EF6C71000A9C09B"
-               BuildableName = "UpdateLocalizedNIBs"
-               BlueprintName = "UpdateLocalizedNIBs"
-               ReferencedContainer = "container:AppKit.xcodeproj">
+         <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE8D72150EF6C71000A9C09B" BuildableName="UpdateLocalizedNIBs" BlueprintName="UpdateLocalizedNIBs" ReferencedContainer="container:AppKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
-   <TestAction
-      buildConfiguration = "Development"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+   <TestAction buildConfiguration="Development" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" shouldAutocreateTestPlan="YES">
    </TestAction>
-   <LaunchAction
-      buildConfiguration = "Development"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
-      ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "YES"
-      debugServiceExtension = "internal"
-      enableGPUValidationMode = "1"
-      allowLocationSimulation = "YES">
+   <LaunchAction buildConfiguration="Development" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" enableGPUValidationMode="1" allowLocationSimulation="YES">
    </LaunchAction>
-   <ProfileAction
-      buildConfiguration = "Deployment"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      savedToolIdentifier = ""
-      useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES">
+   <ProfileAction buildConfiguration="Deployment" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES">
       <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EE8D72150EF6C71000A9C09B"
-            BuildableName = "UpdateLocalizedNIBs"
-            BlueprintName = "UpdateLocalizedNIBs"
-            ReferencedContainer = "container:AppKit.xcodeproj">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE8D72150EF6C71000A9C09B" BuildableName="UpdateLocalizedNIBs" BlueprintName="UpdateLocalizedNIBs" ReferencedContainer="container:AppKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
-   <AnalyzeAction
-      buildConfiguration = "Development">
+   <AnalyzeAction buildConfiguration="Development">
    </AnalyzeAction>
-   <ArchiveAction
-      buildConfiguration = "Deployment"
-      revealArchiveInOrganizer = "YES">
+   <ArchiveAction buildConfiguration="Deployment" revealArchiveInOrganizer="YES">
    </ArchiveAction>
 </Scheme>
