@@ -894,6 +894,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	NS_DURING
 		[_urlString getCString:start];			// get the cString and store behind the parsedURL header
 	NS_HANDLER	// can't convert Unicode to C-String
+		localException;	// ignored
 		[self release];
 		return nil;
 	NS_ENDHANDLER
@@ -1524,6 +1525,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 - (NSArray *) pathComponents; { return [[self path] pathComponents]; }	// since 10.6
 - (NSString *) pathExtension; { return [[self path] pathExtension]; }	// since 10.6
 // FIXME: these are wrong! should just modify the path and keep the rest intact
+// FIXME: and not return an NSString...
 - (NSURL *) URLByDeletingLastPathComponent; { return [[self path] stringByDeletingLastPathComponent]; }	// since 10.6
 - (NSURL *) URLByDeletingPathExtension; { return [[self path] stringByDeletingPathExtension]; }	// since 10.6
 - (NSURL *) URLByResolvingSymlinksInPath; { return NIMP; }	// since 10.6

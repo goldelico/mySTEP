@@ -40,6 +40,12 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
+#ifdef DEBUG
+#define NSDebugLog(format, args...)	NSLog(format, args...)
+#else
+#define NSDebugLog(format, args...)
+#endif
+
 #ifndef mySTEP_MAJOR_VERSION
 #define mySTEP_MAJOR_VERSION	3
 #define mySTEP_MINOR_VERSION	0
@@ -411,13 +417,7 @@ extern int32_t NSVersionOfRunTimeLibrary(const char *libraryName);
 extern int32_t NSVersionOfLinkTimeLibrary(const char *libraryName);
 extern int _NSGetExecutablePath(char *buf, uint32_t *bufsize);
 
-#ifdef DEBUG
-#define NSDebugLog(format, args...)	NSLog(format, args...)
-#else
-#define NSDebugLog(format, args...)
-#endif
-
-// Global lock to be used by classes when operating on any 
+// Global lock to be used by classes when operating on any
 // global data that invoke other methods which also access 
 // global; thus, creating the potential for deadlock.
 

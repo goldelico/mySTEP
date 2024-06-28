@@ -443,7 +443,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 		NS_DURING
 			dict=[NSMutableDictionary dictionaryWithContentsOfFile:[self _filePathForDomain:domain]];	// try to load
 		NS_HANDLER
-			// ignore exceptions - simply create a new dictionary
+			localException;	// ignore exceptions - simply create a new dictionary
 		NS_ENDHANDLER
 		if(!dict || ![dict isKindOfClass:[NSDictionary class]])
 			dict=(NSMutableDictionary *) [NSNull null];	// mark as non-existent (or corrupt)

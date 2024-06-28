@@ -96,7 +96,7 @@
 
 - (void) removeAttributeForName:(NSString *) name;
 {
-	[[_attributes objectForKey:name] setParent:nil];
+	[[_attributes objectForKey:name] _setParent:nil];
 	[_attributes removeObjectForKey:name];
 }
 

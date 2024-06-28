@@ -162,7 +162,7 @@ void *_autoFreedBufferWithLength(NSUInteger bytes);
 }
 @end
 
-extern NSStringEncoding GSDefaultCStringEncoding();	// determine default c string encoding based on mySTEP_STRING_ENCODING environment variable
+extern NSStringEncoding GSDefaultCStringEncoding(void);	// determine default c string encoding based on mySTEP_STRING_ENCODING environment variable
 
 extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 

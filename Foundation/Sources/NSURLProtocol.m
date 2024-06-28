@@ -1088,7 +1088,7 @@ static NSMutableDictionary *_httpConnections;
 			[_client URLProtocol:self didLoadData:[_cachedResponse data]];	// and pass data from cache
 			return;
 		default:
-			NSLog(@"unprocessed %d: %@", [response statusCode], headers);
+			NSLog(@"unprocessed %ld: %@", (long)[response statusCode], headers);
 	}
 	if(([response statusCode]/100 == 3) && (loc=[headers objectForKey:@"Location"]))
 		{ // redirect
