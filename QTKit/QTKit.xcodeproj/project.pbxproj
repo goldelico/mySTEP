@@ -1,393 +1,944 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 42;
-	objects = {
-
-/* Begin PBXBuildFile section */
-		EED9627612520DA600107045 /* QTKit-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EED9627512520DA600107045 /* QTKit-Info.plist */; };
-		EED9628E12520E4D00107045 /* NSStreamSplitter.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628312520E4B00107045 /* NSStreamSplitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9628F12520E4D00107045 /* NSStreamSplitter.m in Sources */ = {isa = PBXBuildFile; fileRef = EED9628412520E4B00107045 /* NSStreamSplitter.m */; };
-		EED9629012520E4D00107045 /* QTDataReference.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628512520E4B00107045 /* QTDataReference.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629112520E4D00107045 /* QTKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628612520E4B00107045 /* QTKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629212520E4D00107045 /* QTMedia.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628712520E4B00107045 /* QTMedia.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629312520E4D00107045 /* QTMovie.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628812520E4B00107045 /* QTMovie.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629412520E4D00107045 /* QTMovie.m in Sources */ = {isa = PBXBuildFile; fileRef = EED9628912520E4B00107045 /* QTMovie.m */; };
-		EED9629512520E4D00107045 /* QTMovieView.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628A12520E4B00107045 /* QTMovieView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629612520E4D00107045 /* QTTime.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628B12520E4D00107045 /* QTTime.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629712520E4D00107045 /* QTTimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628C12520E4D00107045 /* QTTimeRange.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EED9629812520E4D00107045 /* QTTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = EED9628D12520E4D00107045 /* QTTrack.h */; settings = {ATTRIBUTES = (Public, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXFileReference section */
-		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../../Frameworks/mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE6FE352076F05AF009CC969 /* QtKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QtKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE7AB63B17476746003133D9 /* QTKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = QTKit.qcodeproj; sourceTree = "<group>"; };
-		EE8F5C7B092F79AD00648BBF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
-		EED9627512520DA600107045 /* QTKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "QTKit-Info.plist"; sourceTree = "<group>"; };
-		EED9628312520E4B00107045 /* NSStreamSplitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStreamSplitter.h; sourceTree = "<group>"; };
-		EED9628412520E4B00107045 /* NSStreamSplitter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStreamSplitter.m; sourceTree = "<group>"; };
-		EED9628512520E4B00107045 /* QTDataReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTDataReference.h; sourceTree = "<group>"; };
-		EED9628612520E4B00107045 /* QTKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTKit.h; sourceTree = "<group>"; };
-		EED9628712520E4B00107045 /* QTMedia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTMedia.h; sourceTree = "<group>"; };
-		EED9628812520E4B00107045 /* QTMovie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTMovie.h; sourceTree = "<group>"; };
-		EED9628912520E4B00107045 /* QTMovie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QTMovie.m; sourceTree = "<group>"; };
-		EED9628A12520E4B00107045 /* QTMovieView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTMovieView.h; sourceTree = "<group>"; };
-		EED9628B12520E4D00107045 /* QTTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTTime.h; sourceTree = "<group>"; };
-		EED9628C12520E4D00107045 /* QTTimeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTTimeRange.h; sourceTree = "<group>"; };
-		EED9628D12520E4D00107045 /* QTTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTTrack.h; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		EE6FE350076F05AF009CC969 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
-			);
-			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EE8F5C7B092F79AD00648BBF /* Quartz.framework */,
-				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
-				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
-		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
-			isa = PBXGroup;
-			children = (
-				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE7AB63B17476746003133D9 /* QTKit.qcodeproj */,
-				EED9628112520E3500107045 /* Sources */,
-				EED9627512520DA600107045 /* QTKit-Info.plist */,
-				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				EE29D8D8058A38830035639B /* Products */,
-			);
-			name = BrowserTester;
-			sourceTree = "<group>";
-		};
-		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
-				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EE29D8D8058A38830035639B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				EE6FE352076F05AF009CC969 /* QtKit.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		EED9628112520E3500107045 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				EED9628312520E4B00107045 /* NSStreamSplitter.h */,
-				EED9628412520E4B00107045 /* NSStreamSplitter.m */,
-				EED9628512520E4B00107045 /* QTDataReference.h */,
-				EED9628612520E4B00107045 /* QTKit.h */,
-				EED9628712520E4B00107045 /* QTMedia.h */,
-				EED9628812520E4B00107045 /* QTMovie.h */,
-				EED9628912520E4B00107045 /* QTMovie.m */,
-				EED9628A12520E4B00107045 /* QTMovieView.h */,
-				EED9628B12520E4D00107045 /* QTTime.h */,
-				EED9628C12520E4D00107045 /* QTTimeRange.h */,
-				EED9628D12520E4D00107045 /* QTTrack.h */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		EE6FE34D076F05AF009CC969 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EED9628E12520E4D00107045 /* NSStreamSplitter.h in Headers */,
-				EED9629012520E4D00107045 /* QTDataReference.h in Headers */,
-				EED9629112520E4D00107045 /* QTKit.h in Headers */,
-				EED9629212520E4D00107045 /* QTMedia.h in Headers */,
-				EED9629312520E4D00107045 /* QTMovie.h in Headers */,
-				EED9629512520E4D00107045 /* QTMovieView.h in Headers */,
-				EED9629612520E4D00107045 /* QTTime.h in Headers */,
-				EED9629712520E4D00107045 /* QTTimeRange.h in Headers */,
-				EED9629812520E4D00107045 /* QTTrack.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* QTKit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EED61B0009D5B06500F2B623 /* Build configuration list for PBXNativeTarget "QTKit" */;
-			buildPhases = (
-				EE6FE34D076F05AF009CC969 /* Headers */,
-				EE6FE34E076F05AF009CC969 /* Resources */,
-				EE6FE34F076F05AF009CC969 /* Sources */,
-				EE6FE350076F05AF009CC969 /* Frameworks */,
-				EE6FE354076F05C9009CC969 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = QTKit;
-			productName = Calendar;
-			productReference = EE6FE352076F05AF009CC969 /* QtKit.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		29B97313FDCFA39411CA2CEA /* Project object */ = {
-			isa = PBXProject;
-			buildConfigurationList = EED61B1009D5B06500F2B623 /* Build configuration list for PBXProject "QTKit" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = English;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
-			productRefGroup = EE29D8D8058A38830035639B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EE6FE351076F05AF009CC969 /* QTKit */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		EE6FE34E076F05AF009CC969 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EED9627612520DA600107045 /* QTKit-Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE6FE354076F05C9009CC969 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./QTKit.qcodeproj\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		EE6FE34F076F05AF009CC969 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EED9628F12520E4D00107045 /* NSStreamSplitter.m in Sources */,
-				EED9629412520E4D00107045 /* QTMovie.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin XCBuildConfiguration section */
-		EED61B0109D5B06500F2B623 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "QtKit-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-					"-seg1addr",
-					0x20100000,
-					"-lz",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = QtKit;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EED61B0209D5B06500F2B623 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "QtKit-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-					"-seg1addr",
-					0x20100000,
-					"-lz",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = QtKit;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EED61B0309D5B06500F2B623 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "QtKit-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-					"-seg1addr",
-					0x20100000,
-					"-lz",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = QtKit;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EED61B1109D5B06500F2B623 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				PREBINDING = NO;
-			};
-			name = Development;
-		};
-		EED61B1209D5B06500F2B623 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				PREBINDING = NO;
-			};
-			name = Deployment;
-		};
-		EED61B1309D5B06500F2B623 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				PREBINDING = NO;
-			};
-			name = Default;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EED61B0009D5B06500F2B623 /* Build configuration list for PBXNativeTarget "QTKit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EED61B0109D5B06500F2B623 /* Development */,
-				EED61B0209D5B06500F2B623 /* Deployment */,
-				EED61B0309D5B06500F2B623 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EED61B1009D5B06500F2B623 /* Build configuration list for PBXProject "QTKit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EED61B1109D5B06500F2B623 /* Development */,
-				EED61B1209D5B06500F2B623 /* Deployment */,
-				EED61B1309D5B06500F2B623 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>42</string>
+	<key>objects</key>
+	<dict>
+		<key>1058C7A0FEA54F0111CA2CBB</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1058C7A1FEA54F0111CA2CBB</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Linked Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1058C7A1FEA54F0111CA2CBB</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Cocoa.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Cocoa.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>1058C7A2FEA54F0111CA2CBB</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE8F5C7B092F79AD00648BBF</string>
+				<string>29B97325FDCFA39411CA2CEA</string>
+				<string>29B97324FDCFA39411CA2CEA</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Other Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>29B97313FDCFA39411CA2CEA</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EED61B1009D5B06500F2B623</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>English</string>
+				<string>Japanese</string>
+				<string>French</string>
+				<string>German</string>
+			</array>
+			<key>mainGroup</key>
+			<string>29B97314FDCFA39411CA2CEA</string>
+			<key>productRefGroup</key>
+			<string>EE29D8D8058A38830035639B</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EE6FE351076F05AF009CC969</string>
+			</array>
+		</dict>
+		<key>29B97314FDCFA39411CA2CEA</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE27270005426A7F0000013C</string>
+				<string>EE7AB63B17476746003133D9</string>
+				<string>EED9628112520E3500107045</string>
+				<string>EED9627512520DA600107045</string>
+				<string>29B97323FDCFA39411CA2CEA</string>
+				<string>EE29D8D8058A38830035639B</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>BrowserTester</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>29B97323FDCFA39411CA2CEA</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1058C7A0FEA54F0111CA2CBB</string>
+				<string>1058C7A2FEA54F0111CA2CBB</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>29B97324FDCFA39411CA2CEA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>AppKit.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/AppKit.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>29B97325FDCFA39411CA2CEA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Foundation.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Foundation.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EE27270005426A7F0000013C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>mySTEP.make</string>
+			<key>path</key>
+			<string>../../Frameworks/mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE29D8D8058A38830035639B</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE6FE352076F05AF009CC969</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE6FE34D076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EED9628E12520E4D00107045</string>
+				<string>EED9629012520E4D00107045</string>
+				<string>EED9629112520E4D00107045</string>
+				<string>EED9629212520E4D00107045</string>
+				<string>EED9629312520E4D00107045</string>
+				<string>EED9629512520E4D00107045</string>
+				<string>EED9629612520E4D00107045</string>
+				<string>EED9629712520E4D00107045</string>
+				<string>EED9629812520E4D00107045</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34E076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EED9627612520DA600107045</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34F076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EED9628F12520E4D00107045</string>
+				<string>EED9629412520E4D00107045</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE350076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE351076F05AF009CC969</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EED61B0009D5B06500F2B623</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE6FE34D076F05AF009CC969</string>
+				<string>EE6FE34E076F05AF009CC969</string>
+				<string>EE6FE34F076F05AF009CC969</string>
+				<string>EE6FE350076F05AF009CC969</string>
+				<string>EE6FE354076F05C9009CC969</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>QTKit</string>
+			<key>productName</key>
+			<string>Calendar</string>
+			<key>productReference</key>
+			<string>EE6FE352076F05AF009CC969</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EE6FE352076F05AF009CC969</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>QtKit.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE7AB63B17476746003133D9</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>QTKit.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE8F5C7B092F79AD00648BBF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Quartz.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Quartz.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EED61B0009D5B06500F2B623</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EED61B0109D5B06500F2B623</string>
+				<string>EED61B0209D5B06500F2B623</string>
+				<string>EED61B0309D5B06500F2B623</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EED61B0109D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>QtKit-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+					<string>-lz</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>QtKit</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EED61B0209D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>QtKit-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+					<string>-lz</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>QtKit</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EED61B0309D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>QtKit-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+					<string>-lz</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>QtKit</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EED61B1009D5B06500F2B623</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EED61B1109D5B06500F2B623</string>
+				<string>EED61B1209D5B06500F2B623</string>
+				<string>EED61B1309D5B06500F2B623</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EED61B1109D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EED61B1209D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EED61B1309D5B06500F2B623</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EED9627512520DA600107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>QTKit-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9627612520DA600107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9627512520DA600107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EED9628112520E3500107045</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EED9628312520E4B00107045</string>
+				<string>EED9628412520E4B00107045</string>
+				<string>EED9628512520E4B00107045</string>
+				<string>EED9628612520E4B00107045</string>
+				<string>EED9628712520E4B00107045</string>
+				<string>EED9628812520E4B00107045</string>
+				<string>EED9628912520E4B00107045</string>
+				<string>EED9628A12520E4B00107045</string>
+				<string>EED9628B12520E4D00107045</string>
+				<string>EED9628C12520E4D00107045</string>
+				<string>EED9628D12520E4D00107045</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>path</key>
+			<string>Sources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628312520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>NSStreamSplitter.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628412520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>NSStreamSplitter.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628512520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTDataReference.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628612520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTKit.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628712520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTMedia.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628812520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTMovie.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628912520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>QTMovie.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628A12520E4B00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTMovieView.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628B12520E4D00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTTime.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628C12520E4D00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTTimeRange.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628D12520E4D00107045</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>QTTrack.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED9628E12520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628312520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9628F12520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628412520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EED9629012520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628512520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629112520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628612520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629212520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628712520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629312520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628812520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629412520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628912520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EED9629512520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628A12520E4B00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629612520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628B12520E4D00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629712520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628C12520E4D00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EED9629812520E4D00107045</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EED9628D12520E4D00107045</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>29B97313FDCFA39411CA2CEA</string>
+</dict>
+</plist>
