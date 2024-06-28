@@ -1,387 +1,801 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 42;
-	objects = {
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>42</string>
+	<key>objects</key>
+	<dict>
+		<key>29B97313FDCFA39411CA2CEA</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9CF709A7542900626AB7</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>English</string>
+				<string>Japanese</string>
+				<string>French</string>
+				<string>German</string>
+			</array>
+			<key>mainGroup</key>
+			<string>29B97314FDCFA39411CA2CEA</string>
+			<key>productRefGroup</key>
+			<string>EE29D8D8058A38830035639B</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EE6FE351076F05AF009CC969</string>
+			</array>
+		</dict>
+		<key>29B97314FDCFA39411CA2CEA</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE27270005426A7F0000013C</string>
+				<string>EE824525174786A2003B8B89</string>
+				<string>EEA3309A09537E58001244CF</string>
+				<string>EEA3306C09537DB5001244CF</string>
+				<string>EEA3309609537E48001244CF</string>
+				<string>EEA370EA0953FFFB001244CF</string>
+				<string>EE29D8D8058A38830035639B</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>BrowserTester</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE163153102F559A0005F487</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>SecurityFoundation.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/SecurityFoundation.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EE163154102F559A0005F487</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE163153102F559A0005F487</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE16315A102F55AE0005F487</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Security.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Security.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EE16315B102F55AE0005F487</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE16315A102F55AE0005F487</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE163313102F5E5C0005F487</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE163314102F5E5C0005F487</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>Authorization.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE163314102F5E5C0005F487</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.nib</string>
+			<key>name</key>
+			<string>English</string>
+			<key>path</key>
+			<string>English.lproj/Authorization.nib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE163315102F5E5C0005F487</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE163313102F5E5C0005F487</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE27270005426A7F0000013C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>mySTEP.make</string>
+			<key>path</key>
+			<string>../mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE29D8D8058A38830035639B</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE6FE352076F05AF009CC969</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE32C4810A1094CA00E985BA</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SFAuthorizationView.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE32C4820A1094CA00E985BA</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE32C4810A1094CA00E985BA</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE6FE34D076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEE7462E095D6CD800178065</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34E076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9F32370CF99C9C0087380F</string>
+				<string>EE9F32390CF99CAA0087380F</string>
+				<string>EE163315102F5E5C0005F487</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34F076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE32C4820A1094CA00E985BA</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE350076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEA370950953FFEF001244CF</string>
+				<string>EEA3716B095400F2001244CF</string>
+				<string>EE163154102F559A0005F487</string>
+				<string>EE16315B102F55AE0005F487</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE351076F05AF009CC969</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9CF309A7542900626AB7</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE6FE34D076F05AF009CC969</string>
+				<string>EE6FE34E076F05AF009CC969</string>
+				<string>EE6FE34F076F05AF009CC969</string>
+				<string>EE6FE350076F05AF009CC969</string>
+				<string>EE6FE354076F05C9009CC969</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>comments</key>
+			<string>Todo:
 
-/* Begin PBXBuildFile section */
-		EE163154102F559A0005F487 /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE163153102F559A0005F487 /* SecurityFoundation.framework */; };
-		EE16315B102F55AE0005F487 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE16315A102F55AE0005F487 /* Security.framework */; };
-		EE163315102F5E5C0005F487 /* Authorization.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE163313102F5E5C0005F487 /* Authorization.nib */; };
-		EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */; };
-		EE9F32370CF99C9C0087380F /* lock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32360CF99C9C0087380F /* lock_32.png */; };
-		EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32380CF99CAA0087380F /* ulock_32.png */; };
-		EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
-		EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE7462A095D6CD800178065 /* SFAuthorizationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXFileReference section */
-		EE163153102F559A0005F487 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = /System/Library/Frameworks/SecurityFoundation.framework; sourceTree = "<absolute>"; };
-		EE16315A102F55AE0005F487 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
-		EE163314102F5E5C0005F487 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Authorization.nib; sourceTree = "<group>"; };
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorizationView.m; sourceTree = "<group>"; };
-		EE6FE352076F05AF009CC969 /* SecurityInterface.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SecurityInterface.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE824525174786A2003B8B89 /* SecurityInterface.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = SecurityInterface.qcodeproj; sourceTree = "<group>"; };
-		EE9F32360CF99C9C0087380F /* lock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = lock_32.png; path = ../../Icons/Harmony/PNG/lock_32.png; sourceTree = SOURCE_ROOT; };
-		EE9F32380CF99CAA0087380F /* ulock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ulock_32.png; path = ../../Icons/Harmony/PNG/ulock_32.png; sourceTree = SOURCE_ROOT; };
-		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
-		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
-		EEE74627095D6CD800178065 /* SecurityInterface-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "SecurityInterface-Info.plist"; sourceTree = "<group>"; };
-		EEE7462A095D6CD800178065 /* SFAuthorizationView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFAuthorizationView.h; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		EE6FE350076F05AF009CC969 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */,
-				EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */,
-				EE163154102F559A0005F487 /* SecurityFoundation.framework in Frameworks */,
-				EE16315B102F55AE0005F487 /* Security.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
-			isa = PBXGroup;
-			children = (
-				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE824525174786A2003B8B89 /* SecurityInterface.qcodeproj */,
-				EEA3309A09537E58001244CF /* Classes */,
-				EEA3306C09537DB5001244CF /* Private */,
-				EEA3309609537E48001244CF /* Resources */,
-				EEA370EA0953FFFB001244CF /* Frameworks */,
-				EE29D8D8058A38830035639B /* Products */,
-			);
-			name = BrowserTester;
-			sourceTree = "<group>";
-		};
-		EE29D8D8058A38830035639B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				EE6FE352076F05AF009CC969 /* SecurityInterface.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		EEA3306C09537DB5001244CF /* Private */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Private;
-			sourceTree = "<group>";
-		};
-		EEA3309609537E48001244CF /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				EE9F32360CF99C9C0087380F /* lock_32.png */,
-				EE9F32380CF99CAA0087380F /* ulock_32.png */,
-				EEE74627095D6CD800178065 /* SecurityInterface-Info.plist */,
-				EE163313102F5E5C0005F487 /* Authorization.nib */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		EEA3309A09537E58001244CF /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				EEE7462A095D6CD800178065 /* SFAuthorizationView.h */,
-				EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
-		EEA370EA0953FFFB001244CF /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EEA370940953FFEF001244CF /* Foundation.framework */,
-				EEA3716A095400F2001244CF /* AppKit.framework */,
-				EE16315A102F55AE0005F487 /* Security.framework */,
-				EE163153102F559A0005F487 /* SecurityFoundation.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		EE6FE34D076F05AF009CC969 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* SecurityInterface */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityInterface" */;
-			buildPhases = (
-				EE6FE34D076F05AF009CC969 /* Headers */,
-				EE6FE34E076F05AF009CC969 /* Resources */,
-				EE6FE34F076F05AF009CC969 /* Sources */,
-				EE6FE350076F05AF009CC969 /* Frameworks */,
-				EE6FE354076F05C9009CC969 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			comments = "Todo:\n\nDistribute System-Info.plist to AB-Framework and AppKit-Framework\n";
-			dependencies = (
-			);
-			name = SecurityInterface;
-			productName = Calendar;
-			productReference = EE6FE352076F05AF009CC969 /* SecurityInterface.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		29B97313FDCFA39411CA2CEA /* Project object */ = {
-			isa = PBXProject;
-			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityInterface" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = English;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
-			productRefGroup = EE29D8D8058A38830035639B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EE6FE351076F05AF009CC969 /* SecurityInterface */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		EE6FE34E076F05AF009CC969 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9F32370CF99C9C0087380F /* lock_32.png in Resources */,
-				EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */,
-				EE163315102F5E5C0005F487 /* Authorization.nib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE6FE354076F05C9009CC969 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./SecurityInterface.qcodeproj";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		EE6FE34F076F05AF009CC969 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		EE163313102F5E5C0005F487 /* Authorization.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE163314102F5E5C0005F487 /* English */,
-			);
-			name = Authorization.nib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
-/* Begin XCBuildConfiguration section */
-		EEEB9CF409A7542900626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(FRAMEWORK_SEARCH_PATHS)",
-					"$(SRCROOT)/../SystemUIPlugin/build/Development",
-				);
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EEEB9CF509A7542900626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				COPY_PHASE_STRIP = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(FRAMEWORK_SEARCH_PATHS)",
-					"$(SRCROOT)/../SystemUIPlugin/build/Development",
-				);
-				FRAMEWORK_VERSION = A;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEEB9CF609A7542900626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EEEB9CF809A7542900626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-			};
-			name = Development;
-		};
-		EEEB9CF909A7542900626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-			};
-			name = Deployment;
-		};
-		EEEB9CFA09A7542900626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-			};
-			name = Default;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityInterface" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9CF409A7542900626AB7 /* Development */,
-				EEEB9CF509A7542900626AB7 /* Deployment */,
-				EEEB9CF609A7542900626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityInterface" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9CF809A7542900626AB7 /* Development */,
-				EEEB9CF909A7542900626AB7 /* Deployment */,
-				EEEB9CFA09A7542900626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
-}
+Distribute System-Info.plist to AB-Framework and AppKit-Framework
+</string>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>SecurityInterface</string>
+			<key>productName</key>
+			<string>Calendar</string>
+			<key>productReference</key>
+			<string>EE6FE352076F05AF009CC969</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EE6FE352076F05AF009CC969</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>SecurityInterface.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE824525174786A2003B8B89</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>SecurityInterface.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9F32360CF99C9C0087380F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>image.png</string>
+			<key>name</key>
+			<string>lock_32.png</string>
+			<key>path</key>
+			<string>../../Icons/Harmony/PNG/lock_32.png</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE9F32370CF99C9C0087380F</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9F32360CF99C9C0087380F</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9F32380CF99CAA0087380F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>image.png</string>
+			<key>name</key>
+			<string>ulock_32.png</string>
+			<key>path</key>
+			<string>../../Icons/Harmony/PNG/ulock_32.png</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE9F32390CF99CAA0087380F</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9F32380CF99CAA0087380F</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3306C09537DB5001244CF</key>
+		<dict>
+			<key>children</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Private</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3309609537E48001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE9F32360CF99C9C0087380F</string>
+				<string>EE9F32380CF99CAA0087380F</string>
+				<string>EEE74627095D6CD800178065</string>
+				<string>EE163313102F5E5C0005F487</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Resources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3309A09537E58001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEE7462A095D6CD800178065</string>
+				<string>EE32C4810A1094CA00E985BA</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Classes</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA370940953FFEF001244CF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Foundation.framework</string>
+			<key>path</key>
+			<string>../Foundation/build/Development/Foundation.framework</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEA370950953FFEF001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA370940953FFEF001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA370EA0953FFFB001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEA370940953FFEF001244CF</string>
+				<string>EEA3716A095400F2001244CF</string>
+				<string>EE16315A102F55AE0005F487</string>
+				<string>EE163153102F559A0005F487</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3716A095400F2001244CF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>AppKit.framework</string>
+			<key>path</key>
+			<string>../AppKit/build/Development/AppKit.framework</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEA3716B095400F2001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3716A095400F2001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEE74627095D6CD800178065</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>SecurityInterface-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE7462A095D6CD800178065</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SFAuthorizationView.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEE7462E095D6CD800178065</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEE7462A095D6CD800178065</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEEB9CF309A7542900626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9CF409A7542900626AB7</string>
+				<string>EEEB9CF509A7542900626AB7</string>
+				<string>EEEB9CF609A7542900626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9CF409A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<array>
+					<string>$(FRAMEWORK_SEARCH_PATHS)</string>
+					<string>$(SRCROOT)/../SystemUIPlugin/build/Development</string>
+				</array>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>SecurityInterface-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>SecurityInterface</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9CF509A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<array>
+					<string>$(FRAMEWORK_SEARCH_PATHS)</string>
+					<string>$(SRCROOT)/../SystemUIPlugin/build/Development</string>
+				</array>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>SecurityInterface-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>SecurityInterface</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9CF609A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<array>
+					<string>ppc</string>
+					<string>i386</string>
+				</array>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>SecurityInterface-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20200000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>SecurityInterface</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEEB9CF709A7542900626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9CF809A7542900626AB7</string>
+				<string>EEEB9CF909A7542900626AB7</string>
+				<string>EEEB9CFA09A7542900626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9CF809A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9CF909A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9CFA09A7542900626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>29B97313FDCFA39411CA2CEA</string>
+</dict>
+</plist>
