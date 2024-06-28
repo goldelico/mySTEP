@@ -1,400 +1,1094 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 42;
-	objects = {
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>42</string>
+	<key>objects</key>
+	<dict>
+		<key>29B97313FDCFA39411CA2CEA</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9C7809A7503D00626AB7</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>English</string>
+				<string>Japanese</string>
+				<string>French</string>
+				<string>German</string>
+			</array>
+			<key>mainGroup</key>
+			<string>29B97314FDCFA39411CA2CEA</string>
+			<key>productRefGroup</key>
+			<string>EE29D8D8058A38830035639B</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EE6FE351076F05AF009CC969</string>
+			</array>
+		</dict>
+		<key>29B97314FDCFA39411CA2CEA</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE27270005426A7F0000013C</string>
+				<string>EE7AAD3D17475C5E003133D9</string>
+				<string>EEA3309A09537E58001244CF</string>
+				<string>EEA3306C09537DB5001244CF</string>
+				<string>EEA3309609537E48001244CF</string>
+				<string>EEA3BB2A09542DAA001244CF</string>
+				<string>EE29D8D8058A38830035639B</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>BrowserTester</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE27270005426A7F0000013C</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>mySTEP.make</string>
+			<key>path</key>
+			<string>../mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE29D8D8058A38830035639B</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE6FE352076F05AF009CC969</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE6FE34D076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEA3BAF209542CB8001244CF</string>
+				<string>EEA3BAF409542CB8001244CF</string>
+				<string>EEA3BAF609542CB8001244CF</string>
+				<string>EEA3BAF809542CB8001244CF</string>
+				<string>EEA3BAFA09542CB8001244CF</string>
+				<string>EEA3BAFC09542CB8001244CF</string>
+				<string>EEA3BAFE09542CB8001244CF</string>
+				<string>EEA3BB0009542CB8001244CF</string>
+				<string>EEA3BB0209542CB8001244CF</string>
+				<string>EEA3BB0409542CB8001244CF</string>
+				<string>EEA3BB0509542CB8001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34E076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE34F076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEA3BAF309542CB8001244CF</string>
+				<string>EEA3BAF509542CB8001244CF</string>
+				<string>EEA3BAF709542CB8001244CF</string>
+				<string>EEA3BAF909542CB8001244CF</string>
+				<string>EEA3BAFB09542CB8001244CF</string>
+				<string>EEA3BAFD09542CB8001244CF</string>
+				<string>EEA3BAFF09542CB8001244CF</string>
+				<string>EEA3BB0109542CB8001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE350076F05AF009CC969</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEA3BB3209542DC1001244CF</string>
+				<string>EEA3BB4009542DD0001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE6FE351076F05AF009CC969</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEEB9C7409A7503D00626AB7</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE6FE34D076F05AF009CC969</string>
+				<string>EE6FE34E076F05AF009CC969</string>
+				<string>EE6FE34F076F05AF009CC969</string>
+				<string>EE6FE350076F05AF009CC969</string>
+				<string>EE6FE354076F05C9009CC969</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>comments</key>
+			<string>Todo:
 
-/* Begin PBXBuildFile section */
-		EEA3BAF209542CB8001244CF /* ABAddressBook.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BADE09542CB8001244CF /* ABAddressBook.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAF309542CB8001244CF /* ABAddressBook.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BADF09542CB8001244CF /* ABAddressBook.m */; };
-		EEA3BAF409542CB8001244CF /* ABGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAE009542CB8001244CF /* ABGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAF509542CB8001244CF /* ABGlobals.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAE109542CB8001244CF /* ABGlobals.m */; };
-		EEA3BAF609542CB8001244CF /* ABGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAE209542CB8001244CF /* ABGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAF709542CB8001244CF /* ABGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAE309542CB8001244CF /* ABGroup.m */; };
-		EEA3BAF809542CB8001244CF /* ABImageLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAE409542CB8001244CF /* ABImageLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAF909542CB8001244CF /* ABImageLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAE509542CB8001244CF /* ABImageLoading.m */; };
-		EEA3BAFA09542CB8001244CF /* ABMultiValue.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAE609542CB8001244CF /* ABMultiValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAFB09542CB8001244CF /* ABMultiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAE709542CB8001244CF /* ABMultiValue.m */; };
-		EEA3BAFC09542CB8001244CF /* ABPerson.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAE809542CB8001244CF /* ABPerson.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAFD09542CB8001244CF /* ABPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAE909542CB8001244CF /* ABPerson.m */; };
-		EEA3BAFE09542CB8001244CF /* ABRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAEA09542CB8001244CF /* ABRecord.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BAFF09542CB8001244CF /* ABRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAEB09542CB8001244CF /* ABRecord.m */; };
-		EEA3BB0009542CB8001244CF /* ABSearchElement.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAEC09542CB8001244CF /* ABSearchElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BB0109542CB8001244CF /* ABSearchElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA3BAED09542CB8001244CF /* ABSearchElement.m */; };
-		EEA3BB0209542CB8001244CF /* ABTypedefs.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAEE09542CB8001244CF /* ABTypedefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BB0409542CB8001244CF /* AddressBook.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAF009542CB8001244CF /* AddressBook.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEA3BB0509542CB8001244CF /* Private.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3BAF109542CB8001244CF /* Private.h */; };
-		EEA3BB3209542DC1001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3BB3109542DC1001244CF /* AppKit.framework */; };
-		EEA3BB4009542DD0001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3BB3F09542DD0001244CF /* Foundation.framework */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXFileReference section */
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE6FE352076F05AF009CC969 /* AddressBook.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AddressBook.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE7AAD3D17475C5E003133D9 /* AddressBook.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AddressBook.qcodeproj; sourceTree = "<group>"; };
-		EEA3BADE09542CB8001244CF /* ABAddressBook.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABAddressBook.h; sourceTree = "<group>"; };
-		EEA3BADF09542CB8001244CF /* ABAddressBook.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABAddressBook.m; sourceTree = "<group>"; };
-		EEA3BAE009542CB8001244CF /* ABGlobals.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABGlobals.h; sourceTree = "<group>"; };
-		EEA3BAE109542CB8001244CF /* ABGlobals.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABGlobals.m; sourceTree = "<group>"; };
-		EEA3BAE209542CB8001244CF /* ABGroup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABGroup.h; sourceTree = "<group>"; };
-		EEA3BAE309542CB8001244CF /* ABGroup.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABGroup.m; sourceTree = "<group>"; };
-		EEA3BAE409542CB8001244CF /* ABImageLoading.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABImageLoading.h; sourceTree = "<group>"; };
-		EEA3BAE509542CB8001244CF /* ABImageLoading.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABImageLoading.m; sourceTree = "<group>"; };
-		EEA3BAE609542CB8001244CF /* ABMultiValue.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABMultiValue.h; sourceTree = "<group>"; };
-		EEA3BAE709542CB8001244CF /* ABMultiValue.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABMultiValue.m; sourceTree = "<group>"; };
-		EEA3BAE809542CB8001244CF /* ABPerson.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABPerson.h; sourceTree = "<group>"; };
-		EEA3BAE909542CB8001244CF /* ABPerson.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABPerson.m; sourceTree = "<group>"; };
-		EEA3BAEA09542CB8001244CF /* ABRecord.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABRecord.h; sourceTree = "<group>"; };
-		EEA3BAEB09542CB8001244CF /* ABRecord.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABRecord.m; sourceTree = "<group>"; };
-		EEA3BAEC09542CB8001244CF /* ABSearchElement.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABSearchElement.h; sourceTree = "<group>"; };
-		EEA3BAED09542CB8001244CF /* ABSearchElement.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = ABSearchElement.m; sourceTree = "<group>"; };
-		EEA3BAEE09542CB8001244CF /* ABTypedefs.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ABTypedefs.h; sourceTree = "<group>"; };
-		EEA3BAEF09542CB8001244CF /* AddressBook-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "AddressBook-Info.plist"; sourceTree = "<group>"; };
-		EEA3BAF009542CB8001244CF /* AddressBook.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AddressBook.h; sourceTree = "<group>"; };
-		EEA3BAF109542CB8001244CF /* Private.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Private.h; sourceTree = "<group>"; };
-		EEA3BB3109542DC1001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = "<group>"; };
-		EEA3BB3F09542DD0001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		EE6FE350076F05AF009CC969 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEA3BB3209542DC1001244CF /* AppKit.framework in Frameworks */,
-				EEA3BB4009542DD0001244CF /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
-			isa = PBXGroup;
-			children = (
-				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE7AAD3D17475C5E003133D9 /* AddressBook.qcodeproj */,
-				EEA3309A09537E58001244CF /* Classes */,
-				EEA3306C09537DB5001244CF /* Private */,
-				EEA3309609537E48001244CF /* Resources */,
-				EEA3BB2A09542DAA001244CF /* Frameworks */,
-				EE29D8D8058A38830035639B /* Products */,
-			);
-			name = BrowserTester;
-			sourceTree = "<group>";
-		};
-		EE29D8D8058A38830035639B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				EE6FE352076F05AF009CC969 /* AddressBook.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		EEA3306C09537DB5001244CF /* Private */ = {
-			isa = PBXGroup;
-			children = (
-				EEA3BAF109542CB8001244CF /* Private.h */,
-			);
-			name = Private;
-			sourceTree = "<group>";
-		};
-		EEA3309609537E48001244CF /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				EEA3BAEF09542CB8001244CF /* AddressBook-Info.plist */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		EEA3309A09537E58001244CF /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				EEA3BAF009542CB8001244CF /* AddressBook.h */,
-				EEA3BADE09542CB8001244CF /* ABAddressBook.h */,
-				EEA3BADF09542CB8001244CF /* ABAddressBook.m */,
-				EEA3BAE009542CB8001244CF /* ABGlobals.h */,
-				EEA3BAE109542CB8001244CF /* ABGlobals.m */,
-				EEA3BAE209542CB8001244CF /* ABGroup.h */,
-				EEA3BAE309542CB8001244CF /* ABGroup.m */,
-				EEA3BAE409542CB8001244CF /* ABImageLoading.h */,
-				EEA3BAE509542CB8001244CF /* ABImageLoading.m */,
-				EEA3BAE609542CB8001244CF /* ABMultiValue.h */,
-				EEA3BAE709542CB8001244CF /* ABMultiValue.m */,
-				EEA3BAE809542CB8001244CF /* ABPerson.h */,
-				EEA3BAE909542CB8001244CF /* ABPerson.m */,
-				EEA3BAEA09542CB8001244CF /* ABRecord.h */,
-				EEA3BAEB09542CB8001244CF /* ABRecord.m */,
-				EEA3BAEC09542CB8001244CF /* ABSearchElement.h */,
-				EEA3BAED09542CB8001244CF /* ABSearchElement.m */,
-				EEA3BAEE09542CB8001244CF /* ABTypedefs.h */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
-		EEA3BB2A09542DAA001244CF /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EEA3BB3F09542DD0001244CF /* Foundation.framework */,
-				EEA3BB3109542DC1001244CF /* AppKit.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		EE6FE34D076F05AF009CC969 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEA3BAF209542CB8001244CF /* ABAddressBook.h in Headers */,
-				EEA3BAF409542CB8001244CF /* ABGlobals.h in Headers */,
-				EEA3BAF609542CB8001244CF /* ABGroup.h in Headers */,
-				EEA3BAF809542CB8001244CF /* ABImageLoading.h in Headers */,
-				EEA3BAFA09542CB8001244CF /* ABMultiValue.h in Headers */,
-				EEA3BAFC09542CB8001244CF /* ABPerson.h in Headers */,
-				EEA3BAFE09542CB8001244CF /* ABRecord.h in Headers */,
-				EEA3BB0009542CB8001244CF /* ABSearchElement.h in Headers */,
-				EEA3BB0209542CB8001244CF /* ABTypedefs.h in Headers */,
-				EEA3BB0409542CB8001244CF /* AddressBook.h in Headers */,
-				EEA3BB0509542CB8001244CF /* Private.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* AddressBook */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EEEB9C7409A7503D00626AB7 /* Build configuration list for PBXNativeTarget "AddressBook" */;
-			buildPhases = (
-				EE6FE34D076F05AF009CC969 /* Headers */,
-				EE6FE34E076F05AF009CC969 /* Resources */,
-				EE6FE34F076F05AF009CC969 /* Sources */,
-				EE6FE350076F05AF009CC969 /* Frameworks */,
-				EE6FE354076F05C9009CC969 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			comments = "Todo:\n\nDistribute System-Info.plist to AB-Framework and AppKit-Framework\n";
-			dependencies = (
-			);
-			name = AddressBook;
-			productName = Calendar;
-			productReference = EE6FE352076F05AF009CC969 /* AddressBook.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		29B97313FDCFA39411CA2CEA /* Project object */ = {
-			isa = PBXProject;
-			buildConfigurationList = EEEB9C7809A7503D00626AB7 /* Build configuration list for PBXProject "AddressBook" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = English;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
-			productRefGroup = EE29D8D8058A38830035639B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EE6FE351076F05AF009CC969 /* AddressBook */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		EE6FE34E076F05AF009CC969 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE6FE354076F05C9009CC969 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=/usr/local/QuantumSTEP\n./AddressBook.qcodeproj";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		EE6FE34F076F05AF009CC969 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EEA3BAF309542CB8001244CF /* ABAddressBook.m in Sources */,
-				EEA3BAF509542CB8001244CF /* ABGlobals.m in Sources */,
-				EEA3BAF709542CB8001244CF /* ABGroup.m in Sources */,
-				EEA3BAF909542CB8001244CF /* ABImageLoading.m in Sources */,
-				EEA3BAFB09542CB8001244CF /* ABMultiValue.m in Sources */,
-				EEA3BAFD09542CB8001244CF /* ABPerson.m in Sources */,
-				EEA3BAFF09542CB8001244CF /* ABRecord.m in Sources */,
-				EEA3BB0109542CB8001244CF /* ABSearchElement.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin XCBuildConfiguration section */
-		EEEB9C7509A7503D00626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "AddressBook-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20100000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = AddressBook;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EEEB9C7609A7503D00626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "AddressBook-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20100000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = AddressBook;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEEB9C7709A7503D00626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "AddressBook-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20100000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = AddressBook;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EEEB9C7909A7503D00626AB7 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Development;
-		};
-		EEEB9C7A09A7503D00626AB7 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Deployment;
-		};
-		EEEB9C7B09A7503D00626AB7 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Default;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EEEB9C7409A7503D00626AB7 /* Build configuration list for PBXNativeTarget "AddressBook" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9C7509A7503D00626AB7 /* Development */,
-				EEEB9C7609A7503D00626AB7 /* Deployment */,
-				EEEB9C7709A7503D00626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEEB9C7809A7503D00626AB7 /* Build configuration list for PBXProject "AddressBook" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEEB9C7909A7503D00626AB7 /* Development */,
-				EEEB9C7A09A7503D00626AB7 /* Deployment */,
-				EEEB9C7B09A7503D00626AB7 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
-}
+Distribute System-Info.plist to AB-Framework and AppKit-Framework
+</string>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>AddressBook</string>
+			<key>productName</key>
+			<string>Calendar</string>
+			<key>productReference</key>
+			<string>EE6FE352076F05AF009CC969</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EE6FE352076F05AF009CC969</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>AddressBook.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE7AAD3D17475C5E003133D9</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>AddressBook.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3306C09537DB5001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEA3BAF109542CB8001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Private</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3309609537E48001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEA3BAEF09542CB8001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Resources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3309A09537E58001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEA3BAF009542CB8001244CF</string>
+				<string>EEA3BADE09542CB8001244CF</string>
+				<string>EEA3BADF09542CB8001244CF</string>
+				<string>EEA3BAE009542CB8001244CF</string>
+				<string>EEA3BAE109542CB8001244CF</string>
+				<string>EEA3BAE209542CB8001244CF</string>
+				<string>EEA3BAE309542CB8001244CF</string>
+				<string>EEA3BAE409542CB8001244CF</string>
+				<string>EEA3BAE509542CB8001244CF</string>
+				<string>EEA3BAE609542CB8001244CF</string>
+				<string>EEA3BAE709542CB8001244CF</string>
+				<string>EEA3BAE809542CB8001244CF</string>
+				<string>EEA3BAE909542CB8001244CF</string>
+				<string>EEA3BAEA09542CB8001244CF</string>
+				<string>EEA3BAEB09542CB8001244CF</string>
+				<string>EEA3BAEC09542CB8001244CF</string>
+				<string>EEA3BAED09542CB8001244CF</string>
+				<string>EEA3BAEE09542CB8001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Classes</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BADE09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABAddressBook.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BADF09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABAddressBook.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE009542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABGlobals.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE109542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABGlobals.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE209542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABGroup.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE309542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABGroup.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE409542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABImageLoading.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE509542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABImageLoading.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE609542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABMultiValue.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE709542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABMultiValue.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE809542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABPerson.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAE909542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABPerson.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAEA09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABRecord.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAEB09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABRecord.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAEC09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABSearchElement.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAED09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>ABSearchElement.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAEE09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>ABTypedefs.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAEF09542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>AddressBook-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAF009542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>AddressBook.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAF109542CB8001244CF</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>Private.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BAF209542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BADE09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAF309542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BADF09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAF409542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE009542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAF509542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE109542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAF609542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE209542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAF709542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE309542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAF809542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE409542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAF909542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE509542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAFA09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE609542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAFB09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE709542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAFC09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE809542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAFD09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAE909542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BAFE09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAEA09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BAFF09542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAEB09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BB0009542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAEC09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BB0109542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAED09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BB0209542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAEE09542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BB0409542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAF009542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEA3BB0509542CB8001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BAF109542CB8001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BB2A09542DAA001244CF</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEA3BB3F09542DD0001244CF</string>
+				<string>EEA3BB3109542DC1001244CF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BB3109542DC1001244CF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>AppKit.framework</string>
+			<key>path</key>
+			<string>../AppKit/build/Development/AppKit.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EEA3BB3209542DC1001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BB3109542DC1001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEA3BB3F09542DD0001244CF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Foundation.framework</string>
+			<key>path</key>
+			<string>../Foundation/build/Development/Foundation.framework</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EEA3BB4009542DD0001244CF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEA3BB3F09542DD0001244CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EEEB9C7409A7503D00626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9C7509A7503D00626AB7</string>
+				<string>EEEB9C7609A7503D00626AB7</string>
+				<string>EEEB9C7709A7503D00626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9C7509A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>AddressBook-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>AddressBook</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9C7609A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>AddressBook-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>AddressBook</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9C7709A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_SEARCH_PATHS</key>
+				<string></string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string></string>
+				<key>GCC_VERSION</key>
+				<string>4.0</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/include )</string>
+				<key>INFOPLIST_FILE</key>
+				<string>AddressBook-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>( $(inherited), /opt/local/lib )</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-seg1addr</string>
+					<string>0x20100000</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>AddressBook</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEEB9C7809A7503D00626AB7</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEEB9C7909A7503D00626AB7</string>
+				<string>EEEB9C7A09A7503D00626AB7</string>
+				<string>EEEB9C7B09A7503D00626AB7</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEEB9C7909A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEEB9C7A09A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEEB9C7B09A7503D00626AB7</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>29B97313FDCFA39411CA2CEA</string>
+</dict>
+</plist>
