@@ -1,526 +1,794 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 42;
-	objects = {
-
-/* Begin PBXAggregateTarget section */
-		EE023B87101CB1C500A52273 /* myFrameworks + Send */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EE023B89101CB1C500A52273 /* Build configuration list for PBXAggregateTarget "myFrameworks + Send" */;
-			buildPhases = (
-				EE023B88101CB1C500A52273 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = "myFrameworks + Send";
-			productName = All;
-		};
-		EE87B8F90CBDFFA7000A2B66 /* SDK */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EE87B8FB0CBDFFA7000A2B66 /* Build configuration list for PBXAggregateTarget "SDK" */;
-			buildPhases = (
-				EE87B8FA0CBDFFA7000A2B66 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = SDK;
-			productName = src;
-		};
-		EEA30E900CC7D77D0046EFB1 /* copy MacPorts dylibs */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EEA30E970CC7D7990046EFB1 /* Build configuration list for PBXAggregateTarget "copy MacPorts dylibs" */;
-			buildPhases = (
-				EEA30E8F0CC7D77D0046EFB1 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = "copy MacPorts dylibs";
-			productName = "copy MacPorts dylibs";
-		};
-		EEA3B528095422CF001244CF /* src */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EE2F830D0983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "src" */;
-			buildPhases = (
-				EEA3B527095422CF001244CF /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = src;
-			productName = src;
-		};
-		EEF4049E05B163340068F931 /* myFrameworks */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EE2F83090983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "myFrameworks" */;
-			buildPhases = (
-				EEF4049D05B163340068F931 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = myFrameworks;
-			productName = All;
-		};
-/* End PBXAggregateTarget section */
-
-/* Begin PBXFileReference section */
-		EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "LGPL LICENCE.txt"; sourceTree = "<group>"; };
-		EE0E3D460954703200CCA75A /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		EE408DF00F127C9E0085AA9F /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mySTEP.make; sourceTree = "<group>"; };
-		EE7AAD20174758F1003133D9 /* Frameworks.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = Frameworks.qcodeproj; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXGroup section */
-		EED3C1200488F87500000103 = {
-			isa = PBXGroup;
-			children = (
-				EE408DF00F127C9E0085AA9F /* mySTEP.make */,
-				EE7AAD20174758F1003133D9 /* Frameworks.qcodeproj */,
-				EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */,
-				EE0E3D460954703200CCA75A /* README */,
-			);
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXProject section */
-		EED3C1240488F87500000103 /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-			};
-			buildConfigurationList = EE2F83150983F176003EA8A2 /* Build configuration list for PBXProject "Frameworks" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = English;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-			);
-			mainGroup = EED3C1200488F87500000103;
-			productRefGroup = EED3C1200488F87500000103;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EEF4049E05B163340068F931 /* myFrameworks */,
-				EEA3B528095422CF001244CF /* src */,
-				EE87B8F90CBDFFA7000A2B66 /* SDK */,
-				EEA30E900CC7D77D0046EFB1 /* copy MacPorts dylibs */,
-				EE023B87101CB1C500A52273 /* myFrameworks + Send */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE023B88101CB1C500A52273 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\nexport BUILD_FOR_PACKAGE=false\nexport SEND2ZAURUS=true\nexport RUN=false\n \necho ## Frameworks ##\nfor i in Foundation AppKit CoreData CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SimpleWebKit SystemStatus IOBluetooth Tools CoreLocation MapKit ImageKit PDFKit QTKit\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\n\tdone\necho ## done. ##\n\nfalse && (i=UIKit; cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\necho ## done. ##\n\necho ## Tools ##\n(cd CoreData/DataBuilder && xcodebuild -configuration 'Development' -target \"DataBuilder\" )\n\necho ## TestApps ##\nfor i in NSImageRep NSTextTable NSURLConnection ZeroConfDistributedObjects\n\tdo\n\t(cd TestApplications/$i && xcodebuild -configuration 'Development' -target \"Test\" )\n\tdone\necho ## done. ##";
-		};
-		EE87B8FA0CBDFFA7000A2B66 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\necho \"## deprecated ##\"\nexit\n\nwhile read CMD EQ VALUE\ndo\n\tcase $CMD in\n\t\tMAJOR_VERSION ) MAJOR_VERSION=\"$VALUE\";;\n\t\tMINOR_VERSION ) MINOR_VERSION=\"$VALUE\";;\n\t\tBUILD_NUMBER ) BUILD_NUMBER=\"$VALUE\";;\n\tesac\ndone <Version.def\n\nDEST=Packages/mySTEP-SDK-${MAJOR_VERSION}.${MINOR_VERSION}B${BUILD_NUMBER}.tgz \n\ntar czf $DEST \\\n--exclude '*.mode1' \\\n--exclude '*.pbxuser' \\\n--exclude .DS_Store \\\n--exclude build \\\n--exclude CVS \\\n--exclude .svn \\\n--exclude '*~.nib' \\\n--exclude '*~.mib' \\\n--exclude '._*' \\\n--exclude $'Icon\\r' \\\n--exclude '.gdb_history' \\\n/usr/local/QuantumSTEP/System/Sources/Frameworks/HISTORY.rtf \\\n\"/usr/share//QuantumSTEP/System/Sources/Frameworks/LGPL LICENCE.txt\" \\\n/usr/share//QuantumSTEP/System/Sources/Frameworks/README \\\n/usr/local/QuantumSTEP/System/Sources/Frameworks/Version.def \\\n/usr/local/QuantumSTEP/System/Sources/Frameworks/mySTEP.make \\\n/usr/share/QuantumSTEP/System/Library/Frameworks \\\n/usr/share/QuantumSTEP/usr/include \\\n/usr/share/QuantumSTEP/usr/lib\n\nls -l $DEST\ntar tvzf $DEST";
-		};
-		EEA30E8F0CC7D77D0046EFB1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\n# make a local copy of special libraries that we do not find on the Mac\n\nrm -rf macports-dylibs\nmkdir -p macports-dylibs/include macports-dylibs/lib\n\n(cd /opt/local/include && tar czf - gif_lib.h jpeglib.h png.h libpng12/ openssl/ tiff.h zlib.h) | (cd macports-dylibs/include && tar xvzf -)\n(cd /opt/local/lib && tar czf - libfreetype*.dylib libssl*.dylib libungif*.dylib libjpeg*.dylib libpng*.dylib libtiff*.dylib libz*.dylib) | (cd macports-dylibs/lib && tar xvzf -)\n\nexit 0";
-		};
-		EEA3B527095422CF001244CF /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\nwhile read CMD EQ VALUE\ndo\n\tcase $CMD in\n\t\tMAJOR_VERSION ) MAJOR_VERSION=\"$VALUE\";;\n\t\tMINOR_VERSION ) MINOR_VERSION=\"$VALUE\";;\n\t\tBUILD_NUMBER ) BUILD_NUMBER=\"$VALUE\";;\n\tesac\ndone <Version.def\n\nDEST=Packages/mySTEP-src-${MAJOR_VERSION}.${MINOR_VERSION}B${BUILD_NUMBER}.tgz \n\nexport COPY_EXTENDED_ATTRIBUTES_DISABLED=true\n# for 10.5\nexport COPYFILE_DISABLE=true\n\ntar czf $DEST \\\n--exclude '*.mode*' \\\n--exclude '*.perspective*' \\\n--exclude '*.pbxuser' \\\n--exclude .DS_Store \\\n--exclude build \\\n--exclude CVS \\\n--exclude .svn \\\n--exclude '*~.nib' \\\n--exclude '*~.mib' \\\n--exclude '*.i' \\\n--exclude '._*' \\\n--exclude '*.docset' \\\n--exclude 'html' \\\n--exclude 'latex' \\\n--exclude $'Icon\\r' \\\n--exclude '.gdb_history' \\\n'LGPL LICENCE.txt' README Version.def \\\nAddressBook AppKit Cocoa CoreData CoreDevice CoreFoundation CoreLocation \\\nCoreMotion CoreRFID CoreTelephony CoreVolumes CoreWLAN Foundation ImageKit IOBluetooth \\\nMapKit Message OCUnit PDFKit PreferencePanes QTKit \\\nScreenSaver Security SecurityFoundation SecurityInterface SimpleWebKit \\\nSystemConfiguration SystemStatus SystemUIPlugin Tools UnitTesting \\\nFrameworks.xcodeproj \\\nobjc2pp mySTEP.make\n\nls -l $DEST\ntar tvzf $DEST";
-		};
-		EEF4049D05B163340068F931 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\necho \"## Frameworks ##\"\nfor i in Foundation AppKit CoreData CoreDevice CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SecurityFoundation SecurityInterface IOBluetooth ImageKit PDFKit QTKit ScreenSaver\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n\necho \"## Frameworks done. ##\"\n\necho \"## Extended Frameworks and binary tools ##\"\n# CoreWLAN depends on SecurityFoundation\nfor i in SystemConfiguration SystemStatus CoreLocation CoreMotion CoreTelephony CoreWLAN CoreRFID MapKit SimpleWebKit Tools CoreDataBase\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -project \"$i.xcodeproj\" -target $(basename \"$i\") )\n\tdone\n( cd ObjC && xcodebuild -configuration 'Development' -target 'ObjC' )\necho \"## Extended Frameworks and binary tools done. ##\"\n\necho \"## Special Frameworks ##\"\nfalse && for i in UIKit\n\tdo \n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\necho \"## Special Frameworks done. ##\"\n\necho \"## Tools and Tests ##\"\n\n( cd CoreData/DataBuilder && xcodebuild -configuration 'Release' -target 'DataBuilder' )\n( cd CoreRFID/RFIDProbe && xcodebuild -configuration 'Release' -target 'RFIDProbe' )\n( cd SimpleWebKit && xcodebuild -project 'SimpleWebKit.xcodeproj' -configuration 'Development' -target 'SWK Browser' )\n\necho \"## Tools and Tests done. ##\"\n\necho \"## UnitTesting ##\"\n## FIXME: should also build the SenTestingKit_UnitTests target\nfor i in SenTestingKit otest\n\tdo\n\techo \"## $i ##\"\n\t(cd \"OCUnit/SourceCode/$i\"; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\nfor i in UnitTesting\n\tdo\n\techo \"## $i ##\"\n\t(cd $i; xcodebuild -configuration 'Development' -target \"$(basename $i)\" )\n\tdone\n\necho \"## TestApps ##\"\nfor i in TestApplications/NSImageRep TestApplications/NSTextTable TestApplications/NSURLConnection TestApplications/ZeroConfDistributedObjects \\\n\tTestApplications/FloatSpeed TestApplications/NSViewBounds \n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target $(basename \"$i\") )\n\tdone\n( cd AppKit && xcodebuild -configuration 'Development' -target 'NIB Test mySTEP' )\n( cd CoreLocation && xcodebuild -configuration 'Development' -target 'cltest' )\n( cd MapKit && xcodebuild -configuration 'Development' -target 'MapKitTest' )\n\necho \"## done. ##\"\n\n./Frameworks.qcodeproj\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin XCBuildConfiguration section */
-		EE023B8A101CB1C500A52273 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EE023B8B101CB1C500A52273 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE023B8C101CB1C500A52273 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EE2F830A0983F176003EA8A2 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EE2F830B0983F176003EA8A2 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE2F830C0983F176003EA8A2 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EE2F830E0983F176003EA8A2 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EE2F830F0983F176003EA8A2 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE2F83100983F176003EA8A2 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EE2F83160983F176003EA8A2 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Development;
-		};
-		EE2F83170983F176003EA8A2 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Deployment;
-		};
-		EE2F83180983F176003EA8A2 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Default;
-		};
-		EE87B8FC0CBDFFA7000A2B66 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		EE87B8FD0CBDFFA7000A2B66 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EE87B8FE0CBDFFA7000A2B66 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = src;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
-		EEA30E980CC7D7990046EFB1 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "copy MacPorts dylibs";
-			};
-			name = Development;
-		};
-		EEA30E990CC7D7990046EFB1 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = "copy MacPorts dylibs";
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		EEA30E9A0CC7D7990046EFB1 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "copy MacPorts dylibs";
-			};
-			name = Default;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EE023B89101CB1C500A52273 /* Build configuration list for PBXAggregateTarget "myFrameworks + Send" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE023B8A101CB1C500A52273 /* Development */,
-				EE023B8B101CB1C500A52273 /* Deployment */,
-				EE023B8C101CB1C500A52273 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EE2F83090983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "myFrameworks" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE2F830A0983F176003EA8A2 /* Development */,
-				EE2F830B0983F176003EA8A2 /* Deployment */,
-				EE2F830C0983F176003EA8A2 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EE2F830D0983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "src" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE2F830E0983F176003EA8A2 /* Development */,
-				EE2F830F0983F176003EA8A2 /* Deployment */,
-				EE2F83100983F176003EA8A2 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EE2F83150983F176003EA8A2 /* Build configuration list for PBXProject "Frameworks" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE2F83160983F176003EA8A2 /* Development */,
-				EE2F83170983F176003EA8A2 /* Deployment */,
-				EE2F83180983F176003EA8A2 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EE87B8FB0CBDFFA7000A2B66 /* Build configuration list for PBXAggregateTarget "SDK" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE87B8FC0CBDFFA7000A2B66 /* Development */,
-				EE87B8FD0CBDFFA7000A2B66 /* Deployment */,
-				EE87B8FE0CBDFFA7000A2B66 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-		EEA30E970CC7D7990046EFB1 /* Build configuration list for PBXAggregateTarget "copy MacPorts dylibs" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EEA30E980CC7D7990046EFB1 /* Development */,
-				EEA30E990CC7D7990046EFB1 /* Deployment */,
-				EEA30E9A0CC7D7990046EFB1 /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = EED3C1240488F87500000103 /* Project object */;
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>54</string>
+	<key>objects</key>
+	<dict>
+		<key>EE023B87101CB1C500A52273</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE023B89101CB1C500A52273</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>myFrameworks + Send</string>
+			<key>productName</key>
+			<string>All</string>
+		</dict>
+		<key>EE023B89101CB1C500A52273</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE023B8A101CB1C500A52273</string>
+				<string>EE023B8B101CB1C500A52273</string>
+				<string>EE023B8C101CB1C500A52273</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE023B8A101CB1C500A52273</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE023B8B101CB1C500A52273</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE023B8C101CB1C500A52273</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EE0E3D450954703200CCA75A</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>path</key>
+			<string>LGPL LICENCE.txt</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE0E3D460954703200CCA75A</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>30</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>path</key>
+			<string>README</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE2F83090983F176003EA8A2</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE2F830A0983F176003EA8A2</string>
+				<string>EE2F830B0983F176003EA8A2</string>
+				<string>EE2F830C0983F176003EA8A2</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE2F830A0983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE2F830B0983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE2F830C0983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>All</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EE2F830D0983F176003EA8A2</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE2F830E0983F176003EA8A2</string>
+				<string>EE2F830F0983F176003EA8A2</string>
+				<string>EE2F83100983F176003EA8A2</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE2F830E0983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE2F830F0983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE2F83100983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EE2F83150983F176003EA8A2</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE2F83160983F176003EA8A2</string>
+				<string>EE2F83170983F176003EA8A2</string>
+				<string>EE2F83180983F176003EA8A2</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE2F83160983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE2F83170983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE2F83180983F176003EA8A2</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EE408DF00F127C9E0085AA9F</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>path</key>
+			<string>mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE7AAD20174758F1003133D9</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>Frameworks.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE87B8F90CBDFFA7000A2B66</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE87B8FB0CBDFFA7000A2B66</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>SDK</string>
+			<key>productName</key>
+			<string>src</string>
+		</dict>
+		<key>EE87B8FB0CBDFFA7000A2B66</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE87B8FC0CBDFFA7000A2B66</string>
+				<string>EE87B8FD0CBDFFA7000A2B66</string>
+				<string>EE87B8FE0CBDFFA7000A2B66</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE87B8FC0CBDFFA7000A2B66</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EE87B8FD0CBDFFA7000A2B66</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EE87B8FE0CBDFFA7000A2B66</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>OTHER_CFLAGS</key>
+				<string></string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_REZFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>src</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>WARNING_CFLAGS</key>
+				<array>
+					<string>-Wmost</string>
+					<string>-Wno-four-char-constants</string>
+					<string>-Wno-unknown-pragmas</string>
+				</array>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEA30E900CC7D77D0046EFB1</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EEA30E970CC7D7990046EFB1</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>copy MacPorts dylibs</string>
+			<key>productName</key>
+			<string>copy MacPorts dylibs</string>
+		</dict>
+		<key>EEA30E970CC7D7990046EFB1</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EEA30E980CC7D7990046EFB1</string>
+				<string>EEA30E990CC7D7990046EFB1</string>
+				<string>EEA30E9A0CC7D7990046EFB1</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Default</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EEA30E980CC7D7990046EFB1</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>PRODUCT_NAME</key>
+				<string>copy MacPorts dylibs</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Development</string>
+		</dict>
+		<key>EEA30E990CC7D7990046EFB1</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_GENERATE_DEBUGGING_SYMBOLS</key>
+				<string>NO</string>
+				<key>PRODUCT_NAME</key>
+				<string>copy MacPorts dylibs</string>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Deployment</string>
+		</dict>
+		<key>EEA30E9A0CC7D7990046EFB1</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>PRODUCT_NAME</key>
+				<string>copy MacPorts dylibs</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Default</string>
+		</dict>
+		<key>EEA3B528095422CF001244CF</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE2F830D0983F176003EA8A2</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>src</string>
+			<key>productName</key>
+			<string>src</string>
+		</dict>
+		<key>EED3C1200488F87500000103</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE408DF00F127C9E0085AA9F</string>
+				<string>EE7AAD20174758F1003133D9</string>
+				<string>EE0E3D450954703200CCA75A</string>
+				<string>EE0E3D460954703200CCA75A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EED3C1240488F87500000103</key>
+		<dict>
+			<key>attributes</key>
+			<dict/>
+			<key>buildConfigurationList</key>
+			<string>EE2F83150983F176003EA8A2</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>English</string>
+				<string>Japanese</string>
+				<string>French</string>
+				<string>German</string>
+			</array>
+			<key>mainGroup</key>
+			<string>EED3C1200488F87500000103</string>
+			<key>productRefGroup</key>
+			<string>EED3C1200488F87500000103</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EEF4049E05B163340068F931</string>
+				<string>EEA3B528095422CF001244CF</string>
+				<string>EE87B8F90CBDFFA7000A2B66</string>
+				<string>EEA30E900CC7D77D0046EFB1</string>
+				<string>EE023B87101CB1C500A52273</string>
+			</array>
+		</dict>
+		<key>EEF4049E05B163340068F931</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE2F83090983F176003EA8A2</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>productName</key>
+			<string>All</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>EED3C1240488F87500000103</string>
+</dict>
+</plist>
