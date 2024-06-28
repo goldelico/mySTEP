@@ -687,7 +687,10 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (BOOL) performDragOperation:(id <NSDraggingInfo>)sender
 {
-	return [self performPasteOperation:[sender draggingPasteboard]];
+	// FIXME: there is no "performPasteOperation" anywhere
+	// most likely we should do the paste right here
+//	return [self performPasteOperation:[sender draggingPasteboard]];
+	return NO;
 }
 
 - (void) concludeDragOperation:(id <NSDraggingInfo>)sender

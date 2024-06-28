@@ -146,7 +146,8 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 - (BOOL) setData:(NSData *)data forType:(NSString *)dataType
 {
 	// http://tronche.com/gui/x/xlib/window-information/XConvertSelection.html
-	return [[self _context] _setPasteBoard:[self name] data:data forType:dataType];
+	NIMP;
+	return [[self _context] _setPasteBoard:[self name] data:data forType:dataType] != nil;
 }
 
 - (BOOL) setPropertyList:(id)propertyList forType:(NSString *)dataType
@@ -244,7 +245,7 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 
 - (BOOL) writeFileWrapper:(NSFileWrapper *) fileWrapper; 
 {
-	// FIXME: dies not exactly match description - which additionally saves a type based on the file extension and that it must have a file name
+	// FIXME: does not exactly match description - which additionally saves a type based on the file extension and that it must have a file name
 	return [self setData:[fileWrapper serializedRepresentation] forType:NSFileContentsPboardType];
 }
 
