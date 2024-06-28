@@ -9,6 +9,7 @@ export SOURCES+=" Sources/CFBase.h"
 export SOURCES+=" Sources/CFString.h"
 export SOURCES+=" Sources/CoreFoundation.h"
 export SOURCES+=" CoreFoundation-Info.plist"
+export SOURCES+=" CoreFoundationTest-Info.plist"
 export WRAPPER_EXTENSION="framework"
 
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
