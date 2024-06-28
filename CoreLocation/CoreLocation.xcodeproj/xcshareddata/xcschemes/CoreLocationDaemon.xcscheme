@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion="0620" version="1.3">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES">
+      <BuildActionEntries>
+         <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE07C856160913B8001F5841" BuildableName="CoreLocationDaemon.app" BlueprintName="CoreLocationDaemon" ReferencedContainer="container:CoreLocation.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   <PostActions><ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction"><ActionContent title="Run Script" scriptText="# Type a script or drag a script file from your workspace to insert its path.&#10;cd $PROJECT_DIR&#10;./CoreLocationDaemon.qcodeproj&#10;"><EnvironmentBuildable><BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE07C856160913B8001F5841" BuildableName="CoreLocationDaemon.app" BlueprintName="CoreLocationDaemon" ReferencedContainer="container:CoreLocation.xcodeproj">             </BuildableReference></EnvironmentBuildable></ActionContent></ExecutionAction></PostActions></BuildAction>
+   <TestAction selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" buildConfiguration="Debug">
+      <Testables>
+      </Testables>
+      <MacroExpansion>
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE07C856160913B8001F5841" BuildableName="CoreLocationDaemon.app" BlueprintName="CoreLocationDaemon" ReferencedContainer="container:CoreLocation.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+   </TestAction>
+   <LaunchAction selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" buildConfiguration="Debug" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" allowLocationSimulation="YES" enableGPUValidationMode="1">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE07C856160913B8001F5841" BuildableName="CoreLocationDaemon.app" BlueprintName="CoreLocationDaemon" ReferencedContainer="container:CoreLocation.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" buildConfiguration="Release" debugDocumentVersioning="YES">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="EE07C856160913B8001F5841" BuildableName="CoreLocationDaemon.app" BlueprintName="CoreLocationDaemon" ReferencedContainer="container:CoreLocation.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction buildConfiguration="Debug">
+   </AnalyzeAction>
+   <ArchiveAction buildConfiguration="Release" revealArchiveInOrganizer="YES">
+   </ArchiveAction>
+</Scheme>

@@ -1,1003 +1,2499 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 54;
-	objects = {
-
-/* Begin PBXAggregateTarget section */
-		EED248E9174AB8AB008BEE55 /* CoreLocation */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = EED248F8174AB8CE008BEE55 /* Build configuration list for PBXAggregateTarget "CoreLocation" */;
-			buildPhases = (
-			);
-			dependencies = (
-				EED248ED174AB8B3008BEE55 /* PBXTargetDependency */,
-				EED248EF174AB8B5008BEE55 /* PBXTargetDependency */,
-			);
-			name = CoreLocation;
-			productName = CoreLocation;
-		};
-/* End PBXAggregateTarget section */
-
-/* Begin PBXBuildFile section */
-		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
-		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE07C8991609BBDD001F5841 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE07C8981609BBDD001F5841 /* MainMenu.xib */; };
-		EE07C89A1609BC3E001F5841 /* CoreLocationDaemon.m in Sources */ = {isa = PBXBuildFile; fileRef = EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */; };
-		EE07C8D01609CB92001F5841 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */; };
-		EE265AE92013FA7C001ABC17 /* cldmain.m in Sources */ = {isa = PBXBuildFile; fileRef = EE265AE82013FA7C001ABC17 /* cldmain.m */; };
-		EE265AEA2013FB0B001ABC17 /* CoreLocationDaemon.m in Sources */ = {isa = PBXBuildFile; fileRef = EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */; };
-		EE31070D125F025C00DF3C91 /* cltest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E297125CD78F00DF3C91 /* cltest.m */; };
-		EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
-		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
-		EE31E055125B031300DF3C91 /* CLLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E053125B031300DF3C91 /* CLLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E068125B065900DF3C91 /* CLError.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E065125B065900DF3C91 /* CLError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E06A125B065900DF3C91 /* CLHeading.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E067125B065900DF3C91 /* CLHeading.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E074125B07BD00DF3C91 /* CLLocationManagerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E092125B0AA800DF3C91 /* CLErrorDomain.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E0BC125B523100DF3C91 /* CLRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E0BB125B523100DF3C91 /* CLRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E0F3125B59C900DF3C91 /* CLLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E054125B031300DF3C91 /* CLLocationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E298125CD78F00DF3C91 /* cltest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E297125CD78F00DF3C91 /* cltest.m */; };
-		EE31E2BD125CDC2500DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
-		EE31E2BE125CDC2500DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C0125CDC2500DF3C91 /* CLLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E053125B031300DF3C91 /* CLLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C1125CDC2500DF3C91 /* CLError.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E065125B065900DF3C91 /* CLError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C2125CDC2500DF3C91 /* CLHeading.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E067125B065900DF3C91 /* CLHeading.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C3125CDC2500DF3C91 /* CLLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E054125B031300DF3C91 /* CLLocationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C4125CDC2500DF3C91 /* CLLocationManagerDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C5125CDC2500DF3C91 /* CLErrorDomain.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C6125CDC2500DF3C91 /* CLRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E0BB125B523100DF3C91 /* CLRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2C8125CDC2500DF3C91 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
-		EE31E2CB125CDC2500DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
-		EE31E2CD125CDC2500DF3C91 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE31E2E5125CDC7C00DF3C91 /* CLTestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */; };
-		EE71B5151593002500C4E869 /* CLGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B5141593002500C4E869 /* CLGeocoder.m */; };
-		EE71B5161593002500C4E869 /* CLGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B5141593002500C4E869 /* CLGeocoder.m */; };
-		EE71B52A159301F900C4E869 /* CLPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B528159301F900C4E869 /* CLPlacemark.m */; };
-		EE71B52B159301F900C4E869 /* CLRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B529159301F900C4E869 /* CLRegion.m */; };
-		EE71B52C159301F900C4E869 /* CLPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B528159301F900C4E869 /* CLPlacemark.m */; };
-		EE71B52D159301F900C4E869 /* CLRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B529159301F900C4E869 /* CLRegion.m */; };
-		EE71B539159302B800C4E869 /* CLHeading.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B538159302B800C4E869 /* CLHeading.m */; };
-		EE71B53A159302B800C4E869 /* CLHeading.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B538159302B800C4E869 /* CLHeading.m */; };
-		EE9E750A1467E2140029F8D8 /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75081467E2140029F8D8 /* CLPlacemark.h */; };
-		EE9E750F1467E22B0029F8D8 /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75081467E2140029F8D8 /* CLPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE9E75121467E2480029F8D8 /* CLGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75101467E2480029F8D8 /* CLGeocoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEC35E90159303DD008B3D25 /* CLHeading.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B538159302B800C4E869 /* CLHeading.m */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		EE31E2E8125CDC8E00DF3C91 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE31E2BB125CDC2500DF3C91;
-			remoteInfo = CLTest;
-		};
-		EE6FF4F61476C71D000BC485 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
-			remoteInfo = CoreLocation;
-		};
-		EED248EC174AB8B3008BEE55 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
-			remoteInfo = CoreLocationFramework;
-		};
-		EED248EE174AB8B5008BEE55 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE07C856160913B8001F5841;
-			remoteInfo = CoreLocationDaemon;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXFileReference section */
-		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8DC2EF5B0486A6940098B216 /* CoreLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE07C84B1609136D001F5841 /* CoreLocationDaemon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocationDaemon.h; sourceTree = "<group>"; };
-		EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreLocationDaemon.m; sourceTree = "<group>"; };
-		EE07C857160913B8001F5841 /* CoreLocationDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreLocationDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE07C859160913B8001F5841 /* CoreLocationDaemon-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreLocationDaemon-Info.plist"; sourceTree = "<group>"; };
-		EE07C86E16091491001F5841 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		EE265AE82013FA7C001ABC17 /* cldmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = cldmain.m; sourceTree = "<group>"; };
-		EE310713125F025C00DF3C91 /* cltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation_Prefix.pch; sourceTree = "<group>"; };
-		EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation.h; sourceTree = "<group>"; };
-		EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreLocation.m; sourceTree = "<group>"; };
-		EE31E053125B031300DF3C91 /* CLLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocation.h; sourceTree = "<group>"; };
-		EE31E054125B031300DF3C91 /* CLLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocationManager.h; sourceTree = "<group>"; };
-		EE31E065125B065900DF3C91 /* CLError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLError.h; sourceTree = "<group>"; };
-		EE31E067125B065900DF3C91 /* CLHeading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLHeading.h; sourceTree = "<group>"; };
-		EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocationManagerDelegate.h; sourceTree = "<group>"; };
-		EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLErrorDomain.h; sourceTree = "<group>"; };
-		EE31E0BB125B523100DF3C91 /* CLRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLRegion.h; sourceTree = "<group>"; };
-		EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltestOursOnOSX; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE31E297125CD78F00DF3C91 /* cltest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = cltest.m; sourceTree = "<group>"; };
-		EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CLTestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE31E348125CF60300DF3C91 /* Info-test.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = "<group>"; };
-		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE71B5141593002500C4E869 /* CLGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLGeocoder.m; sourceTree = "<group>"; };
-		EE71B528159301F900C4E869 /* CLPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLPlacemark.m; sourceTree = "<group>"; };
-		EE71B529159301F900C4E869 /* CLRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLRegion.m; sourceTree = "<group>"; };
-		EE71B538159302B800C4E869 /* CLHeading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLHeading.m; sourceTree = "<group>"; };
-		EE9669FE172029EC00D29865 /* CoreLocation.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreLocation.qcodeproj; sourceTree = "<group>"; };
-		EE9669FF17202A1600D29865 /* cltest.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = cltest.qcodeproj; sourceTree = "<group>"; };
-		EE966A0017202A1600D29865 /* CoreLocationDaemon.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CoreLocationDaemon.qcodeproj; sourceTree = "<group>"; };
-		EE9E75081467E2140029F8D8 /* CLPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLPlacemark.h; sourceTree = "<group>"; };
-		EE9E75101467E2480029F8D8 /* CLGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLGeocoder.h; sourceTree = "<group>"; };
-		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		8DC2EF560486A6940098B216 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE07C855160913B8001F5841 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE07C8D01609CB92001F5841 /* CoreLocation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31070E125F025C00DF3C91 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E27B125CD76C00DF3C91 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E2E5125CDC7C00DF3C91 /* CLTestFramework.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E2CC125CDC2500DF3C91 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E2CD125CDC2500DF3C91 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		034768DFFF38A50411DB9C8B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8DC2EF5B0486A6940098B216 /* CoreLocation.framework */,
-				EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */,
-				EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */,
-				EE310713125F025C00DF3C91 /* cltest */,
-				EE07C857160913B8001F5841 /* CoreLocationDaemon.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		0867D691FE84028FC02AAC07 /* ScreenSaver */ = {
-			isa = PBXGroup;
-			children = (
-				EE69CFD9108DD5A100486DB1 /* mySTEP.make */,
-				EE9669FE172029EC00D29865 /* CoreLocation.qcodeproj */,
-				EE966A0017202A1600D29865 /* CoreLocationDaemon.qcodeproj */,
-				EE9669FF17202A1600D29865 /* cltest.qcodeproj */,
-				08FB77AEFE84172EC02AAC07 /* Classes */,
-				EE07C84A16091358001F5841 /* CoreLocationDaemon */,
-				32C88DFF0371C24200C91783 /* Other Sources */,
-				089C1665FE841158C02AAC07 /* Resources */,
-				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
-				034768DFFF38A50411DB9C8B /* Products */,
-			);
-			name = ScreenSaver;
-			sourceTree = "<group>";
-		};
-		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
-			isa = PBXGroup;
-			children = (
-				1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */,
-				1058C7B2FEA5585E11CA2CBB /* Other Frameworks */,
-			);
-			name = "External Frameworks and Libraries";
-			sourceTree = "<group>";
-		};
-		089C1665FE841158C02AAC07 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				8DC2EF5A0486A6940098B216 /* Info.plist */,
-				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
-				EE31E348125CF60300DF3C91 /* Info-test.plist */,
-				EE07C859160913B8001F5841 /* CoreLocationDaemon-Info.plist */,
-				EE07C8981609BBDD001F5841 /* MainMenu.xib */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		08FB77AEFE84172EC02AAC07 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */,
-				EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */,
-				EE31E065125B065900DF3C91 /* CLError.h */,
-				EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */,
-				EE9E75101467E2480029F8D8 /* CLGeocoder.h */,
-				EE71B5141593002500C4E869 /* CLGeocoder.m */,
-				EE31E067125B065900DF3C91 /* CLHeading.h */,
-				EE71B538159302B800C4E869 /* CLHeading.m */,
-				EE31E053125B031300DF3C91 /* CLLocation.h */,
-				EE31E054125B031300DF3C91 /* CLLocationManager.h */,
-				EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */,
-				EE9E75081467E2140029F8D8 /* CLPlacemark.h */,
-				EE71B528159301F900C4E869 /* CLPlacemark.m */,
-				EE31E0BB125B523100DF3C91 /* CLRegion.h */,
-				EE71B529159301F900C4E869 /* CLRegion.m */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
-		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
-			);
-			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		1058C7B2FEA5585E11CA2CBB /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EEB23DB41258B6410018A9F3 /* CoreLocation.framework */,
-				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
-				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
-		32C88DFF0371C24200C91783 /* Other Sources */ = {
-			isa = PBXGroup;
-			children = (
-				EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */,
-				EE31E297125CD78F00DF3C91 /* cltest.m */,
-			);
-			name = "Other Sources";
-			sourceTree = "<group>";
-		};
-		EE07C84A16091358001F5841 /* CoreLocationDaemon */ = {
-			isa = PBXGroup;
-			children = (
-				EE265AE82013FA7C001ABC17 /* cldmain.m */,
-				EE07C84B1609136D001F5841 /* CoreLocationDaemon.h */,
-				EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */,
-			);
-			name = CoreLocationDaemon;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		8DC2EF500486A6940098B216 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE9E750F1467E22B0029F8D8 /* CLPlacemark.h in Headers */,
-				EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */,
-				EE31E055125B031300DF3C91 /* CLLocation.h in Headers */,
-				EE31E068125B065900DF3C91 /* CLError.h in Headers */,
-				EE31E06A125B065900DF3C91 /* CLHeading.h in Headers */,
-				EE31E0F3125B59C900DF3C91 /* CLLocationManager.h in Headers */,
-				EE31E074125B07BD00DF3C91 /* CLLocationManagerDelegate.h in Headers */,
-				EE31E092125B0AA800DF3C91 /* CLErrorDomain.h in Headers */,
-				EE31E0BC125B523100DF3C91 /* CLRegion.h in Headers */,
-				EE9E75121467E2480029F8D8 /* CLGeocoder.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E2BC125CDC2500DF3C91 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E2BD125CDC2500DF3C91 /* CoreLocation_Prefix.pch in Headers */,
-				EE31E2BE125CDC2500DF3C91 /* CoreLocation.h in Headers */,
-				EE31E2C0125CDC2500DF3C91 /* CLLocation.h in Headers */,
-				EE31E2C1125CDC2500DF3C91 /* CLError.h in Headers */,
-				EE31E2C2125CDC2500DF3C91 /* CLHeading.h in Headers */,
-				EE31E2C3125CDC2500DF3C91 /* CLLocationManager.h in Headers */,
-				EE31E2C4125CDC2500DF3C91 /* CLLocationManagerDelegate.h in Headers */,
-				EE31E2C5125CDC2500DF3C91 /* CLErrorDomain.h in Headers */,
-				EE31E2C6125CDC2500DF3C91 /* CLRegion.h in Headers */,
-				EE9E750A1467E2140029F8D8 /* CLPlacemark.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		8DC2EF4F0486A6940098B216 /* CoreLocationFramework */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocationFramework" */;
-			buildPhases = (
-				8DC2EF500486A6940098B216 /* Headers */,
-				8DC2EF520486A6940098B216 /* Resources */,
-				8DC2EF540486A6940098B216 /* Sources */,
-				8DC2EF560486A6940098B216 /* Frameworks */,
-				EE69CFE7108DD93100486DB1 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CoreLocationFramework;
-			productInstallPath = "$(HOME)/Library/Frameworks";
-			productName = ScreenSaver;
-			productReference = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-		EE07C856160913B8001F5841 /* CoreLocationDaemon */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE07C85C160913B9001F5841 /* Build configuration list for PBXNativeTarget "CoreLocationDaemon" */;
-			buildPhases = (
-				EE07C853160913B8001F5841 /* Resources */,
-				EE07C854160913B8001F5841 /* Sources */,
-				EE07C855160913B8001F5841 /* Frameworks */,
-				EE07C8A41609BDC9001F5841 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CoreLocationDaemon;
-			productName = CoreLocationServer;
-			productReference = EE07C857160913B8001F5841 /* CoreLocationDaemon.app */;
-			productType = "com.apple.product-type.application";
-		};
-		EE310709125F025C00DF3C91 /* cltest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */;
-			buildPhases = (
-				EE31070C125F025C00DF3C91 /* Sources */,
-				EE31070E125F025C00DF3C91 /* Frameworks */,
-				EE6FE9AE147521FF000BC485 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				EE6FF4F71476C71D000BC485 /* PBXTargetDependency */,
-			);
-			name = cltest;
-			productName = cltest;
-			productReference = EE310713125F025C00DF3C91 /* cltest */;
-			productType = "com.apple.product-type.tool";
-		};
-		EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestOursOnOSX" */;
-			buildPhases = (
-				EE31E27A125CD76C00DF3C91 /* Sources */,
-				EE31E27B125CD76C00DF3C91 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				EE31E2E9125CDC8E00DF3C91 /* PBXTargetDependency */,
-			);
-			name = cltestOursOnOSX;
-			productName = cltest;
-			productReference = EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */;
-			productType = "com.apple.product-type.tool";
-		};
-		EE31E2BB125CDC2500DF3C91 /* CLTestFramework */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EE31E2D0125CDC2500DF3C91 /* Build configuration list for PBXNativeTarget "CLTestFramework" */;
-			buildPhases = (
-				EE31E2BC125CDC2500DF3C91 /* Headers */,
-				EE31E2C7125CDC2500DF3C91 /* Resources */,
-				EE31E2C9125CDC2500DF3C91 /* Sources */,
-				EE31E2CC125CDC2500DF3C91 /* Frameworks */,
-				EE31E2F8125CDD2600DF3C91 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CLTestFramework;
-			productInstallPath = "$(HOME)/Library/Frameworks";
-			productName = ScreenSaver;
-			productReference = EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		0867D690FE84028FC02AAC07 /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-			};
-			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreLocation" */;
-			compatibilityVersion = "Xcode 12.0";
-			developmentRegion = English;
-			hasScannedForEncodings = 1;
-			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-			);
-			mainGroup = 0867D691FE84028FC02AAC07 /* ScreenSaver */;
-			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				EED248E9174AB8AB008BEE55 /* CoreLocation */,
-				8DC2EF4F0486A6940098B216 /* CoreLocationFramework */,
-				EE31E2BB125CDC2500DF3C91 /* CLTestFramework */,
-				EE07C856160913B8001F5841 /* CoreLocationDaemon */,
-				EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */,
-				EE310709125F025C00DF3C91 /* cltest */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		8DC2EF520486A6940098B216 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE07C853160913B8001F5841 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE07C8991609BBDD001F5841 /* MainMenu.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E2C7125CDC2500DF3C91 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E2C8125CDC2500DF3C91 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		EE07C8A41609BDC9001F5841 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = ./CoreLocationDaemon.qcodeproj;
-		};
-		EE31E2F8125CDD2600DF3C91 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "(cd $BUILT_PRODUCTS_DIR; tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd $INSTALL_PATH; tar xvzf -) \nexit 0\n";
-		};
-		EE69CFE7108DD93100486DB1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\t# project root\n./CoreLocation.qcodeproj\n";
-		};
-		EE6FE9AE147521FF000BC485 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP\t# project root\n./cltest.qcodeproj";
-		};
-/* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXSourcesBuildPhase section */
-		8DC2EF540486A6940098B216 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE265AEA2013FB0B001ABC17 /* CoreLocationDaemon.m in Sources */,
-				EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */,
-				EE71B5151593002500C4E869 /* CLGeocoder.m in Sources */,
-				EE71B52A159301F900C4E869 /* CLPlacemark.m in Sources */,
-				EE71B52B159301F900C4E869 /* CLRegion.m in Sources */,
-				EE71B539159302B800C4E869 /* CLHeading.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE07C854160913B8001F5841 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE265AE92013FA7C001ABC17 /* cldmain.m in Sources */,
-				EE07C89A1609BC3E001F5841 /* CoreLocationDaemon.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31070C125F025C00DF3C91 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31070D125F025C00DF3C91 /* cltest.m in Sources */,
-				EEC35E90159303DD008B3D25 /* CLHeading.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E27A125CD76C00DF3C91 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E298125CD78F00DF3C91 /* cltest.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EE31E2C9125CDC2500DF3C91 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EE31E2CB125CDC2500DF3C91 /* CoreLocation.m in Sources */,
-				EE71B5161593002500C4E869 /* CLGeocoder.m in Sources */,
-				EE71B52C159301F900C4E869 /* CLPlacemark.m in Sources */,
-				EE71B52D159301F900C4E869 /* CLRegion.m in Sources */,
-				EE71B53A159302B800C4E869 /* CLHeading.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		EE31E2E9125CDC8E00DF3C91 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE31E2BB125CDC2500DF3C91 /* CLTestFramework */;
-			targetProxy = EE31E2E8125CDC8E00DF3C91 /* PBXContainerItemProxy */;
-		};
-		EE6FF4F71476C71D000BC485 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8DC2EF4F0486A6940098B216 /* CoreLocationFramework */;
-			targetProxy = EE6FF4F61476C71D000BC485 /* PBXContainerItemProxy */;
-		};
-		EED248ED174AB8B3008BEE55 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8DC2EF4F0486A6940098B216 /* CoreLocationFramework */;
-			targetProxy = EED248EC174AB8B3008BEE55 /* PBXContainerItemProxy */;
-		};
-		EED248EF174AB8B5008BEE55 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE07C856160913B8001F5841 /* CoreLocationDaemon */;
-			targetProxy = EED248EE174AB8B5008BEE55 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				089C1667FE841158C02AAC07 /* English */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		EE07C8981609BBDD001F5841 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE07C86E16091491001F5841 /* English */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
-/* Begin XCBuildConfiguration section */
-		1DEB91AE08733DA50010E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CoreLocation_Prefix.pch;
-				GCC_VERSION = "";
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = CoreLocation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = framework;
-			};
-			name = Debug;
-		};
-		1DEB91AF08733DA50010E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CoreLocation_Prefix.pch;
-				GCC_VERSION = "";
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = CoreLocation;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = framework;
-			};
-			name = Release;
-		};
-		1DEB91B208733DA50010E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				ONLY_ACTIVE_ARCH = NO;
-				PREBINDING = NO;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		1DEB91B308733DA50010E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
-				ONLY_ACTIVE_ARCH = NO;
-				PREBINDING = NO;
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		EE07C85A160913B9001F5841 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INFOPLIST_FILE = "CoreLocationDaemon-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = CoreLocationDaemon;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		EE07C85B160913B9001F5841 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INFOPLIST_FILE = "CoreLocationDaemon-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = CoreLocationDaemon;
-				SDKROOT = macosx;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		EE310711125F025C00DF3C91 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = cltest;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		EE310712125F025C00DF3C91 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = cltest;
-				SDKROOT = macosx;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		EE31E27F125CD76C00DF3C91 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = cltestOursOnOSX;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		EE31E280125CD76C00DF3C91 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = cltest;
-				SDKROOT = macosx;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		EE31E2D1125CDC2500DF3C91 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CoreLocation_Prefix.pch;
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "Info-test.plist";
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = CLTestFramework;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = framework;
-			};
-			name = Debug;
-		};
-		EE31E2D2125CDC2500DF3C91 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = A;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CoreLocation_Prefix.pch;
-				GCC_VERSION = "";
-				INFOPLIST_FILE = "Info-test.plist";
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = CLTestFramework;
-				SDKROOT = macosx;
-				WRAPPER_EXTENSION = framework;
-			};
-			name = Release;
-		};
-		EED248EA174AB8AC008BEE55 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = CoreLocation;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		EED248EB174AB8AC008BEE55 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				PRODUCT_NAME = CoreLocation;
-				SDKROOT = macosx;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreLocationFramework" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DEB91AE08733DA50010E9CD /* Debug */,
-				1DEB91AF08733DA50010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreLocation" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DEB91B208733DA50010E9CD /* Debug */,
-				1DEB91B308733DA50010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EE07C85C160913B9001F5841 /* Build configuration list for PBXNativeTarget "CoreLocationDaemon" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE07C85A160913B9001F5841 /* Debug */,
-				EE07C85B160913B9001F5841 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE310711125F025C00DF3C91 /* Debug */,
-				EE310712125F025C00DF3C91 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestOursOnOSX" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE31E27F125CD76C00DF3C91 /* Debug */,
-				EE31E280125CD76C00DF3C91 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EE31E2D0125CDC2500DF3C91 /* Build configuration list for PBXNativeTarget "CLTestFramework" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EE31E2D1125CDC2500DF3C91 /* Debug */,
-				EE31E2D2125CDC2500DF3C91 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EED248F8174AB8CE008BEE55 /* Build configuration list for PBXAggregateTarget "CoreLocation" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EED248EA174AB8AC008BEE55 /* Debug */,
-				EED248EB174AB8AC008BEE55 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>54</string>
+	<key>objects</key>
+	<dict>
+		<key>034768DFFF38A50411DB9C8B</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>8DC2EF5B0486A6940098B216</string>
+				<string>EE31E27D125CD76C00DF3C91</string>
+				<string>EE31E2D3125CDC2500DF3C91</string>
+				<string>EE310713125F025C00DF3C91</string>
+				<string>EE07C857160913B8001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0867D690FE84028FC02AAC07</key>
+		<dict>
+			<key>attributes</key>
+			<dict/>
+			<key>buildConfigurationList</key>
+			<string>1DEB91B108733DA50010E9CD</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 12.0</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>English</string>
+				<string>Japanese</string>
+				<string>French</string>
+				<string>German</string>
+			</array>
+			<key>mainGroup</key>
+			<string>0867D691FE84028FC02AAC07</string>
+			<key>productRefGroup</key>
+			<string>034768DFFF38A50411DB9C8B</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>EED248E9174AB8AB008BEE55</string>
+				<string>8DC2EF4F0486A6940098B216</string>
+				<string>EE31E2BB125CDC2500DF3C91</string>
+				<string>EE07C856160913B8001F5841</string>
+				<string>EE31E27C125CD76C00DF3C91</string>
+				<string>EE310709125F025C00DF3C91</string>
+			</array>
+		</dict>
+		<key>0867D691FE84028FC02AAC07</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>11849169A6C64A2DA38D8753</string>
+				<string>EE69CFD9108DD5A100486DB1</string>
+				<string>EE9669FE172029EC00D29865</string>
+				<string>EE966A0017202A1600D29865</string>
+				<string>EE9669FF17202A1600D29865</string>
+				<string>08FB77AEFE84172EC02AAC07</string>
+				<string>EE07C84A16091358001F5841</string>
+				<string>32C88DFF0371C24200C91783</string>
+				<string>089C1665FE841158C02AAC07</string>
+				<string>0867D69AFE84028FC02AAC07</string>
+				<string>034768DFFF38A50411DB9C8B</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>ScreenSaver</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0867D69AFE84028FC02AAC07</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1058C7B0FEA5585E11CA2CBB</string>
+				<string>1058C7B2FEA5585E11CA2CBB</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>External Frameworks and Libraries</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0867D69BFE84028FC02AAC07</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Foundation.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Foundation.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>0867D6A5FE840307C02AAC07</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>AppKit.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/AppKit.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>089C1665FE841158C02AAC07</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>8DC2EF5A0486A6940098B216</string>
+				<string>089C1666FE841158C02AAC07</string>
+				<string>EE31E348125CF60300DF3C91</string>
+				<string>EE07C859160913B8001F5841</string>
+				<string>EE07C8981609BBDD001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Resources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>089C1666FE841158C02AAC07</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>089C1667FE841158C02AAC07</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>InfoPlist.strings</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>089C1667FE841158C02AAC07</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>10</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.strings</string>
+			<key>name</key>
+			<string>English</string>
+			<key>path</key>
+			<string>English.lproj/InfoPlist.strings</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>08FB77AEFE84172EC02AAC07</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE31DFD1125A4F1900DF3C91</string>
+				<string>EE31E01F125AF0EB00DF3C91</string>
+				<string>EE31E065125B065900DF3C91</string>
+				<string>EE31E091125B0AA800DF3C91</string>
+				<string>EE9E75101467E2480029F8D8</string>
+				<string>EE71B5141593002500C4E869</string>
+				<string>EE31E067125B065900DF3C91</string>
+				<string>EE71B538159302B800C4E869</string>
+				<string>EE31E053125B031300DF3C91</string>
+				<string>EE31E054125B031300DF3C91</string>
+				<string>EE31E073125B07BD00DF3C91</string>
+				<string>EE9E75081467E2140029F8D8</string>
+				<string>EE71B528159301F900C4E869</string>
+				<string>EE31E0BB125B523100DF3C91</string>
+				<string>EE71B529159301F900C4E869</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Classes</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1058C7B0FEA5585E11CA2CBB</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1058C7B1FEA5585E11CA2CBB</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Linked Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1058C7B1FEA5585E11CA2CBB</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Cocoa.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/Cocoa.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>1058C7B2FEA5585E11CA2CBB</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EEB23DB41258B6410018A9F3</string>
+				<string>0867D6A5FE840307C02AAC07</string>
+				<string>0867D69BFE84028FC02AAC07</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Other Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>11849169A6C64A2DA38D8753</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.entitlements</string>
+			<key>path</key>
+			<string>CoreLocation.entitlements</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>1DEB91AD08733DA50010E9CD</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>1DEB91AE08733DA50010E9CD</string>
+				<string>1DEB91AF08733DA50010E9CD</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>1DEB91AE08733DA50010E9CD</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>CoreLocation_Prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocation</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WRAPPER_EXTENSION</key>
+				<string>framework</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>1DEB91AF08733DA50010E9CD</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>CoreLocation_Prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocation</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WRAPPER_EXTENSION</key>
+				<string>framework</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>1DEB91B108733DA50010E9CD</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>1DEB91B208733DA50010E9CD</string>
+				<string>1DEB91B308733DA50010E9CD</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>1DEB91B208733DA50010E9CD</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>c99</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>ONLY_ACTIVE_ARCH</key>
+				<string>NO</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>1DEB91B308733DA50010E9CD</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>c99</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<string>$(inherited)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>ONLY_ACTIVE_ARCH</key>
+				<string>NO</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>32C88DFF0371C24200C91783</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE31DFC7125A4EE200DF3C91</string>
+				<string>EE31E297125CD78F00DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Other Sources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>8DC2EF4F0486A6940098B216</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>1DEB91AD08733DA50010E9CD</string>
+			<key>buildPhases</key>
+			<array>
+				<string>8DC2EF500486A6940098B216</string>
+				<string>8DC2EF520486A6940098B216</string>
+				<string>8DC2EF540486A6940098B216</string>
+				<string>8DC2EF560486A6940098B216</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>CoreLocation</string>
+			<key>productInstallPath</key>
+			<string>$(HOME)/Library/Frameworks</string>
+			<key>productName</key>
+			<string>ScreenSaver</string>
+			<key>productReference</key>
+			<string>8DC2EF5B0486A6940098B216</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>8DC2EF500486A6940098B216</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE9E750F1467E22B0029F8D8</string>
+				<string>EE31DFD2125A4F1900DF3C91</string>
+				<string>EE31E055125B031300DF3C91</string>
+				<string>EE31E068125B065900DF3C91</string>
+				<string>EE31E06A125B065900DF3C91</string>
+				<string>EE31E0F3125B59C900DF3C91</string>
+				<string>EE31E074125B07BD00DF3C91</string>
+				<string>EE31E092125B0AA800DF3C91</string>
+				<string>EE31E0BC125B523100DF3C91</string>
+				<string>EE9E75121467E2480029F8D8</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>8DC2EF520486A6940098B216</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>8DC2EF530486A6940098B216</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>8DC2EF530486A6940098B216</key>
+		<dict>
+			<key>fileRef</key>
+			<string>089C1666FE841158C02AAC07</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>8DC2EF540486A6940098B216</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE265AEA2013FB0B001ABC17</string>
+				<string>EE31E020125AF0EB00DF3C91</string>
+				<string>EE71B5151593002500C4E869</string>
+				<string>EE71B52A159301F900C4E869</string>
+				<string>EE71B52B159301F900C4E869</string>
+				<string>EE71B539159302B800C4E869</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>8DC2EF560486A6940098B216</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>8DC2EF570486A6940098B216</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>8DC2EF570486A6940098B216</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1058C7B1FEA5585E11CA2CBB</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>8DC2EF5A0486A6940098B216</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>8DC2EF5B0486A6940098B216</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>CoreLocation.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE07C84A16091358001F5841</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE265AE82013FA7C001ABC17</string>
+				<string>EE07C84B1609136D001F5841</string>
+				<string>EE07C84C1609136D001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>CoreLocationDaemon</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C84B1609136D001F5841</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CoreLocationDaemon.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C84C1609136D001F5841</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CoreLocationDaemon.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C853160913B8001F5841</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE07C8991609BBDD001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE07C854160913B8001F5841</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE265AE92013FA7C001ABC17</string>
+				<string>EE07C89A1609BC3E001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE07C855160913B8001F5841</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE07C8D01609CB92001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE07C856160913B8001F5841</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE07C85C160913B9001F5841</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE07C853160913B8001F5841</string>
+				<string>EE07C854160913B8001F5841</string>
+				<string>EE07C855160913B8001F5841</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>CoreLocationDaemon</string>
+			<key>productName</key>
+			<string>CoreLocationServer</string>
+			<key>productReference</key>
+			<string>EE07C857160913B8001F5841</string>
+			<key>productType</key>
+			<string>com.apple.product-type.application</string>
+		</dict>
+		<key>EE07C857160913B8001F5841</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.application</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>CoreLocationDaemon.app</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE07C859160913B8001F5841</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>CoreLocationDaemon-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C85A160913B9001F5841</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_ENTITLEMENTS</key>
+				<string>CoreLocation.entitlements</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>CODE_SIGN_STYLE</key>
+				<string>Automatic</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>ENABLE_USER_SELECTED_FILES</key>
+				<string>readwrite</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>CoreLocationDaemon-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Applications</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocationDaemon</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>EE07C85B160913B9001F5841</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_ENTITLEMENTS</key>
+				<string>CoreLocation.entitlements</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>CODE_SIGN_STYLE</key>
+				<string>Automatic</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>ENABLE_USER_SELECTED_FILES</key>
+				<string>readwrite</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>CoreLocationDaemon-Info.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Applications</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocationDaemon</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>EE07C85C160913B9001F5841</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE07C85A160913B9001F5841</string>
+				<string>EE07C85B160913B9001F5841</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE07C86E16091491001F5841</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>file.xib</string>
+			<key>name</key>
+			<string>English</string>
+			<key>path</key>
+			<string>English.lproj/MainMenu.xib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C8981609BBDD001F5841</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>EE07C86E16091491001F5841</string>
+			</array>
+			<key>isa</key>
+			<string>PBXVariantGroup</string>
+			<key>name</key>
+			<string>MainMenu.xib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE07C8991609BBDD001F5841</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE07C8981609BBDD001F5841</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE07C89A1609BC3E001F5841</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE07C84C1609136D001F5841</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE07C8D01609CB92001F5841</key>
+		<dict>
+			<key>fileRef</key>
+			<string>8DC2EF5B0486A6940098B216</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE265AE82013FA7C001ABC17</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>cldmain.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE265AE92013FA7C001ABC17</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE265AE82013FA7C001ABC17</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE265AEA2013FB0B001ABC17</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE07C84C1609136D001F5841</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE310709125F025C00DF3C91</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE310710125F025C00DF3C91</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE31070C125F025C00DF3C91</string>
+				<string>EE31070E125F025C00DF3C91</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array>
+				<string>EE6FF4F71476C71D000BC485</string>
+			</array>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>cltest</string>
+			<key>productName</key>
+			<string>cltest</string>
+			<key>productReference</key>
+			<string>EE310713125F025C00DF3C91</string>
+			<key>productType</key>
+			<string>com.apple.product-type.tool</string>
+		</dict>
+		<key>EE31070C125F025C00DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31070D125F025C00DF3C91</string>
+				<string>EEC35E90159303DD008B3D25</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31070D125F025C00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E297125CD78F00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31070E125F025C00DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31071E125F027D00DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE310710125F025C00DF3C91</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE310711125F025C00DF3C91</string>
+				<string>EE310712125F025C00DF3C91</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE310711125F025C00DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INSTALL_PATH</key>
+				<string>/usr/local/bin</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>cltest</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>EE310712125F025C00DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INSTALL_PATH</key>
+				<string>/usr/local/bin</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>cltest</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>EE310713125F025C00DF3C91</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>compiled.mach-o.executable</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>cltest</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE31071E125F027D00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EEB23DB41258B6410018A9F3</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31DFC7125A4EE200DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CoreLocation_Prefix.pch</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31DFD1125A4F1900DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CoreLocation.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31DFD2125A4F1900DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31DFD1125A4F1900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E01F125AF0EB00DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CoreLocation.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E020125AF0EB00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E01F125AF0EB00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E053125B031300DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLLocation.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E054125B031300DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLLocationManager.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E055125B031300DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E053125B031300DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E065125B065900DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLError.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E067125B065900DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLHeading.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E068125B065900DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E065125B065900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E06A125B065900DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E067125B065900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E073125B07BD00DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLLocationManagerDelegate.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E074125B07BD00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E073125B07BD00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E091125B0AA800DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLErrorDomain.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E092125B0AA800DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E091125B0AA800DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E0BB125B523100DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLRegion.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E0BC125B523100DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E0BB125B523100DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E0F3125B59C900DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E054125B031300DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E27A125CD76C00DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E298125CD78F00DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E27B125CD76C00DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E2E5125CDC7C00DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E27C125CD76C00DF3C91</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE31E296125CD77C00DF3C91</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE31E27A125CD76C00DF3C91</string>
+				<string>EE31E27B125CD76C00DF3C91</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array>
+				<string>EE31E2E9125CDC8E00DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>cltestOursOnOSX</string>
+			<key>productName</key>
+			<string>cltest</string>
+			<key>productReference</key>
+			<string>EE31E27D125CD76C00DF3C91</string>
+			<key>productType</key>
+			<string>com.apple.product-type.tool</string>
+		</dict>
+		<key>EE31E27D125CD76C00DF3C91</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>compiled.mach-o.executable</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>cltestOursOnOSX</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE31E27F125CD76C00DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INSTALL_PATH</key>
+				<string>/usr/local/bin</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>cltestOursOnOSX</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>EE31E280125CD76C00DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string>-</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h</string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INSTALL_PATH</key>
+				<string>/usr/local/bin</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-framework</string>
+					<string>Foundation</string>
+					<string>-framework</string>
+					<string>AppKit</string>
+				</array>
+				<key>PRODUCT_NAME</key>
+				<string>cltest</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>EE31E296125CD77C00DF3C91</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE31E27F125CD76C00DF3C91</string>
+				<string>EE31E280125CD76C00DF3C91</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE31E297125CD78F00DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>cltest.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE31E298125CD78F00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E297125CD78F00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2BB125CDC2500DF3C91</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EE31E2D0125CDC2500DF3C91</string>
+			<key>buildPhases</key>
+			<array>
+				<string>EE31E2BC125CDC2500DF3C91</string>
+				<string>EE31E2C7125CDC2500DF3C91</string>
+				<string>EE31E2C9125CDC2500DF3C91</string>
+				<string>EE31E2CC125CDC2500DF3C91</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>CLTestFramework</string>
+			<key>productInstallPath</key>
+			<string>$(HOME)/Library/Frameworks</string>
+			<key>productName</key>
+			<string>ScreenSaver</string>
+			<key>productReference</key>
+			<string>EE31E2D3125CDC2500DF3C91</string>
+			<key>productType</key>
+			<string>com.apple.product-type.framework</string>
+		</dict>
+		<key>EE31E2BC125CDC2500DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E2BD125CDC2500DF3C91</string>
+				<string>EE31E2BE125CDC2500DF3C91</string>
+				<string>EE31E2C0125CDC2500DF3C91</string>
+				<string>EE31E2C1125CDC2500DF3C91</string>
+				<string>EE31E2C2125CDC2500DF3C91</string>
+				<string>EE31E2C3125CDC2500DF3C91</string>
+				<string>EE31E2C4125CDC2500DF3C91</string>
+				<string>EE31E2C5125CDC2500DF3C91</string>
+				<string>EE31E2C6125CDC2500DF3C91</string>
+				<string>EE9E750A1467E2140029F8D8</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E2BD125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31DFC7125A4EE200DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2BE125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31DFD1125A4F1900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C0125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E053125B031300DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C1125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E065125B065900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C2125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E067125B065900DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C3125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E054125B031300DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C4125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E073125B07BD00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C5125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E091125B0AA800DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C6125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E0BB125B523100DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE31E2C7125CDC2500DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E2C8125CDC2500DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXResourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E2C8125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>089C1666FE841158C02AAC07</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2C9125CDC2500DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E2CB125CDC2500DF3C91</string>
+				<string>EE71B5161593002500C4E869</string>
+				<string>EE71B52C159301F900C4E869</string>
+				<string>EE71B52D159301F900C4E869</string>
+				<string>EE71B53A159302B800C4E869</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E2CB125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E01F125AF0EB00DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2CC125CDC2500DF3C91</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EE31E2CD125CDC2500DF3C91</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>EE31E2CD125CDC2500DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1058C7B1FEA5585E11CA2CBB</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2D0125CDC2500DF3C91</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EE31E2D1125CDC2500DF3C91</string>
+				<string>EE31E2D2125CDC2500DF3C91</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>EE31E2D1125CDC2500DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>CoreLocation_Prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>Info-test.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>PRODUCT_NAME</key>
+				<string>CLTestFramework</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WRAPPER_EXTENSION</key>
+				<string>framework</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>EE31E2D2125CDC2500DF3C91</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>ARCHS</key>
+				<string>$(ARCHS_STANDARD)</string>
+				<key>CODE_SIGN_IDENTITY</key>
+				<string></string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>DYLIB_COMPATIBILITY_VERSION</key>
+				<string>1</string>
+				<key>DYLIB_CURRENT_VERSION</key>
+				<string>1</string>
+				<key>ENABLE_USER_SCRIPT_SANDBOXING</key>
+				<string>NO</string>
+				<key>FRAMEWORK_VERSION</key>
+				<string>A</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>CoreLocation_Prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string></string>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/include</string>
+					<string>)</string>
+				</array>
+				<key>INFOPLIST_FILE</key>
+				<string>Info-test.plist</string>
+				<key>INSTALL_PATH</key>
+				<string>$(HOME)/Library/Frameworks</string>
+				<key>LIBRARY_SEARCH_PATHS</key>
+				<array>
+					<string>(</string>
+					<string>$(inherited),</string>
+					<string>/opt/local/lib</string>
+					<string>)</string>
+				</array>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)</string>
+				<key>PRODUCT_NAME</key>
+				<string>CLTestFramework</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SECTORDER_FLAGS</key>
+				<string></string>
+				<key>USE_HEADERMAP</key>
+				<string>NO</string>
+				<key>WRAPPER_EXTENSION</key>
+				<string>framework</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>EE31E2D3125CDC2500DF3C91</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>wrapper.framework</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>CLTestFramework.framework</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>EE31E2E5125CDC7C00DF3C91</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE31E2D3125CDC2500DF3C91</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE31E2E8125CDC8E00DF3C91</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>0867D690FE84028FC02AAC07</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>EE31E2BB125CDC2500DF3C91</string>
+			<key>remoteInfo</key>
+			<string>CLTest</string>
+		</dict>
+		<key>EE31E2E9125CDC8E00DF3C91</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>EE31E2BB125CDC2500DF3C91</string>
+			<key>targetProxy</key>
+			<string>EE31E2E8125CDC8E00DF3C91</string>
+		</dict>
+		<key>EE31E348125CF60300DF3C91</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>Info-test.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE69CFD9108DD5A100486DB1</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>mySTEP.make</string>
+			<key>path</key>
+			<string>../mySTEP.make</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
+		<key>EE6FF4F61476C71D000BC485</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>0867D690FE84028FC02AAC07</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>8DC2EF4F0486A6940098B216</string>
+			<key>remoteInfo</key>
+			<string>CoreLocation</string>
+		</dict>
+		<key>EE6FF4F71476C71D000BC485</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>8DC2EF4F0486A6940098B216</string>
+			<key>targetProxy</key>
+			<string>EE6FF4F61476C71D000BC485</string>
+		</dict>
+		<key>EE71B5141593002500C4E869</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CLGeocoder.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE71B5151593002500C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B5141593002500C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B5161593002500C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B5141593002500C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B528159301F900C4E869</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CLPlacemark.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE71B529159301F900C4E869</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CLRegion.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE71B52A159301F900C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B528159301F900C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B52B159301F900C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B529159301F900C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B52C159301F900C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B528159301F900C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B52D159301F900C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B529159301F900C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B538159302B800C4E869</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>CLHeading.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE71B539159302B800C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B538159302B800C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE71B53A159302B800C4E869</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B538159302B800C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9669FE172029EC00D29865</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>CoreLocation.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9669FF17202A1600D29865</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>cltest.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE966A0017202A1600D29865</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>CoreLocationDaemon.qcodeproj</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9E75081467E2140029F8D8</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLPlacemark.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9E750A1467E2140029F8D8</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9E75081467E2140029F8D8</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EE9E750F1467E22B0029F8D8</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9E75081467E2140029F8D8</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EE9E75101467E2480029F8D8</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>CLGeocoder.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EE9E75121467E2480029F8D8</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE9E75101467E2480029F8D8</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>EEB23DB41258B6410018A9F3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>CoreLocation.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/CoreLocation.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
+		<key>EEC35E90159303DD008B3D25</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EE71B538159302B800C4E869</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EED248E9174AB8AB008BEE55</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>EED248F8174AB8CE008BEE55</string>
+			<key>buildPhases</key>
+			<array/>
+			<key>dependencies</key>
+			<array>
+				<string>EED248ED174AB8B3008BEE55</string>
+				<string>EED248EF174AB8B5008BEE55</string>
+			</array>
+			<key>isa</key>
+			<string>PBXAggregateTarget</string>
+			<key>name</key>
+			<string>All</string>
+			<key>productName</key>
+			<string>CoreLocation</string>
+		</dict>
+		<key>EED248EA174AB8AC008BEE55</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocation</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>EED248EB174AB8AC008BEE55</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>GCC_ENABLE_FIX_AND_CONTINUE</key>
+				<string>NO</string>
+				<key>PRODUCT_NAME</key>
+				<string>CoreLocation</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>ZERO_LINK</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>EED248EC174AB8B3008BEE55</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>0867D690FE84028FC02AAC07</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>8DC2EF4F0486A6940098B216</string>
+			<key>remoteInfo</key>
+			<string>CoreLocationFramework</string>
+		</dict>
+		<key>EED248ED174AB8B3008BEE55</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>8DC2EF4F0486A6940098B216</string>
+			<key>targetProxy</key>
+			<string>EED248EC174AB8B3008BEE55</string>
+		</dict>
+		<key>EED248EE174AB8B5008BEE55</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>0867D690FE84028FC02AAC07</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>EE07C856160913B8001F5841</string>
+			<key>remoteInfo</key>
+			<string>CoreLocationDaemon</string>
+		</dict>
+		<key>EED248EF174AB8B5008BEE55</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>target</key>
+			<string>EE07C856160913B8001F5841</string>
+			<key>targetProxy</key>
+			<string>EED248EE174AB8B5008BEE55</string>
+		</dict>
+		<key>EED248F8174AB8CE008BEE55</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EED248EA174AB8AC008BEE55</string>
+				<string>EED248EB174AB8AC008BEE55</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>0867D690FE84028FC02AAC07</string>
+</dict>
+</plist>
