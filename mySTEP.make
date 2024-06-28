@@ -263,7 +263,10 @@ EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
 STDCFLAGS := $(CFLAGS) -std=gnu99
-
+ifeq ($(TRIPLE),MacOS)
+else
+LDFLAGS := $(LDFLAGS) -Wl,--copy-dt-needed-entries
+endif
 BINARY=
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
@@ -439,7 +442,7 @@ build:	build_subprojects build_doxy build_architectures install_local
 else
 build:	build_subprojects build_doxy build_architectures deploy_remote launch_remote
 endif
-	@echo build done
+	@echo build done for: $(DEBIAN_ARCHITECTURES)
 	@date
 
 clean:
@@ -449,7 +452,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
-( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
+( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -525,16 +528,26 @@ ifeq ($(RUN_CMD),)
 RUN_CMD := run
 endif
 
-# FIXME: does this happen twice (in outer and inner make?)
-# add default frameworks
-ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
-# none to add if we build Foundation.framework
-else ifeq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),AppKit.framework)
-# add Foundation if we build AppKit.framework
+# add default frameworks (unless we build the default frameworks and they are not specified)
+ifneq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
+ifneq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),AppKit.framework)
+ifneq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),CoreData.framework)
+ifneq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Cocoa.framework)
+ifeq ($(filter Cocoa,$(FRAMEWORKS)),)
+FRAMEWORKS := Cocoa $(FRAMEWORKS)
+endif
+ifeq ($(filter CoreData,$(FRAMEWORKS)),)
+FRAMEWORKS := CoreData $(FRAMEWORKS)
+endif
+ifeq ($(filter AppKit,$(FRAMEWORKS)),)
+FRAMEWORKS := AppKit $(FRAMEWORKS)
+endif
+ifeq ($(filter Foundation,$(FRAMEWORKS)),)
 FRAMEWORKS := Foundation $(FRAMEWORKS)
-else
-# always add Foundation.framework and AppKit.framework
-FRAMEWORKS := Foundation AppKit CoreData Cocoa $(FRAMEWORKS)
+endif
+endif
+endif
+endif
 endif
 
 ifneq ($(TRIPLE),MacOS)
@@ -614,6 +627,8 @@ FMWKS := $(FMWKS) $(shell for FMWK in $(FRAMEWORKS); \
 		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so; \
 		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so ]; \
 		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so; \
+		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.so; \
 		elif [ -L $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK ]; \
 		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK; \
 		fi; \
@@ -647,10 +662,10 @@ endif
 endif
 
 ifneq ($(OBJCSRCS)$(FMWKS),)
-ifeq ($(findstring ,$(LIBRARIES)),-lobjc)
+ifeq ($(filter -lobjc,$(LIBRARIES)),)
 LIBRARIES += -lobjc
 endif
-ifeq ($(findstring ,$(LIBRARIES)),-lm)
+ifeq ($(filter -lm,$(LIBRARIES)),)
 LIBRARIES += -lm
 endif
 endif
@@ -789,7 +804,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
+		( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
@@ -1556,6 +1571,7 @@ ifneq ($(TRIPLE),unknown-linux-gnu)
 	# PHPSRCS: $(PHPSRCS)
 	# OBJECTS: $(OBJECTS)
 	# PHPOBJECTS: $(PHPOBJECTS)
+	# FMWKS: $(FMWKS)
 	# LIBS: $(LIBS)
 	# BINARY: $(BINARY)
 	# RESOURCES: $(RESOURCES)
