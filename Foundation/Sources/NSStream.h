@@ -136,6 +136,12 @@ extern NSString *NSStreamSOCKSProxyVersion5;
 @end
 
 
+@protocol NSStreamDelegate
+
+- (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event;
+
+@end
+
 @interface NSObject (NSStreamDelegate)
 
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event;
