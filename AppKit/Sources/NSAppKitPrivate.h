@@ -10,6 +10,14 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef NSDebugLog	// seems not to be mySTEP Foundation
+#ifdef DEBUG
+#define NSDebugLog(format, args...)	NSLog(format, args...)
+#else
+#define NSDebugLog(format, args...)
+#endif
+#endif
+
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSBezierPath.h>
 #import <AppKit/NSCell.h>
