@@ -333,4 +333,48 @@ void NSUnregisterServicesProvider(NSString *name);
 
 int NSApplicationMain(int argc, const char *argv[]);
 
+typedef enum NSApplicationActivationPolicy
+{
+	NSApplicationActivationPolicyRegular,
+	NSApplicationActivationPolicyAccessory,
+	NSApplicationActivationPolicyProhibited,
+} NSApplicationActivationPolicy;
+
+typedef enum NSApplicationActivationOptions
+{
+	NSApplicationActivateAllWindows,
+	NSApplicationActivateIgnoringOtherApps,
+} NSApplicationActivationOptions;
+
+@interface NSRunningApplication : NSObject
+{
+	pid_t processIdentifier;
+}
++ (NSRunningApplication *) currentApplication;
++ (void) terminateAutomaticallyTerminableApplications;
+
+- (BOOL) isActive;
+- (BOOL) isHidden;
+- (BOOL) isTerminated;
+- (BOOL) ownsMenuBar;
+- (NSApplicationActivationPolicy) activationPolicy;
+- (void) setActivationPolicy:(NSApplicationActivationPolicy) policy;
+- (BOOL) hide;
+- (BOOL) unhide;
+- (BOOL) forceTerminate;
+- (BOOL) terminate;
+- (NSString *) localizedName;
+- (NSImage *) icon;
+/* tbd:
+ bundleIdentifier
+ bundleURL
+ executableArchitecture
+ executableURL
+ launchDate
+ finishedLaunching
+ ownsMenuBar
+ */
+- (pid_t) processIdentifier;
+@end
+
 #endif /* _mySTEP_H_NSApplication */

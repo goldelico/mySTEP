@@ -49,7 +49,7 @@
 #endif
 
 @interface _NSX11Screen
-+ (void) _handleEvents;
++ (void) _handleNewEvents;
 @end
 
 // Menu delegate classes instantiated by NIBLoading
@@ -2170,4 +2170,40 @@ object:self]
 	return YES;
 }
 
+@end
+
+@implementation NSRunningApplication
+
++ (NSRunningApplication *) currentApplication;
+{
+	return NIMP;
+}
+
++ (void) terminateAutomaticallyTerminableApplications;
+{
+	NIMP;
+}
+
+- (BOOL) isActive; { return NO; }
+- (BOOL) isHidden; { return NO; }
+- (BOOL) isTerminated; { return NO; }
+- (BOOL) ownsMenuBar; { return NO; }
+- (NSApplicationActivationPolicy) activationPolicy; { return 0; }
+- (void) setActivationPolicy:(NSApplicationActivationPolicy) policy; { NIMP; }
+- (BOOL) hide; { NIMP; return NO; }
+- (BOOL) unhide; { NIMP; return NO; }
+- (BOOL) forceTerminate; { NIMP; return NO; }
+- (BOOL) terminate; { NIMP; return NO; }
+- (NSString *) localizedName; { return NIMP; }
+- (NSImage *) icon; { return NIMP; }
+/* tbd:
+ bundleIdentifier
+ bundleURL
+ executableArchitecture
+ executableURL
+ launchDate
+ finishedLaunching
+ ownsMenuBar
+ */
+- (pid_t) processIdentifier; { return processIdentifier; }
 @end
