@@ -755,7 +755,7 @@ endif
 $(TTT)+%.o: %.m
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
-	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
 	$(QUIET)$(CC) -c $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
 	$(QUIET)$(CC) -c $(OBJCFLAGS) -S $< -o $(TTT)+$*.S	# store assembler source for debugging
@@ -765,13 +765,13 @@ endif
 $(TTT)+%.o: %.c
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
-	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.cpp
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
-	if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.php
