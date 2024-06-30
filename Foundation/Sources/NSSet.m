@@ -771,3 +771,82 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 }
 
 @end /* NSCountedSet */
+
+@implementation NSOrderedSet
+
++ (NSOrderedSet *) orderedSet; { return [[self new] autorelease]; }
++ (NSOrderedSet *) orderedSetWithArray:(NSArray *) array; { return [[[self alloc] initWithArray:array] autorelease]; }
+/*
++ (NSOrderedSet *) orderedSetWithArray:(NSArray *) array range:(NSRange) range copyItems:(BOOL) flag;
++ (NSOrderedSet *) orderedSetWithObject:(id) object;
++ (NSOrderedSet *) orderedSetWithObjects:(id) object, ...;
++ (NSOrderedSet *) orderedSetWithObjects:(id *) objects count:(NSUInteger) cnt;
++ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet) other;
++ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet) other range:(NSRange) range copyItems:(BOOL) flag;
++ (NSOrderedSet *) orderedSetWithSet:(id) object;
++ (NSOrderedSet *) orderedSetWithSet:(id) object copyItems:(BOOL) flag;
+*/
+
+- (id) initWithArray:(NSArray *) array;
+{
+	if((self=[super init]))
+		_array=[array retain];
+	return self;
+}
+- (id) initWithArray:(NSArray *) array copyItems:(BOOL) flag; { return NIMP; }
+- (id) initWithWithArray:(NSArray *) array range:(NSRange) range copyItems:(BOOL) flag; { return NIMP; }
+- (id) initWithWithObject:(id) object; { return [self initWithArray:[NSArray arrayWithObject:object]]; }
+- (id) initWithWithObjects:(id) object, ...; { return NIMP; }
+- (id) initWithWithObjects:(id *) objects count:(NSUInteger) cnt; { return NIMP; }
+- (id) initWithWithOrderedSet:(NSOrderedSet) other; { return [self initWithArray:[other array]]; }
+- (id) initWithWithOrderedSet:(NSOrderedSet) other copyItems:(BOOL) flag; { return NIMP; }
+- (id) initWithWithOrderedSet:(NSOrderedSet) other range:(NSRange) range copyItems:(BOOL) flag; { return NIMP; }
+- (id) initWithWithSet:(id) object; { return NIMP; }
+- (id) initWithtWithSet:(id) object copyItems:(BOOL) flag; { return NIMP; }
+/* inherited: - (id) init; */
+- (NSUInteger) count; { return [_array count]; }
+- (BOOL) containsObject:(id) object; { return [_array containsObject:object]; }
+/* enumerateUsingBlock */
+- (id) firstObject; { return [_array count] > 0 ? [_array objectAtIndex:0] : nil; }
+- (id) lastObject; { return [_array containsObject:object]; }
+- (id) objectAtIndex:(NSUInteger) idx; { return [_array objectAtIndex:idx]; }
+- (id) objectAtIndexedSubscript:(NSUInteger) idx; { return [_array objectAtIndex:idx]; }
+- (NSArray *) objectsAtIndexes:(NSIndexSet *) indexes; { return NIMP; }
+- (NSUInteger) indexOfObject:(id) object; { return [_array indexOfObject:object]; }
+/* - (NSUInteger)indexOfObject:(ObjectType) object
+			  inSortedRange:(NSRange) range
+					options:(NSBinarySearchingOptions) options
+			usingComparator:(NSComparator) comparator;
+ */
+// indexOfObjectPassingTest: and friends
+- (NSEnumerator *) objectEnumerator; { return [_array objectEnumerator]; }
+- (NSEnumerator *) reverseObjectEnumerator; { return [_array objectEnumerator]; }
+- (NSOrderedSet *) reversedOrderedSet; { return NIMP; }
+- (void) getObjects:(id *) objects range:(NSRange) range; { return NIMP; }
+- (void) setValue:(id) value forKey:(NSString *) key; { return NIMP; }	// call for all elements
+- (id) valueForKey:(NSString *) key; { return NIMP; }	// call for all elements and collect in new NSOrderedSet
+// observer methods
+- (BOOL) isEqualToOrderedSet:(NSOrderedSet *) other; { return NIMP; }
+- (BOOL) intersectsOrderedSet:(NSOrderedSet *) other; { return NIMP; }
+- (BOOL) intersectsSet:(NSSet *) other; { return NIMP; }
+- (BOOL) isSubsetOfOrderedSet:(NSOrderedSet *) other; { return NIMP; }
+- (BOOL) isSubsetOfSet:(NSSet *) other; { return NIMP; }
+- (NSArray *) sortedArrayUsingDescriptors:(NSArray *) sortDescriptors; { return [_array sortedArrayUsingDescriptors:sortDescriptors]; }
+// sortedArrayUsingComparator
+- (NSOrderedSet *) filteredOrderedSetUsingPredicate:(NSPredicate *) predicate; { return NIMP; }
+- (NSString *) description;	{ return [_array description]; } // formatted as a property list
+- (NSString *) descriptionWithLocale:(id) locale; { return NIMP; }
+- (NSString *) descriptionWithLocale:(id) locale indent:(NSUInteger) level; { return NIMP; }
+- (NSArray *) array; { return _array; }
+- (NSSet *) set; { return [NSSet setWithArray:_array]}
+
+/*
+ - (NSOrderedCollectionDifference *) differenceFromOrderedSet:(NSOrderedSet *) other;
+ and friends...
+ - (NSOrderedSet *) orderedSetByApplyingDifference:(NSOrderedCollectionDifference *) difference;
+ */
+@end	/* NSOrderedSet */
+
+@implementation NSMutableOrderedSet
+
+@end
