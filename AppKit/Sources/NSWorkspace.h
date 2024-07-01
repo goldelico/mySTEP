@@ -29,6 +29,7 @@
 @class NSView;
 @class NSURL;
 @class NSNumber;
+@class NSRunningApplication;
 
 typedef NSUInteger NSWorkspaceLaunchOptions;
 
@@ -88,8 +89,7 @@ typedef NSUInteger NSWorkspaceIconCreationOptions;
 							   options:(NSWorkspaceLaunchOptions) options
 		additionalEventParamDescriptor:(id) ignored
 					  launchIdentifier:(NSNumber **) identifiers;
-- (NSArray *) launchedApplications;
-- (NSString *) localizedDescriptionForType:(NSString *) type; 
+- (NSString *) localizedDescriptionForType:(NSString *) type;
 - (NSArray *) mountedLocalVolumePaths; 
 - (NSArray *) mountedRemovableMedia;
 - (NSArray *) mountNewRemovableMedia;
@@ -119,7 +119,10 @@ typedef NSUInteger NSWorkspaceIconCreationOptions;
 						files:(NSArray *) files
 						  tag:(NSInteger *) tag;
 - (NSString *) preferredFilenameExtensionForType:(NSString *) type;
+- (NSArray *) launchedApplications;	// deprecated
 - (NSArray *) runningApplications;	// modern interface
+- (NSRunningApplication *) frontmostApplication;	// modern interface
+- (NSRunningApplication *) menuBarOwningApplication;	// modern interface
 - (BOOL) selectFile:(NSString *) fullPath inFileViewerRootedAtPath:(NSString *) rootFullpath;
 - (BOOL) setIcon:(NSImage *) img forFile:(NSString *) path options:(NSWorkspaceIconCreationOptions) opts; 
 - (void) slideImage:(NSImage *) image
