@@ -299,6 +299,8 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 
 @end
 
+@protocol NSTextViewDelegate
+@end
 
 @interface NSObject (NSTextViewDelegate)		// Note all delegation messages come from the first textView
 
