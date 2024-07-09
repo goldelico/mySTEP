@@ -1,5 +1,5 @@
 //
-//  compile.m
+//  Compile.m
 //  objc2pp
 //
 //  Created by H. Nikolaus Schaller on 14.03.13.
