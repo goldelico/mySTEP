@@ -309,7 +309,8 @@ ifeq ($(TRIPLE),MacOS)	# directly on CONTENTS level
 else ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
-	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
+	# no short name since we will symlink to it when building debian packages
+	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
 else	# release specific
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE).$(SO)
 endif	# setting BINARY
@@ -360,6 +361,7 @@ OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
 CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
 LEXSRCS := $(filter %.l %.lm,$(XSOURCES))
 YACCSRCS := $(filter %.y %.ym,$(XSOURCES))
+# FIXME: we have no rules yet how to process LEXSRCS and YACCSRCS
 
 # sources that drive the compiler
 # FIXME: include LEX/YACC?
@@ -1051,7 +1053,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(TRIPLE),MacOS)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
-		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
+		: ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
@@ -1112,7 +1115,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(TRIPLE),MacOS)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
-		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
+		: ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
@@ -1180,7 +1184,8 @@ ifneq ($(TRIPLE),)
 ifneq ($(TRIPLE),MacOS)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
-		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
+		: ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
@@ -1245,7 +1250,8 @@ ifneq ($(TRIPLE),)
 ifneq ($(TRIPLE),MacOS)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
-		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
+		: ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
