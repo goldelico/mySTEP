@@ -847,7 +847,7 @@ make_sh: bundle
 		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
-		chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
+		chmod -R go-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
 	@echo make_sh done
 
@@ -1129,7 +1129,7 @@ endif
 	# create Receipts file
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	# write protect ordinary files
-	$(QUIET)find "/tmp/$(TMP_DATA)" -type f -exec chmod -Rf a-w {} ';' || true
+	$(QUIET)find "/tmp/$(TMP_DATA)" -type f -exec chmod -Rf go-w {} ';' || true
 	# pack data.tar.gz
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C "/tmp/$(TMP_DATA)" .
 	$(QUIET)ls -l "/tmp/$(TMP_DATA).tar.gz"
@@ -1196,7 +1196,7 @@ endif
 	# create Receipts file
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
-	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	$(QUIET)chmod -Rf go-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
@@ -1260,7 +1260,7 @@ endif
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
 	# write protect and pack data.tar.gz
-	$(QUIET)chmod -Rf a-w "/tmp/$(TMP_DATA)" || true
+	$(QUIET)chmod -Rf go-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_DATA) .
 	$(QUIET)ls -l /tmp/$(TMP_DATA).tar.gz
 	# create control.tar.gz
@@ -1500,7 +1500,7 @@ ifneq ($(strip $(PHPSRCS)),)
 			chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 			cp -pf "$$PHPSRC" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/" && \
 			: cp -pf "$$PHPSRC" "$(BINARY)" && \
-			chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
+			chmod -R go-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; \
 		fi; \
 		done
 	# we need to fake a binary for the Makefile rule
