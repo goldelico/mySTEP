@@ -25,6 +25,7 @@
 @class NSArray;
 @class NSDictionary;
 @class NSEnumerator;
+@class NSPredicate;
 
 
 @interface NSSet : NSObject <NSCoding, NSCopying, NSMutableCopying>
@@ -104,8 +105,8 @@
 + (NSOrderedSet *) orderedSetWithObject:(id) object;
 + (NSOrderedSet *) orderedSetWithObjects:(id) object, ...;
 + (NSOrderedSet *) orderedSetWithObjects:(id *) objects count:(NSUInteger) cnt;
-+ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet) other;
-+ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet) other range:(NSRange) range copyItems:(BOOL) flag;
++ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet *) other;
++ (NSOrderedSet *) orderedSetWithOrderedSet:(NSOrderedSet *) other range:(NSRange) range copyItems:(BOOL) flag;
 + (NSOrderedSet *) orderedSetWithSet:(id) object;
 + (NSOrderedSet *) orderedSetWithSet:(id) object copyItems:(BOOL) flag;
 
@@ -115,9 +116,9 @@
 - (id) initWithWithObject:(id) object;
 - (id) initWithWithObjects:(id) object, ...;
 - (id) initWithWithObjects:(id *) objects count:(NSUInteger) cnt;
-- (id) initWithWithOrderedSet:(NSOrderedSet) other;
-- (id) initWithWithOrderedSet:(NSOrderedSet) other copyItems:(BOOL) flag;
-- (id) initWithWithOrderedSet:(NSOrderedSet) other range:(NSRange) range copyItems:(BOOL) flag;
+- (id) initWithWithOrderedSet:(NSOrderedSet *) other;
+- (id) initWithWithOrderedSet:(NSOrderedSet *) other copyItems:(BOOL) flag;
+- (id) initWithWithOrderedSet:(NSOrderedSet *) other range:(NSRange) range copyItems:(BOOL) flag;
 - (id) initWithWithSet:(id) object;
 - (id) initWithtWithSet:(id) object copyItems:(BOOL) flag;
 - (id) init;
