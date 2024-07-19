@@ -50,7 +50,7 @@ QUIET=@
 #   (+) NOCOMPILE - default: no
 #   (+) BUILT_PRODUCTS_DIR - default: build/Deployment
 #   (+) TARGET_BUILD_DIR - default: build/Deployment
-#   (+) PHPONLY - build only PHP - default: no
+#   (+) PHPONLY - build only PHP ("true", "no") - default: no
 #   (+) RECURSIVE - build subprojects first ("true", "no") - default: no
 #   (+) BUILD_FOR_DEPLOYMENT - default: no
 #   (+) OPTIMIZE - optimize level - default: s
@@ -143,6 +143,8 @@ TARGET_INSTALL_PATH := $(INSTALL_PATH)
 INSTALL=false
 endif
 
+PHP=$(shell which php)
+
 .PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
 
 # configure Embedded System if undefined
@@ -174,7 +176,6 @@ endif
 
 ifeq ($(TRIPLE),php)
 # besser: php -l & copy
-PHP := $(shell which php)
 CC := : $(PHP) -l + copy
 # besser: makephar - (shell-funktion?)
 LD := : makephar
@@ -182,7 +183,7 @@ AS := :
 NM := :
 STRIP := :
 SO := phar
-PHAR := /usr/bin/phar
+PHAR := $(shell which phar)
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app//Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
@@ -414,7 +415,7 @@ else
 # BASE_OS_LIST=MacOS Debian
 BASE_OS_LIST=Debian
 endif
-endif
+endif	# ifeq ($(BASE_OS_LIST),)
 #unless PHPONLY
 ifeq ($(PHPONLY),true)
 BASE_OS_LIST=
@@ -454,7 +455,13 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
-( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; export RECURSIVE; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; echo Leaving directory $$(pwd) ); \
+		( \
+		unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME \
+			FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; \
+		export RECURSIVE; \
+		cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; \
+		echo Leaving directory $$(pwd); \
+		); \
 	done
 endif
 endif
@@ -777,8 +784,9 @@ $(TTT)+%.o: %.cpp
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.php
-ifneq ($(PHP),)
+	# make $(TTT)+$*.o from $<
 	@- mkdir -p $(TTT)+$(*D)
+ifneq ($(PHP),)
 	$(PHP) -l $< && $(PHP) -w $< >$(TTT)+$*.o
 endif
 
@@ -824,7 +832,7 @@ make_bundle:
 	# PKG/NAME_EXT/CONTENTS: $(PKG)/$(NAME_EXT)/$(CONTENTS)
 
 make_exec: "$(EXEC)"
-	# make exec
+	# make exec "$(EXEC)"
 
 make_binary: make_exec "$(BINARY)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
@@ -1566,6 +1574,9 @@ endif	# ($(TRIPLE),php)
 	@echo $(EXEC)
 ifneq ($(TRIPLE),unknown-linux-gnu)
 	# make directory for executable
+	# BASE_OS: $(BASE_OS)
+	# TRIPLE: $(TRIPLE)
+	# TTT: $(TTT)
 	# INCLUDES: $(INCLUDES)
 	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
