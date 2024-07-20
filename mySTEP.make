@@ -453,13 +453,13 @@ ifeq ($(RECURSIVE),true)
 # SUBPROJECTS: $(SUBPROJECTS)
 # RECURSIVE: $(RECURSIVE)
 ifneq "$(strip $(SUBPROJECTS))" ""
-	@for i in $(SUBPROJECTS); \
+	@for SUBPROJECT in $(SUBPROJECTS); \
 	do \
 		( \
 		unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME \
 			FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; \
 		export RECURSIVE; \
-		cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) clean || break ; \
+		cd $$(dirname $$SUBPROJECT) && echo Entering directory $$(pwd) for $$SUBPROJECT && ACTION=clean ./$$(basename $$SUBPROJECT) || break ; \
 		echo Leaving directory $$(pwd); \
 		); \
 	done
@@ -467,7 +467,7 @@ endif
 endif
 	@[ -d build ] && chmod -Rf u+w build || true	# rm -rf refuses to delete files without write mode
 	@rm -rf build
-	@echo CLEAN
+	@echo CLEAN done.
 
 debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 	$(for v,$(V), \
@@ -1101,7 +1101,7 @@ F = filter_dependencies() \
 }
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
-	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+	# make debian package $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# DEBIAN_SECTION: $(DEBIAN_SECTION)
 	# DEBIAN_PRIORITY: $(DEBIAN_PRIORITY)
 	# DEBIAN_CONTROL: $(DEBIAN_CONTROL)
@@ -1182,7 +1182,7 @@ endif
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# make debian development package $(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+	# make debian development package $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
@@ -1249,7 +1249,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb":
 ifeq ($(WRAPPER_EXTENSION),framework)
-	# make debian debugging package $(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+	# make debian debugging package $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 ifneq ($(TRIPLE),)
