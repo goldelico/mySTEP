@@ -78,10 +78,10 @@ QUIET=@
 #   (*) DEBIAN_DEPENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_CONFLICTS -
-#   (*) DEBIAN_REPLACES -
+#   (*) DEBIAN_REPLACES - e.g. linux-libc-dev
 #   (*) DEBIAN_PROVIDES -
 #   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
-#   (*) DEBIAN_DESCRIPTION
+#   (*) DEBIAN_DESCRIPTION - a description text
 #   (*) DEBIAN_MAINTAINER
 #   (*) DEBIAN_SECTION - e.g. x11
 #   (*) DEBIAN_PRIORITY - e.g. optional
@@ -1573,9 +1573,6 @@ endif	# ($(OBJECTS),)
 endif	# ($(TRIPLE),php)
 
 "$(EXEC)":: bundle headers resources
-	@echo $(EXEC)
-ifneq ($(TRIPLE),unknown-linux-gnu)
-	# make directory for executable
 	# BASE_OS: $(BASE_OS)
 	# TRIPLE: $(TRIPLE)
 	# TTT: $(TTT)
@@ -1596,8 +1593,6 @@ ifneq ($(TRIPLE),unknown-linux-gnu)
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
-	mkdir -p "$(EXEC)"
-endif
 	@echo resources done
 
 # EOF
