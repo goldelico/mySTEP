@@ -97,6 +97,7 @@ QUIET=@
 #   - INSTALL
 #   (+) EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
 #   (+) DEPLOY - true/false default: false
+#   (+) DEVICE - filter for device to deploy default: "" (meaning all reachable devices)
 #   (+) RUN - true/false default: false
 #   (+) RUN_CMD - default: run
 #
@@ -1358,12 +1359,14 @@ ifeq ($(DEPLOY),true)
 	# deploy remote
 	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
 	# FIXME: use rsync?
-	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEVICE NAME; \
+	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEV NAME; \
 		do \
+		if [ ! "$(DEVICE)" -o "$(DEVICE)" == "$$NAME" ]; then \
 		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
 				gzip | \
-				$(DOWNLOAD_TOOL) $$DEVICE "cd; cd / && gunzip | tar xpvf -; if cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE 2>/dev/null && [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -f $(PRODUCT_NAME) ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
+				$(DOWNLOAD_TOOL) $$DEV "cd; cd / && gunzip | tar xpvf -; if cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE 2>/dev/null && [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -f $(PRODUCT_NAME) ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
 				&& echo +++ installed on $$NAME at $(TARGET_INSTALL_PATH) +++ || echo --- installation failed on $$NAME ---; \
+		fi; \
 		done
 	#done
 else
