@@ -571,7 +571,10 @@ LNK := .link
 #endif
 
 # allow to use #import <framework/header.h> while building the framework
-INCLUDES := -I$(TTT) -I$(EXEC)/../Headers$(LNK) $(INCLUDES)
+ifeq ($(WRAPPER_EXTENSION),framework)
+INCLUDES := -I$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK) $(INCLUDES)
+endif
+INCLUDES := -I$(TTT) $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(TRIPLE),MacOS)
