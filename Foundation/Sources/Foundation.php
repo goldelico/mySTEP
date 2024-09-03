@@ -405,17 +405,17 @@ class NSPropertyListSerialization extends NSObject
 		{
 		parent::__construct();
 		}
-	private static function readPropertyListElementFromElement(SimpleXMLElement $xml)
+	public static function _readPropertyListElementFromElement(SimpleXMLElement $xml)
 		{ // process XML property list entries
 //		_NSLog($xml->getName());
 		switch($xml->getName())
 			{
 			case "plist":	foreach($xml->children() as $key => $node)
-						return self::readPropertyListElementFromElement($node);
+						return self::_readPropertyListElementFromElement($node);
 			case "dict":	$dict=array();
 					foreach($xml->children() as $key => $node)
 						{
-						$val=self::readPropertyListElementFromElement($node);
+						$val=self::_readPropertyListElementFromElement($node);
 						if($key == "key")	// <key>
 							$k=$val;
 						else
@@ -424,7 +424,7 @@ class NSPropertyListSerialization extends NSObject
 					return $dict;
 			case "array":	$array=array();
 					foreach($xml->children() as $key => $node)
-						$array[]=self::readPropertyListElementFromElement($node);	// append to array
+						$array[]=self::_readPropertyListElementFromElement($node);	// append to array
 					return $array;
 			case "key":
 			case "string":	return $xml->__toString();	// return contents
@@ -435,19 +435,24 @@ class NSPropertyListSerialization extends NSObject
 			}
 		return null;	// parse error
 		}
+	private static function readPropertyListElementFromElement(SimpleXMLElement $xml)
+		{ // for compatibility with old code
+		return self::_readPropertyListElementFromElement($xml);
+		}
 	public static function _propertyListFromPath($filename)
 		{
 // FIXME: potentially use a cache on disk shared between PHP apps?
 		if(isset(self::$plists) && isset(self::$plists[$filename]))
 			return self::$plists[$filename];	// get from cache
-		NSLog("$filename =>");
+// _NSLog("$filename =>");
 		$xml=@simplexml_load_file($filename);
 		if($xml === false)
 			return null;
-		$pl=self::readPropertyListElementFromElement($xml);
+		$pl=self::_readPropertyListElementFromElement($xml);
 		if(!isset(self::$plists))
 			self::$plists=array();
 		self::$plists[$filename]=$pl;	// store in cache
+// _NSLog($pl);
 		return $pl;
 		}
 	public static function propertyListFromPath($path)
@@ -455,16 +460,18 @@ class NSPropertyListSerialization extends NSObject
 		$filename=NSFileManager::defaultManager()->fileSystemRepresentationWithPath($path);
 		return self::_propertyListFromPath($filename);	// process file
 		}
-	private static function writePropertyListElementToFile(NSObject $element, $file)
+	private static function writePropertyListElementToFile(NSObject $element, $filename)
 		{
-		NSLog("no idea yet how to writePropertyListElementToPath(..., $file)");
+		NSLog("no idea yet how to writePropertyListElementToPath(..., $filename)");
 		// detect element type
 		// write in XML string fromat
 		}
-	public static function writePropertyListToPath(NSObject $plist, $path)
+	public static function writePropertyListToPath(NSObject $plist, $filename)
 		{
+		if(isset(self::$plists))
+			unset(self::$plists[$filename]);	// clear cache
 		// write header
-		writePropertyListElementToFile($plist, path);
+		writePropertyListElementToFile($plist, filename);
 		// append trailer
 		}
 	}
@@ -599,11 +606,15 @@ class NSBundle extends NSObject
 				$plistPath=$this->_contentsPath();
 // _NSLog("contents $plistPath");
 				if(is_null($plistPath)) return null;	// there are no contents
+				$fm=NSFileManager::defaultManager();
+				if($fm->fileExistsAtPath("$plistPath/Resources/Info.plist"))
+					$plistPath.="Resources/";	// Framework
 				$plistPath.="Info.plist";
-				// can there be a localized Info.plist???
+				// can there be a localized Info.plist??? No - this is done by a localized .strings file
 // _NSLog("read $plistPath");
 				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
+// _NSLog($this->infoDictionary);
 		return $this->infoDictionary;
 		}
 	public function executablePath()
@@ -655,12 +666,11 @@ class NSBundle extends NSObject
 	public function objectForInfoDictionaryKey($key)
 		{
 		$dict=$this->infoDictionary();
-// _NSLog($dict);
 		return isset($dict[$key])?$dict[$key]:null;
 		}
 	public function bundleIdentifier()
 		{
-		return $this->objectForInfoDictionaryKey ('CFBundleIdentifier');
+		return $this->objectForInfoDictionaryKey('CFBundleIdentifier');
 		}
 	public static function bundleWithIdentifier($ident)
 		{
@@ -1010,14 +1020,14 @@ class NSFileManager extends NSObject
 		}
 	public function fileExistsAtPath($path)
 		{
-		NSLog("fileExistsAtPath($path)");
-		return $this->attributesOfItemAtPath($path) != null;
+// _NSLog("fileExistsAtPath($path)");
+		return !is_null($this->attributesOfItemAtPath($path));
 		}
 	public function fileExistsAtPathAndIsDirectory($path, &$isDir)
 		{
 		$attr=$this->attributesOfItemAtPath($path);
 // _NSLog($attr);
-		if($attr == null)
+		if(is_null($attr))
 			return false;
 		$isDir=$attr[NSFileType] == NSFileTypeDirectory;
 // _NSLog("isdir $isDir");
