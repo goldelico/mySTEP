@@ -3281,7 +3281,7 @@ class NSWindow extends NSResponder
 		html(">\n");
 
 		$r=NSBundle::bundleForClass($this->classString())->pathForResourceOfType("AppKit", "css");
-		if(isset($r))
+		if(isset($r) && !is_null($r))
 			{
 			$r=NSHTMLGraphicsContext::currentContext()->externalURLforPath($r);
 			if(!is_null($r))
