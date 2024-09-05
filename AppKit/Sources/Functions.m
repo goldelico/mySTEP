@@ -32,8 +32,8 @@
 	NSString *ident=[self bundleIdentifier];
 	if(![ident length])
 		{
-		ident=[[self path] stringByReplacingOccurrencesOfString:@"/" withString:@"."];	// will start with a .
-		NSLog(@"bundle %@ has no CFBundleIdentifier - using %@", [self path], ident);
+		ident=[[self bundlePath] stringByReplacingOccurrencesOfString:@"/" withString:@"."];	// will start with a .
+		NSLog(@"bundle %@ has no CFBundleIdentifier - using %@", [self bundlePath], ident);
 		}
 	return ident;
 }
