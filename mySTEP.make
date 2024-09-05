@@ -765,6 +765,8 @@ endif
 # if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
 # FIXME: please use $(subst ...)
 
+# FIXME: this does not recognize changes/dependencies on .h files of a framework
+
 $(TTT)+%.o: %.m
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
@@ -1073,6 +1075,11 @@ ifneq ($(TRIPLE),MacOS)
 	done; true )
 endif # ($(TRIPLE),MacOS)
 endif # ($(WRAPPER_EXTENSION),framework)
+else
+	# remove foreign architectures for tools
+	# TRIPLE: $(TRIPLE)
+	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/"* -maxdepth 0 ! -name $(TRIPLE) -prune -print -exec rm -rf {} ";"
 endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(TRIPLE),MacOS)
@@ -1122,6 +1129,11 @@ ifneq ($(WRAPPER_EXTENSION),)
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+else
+	# remove foreign architectures for tools
+	# TRIPLE: $(TRIPLE)
+	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/"* -maxdepth 0 ! -name $(TRIPLE) -prune -print -exec rm -rf {} ";"
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# remove headers
