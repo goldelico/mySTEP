@@ -1078,8 +1078,11 @@ endif # ($(WRAPPER_EXTENSION),framework)
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
-	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/"* -maxdepth 0 ! -name $(TRIPLE) -prune -print -exec rm -rf {} ";"
+	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/
+	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+	fi
 endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifneq ($(TRIPLE),MacOS)
@@ -1133,7 +1136,10 @@ else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
 	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/"* -maxdepth 0 ! -name $(TRIPLE) -prune -print -exec rm -rf {} ";"
+	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+	fi
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# remove headers
