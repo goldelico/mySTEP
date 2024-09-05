@@ -105,17 +105,20 @@ NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)
 void NSDeallocateObject(NSObject *anObject)
 { // object deallocation
 	extern Class __zombieClass;
+	objc_check_malloc();
 	if (anObject != nil)
 		{
 		_object_layout o = &((_object_layout)anObject)[-1];
 #if 0
-		fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, class_getName(object_getClass(anObject)));
+		fprintf(stderr, "NSDeallocateObject: %s %p\n", class_getName(object_getClass(anObject)), anObject);
+//		if(anObject == 0xbb6c8) abort();
 #endif
 		__NSCountDeallocate([anObject class]);
-		object_setClass((id)anObject, __zombieClass);	// install zombie class pointer
+//		object_setClass((id)anObject, __zombieClass);	// install zombie class pointer - but that is useless unless we do NOT free the object...
 		objc_free(o);
 		__NSAllocatedObjects--;	// one less
 		}
+	objc_check_malloc();
 }
 
 NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
@@ -137,6 +140,11 @@ NSObject *NSCopyObject(NSObject *obj, NSUInteger extraBytes, NSZone *zone)
 NSUInteger NSGetExtraRefCount(id anObject)
 {
 	return ((_object_layout)(anObject))[-1].retained;
+}
+
+NSUInteger _NSGetRetainCount(id anObject)
+{
+	return NSGetExtraRefCount(anObject)+1;
 }
 
 BOOL													// Increment, decrement
@@ -186,7 +194,7 @@ static NSMapTable *__zombieMap;	// map object addresses to (old) object descript
 // The Class responsible for handling
 static id autorelease_class = nil;		// autorelease's.  This does not need
 static SEL autorelease_sel;				// mutex protection, since it is simply
-static IMP autorelease_imp = 0;			// a pointer that gets read and set.
+static IMP autorelease_imp = NULL;			// a pointer that gets read and set.
 
 @interface NSObject (NSCopying)	<NSCopying, NSMutableCopying>
 // this is defined here to aid the implementation of -copy and -mutableCopy
@@ -368,7 +376,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (id) retain						{ return self; }
 + (oneway void) release				{ return; }
 + (NSUInteger) retainCount			{ return UINT_MAX; }
-- (NSUInteger) retainCount			{ return NSGetExtraRefCount(self)+1; }
+- (NSUInteger) retainCount			{ return _NSGetRetainCount(self); }
 
 - (id) autorelease
 {
@@ -378,28 +386,27 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (void) dealloc
 {
-#if 0 && defined(__mySTEP__)
-	free(malloc(128));	// segfaults???
-#endif
-	if(NSGetExtraRefCount(self) != -1)
+	objc_check_malloc();
+	if(_NSGetRetainCount(self) != 0)
 		{
-		NSLog(@"[0x%p dealloc] called instead of [obj release] or [super dealloc] - extra refcount = %d", self, NSGetExtraRefCount(self));
+		NSLog(@"[0x%p dealloc] called instead of [obj release] or [super dealloc] - retain count = %d", self, _NSGetRetainCount(self));
 		abort();	// this is a severe bug
 		}
 #if 0
-	fprintf(stderr, "dealloc %p\n", self);
+	fprintf(stderr, "NSObject dealloc %p\n", self);
 #endif
 	NSDeallocateObject(self);
+	objc_check_malloc();
 }
 
 - (oneway void) release
 {
-	if(NSGetExtraRefCount(self)+1 == 0)
+	if(_NSGetRetainCount(self) == 0)
 		{
-		fprintf(stderr, "[0x%p release] called for deallocated object - extra refcount = %lu\n", self, NSGetExtraRefCount(self));
+		fprintf(stderr, "[0x%p release] called for deallocated object - retain count = %lu\n", self, _NSGetRetainCount(self));
 		abort();	// this is a severe bug
 		}
-	if(NSZombieEnabled && NSGetExtraRefCount(self) == 0)				// if ref count becomes zero (was 1)
+	if(NSZombieEnabled && _NSGetRetainCount(self) == 1)				// if retain count would zero
 		{ // enabling this keeps the object in memory and remembers the object description
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
 			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
@@ -441,7 +448,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #if 0	// debugging some issue
 	fprintf(stderr, "retain %p\n", self);	// NSLog() would recursively call -[NSObject release]
 #endif
-	NSAssert(NSGetExtraRefCount(self)+1 != 0, @"don't retain object that is already deallocated");
+	NSAssert(_NSGetRetainCount(self) != 0, @"don't retain object that is already deallocated");
 	NSIncrementExtraRefCount(self);
 	return self;
 }

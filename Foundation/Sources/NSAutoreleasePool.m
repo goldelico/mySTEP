@@ -27,8 +27,8 @@
 struct autorelease_array_list 
 {
 	struct autorelease_array_list *next;
-	unsigned size;
-	unsigned count;
+	NSUInteger size;
+	NSUInteger count;
 	id objects[0];
 };
 
@@ -47,7 +47,7 @@ static BOOL __enableCache = YES;
 // be adjusted with +setPoolCountThreshhold
 // set a breakpoint on +[NSException raise:]
 
-static unsigned __poolCountThreshold = UINT_MAX;
+static NSUInteger __poolCountThreshold = UINT_MAX;
 
 // access to thread variables belonging to NSAutoreleasePool.
 
@@ -150,7 +150,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 // they come from https://www.nextop.de/NeXTstep_3.3_Developer_Documentation/Foundation/Classes/NSAutoreleasePool.htmld/index.html
 
 + (void) enableRelease:(BOOL)enable			{ __autoreleaseEnabled = enable; }
-+ (void) setPoolCountThreshhold:(unsigned)c	{ __poolCountThreshold = c; }
++ (void) setPoolCountThreshhold:(NSUInteger)c	{ __poolCountThreshold = c; }
 + (void) enableDoubleReleaseCheck:(BOOL)en	{ NIMP; }
 
 - (NSString *) description; { return [NSString stringWithFormat:@"%p %@ released:%u", self, NSStringFromClass([self class]), _released_count]; }
@@ -162,6 +162,7 @@ static inline NSAutoreleasePool *pop_pool_from_cache(struct autorelease_thread_v
 	if (!_released_head)
 		{ // Allocate the array that will be the new head of the list of arrays.
 			_released = (struct autorelease_array_list*)
+			// use OBJC_MALLOC?
 			objc_malloc (sizeof(struct autorelease_array_list) +
 						 (INITIAL_POOL_SIZE * sizeof(id)));
 			// Initially there is no NEXT array in the list, so NEXT == NULL.
@@ -266,9 +267,10 @@ NSAutoreleasePool *__currentAutoreleasePool(void) { return THREAD_VARS->current_
 			else
 				{ // We are at the end of the chain, and need to allocate a new one.
 					struct autorelease_array_list *new_released;
-					unsigned new_size = _released->size * 2;	// make it twice as big as the current one
+					NSUInteger new_size = _released->size * 2;	// make it twice as big as the current one
 
 					new_released = (struct autorelease_array_list*)
+					// use OBJC_MALLOC?
 					objc_malloc(sizeof(struct autorelease_array_list)
 								+ (new_size * sizeof(id)));
 					new_released->next = NULL;
@@ -296,6 +298,7 @@ NSAutoreleasePool *__currentAutoreleasePool(void) { return THREAD_VARS->current_
 static void drain(NSAutoreleasePool *self)
 {
 	struct autorelease_array_list *released;
+	objc_check_malloc();
 #if 0
 	fprintf(stderr, "ARP %p: drain() - initial memory=%lu count=%u retainCount=%lu\n", self, NSRealMemoryAvailable(), self->_released_count, (unsigned long)NSGetExtraRefCount(self));
 #endif
@@ -326,9 +329,11 @@ static void drain(NSAutoreleasePool *self)
 					fprintf(stderr, "ARP %p: drain() - release nil?\n", self);
 #endif
 #if 0
-				fprintf(stderr, "ARP %p: drain() - release obj=%p\n", self, anObject);
+				fprintf(stderr, "ARP %p: drain(): release obj=%p class=%s\n", self, anObject, class_getName(object_getClass(anObject)));
 #endif
+				objc_check_malloc();
 				[anObject release];
+				objc_check_malloc();
 				p++;
 				released->count--;
 				self->_released_count--;

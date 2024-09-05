@@ -212,8 +212,8 @@ static Class _doClass;
 { // if the objects are the same they must have the same hash value! - if they are different, some overlap is allowed
 	NSLog(@"hash %p", self);
 	if(_local)
-		return (unsigned int) _connection + (unsigned int) _local;	// it is sufficient to reference the same object and connection
-	return (unsigned int) _connection + (unsigned int) _remote;	// same remote id
+		return (NSUInteger) _connection + (NSUInteger) _local;	// it is sufficient to reference the same object and connection
+	return (NSUInteger) _connection + (NSUInteger) _remote;	// same remote id
 }
 
 - (NSConnection *) connectionForProxy; { return _connection; }

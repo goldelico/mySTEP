@@ -209,9 +209,11 @@ NSDictionary *dict = [string propertyList];
 			objCType:(const char *)type
 { /* store a copy of type and data */
 	unsigned long tsize = strlen(type);
+	// use OBJC_MALLOC?
 	dataType = objc_malloc(tsize+1);
 	strcpy(dataType, type);
 	dataSize = objc_sizeof_type(dataType);
+	// use OBJC_MALLOC?
 	data = objc_malloc(dataSize);
     memcpy(data, value, dataSize);
 	return self;

@@ -205,6 +205,7 @@ __NSCheckMapTableFull(NSMapTable* table)
 NSHashTable *
 NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity)
 {
+	// use OBJC_MALLOC?
 	//	NSHashTable *table = objc_malloc(sizeof(NSHashTable));
 	NSHashTable *table = [[NSHashTable alloc] initWithOptions:0	capacity:capacity];
 
@@ -254,6 +255,7 @@ NSCopyHashTable(NSHashTable *table)
 		{
 		for (oldnode = table->nodes[i]; oldnode; oldnode = oldnode->next)
 			{
+			// use OBJC_MALLOC?
 			newnode = objc_malloc(sizeof(struct _NSHashNode));
 			newnode->key = oldnode->key;
 			newnode->next = new->nodes[i];
@@ -322,6 +324,7 @@ NSHashGet(NSHashTable *table, const void *pointer)
 {															// Retrieve Items
 	struct _NSHashNode *node;
 
+	objc_check_malloc();
 	node =table->nodes[table->callbacks.hash(table,pointer) % table->hashSize];
 	for(; node; node = node->next)
 		if(table->callbacks.isEqual(table, pointer, node->key))
@@ -369,12 +372,12 @@ NSNextHashEnumeratorItem(NSHashEnumerator *en)
 	if(en->node)
 		en->node = en->node->next;
 	if(en->node == NULL) {
-		for(en->bucket++; ((unsigned)en->bucket)<en->table->hashSize; en->bucket++)
+		for(en->bucket++; ((NSUInteger)en->bucket)<en->table->hashSize; en->bucket++)
 			if (en->table->nodes[en->bucket]) {
 				en->node = en->table->nodes[en->bucket];
 				break;
 			};
-		if (((unsigned)en->bucket) >= en->table->hashSize) {
+		if (((NSUInteger)en->bucket) >= en->table->hashSize) {
 			en->node = NULL;
 			en->bucket = en->table->hashSize-1;
 			return NULL;
@@ -416,6 +419,7 @@ NSHashInsert(NSHashTable *table, const void *pointer)
 	NSUInteger h;
 	struct _NSHashNode *node;
 
+	objc_check_malloc();
 	if (pointer == nil)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Nil object to be added in NSHashTable."];
@@ -436,6 +440,7 @@ NSHashInsert(NSHashTable *table, const void *pointer)
 		return;
 	}
 	// key not found. Allocate a new bucket and initialize it.
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSHashNode));
 	table->callbacks.retain(table, pointer);
 	node->key = (void*)pointer;
@@ -451,6 +456,7 @@ NSHashInsertKnownAbsent(NSHashTable *table, const void *pointer)
 	NSUInteger h;
 	struct _NSHashNode *node;
 
+	objc_check_malloc();
 	if (pointer == nil)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Nil object to be added in NSHashTable."];
@@ -466,6 +472,7 @@ NSHashInsertKnownAbsent(NSHashTable *table, const void *pointer)
 					format: @"Nil object already existing in NSHashTable."];
 
 	// key not found. Allocate a new bucket and initialize it.
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSHashNode));
 	table->callbacks.retain(table, pointer);
 	node->key = (void*)pointer;
@@ -481,6 +488,7 @@ NSHashInsertIfAbsent(NSHashTable *table, const void *pointer)
 	NSUInteger h;
 	struct _NSHashNode *node;
 
+	objc_check_malloc();
 	if (pointer == nil)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Nil object to be added in NSHashTable."];
@@ -494,6 +502,7 @@ NSHashInsertIfAbsent(NSHashTable *table, const void *pointer)
 		return node->key;
 
 	// key not found. Allocate a new bucket and initialize it.
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSHashNode));
 	table->callbacks.retain(table, pointer);
 	node->key = (void*)pointer;
@@ -602,8 +611,9 @@ NSStringFromHashTable(NSHashTable *table)
 NSMapTable *
 NSCreateMapTable(NSMapTableKeyCallBacks keyCallbacks,
 				 NSMapTableValueCallBacks valueCallbacks,
-				 unsigned capacity)
+				 NSUInteger capacity)
 {
+	// use OBJC_MALLOC?
 	// NSMapTable *table = objc_malloc(sizeof(NSMapTable));
 	NSMapTable *table = [[NSMapTable alloc] initWithKeyOptions:0 valueOptions:0 capacity:capacity];
 
@@ -663,6 +673,7 @@ NSCopyMapTable(NSMapTable *table)
 		{
 		for (oldnode = table->nodes[i]; oldnode; oldnode = oldnode->next)
 			{
+			// use OBJC_MALLOC?
 			newnode = objc_malloc(sizeof(struct _NSMapNode));
 			newnode->key = oldnode->key;
 			newnode->value = oldnode->value;
@@ -749,6 +760,7 @@ NSMapGet(NSMapTable *table, const void *key)
 {
 	struct _NSMapNode *node;
 
+	objc_check_malloc();
 	node = table->nodes[table->keyCallbacks.hash(table,key) % table->hashSize];
 	for(; node; node = node->next)
 		if(table->keyCallbacks.isEqual(table, key, node->key))
@@ -775,12 +787,12 @@ NSNextMapEnumeratorPair(NSMapEnumerator *en, void **key, void **value)
 	if(en->node)
 		en->node = en->node->next;
 	if(en->node == NULL) {
-		for(en->bucket++; ((unsigned)en->bucket)<en->table->hashSize; en->bucket++)
+		for(en->bucket++; ((NSUInteger)en->bucket)<en->table->hashSize; en->bucket++)
 			if (en->table->nodes[en->bucket]) {
 				en->node = en->table->nodes[en->bucket];
 				break;
 			}
-		if (((unsigned)en->bucket) >= en->table->hashSize) {
+		if (((NSUInteger)en->bucket) >= en->table->hashSize) {
 			en->node = NULL;
 			en->bucket = en->table->hashSize-1;
 			return NO;
@@ -853,6 +865,7 @@ NSMapInsert(NSMapTable *table, const void *key, const void *value)
 {
 	NSUInteger h;
 	struct _NSMapNode *node;
+	objc_check_malloc();
 
 	if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
@@ -881,6 +894,7 @@ NSMapInsert(NSMapTable *table, const void *key, const void *value)
 			return;
 		}
 
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSMapNode));	// key not found so allocate a
 	table->keyCallbacks.retain(table, key);		// new bucket for the key
 	table->valueCallbacks.retain(table, value);
@@ -898,6 +912,7 @@ NSMapInsertIfAbsent(NSMapTable *table, const void *key,const void *value)
 	NSUInteger h;
 	struct _NSMapNode *node;
 
+	objc_check_malloc();
 	if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Invalid key (%p) to be added in NSMapTable.", key];
@@ -909,6 +924,7 @@ NSMapInsertIfAbsent(NSMapTable *table, const void *key,const void *value)
 	if(node)									// in the nodeTable and return
 		return node->key;						// it if it does.
 
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSMapNode));	// key not found, alloc a new
 	table->keyCallbacks.retain(table, key);		// bucket for the key
 	table->valueCallbacks.retain(table, value);
@@ -928,6 +944,7 @@ NSMapInsertKnownAbsent(NSMapTable *table, const void *key, const void *value)
 	NSUInteger h;
 	struct _NSMapNode *node;
 
+	objc_check_malloc();
 	if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Invalid key (%p) to be added in NSMapTable.", key];
@@ -941,6 +958,7 @@ NSMapInsertKnownAbsent(NSMapTable *table, const void *key, const void *value)
 		[NSException raise: NSInvalidArgumentException
 					format: @"Nil object already existing in NSMapTable."];
 
+	// use OBJC_MALLOC?
 	node = objc_malloc(sizeof(struct _NSMapNode));	// key not found, alloc a new
 	table->keyCallbacks.retain(table, key);		// bucket for the key
 	table->valueCallbacks.retain(table, value);

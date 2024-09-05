@@ -33,7 +33,7 @@
 	struct autorelease_array_list *_released;
 	struct autorelease_array_list *_released_head;
 
-	unsigned _released_count;	// number of objects autoreleased in this pool
+	NSUInteger _released_count;	// number of objects autoreleased in this pool
 }
 
 + (void) addObject:(id) anObject;

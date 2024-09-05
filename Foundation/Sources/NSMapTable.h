@@ -56,7 +56,7 @@ typedef struct _NSMapTableValueCallBacks {
 typedef struct NSMapEnumerator {
 	/*struct _*/ NSMapTable *table;
 	struct _NSMapNode *node;
-	int bucket;
+	NSInteger bucket;
 } NSMapEnumerator;
 
 #define NSNotAnIntMapKey (NSNotFound)
@@ -126,7 +126,7 @@ extern const NSMapTableValueCallBacks NSNonRetainedObjectMapValueCallBacks;
 // Create a Table
 NSMapTable *NSCreateMapTable(NSMapTableKeyCallBacks keyCallBacks,
 							 NSMapTableValueCallBacks valueCallBacks,
-							 unsigned capacity);
+							 NSUInteger capacity);
 NSMapTable *NSCopyMapTable(NSMapTable *table);
 
 void NSFreeMapTable(NSMapTable *table);					// Free a Table

@@ -118,7 +118,7 @@ extern NSString *NSParseErrorException;
 {
 @public
     char *_cString;
-    unsigned int _count;
+    NSUInteger _count;
 }
 
 + (const NSStringEncoding *) availableStringEncodings;
@@ -146,7 +146,7 @@ extern NSString *NSParseErrorException;
 + (id) stringWithCString:(const char *) cString
 				encoding:(NSStringEncoding) enc;
 + (id) stringWithCString:(const char *) byteString
-				  length:(unsigned int) length;
+				  length:(NSUInteger) length;
 + (id) stringWithFormat:(NSString *) format, ...;
 + (id) stringWithString:(NSString *) aString;
 + (id) stringWithUTF8String:(const char *) bytes;
@@ -214,7 +214,7 @@ extern NSString *NSParseErrorException;
 			  length:(NSUInteger) length
 			encoding:(NSStringEncoding) enc;
 - (id) initWithCharactersNoCopy:(unichar *) chars
-						 length:(unsigned int) length
+						 length:(NSUInteger) length
 				   freeWhenDone:(BOOL) flag;
 - (id) initWithBytesNoCopy:(void *) bytes
 					length:(NSUInteger) length
@@ -240,9 +240,9 @@ extern NSString *NSParseErrorException;
 - (id) initWithCString:(const char *) cstring
 			  encoding:(NSStringEncoding) enc;
 - (id) initWithCString:(const char *) byteString
-				length:(unsigned int) length;
+				length:(NSUInteger) length;
 - (id) initWithCStringNoCopy:(char *) byteString
-					  length:(unsigned int) length
+					  length:(NSUInteger) length
 				freeWhenDone:(BOOL) flag;
 - (id) initWithData:(NSData *) data encoding:(NSStringEncoding) encoding;
 - (id) initWithFormat:(NSString *) format, ...;
@@ -363,7 +363,7 @@ extern void *_NSConstantStringClassReference;
 @interface NSConstantString : NSSimpleCString
 {
 	@protected
-	unsigned numBytes;
+	NSUInteger numBytes;
     char *bytes;
 }
 @end

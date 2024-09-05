@@ -149,14 +149,14 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			path = [path stringByDeletingLastPathComponent];		// Strip off the name of the program
 			if([[path lastPathComponent] isEqualToString:@"."])
 				path = [path stringByDeletingLastPathComponent];	// was called as ./executable
-#ifdef __mySTEP__
+#ifndef __APPLE__
 			if([[[path stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"Contents"])
 				{
 				path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor
 				path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
 				}
 #endif
-#if 0
+#if 1
 			NSLog(@"NSBundle: main bundle path is %@", path);
 #endif
 #if 0
@@ -169,7 +169,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 				[__loadLock unlock];
 				[NSException raise:NSInternalInconsistencyException format: @"Not a main bundle at %@", path];
 				}
-			__mainBundle->_bundleType = (unsigned int) NSBUNDLE_APPLICATION;
+			__mainBundle->_bundleType = NSBUNDLE_APPLICATION;
 #if 0
 			NSLog(@"NSBundle: before loadunlock 1");
 #endif
@@ -195,7 +195,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	NSBundle *bundle;
 	if(!aClass)
 		return __mainBundle;
-#if 0
+#if 1
 	NSLog(@"bundleForClass %@", NSStringFromClass(aClass));
 #endif
 	file=objc_moduleForAddress(aClass);	// get the path of the dynamic file that defines the class record
@@ -210,8 +210,8 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		}
 	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))
 		{ // look up by filename - if already known
-#if 0
-			NSLog(@"already known to be %@", bundle);
+#if 1
+			NSLog(@"bundleForClass %@ already known to be in %@", NSStringFromClass(aClass), bundle);
 #endif
 			return bundle;
 		}
@@ -225,15 +225,18 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	while([bpath length] > 1)
 		{ // search upwards until we have found the anchor point
 			bpath=[bpath stringByDeletingLastPathComponent];	// remove executable name etc.
-			bundle=[self bundleWithPath:bpath];	// try to open
 #if 0
-			NSLog(@"try %@: %@", bundle, [bundle executablePath]);
+			NSLog(@"try bpath %@", bpath);
+#endif
+			bundle=[self bundleWithPath:bpath];	// try to open (likely will succeed but there may not be an executablePath)
+#if 0
+			NSLog(@"executable path %@ in %p:%@", [bundle executablePath], bundle, bundle);
 #endif
 			if(bundle && [[bundle executablePath] isEqualToString:path])
 				{ // found!
 					NSMapInsert(__bundlesForExecutables, file, bundle); // save in cache!
 #if 0
-					NSLog(@"found %@ -> %@", bundle, [bundle executablePath]);
+					NSLog(@"found p:%@ -> %@", bundle, bundle, [bundle executablePath]);
 #endif
 					return bundle;
 				}
@@ -257,7 +260,11 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 - (id) initWithPath:(NSString *)path;
 {
 	NSBundle *bundle;
+	NSString *iplist;
 	BOOL isdir;
+#if 0
+	NSLog(@"%p: initWithPath %@", self, path);
+#endif
 
 	if (!path || [path length] == 0)
 		{
@@ -268,6 +275,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 	if ((bundle = (NSBundle *) NSMapGet(__bundles, path)))
 		{ // Check if we were already init'd for this directory
+			NSLog(@"substitute by known bundle for path %@", path);
 			[self release];
 			return [bundle retain];
 		}
@@ -282,36 +290,47 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		}
 
 	if([path hasSuffix:@".framework"])
-		_bundleType = (unsigned int) NSBUNDLE_FRAMEWORK;
+		_bundleType = NSBUNDLE_FRAMEWORK;
 	else
-		_bundleType = (unsigned int) NSBUNDLE_BUNDLE;
+		_bundleType = NSBUNDLE_BUNDLE;
 
 	_searchPaths = [[NSMutableDictionary alloc] initWithCapacity: 4];
 	_path = [path copy];
-	if(_bundleType == (unsigned int) NSBUNDLE_FRAMEWORK)
-		_bundleContentPath=[_path stringByAppendingPathComponent:@"Versions/Current"];
-	else
-		_bundleContentPath=[_path stringByAppendingPathComponent:@"Contents"];
-	[_bundleContentPath retain];
-
-#if 0	// does not work for Framework bundles because the default Info.plist is in _bundleContentPath/Resources
-	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:@"Info.plist"]])
+	if(_bundleType == NSBUNDLE_FRAMEWORK)
 		{
-#if 0
-		NSLog(@"Could not find Info.plist for bundle %@", path);
+		_bundleContentPath=[_path stringByAppendingPathComponent:@"Versions/Current"];
+		iplist=@"Resources/Info.plist";
+		}
+	else
+		{
+		_bundleContentPath=[_path stringByAppendingPathComponent:@"Contents"];
+		iplist=@"Info.plist";
+		}
+	[_bundleContentPath retain];
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:iplist]])
+		{
+#if 1	// we can not NSAssert or abort because bundleForClass: relies on testing different non-bundle directories
+		NSLog(@"Could not find Info.plist inside bundle %@", path);
 #endif
 		[self release];
 		return nil;
 		}
+#if 0
+	NSLog(@"_bundleContentPath %@", _bundleContentPath);
+	NSLog(@"save in cache: path %@ -> %@", path, self);
 #endif
 
+	NSMapInsert(__bundles, path, self); // save us in cache!
 	return self;
 }
 
 - (void) dealloc
 {
+#if 1
+	NSLog(@"NSBundle dealloc %p", self);
+#endif
 	NSMapRemove(__bundles, _path);
-	NSMapRemove(__bundlesForExecutables, NULL);
+	NSMapRemove(__bundlesForExecutables, NULL);	// why NULL ?
 	[_localizations release];
 	[_preferredLocalizations release];
 	[_bundleClasses release];
@@ -320,19 +339,22 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	[_bundleContentPath release];
 	[_searchPaths release];
 	[super dealloc];
+#if 1
+	NSLog(@"NSBundle dealloc %p done", self);
+#endif
 }
 
 - (NSString *) bundlePath				{ return _path; }
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%@: path=%@\n  infoDict=%@\n  searchPaths=%@\n  bundleClasses=%@\n  %@",
+	return [NSString stringWithFormat:@"%@: path=%@ %@loaded\n  infoDict=%@\n  searchPaths=%@\n  bundleClasses=%@\n",
 			NSStringFromClass([self class]),
 			_path,
+			_codeLoaded?@"":@"not ",
 			_infoDict,
 			_searchPaths,
-			[_bundleClasses allObjects],
-			_codeLoaded?@"loaded":@"not loaded"];
+			[_bundleClasses allObjects]];
 }
 
 - (Class) classNamed:(NSString *)className
@@ -369,26 +391,44 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		{
 		NSString *n = [self objectForInfoDictionaryKey:@"NSPrincipalClass"];
 #if 0
-		NSLog(@"infoDictionary - principalClass: %@", n);
+		NSLog(@"principalClass: infoDictionary[NSPrincipalClass]: %@", n);
+		if(!n)
+			{
+			NSLog(@"principalClass: infoDictionary = %p\n%@", _infoDict, _infoDict);
+			abort();
+			}
 #endif
 		if(self == __mainBundle)
 			{
+#if 0
+			NSLog(@"principalClass: we are main bundle");
+#endif
 			_codeLoaded = YES;
 			if(n)
 				_principalClass = NSClassFromString(n);
 			else
-				NSLog(@"NSPrincipalClass is not defined in Info.plist (%@)", [self infoDictionary]);
+				NSLog(@"NSPrincipalClass is not defined in Info.plist (%@)", [self infoDictionary])
+				, abort();
 			}
 		else
 			{
+#if 0
+			NSLog(@"principalClass: load bundle code");
+#endif
 			if([self load] == NO)
 				return Nil;
+#if 0
+			NSLog(@"principalClass: bundle code loaded");
+#endif
 			if(n)
 				_principalClass = NSClassFromString(n);
 			if(!_principalClass)
-				_principalClass = NSClassFromString([_bundleClasses anyObject]);
+				_principalClass = NSClassFromString([_bundleClasses anyObject]);	// Randomize...
 			}
 		}
+#if 0
+	NSLog(@"principalClass = %@", NSStringFromClass(_principalClass));
+#endif
 
 	return _principalClass;
 }
@@ -674,22 +714,59 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 {
 	NSString *path=nil;
 #if 0
-	NSLog(@"infoDictionary");
+	NSLog(@"infoDictionary of %p = %p", self, _infoDict);
 #endif
 	if(_infoDict == nil)
 		{ // not yet cached
+#if 0
+			NSLog(@"infoDictionary %p = %p: load from bundle", self, _infoDict);
+#endif
 			NS_DURING
 			{
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
-			// FIXME: does this recursively try to read infoDictionary?
+			NSDictionary *newDict;
 			path=[self pathForResource:@"Info" ofType:@"plist"];
+			if(_infoDict) NSLog(@"1: recursive call to _infoDict");
 #if 0
-			NSLog(@"infoDictionary path=%@", path);
+			NSLog(@"infoDictionary %p path=%@", self, path);
 #endif
+			if(_infoDict) NSLog(@"2. recursive call to _infoDict");
 			if(path)
-				_infoDict = [NSDictionary dictionaryWithContentsOfFile:path];
+				newDict = [NSDictionary dictionaryWithContentsOfFile:path];
 			else
-				_infoDict = [NSDictionary dictionary];	// empty!
+				newDict = [NSDictionary dictionary];	// empty mut not nil!
+#if 0
+			NSLog(@"infoDictionary %p newdict=%p count = %lu", self, newDict, (long) [newDict count]);
+			NSLog(@"newdict = %@", newDict);
+			NSString *cfstr;
+			cfstr=@"CFBundleGetInfoString";
+			NSLog(@"newdict[%@] = %@", cfstr, [newDict objectForKey:cfstr]);
+			cfstr=@"NSPrincipalClass";
+			NSLog(@"newdict[%@] = %@", cfstr, [newDict objectForKey:cfstr]);
+			NSLog(@"newdict[0] = %@", [[newDict allValues] objectAtIndex:0]);
+			NSLog(@"newdict[count-1] = %@", [[newDict allValues] objectAtIndex:[newDict count]-1]);
+			NSLog(@"newdict allkeys = %@", [newDict allKeys]);
+			NSString *str=[[newDict allKeys] objectAtIndex:[newDict count]-7];
+			NSLog(@"newdict[count-5].key = %@", str);
+			NSLog(@"equal %d", [str isEqualToString:cfstr]);
+			NSLog(@"compare %d", [str compare:cfstr]);
+			NSLog(@"%p %@: length %d", cfstr, cfstr, [cfstr length]);
+			NSLog(@"%p %@: length %d", str, str, [str length]);
+			NSLog(@"%p %@: hash %lx", cfstr, cfstr, [cfstr hash]);
+			NSLog(@"%p %@: hash %lx", str, str, [str hash]);
+			NSLog(@"%p %@: class %@", cfstr, cfstr, NSStringFromClass([cfstr class]));
+			NSLog(@"%p %@: class %@", str, str, NSStringFromClass([str class]));
+			NSLog(@"newdict NSMapGet %@: %@", str, (NSObject *) NSMapGet([newDict _mapTable], str));
+			NSLog(@"newdict NSMapGet %@: %@", cfstr, (NSObject *) NSMapGet([newDict _mapTable], cfstr));
+			NSLog(@"%p %@: %@", cfstr, cfstr, NSStringFromClass([newDict class]));
+			NSLog(@"%p %@: %@", str, str, NSStringFromClass([newDict class]));
+			NSLog(@"newdict[%@] = %@", str, [newDict objectForKey:str]);
+			NSLog(@"newdict[%@] = %@", cfstr, [newDict objectForKey:cfstr]);
+			abort();
+#endif
+			if(_infoDict) NSLog(@"3. recursive call to _infoDict");
+			[_infoDict release];
+			_infoDict=newDict;
 			[_infoDict retain]; // keep a reference
 			[arp release];	// release all temporaries
 			}
@@ -699,6 +776,9 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			_infoDict=nil; // e.g. NSXMLParseError
 			NS_ENDHANDLER
 		}
+#if 0
+	NSLog(@"infoDictionary %p: %p", self, _infoDict);
+#endif
 	return _infoDict;
 }
 
@@ -755,7 +835,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	e=NSEnumerateMapTable(__bundles);
 	while(NSNextMapEnumeratorPair(&e, &key, (void **)&bundle))
 		{
-		if(bundle->_bundleType == (unsigned int) NSBUNDLE_FRAMEWORK)
+		if(bundle->_bundleType == NSBUNDLE_FRAMEWORK)
 			[list addObject:bundle];
 		}
 	return list;
@@ -778,12 +858,19 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 - (NSString *) pathForAuxiliaryExecutable:(NSString *) name;
 {
+	if(_bundleType == NSBUNDLE_FRAMEWORK)
+		{
+#ifdef __APPLE__
+		return [_path stringByAppendingFormat:@"/%@", name];
+// would also work but there is a direct symlink		return [_path stringByAppendingFormat:@"/Versions/Current/%@/%@", @"MacOS", name];
+#else
+		// ARCHITECTURE macro is defined on cc command line
+		return [_path stringByAppendingFormat:@"/Versions/Current/%@/%@", ARCHITECTURE, name];
+#endif
+		}
 #ifdef __APPLE__
 	return [[_bundleContentPath stringByAppendingPathComponent:@"MacOS"] stringByAppendingPathComponent:name];
 #else
-	if(_bundleType == (unsigned int) NSBUNDLE_FRAMEWORK)
-		// ARCHITECTURE macro is defined on cc command line
-		return [_path stringByAppendingFormat:@"/Versions/Current/%@/%@", ARCHITECTURE, name];
 	return [[_bundleContentPath stringByAppendingPathComponent:ARCHITECTURE] stringByAppendingPathComponent:name];
 #endif
 }
@@ -824,9 +911,9 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		if(!_infoDict)
 			{ // we are bootstrapping (i.e. looking for global Info.plist)
 #if 1
-				NSLog(@"bootstrapping localization");
+				NSLog(@"localizations: bootstrapping localization");
 #endif
-				return [NSArray arrayWithObjects:@"English", @"en", nil];
+				return [NSArray arrayWithObjects:@"Base", @"English", @"en", nil];
 			}
 		_localizations=[[NSMutableArray alloc] initWithCapacity:10];
 		while((file=[f nextObject]))

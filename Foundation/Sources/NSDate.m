@@ -459,6 +459,7 @@ BOOL zoneByAbbreviation = YES;
 										// Find the order of date elements and 
 										// translate format string into scanf 
 	order = 1;							// ready string
+	// use OBJC_MALLOC?
 	nfp = newf = objc_malloc(2*lf+1);
 	for (i = 0;i < lf; ++i)				// see description method for a list of
 		{								// the strftime format specifiers

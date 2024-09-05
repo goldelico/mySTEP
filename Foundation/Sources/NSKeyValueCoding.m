@@ -168,6 +168,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 		[self setNilValueForKey:str];
 		return;
 		}
+	// use OBJC_MALLOC?
 	selName=objc_malloc(len);
 	strcpy(selName, "set");
 	strcpy(selName+3, varName);	// append

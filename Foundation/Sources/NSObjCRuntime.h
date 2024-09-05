@@ -149,6 +149,7 @@ typedef struct __CGEvent *CGEventRef;
 #define objc_free(A) { if(A) free(A); }
 #define objc_calloc(A, B) calloc((A), (B))
 #define objc_realloc(A, B) realloc((A), (B))
+#define objc_check_malloc()
 
 int objc_alignof_type(const char *type);
 int objc_sizeof_type(const char *type);
@@ -257,6 +258,11 @@ long objc_loadModules(char *list[],
 long objc_unloadModules(void *errStream,
 						void (*unloadCB)(Class, Category));
 
+#if 0	// useful for debugging double free or outside bounds writes
+#define objc_check_malloc()	{objc_free(objc_malloc(10));objc_free(objc_malloc(8192));}	// may segfault or report corruption
+#else
+#define objc_check_malloc()
+#endif
 
 #endif
 

@@ -344,7 +344,9 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 				if (bytes+offset+((4*n_trans)+n_trans) > bytes+len)
 						[NSException raise:NSGenericException format:@"range error in timezone transitions"];
 				_transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];
+			// use OBJC_MALLOC?
 				trans = objc_malloc(4 * n_trans);
+			// use OBJC_MALLOC?
 				type_idxs = objc_malloc(n_trans);
 				memcpy(trans, bytes+offset, (i = (4*n_trans)));	// copy to adapt alignment (bytes+offset may be unaligned)
 				memcpy(type_idxs, bytes+offset+i, (n_trans));

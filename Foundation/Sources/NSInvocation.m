@@ -247,6 +247,7 @@
 { // NOTE: only supports NSPortCoder
 	NSMethodSignature *sig=[self methodSignature];
 	unsigned char len=[sig methodReturnLength];	// this should be the length really allocated
+												// use OBJC_MALLOC?
 	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	NSUInteger cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
 	// if we move this to NSInvocation we don't even need the private methods
@@ -302,6 +303,7 @@
 	type=translateSignatureFromNetwork(type);
 #endif
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
+	// use OBJC_MALLOC?
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer for return value and arguments
 	self=[self _initWithMethodSignature:sig argFrame:[sig _allocArgFrame]];
 	if(!self)

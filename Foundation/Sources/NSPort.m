@@ -74,7 +74,7 @@ NSString *__NSDescribeSockets(void *table, const void *addr)
 unsigned __NSHashSocket(void *table, const void *addr)
 {
 	register const char *p = (char*)addr;
-	register unsigned hash = 0, hash2;
+	register NSUInteger hash = 0, hash2;
 	register int i;
     for(i = 0; i < ((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t); i++)
 		{
@@ -557,6 +557,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 #if 0
 			NSLog(@"### header received length=%u on fd=%d", _recvLength, _sendfd);
 #endif
+			// use OBJC_MALLOC?
 			_recvBuffer=objc_malloc(_recvLength);
 			if(!_recvBuffer)
 				{

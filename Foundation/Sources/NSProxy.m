@@ -140,7 +140,7 @@
 }
 
 - (BOOL) isProxy							{ return YES; }
-- (NSUInteger) hash						{ return (unsigned int)self; }
+- (NSUInteger) hash						{ return (NSUInteger)self; }
 
 // which of these should be forwarded as well?
 

@@ -195,6 +195,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	while(length > 0)
 		{ // read in chunks and enlarge buffer if required
 			int status;
+			// use OBJC_MALLOC?
 			if(bufpos == 0)
 				buffer=objc_malloc(bufpos+FRAGMENT);
 			else

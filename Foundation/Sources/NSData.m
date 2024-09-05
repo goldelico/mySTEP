@@ -109,7 +109,7 @@ static IMP appendImp;
 	NSUInteger growth;
 }
 // Increase capacity to at least the specified minimum value.
-- (void) _grow:(unsigned)minimum;
+- (void) _grow:(NSUInteger)minimum;
 
 @end
 
@@ -124,14 +124,14 @@ static IMP appendImp;
 {
 	int shmid;
 }
-- (id) initWithShmID:(int)anId length:(unsigned)bufferSize;
+- (id) initWithShmID:(int)anId length:(NSUInteger)bufferSize;
 @end
 
 @interface	NSMutableDataShared : NSMutableDataMalloc
 {
 	int shmid;
 }
-- (id) initWithShmID:(int)anId length:(unsigned)bufferSize;
+- (id) initWithShmID:(int)anId length:(NSUInteger)bufferSize;
 @end
 #endif
 
@@ -264,6 +264,7 @@ static IMP appendImp;
 #if 0
 	fprintf(stderr, "NSData description length=%d l=%d\n", length, l);
 #endif
+	// use OBJC_MALLOC?
 	if ((bp=dest=(char *) objc_malloc(l)) == NULL)
 		[NSException raise: NSMallocException format: @"malloc failed in NSData -description (length=%d l=%d)", length, l];
 	*bp++ = '<';
@@ -316,6 +317,7 @@ static IMP appendImp;
 					format: @"-[NSData subdataWithRange:] Range: (%u, %u) Size: %d",
 		 aRange.location, aRange.length, l];
 
+	// use OBJC_MALLOC?
 	if ((buffer = objc_malloc(aRange.length)) == 0)
 		[NSException raise: NSMallocException format: @"malloc failed in -subdataWithRange"];
 
@@ -420,7 +422,7 @@ static IMP appendImp;
 // Deserializing Data
 - (NSUInteger) deserializeAlignedBytesLengthAtCursor:(NSUInteger*)cursor
 {
-	return (unsigned)[self deserializeIntAtCursor: cursor];
+	return (NSUInteger)[self deserializeIntAtCursor: cursor];
 }
 
 - (void) deserializeBytes:(void*)buffer
@@ -460,7 +462,7 @@ static IMP appendImp;
 			}
 		else
 			{
-			unsigned l = (len + 1) * sizeof(char);
+			NSUInteger l = (len + 1) * sizeof(char);
 
 			*(char**)data = (char*)objc_malloc(l);
 			[[[dataMalloc alloc] initWithBytesNoCopy: *(void**)data
@@ -473,10 +475,10 @@ static IMP appendImp;
 		}
 		case _C_ARY_B:
 		{
-		unsigned offset = 0;
-		unsigned size;
-		unsigned count = atoi(++type);
-		unsigned i;
+		NSUInteger offset = 0;
+		NSUInteger size;
+		NSUInteger count = atoi(++type);
+		NSUInteger i;
 
 		while (isdigit(*type))
 			type++;
@@ -521,7 +523,7 @@ static IMP appendImp;
 		}
 		case _C_PTR:
 		{
-		unsigned len = objc_sizeof_type(++type);
+		NSUInteger len = objc_sizeof_type(++type);
 
 		*(char**)data = (char*)objc_malloc(len);
 		[[[dataMalloc alloc] initWithBytesNoCopy: *(void**)data
@@ -608,7 +610,7 @@ static IMP appendImp;
 		}
 		case _C_CLASS:
 		{
-		unsigned n;
+		NSUInteger n;
 
 		[self deserializeBytes:&n length:sizeof(unsigned) atCursor:cursor];
 		if ((n = NSSwapBigIntToHost(n)) == 0)
@@ -1151,10 +1153,10 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		}
 		case _C_ARY_B:
 		{
-		unsigned offset = 0;
-		unsigned size;
-		unsigned count = atoi(++type);
-		unsigned i;
+		NSUInteger offset = 0;
+		NSUInteger size;
+		NSUInteger count = atoi(++type);
+		NSUInteger i;
 
 		while (isdigit(*type))
 			type++;
@@ -1200,7 +1202,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 		}
 		case _C_PTR:
 		{
-		unsigned len = objc_sizeof_type(++type);
+		NSUInteger len = objc_sizeof_type(++type);
 
 		*(char**)data = (char*)objc_malloc(len);
 		[[[dataMalloc alloc] initWithBytesNoCopy: *(void**)data
@@ -1345,8 +1347,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 {
 	id r=[super alloc];
 	extern BOOL __doingNSLog;
+	objc_check_malloc();
 	if(!__doingNSLog)
-		fprintf(stderr, "alloc NSDataMalloc: %p\n", r);
+		fprintf(stderr, "NSDataMalloc alloc: self=%p\n", r);
 	return r;
 }
 #endif
@@ -1357,13 +1360,11 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 {
 #if 0
 	extern BOOL __doingNSLog;
-	if(!__doingNSLog)
-		fprintf(stderr, "dealloc NSDataMalloc: %p %p %u\n", self, bytes, length);
+//	if(!__doingNSLog)
+		fprintf(stderr, "%s dealloc: self=%p bytes=%p length=%lu\n", class_getName([self class]), self, bytes, (unsigned long) length);
 	if(!bytes && length > 0)
 		abort();	// should not happen
-#if defined(__mySTEP__)
-	free(malloc(8192));	// segfaults???
-#endif
+	objc_check_malloc();
 #endif
 	if(bytes)
 		objc_free(bytes);
@@ -1373,9 +1374,15 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 - (id) initWithBytes:(const void*)aBuffer length:(NSUInteger)bufferSize
 {
 	void *tmp = NULL;
+	objc_check_malloc();
 
+#if 0
+	if(!__doingNSLog)
+		fprintf(stderr, "%s initWithBytes:length: self=%p bytes=%p length=%lu\n", class_getName([self class]), self, bytes, (unsigned long) length);
+#endif
 	if(aBuffer != NULL && bufferSize > 0)
 		{
+		// use OBJC_MALLOC?
 		if((tmp = objc_malloc(bufferSize)) == NULL)
 			return GSError(self, @"NSDataMalloc -initWithBytes:length: unable to allocate %lu bytes", bufferSize);
 		memcpy(tmp, aBuffer, bufferSize);
@@ -1387,11 +1394,16 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 
 - (id) initWithBytesNoCopy:(void*)aBuffer length:(NSUInteger)bufferSize
 {
+	objc_check_malloc();
 	bytes = aBuffer;
 	length = bufferSize;
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));
+#if 0
+	if(!__doingNSLog)
+		fprintf(stderr, "%s initWithBytesNoCopy:length: self=%p bytes=%p length=%lu\n", class_getName([self class]), self, bytes, (unsigned long) length);
 #endif
+	if(bytes == 0xddd58 && length == 0)
+		abort();
+	objc_check_malloc();
 	return self;
 }
 
@@ -1422,6 +1434,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	FILE *f;
 	if(!path)
 		{ [self release]; return nil; }
+	objc_check_malloc();
 	p=[[NSFileManager defaultManager] fileSystemRepresentationWithPath:path];
 #if 0
 	NSLog(@"initWithContentsOfFile: %@ -> %s", path, p);
@@ -1498,12 +1511,13 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 #if 0
 	NSLog(@"initWithContentsOfFile done (%d): %@", length, path);
 #endif
+	objc_check_malloc();
 	return self;
 }
 
 - (id) initWithContentsOfMappedFile:(NSString *)path
 {
-#if 0
+#if 1
 	NSLog(@"%@ initWithContentsOfMappedFile:%@", NSStringFromClass([self class]), path);
 #endif
 #if	HAVE_MMAP
@@ -2007,7 +2021,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 - (NSUInteger) capacity						{ return capacity; }
 - (void*) mutableBytes						{ return bytes; }
 
-- (void) _grow:(unsigned)minimum
+- (void) _grow:(NSUInteger)minimum
 { // recalculate the grow factor
 	if (minimum > capacity)
 		{
@@ -2038,7 +2052,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 
 - (void) replaceBytesInRange:(NSRange)aRange
 				   withBytes:(const void*)moreBytes
-					  length:(unsigned)len
+					  length:(NSUInteger)len
 {
 	if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
@@ -2083,7 +2097,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 
 		case _C_CHARPTR:
 		{
-		unsigned len;
+		NSUInteger len;
 		unsigned ni;
 		unsigned minimum;
 
@@ -2385,7 +2399,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	[super dealloc];
 }
 
-- (id) initWithBytes:(const void*)aBuffer length:(unsigned)bufferSize
+- (id) initWithBytes:(const void*)aBuffer length:(NSUInteger)bufferSize
 {
 	if(!aBuffer)
 		{ [self release]; return nil; }
@@ -2399,7 +2413,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	return self;
 }
 
-- (id) initWithCapacity:(unsigned)bufferSize
+- (id) initWithCapacity:(NSUInteger)bufferSize
 {
 	struct shmid_ds buf;
 	int e;
@@ -2432,7 +2446,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	return self;
 }
 
-- (id) initWithShmID:(int)anId length:(unsigned)bufferSize
+- (id) initWithShmID:(int)anId length:(NSUInteger)bufferSize
 {
 	struct shmid_ds	buf;
 
@@ -2458,7 +2472,7 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	return self;
 }
 
-- (id) _setCapacity:(unsigned)size
+- (id) _setCapacity:(NSUInteger)size
 {
 	if (size != capacity)
 		{
@@ -2507,6 +2521,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 
 + (void *) _autoFree:(void *) pointer;
 { // wrap in autoreleased NSData object
+#if 0
+	fprintf(stderr, "_autoFree: %p\n", pointer);
+#endif
 	if(pointer)
 		[[[NSData alloc] initWithBytesNoCopy:pointer length:0] autorelease];
 	return pointer;
@@ -2515,6 +2532,9 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 // FIXME: should sit close to objc_malloc
 void *_autoFreedBufferWithLength(NSUInteger bytes)
 {
+#if 0
+	fprintf(stderr, "_autoFreedBufferWithLength %lu\n", (unsigned long) bytes);
+#endif
 	return [NSAutoreleasePool _autoFree:objc_malloc(bytes)];
 }
 

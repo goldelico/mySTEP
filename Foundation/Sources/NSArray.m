@@ -234,6 +234,7 @@ static Class __stringClass = Nil;
 	for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++);
 	va_end(va);
 
+	// use OBJC_MALLOC?
 	if ((_contents = objc_malloc(sizeof(id) * count)) == 0)
 		[NSException raise: NSMallocException format:@"malloc failed in NSArray -initWithObjects:"];
 
@@ -329,6 +330,7 @@ static Class __stringClass = Nil;
 		{
 		unsigned i;
 
+		// use OBJC_MALLOC?
 		if ((_contents = objc_malloc(sizeof(id) * count)) == 0)
 			[NSException raise: NSMallocException format:@"malloc failed in NSArray -initWithObjects:count:"];
 
@@ -804,6 +806,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 - (id) initWithCapacity:(NSUInteger)cap
 {
 	_capacity = (cap == 0) ? 1 : cap;
+	// use OBJC_MALLOC?
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
 		{
 		[self release];
@@ -816,6 +819,7 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 {
 	NSUInteger i;
 	_capacity = (count == 0) ? 1 : count;
+	// use OBJC_MALLOC?
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
 		{
 		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWithObjects:count:"];
@@ -846,12 +850,14 @@ static NSInteger compare_function(id elem1, id elem2, void* comparator)
 	self=[super initWithCoder: aCoder];
 	_capacity = _count;
 	if(!_capacity)
+		// use OBJC_MALLOC?
 		_contents = objc_malloc(sizeof(id) * (_capacity=1));	// at least one entry
 	return self;
 }
 
 - (void) addObject:(id)anObject
 {
+	objc_check_malloc();
 	if (anObject == nil)
 		{
 #if 0

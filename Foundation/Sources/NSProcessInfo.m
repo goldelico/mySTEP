@@ -17,6 +17,7 @@
  under the terms of the GNU Library General Public License.
  */
 
+#import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSArray.h>
@@ -40,7 +41,7 @@ static char **__envp;
 
 static void my_early_main(int argc, char* argv[], char* envp[])
 { // called before objects are loaded
-#if 1
+#if 0
 	{
 	struct timeval tp;
 	gettimeofday(&tp, NULL);
@@ -85,7 +86,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 
 - (id) _initWithArguments:(char**)argv count:(int)argc environ:(char**)env
 {
-	int i, count;
+	NSUInteger i, count;
 	char hostName[1024];
 	NSString **argstr;
 
@@ -97,9 +98,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 	for (i = 0; i < argc; i++)
 		{
 		argstr[i] = [[[NSString alloc] initWithCString:argv[i]] autorelease];
-#if 0 && defined(__mySTEP__)
-		free(malloc(8192));	// segfaults???
-#endif
+		objc_check_malloc();
 #if 0
 		NSLog(@"%@: %@ - %s", NSStringFromClass([argstr[i] class]), argstr[i], argv[i]);
 #endif
@@ -107,9 +106,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 
 	_arguments = [[NSArray alloc] initWithObjects:argstr count:argc];
 	free (argstr);
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));	// segfaults???
-#endif
+	objc_check_malloc();
 
 	for (count = 0; env[count]; count++)
 		; // Count the evironment variables.
@@ -130,11 +127,8 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 		free (p);
 		}
 
-	_environment = [NSDictionary alloc];
-	[_environment initWithObjects:vals forKeys:keys count:count];
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));	// segfaults???
-#endif
+	_environment = [[NSDictionary alloc] initWithObjects:vals forKeys:keys count:count];
+	objc_check_malloc();
 
 	free (keys);
 	free (vals);
@@ -145,9 +139,7 @@ __attribute__((section(".init_array"))) void (* p_my_early_main)(int,char*[],cha
 	gethostname(hostName, sizeof(hostName)-1);
 	hostName[sizeof(hostName)-1]=0;
 	_hostName = [[NSString alloc] initWithCString:hostName];
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));	// segfaults???
-#endif
+	objc_check_malloc();
 
 	return self;
 }

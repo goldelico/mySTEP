@@ -184,7 +184,7 @@ static Class _mutableDictClass;
 {
 	id obj, *k, *v, dic;
 	va_list va;
-	int count;
+	NSUInteger count;
 
 	va_start(va, firstObject);
 	for (count = 1, obj = firstObject; obj != nil; obj = va_arg(va, id), count++)
@@ -195,6 +195,7 @@ static Class _mutableDictClass;
 		}
 	va_end(va);
 
+	// use OBJC_MALLOC?
 	k = objc_malloc(sizeof(id) * count);
 	v = objc_malloc(sizeof(id) * count);
 
@@ -273,10 +274,14 @@ static Class _mutableDictClass;
 {
 	NSEnumerator *keye = [dictionary keyEnumerator];
 	NSUInteger count = [dictionary count];
+	// use OBJC_MALLOC?
 	id *keys = objc_malloc(sizeof(id) * count);
 	id *values = objc_malloc(sizeof(id) * count);
 	id key;
 
+#if 0
+	NSLog(@"%p: initWithDictionary:%p copyItems:%d", self, dictionary, flag);
+#endif
 	count = 0;
 	if (flag)
 		{
@@ -314,7 +319,7 @@ static Class _mutableDictClass;
 {
 	id obj, *k, *v;
 	va_list va;
-	int count;
+	NSUInteger count;
 
 	va_start(va, firstObject);
 	for (count = 1, obj = firstObject; obj; obj = va_arg(va, id), count++)
@@ -323,6 +328,7 @@ static Class _mutableDictClass;
 						format: @"Tried to add nil key to dictionary"];
 	va_end(va);
 
+	// use OBJC_MALLOC?
 	k = objc_malloc(sizeof(id) * count);
 	v = objc_malloc(sizeof(id) * count);
 
@@ -352,6 +358,7 @@ static Class _mutableDictClass;
 					format: @"NSDictionary initWithObjects:forKeys must \
 		 have both arguments of the same size"];
 
+	// use OBJC_MALLOC?
 	mkeys = objc_malloc(sizeof(id) * count);
 	mobjs = objc_malloc(sizeof(id) * count);
 
@@ -437,6 +444,7 @@ static Class _mutableDictClass;
 - (NSArray*) objectsForKeys:(NSArray*)keys notFoundMarker:notFoundObj
 {
 	NSUInteger count = [keys count];
+	// use OBJC_MALLOC?
 	id *objs = objc_malloc(sizeof(id)*count);
 	id ret;
 
@@ -611,7 +619,7 @@ static Class _mutableDictClass;
 
 - (id) initWithCoder:(NSCoder*)aDecoder
 {
-	int i, count;
+	NSUInteger i, count;
 	id *keys, *values;
 
 	if([aDecoder allowsKeyedCoding])
@@ -627,6 +635,7 @@ static Class _mutableDictClass;
 #endif
 	if(count > 0)
 		{
+		// use OBJC_MALLOC?
 		keys = objc_malloc(sizeof(id) * count);
 		values = objc_malloc(sizeof(id) * count);
 
@@ -664,6 +673,9 @@ static Class _mutableDictClass;
 {
 	table = NSCreateMapTable(NSObjectMapKeyCallBacks,
 							 NSObjectMapValueCallBacks, (count * 4) / 3);
+#if 0
+	NSLog(@"NSConcreteDictionary: %p initWithObjects:keys:count = %lu -> %p", self, (unsigned long) count, table);
+#endif
 	if (!count)
 		return self;
 	while(count--)
@@ -703,9 +715,36 @@ static Class _mutableDictClass;
 	return [GSDictionaryKeyEnumerator enumeratorWithDictionary:self];
 }
 
-- (id) objectForKey:(id)aKey		{ return (NSObject*)NSMapGet(table,aKey); }
+#if 0	// for debugging
+- (void) breakpoint; {}
+
+- (id) objectForKey:(id)aKey		{
+	static int count = 0;
+	if([aKey isEqualToString:@"CFBundleExecutable"])
+		{
+		NSLog(@"dict: %p table %p", self, table);
+		NSLog(@"key: %p:%@ -> value: %p:%@", aKey, aKey, (NSObject*)NSMapGet(table,aKey), NSMapGet(table,aKey));
+		if([self count] >0 && NSMapGet(table,aKey) == NULL)
+			{
+			NSLog(@"keys: %@", [self allKeys]);
+			NSLog(@"values: %@", [self allValues]);
+			[self breakpoint];
+			}
+		NSLog(@"table: %p\n%@", table, table);
+		NSLog(@"again: %@", (NSObject*)NSMapGet(table,aKey));
+		}
+
+}
+#else
+- (id) objectForKey:(id)aKey
+{
+	objc_check_malloc();
+	return (NSObject*)NSMapGet(table,aKey);
+}
+#endif
 - (NSUInteger) count				{ return NSCountMapTable(table); }
 - (NSMapEnumerator) _keyEnumerator	{ return NSEnumerateMapTable(table); }
+- (NSMapTable *) _mapTable	{ return table; }
 
 @end /* NSConcreteDictionary */
 
@@ -770,6 +809,7 @@ static Class _mutableDictClass;
 
 - (void) setObject:(id)anObject forKey:(id)aKey
 { // Modifying a dictionary (basic function)
+	objc_check_malloc();
 	if (!aKey)
 		{
 #if 1

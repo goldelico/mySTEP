@@ -123,6 +123,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 	for (count = 1, obj = firstObj; obj; obj = va_arg(va, id), count++);
 	va_end(va);
 
+	// use OBJC_MALLOC?
 	if ((contents = objc_malloc(sizeof(id) * count)) == 0)
 		[NSException raise: NSMallocException format:@"malloc failed in NSSet +setWithObjects:"];
 
@@ -155,6 +156,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 - (id) initWithArray:(NSArray*)array
 {
 	NSUInteger i, n = [array count];
+	// use OBJC_MALLOC?
 	id *objects = objc_malloc(sizeof(id)*n);
 
 	for (i = 0; i < n; i++)
@@ -177,6 +179,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 	for (count = 1, obj = firstObj; obj; obj = va_arg(va, id), count++);
 	va_end(va);
 
+	// use OBJC_MALLOC?
 	if ((contents = objc_malloc(sizeof(id) * count)) == 0)
 		[NSException raise: NSMallocException format:@"malloc failed in NSSet -initWithObjects:"];
 
@@ -196,6 +199,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 	NSEnumerator *keys = [set objectEnumerator];
 	id key;
 	NSUInteger i = 0;
+	// use OBJC_MALLOC?
 	id *objs = objc_malloc(sizeof(id) * [set count]);
 
 	while((key = [keys nextObject]))
@@ -215,6 +219,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 - (NSArray*) allObjects
 {
 	NSUInteger i = 0, count = [self count];
+	// use OBJC_MALLOC?
 	id *objs = objc_malloc(sizeof(id) * count);
 	id array, key, keys = [self objectEnumerator];
 
@@ -444,6 +449,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 		return [self initWithArray:[aDecoder decodeObjectForKey:@"NS.objects"]];
 		}
 	[aDecoder decodeValueOfObjCType:@encode(int) at:&count];
+	// use OBJC_MALLOC?
 	objects = objc_malloc(sizeof(id) * count);
 	for(i = 0; i < count; i++)
 		objects[i] = [aDecoder decodeObject];

@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
+#import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSArray.h>
@@ -69,7 +70,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 {
 	unichar *_uniChars;
 @public
-	int _count;
+	NSUInteger _count;
 	BOOL _normalized;
 }
 
@@ -80,7 +81,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (NSString *) string;
 - (GSSequence *) decompose;
 - (GSSequence *) order;
-- (unsigned int) hash;
+- (NSUInteger) hash;
 - (GSSequence *) lowercase;
 - (GSSequence *) uppercase;
 - (BOOL) isEqual:(GSSequence *)aSequence;
@@ -140,7 +141,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 	unichar *buffer[2], *sbuf;
 	unichar *spoint, *tpoint;
 	BOOL done;
-	int slen;
+	NSUInteger slen;
 	int tBuf=0;
 
 	if (_count == 0)
@@ -192,7 +193,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (GSSequence *) order
 {
 	unichar *first, *second,tmp;
-	int count;
+	NSUInteger count;
 	BOOL notdone;
 
 	if(_count > 1)
@@ -232,10 +233,10 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 	return self;
 }
 
-- (unsigned int) hash
+- (NSUInteger) hash
 {
-	int count;
-	unsigned int ret=0;
+	NSUInteger count;
+	NSUInteger ret=0;
 	for(count=0; count<_count; count++)
 		ret = (ret << 5) + ret + _uniChars[count];
 	return ret;
@@ -244,7 +245,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (GSSequence *) lowercase
 {
 	unichar *s;
-	int count;
+	NSUInteger count;
 	GSSequence *seq = [GSSequence alloc];
 
 	OBJC_MALLOC(s, unichar, _count+1);
@@ -261,7 +262,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (GSSequence *) uppercase
 {
 	unichar *s;
-	int count;
+	NSUInteger count;
 	GSSequence *seq = [GSSequence alloc];
 
 	OBJC_MALLOC(s, unichar, _count+1);
@@ -282,7 +283,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 
 - (NSComparisonResult) compare:(GSSequence*)aSequence
 {
-	int i, end;													// Inefficient
+	NSUInteger i, end;													// Inefficient
 
 	if(!_normalized)
 		{
@@ -329,7 +330,7 @@ static Class _mutableStringClass;
 static Class _cStringClass;								// For cString's
 static NSStringEncoding __cStringEncoding=NSASCIIStringEncoding;	// default encoding
 
-static unsigned (*_strHashImp)(id, SEL);
+static NSUInteger (*_strHashImp)(id, SEL);
 static SEL csInitSel;
 static SEL msInitSel;
 static IMP csInitImp;					// designated initialiser for cString
@@ -368,7 +369,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		_mutableStringClass = [GSMutableString class];
 
 		// Cache some method implementations for quick access later.
-		_strHashImp = (unsigned (*)(id, SEL)) [_nsStringClass instanceMethodForSelector: @selector(hash)];
+		_strHashImp = (NSUInteger (*)(id, SEL)) [_nsStringClass instanceMethodForSelector: @selector(hash)];
 		if(!_strHashImp)
 			NSLog(@"_strHashImp not defined");
 		csInitSel = @selector(initWithCStringNoCopy:length:freeWhenDone:);
@@ -442,7 +443,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [[[GSCString alloc] initWithCString:bytes] autorelease];
 }
 
-+ (id) stringWithCString:(const char*)bytes length:(unsigned int)len
++ (id) stringWithCString:(const char*)bytes length:(NSUInteger)len
 {
 	return [[[GSCString alloc] initWithCString:bytes length:len] autorelease];
 }
@@ -533,15 +534,17 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 + (const NSStringEncoding *) availableStringEncodings	{ return _availableEncodings(); }
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
-						 length:(unsigned int)length
+						 length:(NSUInteger)length
 				   freeWhenDone:(BOOL)flag		{ return SUBCLASS }
 
 - (id) initWithCStringNoCopy:(char*)byteString
-					  length:(unsigned int)length
+					  length:(NSUInteger)length
 				freeWhenDone:(BOOL)flag			{ return SUBCLASS }
 
 - (id) initWithCharacters:(const unichar*)chars length:(NSUInteger)length
 {
+	// use OBJC_MALLOC?
+	objc_check_malloc();
 	unichar	*s = objc_malloc(sizeof(unichar)*length);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -556,6 +559,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (id) initWithCString:(const char *)cstring
 			  encoding:(NSStringEncoding)enc;
 {
+	objc_check_malloc();
 	return [self initWithData:[NSData dataWithBytes:cstring length:strlen(cstring)] encoding:enc];
 }
 
@@ -574,8 +578,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self initWithData:[NSData dataWithBytesNoCopy:bytes length:length freeWhenDone:flag] encoding:enc];
 }
 
-- (id) initWithCString:(const char*) byteString length:(unsigned int) length
+- (id) initWithCString:(const char*) byteString length:(NSUInteger) length
 {
+	// use OBJC_MALLOC?
 	char *s = objc_malloc(length + 1);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -587,7 +592,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) initWithCString:(const char*) byteString
 {
-	int length = (byteString ? strlen(byteString) : 0);
+	NSUInteger length = (byteString ? strlen(byteString) : 0);
+	// use OBJC_MALLOC?
 	char *s = objc_malloc(length + 1);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -597,7 +603,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self initWithCStringNoCopy:s length:length freeWhenDone:YES];
 }
 
-- (id) _initWithUTF8String:(const char *) bytes length:(unsigned) len;
+- (id) _initWithUTF8String:(const char *) bytes length:(NSUInteger) len;
 {
 	return [self initWithData:[NSData dataWithBytesNoCopy:(char *) bytes length:len freeWhenDone:NO] encoding:NSUTF8StringEncoding];
 }
@@ -611,7 +617,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) initWithString:(NSString *) string
 {
-	unsigned l = [string length];
+	NSUInteger l = [string length];
+	// use OBJC_MALLOC?
 	unichar	*s = objc_malloc(sizeof(unichar) * l);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -649,7 +656,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	// FIXME: avoid the copy by providing a _mutableUTF8String method
 	const char *format_cp = [format UTF8String];
-	int format_len = strlen (format_cp);
+	NSUInteger format_len = strlen (format_cp);
 	char *format_cp_copy=_autoFreedBufferWithLength(format_len+1);	// buffer for a mutable copy of the format string
 	char *format_to_go = format_cp_copy;				// pointer into the format string while processing
 	NSMutableString *result=[[NSMutableString alloc] initWithCapacity:2*format_len+20];	// this assumes some minimum result size
@@ -657,8 +664,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
-											//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
-											//	fprintf(stderr, "result=%p\n", result);
+	//	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
+	//	fprintf(stderr, "result=%p\n", result);
 
 	// FIXME: somehow handle %S and other specifiers!
 
@@ -667,7 +674,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			char *atsign_pos;				// points to a location of an %@ inside format_cp_copy
 			char *formatter_pos;			// a position for formatter
 			char *buffer;					// vasprintf() buffer return
-			int len;						// length of vasprintf() result
+			NSUInteger len;						// length of vasprintf() result
 			id arg;
 			int mode=0;
 			for(atsign_pos=format_to_go; *atsign_pos != 0; atsign_pos++)
@@ -692,7 +699,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(*format_to_go)
 				{ // if there is anything to print...
 					len=vasprintf(&buffer, format_to_go, arg_list);	// Print the part before the '%@' - will be malloc'ed
-																	// fprintf(stderr, "buffer=%p\n", buffer);
+					// fprintf(stderr, "buffer=%p\n", buffer);
 					if(len < 0)
 						{ // error
 							free(buffer);
@@ -824,7 +831,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (id) initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
 {
 	unidecoder d;
-	int len;
+	NSUInteger len;
 	unichar *s, *sp;
 	unsigned char *b, *end;
 	if(!data)
@@ -834,6 +841,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		return nil;
 		}
 	len=[data length];
+	// use OBJC_MALLOC?
 	sp=s=objc_malloc(sizeof(*s)*len);	// assume that as max. length
 	if(!s)
 		{
@@ -875,20 +883,17 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSData *) dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag
 { // FIXME: incomplete
 	uniencoder e=encodeuni(encoding);		// get appropriate encoder function
-	unsigned long len;
+	NSUInteger len;
 	unsigned char *buff, *bp;
-	int i;
+	NSUInteger i;
 	if(!e)
 		return nil;
 	if(_count == 0)
 		return [NSData data];	// encode empty string
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));
-#endif
+	objc_check_malloc();
 	len=[self maximumLengthOfBytesUsingEncoding:encoding];
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));
-#endif
+	objc_check_malloc();
+	// use OBJC_MALLOC?
 	bp=buff=(unsigned char*) objc_malloc(len);
 	if(!buff)
 		[NSException raise: NSMallocException format: @"Unable to allocate buffer"];
@@ -907,9 +912,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			}
 		}
 	NSAssert(bp <= buff+len, @"buffer overflow");
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));
-#endif
+	objc_check_malloc();
 	return [NSData dataWithBytesNoCopy:buff length:bp-buff];	// become owner
 }
 
@@ -935,7 +938,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 { // encode to buffer
 	uniencoder e=encodeuni(enc);		// get appropriate encoder function
 	unsigned char *bp;
-	int i;
+	NSUInteger i;
 	if(!e)
 		return NO;
 	bp=(unsigned char *) buffer;
@@ -1092,9 +1095,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (const char *) UTF8String;
 {
-#if 0 && defined(__mySTEP__)
-	free(malloc(8192));
-#endif
+	objc_check_malloc();
 	return [[self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] _bytesWith0];
 }
 
@@ -1105,6 +1106,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	va_list ap;
 	NSString *a, *s;
 	va_start(ap, format);
+	objc_check_malloc();
 	a = [[NSString alloc] initWithFormat:format arguments:ap];
 	s = [self stringByAppendingString:a];
 	[a release];
@@ -1116,7 +1118,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByAppendingString:(NSString*)aString
 {
-	unsigned otherLength = [aString length];
+	NSUInteger otherLength = [aString length];
+	// use OBJC_MALLOC?
 	unichar *s = objc_malloc((_count + otherLength) * sizeof(unichar));
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -1186,6 +1189,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if (aRange.length == 0)
 		return @"";
 
+	// use OBJC_MALLOC?
 	buf = objc_malloc(sizeof(unichar) * aRange.length);
 	if(!buf)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -1209,7 +1213,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet*)aSet
-							options:(unsigned int)mask
+							options:(NSUInteger)mask
 {
 	return [self rangeOfCharacterFromSet:aSet
 								 options:mask
@@ -1217,10 +1221,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet*)aSet
-							options:(unsigned int)mask
+							options:(NSUInteger)mask
 							  range:(NSRange)aRange
 {
-	int i = _count, start, stop, step;
+	NSUInteger i = _count, start, stop, step;
 	NSRange range;
 	unichar (*cImp)(id, SEL, unsigned);
 	BOOL (*mImp)(id, SEL, unichar);
@@ -1268,7 +1272,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self rangeOfString:string options:NSLiteralSearch range:(NSRange){0, _count}];
 }
 
-- (NSRange) rangeOfString:(NSString*)string options:(unsigned int)mask
+- (NSRange) rangeOfString:(NSString*)string options:(NSUInteger)mask
 {
 	return [self rangeOfString:string options:mask range:(NSRange){0, _count}];
 }
@@ -1277,12 +1281,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 // speed is crucial for scanString:intoString: mainly if it does NOT match
 
 - (NSRange) rangeOfString:(NSString *) aString
-				  options:(unsigned int) mask
+				  options:(NSUInteger) mask
 					range:(NSRange) aRange
 {
-	unsigned int strLength, maxRange = NSMaxRange(aRange);
-	unsigned int myIndex;
-	unsigned int myEndIndex;
+	NSUInteger strLength, maxRange = NSMaxRange(aRange);
+	NSUInteger myIndex;
+	NSUInteger myEndIndex;
 	unichar strFirstCharacter;
 
 	if (maxRange > _count)
@@ -1309,7 +1313,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 			for (;;)
 				{
-				unsigned int i = 1;
+				NSUInteger i = 1;
 				unichar myChar = [self characterAtIndex:myIndex];
 				unichar strChar = strFirstCharacter;
 
@@ -1341,7 +1345,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 			for (;;)
 				{
-				unsigned int i = 1;
+				NSUInteger i = 1;
 				unichar myChar = [self characterAtIndex:myIndex];
 				unichar strChar = strFirstCharacter;
 
@@ -1383,7 +1387,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 			for (;;)
 				{
-				unsigned int i = 1;
+				NSUInteger i = 1;
 				unichar myChar = (*selfIMP)(self, charAtIndexSEL,myIndex);
 				unichar strChar = strFirstCharacter;
 
@@ -1414,7 +1418,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 			for (;;)
 				{
-				unsigned int i = 1;
+				NSUInteger i = 1;
 				unichar myChar = [self characterAtIndex:myIndex];
 				unichar strChar = strFirstCharacter;
 
@@ -1438,7 +1442,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		case NSAnchoredSearch+NSCaseInsensitiveSearch: {								// search forward case insensitive
 																						// temporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-			unsigned int strBaseLength = [aString _baseLength];
+			NSUInteger strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
 
 			myIndex = aRange.location;
@@ -1454,8 +1458,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				{
 				NSRange m, s;
 				NSRange mainRange;
-				unsigned int myCount = 1;
-				unsigned int sCnt = 1;
+				NSUInteger myCount = 1;
+				NSUInteger sCnt = 1;
 				id myChar, strChar = strFirstCharacterSeq;
 
 				m = [self rangeOfComposedCharacterSequenceAtIndex:myIndex];
@@ -1495,7 +1499,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		case NSAnchoredSearch+NSBackwardsSearch+NSCaseInsensitiveSearch: {								// search backward case insensitive
 																										// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-			unsigned int strBaseLength = [aString _baseLength];
+			NSUInteger strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
 
 			myEndIndex = aRange.location;
@@ -1510,7 +1514,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			for (;;)
 				{
 				NSRange m, s;
-				unsigned int myCount = 1, sCnt = 1;
+				NSUInteger myCount = 1, sCnt = 1;
 				id myChar, strChar = strFirstCharacterSeq;
 
 				m = [self rangeOfComposedCharacterSequenceAtIndex:myIndex];
@@ -1554,7 +1558,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		case NSAnchoredSearch+NSBackwardsSearch: {												// search backward
 																								// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-			unsigned int strBaseLength = [aString _baseLength];
+			NSUInteger strBaseLength = [aString _baseLength];
 			id strFirstCharacterSeq;
 
 			myEndIndex = aRange.location;
@@ -1569,7 +1573,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			for (;;)
 				{
 				NSRange m, s;
-				unsigned int myCount = 1, sCnt = 1;
+				NSUInteger myCount = 1, sCnt = 1;
 				id strChar = strFirstCharacterSeq;
 				id myChar = [GSSequence sequenceWithString: self
 													 range:[self rangeOfComposedCharacterSequenceAtIndex:myIndex]];
@@ -1611,7 +1615,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		default: {												// search forward
 																// teporary cure for a memory issue: the following method allocates autoreleased objects!
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-			unsigned int strBaseLength = [aString _baseLength];
+			NSUInteger strBaseLength = [aString _baseLength];
 			GSSequence *strFirstCharacterSeq;
 
 			myIndex = aRange.location;
@@ -1627,7 +1631,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				{
 				NSRange m, s;
 				NSRange mainRange;
-				unsigned int myCount = 1, sCnt = 1;
+				NSUInteger myCount = 1, sCnt = 1;
 				GSSequence *strChar = strFirstCharacterSeq;
 				GSSequence *myChar = [GSSequence sequenceWithString: self
 															  range:[self rangeOfComposedCharacterSequenceAtIndex:myIndex]];
@@ -1665,7 +1669,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger)anIndex
 {
-	unsigned int end, start = anIndex;						// Determining Composed Character Sequences
+	NSUInteger end, start = anIndex;						// Determining Composed Character Sequences
 	while (uni_isnonsp([self characterAtIndex: start]) && start > 0)
 		start--;
 	end = start+1;
@@ -1680,13 +1684,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [self compare:aString options:0 range:((NSRange){0, _count})];			// Comparing Strings
 }
 
-- (NSComparisonResult) compare:(NSString*)aString options:(unsigned int)mask
+- (NSComparisonResult) compare:(NSString*)aString options:(NSUInteger)mask
 {
 	return [self compare:aString options:mask range:((NSRange){0, _count})];
 }
 
 - (NSComparisonResult) compare:(NSString*)aString
-					   options:(unsigned int)mask
+					   options:(NSUInteger)mask
 						 range:(NSRange)aRange
 {								// FIX ME Should implement full POSIX.2 collate
 	if (NSMaxRange(aRange) > _count)
@@ -1703,10 +1707,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 	if (mask & NSLiteralSearch)
 		{
-		int i;
-		int s1len = aRange.length;
-		int s2len = [aString length];
-		int end;
+		NSUInteger i;
+		NSUInteger s1len = aRange.length;
+		NSUInteger s2len = [aString length];
+		NSUInteger end;
 		unichar s1[s1len+1];
 		unichar s2[s2len+1];
 
@@ -1751,8 +1755,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		{												// if NSLiteralSearch
 														//		int start = aRange.location;
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];	// limit memory allocation in the loop
-			int end = NSMaxRange(aRange);
-			int myCount = aRange.location, sCnt = aRange.location;
+			NSUInteger end = NSMaxRange(aRange);
+			NSUInteger myCount = aRange.location, sCnt = aRange.location;
 			NSRange m, s;
 			id mySeq, strSeq;
 			NSComparisonResult result;
@@ -1792,7 +1796,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (NSComparisonResult) compare:(NSString*)aString
-					   options:(unsigned int)mask
+					   options:(NSUInteger)mask
 						 range:(NSRange)aRange
 						locale:(NSDictionary *)dict
 {
@@ -1824,6 +1828,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSUInteger) hash
 {
+	objc_check_malloc();
+
 	if (_count)
 		{
 		unichar *source, *p, *target, *spoint, *tpoint;
@@ -1924,11 +1930,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			&& range.location == (_count - [aString length])) ? YES : NO;
 }
 
-- (NSString*) commonPrefixWithString:(NSString*)aString options:(unsigned int)mask
+- (NSString*) commonPrefixWithString:(NSString*)aString options:(NSUInteger)mask
 { // Getting a Shared Prefix
 	if(mask & NSLiteralSearch)
 		{
-		int prefix_len = 0;
+		NSUInteger prefix_len = 0;
 		unichar *a1=objc_malloc(sizeof(unichar)*(_count+1));
 		unichar *s1 = a1;
 		unichar *a2=objc_malloc(sizeof(unichar)*([aString length]+1));
@@ -1964,10 +1970,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		{
 		id mySeq, strSeq;
 		NSRange m, s;
-		unsigned int myLength = _count;
-		unsigned int strLength = [aString length];
-		unsigned int myIndex = 0;
-		unsigned int sIndex = 0;
+		NSUInteger myLength = _count;
+		NSUInteger strLength = [aString length];
+		NSUInteger myIndex = 0;
+		NSUInteger sIndex = 0;
 
 		if(!myLength)
 			return self;
@@ -2090,7 +2096,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			 forRange:(NSRange)aRange
 {
 	unichar thischar;
-	unsigned int start, end, len;
+	NSUInteger start, end, len;
 
 	if (NSMaxRange(aRange) > _count)
 		[NSException raise:NSRangeException format:@"Invalid location+length"];
@@ -2191,7 +2197,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) capitalizedString
 {
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
-	int count = 0;
+	NSUInteger count = 0;
 	BOOL found = YES;
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
@@ -2233,7 +2239,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) lowercaseString
 {
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
-	int count;
+	NSUInteger count;
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 
@@ -2248,7 +2254,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) uppercaseString;
 {
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
-	int count;
+	NSUInteger count;
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 
@@ -2294,7 +2300,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSString *tmp_path;
 	NSDirectoryEnumerator *e;
 	NSMutableArray *op=nil;
-	int match_count = 0;
+	NSUInteger match_count = 0;
 	// Manipulating File System Paths
 	if (outputArray != 0)
 		op = [NSMutableArray array];
@@ -2360,7 +2366,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) lastPathComponent
 {
 	NSArray *components=[self _mutablePathComponents];
-	unsigned int cnt=[components count];
+	NSUInteger cnt=[components count];
 	if(cnt < 1)
 		return @"";	// FIXME: what happens if we call this on NSMutableString??? -> return [[self class] stringWithString:@""];
 	if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends (but does not start) in /
@@ -2515,7 +2521,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString*) stringByDeletingPathExtension
 {
 	NSMutableArray *components=[self _mutablePathComponents];
-	unsigned int cnt=[components count];
+	NSUInteger cnt=[components count];
 	//	NSLog(@"c=%@", components);
 	if(cnt > 0)
 		{
@@ -2767,7 +2773,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	NSMutableArray *a = [[NSMutableArray alloc] initWithCapacity: [paths count]];
 	NSArray *r;
-	int i;
+	NSUInteger i;
 	for (i = 0; i < [paths count]; i++)
 		[a addObject: [self stringByAppendingPathComponent: [paths objectAtIndex: i]]];
 	r = [a copy];
@@ -3008,7 +3014,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [[[_mutableStringClass alloc] initWithCString:byteString] autorelease];
 }
 
-+ (id) stringWithCString:(const char*)byteString length:(unsigned int)length
++ (id) stringWithCString:(const char*)byteString length:(NSUInteger)length
 {
 	return [[[_mutableStringClass alloc] initWithCString:byteString
 												  length:length] autorelease];
@@ -3029,6 +3035,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	va_list ap;
 	id tmp;
 	va_start(ap, format);
+	objc_check_malloc();
 	tmp = [[NSString alloc] initWithFormat:format arguments:ap];
 	va_end(ap);
 	[self appendString:tmp];
@@ -3061,7 +3068,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
-						 length:(unsigned int)length
+						 length:(NSUInteger)length
 				   freeWhenDone:(BOOL)flag
 {
 	_count = length;
@@ -3071,7 +3078,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString
-					  length:(unsigned int)length
+					  length:(NSUInteger)length
 				freeWhenDone:(BOOL)flag
 { // replace with CString
 	[self release];
@@ -3082,6 +3089,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (void) dealloc
 {
+	objc_check_malloc();
+#if 0
+	if(_uniChars) fprintf(stderr, "++ GSString %p dealloc U: %s\n", self, _uniChars);
+	if(_cString) fprintf(stderr, "++ GSString %p C: %s\n", self, _cString);
+#endif
 	if (_freeWhenDone && _uniChars)
 		objc_free(_uniChars);
 	if(_cString)
@@ -3092,6 +3104,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (BOOL) isEqual:(id)obj
 { // self is a Unicode string
 	Class c;
+	objc_check_malloc();
 #if 0
 	NSLog(@"++ %@ isEqual %@", self, obj);
 #endif
@@ -3157,7 +3170,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (BOOL) isEqualToString:(NSString *)aString
 {
-	unsigned int mi = 0, si = 0;
+	NSUInteger mi = 0, si = 0;
 	NSAutoreleasePool *pool;
 	Class c;
 
@@ -3240,6 +3253,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSUInteger) hash
 {
+	objc_check_malloc();
 	return _hash == 0 ? (_hash = _strHashImp(self,@selector(hash))) : _hash;
 }
 
@@ -3315,8 +3329,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSUInteger) _baseLength
 { // private method for Unicode level 3 implementation
-	int count = 0;
-	int blen = 0;
+	NSUInteger count = 0;
+	NSUInteger blen = 0;
 	while(count < _count)
 		if(!uni_isnonsp([self characterAtIndex: count++]))
 			blen++;
@@ -3327,7 +3341,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding Protocol
 {
 	//	NSLog(@"@encode(unichar)='%s'", @encode(unichar));
-	[aCoder encodeValueOfObjCType: @encode(unsigned) at: &_count];
+	[aCoder encodeValueOfObjCType: @encode(NSUInteger) at: &_count];
 	// FIXME: should we always encode/decode UTF8 to become compatible with NSPortCoder?
 	// or should this depend on [aCoder versionForClassName:@"NSString"] == 1
 	if(_count > 0)
@@ -3343,7 +3357,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		[self release];
 		return [[aCoder decodeObjectForKey:@"NS.string"] retain];
 		}
-	[aCoder decodeValueOfObjCType: @encode(unsigned) at: &_count];
+	[aCoder decodeValueOfObjCType: @encode(NSUInteger) at: &_count];
 	if(_count)
 		[aCoder decodeArrayOfObjCType: @encode(unichar)
 								count: _count
@@ -3362,16 +3376,16 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 @implementation GSMutableString
 
+#if 0	// directly use the superclass method
 - (BOOL) isEqual:(id)obj
 { // self is a Unicode string
-#if 0
 	NSLog(@"%@ isEqual %@", self, obj);
-#endif
 	return [super isEqual:obj];
 }
+#endif
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
-						 length:(unsigned int)length
+						 length:(NSUInteger)length
 				   freeWhenDone:(BOOL)flag
 {
 	_capacity = length;
@@ -3381,7 +3395,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return self;
 }
 
-- (id) initWithCapacity:(unsigned)capacity
+- (id) initWithCapacity:(NSUInteger)capacity
 {
 	_count = 0;
 	_capacity = (capacity < 2) ? 2 : capacity;
@@ -3392,7 +3406,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString
-					  length:(unsigned int)length
+					  length:(NSUInteger)length
 				freeWhenDone:(BOOL)flag
 {
 	[self release];
@@ -3403,13 +3417,14 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (id) initWithCoder:(id)aCoder
 {
+	// FIXME: same bitsize on all architectures???
 	unsigned cap;
 	if([aCoder allowsKeyedCoding])
 		{
 		[self release];
 		return [[aCoder decodeObjectForKey:@"NS.string"] retain];
 		}
-	[aCoder decodeValueOfObjCType: @encode(unsigned) at: &cap];
+	[aCoder decodeValueOfObjCType: @encode(NSUInteger) at: &cap];
 	[self initWithCapacity:cap];
 	// FIXME: should we encode as UTF8?
 	if ((_count = cap) > 0)
@@ -3504,13 +3519,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
  * of the receiver.
  */
 
-- (unsigned int) replaceOccurrencesOfString: (NSString*)replace
+- (NSUInteger) replaceOccurrencesOfString: (NSString*)replace
 								 withString: (NSString*)by
-									options: (unsigned int)opts
+									options: (NSUInteger)opts
 									  range: (NSRange)searchRange
 {
 	NSRange	range;
-	unsigned int count = 0;
+	NSUInteger count = 0;
 
 	if (replace == nil)
 		{
@@ -3539,7 +3554,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				}
 			else
 				{
-				unsigned int	newEnd;
+				NSUInteger newEnd;
 
 				newEnd = NSMaxRange(searchRange) + byLen - range.length;
 				searchRange.location = range.location + byLen;
@@ -3557,7 +3572,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 /* we do NOT inherit from NSMutableString! */
 
-- (void) insertString:(NSString*)aString atIndex:(unsigned)loc
+- (void) insertString:(NSString*)aString atIndex:(NSUInteger)loc
 {
 	[self replaceCharactersInRange:(NSRange){loc, 0} withString:aString];
 }
@@ -3708,7 +3723,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol
 {
 	//	NSLog(@"@encode(unsigned char)=%s", @encode(unsigned char));
-	[aCoder encodeValueOfObjCType:@encode(unsigned) at:&_count];
+	[aCoder encodeValueOfObjCType:@encode(NSUInteger) at:&_count];
 	// FIXME: should we always encode/decode UTF8 to become compatible with NSPortCoder?
 	// or should this depend on [aCoder versionForClassName:@"NSString"] == 1
 	if(_count > 0)
@@ -3724,7 +3739,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		[self release];
 		return [[aCoder decodeObjectForKey:@"NS.string"] mutableCopy];
 		}
-	[aCoder decodeValueOfObjCType:@encode(unsigned) at:&_count];
+	[aCoder decodeValueOfObjCType:@encode(NSUInteger) at:&_count];
 	if (_count > 0)
 		{
 		_cString = objc_malloc(_count + 1);
@@ -3753,7 +3768,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString			// OPENSTEP designated
-					  length:(unsigned int)length		// initializer
+					  length:(NSUInteger)length		// initializer
 				freeWhenDone:(BOOL)flag
 {
 	if(byteString[length] != 0)
@@ -3768,7 +3783,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
-						 length:(unsigned int)length
+						 length:(NSUInteger)length
 				   freeWhenDone:(BOOL)flag
 {
 	[self release];
@@ -3790,6 +3805,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (void) dealloc
 {
+#if 0
+	fprintf(stderr, "++ GSCtring %p dealloc: %s\n", self, _cString);
+#endif
 	if(_freeWhenDone && _cString)
 		objc_free(_cString);
 	[super dealloc];
@@ -3808,11 +3826,13 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSUInteger) hash
 {
+	objc_check_malloc();
 	return _hash == 0 ? (_hash = _strHashImp(self,@selector(hash))) : _hash;
 }
 
 - (BOOL) isEqual:(id)obj
 { // self is a C string (other side must be convertible)
+	objc_check_malloc();
 	Class c;
 	if(!obj)
 		return NO;	// or raise exception?
@@ -3954,6 +3974,7 @@ int __CFConstantStringClassReference [0];
 - (BOOL) isEqual:(id)obj
 { // self is a constant C string
 	Class c;
+	objc_check_malloc();
 
 	if(!obj)
 		return NO;	// or raise exception?

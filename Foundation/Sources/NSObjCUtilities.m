@@ -210,7 +210,7 @@ void objc_invalidate_dtable(Class class)
 	for (s = class->subclass_list; s; s=s->sibling_class)
 		objc_invalidate_dtable(s);	// recursive
 }
-#endif
+#endif // OLD
 
 // A callback received from Object initializer
 // (_objc_exec_class). Do what we need to do
@@ -350,12 +350,12 @@ char *objc_moduleForAddress(const void *address)
 	if(dladdr(address, &info))	// find filename for e.g. address of class record or method IMP
 		{
 #if 0
-		NSLog(@"objc_moduleForAddress filename=%s", info.dli_fname);
+		NSLog(@"objc_moduleForAddress %08x filename=%s", address, info.dli_fname);
 #endif
 		return (char *) info.dli_fname;
 		}
 #if 1
-	NSLog(@"addr not found");
+	NSLog(@"addr %p not found", address);
 #endif
 	return NULL;
 }
@@ -603,7 +603,7 @@ BOOL __doingNSLog;	// can be used in debugging tools to disable messages generat
 void NSLogv(NSString *format, va_list args)
 {
 #ifndef __mySTEP__
-	unsigned long __NSAllocatedObjects=0;
+	NSUInteger __NSAllocatedObjects=0;
 #endif
 	if(__printLog)
 		{

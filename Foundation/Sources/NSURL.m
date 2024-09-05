@@ -159,9 +159,10 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	if (base && base->path)
 		len += strlen(base->path) + 1;	// /path
 	
-	ptr = buf = (char*)objc_malloc(len);
+	OBJC_MALLOC(buf, char, len);
 	buf[0]=0;	// in case we strcpy nothing
-	
+	ptr=buf;
+
 	if(!pathonly)
 		{
 		if (rel->scheme)	// rel scheme has precedence
@@ -636,6 +637,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	if(!from)
 		return nil;	// nothing to unescape...
 	len=strlen(from)+1;
+	// use OBJC_MALLOC?
 	to = bfr = objc_malloc(len);	// result will not become longer by unescaping
 	while (*from)
 		{
@@ -888,8 +890,11 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	
 	size = (sizeof(parsedURL) + __alignof__(parsedURL)) + (size+1);
 	
-	buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
+	OBJC_MALLOC(buf, parsedURL, size);
 	memset(buf, '\0', size);
+
+	_data = buf;	// allocate space for parsedURL header plus the cString
+
 	start = end = (char*)&buf[1];
 	NS_DURING
 		[_urlString getCString:start];			// get the cString and store behind the parsedURL header

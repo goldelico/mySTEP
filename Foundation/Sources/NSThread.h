@@ -46,8 +46,8 @@
 			NSUInteger total_objects_count;
 			
 			id *pool_cache;			// A cache of NSAutoreleasePool's already alloc'ed
-			NSInteger pool_cache_size;	// Caching old pools instead of dealloc / realloc
-			NSInteger pool_cache_count;	// saves time
+			NSUInteger pool_cache_size;	// Caching old pools instead of dealloc / realloc
+			NSUInteger pool_cache_count;	// saves time
 			
 			BOOL thread_in_dealloc;
 		} _autorelease_vars;

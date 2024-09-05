@@ -1295,7 +1295,8 @@ next:
 		if(NSHostByteOrder() != NS_BigEndian)
 			{ // we need to swap bytes
 				int i;
-				unichar *bfr=(unichar *) objc_malloc(len*sizeof(*bfr));
+				unichar *bfr;
+				OBJC_MALLOC(bfr, unichar, len);
 #if 0
 				NSLog(@"swapping bytes: %@", [NSData dataWithBytes:self->bp length:MIN(2*len, 10)]);
 #endif

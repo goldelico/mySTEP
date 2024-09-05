@@ -765,6 +765,7 @@ static NSFileManager *__fm = nil;
 	NSString *str=nil;
 	if(cpath)
 		{
+		// use OBJC_MALLOC?
 		char *lpath=objc_malloc(PATH_MAX+1);
 		long llen = readlink(cpath, lpath, PATH_MAX);
 		if(llen > 0)
@@ -777,24 +778,29 @@ static NSFileManager *__fm = nil;
 - (const char *) _traverseLink:(const char *) cpath;
 { // if cpath is a symlink, find real file
 #if 0
+	fprintf(stderr, "_traverseLink: %s\n", cpath);
 	NSLog(@"_traverseLink %s", cpath);
 #endif
 	while(YES)
 		{ // try to expand symlink
 			char *buffer=_autoFreedBufferWithLength(PATH_MAX+1);
 			long llen = readlink(cpath, buffer, PATH_MAX);
+			objc_check_malloc();
 #if 0
+			fprintf(stderr, "_traverseLink readlink %s -> %d\n", cpath, llen);
 			NSLog(@"_traverseLink readlink %s -> %d", cpath, llen);
 #endif
 			if(llen < 0)
 				{
 #if 0
+				fprintf(stderr, "_traverseLink -> %s\n", cpath);
 				NSLog(@"_traverseLink -> %s", cpath);
 #endif
-				return cpath;	// no symlink or symlink pointing to nowhere
+				return cpath;	// not a symlink or symlink pointing to nowhere
 				}
 			buffer[llen]=0;	// 0-terminate
 #if 0
+			fprintf(stderr, "_traverseLink: %s -> %s\n", cpath, buffer);
 			NSLog(@"_traverseLink: %s -> %s", cpath, buffer);
 #endif
 			if(buffer[0] != '/')
@@ -805,8 +811,10 @@ static NSFileManager *__fm = nil;
 				strncpy(newpath, cpath, dirname-cpath+1);	// keep / intact
 				strcpy(newpath+(dirname-cpath+1), buffer);
 #if 0
+				fprintf(stderr, "_traverseLink handle relative link: %s %s %s %s\n", cpath, dirname, buffer, newpath);
 				NSLog(@"_traverseLink handle relative link: %s %s %s %s", cpath, dirname, buffer, newpath);
 #endif
+				objc_check_malloc();
 				buffer=newpath;
 				}
 			cpath=buffer;
@@ -867,7 +875,7 @@ static NSFileManager *__fm = nil;
 - (NSString *) stringWithFileSystemRepresentation:(const char*)string
 										   length:(NSUInteger)len
 {
-#if __mySTEP__
+#ifndef __APPLE__
 	if(len > 0 && string[0] == '/')
 		{ // absolute path
 			static char *virtualCRoot;	// with trailing /
@@ -879,6 +887,7 @@ static NSFileManager *__fm = nil;
 				NSLog(@"virtualCRoot=%s", str);
 #endif
 				clen=strlen(str);
+				// use OBJC_MALLOC?
 				virtualCRoot=objc_malloc(clen+1);
 				strcpy(virtualCRoot, str);	// save (retain) a copy
 				}
@@ -1304,6 +1313,7 @@ static NSFileManager *__fm = nil;
 	int i, bufsize = 2*4096;
 	int sourceFd, destFd, fileSize, fileMode;
 	int rbytes;
+	// use OBJC_MALLOC?
 	char *buffer=objc_malloc(bufsize);
 	const char *cpath = [self fileSystemRepresentationWithPath:source];
 	NSDictionary *attributes = [self fileAttributesAtPath:source traverseLink:NO];

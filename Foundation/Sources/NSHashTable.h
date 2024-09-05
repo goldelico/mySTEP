@@ -50,7 +50,7 @@ struct _NSHashNode {
 typedef struct _NSHashEnumerator {
 	/*struct _*/ NSHashTable *table;
 	struct _NSHashNode *node;
-	int bucket;
+	NSInteger bucket;
 } NSHashEnumerator;
 
 @interface NSHashTable : NSObject <NSCopying, NSMutableCopying, NSCoding, NSFastEnumeration>

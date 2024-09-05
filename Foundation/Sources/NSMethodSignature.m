@@ -133,15 +133,16 @@ static IMP mySTEP_objc_msg_forward2(id receiver, SEL sel)
 		fprintf(stderr, "mySTEP_objc_msg_forward2 called with nil receiver\n");
 		abort();
 		}
-#if 1
-	fprintf(stderr, "mySTEP_objc_msg_forward2 called\n");
+#if 1	// debugging - ensure that we use only libc and libobjc and nothing from mySTEP frameworks (except -description)
+	fprintf(stderr, "mySTEP_objc_msg_forward2 called for receiver %p\n", receiver);
 	c=object_getClass(receiver);
+	fprintf(stderr, "selector = %s\n", sel_getName(sel));
+	fprintf(stderr, "class = %p %s\n", c, class_getName(c));
 	if(strcmp(class_getName(c), "Object") == 0)
-		{
+		{ // Object is the root class of the runtime; mySTEP has NSObject and other root classes
 		fprintf(stderr, "mySTEP_objc_msg_forward2 called with Object receiver\n");
 		abort();
 		}
-	fprintf(stderr, "selector = %s\n", [NSStringFromSelector(sel) UTF8String]);
 	fprintf(stderr, "receiver = %s\n", [[receiver description] UTF8String]);
 #endif
 	c=object_getClass(receiver);
@@ -279,6 +280,7 @@ static ffi_type *parse_ffi_type(const char **typePtr)
 		case _C_STRUCT_B: {
 			NSUInteger nelem;
 			NSUInteger i=0;
+			// use OBJC_MALLOC?
 			ffi_type *composite=(ffi_type *) objc_malloc(sizeof(ffi_type));
 			composite->size=0;
 			composite->alignment=0;

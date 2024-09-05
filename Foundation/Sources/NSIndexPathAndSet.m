@@ -207,6 +207,7 @@ static NSIndexPath *_root;
 	if((self=[super init]))
 		{
 		_nranges=1;
+		// use OBJC_MALLOC?
 		_indexRanges=(NSRange *) objc_malloc(sizeof(_indexRanges[0]));	// allocate one element
 		_indexRanges[0]=range;	// store
 		}
@@ -218,6 +219,7 @@ static NSIndexPath *_root;
 	if((self=[super init]))
 		{
 		_nranges=other->_nranges;
+		// use OBJC_MALLOC?
 		_indexRanges=(NSRange *) objc_malloc(_nranges*sizeof(_indexRanges[0]));	// allocate one element
 		memcpy(_indexRanges, other->_indexRanges, _nranges*sizeof(_indexRanges[0]));	// copy
 		}
@@ -235,6 +237,7 @@ static NSIndexPath *_root;
 	if((self=[super init]))
 		{
 		[coder decodeValueOfObjCType:@encode(unsigned int) at:&_nranges];
+		// use OBJC_MALLOC?
 		_indexRanges=(NSRange *) objc_malloc(_nranges*sizeof(_indexRanges[0]));	// allocate elements
 		[coder decodeArrayOfObjCType:@encode(NSRange) count:_nranges at:_indexRanges];
 		}

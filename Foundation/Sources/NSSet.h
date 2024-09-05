@@ -26,7 +26,7 @@
 @class NSDictionary;
 @class NSEnumerator;
 @class NSPredicate;
-
+@class NSIndexSet;
 
 @interface NSSet : NSObject <NSCoding, NSCopying, NSMutableCopying>
 

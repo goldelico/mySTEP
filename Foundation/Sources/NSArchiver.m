@@ -899,6 +899,7 @@ format: @"*type != against1 && *type != against2"]; \
 			*(void**)address = NSMapGet(pointers, key);
 		else
 			{
+			// use OBJC_MALLOC?
 			*(void**)address = objc_malloc(objc_sizeof_type(++type));
 			NSMapInsert(pointers, key, *(void**)address);
 			[self decodeValueOfObjCType:type at:*(void**)address];
@@ -921,6 +922,7 @@ format: @"*type != against1 && *type != against2"]; \
 				NSRange range;
 
 				(*readIMP)(rdata,readSel,&l,@encode(unsigned),&cursor,nil);
+				// use OBJC_MALLOC?
 				*(char**)address = objc_malloc(l + 1);
 				NSMapInsert(pointers, key, *(char**)address);
 				range = NSMakeRange(cursor, l);
