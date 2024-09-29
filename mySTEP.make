@@ -213,6 +213,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( bullseye ) echo "11-Bullseye";; \
 	( bookworm ) echo "12-Bookworm";; \
 	( trixie ) echo "13-Trixie";; \
+	( forky ) echo "14-Forky";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
 # FIXME: should check if toolchain is installed...
