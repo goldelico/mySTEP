@@ -529,7 +529,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 done
 endif
 endif
-	@echo build_architectures done
+	@echo build_architectures done for $(DEBIAN_ARCHITECTURES)
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -866,7 +866,7 @@ make_sh: bundle
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -R go-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
-	@echo make_sh done
+	@echo make_sh finished
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
@@ -1438,7 +1438,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	@rm -f "$(PKG)/$(NAME_EXT)/Modules"; ln -sf "Versions/Current/Modules" "$(PKG)/$(NAME_EXT)/Modules"
 	@rm -f "$(PKG)/$(NAME_EXT)/Resources"; ln -sf "Versions/Current/Resources" "$(PKG)/$(NAME_EXT)/Resources"
 endif
-	@echo bundle done
+	@echo bundle created
 
 # find common header prefix (if any)
 HPREFIX=$(shell for FILE in $(HEADERSRC); \
@@ -1477,7 +1477,7 @@ ifeq ($(TRIPLE),MacOS)
 	  ; done
 endif
 endif
-	@echo headers done
+	@echo headers created
 
 resources: bundle
 	@echo resources
@@ -1523,7 +1523,7 @@ endif
 endif
 # chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources - should exclude Info.plist...
 endif
-	@echo resources done
+	@echo resources created
 
 ifeq ($(TRIPLE),php)
 "$(BINARY)":: bundle headers $(PHPOBJECTS)
@@ -1618,6 +1618,6 @@ endif	# ($(TRIPLE),php)
 	# RESOURCES: $(RESOURCES)
 	# HEADERS: $(HEADERSRC)
 	# INFOPLISTS: $(INFOPLISTS)
-	@echo resources done
+	@echo prerequisited for "$(EXEC)" created
 
 # EOF
