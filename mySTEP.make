@@ -134,7 +134,7 @@ ifeq ($(INSTALL),)
 INSTALL:=true
 endif
 
-HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH))
+HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH) || echo $(QuantumSTEP)/$(INSTALL_PATH))
 # prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
 ifneq ($(findstring //,$(INSTALL_PATH)),//)
 TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
