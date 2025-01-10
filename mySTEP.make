@@ -957,7 +957,7 @@ endif
 
 ifneq ($(strip $(PHPSRCS)),)	# any PHP source
 ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := part of QuantumSTEP Cloud Framework
+DEBIAN_DESCRIPTION := part of QuantumSTEP Cloud
 endif
 endif
 
