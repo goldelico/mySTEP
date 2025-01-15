@@ -265,7 +265,6 @@ ifeq ($(EXECUTABLE_NAME),)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
-STDCFLAGS := $(CFLAGS) -std=gnu99
 ifeq ($(TRIPLE),MacOS)
 else
 LDFLAGS := $(LDFLAGS) -Wl,--copy-dt-needed-entries
@@ -686,7 +685,7 @@ endif
 
 # setup gcc
 
-.SUFFIXES : .o .c .cpp .m .lm .ym
+.SUFFIXES : .o .c .cpp .m .mm .lm .ym
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # ifneq ($(BUILD_STYLE),Development)
@@ -768,7 +767,17 @@ endif
 
 # FIXME: this does not recognize changes/dependencies on .h files of a framework
 
-$(TTT)+%.o: %.m
+$(TTT)+%.o: %.m	# Obj-C
+	@- mkdir -p $(TTT)+$(*D)
+	# compile $< -> $*.o
+	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+ifeq ($(INSPECT),true)
+	$(QUIET)$(CC) -c -std=gnu99 $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
+	$(QUIET)$(CC) -c -std=gnu99 $(OBJCFLAGS) -S $< -o $(TTT)+$*.S	# store assembler source for debugging
+endif
+	$(QUIET)$(CC) -c -std=gnu99 $(OBJCFLAGS) $< -o $(TTT)+$*.o
+
+$(TTT)+%.o: %.mm	# Obj-C++
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
@@ -778,13 +787,13 @@ ifeq ($(INSPECT),true)
 endif
 	$(QUIET)$(CC) -c $(OBJCFLAGS) $< -o $(TTT)+$*.o
 
-$(TTT)+%.o: %.c
+$(TTT)+%.o: %.c	# C
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
-	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
+	$(QUIET)$(CC) -c -std=gnu99 $(STDCFLAGS) $< -o $(TTT)+$*.o
 
-$(TTT)+%.o: %.cpp
+$(TTT)+%.o: %.cpp	# C++
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
