@@ -1202,6 +1202,7 @@ endif
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
 	$(QUIET)$(TAR) czvf /tmp/$(TMP_CONTROL).tar.gz --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_CONTROL) .
+	# archive older versions
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -1266,8 +1267,9 @@ endif
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
 	$(QUIET)$(TAR) czvf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_CONTROL) .
-	- rm -rf $@
+	# archive older versions
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
+	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
 ifeq ($(OPEN_DEBIAN),true)
@@ -1331,8 +1333,9 @@ endif
 	) >"/tmp/$(TMP_CONTROL)/control"
 	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
 	$(QUIET)$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_CONTROL) .
-	- rm -rf $@
+	# archive older versions
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
+	- rm -rf $@
 	$(QUIET)ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	$(QUIET)ls -l $@
 ifeq ($(OPEN_DEBIAN),true)
