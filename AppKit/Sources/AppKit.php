@@ -2479,6 +2479,7 @@ class NSTabView extends NSControl
 class NSTableColumn extends NSObject
 {
 	protected $table;
+	protected $tableView;
 	protected $title;
 	protected $identifier="";
 	protected $width="*";
