@@ -138,6 +138,7 @@ function myErrorHandler($errno, $errstr, $errfile, $errline)
 
 $old_error_handler = set_error_handler('myErrorHandler');
 
+#[\AllowDynamicProperties]
 class NSObject /* root class */
 	{
 	public function __construct()
@@ -848,20 +849,20 @@ class NSUserDefaults extends NSObject
 
 	public function volatileDomainForName($domain)
 	{
-		if(isset($this->voltaileDomains[$domain]))
-			return $this->voltaileDomains[$domain];
+		if(isset($this->volatileDomains[$domain]))
+			return $this->volatileDomains[$domain];
 		return null;
 	}
 
 	public function removeVolatileDomainForName($domain)
 	{
-		if(isset($this->voltaileDomains[$domain]))
-			unset($this->voltaileDomains[$domain]);
+		if(isset($this->volatileDomains[$domain]))
+			unset($this->volatileDomains[$domain]);
 	}
 
 	public function setVolatileDomainForName($dict, $domain)
 	{
-		$this->voltaileDomains[$domain]=$dict;
+		$this->volatileDomains[$domain]=$dict;
 	}
 
 	public function volatileDomainNames()
@@ -1169,8 +1170,47 @@ class NSDate extends NSObject
 
 	public function stringFromDate($str)
 		{ // uses POSIX formatting and not PHP!
+		// FIXME: should use DateTime class to allow microseconds formatting
+		// $ts=new DateTimeImmutable();
+		// $ts->setTimestamp(intval($this->timestamp));
+		// $di=new DateInterval();
+		// $di->f=frac($this->timestamp);
+		// $ts->add($di);
+		// return $ts->format($str);
+		// BEWARE: format has changed!!!
+		/* old
+		return date($str, intval($this->timestamp));	// without locale?
 		setlocale(LC_TIME, "C");
-		return strftime($str, $this->timestamp);
+		return strftime($str, intval($this->timestamp));	// according to locale
+		*/
+		/* simulate strftime() format */
+		$r="";
+		$val=intval($this->timestamp);
+		while($c=substr($str, 0, 1))
+			{
+			if($c == '%')
+				{
+				$str=substr($str, 1);	/* eat % character */
+				$c=substr($str, 0, 1);
+				switch($c)
+					{
+					case '%': $r.=$c; break;
+					case 'Y': $r.=date("Y", $val); break;
+					case 'm': $r.=date("m", $val); break;
+					case 'd': $r.=date("d", $val); break;
+					case 'H': $r.=date("H", $val); break;
+					case 'M': $r.=date("i", $val); break;
+					case 'S': $r.=date("s", $val); break;
+					case 'z': $r.="+0000"; break;
+					case 'Z': $r.="+0000"; break;
+					default: $r.="%$c";
+					}
+				}
+			else
+				$r.=$c;
+			$str=substr($str, 1);	/* eat character */
+			}
+		return $r;
 		}
 
 	public function description()
