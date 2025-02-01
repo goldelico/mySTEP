@@ -1476,15 +1476,14 @@ class NSMenuView extends NSMenu
 
 class NSPopUpButton extends NSButton
 	{
-	protected $menu;
-	protected $pullsDown=false;
 	public $selectedIndex=0;
 
+	protected $menu=array();
+	protected $pullsDown=false;
+	protected $actions=array();
 	public function __construct()
 		{
 		parent::__construct("", "NSPopupButton");
-		$this->menu=array();
-		$this->actions=array();
 		new _NSPersist($this, "selectedIndex");
 // _NSLog($this->elementId()." created");
 		}
@@ -2551,6 +2550,8 @@ class NSTableView extends NSControl
 	public $selectedColumn=-1;
 	protected $clickedRow=-1;
 	protected $clickedColumn=-1;
+	protected $drawingRow;
+	protected $drawingColumn;
 	protected $doubleAction;
 	public function __construct($headers=array("Column1"), $visibleRows=0)
 		{
@@ -3081,8 +3082,9 @@ class NSSlider extends NSTextField
 
 class NSTextView extends NSControl
 {
-	public $string;
+	public $string="";
 	protected $string_persistor;
+	protected $width;
 	public function __construct($width = 80, $height = 20)
 		{
        		parent::__construct();
