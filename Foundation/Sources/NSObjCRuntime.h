@@ -377,7 +377,7 @@ if (temp) \
 //
 #define NIMP  [self _nimp:_cmd];
 
-// #define NIMP [NSException raise:NSGenericException format:@"%@ method %@ not implemented", NSStringFromClass([self class]), NSStringFromSelector(_cmd)], (id)nil]
+// #define NIMP ([NSException raise:NSGenericException format:@"%@ method %@ not implemented", NSStringFromClass([self class]), NSStringFromSelector(_cmd)], (id)nil)
 
 #define SHOULDNIMP NIMP
 
