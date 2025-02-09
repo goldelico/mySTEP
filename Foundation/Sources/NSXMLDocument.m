@@ -10,8 +10,9 @@
 
 @implementation NSXMLDocument
 
-+ (Class) replacementClassForClass:(Class) class;
++ (Class) replacementClassForClass:(Class) original;
 {
+	// FIXME?
 	return Nil;
 }
 

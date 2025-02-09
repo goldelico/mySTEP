@@ -35,7 +35,7 @@ typedef NSUInteger NSXMLDocumentContentKind;
 	BOOL _isStandalone;
 }
 
-+ (Class) replacementClassForClass:(Class) class;
++ (Class) replacementClassForClass:(Class) original;
 
 - (NSString *) characterEncoding;
 - (NSXMLDocumentContentKind) documentContentKind;

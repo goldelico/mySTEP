@@ -33,8 +33,9 @@
 - (NSString *) stringByReplacingMatchesInString:(NSString *) string
 										options:(NSMatchingOptions) options
 										  range:(NSRange) range
-								   withTemplate:(NSString *) template;
+								   withTemplate:(NSString *) theTemplate;
 {
+	// FIXME
 	return string;
 }
 

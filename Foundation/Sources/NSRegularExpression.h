@@ -56,7 +56,7 @@ typedef enum NSMatchingOptions
 @interface NSRegularExpression : NSObject <NSCopying, NSCoding>
 {
 	NSString *_pattern;
-	NSUInteger _options;
+	unsigned int _options;
 }
 
 + (NSRegularExpression *) regularExpressionWithPattern:(NSString *) pattern options:(NSRegularExpressionOptions) options error:(NSError **) outError;
@@ -71,15 +71,15 @@ typedef enum NSMatchingOptions
 - (NSString *) stringByReplacingMatchesInString:(NSString *) string
 										options:(NSMatchingOptions) options
 										  range:(NSRange) range
-								   withTemplate:(NSString *) template;
+								   withTemplate:(NSString *) theTemplate;
 - (NSUInteger) replaceMatchesInString:(NSMutableString *) string
 							  options:(NSMatchingOptions) options
 								range:(NSRange) range
-						withTemplate:(NSString *) template;
+						withTemplate:(NSString *) theTemplate;
 - (NSString *) replacementStringForResult:(NSTextCheckingResult *) result
 								 inString:(NSString *) string
 								   offset:(NSInteger) offset
-								 template:(NSString *) template;
+								 template:(NSString *) theTemplate;
 - (NSUInteger) numberOfMatchesInString:(NSString *) string
 							   options:(NSMatchingOptions) options
 								 range:(NSRange) range;
