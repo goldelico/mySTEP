@@ -75,6 +75,7 @@
 - (id) initWithObjects:(id) firstObj, ...;
 - (id) inttWithObjects:(id *) objects count:(NSUInteger) count;
 - (BOOL) isEqualToArray:(NSArray *) otherArray;
+- (id) firstObject;
 - (id) lastObject;
 - (void) makeObjectsPerformSelector:(SEL) aSelector;
 - (void) makeObjectsPerformSelector:(SEL) aSelector withObject:(id) argument;

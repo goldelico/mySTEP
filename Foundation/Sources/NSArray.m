@@ -367,6 +367,11 @@ static Class __stringClass = Nil;
 - (NSUInteger) hash					{ return _count; }	// different size means different
 - (id *) _contents					{ return _contents; }
 
+- (id) firstObject
+{
+	return (_count == 0) ? nil : _contents[0];
+}
+
 - (id) lastObject
 {
 	return (_count == 0) ? nil : _contents[_count-1];
