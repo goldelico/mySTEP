@@ -49,6 +49,10 @@ enum {
 	NSRunContinuesResponse = -1002
 };
 
+#define NSModalResponseStop NSRunStoppedResponse
+#define NSModalResponseAbort NSRunAbortedResponse
+#define NSModalResponseContinue NSRunContinuesResponse
+
 enum {
 	NSUpdateWindowsRunLoopOrdering = 500000
 };

@@ -40,6 +40,9 @@ enum
 
 typedef NSInteger NSModalResponse;
 
+#define NSModalResponseCancel NO
+#define NSModalResponseOK YES
+
 @interface NSAlert : NSObject
 {
 	IBOutlet NSTextField *_title;
