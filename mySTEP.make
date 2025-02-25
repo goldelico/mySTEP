@@ -1367,7 +1367,7 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	# FIXME: make host architecture dependent
 	#- ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"
 endif
-	# installed on localhost at $(HOST_INSTALL_PATH)
+	# installed on localhost as $(HOST_INSTALL_PATH)/$(PRODUCT_NAME)
 else
 	# don't install locally
 endif
