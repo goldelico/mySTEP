@@ -11,7 +11,10 @@
 
 
 @interface NSBundleTest : XCTestCase {
-	NSBundle *b;
+	NSBundle *framework;
+	NSBundle *application;
+	NSBundle *bundle;
+	NSBundle *tool;
 }
 
 @end
@@ -20,18 +23,23 @@
 
 - (void) setUp
 {
-	b=[NSBundle bundleWithPath:@"/System/Library/Frameworks/AddressBook.framework"];
-	XCTAssertNotNil(b, @"");
+	framework=[NSBundle bundleWithPath:@"/Developer/Library/Frameworks/XCTest.framework"];
+	XCTAssertNotNil(framework, @"");
+	application=[NSBundle bundleWithPath:@"/System/Library/CoreServices/loginwindow.app"];
+	XCTAssertNotNil(application, @"");
+	bundle=[NSBundle bundleWithPath:@"/Library/UnitTests/Foundation.xctest"];
+	XCTAssertNotNil(application, @"");
+	tool=[NSBundle bundleWithPath:@"/usr/bin/ocunit"];
 }
 
 - (void) tearDown
 {
-	[b release];
+	[framework release];
 }
 
 - (void) test01
 {
-	XCTAssertEqualObjects([b bundlePath], @"/System/Library/Frameworks/AddressBook.framework", @"");
+	XCTAssertEqualObjects([framework bundlePath], @"/System/Library/Frameworks/AddressBook.framework", @"");
 }
 
 - (void) test02
