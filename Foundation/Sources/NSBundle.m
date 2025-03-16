@@ -42,6 +42,7 @@
 #endif
 #endif
 
+/* inofficial */
 typedef enum {
 	NSBUNDLE_BUNDLE = 1,
 	NSBUNDLE_APPLICATION,
@@ -87,6 +88,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			NSProcessInfo *pi = [NSProcessInfo processInfo];
 			NSFileManager *fm = [NSFileManager defaultManager];
 			NSString *path = [[pi arguments] objectAtIndex:0];
+			NSString *bundleExecutablePath;
 			NSString *virtualRoot;
 			NSUInteger vrl;
 			__bundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
@@ -138,6 +140,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 				path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
 			if([path hasPrefix:virtualRoot])
 				path=[path substringFromIndex:vrl];	// strip off - just in case...
+			bundleExecutablePath=path;
 #if 0
 			NSLog(@"check for executable at %@", path);
 #endif
@@ -150,13 +153,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 			if([[path lastPathComponent] isEqualToString:@"."])
 				path = [path stringByDeletingLastPathComponent];	// was called as ./executable
 #ifndef __APPLE__
-			if([[[path stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"Contents"])
-				{
-				path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor
-				path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
-				}
+			path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor ($ARCH)
+			path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents/' or 'bin/'
 #endif
-#if 1
+#if 0
 			NSLog(@"NSBundle: main bundle path is %@", path);
 #endif
 #if 0
@@ -169,6 +169,8 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 				[__loadLock unlock];
 				[NSException raise:NSInternalInconsistencyException format: @"Not a main bundle at %@", path];
 				}
+			__mainBundle->_codeLoaded=YES;
+			__mainBundle->_bundleExecutablePath=[bundleExecutablePath retain];
 			__mainBundle->_bundleType = NSBUNDLE_APPLICATION;
 #if 0
 			NSLog(@"NSBundle: before loadunlock 1");
@@ -195,7 +197,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	NSBundle *bundle;
 	if(!aClass)
 		return __mainBundle;
-#if 1
+#if 0
 	NSLog(@"bundleForClass %@", NSStringFromClass(aClass));
 #endif
 	file=objc_moduleForAddress(aClass);	// get the path of the dynamic file that defines the class record
@@ -210,7 +212,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		}
 	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))
 		{ // look up by filename - if already known
-#if 1
+#if 0
 			NSLog(@"bundleForClass %@ already known to be in %@", NSStringFromClass(aClass), bundle);
 #endif
 			return bundle;
@@ -306,15 +308,14 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 		_bundleContentPath=[_path stringByAppendingPathComponent:@"Contents"];
 		iplist=@"Info.plist";
 		}
-	[_bundleContentPath retain];
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:iplist]])
 		{
-#if 1	// we can not NSAssert or abort because bundleForClass: relies on testing different non-bundle directories
+#if 0	// we can not NSAssert or abort because bundleForClass: relies on testing different non-bundle directories
 		NSLog(@"Could not find Info.plist inside bundle %@", path);
 #endif
-		[self release];
-		return nil;
+		_bundleContentPath=_path;
 		}
+	[_bundleContentPath retain];
 #if 0
 	NSLog(@"_bundleContentPath %@", _bundleContentPath);
 	NSLog(@"save in cache: path %@ -> %@", path, self);
@@ -326,20 +327,21 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 
 - (void) dealloc
 {
-#if 1
+#if 0
 	NSLog(@"NSBundle dealloc %p", self);
 #endif
 	NSMapRemove(__bundles, _path);
-	NSMapRemove(__bundlesForExecutables, NULL);	// why NULL ?
+	NSMapRemove(__bundlesForExecutables, _bundleExecutablePath);
 	[_localizations release];
 	[_preferredLocalizations release];
 	[_bundleClasses release];
 	[_infoDict release];
 	[_path release];
+	[_bundleExecutablePath release];
 	[_bundleContentPath release];
 	[_searchPaths release];
 	[super dealloc];
-#if 1
+#if 0
 	NSLog(@"NSBundle dealloc %p done", self);
 #endif
 }
@@ -361,76 +363,47 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 {
 	Class theClass = Nil;
 
-	if (!_codeLoaded && (self != __mainBundle) && ![self load])
+#if 0
+	NSLog(@"classNamed: %@", className);
+#endif
+	if (!_codeLoaded && ![self load])
 		{
 		NSLog(@"No classes in bundle");
 		return Nil;
 		}
+	theClass = NSClassFromString(className);
+#if 0
+	NSLog(@"theClass 1 = %@", theClass);
+#endif
+
 	// look if the class was really defined in our bundle
 	if (self == __mainBundle)
 		{
-		theClass = NSClassFromString(className);
+#if 0
+		NSLog(@"main bundle detected");
+		NSLog(@"bundle of class %@ -> %@", theClass, [[self class] bundleForClass:theClass]);
+#endif
 		if (theClass && [[self class] bundleForClass:theClass] != __mainBundle)
 			theClass = Nil;
 		}
 	else
 		{
+#if 0
+		NSLog(@"other bundle detected");
+#endif
 		if(![_bundleClasses containsObject: className])
 			theClass = Nil;	// no
 		}
+#if 0
+	NSLog(@"theClass 2 = %@", theClass);
+#endif
 
 	return theClass;
 }
 
 - (Class) principalClass
 {
-#if 0
-	NSLog(@"principalClass");
-#endif
-	if(!_principalClass)
-		{
-		NSString *n = [self objectForInfoDictionaryKey:@"NSPrincipalClass"];
-#if 0
-		NSLog(@"principalClass: infoDictionary[NSPrincipalClass]: %@", n);
-		if(!n)
-			{
-			NSLog(@"principalClass: infoDictionary = %p\n%@", _infoDict, _infoDict);
-			abort();
-			}
-#endif
-		if(self == __mainBundle)
-			{
-#if 0
-			NSLog(@"principalClass: we are main bundle");
-#endif
-			_codeLoaded = YES;
-			if(n)
-				_principalClass = NSClassFromString(n);
-			else
-				NSLog(@"NSPrincipalClass is not defined in Info.plist (%@)", [self infoDictionary])
-				, abort();
-			}
-		else
-			{
-#if 0
-			NSLog(@"principalClass: load bundle code");
-#endif
-			if([self load] == NO)
-				return Nil;
-#if 0
-			NSLog(@"principalClass: bundle code loaded");
-#endif
-			if(n)
-				_principalClass = NSClassFromString(n);
-			if(!_principalClass)
-				_principalClass = NSClassFromString([_bundleClasses anyObject]);	// Randomize...
-			}
-		}
-#if 0
-	NSLog(@"principalClass = %@", NSStringFromClass(_principalClass));
-#endif
-
-	return _principalClass;
+	return [self classNamed:[self objectForInfoDictionaryKey:@"NSPrincipalClass"]];
 }
 
 - (void) _addClass:(NSString *)aClass
@@ -846,8 +819,10 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 - (NSString *) bundleIdentifier;
 {
 	NSString *ident=[self objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+#if 0	// not compatible to Cocoa
 	if(!ident)
 		ident=[[_path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
+#endif
 	return ident;
 }
 
@@ -881,7 +856,7 @@ void _bundleLoadCallback(Class theClass, Category theCategory);
 	if(!name)
 		name=[self objectForInfoDictionaryKey:@"NSExecutable"];
 	if(!name)
-		return nil;	// no executable defined
+		return _bundleExecutablePath;	// if known from initialization
 	return [self pathForAuxiliaryExecutable:name];
 }
 

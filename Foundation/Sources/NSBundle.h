@@ -55,12 +55,12 @@ enum {
 @interface NSBundle : NSObject
 {
 	NSString *_path;
+	NSString *_bundleExecutablePath;
 	NSString *_bundleContentPath;
 	NSMutableSet *_bundleClasses;				// list of class names (if known)
 	NSMutableDictionary *_searchPaths;			// cache
 	NSMutableArray *_localizations;				// cache
 	NSArray *_preferredLocalizations;	// cache
-	Class _principalClass;
 	NSDictionary *_infoDict;
 	unsigned int _bundleType;
 	BOOL _codeLoaded;
