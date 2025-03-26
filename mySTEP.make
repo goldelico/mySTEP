@@ -56,7 +56,7 @@ QUIET=@
 #   (+) OPTIMIZE - optimize level - default: s
 #   (+) INSPECT - save .i and .S intermediate steps - default: no
 #   (+) BUILD_STYLE - default: ?
-#   (+) GCC_OPTIMIZATION_LEVEL - default: 0
+#   (+) GCC_OPTIMIZATION_LEVEL - default: ?
 #   (+) BUILD_DOCUMENTATION - default: no
 #   (+) DEBIAN_ARCHITECTURES - default: macos armel armhf arm64 i386 mipsel
 #   (-) DEBIAN_ARCH - used internally
@@ -703,12 +703,15 @@ DEPLOY := false
 RUN := false
 endif
 
+OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
+
 # default to optimize depending on BUILD_STYLE
 ifeq ($(OPTIMIZE),)
 ifeq ($(BUILD_STYLE),Development)
-OPTIMIZE := s
-else
-OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
+OPTIMIZE := -O0
+endif
+ifeq ($(BUILD_STYLE),Deployment)
+OPTIMIZE := -Os
 endif
 endif
 
