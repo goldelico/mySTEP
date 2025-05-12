@@ -512,7 +512,16 @@ static NSUserDefaults *__sharedDefaults = nil;
 #if 0
 		NSLog(@"write to domain: %@", domain);
 #endif
-		if(![[_persDomains objectForKey:domain] writeToFile:[self _filePathForDomain:domain] atomically:YES])
+		NSDictionary *dict=[_persDomains objectForKey:domain];
+		if([dict count] == 0)
+			{ // delete
+			if(![[NSFileManager defaultManager] removeItemAtPath:[self _filePathForDomain:domain] error:NULL])
+				{
+				NSLog(@"delete error for %@", [self _filePathForDomain:domain]);
+				return NO;
+				}
+			}
+		else if(![dict writeToFile:[self _filePathForDomain:domain] atomically:YES])
 			{ // write error
 			NSLog(@"write error for %@", [self _filePathForDomain:domain]);
 			return NO;
