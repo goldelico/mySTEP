@@ -655,6 +655,8 @@ static int sql_callback(void *context, int columns, char **values, char **names)
 
 - (BOOL) setValue:(id) value atRow:(NSUInteger) row column:(NSString *) column ofTable:(NSString *) table error:(NSString **) error;
 {
+	if(!value)
+		return YES;	// this can happen by Undo if we want to restore a non-existing value
 	if(db)
 		;
 	NSArray *data=[self dataForTable:table error:error];
