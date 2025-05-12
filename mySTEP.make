@@ -187,7 +187,7 @@ SO := phar
 PHAR := $(shell which phar)
 else ifeq ($(TRIPLE),MacOS)
 DEFINES += -D__mySTEP__
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app//Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
 LIBS += -L/opt/local/lib
 TOOLCHAIN=/usr/bin
 CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
