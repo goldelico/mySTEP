@@ -516,8 +516,8 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
 	else \
-		export DEBIAN_RELEASE="none"; \
-		export DEBIAN_ARCH="none"; \
+		export DEBIAN_RELEASE="any"; \
+		export DEBIAN_ARCH="$$BASE_OS"; \
 		export TRIPLE=$$BASE_OS; \
 		EXIT=0; \
 		echo "*** building for $$BASE_OS ***"; \
