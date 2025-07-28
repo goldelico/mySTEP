@@ -58,7 +58,7 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: ?
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (+) DEBIAN_ARCHITECTURES - default: macos armel armhf arm64 i386 mipsel
+#   (+) DEBIAN_ARCHITECTURES - default: x86-64-apple armel armhf arm64 i386 mipsel
 #   (-) DEBIAN_ARCH - used internally
 #	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
@@ -116,7 +116,7 @@ OLD_SHELL := $(SHELL)
 SHELL = $(warning Building $@)$(OLD_SHELL)
 endif
 
-# don't compile for MacOS (but copy/install) if called as build script phase from within Xcode
+# don't compile for Darwin (but copy/install) if called as build script phase from within Xcode
 
 ifneq ($(XCODE_VERSION_ACTUAL),)
 NOCOMPILE:=true
@@ -156,12 +156,13 @@ ROOT:=$(QuantumSTEP)
 
 # FIXME: this does only work on the Mac! On embedded the qsrsh is in /usr/bin/$HOST_ARCH or $PATH
 DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
+DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
 XHOST_TOOL := /opt/X11/bin/xhost
 # tools
 ifeq ($(shell uname),Darwin)
 # use platform specific (cross-)compiler on Darwin host
 DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
-# disable special MacOS X stuff for tar
+# disable special macOS stuff for tar
 TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/bin/gnutar
 # we want tar to save root:root and not 0:0 (translated on MacOS)
 ROOT=root
@@ -185,7 +186,7 @@ NM := :
 STRIP := :
 SO := phar
 PHAR := $(shell which phar)
-else ifeq ($(TRIPLE),MacOS)
+else ifeq ($(TRIPLE),Darwin)
 DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
 LIBS += -L/opt/local/lib
@@ -214,6 +215,8 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( bookworm ) echo "12-Bookworm";; \
 	( trixie ) echo "13-Trixie";; \
 	( forky ) echo "14-Forky";; \
+	( darwin23 ) echo "14-Sonoma";; \
+	( darwin24 ) echo "15-Sequoia";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
 # FIXME: should check if toolchain is installed...
@@ -265,7 +268,7 @@ ifeq ($(EXECUTABLE_NAME),)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 else
 LDFLAGS := $(LDFLAGS) -Wl,--copy-dt-needed-entries
 endif
@@ -306,8 +309,9 @@ endif
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
 
-ifeq ($(TRIPLE),MacOS)	# directly on CONTENTS level
+ifeq ($(TRIPLE),Darwin)	# directly on CONTENTS level
 	BINARY=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(EXECUTABLE_NAME)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS
 else ifeq ($(DEBIAN_RELEASE),none)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).$(SO)
 else ifeq ($(DEBIAN_RELEASE),staging)	# generic command line tool
@@ -320,11 +324,11 @@ endif	# setting BINARY
 #	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
 	STDCFLAGS := -I$(EXEC)/../Headers/ $(STDCFLAGS)
 
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 	LDFLAGS := -dynamiclib -install_name $(HOST_INSTALL_PATH)/$(NAME_EXT)/Versions/Current/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
-endif	# ($(TRIPLE),MacOS)
+endif	# ($(TRIPLE),Darwin)
 endif	# ($(WRAPPER_EXTENSION),framework)	# framework
 
 ifeq ($(BINARY),)	# not yet defined
@@ -332,18 +336,19 @@ ifeq ($(BINARY),)	# not yet defined
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 	PKG=$(BUILT_PRODUCTS_DIR)
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS
 else ifeq ($(DEBIAN_RELEASE),staging)	# generic app or command line tool
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
 else	# release specific
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)-$(DEBIAN_RELEASE)
-endif	# ($(TRIPLE),MacOS)
+endif	# ($(TRIPLE),Darwin)
 
 ifeq ($(WRAPPER_EXTENSION),app)
 #	STDCFLAGS := -DFAKE_MAIN $(STDCFLAGS)	# application
 else # not an app
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 	LDFLAGS := -dynamiclib -install_name @rpath/$(NAME_EXT)/Versions/Current/MacOS/$(PRODUCT_NAME) -undefined dynamic_lookup $(LDFLAGS)
 else
 	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
@@ -353,6 +358,13 @@ endif	# ($(BINARY),)	# not yet defined
 
 ifeq ($(BINARY),)	# still not defined - use default
 	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
+endif
+
+# define the subdirectory of Darwin executables, e.g. Contents/MacOS/executable
+ifeq ($(TRIPLE),Darwin)
+	T=MacOS
+else
+	T=$(TRIPLE)
 endif
 
 # expand patterns in SOURCES (feature is not used by QuantumCode)
@@ -413,7 +425,7 @@ ifeq ($(BASE_OS_LIST),)
 ifneq ($(XCODE_VERSION_ACTUAL),)
 BASE_OS_LIST=Debian
 else
-# BASE_OS_LIST=MacOS Debian
+# BASE_OS_LIST=Darwin Debian
 BASE_OS_LIST=Debian
 endif
 endif	# ifeq ($(BASE_OS_LIST),)
@@ -426,7 +438,7 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=macos armel armhf arm64 i386 mipsel
+DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
@@ -502,7 +514,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			i386 ) export TRIPLE=i486-linux-gnu;; \
 			amd64 ) export TRIPLE=x86_64-linux-gnu;; \
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
-			macos ) export TRIPLE=MacOS;; \
+			x86-64-apple | arm64-apple ) export TRIPLE=Darwin;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
@@ -560,11 +572,11 @@ endif
 endif
 endif
 
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 INCLUDES += -I$(TOOLCHAIN)/$(TRIPLE)/include/freetype2
 endif
 
-#ifeq ($(TRIPLE),MacOS)
+#ifeq ($(TRIPLE),Darwin)
 #LNK :=
 #else
 LNK := .link
@@ -577,10 +589,10 @@ endif
 INCLUDES := -I$(TTT) $(INCLUDES)
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 # check if each framework exists in /System/Library/*Frameworks or explicitly include/link from $(QuantumSTEP)
-### FIXME: why do we need this? MacOS only...
-### MacOS should use -F and the framework path!
+### FIXME: why do we need this? Darwin only...
+### Darwin should use -F and the framework path!
 ### FIXME: list of locations should be a default list which can be extended by project settings!
 FMWK_PATHS := /System/Library/Frameworks $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks
 
@@ -600,19 +612,19 @@ INCLUDES := $(INCLUDES) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	else echo "-I$$FMWK.headers$(LNK)"; \
 	fi; done)
 
-### FIXME: why do we need this? MacOS only...
+### FIXME: why do we need this? Darwin only...
 LIBS := $(LIBS) $(shell for FMWK in CoreFoundation $(FRAMEWORKS); \
 	do \
 	if [ -d "/System/Library/Frameworks/$${FMWK}.framework" ]; \
 	then echo -framework "$$FMWK"; \
 	elif [ -d "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework" ]; \
-	then echo "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	then echo "$(QuantumSTEP)/Library/Frameworks/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.dylib"; \
 	elif [ -d "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework" ]; \
-	then echo "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	then echo "$(QuantumSTEP)/System/Library/Frameworks/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.dylib"; \
 	elif [ -d "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework" ]; \
-	then echo "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	then echo "$(QuantumSTEP)/System/Library/PrivateFrameworks/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.dylib"; \
 	elif [ -d "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework" ]; \
-	then echo "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.dylib"; \
+	then echo "$(QuantumSTEP)/Developer/Library/Frameworks/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.dylib"; \
 	else echo "lib$$FMWK.dylib"; \
 	fi; done)
 else
@@ -636,14 +648,14 @@ FMWKS := $(FMWKS) $(shell for FMWK in $(FRAMEWORKS); \
 	do \
 	for DIR in $(QuantumSTEP)/Library/Frameworks $(QuantumSTEP)/System/Library/Frameworks $(QuantumSTEP)/System/Library/PrivateFrameworks $(QuantumSTEP)/Developer/Library/Frameworks; \
 		do \
-		if [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so ]; \
-		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE).so; \
-		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so ]; \
-		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so; \
-		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.so ]; \
-		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/lib$$FMWK.so; \
-		elif [ -L $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK ]; \
-		then echo $$DIR/$$FMWK.framework/Versions/Current/$(TRIPLE)/$$FMWK; \
+		if [ -r $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK-$(DEBIAN_RELEASE).so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK-$(DEBIAN_RELEASE).so; \
+		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK-$(DEBIAN_RELEASE_FALLBACK).so; \
+		elif [ -r $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.so ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(T)/lib$$FMWK.so; \
+		elif [ -L $$DIR/$$FMWK.framework/Versions/Current/$(T)/$$FMWK ]; \
+		then echo $$DIR/$$FMWK.framework/Versions/Current/$(T)/$$FMWK; \
 		fi; \
 		done; \
 	done)
@@ -652,7 +664,7 @@ FMWKS := $(FMWKS) $(shell for FMWK in $(FRAMEWORKS); \
 endif
 endif
 
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 LIBRARIES := \
 		$(FMWKS) \
 		$(LIBS)
@@ -693,8 +705,8 @@ ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 OPTIMIZE := 2
 # should also remove headers and symbols
 #	STRIP_Framework := true
-# remove MacOS X code
-#	STRIP_MacOS := true
+# remove Darwin code
+#	STRIP_Darwin := true
 # install in our file system so that we can build the package
 INSTALL := true
 # don't send to the device
@@ -729,7 +741,7 @@ OPTIMIZE := 3
 STDCFLAGS += -fno-section-anchors -ftree-vectorize # -mfpu=neon -mfloat-abi=hardfp
 endif
 
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 STDCFLAGS += -Wno-deprecated-declarations
 else
 STDCFLAGS += -rdynamic
@@ -1069,16 +1081,16 @@ endif
 	# unprotect
 	chmod -Rf u+w "/tmp/$(TMP_DATA)" || true
 
-prune_temp_files:	# never called!!!
+prune_temp_files:	# never called!!! Intended to generalize the package builder variants
 	# TRIPLE: $(TRIPLE)
 	# WRAPPER_EXTENSION: $(WRAPPER_EXTENSION)
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
@@ -1087,19 +1099,19 @@ ifneq ($(TRIPLE),MacOS)
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),Darwin)
 endif # ($(WRAPPER_EXTENSION),framework)
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
 	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/
 	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
-		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
-		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
 	fi
 endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -1143,22 +1155,22 @@ F = filter_dependencies() \
 ifneq ($(TRIPLE),)
 ifneq ($(WRAPPER_EXTENSION),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
 	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
 	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
-		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
-		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
+		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
 	fi
 endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# remove headers
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)"
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
@@ -1167,11 +1179,11 @@ ifneq ($(TRIPLE),MacOS)
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),Darwin)
 endif # ($(WRAPPER_EXTENSION),framework)
 endif # ($(TRIPLE),)
 ifeq ($(WRAPPER_EXTENSION),framework)
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -1212,7 +1224,7 @@ endif
 		else mv -f "$(DEBDIST)/binary-"*"/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" \
 				   "$(DEBDIST)/binary-"*"/$(DEBIAN_PACKAGE_NAME)_"*"_all.deb"	\
 						"$(DEBDIST)/archive" 2>/dev/null; \
-	  fi
+	  fi; true
 	- rm -rf $@	# just be sure
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
@@ -1230,10 +1242,10 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-ifneq ($(TRIPLE),MacOS)
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+ifneq ($(TRIPLE),Darwin)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
@@ -1242,9 +1254,9 @@ ifneq ($(TRIPLE),MacOS)
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),Darwin)
 endif # ($(TRIPLE),)
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -1301,10 +1313,10 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(TRIPLE)" ")" -prune -print -exec rm -rf {} ";"
-ifneq ($(TRIPLE),MacOS)
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+ifneq ($(TRIPLE),Darwin)
 	# process multirelease framework (only for Debian)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
@@ -1313,9 +1325,9 @@ ifneq ($(TRIPLE),MacOS)
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
 	done; true )
-endif # ($(TRIPLE),MacOS)
+endif # ($(TRIPLE),Darwin)
 endif # ($(TRIPLE),)
-ifneq ($(TRIPLE),MacOS)
+ifneq ($(TRIPLE),Darwin)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
@@ -1368,7 +1380,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 # NOTE: /tmp_CONTROL etc. is a different $$ than when building debian packages!
 # this means we must also install from the submakefile
 
-# strip off all that are not MacOS and copy to $(HOST_INSTALL_PATH)
+# strip off all that are not Darwin and copy to $(HOST_INSTALL_PATH)
 install_local: prepare_temp_files
 	# install_local
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
@@ -1376,7 +1388,7 @@ ifeq ($(INSTALL),true)
 	# INSTALL: $(INSTALL)
 	# should we better untar the .deb?
 	- ls -l "$(BINARY)"
-	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential MacOS binary
+	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential Darwin binary
 	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
 	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
@@ -1408,12 +1420,11 @@ deploy_remote: prepare_temp_files
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
 	# deploy remote
-	# DOWNLOAD /tmp/$(TMP_DATA) to all devices
-	# FIXME: use rsync?
 	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEV NAME; \
 		do \
 		if [ ! "$(DEVICE)" -o "$(DEVICE)" == "$$NAME" ]; then \
-		$(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
+		$(DEB_INSTALL_TOOL) -d $$DEV $(DEBIAN_PACKAGE_NAME) \
+		: $(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
 				gzip | \
 				$(DOWNLOAD_TOOL) $$DEV "cd; cd / && gunzip | tar xpvf -; if cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE 2>/dev/null && [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -f $(PRODUCT_NAME) ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
 				&& echo +++ installed on $$NAME at $(TARGET_INSTALL_PATH) +++ || echo --- installation failed on $$NAME ---; \
@@ -1496,7 +1507,7 @@ endif
 #endif
 	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)"; rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)/$(PRODUCT_NAME)" && ln -sf ../Headers "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)/$(PRODUCT_NAME)")	# link to Headers to find <Framework/File.h>
 endif
-ifeq ($(TRIPLE),MacOS)
+ifeq ($(TRIPLE),Darwin)
 # always use system frameworks and make nested frameworks "flat"
 	$(QUIET)mkdir -p $(TTT)
 	$(QUIET)- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
@@ -1612,13 +1623,13 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 else ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	# link shared library for frameworks
 	- rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"
-ifeq ($(TRIPLE),MacOS)	# framework has no real MacOS subdirectory but we symlink into it
+ifeq ($(TRIPLE),Darwin)	# framework has no real MacOS subdirectory but we symlink into it
 	# fix $(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE) /$(EXECUTABLE_NAME)
-	rm -rf "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"
-	mkdir -p "$(PKG)/$(NAME_EXT)/Versions/Current/$(TRIPLE)"
-	ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create link to MacOS version
-	ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
-endif	# ($(TRIPLE),MacOS)
+	rm -rf "$(PKG)/$(NAME_EXT)/Versions/Current/$(T)"
+	mkdir -p "$(PKG)/$(NAME_EXT)/Versions/Current/$(T)"
+	ln -sf "../$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(T)/$(EXECUTABLE_NAME)"	# create link to MacOS version
+	ln -sf "$(EXECUTABLE_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(T)/lib$(EXECUTABLE_NAME).dylib"	# create link to MacOS version
+endif	# ($(TRIPLE),Darwin)
 else # other wrapper extensions
 # .app does not need this but what about generic (non-framework) bundles?
 #	- ln -sf "lib$(EXECUTABLE_NAME).$(SO)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(EXECUTABLE_NAME)"	# create libXXX.so entry for ldconfig
