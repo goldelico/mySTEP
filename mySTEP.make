@@ -505,6 +505,12 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 	for BASE_OS in $(BASE_OS_LIST); do \
 	if [ "$$BASE_OS" = "Debian" ]; then \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
+		case "$$DEBIAN_RELEASE" in \
+			any | staging ) : generic;; \
+			etch | lenny | squeeze | wheezy | jessie | stretch | buster | bookworm | bullseye | trixie |  forky ) : Debian;; \
+			darwin* ) : Darwin;; \
+			* ) echo "!!! invalid release $$DEBIAN_RELEASE - aborted !!!"; exit 1;; \
+		esac; \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			case "$$DEBIAN_ARCH" in \
