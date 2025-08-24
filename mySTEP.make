@@ -1135,7 +1135,7 @@ F = filter_dependencies() \
 	SEP="$$1"; \
 	while read LINE; \
 	do \
-		if echo "$$LINE" | grep -q : && ! echo "$$LINE" | grep -q "$(DEBIAN_RELEASE):"; then continue; fi; \
+		if echo "$$LINE" | grep -q : && ! echo "$$LINE" | egrep -q "^$(DEBIAN_RELEASE):"; then continue; fi; \
 		if echo "$$LINE" | grep -q '\[.*\]' && ! echo "$$LINE" | grep -q "\[[^]]*$(DEBIAN_ARCH).*\]"; then continue; fi; \
 		LINE=$$(echo "$$LINE" | sed 's|.*:||' | sed 's|[ ]*\[.*\][ ]*||'); \
 		if [ "$(TRIPLE)" = "php" ] && ! echo "$$LINE" | egrep -q '^quantumstep-|^letux-'; then continue; fi; \
