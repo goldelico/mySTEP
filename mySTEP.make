@@ -58,7 +58,7 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: ?
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (+) DEBIAN_ARCHITECTURES - default: x86-64-apple armel armhf arm64 i386 mipsel
+#   (+) DEBIAN_ARCHITECTURES - default: x86-64-apple armel armhf arm64 i386 mipsel riscv64
 #   (-) DEBIAN_ARCH - used internally
 #	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
@@ -202,7 +202,11 @@ DEFINES += -D__mySTEP__
 # use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
 # otherwise take a default compiler/toolchain we use for "universal" apps/bundles
 TOOLCHAIN_FALLBACK = 8-Jessie
-DEBIAN_RELEASE_FALLBACK = jessie
+# FIXME: should be the first where we have a usr/bin/$(TRIPLE)-gcc
+ifeq ($(TRIPLE),riscv64-linux-gnu)
+TOOLCHAIN_FALLBACK := 10-Buster
+endif
+DEBIAN_RELEASE_FALLBACK := jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( etch ) echo "4-Etch";; \
 	( lenny ) echo "5-Lenny";; \
@@ -438,7 +442,7 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel
+DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
@@ -520,6 +524,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			i386 ) export TRIPLE=i486-linux-gnu;; \
 			amd64 ) export TRIPLE=x86_64-linux-gnu;; \
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
+			riscv64 ) export TRIPLE=riscv64-linux-gnu;; \
 			x86-64-apple | arm64-apple ) export TRIPLE=Darwin;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
