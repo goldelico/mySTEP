@@ -103,9 +103,9 @@ QUIET=@
 #
 # targets
 #   build:		build everything (outer level)
-#   build_deb:		called recursively to build for a specific debian architecture
-#   clean:		clears build directory (not for subprojects)
-#   debug:		print all variable
+#   build_deb:	called recursively to build for a specific debian architecture
+#   clean:		clears build directory (and optionally in subprojects!)
+#   debug:		print all variables
 
 endif
 
@@ -442,7 +442,7 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64
+DEBIAN_ARCHITECTURES=x86-64-apple arm64-apple armel armhf arm64 i386 mipsel riscv64
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
@@ -473,7 +473,7 @@ ifneq "$(strip $(SUBPROJECTS))" ""
 	@for SUBPROJECT in $(SUBPROJECTS); \
 	do \
 		( \
-		unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME \
+		unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME \
 			FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; \
 		export RECURSIVE; \
 		cd $$(dirname $$SUBPROJECT) && echo Entering directory $$(pwd) for $$SUBPROJECT && ACTION=clean ./$$(basename $$SUBPROJECT) || break ; \
@@ -856,7 +856,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset TRIPLE PRODUCT_NAME DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
+		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
