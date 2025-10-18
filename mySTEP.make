@@ -1062,7 +1062,7 @@ TMP_CONTROL := $(UNIQUE)/control
 TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
 prepare_temp_files:
-	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using $(TRIPLE) and $(DEBIAN_ARCH)
+	# prepare temp files in $(TMP_DATA) and $(TMP_CONTROL) using triple $(TRIPLE) and arch $(DEBIAN_ARCH)
 	chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
 	mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
@@ -1203,7 +1203,7 @@ ifneq ($(TRIPLE),Darwin)
 endif
 endif
 	# create Receipts file
-	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
+	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).txt"
 	# write protect ordinary files
 	$(QUIET)find "/tmp/$(TMP_DATA)" -type f -exec chmod -Rf go-w {} ';' || true
 	# pack data.tar.gz
@@ -1277,7 +1277,7 @@ endif
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
-	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).txt
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf go-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_DATA) .
@@ -1347,7 +1347,7 @@ ifneq ($(TRIPLE),Darwin)
 endif
 	# create Receipts file
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
-	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).deb
+	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).txt
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf go-w "/tmp/$(TMP_DATA)" || true
 	$(QUIET)$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner $(ROOT) --group $(ROOT) -C /tmp/$(TMP_DATA) .
