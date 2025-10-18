@@ -60,7 +60,7 @@ QUIET=@
 #   (+) BUILD_DOCUMENTATION - default: no
 #   (+) DEBIAN_ARCHITECTURES - default: x86-64-apple armel armhf arm64 i386 mipsel riscv64
 #   (-) DEBIAN_ARCH - used internally
-#	(+) DEBIAN_RELEASES - default: all releases defined by depends - or staging
+#	(+) DEBIAN_RELEASES - default: staging (= all releases)
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
 #  bundle definitions (output)
 #   * PROJECT_NAME
@@ -449,7 +449,10 @@ endif
 
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
 ifeq ($(DEBIAN_RELEASES),)
-DEBIAN_RELEASES=$(shell echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.*\):.*/\1/g' | sort -u)
+DEBIAN_R=$(shell echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.[^:]\):.*/\1/g' | sort -u)
+ifneq ($(DEBIAN_R),)
+DEBIAN_RELEASES="+++ please define DEBIAN_RELEASES instead of using old suite: pattern +++"
+endif
 endif
 ifeq ($(DEBIAN_RELEASES),)
 DEBIAN_RELEASES="staging"
