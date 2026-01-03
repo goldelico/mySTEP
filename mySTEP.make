@@ -58,7 +58,7 @@ QUIET=@
 #   (+) BUILD_STYLE - default: ?
 #   (+) GCC_OPTIMIZATION_LEVEL - default: ?
 #   (+) BUILD_DOCUMENTATION - default: no
-#   (+) DEBIAN_ARCHITECTURES - default: x86-64-apple armel armhf arm64 i386 mipsel riscv64
+#   (+) DEBIAN_ARCHITECTURES - default: all if SOURCES is empty, else x86-64-apple armel armhf arm64 i386 mipsel riscv64
 #   (-) DEBIAN_ARCH - used internally
 #	(+) DEBIAN_RELEASES - default: staging (= all releases)
 #   (+) DEBIAN_RELEASE - used internally the release to build for (modifies compiler, libs and staging for result)- default: staging
@@ -442,7 +442,12 @@ BASE_OS_LIST+=php
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=x86-64-apple arm64-apple armel armhf arm64 i386 mipsel riscv64
+# if no compiler is involved, e.g. a meta package
+ifeq ($(SRCOBJECTS),)	# does not work :(
+DEBIAN_ARCHITECTURES := all
+else
+DEBIAN_ARCHITECTURES := x86-64-apple arm64-apple armel armhf arm64 i386 mipsel riscv64
+endif
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
 endif
@@ -849,6 +854,7 @@ build_subprojects:
 	# build_subprojects
 	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
 	# DEBIAN_ARCHITECTURES: $(DEBIAN_ARCHITECTURES)
+	# SRCOBJECTS: $(SRCOBJECTS)
 	# PROJECT_NAME: $(PROJECT_NAME)
 	# PRODUCT_NAME: $(PRODUCT_NAME)
 	# FRAMEWORK_VERSION: $(FRAMEWORK_VERSION)
