@@ -443,13 +443,15 @@ endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
 # if no compiler is involved, e.g. a meta package
-ifeq ($(SRCOBJECTS),)	# does not work :(
+ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES results in a single space character
 DEBIAN_ARCHITECTURES := all
 else
-DEBIAN_ARCHITECTURES := x86-64-apple arm64-apple armel armhf arm64 i386 mipsel riscv64
+DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64
+# DEBIAN_ARCHITECTURES+= arm64-apple
 endif
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"
+# endif
 endif
 
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
