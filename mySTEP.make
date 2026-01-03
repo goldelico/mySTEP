@@ -122,17 +122,9 @@ ifneq ($(XCODE_VERSION_ACTUAL),)
 NOCOMPILE:=true
 endif
 
-ifeq ($(QuantumSTEP),)
-QuantumSTEP:=/usr/local/QuantumSTEP
-endif
-
-ifeq ($(EMBEDDED_ROOT),)
-EMBEDDED_ROOT:=$(QuantumSTEP)
-endif
-
-ifeq ($(INSTALL),)
-INSTALL:=true
-endif
+QuantumSTEP?=/usr/local/QuantumSTEP
+EMBEDDED_ROOT?=$(QuantumSTEP)
+INSTALL?=true
 
 HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH) || echo $(QuantumSTEP)/$(INSTALL_PATH))
 # prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
@@ -172,9 +164,7 @@ ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
 endif
 
-ifeq ($(PRODUCT_BUNDLE_IDENTIFIER),)
-PRODUCT_BUNDLE_IDENTIFIER=org.quantumstep.$(PRODUCT_NAME)
-endif
+PRODUCT_BUNDLE_IDENTIFIER?=org.quantumstep.$(PRODUCT_NAME)
 
 ifeq ($(TRIPLE),php)
 # besser: php -l & copy
@@ -251,12 +241,8 @@ SO := so
 endif
 
 # if we call the makefile not within Xcode
-ifeq ($(BUILT_PRODUCTS_DIR),)
-BUILT_PRODUCTS_DIR=build/Deployment
-endif
-ifeq ($(TARGET_BUILD_DIR),)
-TARGET_BUILD_DIR=build/Deployment
-endif
+BUILT_PRODUCTS_DIR?=build/Deployment
+TARGET_BUILD_DIR?=build/Deployment
 ifeq ($(DEBIAN_RELEASE),none)
 TTT=$(TARGET_BUILD_DIR)/$(TRIPLE)/
 else
@@ -268,9 +254,7 @@ endif
 ifeq ($(EXECUTABLE_NAME),All)
 EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
-ifeq ($(EXECUTABLE_NAME),)
-EXECUTABLE_NAME=$(PRODUCT_NAME)
-endif
+EXECUTABLE_NAME?=$(PRODUCT_NAME)
 
 ifeq ($(TRIPLE),Darwin)
 else
@@ -299,14 +283,10 @@ endif
 endif	# ($(WRAPPER_EXTENSION),)	# command line tool
 
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
-ifeq ($(FRAMEWORK_VERSION),)	# empty
 	# default to A
-	FRAMEWORK_VERSION=A
-endif
-ifeq ($(CURRENT_PROJECT_VERSION),)	# empty
+	FRAMEWORK_VERSION?=A
 	# default to 1.0.0
-	CURRENT_PROJECT_VERSION=1.0.0
-endif
+	CURRENT_PROJECT_VERSION?=1.0.0
 
 	CONTENTS=Versions/Current
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
@@ -360,9 +340,8 @@ endif	# LDFLAGS
 endif	# not an app
 endif	# ($(BINARY),)	# not yet defined
 
-ifeq ($(BINARY),)	# still not defined - use default
-	BINARY=$(EXEC)/$(EXECUTABLE_NAME)
-endif
+	# still not defined - use default
+	BINARY?=$(EXEC)/$(EXECUTABLE_NAME)
 
 # define the subdirectory of Darwin executables, e.g. Contents/MacOS/executable
 ifeq ($(TRIPLE),Darwin)
@@ -461,9 +440,7 @@ ifneq ($(DEBIAN_R),)
 DEBIAN_RELEASES="+++ please define DEBIAN_RELEASES instead of using old suite: pattern +++"
 endif
 endif
-ifeq ($(DEBIAN_RELEASES),)
-DEBIAN_RELEASES="staging"
-endif
+DEBIAN_RELEASES?="staging"
 
 # this is the default/main target on the outer level
 
@@ -566,10 +543,8 @@ endif
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
 	
-ifeq ($(RUN_CMD),)
 # override if (stripped) package is built using xcodebuild
-RUN_CMD := run
-endif
+RUN_CMD ?= run
 
 # add default frameworks (unless we build the default frameworks and they are not specified)
 ifneq ($(PRODUCT_NAME).$(WRAPPER_EXTENSION),Foundation.framework)
@@ -990,45 +965,23 @@ endif
 endif
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := part of QuantumSTEP Desktop/Palmtop Environment
-endif
-ifeq ($(DEBIAN_DEPENDS),)
-DEPENDS := quantumstep-cocoa-framework
-endif
-ifeq ($(DEBIAN_HOMEPAGE),)
-DEBIAN_HOMEPAGE := www.quantum-step.com
-endif
+DEBIAN_DESCRIPTION ?= part of QuantumSTEP Desktop/Palmtop Environment
+DEPENDS ?= quantumstep-cocoa-framework
+DEBIAN_HOMEPAGE ?= www.quantum-step.com
 endif
 
 ifneq ($(strip $(PHPSRCS)),)	# any PHP source
-ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := part of QuantumSTEP Cloud
-endif
+DEBIAN_DESCRIPTION ?= part of QuantumSTEP Cloud
 endif
 
-ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION := built by mySTEP
-endif
-ifeq ($(DEBIAN_MAINTAINER),)
-DEBIAN_MAINTAINER := info <info@goldelico.com>
-endif
-ifeq ($(DEBIAN_SECTION),)
-DEBIAN_SECTION := x11
-endif
-ifeq ($(DEBIAN_PRIORITY),)
-DEBIAN_PRIORITY := optional
-endif
-ifeq ($(DEBIAN_PACKAGE_VERSION),)
+DEBIAN_DESCRIPTION ?= built by mySTEP
+DEBIAN_MAINTAINER ?= info <info@goldelico.com>
+DEBIAN_SECTION ?= x11
+DEBIAN_PRIORITY ?= optional
 DEBIAN_PACKAGE_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
-endif
-ifeq ($(DEBIAN_RELEASE),)
-DEBIAN_RELEASE := staging
-endif
-ifeq ($(DEBDIST),)
+DEBIAN_RELEASE ?= staging
 # should be used inside quotes only
-DEBDIST=$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
-endif
+DEBDIST?=$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
