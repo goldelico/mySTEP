@@ -94,7 +94,7 @@ QUIET=@
 #   (+) OPEN_DEBIAN - if true, open .deb through DebianViewer
 #  download and test (postprocess 2)
 #   * INSTALL_PATH - install path for compiled SOURCES relative to $QuantumSTEP (or absolute if it starts with //) - default empty
-#   - INSTALL
+#   - INSTALL - true/false to install local default: true
 #   (+) EMBEDDED_ROOT - root on embedded device (default /usr/local/QuantumSTEP)
 #   (+) DEPLOY - true/false default: false
 #   (+) DEVICE - filter for device to deploy default: "" (meaning all reachable devices)
@@ -156,6 +156,9 @@ ifeq ($(shell uname),Darwin)
 DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
 # disable special macOS stuff for tar
 TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/bin/gnutar
+# IBTOOL := export SWIFT_DEBUG_INFORMATION_FORMAT=dwarf SWIFT_DEBUG_INFORMATION_VERSION=compiler-default; ibtool
+IBTOOL := unset SWIFT_DEBUG_INFORMATION_FORMAT SWIFT_DEBUG_INFORMATION_VERSION; ibtool
+IBTOOL := ibtool
 # we want tar to save root:root and not 0:0 (translated on MacOS)
 ROOT=root
 
@@ -1014,9 +1017,6 @@ build_debian_packages:
 	@echo packing_debian_packages skipped
 endif
 
-# FIXME: use different /tmp/data subdirectories for each running make
-# NOTE: don't include /tmp here to protect against issues after typos
-
 UNIQUE := $(shell mktemp -d -u mySTEP.XXXXXX)
 TMP_DATA := $(UNIQUE)/data
 TMP_CONTROL := $(UNIQUE)/control
@@ -1355,23 +1355,36 @@ endif # ($(WRAPPER_EXTENSION),framework)
 # NOTE: /tmp_CONTROL etc. is a different $$ than when building debian packages!
 # this means we must also install from the submakefile
 
-# strip off all that are not Darwin and copy to $(HOST_INSTALL_PATH)
-install_local: prepare_temp_files
-	# install_local
-	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
+install_local:
 ifeq ($(INSTALL),true)
+	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
+ifneq ($(shell which dpkg),)
+	# install_local $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
+	DEB=$(wildcard "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(shell unname -m)-apple.deb")
+	echo can we try $(DEB)?
+	- ls -l "$(DEB)"
+	- dpkg -i "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
+		&& echo +++ installed "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" +++ \
+		|| echo --- installation failed for "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" ---;
+else
 	# INSTALL: $(INSTALL)
-	# should we better untar the .deb?
-	- ls -l "$(BINARY)"
+	# - ls -l "$(BINARY)"
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential Darwin binary
-	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
-	# FIXME: fix multi-release symlinks for frameworks on device like in deploy_remote
+	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
+ifneq ($(DEBIAN_RAW_FILES),)
+	# copy $(DEBIAN_RAW_FILES) to $(INSTALL_PATH) or $(HOST_INSTALL_PATH) with preifx $(DEBIAN_RAW_PREFIX) or subdir $(DEBIAN_RAW_SUBDIR)
+	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
+	# rsync -avz --exclude .DS_Store $(DEBIAN_RAW_FILES) $(HOST_INSTALL_PATH)
+endif
+	# FIXME: fix multi-arch symlinks for frameworks on device like in deploy_remote
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	- mkdir -p "$(HOST_INSTALL_PATH)/bin/"
 	# FIXME: make host architecture dependent
-	#- ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"
+	- if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi
 endif
 	# installed on localhost as $(HOST_INSTALL_PATH)/$(PRODUCT_NAME)
+endif
 else
 	# don't install locally
 endif
@@ -1390,7 +1403,7 @@ else
 DEVICELIST:=-n
 endif
 # TRIPLE is undefined here!
-deploy_remote: prepare_temp_files
+deploy_remote:
 	@echo deploy_remote
 ifeq ($(DEPLOY),true)
 	# DEPLOY: $(DEPLOY)
@@ -1398,10 +1411,8 @@ ifeq ($(DEPLOY),true)
 	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEV NAME; \
 		do \
 		if [ ! "$(DEVICE)" -o "$(DEVICE)" == "$$NAME" ]; then \
+		# FIXME: ignore/retire $(DEB_INSTALL_TOOL) but rsync to remote device and /tmp/package.deb and call either apt-get or dpkg -i /tmp/package.deb
 		$(DEB_INSTALL_TOOL) -d $$DEV $(DEBIAN_PACKAGE_NAME) \
-		: $(TAR) cf - --exclude .svn --owner 500 --group 1 -C "/tmp/$(TMP_DATA)" . | \
-				gzip | \
-				$(DOWNLOAD_TOOL) $$DEV "cd; cd / && gunzip | tar xpvf -; if cd $(TARGET_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)/$(CONTENTS)/\$$HOSTTYPE-\$$OSTYPE 2>/dev/null && [ \"$(WRAPPER_EXTENSION)\" = framework -a ! -f $(PRODUCT_NAME) ]; then ln -sf lib$(PRODUCT_NAME)-\$$(lsb_release -c | cut -f 2).so lib$(PRODUCT_NAME).so; ls -l lib$(PRODUCT_NAME)*.so; fi;" \
 				&& echo +++ installed on $$NAME at $(TARGET_INSTALL_PATH) +++ || echo --- installation failed on $$NAME ---; \
 		fi; \
 		done
@@ -1528,12 +1539,13 @@ endif
 ifneq ($(strip $(RESOURCES)),)
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
 #	- cp $(RESOURCES) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"  # copy resources
+	unset SWIFT_DEBUG_INFORMATION_FORMAT SWIFT_DEBUG_INFORMATION_VERSION; \
 	for resource in $(RESOURCES); \
 	do \
 	(cd $$(dirname "$$resource") && $(TAR) cf - -h --exclude .DS_Store --exclude .git --exclude .svn $$(basename "$$resource")) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && $(TAR) xvf - ); \
-	done
+	done; \
 # convert any xib to nib
-	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'ibtool --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
+	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c '$(IBTOOL) --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
 # chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources - should exclude Info.plist...
