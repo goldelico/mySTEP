@@ -491,11 +491,12 @@ debug:	# see http://www.oreilly.com/openbook/make3/book/ch12.pdf
 build_architectures:
 	# build_architectures
 	@echo build_architectures
+	@echo PATH: $(PATH)
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # ifeq ($(RUN),true)
 # take only the release of the RUN device
-	echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
+	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
 	for BASE_OS in $(BASE_OS_LIST); do \
 	if [ "$$BASE_OS" = "Debian" ]; then \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
@@ -1079,7 +1080,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
-	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/
+	# DATA: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/
 	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
 		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
 		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
@@ -1136,7 +1137,7 @@ ifneq ($(WRAPPER_EXTENSION),)
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
-	# PATH: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
+	# DATA: /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/bin/
 	if [ -d "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" ]; then \
 		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
 		find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/" -maxdepth 1 "(" -name 'MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"; \
@@ -1356,6 +1357,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 # this means we must also install from the submakefile
 
 install_local:
+	# INSTALL: $(INSTALL)
 ifeq ($(INSTALL),true)
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
 ifneq ($(shell which dpkg),)
@@ -1368,7 +1370,7 @@ ifneq ($(shell which dpkg),)
 		&& echo +++ installed "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" +++ \
 		|| echo --- installation failed for "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" ---;
 else
-	# INSTALL: $(INSTALL)
+	# fallback to copy (missing dpkg tool)
 	# - ls -l "$(BINARY)"
 	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential Darwin binary
 	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
