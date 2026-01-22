@@ -140,28 +140,6 @@ PHP=$(shell which php)
 
 .PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
 
-# configure Embedded System if undefined
-
-ROOT:=$(QuantumSTEP)
-
-### FIXME: what is the right path???
-
-# FIXME: this does only work on the Mac! On embedded the qsrsh is in /usr/bin/$HOST_ARCH or $PATH
-DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
-DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
-XHOST_TOOL := /opt/X11/bin/xhost
-# tools
-ifeq ($(shell uname),Darwin)
-# use platform specific (cross-)compiler on Darwin host
-DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
-# disable special macOS stuff for tar
-TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/bin/gnutar
-# IBTOOL := export SWIFT_DEBUG_INFORMATION_FORMAT=dwarf SWIFT_DEBUG_INFORMATION_VERSION=compiler-default; ibtool
-IBTOOL := unset SWIFT_DEBUG_INFORMATION_FORMAT SWIFT_DEBUG_INFORMATION_VERSION; ibtool
-IBTOOL := ibtool
-# we want tar to save root:root and not 0:0 (translated on MacOS)
-ROOT=root
-
 ifeq ($(PRODUCT_NAME),All)
 # Xcode aggregate target
 PRODUCT_NAME=$(PROJECT_NAME)
@@ -169,37 +147,13 @@ endif
 
 PRODUCT_BUNDLE_IDENTIFIER?=org.quantumstep.$(PRODUCT_NAME)
 
-ifeq ($(TRIPLE),php)
-# besser: php -l & copy
-CC := : $(PHP) -l + copy
-# besser: makephar - (shell-funktion?)
-LD := : makephar
-AS := :
-NM := :
-STRIP := :
-SO := phar
-PHAR := $(shell which phar)
-else ifeq ($(TRIPLE),Darwin)
-DEFINES += -D__mySTEP__
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
-LIBS += -L/opt/local/lib
-TOOLCHAIN=/usr/bin
-CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
-LD := $(CC)
-AS := $(TOOLCHAIN)/as
-NM := $(TOOLCHAIN)/nm
-STRIP := $(TOOLCHAIN)/strip -u
-SO := dylib
-else	# Linux
-DEFINES += -D__mySTEP__
-# use specific toolchain depending on DEBIAN_RELEASE (wheezy, jessie, stretch, buster, bullseye, ...) and DEBIAN_ARCH (arm64, armhf, mipsel, ...)
-# otherwise take a default compiler/toolchain we use for "universal" apps/bundles
+# configure Embedded System if undefined
+
 TOOLCHAIN_FALLBACK = 8-Jessie
-# FIXME: should be the first where we have a usr/bin/$(TRIPLE)-gcc
+DEBIAN_RELEASE_FALLBACK := jessie
 ifeq ($(TRIPLE),riscv64-linux-gnu)
 TOOLCHAIN_FALLBACK := 10-Buster
 endif
-DEBIAN_RELEASE_FALLBACK := jessie
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( etch ) echo "4-Etch";; \
 	( lenny ) echo "5-Lenny";; \
@@ -219,8 +173,67 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( darwin26 ) echo "26-Tahoe";; \
 	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
 	esac;}
+
+DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
+DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
+XHOST_TOOL := /opt/X11/bin/xhost
+
+ifeq ($(shell uname),Darwin)
+# compile on Darwin
+DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
+# disable special macOS stuff for tar
+TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/bin/gnutar
+# IBTOOL := export SWIFT_DEBUG_INFORMATION_FORMAT=dwarf SWIFT_DEBUG_INFORMATION_VERSION=compiler-default; ibtool
+IBTOOL := unset SWIFT_DEBUG_INFORMATION_FORMAT SWIFT_DEBUG_INFORMATION_VERSION; ibtool
+IBTOOL := ibtool
+# we want tar to save root:root and not 0:0 (translated on MacOS)
+ROOT := root
+else
+# compile on Linux
+DOXYGEN := doxygen
+TAR := tar
+IBTOOL := :
+ROOT := root
+endif
+
+ifeq ($(TRIPLE),Darwin)
+ifeq ($(shell uname),Darwin)
+# native compile on Darwin for Darwin
+TOOLCHAIN := /usr/bin
+CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
+LD := $(CC)
+AS := $(TOOLCHAIN)/as
+NM := $(TOOLCHAIN)/nm
+STRIP := $(TOOLCHAIN)/strip -u
+SO := dylib
+DEFINES += -D__mySTEP__
+INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
+LIBS += -L/opt/local/lib
+else
+# can't cross-compile for Darwin on non-Darwin host
+endif
+
+else ifeq ($(TRIPLE),php)
+# besser: php -l & copy
+CC := : $(PHP) -l + copy
+# besser: makephar - (shell-funktion?)
+LD := : makephar
+AS := :
+NM := :
+STRIP := :
+SO := phar
+PHAR := $(shell which phar)
+
+else ifeq ($(TRIPLE),$(TRIPLE))	# any other architectures
+ifeq ($(shell uname),Darwin)
+# choose cross compiler on Darwin
+# FIXME: find the first where we have a usr/bin/$(TRIPLE)-gcc
 # FIXME: should check if toolchain is installed...
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
+else
+# native compiler on Linux
+TOOLCHAIN := /usr
+endif
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib64
@@ -228,22 +241,7 @@ AS := $(TOOLCHAIN)/bin/$(TRIPLE)-as
 NM := $(TOOLCHAIN)/bin/$(TRIPLE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(TRIPLE)-strip
 SO := so
-endif
-
-else # Darwin
-
-# native compile on target machine
-DOXYGEN := doxygen
-TAR := tar
-## FIXME: allow to cross-compile
-TOOLCHAIN := native
-INCLUDES += -I/usr/include/freetype2
-CC := $(TRIPLE)-gcc
-LD := $(CC) -v
-AS := $(TRIPLE)-as
-NM := $(TRIPLE)-nm
-STRIP := $(TRIPLE)-strip
-SO := so
+DEFINES += -D__mySTEP__
 endif
 
 # if we call the makefile not within Xcode
@@ -262,8 +260,7 @@ EXECUTABLE_NAME=$(PRODUCT_NAME)
 endif
 EXECUTABLE_NAME?=$(PRODUCT_NAME)
 
-ifeq ($(TRIPLE),Darwin)
-else
+ifneq ($(TRIPLE),Darwin)
 LDFLAGS := $(LDFLAGS) -Wl,--copy-dt-needed-entries
 endif
 BINARY=
@@ -409,29 +406,15 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
-# default is to build for all
-ifeq ($(BASE_OS_LIST),)
-ifneq ($(XCODE_VERSION_ACTUAL),)
-BASE_OS_LIST=Debian
-else
-# BASE_OS_LIST=Darwin Debian
-BASE_OS_LIST=Debian
-endif
-endif	# ifeq ($(BASE_OS_LIST),)
-#unless PHPONLY
-ifeq ($(PHPONLY),true)
-BASE_OS_LIST=
-endif
-ifneq ($(strip $(PHPSRCS)),)	# if any PHP source defined
-BASE_OS_LIST+=php
-endif
-
 ifeq ($(DEBIAN_ARCHITECTURES),)
 # if no compiler is involved, e.g. a meta package
 ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES results in a single space character
 DEBIAN_ARCHITECTURES := all
 else
-DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64
+# FIXME: should take those we have a cross-gcc installed...
+# or what we have on the machine...
+# DEBIAN_ARCHITECTURES=$(shell dpkg --print-architectures) $(shell dpkg --print-foreign-architectures)
+DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64 php
 # DEBIAN_ARCHITECTURES+= arm64-apple
 endif
 # ifeq ($(RUN),true)
@@ -498,14 +481,12 @@ build_architectures:
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # ifeq ($(RUN),true)
-# take only the release of the RUN device
+# take only the release of the RUN device?
 	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
-	for BASE_OS in $(BASE_OS_LIST); do \
-	if [ "$$BASE_OS" = "Debian" ]; then \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
 		case "$$DEBIAN_RELEASE" in \
 			any | staging ) : generic;; \
-			etch | lenny | squeeze | wheezy | jessie | stretch | buster | bookworm | bullseye | trixie |  forky ) : Debian;; \
+			etch | lenny | squeeze | wheezy | jessie | stretch | buster | bookworm | bullseye | trixie | forky | duke ) : Debian;; \
 			darwin* ) : Darwin;; \
 			* ) echo "!!! invalid release $$DEBIAN_RELEASE - aborted !!!"; exit 1;; \
 		esac; \
@@ -520,6 +501,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			mipsel ) export TRIPLE=mipsel-linux-gnu;; \
 			riscv64 ) export TRIPLE=riscv64-linux-gnu;; \
 			x86-64-apple | arm64-apple ) export TRIPLE=Darwin;; \
+			php ) export TRIPLE=php;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
@@ -532,17 +514,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
-	else \
-		export DEBIAN_RELEASE="any"; \
-		export DEBIAN_ARCH="$$BASE_OS"; \
-		export TRIPLE=$$BASE_OS; \
-		EXIT=0; \
-		echo "*** building for $$BASE_OS ***"; \
-		$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
-		echo "$$BASE_OS" done; \
-	fi; \
-	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make make_sh install_local; \
-done
+	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make make_sh install_local;
 endif
 endif
 	@echo build_architectures done for $(DEBIAN_ARCHITECTURES)
