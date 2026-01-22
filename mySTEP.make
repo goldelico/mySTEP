@@ -443,7 +443,7 @@ endif
 ifeq ($(DEBIAN_RELEASES),)
 DEBIAN_R=$(shell echo "$(DEBIAN_DEPENDS)" "$(DEBIAN_RECOMMENDS) $(DEBIAN_CONFLICTS) $(DEBIAN_REPLACES) $(DEBIAN_PROVIDES)" | tr ',' '\n' | fgrep ':' | sed 's/ *\(.[^:]\):.*/\1/g' | sort -u)
 ifneq ($(DEBIAN_R),)
-DEBIAN_RELEASES="+++ please define DEBIAN_RELEASES instead of using old suite: pattern +++"
+DEBIAN_RELEASES="+++ please define DEBIAN_RELEASES instead of using suite:package in DEPENDS, RECOMMENDS, CONFLICTS etc. +++"
 endif
 endif
 DEBIAN_RELEASES?="staging"
