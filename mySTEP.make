@@ -939,6 +939,7 @@ make_exec: "$(EXEC)"
 
 make_binary: make_exec "$(BINARY)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
+ifeq ($(TRIPLE),Darwin)
 ifeq ($(WRAPPER_EXTENSION),app)
 	expr "$(ENTITLEMENTS)" : "/tmp/*" >/dev/null && echo >$(ENTITLEMENTS) '<?xml version="1.0" encoding="UTF-8"?> \
 	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"> \
@@ -951,6 +952,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	</dict> \
 	</plist>' || true
 	[ -x /usr/bin/codesign ] && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
+endif
 endif
 
 make_sh: bundle
