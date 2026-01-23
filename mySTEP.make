@@ -122,9 +122,15 @@ ifneq ($(XCODE_VERSION_ACTUAL),)
 NOCOMPILE:=true
 endif
 
-QuantumSTEP?=/usr/local/QuantumSTEP
-EMBEDDED_ROOT?=$(QuantumSTEP)
-INSTALL?=true
+ifeq ($(QuantumSTEP),)
+QuantumSTEP := /usr/local/QuantumSTEP
+endif
+ifeq ($(EMBEDDED_ROOT),)
+EMBEDDED_ROOT := $(QuantumSTEP)
+endif
+ifeq ($(INSTALL),)
+INSTALL := true
+endif
 
 HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH) || echo $(QuantumSTEP)/$(INSTALL_PATH))
 # prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
@@ -142,14 +148,16 @@ PHP=$(shell which php)
 
 ifeq ($(PRODUCT_NAME),All)
 # Xcode aggregate target
-PRODUCT_NAME=$(PROJECT_NAME)
+PRODUCT_NAME := $(PROJECT_NAME)
 endif
 
-PRODUCT_BUNDLE_IDENTIFIER?=org.quantumstep.$(PRODUCT_NAME)
+ifeq ($(PRODUCT_BUNDLE_IDENTIFIER),All)
+PRODUCT_BUNDLE_IDENTIFIER := org.quantumstep.$(PRODUCT_NAME)
+endif
 
 # configure Embedded System if undefined
 
-TOOLCHAIN_FALLBACK = 8-Jessie
+TOOLCHAIN_FALLBACK := 8-Jessie
 DEBIAN_RELEASE_FALLBACK := jessie
 ifeq ($(TRIPLE),riscv64-linux-gnu)
 TOOLCHAIN_FALLBACK := 10-Buster
@@ -178,6 +186,57 @@ DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
 DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
 XHOST_TOOL := /opt/X11/bin/xhost
 
+ifeq ($(DEBIAN_PACKAGE_NAME),)
+ifeq ($(WRAPPER_EXTENSION),)
+DEBIAN_PACKAGE_NAME := $(shell echo "QuantumSTEP-$(PRODUCT_NAME)" | tr "[:upper:]" "[:lower:]")
+else
+DEBIAN_PACKAGE_NAME := $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENSION)" | tr "[:upper:]" "[:lower:]")
+endif
+endif
+DEBIAN_PACKAGE_NAME := $(shell echo $(DEBIAN_PACKAGE_NAME) | tr '_' '-')
+
+ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
+
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION := part of QuantumSTEP Desktop/Palmtop Environment
+endif
+ifeq ($(DEPENDS),)
+DEPENDS := quantumstep-cocoa-framework
+endif
+ifeq ($(DEBIAN_HOMEPAGE),)
+DEBIAN_HOMEPAGE := www.quantum-step.com
+endif
+endif
+
+ifneq ($(strip $(PHPSRCS)),)	# any PHP source
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION := part of QuantumSTEP Cloud
+endif
+endif
+
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION := built by mySTEP
+endif
+ifeq ($(DEBIAN_MAINTAINER),)
+DEBIAN_MAINTAINER := info <info@goldelico.com>
+endif
+ifeq ($(DEBIAN_SECTION),)
+DEBIAN_SECTION := x11
+endif
+ifeq ($(DEBIAN_PRIORITY),)
+DEBIAN_PRIORITY := optional
+endif
+ifeq ($(DEBIAN_PACKAGE_VERSION),)
+# ?= does not work here...
+DEBIAN_PACKAGE_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
+endif
+ifeq ($(DEBIAN_RELEASE),)
+DEBIAN_RELEASE := staging
+endif
+# should be used inside quotes only
+ifeq ($(DEBDIST),)
+DEBDIST := $(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
+endif
 ifeq ($(shell uname),Darwin)
 # compile on Darwin
 DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
@@ -245,8 +304,12 @@ DEFINES += -D__mySTEP__
 endif
 
 # if we call the makefile not within Xcode
-BUILT_PRODUCTS_DIR?=build/Deployment
-TARGET_BUILD_DIR?=build/Deployment
+ifeq ($(BUILT_PRODUCTS_DIR),)
+BUILT_PRODUCTS_DIR := build/Deployment
+endif
+ifeq ($(TARGET_BUILD_DIR),)
+TARGET_BUILD_DIR := build/Deployment
+endif
 ifeq ($(DEBIAN_RELEASE),none)
 TTT=$(TARGET_BUILD_DIR)/$(TRIPLE)/
 else
@@ -256,9 +319,11 @@ endif
 # define CONTENTS subdirectory as expected by the Foundation library
 
 ifeq ($(EXECUTABLE_NAME),All)
-EXECUTABLE_NAME=$(PRODUCT_NAME)
+EXECUTABLE_NAME := $(PRODUCT_NAME)
 endif
-EXECUTABLE_NAME?=$(PRODUCT_NAME)
+ifeq ($(EXECUTABLE_NAME),)
+EXECUTABLE_NAME := $(PRODUCT_NAME)
+endif
 
 ifneq ($(TRIPLE),Darwin)
 LDFLAGS := $(LDFLAGS) -Wl,--copy-dt-needed-entries
@@ -429,7 +494,9 @@ ifneq ($(DEBIAN_R),)
 DEBIAN_RELEASES="+++ please define DEBIAN_RELEASES instead of using suite:package in DEPENDS, RECOMMENDS, CONFLICTS etc. +++"
 endif
 endif
-DEBIAN_RELEASES?="staging"
+ifeq ($(DEBIAN_RELEASES),)
+DEBIAN_RELEASES := "staging"
+endif
 
 # this is the default/main target on the outer level
 
@@ -478,18 +545,26 @@ build_architectures:
 	# build_architectures
 	@echo build_architectures
 	@echo PATH: $(PATH)
+	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
+	# DEBIAN_PACKAGE_VERSION: $(DEBIAN_PACKAGE_VERSION)
+	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
+	# DEBIAN_ARCH: $(DEBIAN_ARCH)
+	# TRIPLE: $(TRIPLE)
 ifneq ($(DEBIAN_ARCHITECTURES),none)
 ifneq ($(DEBIAN_ARCHITECTURES),)
 # ifeq ($(RUN),true)
 # take only the release of the RUN device?
+# note: these shell commands do NOT automatically inherit the variables defined in this Makefile!
 	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
+		export DEBIAN_PACKAGE_VERSION="$(DEBIAN_PACKAGE_VERSION)"; \
 		case "$$DEBIAN_RELEASE" in \
 			any | staging ) : generic;; \
 			etch | lenny | squeeze | wheezy | jessie | stretch | buster | bookworm | bullseye | trixie | forky | duke ) : Debian;; \
 			darwin* ) : Darwin;; \
 			* ) echo "!!! invalid release $$DEBIAN_RELEASE - aborted !!!"; exit 1;; \
 		esac; \
+		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			case "$$DEBIAN_ARCH" in \
@@ -505,12 +580,12 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBIAN_RELEASE / $$DEBIAN_ARCH using $$TRIPLE ***"; \
-		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		export TRIPLE="$$TRIPLE"; \
+		echo "*** building for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
+		export | fgrep DEBIAN; \
 		$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
-		echo "$$DEBIAN_ARCH" done; \
+		echo "*** done with $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
@@ -821,18 +896,17 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	for i in $(SUBPROJECTS); \
 	do \
-		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
+		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME DEBIAN_PACKAGE_VERSION FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
 endif
 
-DEBIAN_PACKAGE_NAME:=$(shell echo $(DEBIAN_PACKAGE_NAME) | tr '_' '-')
-
 make_bundle:
 	# make bundle
 	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
-	# DEBIAN_ARCH: $(DEBIAN_ARCH)
+	# DEBIAN_PACKAGE_VERSION: $(DEBIAN_PACKAGE_VERSION)
 	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
+	# DEBIAN_ARCH: $(DEBIAN_ARCH)
 	# TRIPLE: $(TRIPLE)
 	# EXEC: $(EXEC)
 	# BINARY: $(BINARY)
@@ -934,33 +1008,6 @@ endif
 
 # FIXME: eigentlich sollte zu jedem mit mystep-/quantumstep- beginnenden Eintrag von "DEPENDS" ein >= $(VERSION) zugefuegt werden
 # damit auch abhaengige Pakete einen Versions-Upgrade bekommen
-
-ifeq ($(DEBIAN_PACKAGE_NAME),)
-ifeq ($(WRAPPER_EXTENSION),)
-DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)" | tr "[:upper:]" "[:lower:]")
-else
-DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENSION)" | tr "[:upper:]" "[:lower:]")
-endif
-endif
-
-ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
-DEBIAN_DESCRIPTION ?= part of QuantumSTEP Desktop/Palmtop Environment
-DEPENDS ?= quantumstep-cocoa-framework
-DEBIAN_HOMEPAGE ?= www.quantum-step.com
-endif
-
-ifneq ($(strip $(PHPSRCS)),)	# any PHP source
-DEBIAN_DESCRIPTION ?= part of QuantumSTEP Cloud
-endif
-
-DEBIAN_DESCRIPTION ?= built by mySTEP
-DEBIAN_MAINTAINER ?= info <info@goldelico.com>
-DEBIAN_SECTION ?= x11
-DEBIAN_PRIORITY ?= optional
-DEBIAN_PACKAGE_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
-DEBIAN_RELEASE ?= staging
-# should be used inside quotes only
-DEBDIST?=$(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
