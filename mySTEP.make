@@ -476,14 +476,36 @@ ifeq ($(DEBIAN_ARCHITECTURES),)
 ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES results in a single space character
 DEBIAN_ARCHITECTURES := all
 else
-# FIXME: should take those we have a cross-gcc installed...
-# or what we have on the machine...
-# DEBIAN_ARCHITECTURES=$(shell dpkg --print-architectures) $(shell dpkg --print-foreign-architectures)
-DEBIAN_ARCHITECTURES=x86-64-apple armel armhf arm64 i386 mipsel riscv64 php
+ifneq ($(DPKG),)	# we have the dpkg tool
+DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
+endif
+ifneq ($(DEBIAN_ARCHITECTURES),)	# still not defined
+ifeq ($(TRIPLE),Darwin)	# we have a batch of native and cross-compilers
+# FIXME: find out which ones are available
+DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64 php
 # DEBIAN_ARCHITECTURES+= arm64-apple
+else
+# translate $(HOSTTYPE)-$(OSTYPE) to Debian architecture names
+ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabi)
+DEBIAN_ARCHITECTURES := armel
+else ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabihf)
+DEBIAN_ARCHITECTURES := armhf
+else ifeq ($(HOSTTYPE)-$(OSTYPE),aarch64-linux-gnu)
+DEBIAN_ARCHITECTURES := arm64
+else ifeq ($(HOSTTYPE)-$(OSTYPE),i486-linux-gnu)
+DEBIAN_ARCHITECTURES := i386
+else ifeq ($(HOSTTYPE)-$(OSTYPE),x86_64-linux-gnu)
+DEBIAN_ARCHITECTURES := amd64
+else ifeq ($(HOSTTYPE)-$(OSTYPE),mips-linux-gnueabi)
+DEBIAN_ARCHITECTURES := mipsel
+else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
+DEBIAN_ARCHITECTURES := riscv64
+endif
+endif
+endif
 endif
 # ifeq ($(RUN),true)
-# take only the arch of the "run device"
+# take only the arch of the "run device"?
 # endif
 endif
 
