@@ -142,8 +142,6 @@ TARGET_INSTALL_PATH := $(INSTALL_PATH)
 INSTALL=false
 endif
 
-PHP=$(shell which php)
-
 .PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
 
 ifeq ($(PRODUCT_NAME),All)
@@ -185,6 +183,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
 DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
 XHOST_TOOL := /opt/X11/bin/xhost
+DPKG := $(shell which dpkg)
 
 ifeq ($(DEBIAN_PACKAGE_NAME),)
 ifeq ($(WRAPPER_EXTENSION),)
@@ -274,12 +273,13 @@ endif
 
 else ifeq ($(TRIPLE),php)
 # besser: php -l & copy
-CC := : $(PHP) -l + copy
+PHP := $(shell which php)
+CC := : disabled $(PHP) -l + copy
 # besser: makephar - (shell-funktion?)
-LD := : makephar
-AS := :
-NM := :
-STRIP := :
+LD := : disabled makephar
+AS := : disabled
+NM := : disabled
+STRIP := : disabled
 SO := phar
 PHAR := $(shell which phar)
 
@@ -1404,13 +1404,13 @@ install_local:
 	# INSTALL: $(INSTALL)
 ifeq ($(INSTALL),true)
 	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
-ifneq ($(shell which dpkg),)
+ifneq ($(DPKG),)
 	# install_local $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
-	DEB=$(wildcard "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(shell unname -m)-apple.deb")
+	DEB=$(wildcard "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(shell uname -m)-apple.deb")
 	echo can we try $(DEB)?
 	- ls -l "$(DEB)"
-	- dpkg -i "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
+	- $(DPKG) -i "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
 		&& echo +++ installed "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" +++ \
 		|| echo --- installation failed for "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" ---;
 else
