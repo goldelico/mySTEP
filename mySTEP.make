@@ -1405,43 +1405,33 @@ else
 	# no debug version
 endif # ($(WRAPPER_EXTENSION),framework)
 
-# this runs in outer Makefile, i.e. DEBIAN_ARCH and TRIPLE are not well defined
+# this runs in outer Makefile
+# which means that DEBIAN_ARCH is not well defined!
 
-# NOTE: TRIPLE and DEBIAN_ARCH are undefined here!!!
-# NOTE: /tmp_CONTROL etc. is a different $$ than when building debian packages!
-# this means we must also install from the submakefile
+PACKAGE=$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+LINK_ARCH=$(HOST_ARCH)
+# make LINK_ARCH=MacOS for Apple...
+
+# temporarily disable
+# DPKG=
 
 install_local:
 	# INSTALL: $(INSTALL)
 ifeq ($(INSTALL),true)
-	# install_local TRIPLE=$(TRIPLE) DEBIAN_ARCH=$(DEBIAN_ARCH)
-ifneq ($(DPKG),)
-	# install_local $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+	# PACKAGE: $(PACKAGE)
+	# PACKAGE: $(PACKAGE)
+	# DPKG: $(DPKG)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
-	DEB=$(wildcard "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(shell uname -m)-apple.deb")
-	echo can we try $(DEB)?
-	- ls -l "$(DEB)"
-	- $(DPKG) -i "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" \
-		&& echo +++ installed "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" +++ \
-		|| echo --- installation failed for "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb" ---;
-else
-	# fallback to copy (missing dpkg tool)
-	# - ls -l "$(BINARY)"
-	- [ -x "$(PKG)/../$(PRODUCT_NAME)" ] && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)" || echo nothing to copy # copy potential Darwin binary
-	- if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi
-ifneq ($(DEBIAN_RAW_FILES),)
-	# copy $(DEBIAN_RAW_FILES) to $(INSTALL_PATH) or $(HOST_INSTALL_PATH) with preifx $(DEBIAN_RAW_PREFIX) or subdir $(DEBIAN_RAW_SUBDIR)
-	$(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -)
-	# rsync -avz --exclude .DS_Store $(DEBIAN_RAW_FILES) $(HOST_INSTALL_PATH)
-endif
-	# FIXME: fix multi-arch symlinks for frameworks on device like in deploy_remote
-ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-	- mkdir -p "$(HOST_INSTALL_PATH)/bin/"
-	# FIXME: make host architecture dependent
-	- if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi
-endif
+	- ls -l "$(PACKAGE)"
+	- [ "$(DPKG)" ] && echo "  DPKG  $(PACKAGE)" && $(DPKG) -i "$(PACKAGE)" \
+		&& echo +++ installed "$(PACKAGE)" +++ \
+		|| { echo "  COPY  $(PKG)"; \
+		[ -x "$(PKG)/../$(PRODUCT_NAME)" ] && echo "  NAME  $(PRODUCT_NAME)" && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; \
+		if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi; \
+		[ "$(DEBIAN_RAW_FILES)" ] && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
+		[ "$(WRAPPER_EXTENSION)" == "" ] && if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then echo "  ARCH"; mkdir -p "$(HOST_INSTALL_PATH)/bin/"; ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi; \
+		}
 	# installed on localhost as $(HOST_INSTALL_PATH)/$(PRODUCT_NAME)
-endif
 else
 	# don't install locally
 endif
