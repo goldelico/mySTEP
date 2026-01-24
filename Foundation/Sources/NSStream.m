@@ -749,7 +749,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 			}
 		// unlock
 		if(NO);	// hack to allow to start over with else if()
-#ifndef __APPLE__
+#if 0	// no longer recommended or available in libssl1.1 (Debian Stretch)
+		// removal may break build for libssl1.0 (Jessie) and before (untested)
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv2])
 			method=SSLv2_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv3])
@@ -758,10 +759,12 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelTLSv1])
 			method=TLSv1_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelNegotiatedSSL])
+			// FIXME: TLS_client_method() ?
 			method=SSLv23_client_method();
 		else
 			{
 			NSLog(@"unimplemented security level %@", _securityLevel);
+			NSLog(@"choose NSStreamSocketSecurityLevelNegotiatedSSL");
 			return;	// error
 			}
 		ctx = SSL_CTX_new(method);
