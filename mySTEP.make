@@ -471,20 +471,24 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
-ifeq ($(DEBIAN_ARCHITECTURES),)
-# if no compiler is involved, e.g. a meta package
-ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES results in a single space character
+ifeq ($(DEBIAN_ARCHITECTURES),)	# not yet defined
+# special rules
+ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space character
 DEBIAN_ARCHITECTURES := all
-else
-ifneq ($(DPKG),)	# we have the dpkg tool
+else ifeq ($(shell uname -o),Darwin)	# we have a batch of native and cross-compilers
+# FIXME: find out which ones are available
+DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
+# DEBIAN_ARCHITECTURES+= arm64-apple
+endif
+endif
+
+ifeq ($(DEBIAN_ARCHITECTURES),)	# still undefined
+ifneq ($(DPKG),)	# ask the dpkg tool
 DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
 endif
-ifneq ($(DEBIAN_ARCHITECTURES),)	# still not defined
-ifeq ($(TRIPLE),Darwin)	# we have a batch of native and cross-compilers
-# FIXME: find out which ones are available
-DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64 php
-# DEBIAN_ARCHITECTURES+= arm64-apple
-else
+endif
+
+ifeq ($(DEBIAN_ARCHITECTURES),)	# still undefined
 # translate $(HOSTTYPE)-$(OSTYPE) to Debian architecture names
 ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabi)
 DEBIAN_ARCHITECTURES := armel
@@ -502,11 +506,12 @@ else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
 DEBIAN_ARCHITECTURES := riscv64
 endif
 endif
-endif
-endif
 # ifeq ($(RUN),true)
 # take only the arch of the "run device"?
 # endif
+
+ifneq ($(strip $(PHPOBJECTS)),)	# empty PHPSOURCES always results in a single space character
+DEBIAN_ARCHITECTURES := $(DEBIAN_ARCHITECTURES) php
 endif
 
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
