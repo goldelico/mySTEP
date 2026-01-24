@@ -471,48 +471,51 @@ PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
 
-ifeq ($(DEBIAN_ARCHITECTURES),)	# not yet defined
-# special rules
+# translate $(HOSTTYPE)-$(OSTYPE) to Debian architecture names
+ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabi)
+HOST_ARCH := armel
+else ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabihf)
+HOST_ARCH := armhf
+else ifeq ($(HOSTTYPE)-$(OSTYPE),aarch64-linux-gnu)
+HOST_ARCH := arm64
+else ifeq ($(HOSTTYPE)-$(OSTYPE),i486-linux-gnu)
+HOST_ARCH := i386
+else ifeq ($(HOSTTYPE)-$(OSTYPE),x86_64-linux-gnu)
+HOST_ARCH := amd64
+else ifeq ($(HOSTTYPE)-$(OSTYPE),mips-linux-gnueabi)
+HOST_ARCH := mipsel
+else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
+HOST_ARCH := riscv64
+else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
+HOST_ARCH := riscv64
+else ifeq ($(shell uname -o),Darwin)
+HOST_ARCH := $(shell echo $$HOSTTYPE)-apple
+endif
+
+ifeq ($(DEBIAN_ARCHITECTURES),)	# not yet defined - define some defaults
+
+# ifeq ($(RUN),true)
+# take only the arch of the "run device"? But there may be more than one
+# endif
+
 ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space character
 DEBIAN_ARCHITECTURES := all
 else ifeq ($(shell uname -o),Darwin)	# we have a batch of native and cross-compilers
-# FIXME: find out which ones are available
+# FIXME: find out which ones are really available
 DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
-# DEBIAN_ARCHITECTURES+= arm64-apple
-endif
-endif
-
-ifeq ($(DEBIAN_ARCHITECTURES),)	# still undefined
-ifneq ($(DPKG),)	# ask the dpkg tool
+else ifneq ($(DPKG),)	# ask dpkg
 DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
+ifeq ($(DEBIAN_ARCHITECTURES),)	# no response, use build host
+DEBIAN_ARCHITECTURES := $(HOST_ARCH)
 endif
+else # use build host default
+DEBIAN_ARCHITECTURES := $(HOST_ARCH)
 endif
-
-ifeq ($(DEBIAN_ARCHITECTURES),)	# still undefined
-# translate $(HOSTTYPE)-$(OSTYPE) to Debian architecture names
-ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabi)
-DEBIAN_ARCHITECTURES := armel
-else ifeq ($(HOSTTYPE)-$(OSTYPE),arm-linux-gnueabihf)
-DEBIAN_ARCHITECTURES := armhf
-else ifeq ($(HOSTTYPE)-$(OSTYPE),aarch64-linux-gnu)
-DEBIAN_ARCHITECTURES := arm64
-else ifeq ($(HOSTTYPE)-$(OSTYPE),i486-linux-gnu)
-DEBIAN_ARCHITECTURES := i386
-else ifeq ($(HOSTTYPE)-$(OSTYPE),x86_64-linux-gnu)
-DEBIAN_ARCHITECTURES := amd64
-else ifeq ($(HOSTTYPE)-$(OSTYPE),mips-linux-gnueabi)
-DEBIAN_ARCHITECTURES := mipsel
-else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
-DEBIAN_ARCHITECTURES := riscv64
-endif
-endif
-# ifeq ($(RUN),true)
-# take only the arch of the "run device"?
-# endif
 
 ifneq ($(strip $(PHPOBJECTS)),)	# empty PHPSOURCES always results in a single space character
 DEBIAN_ARCHITECTURES := $(DEBIAN_ARCHITECTURES) php
 endif
+endif	# not yet defined - define some defaults
 
 # recursively make for all architectures $(DEBIAN_ARCHITECTURES) and RELEASES as defined in DEBIAN_DEPENDS
 ifeq ($(DEBIAN_RELEASES),)
@@ -575,6 +578,7 @@ build_architectures:
 	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
 	# DEBIAN_PACKAGE_VERSION: $(DEBIAN_PACKAGE_VERSION)
 	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
+	# HOST_ARCH: $(HOST_ARCH)
 	# DEBIAN_ARCH: $(DEBIAN_ARCH)
 	# TRIPLE: $(TRIPLE)
 ifneq ($(DEBIAN_ARCHITECTURES),none)
