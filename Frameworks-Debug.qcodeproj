@@ -3,12 +3,14 @@
 [ "$QuantumSTEP" ] || export QuantumSTEP="/usr/local/QuantumSTEP"
 export DEBIAN_DEPENDS="quantumstep-runtime"
 export DEBIAN_DEPENDS+=", gdb"
-export DEBIAN_DEPENDS+=", quantumstep-foundation-framework"
 export DEBIAN_DEPENDS+=", quantumstep-foundation-framework-dbg"
-export DEBIAN_DEPENDS+=", quantumstep-appkit-framework"
 export DEBIAN_DEPENDS+=", quantumstep-appkit-framework-dbg"
+export DEBIAN_DEPENDS+=", quantumstep-cocoa-framework-dbg"
+export DEBIAN_DEPENDS+=", quantumstep-coredata-framework-dbg"
+export DEBIAN_DEPENDS+=", quantumstep-coredevice-framework-dbg"
+export DEBIAN_DEPENDS+=", quantumstep-coremotion-framework-dbg"
 export DEBIAN_DESCRIPTION="Debug support for QuantumSTEP frameworks"
 export INSTALL_PATH="/"
-export PRODUCT_NAME="debug"
+export PRODUCT_NAME="frameworks-dbg"
 
 cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
