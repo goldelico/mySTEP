@@ -502,7 +502,7 @@ ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space 
 DEBIAN_ARCHITECTURES := all
 else ifeq ($(shell uname -o),Darwin)	# we have a batch of native and cross-compilers
 # FIXME: find out which ones are really available
-DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
+DEBIAN_ARCHITECTURES := x86_64-apple armel armhf arm64 i386 mipsel riscv64
 else ifneq ($(DPKG),)	# ask dpkg
 DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
 ifeq ($(DEBIAN_ARCHITECTURES),)	# no response, use build host
@@ -1048,6 +1048,8 @@ endif
 build_deb: make_bundle bundle make_binary build_debian_packages
 	@echo build_deb done
 
+DEBIAN_ARCH:=$(subst _,-,$(DEBIAN_ARCH))
+
 ifeq ($(DEBIAN_NOPACKAGE),)
 ifneq ($(DEBIAN_ARCH),none)
 ifneq ($(DEBIAN_ARCH),php)
@@ -1541,6 +1543,8 @@ endif
 	$(QUIET)- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)"; rm -f "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)/$(PRODUCT_NAME)" && ln -sf ../Headers "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers$(LNK)/$(PRODUCT_NAME)")	# link to Headers to find <Framework/File.h>
 endif
 ifeq ($(TRIPLE),Darwin)
+# only needed if there are any sources
+ifneq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space character
 # always use system frameworks and make nested frameworks "flat"
 	$(QUIET)mkdir -p $(TTT)
 	$(QUIET)- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
@@ -1548,6 +1552,7 @@ ifeq ($(TRIPLE),Darwin)
 	      rm -f $(TTT)/$$(basename $$fwk); \
 		  ln -sf $$fwk/Versions/Current/Headers $(TTT)/$$(basename $$fwk) \
 	  ; done
+endif
 endif
 endif
 	@echo headers created
