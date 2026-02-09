@@ -489,7 +489,7 @@ HOST_ARCH := riscv64
 else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
 HOST_ARCH := riscv64
 else ifeq ($(shell uname -o),Darwin)
-HOST_ARCH := $(shell echo $$HOSTTYPE)-apple
+HOST_ARCH := $(shell echo $$HOSTTYPE | tr '_' '-')-apple
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)	# not yet defined - define some defaults
@@ -502,7 +502,7 @@ ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space 
 DEBIAN_ARCHITECTURES := all
 else ifeq ($(shell uname -o),Darwin)	# we have a batch of native and cross-compilers
 # FIXME: find out which ones are really available
-DEBIAN_ARCHITECTURES := x86_64-apple armel armhf arm64 i386 mipsel riscv64
+DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
 else ifneq ($(DPKG),)	# ask dpkg
 DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
 ifeq ($(DEBIAN_ARCHITECTURES),)	# no response, use build host
@@ -1410,7 +1410,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 # this runs in outer Makefile
 # which means that DEBIAN_ARCH is not well defined!
 
-PACKAGE=$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
+PACKAGE=$(DEBDIST)/binary-$(HOST_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(HOST_ARCH).deb
 LINK_ARCH=$(HOST_ARCH)
 # make LINK_ARCH=MacOS for Apple...
 
@@ -1418,7 +1418,7 @@ LINK_ARCH=$(HOST_ARCH)
 # DPKG=
 
 install_local:
-	# INSTALL: $(INSTALL)
+	# INSTALL: $(INSTALL) local on $(HOST_ARCH)
 ifeq ($(INSTALL),true)
 	# PACKAGE: $(PACKAGE)
 	# PACKAGE: $(PACKAGE)
