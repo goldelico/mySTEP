@@ -138,8 +138,6 @@ ifneq ($(findstring //,$(INSTALL_PATH)),//)
 TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
-# don't install on localhost
-INSTALL=false
 endif
 
 .PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
@@ -1411,6 +1409,13 @@ endif # ($(WRAPPER_EXTENSION),framework)
 # which means that DEBIAN_ARCH is not well defined!
 
 PACKAGE=$(DEBDIST)/binary-$(HOST_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(HOST_ARCH).deb
+ifneq ($(wildcard $(PACKAGE)),)
+# good
+else ifeq ($(DEBIAN_ARCHITECTURES),all)
+PACKAGE=$(DEBDIST)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
+else
+PACKAGE="unknown"
+endif
 LINK_ARCH=$(HOST_ARCH)
 # make LINK_ARCH=MacOS for Apple...
 
@@ -1420,7 +1425,6 @@ LINK_ARCH=$(HOST_ARCH)
 install_local:
 	# INSTALL: $(INSTALL) local on $(HOST_ARCH)
 ifeq ($(INSTALL),true)
-	# PACKAGE: $(PACKAGE)
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
