@@ -266,7 +266,7 @@ DEFINES += -D__mySTEP__
 INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
 LIBS += -L/opt/local/lib
 else
-# can't cross-compile for Darwin on non-Darwin host
+CC := "can't cross-compile for Darwin on non-Darwin host"
 endif
 
 else ifeq ($(TRIPLE),php)
@@ -283,12 +283,14 @@ PHAR := $(shell which phar)
 
 else ifeq ($(TRIPLE),$(TRIPLE))	# any other architectures
 ifeq ($(shell uname),Darwin)
-# choose cross compiler on Darwin
-# FIXME: find the first where we have a usr/bin/$(TRIPLE)-gcc
-# FIXME: should check if toolchain is installed...
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
+# choose xtc cross compiler on Darwin
+MACHTYPE := $(shell uname -m)-apple-darwin$(shell uname -r | cut -d . -f 1)
+# FIXME: find the first DEBIAN_RELEASE_TRANSLATED where we have a usr/bin/$(TRIPLE)-gcc
+# FIXME: should check if toolchain is really installed...
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
 else
-# native compiler on Linux
+# native compiler on Linux resides in /usr
+# FIXME: handle cross-toolchains on Linux
 TOOLCHAIN := /usr
 endif
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
