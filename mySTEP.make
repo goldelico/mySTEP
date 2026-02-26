@@ -866,6 +866,7 @@ endif
 $(TTT)+%.o: %.m	# Obj-C
 	@- mkdir -p $(TTT)+$(*D)
 	# compile $< -> $*.o
+	@echo "  OBJC $(TTT)+$*.o"
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
 	$(QUIET)$(CC) -c -std=gnu99 $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
@@ -875,6 +876,7 @@ endif
 
 $(TTT)+%.o: %.mm	# Obj-C++
 	@- mkdir -p $(TTT)+$(*D)
+	@echo "  OB++ $(TTT)+$*.o"
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
@@ -885,17 +887,20 @@ endif
 
 $(TTT)+%.o: %.c	# C
 	@- mkdir -p $(TTT)+$(*D)
+	@echo "  CC   $(TTT)+$*.o"
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(QUIET)$(CC) -c -std=gnu99 $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.cpp	# C++
 	@- mkdir -p $(TTT)+$(*D)
+	@echo "  C++  $(TTT)+$*.o"
 	# compile $< -> $*.o
 	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 	$(QUIET)$(CC) -c $(STDCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.php
+	@echo "  PHP  $(TTT)+$*.o"
 	# make $(TTT)+$*.o from $<
 	@- mkdir -p $(TTT)+$(*D)
 ifneq ($(PHP),)
@@ -925,8 +930,9 @@ ifeq ($(RECURSIVE),true)
 	# SUBPROJECTS: $(SUBPROJECTS)
 	# RECURSIVE: $(RECURSIVE)
 ifneq "$(strip $(SUBPROJECTS))" ""
-	for i in $(SUBPROJECTS); \
+	@for i in $(SUBPROJECTS); \
 	do \
+		echo "  SUB  \$i"; \
 		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME DEBIAN_PACKAGE_VERSION FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
@@ -960,12 +966,12 @@ ifeq ($(WRAPPER_EXTENSION),app)
     <false/> \
 	</dict> \
 	</plist>' || true
-	[ -x /usr/bin/codesign ] && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
+	[ -x /usr/bin/codesign ] && echo "  SIGN" && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
 endif
 endif
 
 make_sh: bundle
-	@echo make_sh
+	@echo "  SH   "
 	# SHSRCS: $(SHSRCS)
 	$(QUIET)for SH in $(SHSRCS); do \
 		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
@@ -981,6 +987,7 @@ build_doxy:	build/$(PRODUCT_NAME).docset
 	# build_doxy
 	# BUILD_DOCUMENTATION: $(BUILD_DOCUMENTATION)
 ifeq ($(BUILD_DOCUMENTATION),true)
+	@echo "  DOXY  "
 	$(QUIET)- rsync -vaz ~/bk ~/test
 	$(QUIET)- true && [ -r build/$(PRODUCT_NAME).docset/html/index.html ] && rsync -avz $(PRODUCT_NAME).docset $(DOXYDIST)/ && \
 		( echo "<h1>Quantumstep Framework Documentation</h1>"; \
@@ -1010,6 +1017,7 @@ endif
 build/$(PRODUCT_NAME).docset:	$(HEADERSRC)
 ifeq ($(WRAPPER_EXTENSION),framework)
 ifeq ($(BUILD_DOCUMENTATION),true)
+	@echo "  DOXY  "
 	$(QUIET)mkdir -p build
 	$(QUIET)- $(DOXYGEN) -g build/$(PRODUCT_NAME).doxygen
 	$(QUIET)pwd
@@ -1183,6 +1191,7 @@ F = filter_dependencies() \
 	# DEBIAN_CONFLICTS: $(DEBIAN_CONFLICTS)
 	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	# DEBIAN_PROVIDES: $(DEBIAN_PROVIDES)
+	@echo "  DEB  $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 ifneq ($(TRIPLE),)
@@ -1271,6 +1280,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
+	@echo "  DEB  $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 ifneq ($(TRIPLE),)
@@ -1343,6 +1353,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian debugging package $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
+	@echo "  DEB  $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 ifneq ($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
@@ -1535,7 +1546,7 @@ do DIR="$$(dirname "$$FILE")/"; \
 done ; echo "$$PREFIX")
 
 headers:
-	@echo headers
+	@echo "  HDR  $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers"
 ifneq ($(TRIPLE),unknown-linux-gnu)
 	# create headers $(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers
 ifeq ($(WRAPPER_EXTENSION),framework)
@@ -1565,12 +1576,13 @@ endif
 	@echo headers created
 
 resources: bundle
-	@echo resources
+	@echo "  RSRC $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
 ifneq ($(TRIPLE),unknown-linux-gnu)
 	chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" 2>/dev/null || true # unprotect resources
 # copy resources to $(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources
 ifneq ($(WRAPPER_EXTENSION),)
 ifneq ($(WRAPPER_EXTENSION),framework)
+	@echo "  RADD $(INFOPLISTS) $(RESOURCES)"
 # included resources $(INFOPLISTS) $(RESOURCES)
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)"
 ifneq ($(strip $(INFOPLISTS)),)
@@ -1578,12 +1590,14 @@ ifneq ($(strip $(INFOPLISTS)),)
 # should expand ${EXECUTABLE_NAME} and other macros!
 	$(QUIET)- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 else
+	@echo "  INFO default Info.plist"
 # create a default Info.plist
 	echo "Error: missing Info.plist - creating a default"
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);"; echo "NSPrincipalClass = NSApplication;"; ) >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Info.plist"
 endif
 else
 # included resources $(INFOPLISTS) $(RESOURCES)
+	@echo "  RADD $(INFOPLISTS) $(RESOURCES)"
 	$(QUIET)- mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources"
 ifneq ($(strip $(INFOPLISTS)),)
 # should reject multiple Info.plists
@@ -1591,6 +1605,7 @@ ifneq ($(strip $(INFOPLISTS)),)
 	$(QUIET)- sed 's/$${EXECUTABLE_NAME}/$(EXECUTABLE_NAME)/g; s/$${MACOSX_DEPLOYMENT_TARGET}/10.0/g; s/$${PRODUCT_NAME:rfc1034identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME:identifier}/$(PRODUCT_NAME)/g; s/$${PRODUCT_NAME}/$(PRODUCT_NAME)/g; s/$$(PRODUCT_BUNDLE_IDENTIFIER)/$(PRODUCT_BUNDLE_IDENTIFIER)/g' <"$(INFOPLISTS)" >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/Info.plist"
 else
 # create a default Info.plist
+	@echo "  INFO default Info.plist"
 	echo "Error: missing Info.plist - creating a default"
 	- (echo "CFBundleName = $(PRODUCT_NAME);"; echo "CFBundleExecutable = $(EXECUTABLE_NAME);"; echo "NSPrincipalClass = NSApplication;"; ) >"$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/Info.plist"
 endif
@@ -1602,9 +1617,9 @@ ifneq ($(strip $(RESOURCES)),)
 	for resource in $(RESOURCES); \
 	do \
 	(cd $$(dirname "$$resource") && $(TAR) cf - -h --exclude .DS_Store --exclude .git --exclude .svn $$(basename "$$resource")) | (cd "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && $(TAR) xvf - ); \
-	done; \
+	done;
 # convert any xib to nib
-	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c '$(IBTOOL) --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
+	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" -name '*.xib' -print -exec sh -c 'echo "  XIB2NIB {}"; $(IBTOOL) --compile "$$(dirname {})/$$(basename {} .xib).nib" "{}"' ';' -delete
 endif
 endif
 # chmod -R a-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"* 2>/dev/null || true	# write protect resources - should exclude Info.plist...
