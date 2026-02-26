@@ -1414,6 +1414,7 @@ PACKAGE=$(DEBDIST)/binary-$(HOST_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_V
 ifneq ($(wildcard $(PACKAGE)),)
 # good
 else ifeq ($(DEBIAN_ARCHITECTURES),all)
+else ifneq ($(findstring all,$(DEBIAN_ARCHITECTURES)),)
 PACKAGE=$(DEBDIST)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 else
 PACKAGE="unknown"
@@ -1439,7 +1440,7 @@ ifeq ($(INSTALL),true)
 		[ "$(DEBIAN_RAW_FILES)" ] && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
 		[ "$(WRAPPER_EXTENSION)" == "" ] && if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then echo "  ARCH"; mkdir -p "$(HOST_INSTALL_PATH)/bin/"; ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi; \
 		}
-	# installed on localhost as $(HOST_INSTALL_PATH)/$(PRODUCT_NAME)
+	# installed on localhost as $(HOST_INSTALL_PATH)/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 else
 	# don't install locally
 endif
