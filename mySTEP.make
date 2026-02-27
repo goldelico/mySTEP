@@ -1424,10 +1424,11 @@ endif # ($(WRAPPER_EXTENSION),framework)
 PACKAGE=$(DEBDIST)/binary-$(HOST_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(HOST_ARCH).deb
 ifneq ($(wildcard $(PACKAGE)),)
 # good
-else ifeq ($(DEBIAN_ARCHITECTURES),all)
 else ifneq ($(findstring all,$(DEBIAN_ARCHITECTURES)),)
+# fall back to binary-all
 PACKAGE=$(DEBDIST)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 else
+# package not found
 PACKAGE="unknown"
 endif
 LINK_ARCH=$(HOST_ARCH)
