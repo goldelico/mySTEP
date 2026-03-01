@@ -588,6 +588,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 # note: these shell commands do NOT automatically inherit the variables defined in this Makefile!
 	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
+		echo "  REL  $$DEBIAN_RELEASE"; \
 		export DEBIAN_PACKAGE_VERSION="$(DEBIAN_PACKAGE_VERSION)"; \
 		case "$$DEBIAN_RELEASE" in \
 			any | staging ) : generic;; \
@@ -598,6 +599,12 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
+			case "$$DEBIAN_RELEASE/$$DEBIAN_ARCH" in \
+				 darwin*/*-apple ) : ok;; \
+				 darwin*/* ) continue;; \
+				 */*-apple ) continue;; \
+			esac; \
+			echo "  ARCH $$DEBIAN_RELEASE / $$DEBIAN_ARCH"; \
 			case "$$DEBIAN_ARCH" in \
 			armel ) export TRIPLE=arm-linux-gnueabi;; \
 			armhf ) export TRIPLE=arm-linux-gnueabihf;; \
@@ -610,13 +617,13 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			php ) export TRIPLE=php;; \
 			*-*-* ) export TRIPLE="$$DEBIAN_ARCH";; \
 			* ) export TRIPLE=unknown-linux-gnu;; \
-		esac; \
-		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
-		export TRIPLE="$$TRIPLE"; \
-		echo "*** building for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
-		export | fgrep DEBIAN; \
-		$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
-		echo "*** done with $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
+			esac; \
+			export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
+			export TRIPLE="$$TRIPLE"; \
+			echo "*** building for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
+			export | fgrep DEBIAN; \
+			$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+			echo "*** done with $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
