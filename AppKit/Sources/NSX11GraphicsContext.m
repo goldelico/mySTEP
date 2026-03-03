@@ -3209,7 +3209,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 // so is it equivalent to a client ID
 // FIXME: how is the stacking order defined for multiple screens?
 
-+ (int) _systemWindowListForContext:(NSInteger) context size:(NSInteger) size list:(NSInteger *) list;	// list may be NULL. Then, return # of entries copied
++ (NSInteger) _systemWindowListForContext:(NSInteger) context size:(NSInteger) size list:(NSInteger *) list;	// list may be NULL. Then, return # of entries copied
 { // get window numbers of visible windows from front to back
 	int i, j, s;
 	static Window *children;	// list of children (cached)
@@ -4481,7 +4481,7 @@ static NSFileHandle *fh;
 			[NSScreen class];	// +initialize
 								// [NSException raise:NSGenericException format:@"font %@: no _display: %@", self, xf];
 #if 1
-		if(_fontScale*[self pointSize] < 1.0)
+		if((_fontScale * [self pointSize]) < 1.0)
 			{
 			NSLog(@"??? zero point font: %@ descriptor:%@", self, [[self fontDescriptor] fontAttributes]);
 			NSLog(@"scale %f", _fontScale);
@@ -4963,6 +4963,8 @@ static int tesselate_compare(void *elements, const void *idx1, const void *idx2)
 	return cmp;
 }
 #else
+// FIXME: should we better change the *cmp to use void * only?
+
 extern void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, id, void *), void *context);	// implemented in NSArray.m
 static int tesselate_compare3(id idx1, id idx2, void *elements)
 {

@@ -749,10 +749,11 @@ printing
 		NSLog(@"NSView warning: replaceSubview: not found: %@", oldView);
 }
 
-- (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *))compare 
+- (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *))compare
 						   context:(void *)context
 {
-	[_subviews sortUsingFunction:compare context:context];
+	NSInteger (*func)(id ,id ,void *) = (void *) compare;
+	[_subviews sortUsingFunction:func context:context];
 }
 
 - (void) _setWindow:(NSWindow *)newWindow
