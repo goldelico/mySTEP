@@ -62,7 +62,7 @@
 // new objc API available since gcc 4.6
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #include <objc/runtime.h>
-#define OBJC_ROOT_CLASS
+#define OBJC_ROOT_CLASS	// __attribute__((objc_root_class))
 #define __NEW_OBJC_API
 // check with #ifdef __GNU_LIBOBJC__
 #else

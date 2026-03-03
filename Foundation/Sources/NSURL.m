@@ -1531,10 +1531,12 @@ static NSString *unescape(const char *from, BOOL stripslash)
 - (NSString *) pathExtension; { return [[self path] pathExtension]; }	// since 10.6
 // FIXME: these are wrong! should just modify the path and keep the rest intact
 // FIXME: and not return an NSString...
+// could be handled similar to standardizedURL
 - (NSURL *) URLByDeletingLastPathComponent; { return [[self path] stringByDeletingLastPathComponent]; }	// since 10.6
 - (NSURL *) URLByDeletingPathExtension; { return [[self path] stringByDeletingPathExtension]; }	// since 10.6
 - (NSURL *) URLByResolvingSymlinksInPath; { return NIMP; }	// since 10.6
-- (NSURL *) URLByStandardizingPath; { return NIMP; }	// since 10.6
+// FIXME: works only for file: scheme: expand ~ and resolve symlinks
+- (NSURL *) URLByStandardizingPath; { return [self standardizedURL]; }	// since 10.6
 
 - (void) URLHandle: (NSURLHandle*)sender
 resourceDataDidBecomeAvailable: (NSData*)newData

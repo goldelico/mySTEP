@@ -322,7 +322,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 	struct ip_mreq mc;			// socket options
 	int flag = 1;
 	int ittl = 255;
-	char ttl = 255;
+	unsigned char ttl = 255;
 	if(_inputStream)
 		return NO;	// already scheduled
 	saddr.sin_family = AF_INET;
@@ -348,7 +348,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 	mc.imr_interface.s_addr = INADDR_ANY;
 	setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mc, sizeof(mc)); 
 	setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
-	setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ittl, sizeof(ittl));
+	setsockopt(s, IPPROTO_IP, IP_TTL, &ittl, sizeof(ittl));
 	flag =  fcntl(s, F_GETFL, 0);
 	flag |= O_NONBLOCK;
 	fcntl(s, F_SETFL, flag);

@@ -68,6 +68,8 @@
 
 - (NSMethodSignature *) _methodSignatureForInstanceMethod:(SEL)aSel;
 - (NSMethodSignature *) _methodSignatureForClassMethod:(SEL)aSel;
+- (struct objc_method_description *) descriptionForInstanceMethod:(SEL)aSel;
+- (struct objc_method_description *) descriptionForClassMethod:(SEL)aSel;
 
 @end
 
@@ -438,17 +440,17 @@ static Class _doClass;
 		return [_local description];
 #ifndef __APPLE__
 	return [NSString stringWithFormat:
-			@"<%@ %p>\ntarget/local=%p remote=%p\nprotocol=%s\nconnection=%@",
+			@"<%@ %p>\ntarget/local=%p remote=%p\nprotocol=%@\nconnection=%@",
 			NSStringFromClass([self class]), self,
 			_local,	_remote,
-			_protocol?[_protocol name]:"<NULL>",
+			_protocol?[_protocol name]:@"<NULL>",
 			// FIXME: connection is not retained!
 			_connection];
 #else
 	return [NSString stringWithFormat:
 		   @"<%@ %p>\ntarget/local=%p remote=%p\nprotocol=%s\nconnection=%@",
 		   NSStringFromClass([self class]), self,
-		   _local,	_remote,
+		   _local, _remote,
 		   "?",
 		   // FIXME: connection is not retained!
 		   _connection];
@@ -539,6 +541,7 @@ static Class _doClass;
 #ifndef __APPLE__
 	else if(_protocol)
 		{ // ask protocol
+			// FIXME: what if the protocol does not implement descriptionForInstanceMethod?
 #if 1
 			NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif

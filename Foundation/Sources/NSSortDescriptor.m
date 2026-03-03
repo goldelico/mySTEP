@@ -12,7 +12,7 @@
 
 #import "Foundation/Foundation.h"
 
-NSInteger _descriptorComparator(id val1, id val2, void *context)
+static NSInteger _descriptorComparator(id val1, id val2, void *context)
 { // sort using descriptors
 	NSEnumerator *e=[(NSArray *) context objectEnumerator];
 	NSSortDescriptor *desc;

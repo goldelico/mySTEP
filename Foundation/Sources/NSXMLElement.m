@@ -42,7 +42,7 @@
 	[super dealloc];
 }
 
-- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+- (void) _appendXMLStringWithOptions:(NSUInteger) opts toMutableString:(NSMutableString	*) str;
 {
 	int documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
 	NSEnumerator *c=[[self children] objectEnumerator];
@@ -59,12 +59,12 @@
 			while((attrib=[e nextObject]))
 				{
 				[str appendString:@" "];
-				[attrib _XMLStringWithOptions:opts appendingToString:str];
+				[attrib _appendXMLStringWithOptions:opts toMutableString:str];
 				}
 			[str appendString:@">"];
 			}
 		while((child=[c nextObject]))
-			[child _XMLStringWithOptions:opts appendingToString:str];
+			[child _appendXMLStringWithOptions:opts toMutableString:str];
 		[str appendFormat:@"</%@>", _name];
 		if(opts&(NSXMLDocumentTidyHTML|NSXMLDocumentTidyXML))
 			[str appendString:@"\n"];

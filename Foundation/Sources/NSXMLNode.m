@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "NSPrivate.h"
 
 @implementation NSXMLNode
 
@@ -109,7 +109,7 @@
 
 - (NSString *) XMLString; { return [self XMLStringWithOptions:NSXMLNodeOptionsNone]; }
 
-- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+- (void) _appendXMLStringWithOptions:(NSUInteger) opts toMutableString:(NSMutableString	*) str;
 {
 	switch(_kind) {
 		default:
@@ -175,7 +175,7 @@
 - (NSString *) XMLStringWithOptions:(NSUInteger) opts;
 {
 	NSMutableString *str=[NSMutableString stringWithCapacity:100];
-	[self _XMLStringWithOptions:opts appendingToString:str];
+	[self _appendXMLStringWithOptions:opts toMutableString:str];
 	return str;
 }
 

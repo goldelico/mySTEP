@@ -311,9 +311,17 @@ long objc_loadModules (char *list[],
 			objc_dynamicUnlink(handle);
 			return 0;
 			}
+// FIXME: we should know function that from #import NSObjCRuntime.h which imports objc/runtime.h
+// but we see
+/*
+Sources/NSObjCUtilities.m:315:2: warning: implicit declaration of function '__objc_resolve_class_links' [-Wimplicit-function-declaration]
+		315 |  __objc_resolve_class_links();
+	  |  ^~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
+#if 0
  __objc_resolve_class_links();
-
+#endif
 		_objc_load_callback = NULL;
 		objc_loadmodule_callback = NULL;
 		success++;

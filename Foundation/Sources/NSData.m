@@ -1401,8 +1401,10 @@ getBytes(void* dst, void* src, NSUInteger len, NSUInteger limit, NSUInteger *pos
 	if(!__doingNSLog)
 		fprintf(stderr, "%s initWithBytesNoCopy:length: self=%p bytes=%p length=%lu\n", class_getName([self class]), self, bytes, (unsigned long) length);
 #endif
+#if 0	// some debugging
 	if(bytes == 0xddd58 && length == 0)
 		abort();
+#endif
 	objc_check_malloc();
 	return self;
 }

@@ -1210,6 +1210,8 @@ typedef struct
  smaller partition.  This *guarantees* no more than log (n)
  stack size is needed (actually O(1) in this case)!  */
 
+// FIXME: should we better change the *cmp to use void * only?
+
 void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, id, void *), void *context)
 {
 	register char *base_ptr = (char *) pbase;
@@ -1381,6 +1383,7 @@ void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, i
 														// from SortingInAction, a
 	if(_count > 20)
 		{ // use quick sort instead
+		  // FIXME: should we better change the *cmp to use void * only?
 			qsort3(_contents, _count, sizeof(_contents[0]), (int(*)(id,id,void*))compare, context);
 			return;
 		}

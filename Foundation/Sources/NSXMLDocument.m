@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NSPrivate.h"
 
 @implementation NSXMLDocument
 
@@ -151,7 +152,7 @@
 
 - (NSString *) version; { return _version; }
 
-- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+- (void) _appendXMLStringWithOptions:(NSUInteger) opts toMutableString:(NSMutableString	*) str;
 {
 	switch([self documentContentKind]) { // Text, XML, XHTML, HTML etc.
 		case NSXMLDocumentXMLKind:
@@ -167,21 +168,21 @@
 				[str appendFormat:@" standalone=\"%@\"", _isStandalone?@"yes":@"no"];
 				[str appendString:@"?>"];
 				}
-			[[self DTD] _XMLStringWithOptions:opts appendingToString:str];
-			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			[[self DTD] _appendXMLStringWithOptions:opts toMutableString:str];
+			[[self rootElement] _appendXMLStringWithOptions:opts toMutableString:str];
 			return;
 		case NSXMLDocumentXHTMLKind:
 			//					[str appendString:@"<?xml UTF-8>\n"];
 		case NSXMLDocumentHTMLKind:
-			[[self DTD] _XMLStringWithOptions:opts appendingToString:str];
+			[[self DTD] _appendXMLStringWithOptions:opts toMutableString:str];
 			[str appendString:@"<html>\n"];
-			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			[[self rootElement] _appendXMLStringWithOptions:opts toMutableString:str];
 			[str appendString:@"</html>\n"];
 			return;
 		case NSXMLDocumentTextKind:
-			[[self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			[[self rootElement] _appendXMLStringWithOptions:opts toMutableString:str];
 	}
-	[super _XMLStringWithOptions:opts appendingToString:str];
+	[super _appendXMLStringWithOptions:opts toMutableString:str];
 }
 
 - (NSData *) XMLData; { return [self XMLDataWithOptions:NSXMLNodeOptionsNone]; }
