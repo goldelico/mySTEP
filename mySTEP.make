@@ -179,7 +179,6 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	esac;}
 
 DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
-DEB_INSTALL_TOOL := $(QuantumSTEP)/System/Installation/dl-deb
 XHOST_TOOL := /opt/X11/bin/xhost
 DPKG := $(shell which dpkg)
 
@@ -604,7 +603,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 				 darwin*/* ) continue;; \
 				 */*-apple ) continue;; \
 			esac; \
-			echo "  ARCH $$DEBIAN_RELEASE / $$DEBIAN_ARCH"; \
+			echo "  ARCH $$DEBIAN_ARCH ($$DEBIAN_RELEASE) "; \
 			case "$$DEBIAN_ARCH" in \
 			armel ) export TRIPLE=arm-linux-gnueabi;; \
 			armhf ) export TRIPLE=arm-linux-gnueabihf;; \
@@ -939,7 +938,7 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
-		echo "  SUB  \$i"; \
+		echo "  SUB  $$i"; \
 		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME DEBIAN_PACKAGE_VERSION FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
 	done
 endif
@@ -1477,25 +1476,34 @@ else
 # FIXME: to all reachable devices?
 DEVICELIST:=-n
 endif
-# TRIPLE is undefined here!
+
+D=$(DEBDIST)/../..
+
 deploy_remote:
-	@echo deploy_remote
 ifeq ($(DEPLOY),true)
-	# DEPLOY: $(DEPLOY)
-	# deploy remote
 	- [ -s "$(DOWNLOAD_TOOL)" ] && $(DOWNLOAD_TOOL) $(DEVICELIST) | while read DEV NAME; \
 		do \
 		if [ ! "$(DEVICE)" -o "$(DEVICE)" == "$$NAME" ]; then \
-		# FIXME: ignore/retire $(DEB_INSTALL_TOOL) but rsync to remote device and /tmp/package.deb and call either apt-get or dpkg -i /tmp/package.deb
-		$(DEB_INSTALL_TOOL) -d $$DEV $(DEBIAN_PACKAGE_NAME) \
-				&& echo +++ installed on $$NAME at $(TARGET_INSTALL_PATH) +++ || echo --- installation failed on $$NAME ---; \
+			echo "  DEST $$NAME"; \
+			ARCH=$$($(DOWNLOAD_TOOL) $$DEV dpkg --print-architecture </dev/null); \
+			[ "$$ARCH" ] || continue; \
+			SUITE=$$($(DOWNLOAD_TOOL) $$DEV fgrep VERSION= /etc/os-release </dev/null | sed 's/.*(\(.*\)).*/\1/' ); \
+			echo looking up $(DEBIAN_PACKAGE_NAME).deb for $$ARCH and $$SUITE; \
+			for PKG in $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+					   $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb \
+					   $(D)/staging/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+					   $(D)/staging/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb; \
+				do [ -r "$$PKG" ] && break; done; \
+			if [ -r "$$PKG" ]; then \
+				BASE=$$(basename "$$PKG"); \
+				echo "  COPY $$PKG to /tmp/$$BASE"; \
+				$(DOWNLOAD_TOOL) $$DEV cat ">/tmp/$$BASE" <"$$PKG" || echo --- copy failed on $$NAME ---; \
+				echo "  DPKG /tmp/$$BASE"; \
+				$(DOWNLOAD_TOOL) $$DEV dpkg -i /tmp/$$BASE </dev/null || echo --- installation failed on $$NAME ---; \
+			fi; \
 		fi; \
 		done
-	#done
-else
-	# not deployed
 endif
-	@echo deploy_remote done
 
 launch_remote:
 ifeq ($(DEPLOY),true)
