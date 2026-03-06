@@ -236,6 +236,10 @@ endif
 
 ifeq ($(shell uname -o),Darwin)
 # running this script for (cross)-compiling on Darwin machine
+# DARWIN is used for MACHTYPE and for knowing which release to install on local host
+DARWIN := darwin$(shell uname -r | cut -d . -f 1)
+# MACHTYPE is used to distiguish xtc cross toolchains
+MACHTYPE := $(shell uname -m)-apple-$(DARWIN)
 
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 # native compile on Darwin for Darwin
@@ -265,7 +269,6 @@ T=$(TRIPLE)
 PHAR := $(shell which phar)
 else
 # cross-compile on Darwin
-MACHTYPE := $(shell uname -m)-apple-darwin$(shell uname -r | cut -d . -f 1)
 # FIXME: find the first DEBIAN_RELEASE_TRANSLATED where we have a usr/bin/$(TRIPLE)-gcc
 # FIXME: should check if toolchain is really installed...
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
@@ -613,6 +616,9 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			case "$$DEBIAN_RELEASE/$$DEBIAN_ARCH" in \
 				 any/*-apple | staging/*-apple | darwin*/*-apple ) : ok;; \
 				 darwin*/* ) continue;; \
+				 etch/arm64 | lenny/arm64 | squeeze/arm64 | wheezy/arm64 ) continue;; \
+				 etch/riscv64 | lenny/riscv64 | squeeze/riscv64 | wheezy/riscv64 | jessie/riscv64 | stretch/riscv64 ) continue;; \
+				 forky/mipsel ) continue;; \
 				 */*-apple ) continue;; \
 			esac; \
 			echo "  ARCH $$DEBIAN_ARCH ($$DEBIAN_RELEASE) "; \
@@ -1440,13 +1446,19 @@ endif # ($(WRAPPER_EXTENSION),framework)
 
 # this runs in outer Makefile
 # which means that DEBIAN_ARCH is not well defined!
+D=$(DEBDIST)/../..
 
-PACKAGE=$(DEBDIST)/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb
+SUITE=$(DARWIN)
+ifeq ($(SUITE),)
+SUITE=$(DEBIAN_RELEASE)
+endif
+
+PACKAGE=$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb
 ifneq ($(wildcard $(PACKAGE)),)
 # package exists
 else ifneq ($(findstring all,$(DEBIAN_ARCHITECTURES)),)
 # fall back to binary-all variant
-PACKAGE=$(DEBDIST)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
+PACKAGE=$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 else
 # package not found
 PACKAGE="unknown"
@@ -1454,12 +1466,11 @@ endif
 LINK_ARCH=$(DEBIAN_INSTALL_ARCH)
 # FIXME: make LINK_ARCH=MacOS for Apple...
 
-# temporarily disable
-# DPKG=
-
 install_local:
 	# INSTALL: $(INSTALL) - local on $(DEBIAN_INSTALL_ARCH)
 ifeq ($(INSTALL),true)
+	# tried $(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb
+	# and $(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
@@ -1472,11 +1483,9 @@ ifeq ($(INSTALL),true)
 		[ "$(DEBIAN_RAW_FILES)" ] && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
 		[ "$(WRAPPER_EXTENSION)" == "" ] && if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then echo "  LNK "; mkdir -p "$(HOST_INSTALL_PATH)/bin/"; ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi; \
 		}
-	# installed on localhost as $(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
 else
 	# don't install locally
 endif
-	# install_local done
 
 # can we have a mode where we don't run but deploy to the runnable device only?
 # maybe RUN=true DEPLOY=true RUN_CMD=:
@@ -1491,7 +1500,7 @@ else
 DEVICELIST:=-n
 endif
 
-D=$(DEBDIST)/../..
+# FIXME: SUITE may be undefined this way for Darwin because there is no /etc/os-release!
 
 deploy_remote:
 ifeq ($(DEPLOY),true)
