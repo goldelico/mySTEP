@@ -10,7 +10,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2021
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2026
 # This document is licenced using LGPL
 #
 # Requires Xcode 3.2 or later
@@ -1429,9 +1429,9 @@ endif # ($(WRAPPER_EXTENSION),framework)
 
 PACKAGE=$(DEBDIST)/binary-$(HOST_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(HOST_ARCH).deb
 ifneq ($(wildcard $(PACKAGE)),)
-# good
+# package exists
 else ifneq ($(findstring all,$(DEBIAN_ARCHITECTURES)),)
-# fall back to binary-all
+# fall back to binary-all variant
 PACKAGE=$(DEBDIST)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 else
 # package not found
@@ -1444,7 +1444,7 @@ LINK_ARCH=$(HOST_ARCH)
 # DPKG=
 
 install_local:
-	# INSTALL: $(INSTALL) local on $(HOST_ARCH)
+	# INSTALL: $(INSTALL) - local on $(HOST_ARCH)
 ifeq ($(INSTALL),true)
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
@@ -1489,9 +1489,9 @@ ifeq ($(DEPLOY),true)
 			[ "$$ARCH" ] || continue; \
 			SUITE=$$($(DOWNLOAD_TOOL) $$DEV fgrep VERSION= /etc/os-release </dev/null | sed 's/.*(\(.*\)).*/\1/' ); \
 			echo looking up $(DEBIAN_PACKAGE_NAME).deb for $$ARCH and $$SUITE; \
-			for PKG in $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			for PKG in $(D)/$$SUITE/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
 					   $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb \
-					   $(D)/staging/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+					   $(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
 					   $(D)/staging/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb; \
 				do [ -r "$$PKG" ] && break; done; \
 			if [ -r "$$PKG" ]; then \
@@ -1499,7 +1499,10 @@ ifeq ($(DEPLOY),true)
 				echo "  COPY $$PKG to /tmp/$$BASE"; \
 				$(DOWNLOAD_TOOL) $$DEV cat ">/tmp/$$BASE" <"$$PKG" || echo --- copy failed on $$NAME ---; \
 				echo "  DPKG /tmp/$$BASE"; \
-				$(DOWNLOAD_TOOL) $$DEV dpkg -i /tmp/$$BASE </dev/null || echo --- installation failed on $$NAME ---; \
+				case "$$SUITE" in \
+					wheezy | jessie ) $(DOWNLOAD_TOOL) $$DEV dpkg -i /tmp/$$BASE </dev/null || echo --- installation failed on $$NAME ---;; \
+					* ) $(DOWNLOAD_TOOL) $$DEV apt-get install /tmp/$$BASE </dev/null || echo --- installation failed on $$NAME ---;; \
+				esac; \
 			fi; \
 		fi; \
 		done
