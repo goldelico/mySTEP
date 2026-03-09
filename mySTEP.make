@@ -997,9 +997,9 @@ endif
 endif
 
 make_sh: bundle
-	@echo "  SH   "
 	# SHSRCS: $(SHSRCS)
 	$(QUIET)for SH in $(SHSRCS); do \
+		echo "  SH   $$SH"; \
 		mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -Rf u+w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
@@ -1453,36 +1453,28 @@ ifeq ($(SUITE),)
 SUITE=$(DEBIAN_RELEASE)
 endif
 
-PACKAGE=$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb
-ifneq ($(wildcard $(PACKAGE)),)
-# package exists
-else ifneq ($(findstring all,$(DEBIAN_ARCHITECTURES)),)
-# fall back to binary-all variant
-PACKAGE=$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
-else
-# package not found
-PACKAGE="unknown"
-endif
 LINK_ARCH=$(DEBIAN_INSTALL_ARCH)
 # FIXME: make LINK_ARCH=MacOS for Apple...
 
 install_local:
 	# INSTALL: $(INSTALL) - local on $(DEBIAN_INSTALL_ARCH)
 ifeq ($(INSTALL),true)
-	# tried $(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb
-	# and $(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
-	- ls -l "$(PACKAGE)"
-	- [ "$(DPKG)" ] && echo "  DPKG  $(PACKAGE)" && $(DPKG) -i "$(PACKAGE)" \
-		&& echo +++ installed "$(PACKAGE)" +++ \
-		|| { echo "  COPY  $(PKG)"; \
-		[ -x "$(PKG)/../$(PRODUCT_NAME)" ] && echo "  NAME  $(PRODUCT_NAME)" && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; \
-		if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi; \
-		[ "$(DEBIAN_RAW_FILES)" ] && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
-		[ "$(WRAPPER_EXTENSION)" == "" ] && if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then echo "  LNK "; mkdir -p "$(HOST_INSTALL_PATH)/bin/"; ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi; \
-		}
+	$(QUIET)- 	for PKG in \
+			$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb \
+			$(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/staging/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
+			do [ -r "$$PKG" ] && break; done; \
+		[ -x "$(DPKG)" -a -r "$$PKG" ] && echo "  DPKG  $$PKG" && $(DPKG) -i "$$PKG" && echo +++ installed "$$PKG" +++ \
+		||	{ echo "  COPY  $(PKG)"; \
+			[ -x "$(PKG)/../$(PRODUCT_NAME)" ] && echo "  NAME  $(PRODUCT_NAME)" && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; \
+			if [ -d "$(PKG)" ] ; then rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi; \
+			[ "$(DEBIAN_RAW_FILES)" ] && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
+			[ "$(WRAPPER_EXTENSION)" == "" ] && if [ -x "$(HOST_INSTALL_PATH)/bin/MacOS/$(PRODUCT_NAME)" ] ; then echo "  LNK "; mkdir -p "$(HOST_INSTALL_PATH)/bin/"; ln -sf "MacOS/$(PRODUCT_NAME)" "$(HOST_INSTALL_PATH)/bin/$(PRODUCT_NAME)"; fi; \
+			}
 else
 	# don't install locally
 endif
@@ -1510,7 +1502,8 @@ ifeq ($(DEPLOY),true)
 			echo "  DEST $$NAME"; \
 			ARCH=$$($(DOWNLOAD_TOOL) $$DEV dpkg --print-architecture </dev/null); \
 			[ "$$ARCH" ] || continue; \
-			SUITE=$$($(DOWNLOAD_TOOL) $$DEV fgrep VERSION= /etc/os-release </dev/null | sed 's/.*(\(.*\)).*/\1/' ); \
+			SUITE=$$($(DOWNLOAD_TOOL) $$DEV fgrep VERSION= /etc/os-release </dev/null 2>/dev/null | sed 's/.*(\(.*\)).*/\1/' ); \
+			[ "$$SUITE" ] || SUITE=darwin$$($(DOWNLOAD_TOOL) $$DEV uname -r | cut -d . -f 1); \
 			echo looking up $(DEBIAN_PACKAGE_NAME).deb for $$ARCH and $$SUITE; \
 			for PKG in $(D)/$$SUITE/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
 					   $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb \
