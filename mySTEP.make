@@ -180,7 +180,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 
 DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
 XHOST_TOOL := /opt/X11/bin/xhost
-DPKG := $(shell which dpkg)
+DPKG := $(shell sh -c 'PATH=$$PATH:/usr/local/QuantumSTEP/usr/bin; which dpkg')
 
 ifeq ($(DEBIAN_PACKAGE_NAME),)
 ifeq ($(WRAPPER_EXTENSION),)
