@@ -155,6 +155,8 @@ endif
 
 TOOLCHAIN_FALLBACK := 8-Jessie
 DEBIAN_RELEASE_FALLBACK := jessie
+TOOLCHAIN_FALLBACK := 9-Stretch
+DEBIAN_RELEASE_FALLBACK := stretch
 ifeq ($(TRIPLE),riscv64-linux-gnu)
 TOOLCHAIN_FALLBACK := 10-Buster
 endif
