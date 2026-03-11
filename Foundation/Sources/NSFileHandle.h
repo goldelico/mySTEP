@@ -38,7 +38,7 @@
 	NSOutputStream *_outputStream;
 	NSMutableData *_inputBuffer;	// collects data from input stream
 	NSArray *_readModes;	// store a copy
-	enum
+	enum _NSFileHandle_readMode
 		{
 			kIsNotWaiting=0,
 			kIsListening,
