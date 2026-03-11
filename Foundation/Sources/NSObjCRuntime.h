@@ -242,7 +242,7 @@ typedef void *objc_condition_t;
 #include <objc/Protocol.h>
 
 int objc_check_undefineds(FILE *errorStream);
-void objc_invalidate_dtable(Class class);
+void objc_invalidate_dtable(Class theClass);
 int objc_initialize_loading(FILE *errorStream);
 
 int objc_loadModule(char *filename,
