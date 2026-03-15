@@ -761,7 +761,10 @@
 	[self detachSubmenu];	// detach any submenu
 	[_font release];
 	if(_rectOfCells)
-		objc_free(_rectOfCells), _rectOfCells=NULL;
+		{
+		objc_free(_rectOfCells);
+		_rectOfCells=NULL;
+		}
 	[_cells release];
 	_cells=nil;	// no longer available
 	[super dealloc];		// will itself call setMenu:nil !!!
