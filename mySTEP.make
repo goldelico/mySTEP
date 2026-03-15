@@ -1458,6 +1458,13 @@ endif
 LINK_ARCH=$(DEBIAN_INSTALL_ARCH)
 # FIXME: make LINK_ARCH=MacOS for Apple...
 
+ifeq ($(WRAPPER_EXTENSION),framework)
+# install variant with headers so that we can link other frameworks against the latest version and debug if needed
+VARIANT=-dbg
+else
+VARIANT=
+endif
+
 install_local:
 	# INSTALL: $(INSTALL) - local on $(DEBIAN_INSTALL_ARCH)
 ifeq ($(INSTALL),true)
@@ -1465,10 +1472,10 @@ ifeq ($(INSTALL),true)
 	# DPKG: $(DPKG)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
 	$(QUIET)- 	for PKG in \
-			$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-			$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb \
-			$(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-			$(D)/staging/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
+			$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb \
+			$(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/staging/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
 			do [ -r "$$PKG" ] && break; done; \
 		[ -x "$(DPKG)" -a -r "$$PKG" ] && echo "  DPKG  $$PKG" && $(DPKG) -i "$$PKG" && echo +++ installed "$$PKG" +++ \
 		||	{ echo "  COPY  $(PKG)"; \
