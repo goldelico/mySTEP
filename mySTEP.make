@@ -74,7 +74,7 @@ QUIET=@
 #  Debian packaging (postprocess 1)
 #   * DEBIAN_PACKAGE_NAME - default: quantumstep-$PRODUCT_NAME-$WRAPPER-extension (note: _ are converted to -)
 #   - DEBIAN_PACKAGE_VERSION - defult: current date/time
-#   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
+#   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
 #   (*) DEBIAN_DEPENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_CONFLICTS -
@@ -246,7 +246,10 @@ MACHTYPE := $(shell uname -m)-apple-$(DARWIN)
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 # native compile on Darwin for Darwin
 TOOLCHAIN := /usr/bin
-CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/gcc
+SDK := $(shell xcrun --show-sdk-path)
+CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang
+CXX := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang
+OBJCXXFLAGS := -stdlib=libc++ -std=gnu++11 -x objective-c++
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
@@ -255,12 +258,16 @@ SO := dylib
 # define the subdirectory of executables, e.g. Contents/MacOS/executable
 T=MacOS
 DEFINES += -D__mySTEP__
-INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2 -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/
+INCLUDES += -isysroot $(SDK)
+# INCLUDES += -I$(SDK)/usr/include/
+# INCLUDES += -I/opt/local/include -I/opt/local/include/X11 -I/opt/local/include/freetype2
+INCLUDES += -I/opt/local/include
 LIBS += -L/opt/local/lib
 else ifeq ($(TRIPLE),php)
 # besser: php -l & copy
 PHP := $(shell which php)
 CC := : disabled $(PHP) -l + copy
+CXX := $(CC)
 # besser: makephar - (shell-funktion?)
 LD := : disabled makephar
 AS := : disabled
@@ -276,6 +283,7 @@ else
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
 
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
+CXX := $(CC)
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(TRIPLE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib64
 AS := $(TOOLCHAIN)/bin/$(TRIPLE)-as
@@ -299,6 +307,7 @@ else	# not Darwin, but running this script on Linux
 
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 CC := "can't cross-compile for Darwin on non-Darwin host"
+CXX := $(CC)
 else ifeq ($(TRIPLE),php)
 # besser: php -l & copy
 PHP := $(shell which php)
@@ -904,12 +913,12 @@ $(TTT)+%.o: %.mm	# Obj-C++
 	@- mkdir -p $(TTT)+$(*D)
 	@echo "  OB++ $(TTT)+$*.o"
 	# compile $< -> $*.o
-	@if ! $(CC) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
+	@if ! $(CXX) -v 2>/dev/null; then echo "can't find $(CC)"; false; fi
 ifeq ($(INSPECT),true)
-	$(QUIET)$(CC) -c $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
-	$(QUIET)$(CC) -c $(OBJCFLAGS) -S $< -o $(TTT)+$*.S	# store assembler source for debugging
+	$(QUIET)$(CXX) -c $(OBJCXXFLAGS) $(OBJCFLAGS) -E $< -o $(TTT)+$*.i	# store preprocessor result for debugging
+	$(QUIET)$(CXX) -c $(OBJCXXFLAGS) $(OBJCFLAGS) -S $< -o $(TTT)+$*.S	# store assembler source for debugging
 endif
-	$(QUIET)$(CC) -c $(OBJCFLAGS) $< -o $(TTT)+$*.o
+	$(QUIET)$(CXX) -c $(OBJCXXFLAGS) $(OBJCFLAGS) $< -o $(TTT)+$*.o
 
 $(TTT)+%.o: %.c	# C
 	@- mkdir -p $(TTT)+$(*D)
@@ -1448,7 +1457,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 
 # this runs in outer Makefile
 # which means that DEBIAN_ARCH is not well defined!
-D=$(DEBDIST)/../..
+D=$(shell dirname $$(dirname $(DEBDIST)))
 
 SUITE=$(DARWIN)
 ifeq ($(SUITE),)
