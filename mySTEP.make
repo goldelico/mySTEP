@@ -74,7 +74,7 @@ QUIET=@
 #  Debian packaging (postprocess 1)
 #   * DEBIAN_PACKAGE_NAME - default: quantumstep-$PRODUCT_NAME-$WRAPPER-extension (note: _ are converted to -)
 #   - DEBIAN_PACKAGE_VERSION - defult: current date/time
-#   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists
+#   (+) DEBDIST - where to store the binary-arch files - default: $QuantumSTEP/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
 #   (*) DEBIAN_DEPENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_RECOMMENDS - e.g. quantumstep-cocoa-framework
 #   (*) DEBIAN_CONFLICTS -
@@ -1448,7 +1448,7 @@ endif # ($(WRAPPER_EXTENSION),framework)
 
 # this runs in outer Makefile
 # which means that DEBIAN_ARCH is not well defined!
-D=$(DEBDIST)/../..
+D=$(shell dirname $$(dirname $(DEBDIST)))
 
 SUITE=$(DARWIN)
 ifeq ($(SUITE),)
