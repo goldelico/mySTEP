@@ -1717,7 +1717,7 @@ ifneq ($(strip $(PHPSRCS)),)
 	$$phar->stopBuffering(); \
 	$$phar->compressFiles(Phar::GZ); \
 	' "$(BINARY).phar" $(PHPOBJECTS) && chmod 0555 "$(BINARY).phar" && mv "$(BINARY).phar" "$(BINARY)"
-	phar list -f "$(BINARY)"
+	$(PHAR) list -f "$(BINARY)"
 endif	# ($(strip $(PHPSRCS)),)
 endif	# ($(TRIPLE),php)
 
