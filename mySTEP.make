@@ -140,7 +140,7 @@ else
 TARGET_INSTALL_PATH := $(INSTALL_PATH)
 endif
 
-.PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy make_sh install_local deploy_remote launch_remote bundle headers resources
+.PHONY:	clean debug build prepare_temp_files build_deb build_architectures build_subprojects build_doxy build_sh install_local deploy_remote launch_remote bundle headers resources
 
 ifeq ($(PRODUCT_NAME),All)
 # Xcode aggregate target
@@ -556,9 +556,9 @@ endif
 # this is the default/main target on the outer level
 
 ifeq ($(NOCOMPILE),true)
-build:	build_subprojects build_doxy build_architectures install_local
+build:	build_subprojects build_sh build_doxy build_architectures install_local
 else
-build:	build_subprojects build_doxy build_architectures deploy_remote launch_remote
+build:	build_subprojects build_sh build_doxy build_architectures deploy_remote launch_remote
 endif
 	@echo build done for: $(DEBIAN_ARCHITECTURES)
 	@date
@@ -655,7 +655,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
-	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make make_sh install_local;
+	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make install_local;
 endif
 endif
 	@echo build_architectures done for $(DEBIAN_ARCHITECTURES)
@@ -1007,7 +1007,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 endif
 endif
 
-make_sh: bundle
+build_sh: bundle
 	# SHSRCS: $(SHSRCS)
 	$(QUIET)for SH in $(SHSRCS); do \
 		echo "  SH   $$SH"; \
@@ -1016,7 +1016,7 @@ make_sh: bundle
 		cp -pf "$$SH" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/" && \
 		chmod -R go-w "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Resources/"; \
 	done
-	@echo make_sh finished
+	@echo build_sh finished
 
 DOXYDIST = "$(QuantumSTEP)/System/Installation/Doxy"
 
