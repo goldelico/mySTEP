@@ -236,7 +236,7 @@ ifeq ($(DEBDIST),)
 DEBDIST := $(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
 endif
 
-ifeq ($(shell uname -o),Darwin)
+ifeq ($(shell uname -s),Darwin)
 # running this script for (cross)-compiling on Darwin machine
 # DARWIN is used for MACHTYPE and for knowing which release to install on local host
 DARWIN := darwin$(shell uname -r | cut -d . -f 1)
@@ -513,7 +513,7 @@ else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
 DEBIAN_INSTALL_ARCH := riscv64
 else ifeq ($(HOSTTYPE)-$(OSTYPE),riscv64-linux-gnu)
 DEBIAN_INSTALL_ARCH := riscv64
-else ifeq ($(shell uname -o),Darwin)
+else ifeq ($(shell uname -s),Darwin)
 DEBIAN_INSTALL_ARCH := $(shell echo $$HOSTTYPE | tr '_' '-')-apple
 endif
 
@@ -525,7 +525,7 @@ ifeq ($(DEBIAN_ARCHITECTURES),)	# not yet defined - define some defaults
 
 ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space character
 DEBIAN_ARCHITECTURES := all
-else ifeq ($(shell uname -o),Darwin)	# we have a batch of native and cross-compilers
+else ifeq ($(shell uname -s),Darwin)	# we have a batch of native and cross-compilers
 # FIXME: find out which ones are really available
 DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
 else ifneq ($(DPKG),)	# ask dpkg
