@@ -8,6 +8,7 @@
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSGeometry.h>
+#import <Foundation/NSDictionary.h>
 
 
 @class NSDictionary; 
