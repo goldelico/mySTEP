@@ -103,7 +103,8 @@ QUIET=@
 #
 # targets
 #   build:		build everything (outer level)
-#   build_deb:	called recursively to build for a specific debian architecture
+#   build_architectures:	called recursively to compile for a specific debian architecture and release
+#   build_deb:				called recursively to pack for a specific debian architecture and release
 #   clean:		clears build directory (and optionally in subprojects!)
 #   debug:		print all variables
 
@@ -159,6 +160,7 @@ TOOLCHAIN_FALLBACK := 9-Stretch
 DEBIAN_RELEASE_FALLBACK := stretch
 ifeq ($(TRIPLE),riscv64-linux-gnu)
 TOOLCHAIN_FALLBACK := 10-Buster
+DEBIAN_RELEASE_FALLBACK := buster
 endif
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( etch ) echo "4-Etch";; \
@@ -611,6 +613,8 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 # take only the release of the RUN device?
 # note: these shell commands do NOT automatically inherit the variables defined in this Makefile!
 	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
+	for PHASE in make_binary build_deb; do \
+	echo "  PHASE $$PHASE"; \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
 		echo "  REL  $$DEBIAN_RELEASE"; \
 		export DEBIAN_PACKAGE_VERSION="$(DEBIAN_PACKAGE_VERSION)"; \
@@ -650,10 +654,11 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			export TRIPLE="$$TRIPLE"; \
 			echo "*** building for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 			export | fgrep DEBIAN; \
-			$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
+			$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make $$PHASE; \
 			echo "*** done with $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
+	done; \
 	done; \
 	$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make install_local;
 endif
@@ -1090,7 +1095,7 @@ endif
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 # allow to disable building debian packages
 
-build_deb: make_bundle bundle make_binary build_debian_packages
+build_deb: build_debian_packages
 	@echo build_deb done
 
 DEBIAN_ARCH:=$(subst _,-,$(DEBIAN_ARCH))
@@ -1173,6 +1178,7 @@ ifneq ($(findstring -apple,$(TRIPLE)),-apple)
 	[ -f "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" ] || \
 		ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)" || \
 		: ln -sf "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/lib$(PRODUCT_NAME).so"
+	ls -l /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/$(PRODUCT_NAME)*
 	( cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(TRIPLE)/" && \
 	for NAME in "lib$(PRODUCT_NAME)-"*.so; \
 	do [ "$$NAME" != "lib$(PRODUCT_NAME)-$(DEBIAN_RELEASE).so" ] && rm -f "$$NAME"; \
@@ -1268,6 +1274,7 @@ ifneq ($(findstring -apple,$(TRIPLE)),-apple)
 endif
 endif
 	# create Receipts file
+	$(QUIET)rm -rf "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts"
 	$(QUIET)mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_PACKAGE_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).txt"
 	# write protect ordinary files
 	$(QUIET)find "/tmp/$(TMP_DATA)" -type f -exec chmod -Rf go-w {} ';' || true
@@ -1320,7 +1327,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	@echo "  DEB  $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
-ifneq ($(TRIPLE),)
+ifneq (0,0)	#	($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
@@ -1343,6 +1350,7 @@ endif
 	# strip binaries
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
 	# create Receipts file
+	$(QUIET)rm -rf "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts"
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).txt
 	# write protect and pack data.tar.gz
 	$(QUIET)chmod -Rf go-w "/tmp/$(TMP_DATA)" || true
@@ -1392,7 +1400,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 	@echo "  DEB  $(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dbg_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_ARCH).deb"
 	$(QUIET)mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-ifneq ($(TRIPLE),)
+ifneq (0,0)	#	($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
@@ -1413,6 +1421,7 @@ ifneq ($(findstring -apple,$(TRIPLE)),-apple)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
 	# create Receipts file
+	$(QUIET)rm -rf "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts"
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dbg_@_$(DEBIAN_ARCH).txt
 	# write protect and pack data.tar.gz
@@ -1570,7 +1579,7 @@ endif
 # link headers of framework
 
 bundle:
-	@echo bundle
+	@echo "  BUNDLE $(PKG)"
 	# TRIPLE: $(TRIPLE)
 	# SO: $(SO)
 ifeq ($(WRAPPER_EXTENSION),framework)
