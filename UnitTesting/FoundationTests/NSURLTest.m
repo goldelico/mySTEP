@@ -781,10 +781,22 @@
 	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent;fragment?query=something#anchor", @"");
 
 	// we should test sdditional special cases:
-	// http://localhost:0080/path/with/lastpathcomponent
-	// http://localhost:0080/path/with/lastpathcomponent.
-	// http://localhost:0080/path/with/.extension
-	// http://localhost:0080/
+	// was mach macOS hier???
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent."];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/.extension"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/", @"");
 }
 
 
