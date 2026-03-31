@@ -12,5 +12,11 @@ export DEBIAN_DEPENDS+=", quantumstep-coremotion-framework-dbg"
 export DEBIAN_DESCRIPTION="Debug support for QuantumSTEP frameworks"
 export INSTALL_PATH="/"
 export PRODUCT_NAME="frameworks-dbg"
+export SOURCES="AppKit/AppKit.qcodeproj"
+export SOURCES+=" Foundation/Foundation.qcodeproj"
+export SOURCES+=" Cocoa/Cocoa.qcodeproj"
+export SOURCES+=" CoreData/CoreData.qcodeproj"
+export SOURCES+=" CoreDevice/CoreDevice.qcodeproj"
+export SOURCES+=" CoreMotion/CoreMotion.qcodeproj"
 
 cd "$(dirname "${BASH_SOURCE[0]}")" && "$QuantumSTEP/System/Sources/Frameworks/mySTEP.make" $ACTION
