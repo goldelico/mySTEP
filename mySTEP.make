@@ -972,8 +972,16 @@ ifeq ($(RECURSIVE),true)
 ifneq "$(strip $(SUBPROJECTS))" ""
 	@for i in $(SUBPROJECTS); \
 	do \
+		( \
 		echo "  SUB  $$i"; \
-		( unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME DEBIAN_PACKAGE_VERSION FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; cd $$(dirname $$i) && echo Entering directory $$(pwd) && ./$$(basename $$i) $(SUBCMD) || break ; echo Leaving directory $$(pwd) ); \
+		unset TRIPLE PRODUCT_NAME DEBIAN_ARCHITECTURES DEBIAN_DEPENDS DEBIAN_RECOMMENDS DEBIAN_DESCRIPTION DEBIAN_PACKAGE_NAME \
+			FRAMEWORKS FMWKS INCLUDES LIBS INSTALL_PATH PRODUCT_NAME SOURCES WRAPPER_EXTENSION FRAMEWORK_VERSION; \
+		cd $$(dirname $$i) && \
+			echo Entering directory $$(pwd) && \
+			./$$(basename $$i) $(SUBCMD) || \
+				break ; \
+			echo Leaving directory $$(pwd) \
+		); \
 	done
 endif
 endif
