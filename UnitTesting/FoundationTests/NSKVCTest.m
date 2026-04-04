@@ -45,8 +45,8 @@ static BOOL _accessDirectly;
 - (NSObject *) objectValue; { return _object; }
 - (id) idValue; { return _id; }
 - (int) intValue; { return _int; }
-- (int) floatValue; { return _float; }
-- (int) doubleValue; { return _double; }
+- (float) floatValue; { return _float; }
+- (double) doubleValue; { return _double; }
 
 @end
 
@@ -116,7 +116,7 @@ static BOOL _accessDirectly;
 {
 	id ret;
 	ret=[_test valueForKey:@"floatValue"];
-	NSLog(@"%@", ret);
+	NSLog(@"%@ %f", ret, [ret floatValue]);
 	XCTAssertTrue([ret isKindOfClass:[NSNumber class]]);
 	XCTAssertTrue([ret floatValue] == 3.1415);
 }
@@ -125,7 +125,7 @@ static BOOL _accessDirectly;
 {
 	id ret;
 	ret=[_test valueForKey:@"doubleValue"];
-	NSLog(@"%@", ret);
+	NSLog(@"%@ %lf", ret, [ret doubleValue]);
 	XCTAssertTrue([ret isKindOfClass:[NSNumber class]]);
 	XCTAssertTrue([ret doubleValue] == 3.1415926575);
 }

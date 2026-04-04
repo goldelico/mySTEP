@@ -165,8 +165,13 @@ TEST1(07d, @"..../", pathExtension, @"");
 TEST1(08, @".tiff", pathExtension, @"");
 TEST1(08b, @"x.tiff", pathExtension, @"tiff");
 TEST1(08c, @"x.", pathExtension, @"");
+#ifdef BEFORE_OSX15	// some have been changed
 TEST1(09, @"..tiff", pathExtension, @"tiff");
 TEST1(10, @"...tiff", pathExtension, @"tiff");
+#else
+TEST1(09, @"..tiff", pathExtension, @"");
+TEST1(10, @"...tiff", pathExtension, @"");
+#endif
 
 - (void) testpathWithComponents
 {
@@ -237,6 +242,7 @@ TEST2(22a, @"file/", stringByAppendingPathComponent, @"/other", @"file/other");
 TEST2(22b, @"file//", stringByAppendingPathComponent, @"//other", @"file/other");
 TEST2(22c, @"file//", stringByAppendingPathComponent, @"other", @"file/other");
 
+#ifdef BEFORE_OSX15	// some have been changed
 TEST2(01, @"/tmp/scratch", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");
 TEST2(02, @"", stringByAppendingPathExtension, @"tiff", @"");	// does not append to empty string, i.e. if there is no lastPathComponent - prints a warning on NSLog
 TEST2(03, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif.tiff");
@@ -252,6 +258,23 @@ TEST2(10, @"//tmp///scratch////", stringByAppendingPathExtension, @"", @"/tmp/sc
 TEST2(11, @"//", stringByAppendingPathExtension, @"something", @"//");	// extension not added - prints a warning on NSLog
 TEST2(12, @"////", stringByAppendingPathExtension, @"something", @"////");	// extension not added - prints a warning on NSLog
 TEST2(13, @"   ////", stringByAppendingPathExtension, @"something", @"   .something");
+#else
+TEST2(01, @"/tmp/scratch", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");
+TEST2(02, @"", stringByAppendingPathExtension, @"tiff", nil);	// does not append to empty string, i.e. if there is no lastPathComponent - prints a warning on NSLog
+TEST2(03, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif.tiff");
+TEST2(04, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif..tiff");
+TEST2(05, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @".tiff", @"/tmp/scratch.gif...tiff");
+TEST2(06, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"", @"/tmp/scratch.gif");
+TEST2(07, @"/tmp/scratch", stringByAppendingPathExtension, @"", @"/tmp/scratch");	// empty suffix adds a .
+TEST2(08, @"/tmp/scratch/", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");	// trailing / is deleted
+TEST2(09, @"/tmp/scratch/", stringByAppendingPathExtension, @"", @"/tmp/scratch/");
+TEST2(09b, @"/tmp", stringByAppendingPathExtension, @"", @"/tmp");
+TEST2(09c, @"/", stringByAppendingPathExtension, @"tmp", nil);	// extension not added - prints a warning on NSLog
+TEST2(10, @"//tmp///scratch////", stringByAppendingPathExtension, @"", @"//tmp///scratch////");	// empty path components are always removed
+TEST2(11, @"//", stringByAppendingPathExtension, @"something", nil);	// extension not added - prints a warning on NSLog
+TEST2(12, @"////", stringByAppendingPathExtension, @"something", nil);	// extension not added - prints a warning on NSLog
+TEST2(13, @"   ////", stringByAppendingPathExtension, @"something", @"   .something");
+#endif
 
 TEST1(01, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
 TEST1(02, @"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
@@ -274,6 +297,8 @@ TEST1(03c, @"/tmp/lock.tiff//", stringByDeletingPathExtension, @"/tmp/lock");	//
 TEST1(04, @"/", stringByDeletingPathExtension, @"/");
 TEST1(05, @"tiff", stringByDeletingPathExtension, @"tiff");
 TEST1(06, @".", stringByDeletingPathExtension, @".");
+
+#if OLD_BEFORE_15
 TEST1(07, @"..", stringByDeletingPathExtension, @".");	// deletes one .
 TEST1(07b, @"...", stringByDeletingPathExtension, @"..");	// deletes one .
 TEST1(07c, @"....", stringByDeletingPathExtension, @"...");	// deletes one .
@@ -283,6 +308,17 @@ TEST1(08b, @"x.tiff", stringByDeletingPathExtension, @"x");
 TEST1(08c, @"x.", stringByDeletingPathExtension, @"x");
 TEST1(09, @"..tiff", stringByDeletingPathExtension, @".");
 TEST1(10, @"...tiff", stringByDeletingPathExtension, @"..");
+#else
+TEST1(07, @"..", stringByDeletingPathExtension, @"..");	// deletes one .
+TEST1(07b, @"...", stringByDeletingPathExtension, @"...");	// deletes one .
+TEST1(07c, @"....", stringByDeletingPathExtension, @"....");	// deletes one .
+TEST1(07d, @"..../", stringByDeletingPathExtension, @"....");	// deletes one . and the /
+TEST1(08, @".tiff", stringByDeletingPathExtension, @".tiff");
+TEST1(08b, @"x.tiff", stringByDeletingPathExtension, @"x");
+TEST1(08c, @"x.", stringByDeletingPathExtension, @"x.");
+TEST1(09, @"..tiff", stringByDeletingPathExtension, @"..tiff");
+TEST1(10, @"...tiff", stringByDeletingPathExtension, @"...tiff");
+#endif
 
 TEST1(01, @"~", stringByExpandingTildeInPath, NSHomeDirectory());
 TEST1(02, @"~/", stringByExpandingTildeInPath, NSHomeDirectory());

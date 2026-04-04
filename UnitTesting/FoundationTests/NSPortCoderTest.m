@@ -773,7 +773,7 @@ static NSHashTable *_allConnections;
 	XCTAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, @"");	// this tests portCoderForDecode:
 	// have=[pc decodeObject];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// NSString cannot decode class version 0
 }
 
 - (void) test44EncodeString
@@ -786,7 +786,7 @@ static NSHashTable *_allConnections;
 #if 0
 	// we would have to provide the correct version number to the string class...
 	have=[[[NSString alloc] initWithCoder:pc] autorelease];
-	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// NSString cannot decode class version 0
 #endif
 }
 
@@ -803,7 +803,7 @@ static NSHashTable *_allConnections;
 	id have;
 	NSPortCoder *pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	XCTAssertEqualObjects(have, @"String", @"");	// error: NSString cannot decode class version 0
+	XCTAssertEqualObjects(have, @"String", @"");	// NSString cannot decode class version 0
 }
 
 - (void) test46MutableString2

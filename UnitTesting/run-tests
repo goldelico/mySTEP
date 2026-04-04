@@ -1,0 +1,10 @@
+#!/bin/bash
+# run xctests
+
+# does not really work - run the xctests on macOS inside Xcode!
+
+TESTS=/usr/local/QuantumSTEP/Library/UnitTests
+
+# xcrun xctest -XCTest ClassA -XCTest ClassB/testMethod /Pfad/zu/MyTests.xctest
+
+xcrun xctest $TESTS/FoundationTests.xctest

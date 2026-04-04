@@ -43,7 +43,7 @@
 	XCTAssertFalse(NSIsEmptyRect(rect), @"NSIsEmptyRect");
 	XCTAssertTrue(NSEqualRects(rect, rect), @"NSIsEmptyRect");
 	XCTAssertFalse(NSEqualRects(rect, NSZeroRect), @"NSEqualRects");
-	XCTAssertEqualObjects(NSStringFromRect(rect), @"{{10, 20}, {30, 42.2}}", @"NSStringFromRect");
+	XCTAssertEqualObjects(NSStringFromRect(rect), @"{{10, 20}, {30, 42.200000000000003}}", @"NSStringFromRect");
 	XCTAssertTrue(NSEqualRects(NSRectFromString(@"{{10, 20}, {30, 42.2}}"), rect), @"NSStringFromRect");
 	XCTAssertTrue(NSEqualRects(NSRectFromString(@" { { 1e1, 20.000}, { 0030, 42.200}  }  "), rect), @"NSStringFromRect");
 	// check wrapping into NSValue
@@ -69,7 +69,7 @@
 	XCTAssertEqual(NSZeroPoint.y, (CGFloat) 0., @"point.y");
 	XCTAssertTrue(NSEqualPoints(point, point), @"NSEqualPoints");
 	XCTAssertFalse(NSEqualPoints(point, NSZeroPoint), @"NSEqualPoints");
-	XCTAssertEqualObjects(NSStringFromPoint(point), @"{10, 20.2}", @"NSStringFromPoint");
+	XCTAssertEqualObjects(NSStringFromPoint(point), @"{10, 20.199999999999999}", @"NSStringFromPoint");
 	XCTAssertTrue(NSEqualPoints(NSPointFromString(@"{10, 20.2}"), point), @"NSEqualPoints");
 	XCTAssertTrue(NSEqualPoints(NSPointFromString(@"  { 1e1, 20.200}  "), point), @"NSEqualPoints");
 }
@@ -83,7 +83,7 @@
 	XCTAssertEqual(NSZeroSize.height, (CGFloat) 0., @"");
 	XCTAssertTrue(NSEqualSizes(size, size), @"");
 	XCTAssertFalse(NSEqualSizes(size, NSZeroSize), @"");
-	XCTAssertEqualObjects(NSStringFromSize(size), @"{10, 20.2}", @"");
+	XCTAssertEqualObjects(NSStringFromSize(size), @"{10, 20.199999999999999}", @"");
 	XCTAssertTrue(NSEqualSizes(NSSizeFromString(@"{10, 20.2}"), size), @"");
 	XCTAssertTrue(NSEqualSizes(NSSizeFromString(@"  { 1e1, 20.200}  "), size), @"");
 }
@@ -93,7 +93,8 @@
 
 - (void) test60_User_and_Home
 {
-	XCTAssertEqualObjects(NSUserName(), [NSString stringWithUTF8String:getenv("LOGNAME")], @"");
+	if(getenv("LOGNAME"))
+		XCTAssertEqualObjects(NSUserName(), [NSString stringWithUTF8String:getenv("LOGNAME")], @"");
 #ifdef __mySTEP__
 	XCTAssertEqualObjects(NSHomeDirectory(), @"/Users/user", @"");
 	XCTAssertEqualObjects(NSHomeDirectoryForUser(NSUserName()), @"/Users/user", @"");

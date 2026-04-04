@@ -22,7 +22,9 @@
 - (void) test10
 {
 	NSURL *url;
+#ifdef BEFORE_15	// now is regected by compiler
 	XCTAssertThrowsSpecificNamed([NSURL URLWithString:nil], NSException, NSInvalidArgumentException, @"");
+#endif
 	XCTAssertThrowsSpecificNamed([NSURL URLWithString:(NSString *) [NSArray array]], NSException, NSInvalidArgumentException, @"");
 	XCTAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:(NSURL *) @"url"], @"");
 	// this can't be correctly tested
@@ -44,12 +46,21 @@
 	XCTAssertEqualObjects([url fragment], @"fragments", @"");
 	XCTAssertEqualObjects([url host], @"host.domain.org", @"");
 	XCTAssertFalse([url isFileURL], @"");
+#ifdef BEFOER_15
 	XCTAssertEqualObjects([url parameterString], @"param1;param2", @"");
 	XCTAssertEqualObjects([url password], @"password", @"");
 	XCTAssertEqualObjects([url path], @"/path/file name.htm", @"");
 	XCTAssertEqualObjects([url port], [NSNumber numberWithInt:888], @"");
 	XCTAssertEqualObjects([url query], @"something=other&andmore=more", @"");
 	XCTAssertEqualObjects([url relativePath], @"file name.htm", @"");
+#else	// parameterString is deprecated and returns nil and it is part of path/relativePath...
+	XCTAssertEqualObjects([url parameterString], nil, @"");
+	XCTAssertEqualObjects([url password], @"password", @"");
+	XCTAssertEqualObjects([url path], @"/path/file name.htm;param1;param2", @"");
+	XCTAssertEqualObjects([url port], [NSNumber numberWithInt:888], @"");
+	XCTAssertEqualObjects([url query], @"something=other&andmore=more", @"");
+	XCTAssertEqualObjects([url relativePath], @"file name.htm;param1;param2", @"");
+#endif
 	XCTAssertEqualObjects([url relativeString], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
 	XCTAssertEqualObjects([url resourceSpecifier], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments", @"");
 	XCTAssertEqualObjects([url scheme], @"scheme", @"");
@@ -161,6 +172,7 @@
 { // file: urls
 	NSURL *url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
 	XCTAssertEqualObjects([url scheme], @"file", @"");
+#ifdef BEFOER_15	// the file: host is localhost
 	XCTAssertEqualObjects([url host], @"localhost", @"");
 	XCTAssertNil([url user], @"");
 	XCTAssertNil([url password], @"");
@@ -177,6 +189,19 @@
 	 * characters not allowed in URLs are %-escaped
 	 * only allowed are alphanum and "$-_.+!*'()," and reserved characters ":@/"
 	 */
+#else
+	XCTAssertEqualObjects([url host], nil, @"");
+	XCTAssertNil([url user], @"");
+	XCTAssertNil([url password], @"");
+	XCTAssertEqualObjects([url resourceSpecifier], @"/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
+	XCTAssertEqualObjects([url path], @"/this#is a Path with % < > ?", @"");
+	XCTAssertNil([url query], @"");
+	XCTAssertNil([url parameterString], @"");
+	XCTAssertNil([url fragment], @"");
+	XCTAssertEqualObjects([url absoluteString], @"file:///this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
+	XCTAssertEqualObjects([url relativePath], @"/this#is a Path with % < > ?", @"");
+	XCTAssertEqualObjects([url description], @"file:///this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", @"");
+#endif
 }
 
 - (void) test15b
@@ -189,6 +214,7 @@
 	XCTAssertEqualObjects([url password], nil, @"");
 	XCTAssertEqualObjects([url port], nil, @"");
 	XCTAssertEqualObjects([url resourceSpecifier], @"/pathtofile;parameters?query#anchor", @"");
+#ifdef BEFORE_15
 	XCTAssertEqualObjects([url path], @"/pathtofile", @"");
 	XCTAssertEqualObjects([url query], @"query", @"");
 	XCTAssertEqualObjects([url parameterString], @"parameters", @"");
@@ -200,11 +226,21 @@
 	 * if created by fileURLWithPath, the host == "localhost"
 	 * if created by URLWithString: it is as specified
 	 */
+#else
+	XCTAssertEqualObjects([url path], @"/pathtofile;parameters", @"");
+	XCTAssertEqualObjects([url query], @"query", @"");
+	XCTAssertEqualObjects([url parameterString], nil, @"");
+	XCTAssertEqualObjects([url fragment], @"anchor", @"");
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;parameters?query#anchor", @"");
+	XCTAssertEqualObjects([url relativePath], @"/pathtofile;parameters", @"");
+	XCTAssertEqualObjects([url description], @"file:///pathtofile;parameters?query#anchor", @"");
+#endif
 }
 
 - (void) test15c
 {
 	NSURL *url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];
+#ifdef BEFORE_15
 	XCTAssertEqualObjects([url absoluteString], nil, @"");
 	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
 	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;%20parameters?%20query%20#anchor", @"");
@@ -216,6 +252,15 @@
 	 * can't have spaces or invalid characters in parameters or query part
 	 * having %20 is ok
 	 */
+#else	// knows about UTF8 and %-reencodes the absoulte string
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;%20parameters?%20query%20#anchor", @"");
+	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
+	XCTAssertEqualObjects([url absoluteString], @"file:///pathtofile;%20parameters?%20query%20#anchor", @"");
+	url=[NSURL URLWithString:@"http:///this#is a Path with % < > ? # anything!§$%&/"];
+	XCTAssertEqualObjects([url absoluteString], @"http:///this#is%20a%20Path%20with%20%25%20%3C%20%3E%20?%20%23%20anything!%C2%A7$%25&/", @"");
+	url=[NSURL URLWithString:@"http:///validpath#butanythingfragment!§$%&/"];
+	XCTAssertEqualObjects([url absoluteString], @"http:///validpath#butanythingfragment!%C2%A7$%25&/", @"");
+#endif
 }
 
 - (void) test15d
@@ -690,13 +735,13 @@
 	XCTAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456788/", @"");
 	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", @"");
 	url=[NSURL URLWithString:@"https://localhost:abc/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:abc/", @"");
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:abc/", @"");
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", @"");
+	XCTAssertEqualObjects([url description], nil, @"");
+	XCTAssertEqualObjects([url absoluteString], nil, @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], nil, @"");
 	url=[NSURL URLWithString:@"https://localhost:01234abc/"];
-	XCTAssertEqualObjects([url description], @"https://localhost:01234abc/", @"");
-	XCTAssertEqualObjects([url absoluteString], @"https://localhost:01234abc/", @"");
-	XCTAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", @"");
+	XCTAssertEqualObjects([url description], nil, @"");
+	XCTAssertEqualObjects([url absoluteString], nil, @"");
+	XCTAssertEqualObjects([[url standardizedURL] description], nil, @"");
 	url=[NSURL URLWithString:@"https://localhost:0000/"];
 	XCTAssertEqualObjects([url description], @"https://localhost:0000/", @"");
 	XCTAssertEqualObjects([url absoluteString], @"https://localhost:0000/", @"");
@@ -772,6 +817,7 @@
 	NSURL *url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent.extension;fragment?query=something#anchor"];
 	XCTAssertEqualObjects([url description], @"http://localhost:0080/path/with/lastpathcomponent.extension;fragment?query=something#anchor", @"");
 
+#if BEFORE_15
 	XCTAssertEqualObjects([url pathComponents], ([NSArray arrayWithObjects:@"/", @"path", @"with", @"lastpathcomponent.extension", nil]), @"");
 
 	XCTAssertEqualObjects([url lastPathComponent], @"lastpathcomponent.extension", @"");
@@ -797,6 +843,33 @@
 	url=[NSURL URLWithString:@"http://localhost:0080/"];
 	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/", @"");
 	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/", @"");
+#else	// now keeps fragment
+	XCTAssertEqualObjects([url pathComponents], ([NSArray arrayWithObjects:@"/", @"path", @"with", @"lastpathcomponent.extension;fragment", nil]), @"");
+
+	XCTAssertEqualObjects([url lastPathComponent], @"lastpathcomponent.extension;fragment", @"");
+	XCTAssertEqualObjects([url pathExtension], @"extension;fragment", @"");
+
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/?query=something#anchor", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent?query=something#anchor", @"");
+
+	// we should test sdditional special cases:
+	// was mach macOS hier???
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/lastpathcomponent."];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/lastpathcomponent.", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/path/with/.extension"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/path/with/", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/path/with/.extension", @"");
+
+	url=[NSURL URLWithString:@"http://localhost:0080/"];
+	XCTAssertEqualObjects([[url URLByDeletingLastPathComponent] description], @"http://localhost:0080/../", @"");
+	XCTAssertEqualObjects([[url URLByDeletingPathExtension] description], @"http://localhost:0080/", @"");
+#endif
 }
 
 
@@ -824,9 +897,9 @@
 	RFC3986("#s"            ,  "http://a/b/c/d;p?q#s");
 	RFC3986("g#s"           ,  "http://a/b/c/g#s");
 	RFC3986("g?y#s"         ,  "http://a/b/c/g?y#s");
-#if 0	// what we should get
+#if 1	// what we should get
 	RFC3986(";x"            ,  "http://a/b/c/;x");
-#else	// Cocoa does not treat ";" as empty path component to replace d
+#else	// older Cocoa does not treat ";" as empty path component to replace d
 	RFC3986(";x"            ,  "http://a/b/c/d;x");
 #endif
 	RFC3986("g;x"           ,  "http://a/b/c/g;x");
@@ -854,10 +927,10 @@
 	 used to change the authority component of a URI.
 	 */
 	
-#if 0	// what we should get
+#if 1	// what we should get
 	RFC3986("../../../g"    ,  "http://a/g");
 	RFC3986("../../../../g" ,  "http://a/g");
-#else		// Cocoa keeps every second ../
+#else		// older Cocoa keeps every second ../
 	RFC3986("../../../g"    ,  "http://a/../g");
 	RFC3986("../../../../g" ,  "http://a/../../g");
 #endif
@@ -889,10 +962,10 @@
 	RFC3986("./g/."         ,  "http://a/b/c/g/");
 	RFC3986("g/./h"         ,  "http://a/b/c/g/h");
 	RFC3986("g/../h"        ,  "http://a/b/c/h");
-#if 0	// what we should get according to RFC3986 (which means that ./ and ../ should also be standardized in ;parameters!
+#if 1	// what we should get according to RFC3986 (which means that ./ and ../ should also be standardized in ;parameters!
 	RFC3986("g;x=1/./y"     ,  "http://a/b/c/g;x=1/y");
 	RFC3986("g;x=1/../y"    ,  "http://a/b/c/y");
-#else		// Cocoa does not standardize in parameters
+#else		// older Cocoa does not standardize in parameters
 	RFC3986("g;x=1/./y"     ,  "http://a/b/c/g;x=1/./y");
 	RFC3986("g;x=1/../y"    ,  "http://a/b/c/g;x=1/../y");
 #endif

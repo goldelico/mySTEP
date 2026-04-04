@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 
-@interface NSXMLTest : XCTestCase
+@interface NSXMLTest : XCTestCase <NSXMLParserDelegate>
 {
 	NSXMLDocument *doc;
 	NSString *str;
@@ -87,7 +87,7 @@
 { // without <?xml>
 	NSString *s=@"<SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State/></CMD></SMARTPLUG>";
 	NSXMLDocument *d=[[[NSXMLDocument alloc] initWithXMLString:s options:0 error:NULL] autorelease];
-	NSString *wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State></Device.System.Power.State></CMD></SMARTPLUG>";
+	NSString *wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><SMARTPLUG id=\"letux\"><CMD id=\"get\"><Device.System.Power.State></Device.System.Power.State></CMD></SMARTPLUG>";
 	XCTAssertEqualObjects([d XMLString], wants);
 	/* this differs between Cocoa and mySTEP
 	 * Cocoa leaves it upper case while mySTEP treats this as a html document and converts all tags to lower case
@@ -102,7 +102,7 @@
 	d=[[[NSXMLDocument alloc] initWithXMLString:s options:0 error:NULL] autorelease];
 	XCTAssertNil(d);	// not parsed
 	d=[[[NSXMLDocument alloc] initWithXMLString:s options:NSXMLDocumentTidyHTML error:NULL] autorelease];
-	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>test</title></head><body>OK</body></html>";
+	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>test</title></head><body>OK</body></html>";
 #if 0
 	NSLog(@"%@", [[d XMLString] dataUsingEncoding:NSUTF8StringEncoding]);
 	NSLog(@"%@", [wants dataUsingEncoding:NSUTF8StringEncoding]);
@@ -110,7 +110,7 @@
 	XCTAssertEqualObjects([d XMLString], wants);
 	s=@"<h1>OK</h1>";	// very simple html without <html> tag
 	d=[[[NSXMLDocument alloc] initWithXMLString:s options:NSXMLDocumentTidyHTML error:NULL] autorelease];
-	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><h1>OK</h1>";
+	wants=@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><h1>OK</h1>";
 	XCTAssertEqualObjects([d XMLString], wants);
 }
 
@@ -123,12 +123,12 @@
 	XCTAssertFalse([d isStandalone]);
 	XCTAssertEqualObjects([d XMLString], @"");	// but not printed!
 	[d setCharacterEncoding:@"UTF9"];	// unless we modify the object
-	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.0\" encoding=\"UTF9\" standalone=\"no\"?>");	// default of  [NSXMLDocument init] is standalone "no"
+	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.0\" encoding=\"UTF9\"?>");	// default of  [NSXMLDocument init] is standalone "no"
 	XCTAssertNil([d version]);	// version="1.0" is just a default for printing
 	[d setCharacterEncoding:nil];	// back to default
 	XCTAssertEqualObjects([d XMLString], @"");
 	[d setVersion:@"1.1"];	// unless we modify the object
-	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.1\" standalone=\"no\"?>");	// encoding can be omitted
+	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.1\"?>");	// encoding can be omitted
 	[d setStandalone:YES];
 	XCTAssertTrue([d isStandalone]);
 	XCTAssertEqualObjects([d XMLString], @"<?xml version=\"1.1\" standalone=\"yes\"?>");	// standalone is always present
