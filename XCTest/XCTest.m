@@ -7,7 +7,8 @@
 //  This is a wrapper around SenTestingKit to provide the newer XCTest API
 //
 
-#import <XCTest/XCTest.h>
+#import "XCTest.h"
+// #import <XCTest/XCTest.h>
 
 #ifdef __mySTEP__
 
