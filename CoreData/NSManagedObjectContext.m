@@ -23,6 +23,7 @@
  */
 
 #import "CoreDataHeaders.h"
+#import "GSPersistentStore.h"
 
 id NSErrorMergePolicy = nil,
    NSMergeByPropertyStoreTrumpMergePolicy = nil,
@@ -331,7 +332,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if (_storeCoordinator == nil)
     {
       [NSException raise: NSInternalInconsistencyException
-                  format:
+                  format: @"%@",
         _(@"-[NSManagedObjectContext save:]: Cannot save a managed "
           @"object context which isn't connected to a persistent store "
           @"coordinator.")];
@@ -663,7 +664,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if (![object isKindOfClass: [NSManagedObject class]])
     {
       [NSException raise: NSInvalidArgumentException
-                  format:
+				  format: @"%@",
         _(@"-[NSManagedObjectContext assignObject:toPersistentStore:]: "
           @"Non-managed-object passed.")];
     }
@@ -671,7 +672,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if (_storeCoordinator == nil)
     {
       [NSException raise: NSInternalInconsistencyException
-                  format:
+				  format: @"%@",
         _(@"-[NSManagedObjectContext assignObject:toPersistentStore:]: "
           @"Cannot assign an object to a store in a context that isn't "
           @"connected to a persistent store coordinator.")];
@@ -680,7 +681,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if (![[_storeCoordinator persistentStores] containsObject: store])
     {
       [NSException raise: NSInvalidArgumentException
-                  format:
+				  format: @"%@",
         _(@"-[NSManagedObjectContext assignObject:toPersistentStore:]: "
           @"Cannot assign an object to a store which isn't in the "
           @"persistent store with which the context in which the object "
@@ -698,7 +699,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if ([_insertedObjects containsObject: object] == NO)
     {
       [NSException raise: NSInvalidArgumentException
-                  format:
+				  format: @"%@",
         _(@"-[NSManagedObjectContext assignObject:toPersistentStore:]: "
           @"Cannot assign an object to a persistent store which hasn't "
           @"been inserted.")];
@@ -747,7 +748,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   if (propertyValues == nil)
     {
       [NSException raise: NSInvalidArgumentException
-                  format:
+				  format: @"%@",
         _(@"-[NSManagedObjectContext refreshObject:mergeChanges:]: "
           @"Cannot refresh object - data for object doesn't exist in "
           @"the persistent store.")];

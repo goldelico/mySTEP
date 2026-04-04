@@ -224,7 +224,7 @@
   model = [_entity managedObjectModel];
   if (model != nil && [model _isEditable] == NO)
     {
-      [NSException raise: NSGenericException format: _(reason)];
+      [NSException raise: NSGenericException format:@"%@", _(reason)];
     }
 }
 

@@ -140,7 +140,7 @@
 {
   if ([otherObject isKindOfClass: [NSManagedObjectID class]])
     {
-      return [self isEqualToManagedObjectID: otherObject];
+      return [self _isEqualToManagedObjectID: otherObject];
     }
   else
     {

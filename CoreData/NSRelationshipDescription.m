@@ -67,7 +67,7 @@
     ![[_destinationEntity properties] containsObject: relationship])
     {
       [NSException raise: NSInvalidArgumentException
-                  format: _(@"Tried to set inverse relationship which is not in the destination entity.")];
+                  format: @"%@", _(@"Tried to set inverse relationship which is not in the destination entity.")];
     }
 
   _inverseRelationship = relationship;
@@ -97,7 +97,7 @@
   if (aCount > _maxCount)
     {
       [NSException raise: NSInvalidArgumentException
-                  format: _(@"Tried to set minimum count of a relationship "
+                  format: @"%@", _(@"Tried to set minimum count of a relationship "
                             @"higher than it's maximum count")];
     }
 

@@ -75,7 +75,7 @@ static NSMutableDictionary * persistentStoreTypes = nil;
   if ([newClass isKindOfClass: [GSPersistentStore class]] == NO)
     {
       [NSException raise: NSInvalidArgumentException
-                  format: _(@"When adding a new store type, you must "
+                  format: _(@"When adding a new store type \"%@\", you must "
                             @"do so by subclassing GSPersistentStore "
                             @"and implementing it's abstract methods."),
                             [newClass className]];

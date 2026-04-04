@@ -72,7 +72,7 @@
 // subclasses must override these methods
 
 - (NSString *) storeType;
-- (unsigned long long) highestIDValue;
+- (unsigned long long) nextFreeIDValue;
 - (NSDictionary *) fetchObjectsWithEntity: (NSEntityDescription *) entity
                                 predicate: (NSPredicate *) predicate
                                     error: (NSError **) error;

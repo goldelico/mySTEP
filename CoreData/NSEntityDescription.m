@@ -32,7 +32,7 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
 {
   if (model != nil && [model _isEditable] == NO)
     {
-      [NSException raise: NSGenericException format: reason];
+      [NSException raise: NSGenericException format: @"%@", reason];
     }
 }
 

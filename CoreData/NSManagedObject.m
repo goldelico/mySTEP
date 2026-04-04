@@ -731,8 +731,8 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
   else
     {
       [NSException raise: NSInvalidArgumentException //NSUnknownKeyException
-                  format: _(@"Invalid key specified. The key does not "
-                            @"exist in the model.")];
+                  format: _(@"Invalid key specified. The key \"%@\" does not "
+                            @"exist in the model."), key];
 
       return nil;
     }

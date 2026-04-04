@@ -45,13 +45,13 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
       if (entityName == nil)
         {
           [NSException raise: NSInvalidArgumentException
-                      format: _(@"Tried to add an entity without a name "
+                      format: @"%@", _(@"Tried to add an entity without a name "
             @"to a managed object model.")];
         }
       if ([knownNames containsObject: entityName])
         {
           [NSException raise: NSInvalidArgumentException
-                      format: _(@"Tried to add several entities with the "
+                      format: @"%@", _(@"Tried to add several entities with the "
             @"same name to a managed object model.")];
         }
       [knownNames addObject: entityName];
@@ -91,7 +91,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
       if ([ent managedObjectModel] != nil && [ent managedObjectModel] != self)
         {
           [NSException raise: NSInvalidArgumentException
-                      format: _(@"Passed an entity to an object model already "
+                      format: @"%@", _(@"Passed an entity to an object model already "
                                 @"in use by some other model")];
         }
       [ent _addReferenceToManagedObjectModel: self];
@@ -115,7 +115,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   if (_usedByPersistentStoreCoordinators)
     {
       // which exception to raise??
-      [NSException raise: NSGenericException format: _(reason)];
+      [NSException raise: NSGenericException format: @"%@", _(reason)];
     }
 }
 
@@ -391,7 +391,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   if (_usedByPersistentStoreCoordinators)
     {
       [NSException raise: NSGenericException
-                  format: _(@"Tried to set a fetch request template "
+                  format: @"%@", _(@"Tried to set a fetch request template "
                              @"for a managed object model already in use "
                              @"by an object graph manager.")];
     }
@@ -412,7 +412,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   if (_usedByPersistentStoreCoordinators)
     {
       [NSException raise: NSGenericException
-                  format: _(@"Tried to remove a fetch request template "
+                  format: @"%@", _(@"Tried to remove a fetch request template "
                             @"from a managed object model already in use "
                             @"by an object graph manager.")];
     }

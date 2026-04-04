@@ -28,6 +28,12 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifdef __APPLE__
+struct drand48_data {};
+#define lrand48_r(randomizerSetup, result) lrand48()
+#define srand48_r(seed, randomizerSetup) srand48(seed)
+#endif
+
 #ifdef HAVE_NATIVE_OBJC_EXCEPTIONS
 # define SUBCLASS_OVERRIDE_ERROR \
    @throw [NSException exceptionWithName: NSInternalInconsistencyException \
@@ -70,7 +76,7 @@ GenerateNewRandomUUID (void)
     {
       long int result;
       lrand48_r (&randomizerSetup, &result);
-      hexaValue = [NSString stringWithFormat: @"%@%X", hexaValue, result];
+      hexaValue = [NSString stringWithFormat: @"%@%lX", hexaValue, result];
     }
 
   [randomizerLock unlock];
