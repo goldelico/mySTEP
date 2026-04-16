@@ -299,7 +299,7 @@ endif	# $(TRIPLE)
 
 DOXYGEN := /Applications/Doxygen.app/Contents/Resources/doxygen
 # disable special macOS stuff for tar
-TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /opt/local/bin/gnutar
+TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true LANG=C /opt/local/bin/gnutar
 # IBTOOL := export SWIFT_DEBUG_INFORMATION_FORMAT=dwarf SWIFT_DEBUG_INFORMATION_VERSION=compiler-default; ibtool
 IBTOOL := unset SWIFT_DEBUG_INFORMATION_FORMAT SWIFT_DEBUG_INFORMATION_VERSION; ibtool
 IBTOOL := ibtool
@@ -333,7 +333,7 @@ TOOLCHAIN := /usr
 
 # compile on Linux
 DOXYGEN := doxygen
-TAR := tar
+TAR := LANG=C tar
 IBTOOL := :
 ROOT := root
 
@@ -1509,7 +1509,7 @@ ifeq ($(INSTALL),true)
 			$(D)/staging/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
 			do [ -r "$$PKG" ] && break; done; \
 		[ -x "$(DPKG)" -a -r "$$PKG" ] && echo "  DPKG  $$PKG" && $(DPKG) -i "$$PKG" && echo +++ installed "$$PKG" +++ \
-		||	{ echo "  COPY  $(PKG)"; \
+		||	{ echo "  COPY  $(PKG)/$(NAME_EXT)"; \
 			[ -x "$(PKG)/../$(PRODUCT_NAME)" ] && echo "  NAME  $(PRODUCT_NAME)" && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; \
 			if [ -d "$(PKG)" ] ; then echo "  COPY  $(PKG)/$(NAME_EXT) to $(HOST_INSTALL_PATH)" && rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi; \
 			[ "$(DEBIAN_RAW_FILES)" ] && echo "  COPY  raw files to $(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) cf - --exclude .DS_Store --exclude .svn -C $(PWD)/$(DEBIAN_RAW_SUBDIR) $(DEBIAN_RAW_FILES) | (cd "$(HOST_INSTALL_PATH)/$(DEBIAN_RAW_PREFIX)" && $(TAR) xvf -); \
