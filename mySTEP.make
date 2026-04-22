@@ -632,13 +632,14 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
 			echo check "$$DEBIAN_RELEASE/$$DEBIAN_ARCH"; \
-			case "$$DEBIAN_RELEASE/$$DEBIAN_ARCH" in \
-				 any/*-apple | staging/*-apple | darwin*/*-apple ) : ok;; \
-				 darwin*/* ) continue;; \
-				 etch/arm64 | lenny/arm64 | squeeze/arm64 | wheezy/arm64 ) continue;; \
-				 etch/riscv64 | lenny/riscv64 | squeeze/riscv64 | wheezy/riscv64 | jessie/riscv64 | stretch/riscv64 ) continue;; \
-				 forky/mipsel ) continue;; \
-				 */*-apple ) continue;; \
+			case "$$DEBIAN_RELEASE/$$DEBIAN_ARCH/$$PHASE" in \
+				 any/*-apple/* | staging/*-apple/* | darwin*/*-apple/* ) : ok;; \
+				 darwin*/*/* ) continue;; \
+				 etch/arm64/* | lenny/arm64/* | squeeze/arm64/* | wheezy/arm64/* ) continue;; \
+				 etch/riscv64/* | lenny/riscv64/* | squeeze/riscv64/* | wheezy/riscv64/* | jessie/riscv64/* | stretch/riscv64/* ) continue;; \
+				 forky/mipsel/* ) continue;; \
+				 */*-apple/* ) continue;; \
+				 */php/build_deb ) continue;; \
 			esac; \
 			echo "  ARCH $$DEBIAN_ARCH ($$DEBIAN_RELEASE) "; \
 			case "$$DEBIAN_ARCH" in \
@@ -1254,7 +1255,7 @@ ifneq ($(WRAPPER_EXTENSION),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
-	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
+	# find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 else
 	# remove foreign architectures for tools
 	# TRIPLE: $(TRIPLE)
@@ -1341,6 +1342,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	$(QUIET)chmod -Rf u+w "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)" 2>/dev/null || true
 ifneq (0,0)	#	($(TRIPLE),)
 	# remove foreign architectures in /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/ except $(TRIPLE)
+	# NO - keep them all!!!
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -name '*-linux-gnu*' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/MacOS' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
 	find "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/" -maxdepth 1 "(" -path '*/php' ! -name "$(T)" ")" -prune -print -exec rm -rf {} ";"
