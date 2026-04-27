@@ -193,7 +193,9 @@ else
 DEBIAN_PACKAGE_NAME := $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENSION)" | tr "[:upper:]" "[:lower:]")
 endif
 endif
-DEBIAN_PACKAGE_NAME := $(shell echo $(DEBIAN_PACKAGE_NAME) | tr '_' '-')
+ifeq ($(shell echo "$(DEBIAN_PACKAGE_NAME)" | grep -E "^[-+.a-z0-9]+$$"),)
+  $(error ERROR: $(DEBIAN_PACKAGE_NAME) contains invalid characters. Only a-z and 0-9 and + - or . are allowed.)
+endif
 
 ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 
