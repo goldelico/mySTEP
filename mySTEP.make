@@ -50,7 +50,6 @@ QUIET=@
 #   (+) NOCOMPILE - default: no
 #   (+) BUILT_PRODUCTS_DIR - default: build/Deployment
 #   (+) TARGET_BUILD_DIR - default: build/Deployment
-#   (+) PHPONLY - build only PHP ("true", "no") - default: no
 #   (+) RECURSIVE - build subprojects first ("true", "no") - default: no
 #   (+) BUILD_FOR_DEPLOYMENT - default: no
 #   (+) OPTIMIZE - optimize level - default: s
