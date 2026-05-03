@@ -2,7 +2,7 @@
 
 	/*
 	 * Foundation.framework
-	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2017
+	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012-2026
 	 * All rights reserved.
 	 */
 
@@ -1239,7 +1239,7 @@ class NSDate extends NSObject
 			return new NSDate(date_timestamp_get($dt));
 		$dt=date_create_from_format("Y-m-d|", $string);	// try again as DATE (YYYY-MM-DD)
 		$errs=date_get_last_errors();
-		if($errs['error_count'] + $errs['warning_count'] == 0)
+		if(!$errs || ($errs['error_count'] + $errs['warning_count'] == 0))
 			return new NSDate(date_timestamp_get($dt));
 _NSLog("dateWithSQLDateTime conversion error for: $string");
 _NSLog($errs);
