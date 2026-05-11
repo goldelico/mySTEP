@@ -82,7 +82,7 @@ QUIET=@
 #   (*) DEBIAN_HOMEPAGE - www.quantum-step.com
 #   (*) DEBIAN_DESCRIPTION - a description text
 #   (*) DEBIAN_MAINTAINER
-#   (*) DEBIAN_SECTION - e.g. x11
+#   (*) DEBIAN_SECTION - e.g. contrib/x11 - see https://www.debian.org/doc/debian-policy/ch-archive.html#s-subsections
 #   (*) DEBIAN_PRIORITY - e.g. optional
 #   (*) DEBIAN_NOPACKAGE - don't build packages
 #   (*) FILES - more files to include (e.g. binaries) relative to INSTALL_PATH (deprecated)
@@ -223,6 +223,7 @@ ifeq ($(DEBIAN_MAINTAINER),)
 DEBIAN_MAINTAINER := info <info@goldelico.com>
 endif
 ifeq ($(DEBIAN_SECTION),)
+# contrib/x11?
 DEBIAN_SECTION := x11
 endif
 ifeq ($(DEBIAN_PRIORITY),)
@@ -235,9 +236,16 @@ endif
 ifeq ($(DEBIAN_RELEASE),)
 DEBIAN_RELEASE := staging
 endif
+ifeq ($(DEBIAN_AREA),)
+DEBIAN_AREA=$(shell echo "$(DEBIAN_SECTION)" | fgrep / | cut -d '/' -f 1)
+ifeq ($(DEBIAN_AREA),)
+# contrib?
+DEBIAN_AREA := main
+endif
+endif
 # should be used inside quotes only
 ifeq ($(DEBDIST),)
-DEBDIST := $(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/main
+DEBDIST := $(QuantumSTEP)/System/Installation/Debian/dists/$(DEBIAN_RELEASE)/$(DEBIAN_AREA)
 endif
 
 ifeq ($(shell uname -s),Darwin)
@@ -609,6 +617,7 @@ build_architectures:
 	@echo build_architectures
 	@echo PATH: $(PATH)
 	# DEBIAN_RELEASE: $(DEBIAN_RELEASE)
+	# DEBIAN_AREA: $(DEBIAN_AREA)
 	# DEBIAN_PACKAGE_VERSION: $(DEBIAN_PACKAGE_VERSION)
 	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
 	# DEBIAN_ARCH: $(DEBIAN_ARCH)
@@ -1505,14 +1514,15 @@ install_local:
 ifeq ($(INSTALL),true)
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
+	# SUDO_ASKPASS: $(SUDO_ASKPASS)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
 	$(QUIET)- 	for PKG in \
-			$(D)/$(SUITE)/main/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-			$(D)/$(SUITE)/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb \
-			$(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-			$(D)/staging/main/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
+			$(D)/$(SUITE)/$(DEBIAN_AREA)/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/$(SUITE)/$(DEBIAN_AREA)/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb \
+			$(D)/staging/$(DEBIAN_AREA)/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+			$(D)/staging/$(DEBIAN_AREA)/binary-$(DEBIAN_INSTALL_ARCH)/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_$(DEBIAN_INSTALL_ARCH).deb ; \
 			do [ -r "$$PKG" ] && break; done; \
-		[ -x "$(DPKG)" -a -r "$$PKG" ] && echo "  DPKG  $$PKG" && $(DPKG) -i "$$PKG" && echo +++ installed "$$PKG" +++ \
+		[ -x "$(DPKG)" -a -r "$$PKG" ] && echo "  DPKG  $$PKG" && export SUDO_ASKPASS="$(SUDO_ASKPASS)" && $(DPKG) -i "$$PKG" && echo +++ installed "$$PKG" +++ \
 		||	{ echo "  COPY  $(PKG)/$(NAME_EXT)"; \
 			[ -x "$(PKG)/../$(PRODUCT_NAME)" ] && echo "  NAME  $(PRODUCT_NAME)" && cp -f "$(PKG)/../$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(PRODUCT_NAME)"; \
 			if [ -d "$(PKG)" ] ; then echo "  COPY  $(PKG)/$(NAME_EXT) to $(HOST_INSTALL_PATH)" && rsync -avz --exclude .svn --exclude .DS_Store "$(PKG)/$(NAME_EXT)" "$(HOST_INSTALL_PATH)" && (pwd; chmod -Rf u+w '$(HOST_INSTALL_PATH)/$(NAME_EXT)' 2>/dev/null); fi; \
@@ -1549,10 +1559,10 @@ ifeq ($(DEPLOY),true)
 			SUITE=$$($(DOWNLOAD_TOOL) $$DEV fgrep VERSION= /etc/os-release </dev/null 2>/dev/null | sed 's/.*(\(.*\)).*/\1/' ); \
 			[ "$$SUITE" ] || SUITE=darwin$$($(DOWNLOAD_TOOL) $$DEV uname -r | cut -d . -f 1); \
 			echo looking up $(DEBIAN_PACKAGE_NAME).deb for $$ARCH and $$SUITE; \
-			for PKG in $(D)/$$SUITE/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-					   $(D)/$$SUITE/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb \
-					   $(D)/staging/main/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
-					   $(D)/staging/main/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb; \
+			for PKG in $(D)/$$SUITE/$(DEBIAN_AREA)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+					   $(D)/$$SUITE/$(DEBIAN_AREA)/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb \
+					   $(D)/staging/$(DEBIAN_AREA)/binary-all/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
+					   $(D)/staging/$(DEBIAN_AREA)/binary-$$ARCH/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_PACKAGE_VERSION)_$$ARCH.deb; \
 				do [ -r "$$PKG" ] && break; done; \
 			if [ -r "$$PKG" ]; then \
 				BASE=$$(basename "$$PKG"); \
