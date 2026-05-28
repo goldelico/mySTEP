@@ -22,6 +22,12 @@
 
 @class NSImage, NSColor, NSNotification;
 
+enum NSSplitViewDividerStyle {
+	NSSplitViewDividerStyleThick,
+	NSSplitViewDividerStyleThin,
+	NSSplitViewDividerStylePaneSplitter,
+};
+
 @interface NSSplitView : NSView
 {
 	id _delegate;
@@ -31,14 +37,15 @@
 	NSColor *dividerColor;
 	NSString*_autosaveName;
 	int _dividerThickness;
+	int _dividerStyle;
 	int _draggedBarWidth;
 	BOOL _isVertical;
-	BOOL _isPaneSplitter;
 }
 
 - (void) adjustSubviews;
 - (NSString *) autosaveName;
 - (id) delegate;
+- (int) dividerStyle;
 - (CGFloat) dividerThickness;  		// defaults to 8
 - (void) drawDividerInRect:(NSRect) aRect; 
 - (BOOL) isPaneSplitter; 
@@ -49,7 +56,8 @@
 - (void) setAutosaveName:(NSString *) name; 
 - (void) setDelegate: (id)anObject;
 - (void) setIsPaneSplitter:(BOOL) flag; 
-- (void) setPosition:(CGFloat) pos ofDividerAtIndex:(NSInteger) index; 
+- (int) setDividerStyle:(int) style;
+- (void) setPosition:(CGFloat) pos ofDividerAtIndex:(NSInteger) index;
 - (void) setVertical: (BOOL) flag;
 
 @end
