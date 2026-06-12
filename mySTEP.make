@@ -1789,6 +1789,7 @@ endif	# ($(TRIPLE),php)
 
 "$(EXEC)":: bundle headers resources
 	# BASE_OS: $(BASE_OS)
+	# TOOLCHAIN: $(TOOLCHAIN)
 	# TRIPLE: $(TRIPLE)
 	# TTT: $(TTT)
 	# INCLUDES: $(INCLUDES)
