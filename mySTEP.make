@@ -161,6 +161,7 @@ ifeq ($(TRIPLE),riscv64-linux-gnu)
 TOOLCHAIN_FALLBACK := 10-Buster
 DEBIAN_RELEASE_FALLBACK := buster
 endif
+
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( etch ) echo "4-Etch";; \
 	( lenny ) echo "5-Lenny";; \
@@ -178,8 +179,10 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( darwin23 ) echo "14-Sonoma";; \
 	( darwin24 ) echo "15-Sequoia";; \
 	( darwin26 ) echo "26-Tahoe";; \
-	( * ) echo "$(TOOLCHAIN_FALLBACK)";; \
+	( * ) ( cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE) && ls -1d [1-9]*-*/$(DEBIAN_ARCH)/usr/bin/$(TRIPLE)-gcc 2>/dev/null | cut -d / -f 1 | sort -V | tail -1);; \
 	esac;}
+
+DEBIAN_RELEASE_FALLBACK := $(shell echo $(DEBIAN_RELEASE_TRANSLATED) | cut -d - -f 2 | tr [A-Z] [a-z])
 
 DOWNLOAD_TOOL := $(QuantumSTEP)/usr/bin/qsrsh
 XHOST_TOOL := /opt/X11/bin/xhost
@@ -291,8 +294,6 @@ T=$(TRIPLE)
 PHAR := $(shell which phar)
 else
 # cross-compile on Darwin
-# FIXME: find the first DEBIAN_RELEASE_TRANSLATED where we have a usr/bin/$(TRIPLE)-gcc
-# FIXME: should check if toolchain is really installed...
 TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
 
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
@@ -573,9 +574,11 @@ endif
 
 ifeq ($(NOCOMPILE),true)
 build:	build_subprojects build_sh build_doxy build_architectures install_local
+	# done build nocompile
 else
 build:	build_subprojects build_sh build_doxy build_architectures deploy_remote launch_remote
 endif
+	# done build
 	@echo build done for: $(DEBIAN_ARCHITECTURES)
 	@date
 
@@ -1577,6 +1580,7 @@ ifeq ($(DEPLOY),true)
 		fi; \
 		done
 endif
+	# done deploy_remote
 
 launch_remote:
 ifeq ($(DEPLOY),true)
@@ -1596,6 +1600,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 endif
 endif
 endif
+	# done launch_remote
 
 # generic bundle rule
 
