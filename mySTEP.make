@@ -631,6 +631,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 # take only the release of the RUN device?
 # note: these shell commands do NOT automatically inherit the variables defined in this Makefile!
 	@echo DEBIAN_RELEASES: $(DEBIAN_RELEASES); \
+	unset IPHONEOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET TVOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET DRIVERKIT_DEPLOYMENT_TARGET; \
 	for PHASE in make_binary build_deb; do \
 	echo "  PHASE $$PHASE"; \
 	for DEBIAN_RELEASE in $(DEBIAN_RELEASES); do \
@@ -1022,6 +1023,7 @@ make_exec: "$(EXEC)"
 	# make exec "$(EXEC)"
 
 make_binary: make_exec "$(BINARY)"
+	# make binary "$(EXEC)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 ifeq ($(WRAPPER_EXTENSION),app)
