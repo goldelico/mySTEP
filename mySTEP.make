@@ -109,6 +109,9 @@ QUIET=@
 
 endif
 
+# experimental
+# JOBS := -j 13 #  --output-sync=target
+
 # makefile debug hack https://www.cmcrossroads.com/article/tracing-rule-execution-gnu-make
 
 ifeq (yes,no)
@@ -263,8 +266,9 @@ ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 # native compile on Darwin for Darwin
 TOOLCHAIN := /usr/bin
 SDK := $(shell xcrun --show-sdk-path)
-CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang
-CXX := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang
+# could make the -arch flags depend on what we find in DEBIAN_ARCHS
+CC := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang -arch x86_64 -arch arm64
+CXX := MACOSX_DEPLOYMENT_TARGET=10.6 $(TOOLCHAIN)/clang -arch x86_64 -arch arm64
 OBJCXXFLAGS := -stdlib=libc++ -std=gnu++11 -x objective-c++
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
@@ -544,7 +548,7 @@ ifeq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space 
 DEBIAN_ARCHITECTURES := all
 else ifeq ($(shell uname -s),Darwin)	# we have a batch of native and cross-compilers
 # FIXME: find out which ones are really available
-DEBIAN_ARCHITECTURES := x86-64-apple armel armhf arm64 i386 mipsel riscv64
+DEBIAN_ARCHITECTURES := x86-64-apple arm64-apple armel armhf arm64 i386 mipsel riscv64
 else ifneq ($(DPKG),)	# ask dpkg
 DEBIAN_ARCHITECTURES := $(shell $(DPKG) --print-architecture) $(shell $(DPKG) --print-foreign-architectures)
 ifeq ($(DEBIAN_ARCHITECTURES),)	# no response, use build host
@@ -646,8 +650,9 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		export DEBIAN_RELEASE="$$DEBIAN_RELEASE"; \
 		for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 			EXIT=1; \
-			echo check "$$DEBIAN_RELEASE/$$DEBIAN_ARCH"; \
+			echo "  CHCK $$DEBIAN_RELEASE/$$DEBIAN_ARCH/$$PHASE"; \
 			case "$$DEBIAN_RELEASE/$$DEBIAN_ARCH/$$PHASE" in \
+				 */arm64-apple/make_binary ) continue;; \
 				 any/*-apple/* | staging/*-apple/* | darwin*/*-apple/* ) : ok;; \
 				 darwin*/*/* ) continue;; \
 				 etch/arm64/* | lenny/arm64/* | squeeze/arm64/* | wheezy/arm64/* ) continue;; \
@@ -672,10 +677,10 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 			esac; \
 			export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 			export TRIPLE="$$TRIPLE"; \
-			echo "*** building for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
+			echo "  BLD  $$PHASE for $$DEBIAN_RELEASE / $(DEBIAN_PACKAGE_VERSION) / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 			export | fgrep DEBIAN; \
-			$(QUIET)make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make $$PHASE; \
-			echo "*** done with $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
+			$(QUIET)make $(JOBS) -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make $$PHASE; \
+			echo "  DONE $$PHASE for $$DEBIAN_RELEASE / $$DEBIAN_PACKAGE_VERSION / $$DEBIAN_ARCH using $$TRIPLE ***"; \
 		done ;\
 	echo "$$DEBIAN_RELEASE" done; \
 	done; \
@@ -1027,19 +1032,21 @@ make_binary: make_exec "$(BINARY)"
 	$(QUIET) [ -f "$(BINARY)" ] && ls -l "$(BINARY)" || true
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 ifeq ($(WRAPPER_EXTENSION),app)
+	# create "$(ENTITLEMENTS)"
 	expr "$(ENTITLEMENTS)" : "/tmp/*" >/dev/null && echo >$(ENTITLEMENTS) '<?xml version="1.0" encoding="UTF-8"?> \
 	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"> \
 	<plist version="1.0"> \
 	<dict> \
-    <key>com.apple.security.app-sandbox</key> \
-    <false/> \
-    <key>com.apple.security.files.user-selected.read-write</key> \
-    <false/> \
+	    <key>com.apple.security.app-sandbox</key> \
+	    <false/> \
+	    <key>com.apple.security.files.user-selected.read-write</key> \
+	    <false/> \
 	</dict> \
 	</plist>' || true
 	[ -x /usr/bin/codesign ] && echo "  SIGN" && /usr/bin/codesign --force --sign - --entitlements $(ENTITLEMENTS) --timestamp=none --generate-entitlement-der "$(PKG)/$(NAME_EXT)"
 endif
 endif
+	# make binary "$(EXEC)" done
 
 build_sh: bundle
 	# SHSRCS: $(SHSRCS)
@@ -1520,6 +1527,8 @@ ifeq ($(INSTALL),true)
 	# PACKAGE: $(PACKAGE)
 	# DPKG: $(DPKG)
 	# SUDO_ASKPASS: $(SUDO_ASKPASS)
+	# DEBIAN_PACKAGE_NAME: $(DEBIAN_PACKAGE_NAME)
+	# VARIANT: $(VARIANT)
 	# this runs in outer Makefile, i.e. DEBIAN_ARCH and DEBIAN_PACKAGE_VERSION are not well defined!
 	$(QUIET)- 	for PKG in \
 			$(D)/$(SUITE)/$(DEBIAN_AREA)/binary-all/$(DEBIAN_PACKAGE_NAME)$(VARIANT)_$(DEBIAN_PACKAGE_VERSION)_all.deb \
