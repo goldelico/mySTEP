@@ -260,7 +260,10 @@ ifeq ($(shell uname -s),Darwin)
 DARWIN := darwin$(shell uname -r | cut -d . -f 1)
 # MACHTYPE is used to distiguish xtc cross toolchains
 MACHTYPE := $(shell uname -m)-apple-$(DARWIN)
-STRIP_MACHO := $(shell which strip)
+
+ifeq ($(CROSS_TOOLCHAIN),)
+CROSS_TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)
+endif
 
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 # native compile on Darwin for Darwin
@@ -273,7 +276,6 @@ OBJCXXFLAGS := -stdlib=libc++ -std=gnu++11 -x objective-c++
 LD := $(CC)
 AS := $(TOOLCHAIN)/as
 NM := $(TOOLCHAIN)/nm
-STRIP_ELF := /usr/bin/true undefined
 SO := dylib
 # define the subdirectory of executables, e.g. Contents/MacOS/executable
 T=MacOS
@@ -292,13 +294,12 @@ CXX := $(CC)
 LD := : disabled makephar
 AS := : disabled
 NM := : disabled
-STRIP_ELF := /usr/bin/true undefined
 SO := phar
 T=$(TRIPLE)
 PHAR := $(shell which phar)
 else
 # cross-compile on Darwin
-TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE)/$(DEBIAN_RELEASE_TRANSLATED)/$(DEBIAN_ARCH)/usr
+TOOLCHAIN := $(CROSS_TOOLCHAIN)/$(DEBIAN_ARCH)/usr
 
 CC := LANG=C $(TOOLCHAIN)/bin/$(TRIPLE)-gcc
 CXX := $(CC)
@@ -306,7 +307,6 @@ CXX := $(CC)
 LD := $(CC) -v -L$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(TRIPLE)/lib64
 AS := $(TOOLCHAIN)/bin/$(TRIPLE)-as
 NM := $(TOOLCHAIN)/bin/$(TRIPLE)-nm
-STRIP_ELF := $(TOOLCHAIN)/bin/$(TRIPLE)-strip
 SO := so
 T=$(TRIPLE)
 DEFINES += -D__mySTEP__
@@ -323,12 +323,9 @@ ROOT := root
 
 else	# not Darwin, but running this script on Linux
 
-STRIP_MACHO := /usr/bin/true undefined
-
 ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 CC := "can't cross-compile for Darwin on non-Darwin host"
 CXX := $(CC)
-STRIP_ELF := /usr/bin/true undefined
 else ifeq ($(TRIPLE),php)
 # besser: php -l & copy
 PHP := $(shell which php)
@@ -337,7 +334,6 @@ CC := : disabled $(PHP) -l + copy
 LD := : disabled makephar
 AS := : disabled
 NM := : disabled
-STRIP_ELF := /usr/bin/true undefined
 SO := phar
 PHAR := $(shell which phar)
 else
@@ -1384,9 +1380,13 @@ ifneq ($(findstring -apple,$(TRIPLE)),-apple)
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
 	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
-	# strip binaries
-	find "/tmp/$(TMP_DATA)" -name '*.dylib' -type f -perm +a+x -exec $(STRIP_MACHO) {} \;
-	find "/tmp/$(TMP_DATA)" -name '*.so' -type f -perm +a+x -exec $(STRIP_ELF) {} \;
+	$(QUIET)find "/tmp/$(TMP_DATA)" -name '*.dylib' -type f -perm +a+x -exec $(shell which strip) {} \;
+	# take the triple of the directory where the .so is found
+	$(QUIET)find "/tmp/$(TMP_DATA)" -name '*.so' -type f -perm +a+x | while read -r file; do \
+		dir=$$(dirname "$$file"); \
+		base=$$(basename "$$dir"); \
+		$(CROSS_TOOLCHAIN)/*/usr/bin/"$${base}-strip" "$$file"; \
+	done
 	# create Receipts file
 	$(QUIET)rm -rf "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts"
 	$(QUIET)mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_PACKAGE_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).txt
