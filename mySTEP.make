@@ -1670,10 +1670,10 @@ ifeq ($(findstring -apple,$(TRIPLE)),-apple)
 ifneq ($(strip $(SRCOBJECTS)),)	# empty SOURCES always results in a single space character
 # always use system frameworks and make nested frameworks "flat"
 	$(QUIET)mkdir -p $(TTT)
-	$(QUIET)- for fwk in $(shell find /System/Library/Frameworks -name '*.framework' | sed "s/\.framework//g" ); \
+	$(QUIET)- : this is broken find /System/Library/Frameworks -type d -name '*.framework' | while read fwk; \
 	  do \
-	      rm -f $(TTT)/$$(basename $$fwk); \
-		  ln -sf $$fwk/Versions/Current/Headers $(TTT)/$$(basename $$fwk) \
+	      echo rm -f $(TTT)/$$(basename $${fwk%.framework}); \
+		  echo ln -sf $${fwk}/Versions/Current/Headers $(TTT)/$$(basename $${fwk%.framework}) \
 	  ; done
 endif
 endif
