@@ -135,7 +135,8 @@ ifeq ($(INSTALL),)
 INSTALL := true
 endif
 
-HOST_INSTALL_PATH := $(shell realpath $(QuantumSTEP)/$(INSTALL_PATH) || echo $(QuantumSTEP)/$(INSTALL_PATH))
+REALPATH := /opt/local/bin/realpath
+HOST_INSTALL_PATH := $(shell $(REALPATH) $(QuantumSTEP)/$(INSTALL_PATH) || echo $(QuantumSTEP)/$(INSTALL_PATH))
 # prefix by $EMBEDDED_ROOT unless $INSTALL_PATH is starting with //
 ifneq ($(findstring //,$(INSTALL_PATH)),//)
 TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
@@ -165,6 +166,8 @@ TOOLCHAIN_FALLBACK := 10-Buster
 DEBIAN_RELEASE_FALLBACK := buster
 endif
 
+SORT_V := /opt/local/bin/gsort -V
+
 DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( etch ) echo "4-Etch";; \
 	( lenny ) echo "5-Lenny";; \
@@ -182,7 +185,7 @@ DEBIAN_RELEASE_TRANSLATED=${shell case "$(DEBIAN_RELEASE)" in \
 	( darwin23 ) echo "14-Sonoma";; \
 	( darwin24 ) echo "15-Sequoia";; \
 	( darwin26 ) echo "26-Tahoe";; \
-	( * ) ( cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE) && ls -1d [1-9]*-*/$(DEBIAN_ARCH)/usr/bin/$(TRIPLE)-gcc 2>/dev/null | cut -d / -f 1 | sort -V | tail -1);; \
+	( * ) ( cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(MACHTYPE) && ls -1d [1-9]*-*/$(DEBIAN_ARCH)/usr/bin/$(TRIPLE)-gcc 2>/dev/null | cut -d / -f 1 | $(SORT_V) | tail -1);; \
 	esac;}
 
 DEBIAN_RELEASE_FALLBACK := $(shell echo $(DEBIAN_RELEASE_TRANSLATED) | cut -d - -f 2 | tr [A-Z] [a-z])
