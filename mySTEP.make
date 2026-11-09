@@ -508,7 +508,7 @@ HEADERSRC := $(filter %.h %.pch,$(XSOURCES))
 DEBIAN_CONTROL := $(filter %.preinst %.postinst %.prerm %.postrm %.conffiles,$(XSOURCES))
 
 # all sources that are processed specially
-PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS) $(ENTITLEMENTS) $(ASSETS)
+PROCESSEDSRC := $(SRCOBJECTS) $(PHPSRCS) $(SHSRCS) $(INFOPLISTS) $(HEADERSRC) $(SUBPROJECTS) $(ENTITLEMENTS) $(ASSETS) $(DEBIAN_CONTROL)
 
 # all remaining selected (re)sources
 RESOURCES := $(filter-out $(PROCESSEDSRC),$(XSOURCES))
